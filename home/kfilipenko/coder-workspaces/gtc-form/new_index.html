@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GTC Unified Access</title>
+  <link rel="icon" href="/assets/logo.png" type="image/png">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0a0d1e;
+      font-family: "Segoe UI", sans-serif;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .form-container {
+      max-width: 420px;
+      width: 90%;
+      background: #111933;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 0 24px rgba(0, 102, 255, 0.3);
+      text-align: center;
+    }
+    .form-container img {
+      width: 80px;
+      margin-bottom: 1rem;
+    }
+    .form-container h2 {
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      text-align: left;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      margin-top: 0.3rem;
+      background: #2b2b2b;
+      color: #fff;
+    }
+    button {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background-color: #2962ff;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #0039cb;
+    }
+    .confirmation {
+      margin-top: 1.5rem;
+      font-weight: bold;
+      display: none;
+    }
+    .password-strength {
+      font-size: 0.85rem;
+      margin-top: 0.2rem;
+      text-align: left;
+    }
+    .success { color: #8bc34a; }
+    .info { color: #29b6f6; }
+    .error { color: #ff5252; }
+
+    .social-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 1rem;
+      justify-content: center;
+    }
+
+    .google-btn {
+      background-color: #ffffff;
+      color: #000;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .telegram-btn {
+      background-color: #0088cc;
+      color: #fff;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .google-btn img,
+    .telegram-btn img {
+      width: 16px;
+      height: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container" id="formWrapper">
+    <img src="/assets/logo.png" alt="GTC Logo" />
+    <h2>Welcome to GTC</h2>
+    <form id="accessForm" method="POST">
+      <label for="mode">Select action:</label>
+      <select name="mode" id="mode" required>
+        <option value="login" selected>Login</option>
+        <option value="register">Register</option>
+      </select>
+
+      <label for="email">Email address:</label>
+      <input type="email" name="email" id="email" required autocomplete="email" />
+
+      <div id="nameField" style="display:none;">
+        <label for="name">Name (for registration):</label>
+        <input type="text" name="name" id="name" autocomplete="name" />
+      </div>
+
+      <label for="password">Password:</label>
+      <input type="password" name="password" id="password" required autocomplete="new-password" />
+      <div class="password-strength" id="passwordStrength"></div>
+
+      <!-- Social login buttons -->
+      <div class="social-buttons">
+        <button type="button" class="google-btn">
+          <img src="/assets/google-icon.png" alt="Google Icon" class="icon" /> Continue with Google
+        </button>
+        <button type="button" class="telegram-btn">
+          <img src="/assets/telegram-icon.png" alt="Telegram Icon" class="icon" /> Continue with Telegram
+        </button>
+      </div>
+
+      <input type="hidden" name="executionMode" id="executionMode" value="login" />
+
+      <button type="submit">Continue</button>
+    </form>
+    <p class="confirmation" id="confirmation"></p>
+  </div>
+</body>
+</html>
