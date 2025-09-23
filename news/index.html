@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GTC • News</title>
+
+  <!-- favicons -->
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <style>
+    :root{--bg:#0a0d1e;--panel:#0f1730;--card:#131c3a;--muted:#1b274d;--fg:#fff;--accent:#5b8cff;--accent2:#2c68ff}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,Arial,sans-serif}
+    header{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--panel);position:sticky;top:0;z-index:5}
+  header img{width:28px;height:28px}
+  /* header logo — local asset sizing */
+  .logo{width:40px;height:40px;border-radius:8px;object-fit:cover;margin-right:4px}
+    header h1{font-size:1.05rem;margin:0}
+    header .controls{margin-left:auto;display:flex;gap:8px;align-items:center}
+    select,button{background:#1b274d;color:#fff;border:1px solid #22325f;border-radius:8px;padding:8px 10px}
+    button{cursor:pointer}
+    .grid{display:grid;grid-template-columns:320px 1fr;gap:14px;padding:14px}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
+    aside{background:var(--panel);border-radius:12px;overflow:hidden}
+    .list{max-height:calc(100vh - 120px);overflow:auto}
+    .item{border-bottom:1px solid #22325f;padding:12px 14px;cursor:pointer}
+    .item:hover{background:#13224b}
+    .item.active{background:#162a5d}
+    .item h3{margin:0 0 6px 0;font-size:.98rem;line-height:1.3}
+    .item time{opacity:.8;font-size:.85rem}
+    main{background:var(--card);border-radius:12px;padding:18px}
+    .title{margin:0 0 8px 0;font-size:1.4rem;line-height:1.25}
+    .meta{opacity:.85;margin-bottom:14px}
+    .article p{margin:0 0 12px 0;line-height:1.55}
+    .cta{margin-top:16px;display:flex;flex-wrap:wrap;gap:10px}
+    .btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:#fff;text-decoration:none}
+    .btn:hover{background:var(--accent2)}
+    .toolbar{display:flex;gap:8px;margin-top:8px}
+    .muted{opacity:.8}
+    .empty{padding:18px}
+    .loader{padding:18px}
+    a.clean{display:none}
+  /* make left list items use site foreground color (white) and remove link underline */
+  .item .item-link{color:var(--fg);text-decoration:none;display:block}
+  .item .item-link h3,.item .item-link time{color:var(--fg)}
+  
+      /* Mobile detail view: hide list when a news is selected */
+      @media (max-width:980px){
+        body.detail aside{display:none}
+        body.detail .grid{grid-template-columns:1fr}
+      }
+    </style>
+</head>
+<body>
+  <header>
+  <picture>
+    <source srcset="/apple-touch-icon.v1.webp" type="image/webp">
+    <img src="/apple-touch-icon.v1.png" alt="logo" class="logo">
+  </picture>
+    <h1>GTC • News</h1>
+
+    <div class="controls">
+      <label for="sort" class="muted">Sorting:</label>
+      <select id="sort">
+        <option value="published" selected>by publication date (newest on top)</option>
+        <option value="created">by creation date (newest on top)</option>
+      </select>
+      <button id="refresh">Refresh</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <aside>
+      <div id="list" class="list"></div>
+    </aside>
+
+    <main>
+      <h2 id="title" class="title">Loading…</h2>
+      <div id="meta" class="meta muted"></div>
+      <article id="article" class="article loader">Please wait</article>
+
+      <div id="cta" class="cta"></div>
+      <div class="toolbar">
+        <a id="openSource" class="btn" href="#" target="_blank" rel="noopener">Open source</a>
+        <a id="backToList" class="btn" href="/news/">To the list</a>
+        <a id="home" class="btn" href="/news/">Home</a>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const API = '/api';
+    const qs = s => document.querySelector(s);
+    const listEl = qs('#list');
+    const titleEl = qs('#title');
+    const metaEl = qs('#meta');
+    const artEl = qs('#article');
+    const ctaEl = qs('#cta');
+    const openSource = qs('#openSource');
+    const sortEl = qs('#sort');
+    const refreshBtn = qs('#refresh');
+
+    const fmtDate = iso => { try { return new Date(iso).toLocaleString(); } catch { return iso || '' } };
+
+    // ---- helpers ----
+    function escapeHtml(s){
+      return String(s||'').replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+    function toHtmlParagraphs(text){
+      return escapeHtml(text).split(/\n{2,}/).map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+    }
+    async function fetchJson(url){
+        const ctrl = new AbortController();
+        const t = setTimeout(()=>ctrl.abort(), 12000);
+        try{
+          const r = await fetch(url, {
+            cache: 'no-store',
+            headers: { 'Accept': 'application/json' },
+            signal: ctrl.signal
+          });
+          if(!r.ok){ throw new Error(`HTTP ${r.status}`); }
+          return await r.json();
+        } finally {
+          clearTimeout(t);
+        }
+      }
+
+    // ---- queries ----
+    function listQuery(sort, limit=24){
+      const base = `${API}/v_news_web?select=news_id,title,published_at,created_at_web`;
+      if (sort === 'published') {
+        return `${base}&order=published_at.desc.nullslast,created_at_web.desc&limit=${limit}`;
+      }
+      return `${base}&order=created_at_web.desc&limit=${limit}`;
+    }
+    function detailFields(){
+      return [
+        'news_id','title','url','published_at','created_at_web',
+        'article_web','cta_buttons','seo_title','promo_url'
+      ].join(',');
+    }
+    function detailQuery(id){
+      return `${API}/v_news_web?news_id=eq.${encodeURIComponent(id)}&select=${detailFields()}&limit=1`;
+    }
+    function latestQuery(sort){
+      const base = `${API}/v_news_web?select=${detailFields()}&limit=1`;
+      return sort === 'published'
+        ? `${base}&order=published_at.desc.nullslast,created_at_web.desc`
+        : `${base}&order=created_at_web.desc`;
+    }
+
+    // ---- data loaders ----
+    async function fetchList(sort){ return await fetchJson(listQuery(sort)); }
+    async function fetchOne(id){ const arr = await fetchJson(detailQuery(id)); return Array.isArray(arr) && arr[0] || null; }
+    async function fetchLatest(sort){ const arr = await fetchJson(latestQuery(sort)); return Array.isArray(arr) && arr[0] || null; }
+
+    // ---- render ----
+    function renderList(items, activeId){
+      listEl.innerHTML = '';
+      if(!Array.isArray(items) || items.length===0){
+        listEl.innerHTML = '<div class="empty">No news yet.</div>'; return;
+      }
+      for(const it of items){
+        const div = document.createElement('div');
+        div.className = 'item' + (it.news_id===activeId ? ' active': '');
+        div.dataset.id = it.news_id;
+        const d = it.published_at || it.created_at_web;
+        div.innerHTML = `<a class="item-link" href="/news/?news_id=${encodeURIComponent(it.news_id)}"><h3>${escapeHtml(it.title||'(без заголовка)')}</h3><time datetime="${it.published_at||''}">${fmtDate(d)}</time></a>`;
+          const link = div.querySelector('.item-link');
+          link.addEventListener('click', (ev)=>{
+            // allow modifier keys and non-primary buttons to behave normally
+            if (ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+            // on narrow screens prefer native navigation (rely on href) for better touch behaviour
+            if (window.innerWidth <= 980) {
+              // do not preventDefault so browser performs normal navigation
+              return;
+            }
+            ev.preventDefault();
+            const url = new URL(location.href);
+            url.searchParams.set('news_id', it.news_id);
+            history.pushState({}, '', url.toString());
+            loadDetail(it.news_id);
+            highlightActive(it.news_id);
+            setDetailMode(it.news_id);
+          });
+          listEl.appendChild(div);
+      }
+    }
+      function setDetailMode(id){
+        const on = !!id;
+        document.body.classList.toggle('detail', on);
+        if(on){ try{ window.scrollTo({top:0}); }catch(e){ window.scrollTo(0,0); } }
+      }
+    function renderArticle(item){
+      titleEl.textContent = item.title || '(без названия)';
+      metaEl.textContent = [
+        item.seo_title,
+        fmtDate(item.published_at || item.created_at_web)
+      ].filter(Boolean).join(' • ');
+      artEl.classList.remove('loader');
+      artEl.innerHTML = toHtmlParagraphs(item.article_web || 'Нет текста статьи.');
+
+      // CTA
+      ctaEl.innerHTML = '';
+      const buttons = Array.isArray(item.cta_buttons) ? item.cta_buttons : [];
+      for(const b of buttons){
+        if(b?.action === 'open_url' && b?.url){
+          const a = document.createElement('a');
+          a.className = 'btn';
+          // force 'News & Deep Dives' to point to main site
+          if((b.text||'').trim() === 'News & Deep Dives'){
+            a.href = 'https://www.gtstor.com/';
+          } else {
+            a.href = b.url;
+          }
+          a.target = '_blank'; a.rel = 'noopener';
+          a.textContent = b.text || 'Открыть';
+          ctaEl.appendChild(a);
+        }
+        if(b?.action === 'launch_agent'){
+          const a = document.createElement('a');
+          a.className = 'btn';
+          a.href = 'https://t.me/Procurement_AnalystBot?start=gtc_consumer';
+          a.target = '_blank'; a.rel = 'noopener';
+          a.textContent = b.text || 'Ask an AI Consultant';
+          ctaEl.appendChild(a);
+        }
+      }
+
+      openSource.href = item.url || '#';
+      openSource.classList.toggle('clean', !item.url);
+    }
+
+    // ---- page orchestration ----
+    async function loadDetail(id){
+      artEl.innerHTML = 'Загрузка…';
+      artEl.classList.add('loader');
+      try {
+        const sort = sortEl.value;
+        const item = id ? await fetchOne(id) : await fetchLatest(sort);
+        if(!item){
+          artEl.classList.remove('loader');
+          artEl.innerHTML = '<div class="empty">No material found.</div>';
+          return;
+        }
+        renderArticle(item);
+      } catch (err) {
+        console.error('[loadDetail]', err);
+        artEl.classList.remove('loader');
+        artEl.innerHTML = '<div class="empty">Failed to load news.</div>';
+      }
+      }
+    async function loadList(){
+      const sort = sortEl.value;
+      const list = await fetchList(sort);
+      const params = new URLSearchParams(location.search);
+      const wanted = params.get('news_id');
+      renderList(list, wanted);
+        setDetailMode(wanted);
+        if(!wanted) await loadDetail(null);
+    }
+
+    async function boot(){
+      await loadList();
+      const params = new URLSearchParams(location.search);
+      const id = params.get('news_id');
+      setDetailMode(id);
+        if(id) await loadDetail(id);
+    }
+
+    window.addEventListener('popstate', () => {
+      const params = new URLSearchParams(location.search);
+      const id = params.get('news_id');
+        setDetailMode(id);
+    });
+    sortEl.addEventListener('change', loadList);
+    refreshBtn.addEventListener('click', loadList);
+
+    boot().catch(err=>{
+      console.error(err);
+      artEl.classList.remove('loader');
+      artEl.innerHTML = '<div class="empty">Failed to load news.</div>';
+    });
+  </script>
+</body>
+</html>
