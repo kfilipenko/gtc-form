@@ -1,0 +1,5 @@
+{
+  "googleFallbackEnabled": false,
+  "diagnosticsEnabled": false,
+  "appEnv": "production"
+}

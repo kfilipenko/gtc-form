@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Reset password — GTC</title>
+  <style>
+    body{margin:0;font-family:system-ui,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#fff;color:#111;display:grid;place-items:center;min-height:100vh}
+    .wrap{width:min(520px,92vw);padding:28px 22px;border-radius:14px;border:1px solid #eee;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+    h1{font-size:1.5rem;margin:.2rem 0 1rem;text-align:center}
+    label{display:block;margin-top:10px}
+    input,button{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #ddd}
+    button{background:#111;color:#fff;font-weight:600;margin-top:12px;cursor:pointer}
+    .msg{margin-top:10px;font-size:.95rem}
+    .links{text-align:center;margin-top:12px}
+    .links a{color:#2962ff;text-decoration:none}
+    .muted{color:#6b7280;font-size:.9rem;margin-top:6px}
+    .controls{display:flex;gap:8px;align-items:center;margin-top:6px}
+    .btn-inline{width:auto;margin-top:0}
+    .btn-icon{width:48px;min-width:48px;height:44px;padding:0;display:grid;place-items:center;margin-top:0}
+    .btn-icon svg{width:22px;height:22px;fill:#fff}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Set new password</h1>
+    <form id="form" method="post" action="/auth/reset_password_form" autocomplete="on">
+      <div class="controls">
+        <button id="gen" type="button" class="btn-inline" title="Generate">Generate</button>
+        <button id="toggle" type="button" class="btn-icon" aria-label="Show password" title="Show/Hide password">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5c-7 0-11 7-11 7s4 7 11 7 11-7 11-7-4-7-11-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+      </div>
+      <label>New password</label>
+      <input id="p1" name="new_password" type="password" autocomplete="new-password" placeholder="8+ chars, uppercase" required />
+      <div id="hint" class="muted">Use 8+ chars with at least one uppercase letter.</div>
+      <label>Confirm password</label>
+      <input id="p2" name="confirm_password" type="password" autocomplete="new-password" placeholder="Repeat password" required />
+      <input type="hidden" id="token" name="token" value="" />
+      <input type="hidden" id="next" name="next" value="" />
+      <button id="btn" type="submit">Set new password</button>
+      <div id="msg" class="msg"></div>
+    </form>
+  </main>
+  <script>
+  const params = new URLSearchParams(location.search);
+  const token = params.get('token');
+  const nextParam = params.get('next') || '';
+  const p1 = document.getElementById('p1');
+    const p2 = document.getElementById('p2');
+  const btn = document.getElementById('btn');
+  const form = document.getElementById('form');
+  document.getElementById('token').value = token || '';
+  document.getElementById('next').value = nextParam;
+  const gen = document.getElementById('gen');
+  const toggle = document.getElementById('toggle');
+    const msg = document.getElementById('msg');
+    const hint = document.getElementById('hint');
+    const go = document.getElementById('go');
+  const policy = /^(?=.*[A-Z]).{8,}$/;
+
+  p1.addEventListener('input',()=>{ hint.textContent = policy.test(p1.value) ? 'Password strength: Good' : 'Use 8+ chars with at least one uppercase letter.'; });
+
+    let sending = false;
+    form.addEventListener('submit', (e)=>{
+      if (sending) { e.preventDefault(); return; }
+      msg.textContent = '';
+      if(!token){ e.preventDefault(); msg.textContent='Invalid or expired link.'; return; }
+      if(!policy.test(p1.value)){ e.preventDefault(); msg.textContent='Password is too weak.'; return; }
+      if(p1.value!==p2.value){ e.preventDefault(); msg.textContent='Passwords do not match.'; return; }
+      sending = true; btn.disabled = true; btn.textContent = 'Saving…';
+      // allow browser to submit the form and follow 303 redirect to Sign in
+    });
+
+    // Generator: strong random password that satisfies policy
+    function genPassword(){
+      const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+      const lower = 'abcdefghijkmnopqrstuvwxyz';
+      const digits = '23456789';
+      const special = '!@#$%^&*()-_=+[]{}';
+      function pick(s,n){ let o=''; for(let i=0;i<n;i++){ o+= s[Math.floor(Math.random()*s.length)]; } return o; }
+      let pwd = pick(upper,2) + pick(lower,6) + pick(digits,2) + pick(special,2);
+      // shuffle
+      pwd = pwd.split('').sort(()=>Math.random()-0.5).join('');
+      return pwd;
+    }
+    gen.addEventListener('click', ()=>{
+      const p = genPassword();
+      p1.value = p;
+      p2.value = p;
+      hint.textContent = 'Password strength: Good';
+      try { p1.focus(); p1.select(); } catch {}
+    });
+    function setEye(open){
+      toggle.setAttribute('aria-pressed', String(open));
+      toggle.innerHTML = open
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5c-7 0-11 7-11 7s4 7 11 7 11-7 11-7-4-7-11-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"></path><circle cx="12" cy="12" r="3"></circle></svg>'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3.27 3.28 2 22 20.72 20.73 22l-2.36-2.36C16.7 20.32 14.45 21 12 21 5 21 1 14 1 14s1.3-2.19 3.63-4.21L2 7.27 3.27 6l3.05 3.05C8.44 8.39 10.14 8 12 8c7 0 11 7 11 7s-.67 1.2-1.9 2.64L18.73 15c.17-.31.27-.65.27-1 0-2.76-2.24-5-5-5-.35 0-.69.1-1 .27L9.27 7.54 7.86 6.14 2 3.27z"></path></svg>';
+    }
+    setEye(false);
+    toggle.addEventListener('click', ()=>{
+      const willShow = p1.type === 'password';
+      const t = willShow ? 'text' : 'password';
+      p1.type = t; p2.type = t; setEye(willShow);
+    });
+  </script>
+</body>
+</html>

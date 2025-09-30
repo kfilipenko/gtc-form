@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вход через Google — настройка</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, "Apple Color Emoji", "Segoe UI Emoji"; padding: 32px; line-height: 1.5; }
+    .card { max-width: 640px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
+    h1 { font-size: 20px; margin: 0 0 12px; }
+    .muted { color: #6b7280; font-size: 14px; }
+    button.google { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 8px; border: 1px solid #dadce0; background: #fff; cursor: pointer; font-weight: 600; }
+    button.google:hover { box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .row { margin-top: 16px; }
+    code { background: #f3f4f6; padding: 2px 6px; border-radius: 6px; }
+    .kv { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; color: #374151; }
+    .kv div { margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Вход через Google</h1>
+  <p class="muted">Войдите через кнопку ниже (Google Identity Services). В продакшене используется только этот способ.</p>
+
+    <!-- Вставьте реальный Google OAuth Client ID вместо плейсхолдера ниже -->
+    <script>
+  const GOOGLE_CLIENT_ID = '295337863113-sjl11e4rfttsqgaubfhl9ketv5nv20jc.apps.googleusercontent.com';
+
+      // Выбор подходящего redirect_uri на основе домена (боевой / локальный)
+      const ORIGIN = window.location.origin;
+  const REDIRECT_BASE = (ORIGIN === 'http://localhost:3000') ? 'http://localhost:3000' : 'https://app.gtstor.com';
+  const REDIRECT_URI = `${REDIRECT_BASE}/auth/google/callback`;
+
+      // Простой генератор base64url
+      function b64url(bytes) {
+        return btoa(String.fromCharCode(...bytes))
+          .replace(/\+/g, '-')
+          .replace(/\//g, '_')
+          .replace(/=+$/, '');
+      }
+
+      // Сгенерируем state для защиты от CSRF (опционально — backend может сверять)
+      function makeState() {
+        const rnd = new Uint8Array(16);
+        crypto.getRandomValues(rnd);
+        const state = b64url(rnd);
+        sessionStorage.setItem('google_oauth_state', state);
+        return state;
+      }
+
+      function buildAuthUrl() {
+        const state = makeState();
+        const params = new URLSearchParams({
+          client_id: GOOGLE_CLIENT_ID,
+          redirect_uri: REDIRECT_URI,
+          response_type: 'code',
+          scope: 'openid email profile',
+          access_type: 'online',
+          include_granted_scopes: 'true',
+          prompt: 'select_account',
+          state
+        });
+        return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+      }
+
+      function continueWithGoogle() {
+        const url = buildAuthUrl();
+        window.location.href = url;
+      }
+    </script>
+
+    <!-- GIS button -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <div id="g_id_onload"
+         data-client_id="295337863113-sjl11e4rfttsqgaubfhl9ketv5nv20jc.apps.googleusercontent.com"
+         data-callback="onGoogleCredential"
+         data-auto_prompt="false"></div>
+    <div class="row">
+      <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="continue_with" data-shape="rectangular" data-logo_alignment="left"></div>
+    </div>
+    <script>
+      async function onGoogleCredential(resp) {
+        try {
+          const credential = resp && resp.credential;
+          if (!credential) return;
+          const r = await fetch('/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ google_credential: credential }) });
+          const j = await r.json();
+          if (j && !j.error) {
+            try{
+              if (j.email) localStorage.setItem('email', j.email);
+              if (j.gtc_user_id) localStorage.setItem('gtc_user_id', String(j.gtc_user_id));
+              if (j.id) localStorage.setItem('id', String(j.id));
+              localStorage.setItem('email_verified', 'true');
+            }catch(e){}
+            const params = new URLSearchParams(location.search);
+            const rawNext = params.get('next');
+            const hasNext = !!rawNext;
+            function safeNext(n){
+              if (!n) return '/chat';
+              try{ const u = new URL(n, location.origin); if (u.origin !== location.origin) return '/chat'; return u.pathname + (u.search||'') + (u.hash||''); }catch{ return '/chat'; }
+            }
+            const nextUrl = safeNext(rawNext);
+            if (!hasNext && j?.gtc_user_id){
+              const gid = String(j.gtc_user_id);
+              window.location.href = `https://pay.gtstor.com/payment.php?user_id=${encodeURIComponent(gid)}`;
+            } else {
+              window.location.href = nextUrl;
+            }
+          } else {
+            alert('Google sign-in error: ' + (j?.error || 'unknown'));
+          }
+        } catch (e) {
+          alert('Google sign-in failed: ' + e.message);
+        }
+      }
+      window.onGoogleCredential = onGoogleCredential;
+    </script>
+
+    <!-- Fallback OAuth (dev only, can be enabled via server flags) -->
+    <div class="row devonly fallback" style="display:none">
+      <button class="google" onclick="continueWithGoogle()" aria-label="Continue with Google (fallback)">
+        <img alt="Google" width="18" height="18" src="https://www.gstatic.com/images/branding/product/1x/gsa_64dp.png"/>
+        Continue with Google (fallback)
+      </button>
+    </div>
+
+    <div class="row kv devonly" style="display:none">
+      <div>client_id: <code id="cid"></code></div>
+      <div>redirect_uri: <code id="ruri"></code></div>
+      <div>origin: <code id="org"></code></div>
+    </div>
+
+    <script>
+      // Флаги с сервера + безопасный dev-режим с локальным override
+      (async function initFlags(){
+        const qs = new URLSearchParams(location.search);
+        const isLocal = (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+        let flags = null;
+        try {
+          const ctl = new AbortController();
+          const timer = setTimeout(()=>ctl.abort(), 1500);
+          const resp = await fetch('/auth/flags', { signal: ctl.signal, cache: 'no-store' });
+          clearTimeout(timer);
+          if (resp.ok) {
+            flags = await resp.json();
+          } else {
+            // fallback на статический файл, если серверный эндпоинт недоступен или вернул ошибку
+            try {
+              const r2 = await fetch('/auth/flags.json', { cache: 'no-store' });
+              if (r2.ok) flags = await r2.json();
+            } catch(_) {}
+          }
+        } catch(_) {
+          try {
+            const r2 = await fetch('/auth/flags.json', { cache: 'no-store' });
+            if (r2.ok) flags = await r2.json();
+          } catch(_) {}
+        }
+
+        const devOverride = qs.has('dev');
+        const DEV = devOverride || isLocal || (flags && flags.diagnosticsEnabled === true);
+        window.__GTC_DEV = DEV;
+
+        // Показ диагностики (devonly)
+        if (DEV) {
+          document.querySelectorAll('.devonly').forEach(el=>{ el.style.display = ''; });
+          const cid = document.getElementById('cid');
+          const ruri = document.getElementById('ruri');
+          const org = document.getElementById('org');
+          if (cid) cid.textContent = GOOGLE_CLIENT_ID || '(не задан)';
+          if (ruri) ruri.textContent = (typeof REDIRECT_URI !== 'undefined') ? REDIRECT_URI : '(n/a)';
+          if (org) org.textContent = ORIGIN;
+        }
+
+        // Управление доступностью fallback отдельно от диагностики
+        const fallbackEnabled = (flags && flags.googleFallbackEnabled === true) || DEV;
+        document.querySelectorAll('.devonly.fallback').forEach(el => {
+          el.style.display = fallbackEnabled ? '' : 'none';
+        });
+      })();
+    </script>
+
+    <!-- Diagnostics (dev only) -->
+    <div class="row devonly" style="display:none">
+      <details>
+        <summary>Диагностика: показать OAuth URL</summary>
+        <div style="margin-top:8px">
+          <div class="kv">Полный URL авторизации (скопируйте для проверки параметров):</div>
+          <pre id="authurl" style="white-space:break-spaces; overflow:auto; background:#f9fafb; padding:8px; border-radius:8px; border:1px solid #e5e7eb"></pre>
+          <div style="margin-top:8px">
+            <button onclick="navigator.clipboard.writeText(document.getElementById('authurl').textContent)">Скопировать</button>
+            <a id="authlink" target="_blank" rel="noopener noreferrer">Открыть в новой вкладке</a>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <script>
+      // Отобразим построенный URL для наглядности (только в DEV)
+      (function(){
+        const DEV = !!window.__GTC_DEV;
+        if (!DEV) return;
+        try {
+          const url = buildAuthUrl();
+          const pre = document.getElementById('authurl');
+          const a = document.getElementById('authlink');
+          if (pre) pre.textContent = url;
+          if (a) a.href = url;
+        } catch (e) {
+          const pre = document.getElementById('authurl');
+          if (pre) pre.textContent = 'Ошибка формирования URL: ' + e;
+        }
+      })();
+    </script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>GTC Email Sign-in</title>
+  <style>
+    body{margin:0;font-family:system-ui,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#fff;color:#111;display:grid;place-items:center;min-height:100vh}
+    .wrap{width:min(520px,92vw);padding:28px 22px;border-radius:14px;border:1px solid #eee;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+    h1{font-size:1.5rem;margin:.2rem 0 1rem;text-align:center}
+    label{display:block;margin-top:10px}
+    input,button{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #ddd}
+    button{background:#111;color:#fff;font-weight:600;margin-top:12px;cursor:pointer}
+    .msg{margin-top:10px;font-size:.95rem}
+    .links{text-align:center;margin-top:12px}
+    .links a{color:#2962ff;text-decoration:none}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Email sign-in</h1>
+
+    <!-- Step 1: enter email -->
+    <section id="stepEmail">
+      <label>Email</label>
+      <input id="email" type="email" placeholder="you@example.com" required />
+      <button id="btnEmail">Continue</button>
+    </section>
+
+    <!-- Step 2a: login -->
+    <section id="stepLogin" hidden>
+      <div class="msg" id="loginHint"></div>
+      <label>Password</label>
+      <input id="loginPassword" type="password" placeholder="••••••••" required />
+      <button id="btnLogin">Sign in</button>
+      <div class="links">
+        <a href="#" id="backToEmail1">Use another email</a>
+        &nbsp;·&nbsp;
+        <a href="/auth/password/forgot/">Forgot password?</a>
+      </div>
+    </section>
+
+    <!-- Step 2b: register -->
+    <section id="stepRegister" hidden>
+      <div class="msg">Create a password for <span id="regEmail"></span></div>
+      <label>Password</label>
+      <div style="display:flex; gap:8px; align-items:center">
+        <input id="regPassword" name="new-password" type="password" autocomplete="new-password" placeholder="At least 8 characters, 1 uppercase" required style="flex:1" />
+        <button id="regGen" type="button" title="Generate">Generate</button>
+        <button id="regToggle" type="button" title="Show/Hide">Show</button>
+      </div>
+      <ul id="pwHints" style="margin:8px 0 0 18px; padding:0; list-style:disc; color:#6b7280; font-size:.9rem">
+        <li data-k="len">At least 8 characters</li>
+        <li data-k="uc">Contains uppercase letter (A-Z)</li>
+      </ul>
+      <button id="btnRegister">Create account</button>
+      <div class="links"><a href="#" id="backToEmail2">Use another email</a></div>
+    </section>
+
+
+    <div class="msg" id="msg"></div>
+    <div class="links"><a href="/auth/">Back to Auth</a></div>
+  </main>
+  <script>
+    const $ = (s)=>document.querySelector(s);
+    const urlParams = new URLSearchParams(location.search);
+    function safeNext(n){
+      if (!n) return '/chat';
+      try {
+        const u = new URL(n, location.origin);
+        // Разрешаем только переходы в пределах текущего домена
+        if (u.origin !== location.origin) return '/chat';
+        return u.pathname + (u.search||'') + (u.hash||'');
+      } catch { return '/chat'; }
+    }
+  const nextUrl = safeNext(urlParams.get('next'));
+  const hasNext = !!urlParams.get('next');
+  const show = (id)=>{ ['#stepEmail','#stepLogin','#stepRegister'].forEach(sel => $(sel).hidden = (sel !== id)); };
+    const api = async (p, body)=>{
+      const r = await fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const j = await r.json().catch(()=>({ error: 'bad_json' }));
+      j._status = r.status; return j;
+    }
+
+    let currentEmail = '';
+    const msg = $('#msg');
+
+    function storeAndRedirect(u){
+      try{
+        if (u?.email) localStorage.setItem('email', u.email);
+        if (u?.gtc_user_id) localStorage.setItem('gtc_user_id', String(u.gtc_user_id));
+        if (u?.id) localStorage.setItem('id', String(u.id));
+        if (typeof u?.email_verified !== 'undefined') localStorage.setItem('email_verified', String(!!u.email_verified));
+      }catch(e){}
+      window.location.href = nextUrl;
+    }
+
+    // Step 1: Email check
+    $('#btnEmail').addEventListener('click', async ()=>{
+      msg.textContent = '';
+      currentEmail = $('#email').value.trim().toLowerCase();
+      if (!currentEmail){ msg.textContent = 'Please enter email'; return; }
+      const chk = await api('/auth/check_email', { email: currentEmail });
+      if (chk?.error){ msg.textContent = 'Error: ' + chk.error; return; }
+      if (chk.exists){
+        $('#loginHint').textContent = 'Enter password for ' + currentEmail;
+        show('#stepLogin');
+        $('#loginPassword').focus();
+      } else {
+        $('#regEmail').textContent = currentEmail;
+        show('#stepRegister');
+        $('#regPassword').focus();
+      }
+    });
+
+    $('#backToEmail1').addEventListener('click', (e)=>{ e.preventDefault(); show('#stepEmail'); });
+    $('#backToEmail2').addEventListener('click', (e)=>{ e.preventDefault(); show('#stepEmail'); });
+
+    // Step 2a: Login
+    const btnLogin = $('#btnLogin');
+    let loginSending = false;
+    btnLogin.addEventListener('click', async ()=>{
+      msg.textContent='';
+      if (loginSending) return;
+      const password = $('#loginPassword').value;
+      if (!password){ msg.textContent = 'Enter password'; return; }
+      loginSending = true; btnLogin.disabled = true; const oldTxt = btnLogin.textContent; btnLogin.textContent = 'Signing in…';
+      const resp = await api('/auth/login', { email: currentEmail, password });
+      if (!resp || resp.error){
+        if (resp?._status === 403 && resp.error === 'email_not_verified'){
+          // Сохраним email и отправим на страницу верификации
+          try {
+            if (currentEmail) localStorage.setItem('email', currentEmail);
+            localStorage.setItem('email_verified', 'false');
+          } catch(e){}
+          const qs = hasNext ? `?next=${encodeURIComponent(nextUrl)}` : '';
+          window.location.href = `/verify/${qs}`;
+        } else if (resp?._status === 409 && resp.error === 'password_not_set') {
+          // Аккаунт существует, но пароль ещё не установлен — предложим создать
+          $('#regEmail').textContent = currentEmail;
+          $('#regPassword').value = password; // подставим введённый
+          show('#stepRegister');
+        } else if (resp?._status === 401) {
+          msg.textContent = 'Invalid credentials';
+        } else {
+          msg.textContent = 'Error: ' + (resp?.error || 'unknown');
+        }
+        btnLogin.textContent = oldTxt; // оставим disabled=true, чтобы не было дублей
+        return;
+      }
+      // Если указан next в URL — уважаем его, иначе ведём на оплату с gtc_user_id
+      try{
+        if (!hasNext && resp?.gtc_user_id){
+          const gid = String(resp.gtc_user_id);
+          window.location.href = `https://pay.gtstor.com/payment.php?user_id=${encodeURIComponent(gid)}`;
+          return;
+        }
+      } catch {}
+      storeAndRedirect(resp);
+    });
+
+    // Step 2b: Register
+    let regSending = false;
+    $('#btnRegister').addEventListener('click', async ()=>{
+      msg.textContent='';
+      if (regSending) return;
+      const password = $('#regPassword').value;
+      if (!password){ msg.textContent = 'Password is required'; return; }
+      // Client-side policy mirror: min8, uppercase
+      const okLen = password.length >= 8;
+      const okUc = /[A-Z]/.test(password);
+      if (!(okLen && okUc)){
+        msg.textContent = 'Password must have min 8 chars and uppercase';
+        return;
+      }
+      regSending = true; const btnR = $('#btnRegister'); btnR.disabled = true; const old = btnR.textContent; btnR.textContent = 'Creating…';
+      const resp = await api('/auth/register', { email: currentEmail, password });
+      if (!resp || resp.error){
+        if (resp?._status === 409 && resp.error === 'email_exists'){
+          // Race: email was created meanwhile → go to login
+          $('#loginHint').textContent = 'Enter password for ' + currentEmail;
+          show('#stepLogin');
+          return;
+        }
+        msg.textContent = 'Error: ' + (resp?.error || 'unknown');
+        btnR.textContent = old; // оставляем disabled=true, чтобы не было повторов
+        return;
+      }
+  // Зарегистрирован → сохраним email и направим на страницу подтверждения
+      try {
+        if (currentEmail) localStorage.setItem('email', currentEmail);
+        localStorage.setItem('email_verified', 'false');
+      } catch(e){}
+  const qs = hasNext ? `?next=${encodeURIComponent(nextUrl)}` : '';
+  window.location.href = `/verify/${qs}`;
+    });
+
+    // Live hints for password policy
+    (function(){
+      const input = document.getElementById('regPassword');
+      const list = document.getElementById('pwHints');
+      const items = {
+        len: list.querySelector('li[data-k="len"]'),
+        uc: list.querySelector('li[data-k="uc"]'),
+      };
+      function apply(ok, el){
+        el.style.color = ok ? '#059669' : '#6b7280'; // green or gray
+      }
+      input.addEventListener('input', ()=>{
+        const v = input.value || '';
+        apply(v.length >= 8, items.len);
+        apply(/[A-Z]/.test(v), items.uc);
+      });
+      function genPassword(){
+        const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+        const lower = 'abcdefghijkmnopqrstuvwxyz';
+        const digits = '23456789';
+        const special = '!@#$%^&*()-_=+[]{}';
+        function pick(s,n){ let o=''; for(let i=0;i<n;i++){ o+= s[Math.floor(Math.random()*s.length)]; } return o; }
+        let pwd = pick(upper,2) + pick(lower,6) + pick(digits,2) + pick(special,2);
+        return pwd.split('').sort(()=>Math.random()-0.5).join('');
+      }
+      document.getElementById('regGen').addEventListener('click', ()=>{
+        const p = genPassword();
+        input.value = p;
+        input.dispatchEvent(new Event('input'));
+        try { input.focus(); input.select(); } catch {}
+      });
+      document.getElementById('regToggle').addEventListener('click', ()=>{
+        input.type = input.type === 'password' ? 'text' : 'password';
+        document.getElementById('regToggle').textContent = input.type === 'password' ? 'Show' : 'Hide';
+      });
+    })();
+
+    // Removed queued verification UI and resend logic
+  </script>
+</body>
+</html>

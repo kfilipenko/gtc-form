@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Forgot password — GTC</title>
+  <style>
+    body{margin:0;font-family:system-ui,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#fff;color:#111;display:grid;place-items:center;min-height:100vh}
+    .wrap{width:min(520px,92vw);padding:28px 22px;border-radius:14px;border:1px solid #eee;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+    h1{font-size:1.5rem;margin:.2rem 0 1rem;text-align:center}
+    label{display:block;margin-top:10px}
+    input,button{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #ddd}
+    button{background:#111;color:#fff;font-weight:600;margin-top:12px;cursor:pointer}
+    .msg{margin-top:10px;font-size:.95rem}
+    .links{text-align:center;margin-top:12px}
+    .links a{color:#2962ff;text-decoration:none}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Forgot password</h1>
+    <form id="form" autocomplete="on">
+      <label>Email</label>
+      <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+      <button id="btn" type="submit">Send reset link</button>
+    </form>
+    <div id="msg" class="msg"></div>
+    <div class="links"><a href="/auth/email/">Back to Sign in</a></div>
+  </main>
+  <script>
+    const email = document.getElementById('email');
+    const btn = document.getElementById('btn');
+    const form = document.getElementById('form');
+    const msg = document.getElementById('msg');
+    let sending = false;
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      if (sending) return;
+      sending = true;
+      btn.disabled = true; const old = btn.textContent; btn.textContent = 'Sending…';
+      msg.textContent='';
+      const v=(email.value||'').trim().toLowerCase();
+      if(!v){ msg.textContent='Please enter your email'; btn.disabled=false; btn.textContent=old; sending=false; return; }
+      try {
+        await fetch('/auth/request_password_reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:v})});
+        msg.textContent='If this email exists, a reset link has been sent.';
+      } finally {
+        // Оставим кнопку отключенной, чтобы не было повторов
+        btn.textContent = old;
+      }
+    });
+  </script>
+</body>
+</html>
