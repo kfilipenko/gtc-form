@@ -9,7 +9,9 @@
  * Escapes special characters for Telegram MarkdownV2 format
  * 
  * In Telegram's MarkdownV2, the following characters must be escaped with a backslash:
- * _ * [ ] ( ) ~ ` > # + - = | { } . !
+ * \ _ * [ ] ( ) ~ ` > # + - = | { } . !
+ * 
+ * Note: Backslash must be escaped first to avoid double-escaping
  * 
  * @param {string} text - The text to escape
  * @returns {string} - The escaped text safe for Telegram MarkdownV2
@@ -19,9 +21,11 @@ function escapeMarkdownV2(text) {
     return String(text || '');
   }
   
-  // Use regex replace for better performance
-  // Escape all special MarkdownV2 characters
-  return text.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, '\\$1');
+  // First escape backslashes to avoid double-escaping
+  // Then escape all other special MarkdownV2 characters
+  return text
+    .replace(/\\/g, '\\\\')
+    .replace(/([_*\[\]()~`>#+\-=|{}.!])/g, '\\$1');
 }
 
 /**
