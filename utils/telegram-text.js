@@ -19,16 +19,9 @@ function escapeMarkdownV2(text) {
     return String(text || '');
   }
   
-  // List of special characters that need to be escaped in MarkdownV2
-  const specialChars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'];
-  
-  let escaped = text;
-  for (const char of specialChars) {
-    // Escape each special character with a backslash
-    escaped = escaped.split(char).join('\\' + char);
-  }
-  
-  return escaped;
+  // Use regex replace for better performance
+  // Escape all special MarkdownV2 characters
+  return text.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, '\\$1');
 }
 
 /**

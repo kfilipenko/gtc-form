@@ -91,12 +91,13 @@ const doubleEscaped = escapeMarkdownV2(escaped); // WRONG!
 const escaped = escapeMarkdownV2(text); // Correct
 
 // ❌ DON'T: Use stage without validation
-const query = `UPDATE table SET stage = ${stage}`; // Might fail!
+// const query = `UPDATE table SET stage = ${stage}`; // Might fail!
 
-// ✅ DO: Always sanitize stage
+// ✅ DO: Always sanitize stage and use parameterized queries
 const validStage = sanitizeStageNumber(stage);
 if (validStage === null) throw new Error('Invalid stage');
-const query = `UPDATE table SET stage = ${validStage}`; // Safe
+// Use parameterized query (example for pg):
+// await client.query('UPDATE table SET stage = $1 WHERE id = $2', [validStage, id]);
 
 // ❌ DON'T: Send unescaped text to Telegram with MarkdownV2
 // Will fail if text contains special characters like . ( ) !
@@ -136,8 +137,10 @@ const output = createTelegramOutput(botResponse, chatId, stage);
 return [output];
 
 // Node 3: Save to Database (Postgres Node)
+// Use parameterized query to prevent SQL injection:
 // INSERT INTO chat_logs (chat_id, stage, message, tg_formatted, created_at)
-// VALUES ({{ $json.chat_id }}, {{ $json.stage }}, {{ $json.full_output }}, {{ $json.tg_text }}, NOW())
+// VALUES ($1, $2, $3, $4, NOW())
+// Parameters: {{ $json.chat_id }}, {{ $json.stage }}, {{ $json.full_output }}, {{ $json.tg_text }}
 
 // Node 4: Send to Telegram (HTTP Request Node)
 // POST https://api.telegram.org/bot<TOKEN>/sendMessage
