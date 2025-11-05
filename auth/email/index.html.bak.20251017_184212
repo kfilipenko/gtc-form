@@ -234,6 +234,5 @@
 
     // Removed queued verification UI and resend logic
   </script>
-<script src="/auth/email/subscription-check.js"></script>
 </body>
 </html>
