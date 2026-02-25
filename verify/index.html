@@ -20,15 +20,21 @@
     <div id="noToken" class="msg" style="display:none"></div>
     <div class="links">
       <button id="resend" style="display:none">Resend verification email</button>
-      <a href="/auth/" style="margin-left:8px">Back to Auth</a>
-      <a id="goNext" href="/chat" style="display:none;margin-left:8px">Continue</a>
+      <a id="goNext" href="/user/" style="display:none;margin-left:8px">Continue</a>
     </div>
   </main>
   <script>
     const params = new URLSearchParams(location.search);
     function safeNext(n){
-      if (!n) return '/chat';
-      try { const u = new URL(n, location.origin); if (u.origin !== location.origin) return '/chat'; return u.pathname + (u.search||'') + (u.hash||''); } catch { return '/chat'; }
+      const fallback = '/chat/internal/';
+      if (!n) return fallback;
+      try {
+        const u = new URL(n, location.origin);
+        if (u.origin !== location.origin) return fallback;
+        return u.pathname + (u.search||'') + (u.hash||'');
+      } catch {
+        return fallback;
+      }
     }
   const rawNext = params.get('next');
   const hasNext = !!rawNext;
@@ -71,12 +77,14 @@
               if (j.id) localStorage.setItem('id', String(j.id));
               localStorage.setItem('email_verified', 'true');
             }catch(e){}
-            // Если нет next — сразу ведём на оплату по gtc_user_id
-            const gid = (j && j.gtc_user_id) ? String(j.gtc_user_id) : (localStorage.getItem('gtc_user_id')||'');
-            if (!hasNext && gid){
-              window.location.replace(`https://pay.gtstor.com/payment.php?user_id=${encodeURIComponent(gid)}`);
-            } else if (hasNext) {
+            // Показываем явную ссылку, но не перенаправляем автоматически
+            if (hasNext) {
               goNext.href = nextUrl;
+              goNext.textContent = 'Continue';
+              goNext.style.display = 'inline-block';
+            } else {
+              goNext.href = '/chat/internal/';
+              goNext.textContent = 'Open internal chat';
               goNext.style.display = 'inline-block';
             }
           } else {

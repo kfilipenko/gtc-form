@@ -72,3 +72,29 @@ CREATE TABLE user_history (
   timestamp TEXT,
   executionMode TEXT
 );
+
+-- extensions required for UUID helpers
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- chats: SQL persistence for web conversations
+CREATE TABLE IF NOT EXISTS chats (
+  chat_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  gtc_user_id BIGINT NOT NULL,
+  title TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  is_deleted BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+-- chat_messages: transcript for each chat
+CREATE TABLE IF NOT EXISTS chat_messages (
+  message_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  chat_id UUID NOT NULL REFERENCES chats(chat_id) ON DELETE CASCADE,
+  gtc_user_id BIGINT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('user','assistant','system')),
+  content TEXT NOT NULL,
+  metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_chat_messages_chat ON chat_messages(chat_id, created_at);

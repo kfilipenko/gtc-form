@@ -65,13 +65,13 @@
     const $ = (s)=>document.querySelector(s);
     const urlParams = new URLSearchParams(location.search);
     function safeNext(n){
-      if (!n) return '/chat';
+      if (!n) return '/user/';
       try {
         const u = new URL(n, location.origin);
         // Разрешаем только переходы в пределах текущего домена
-        if (u.origin !== location.origin) return '/chat';
+        if (u.origin !== location.origin) return '/user/';
         return u.pathname + (u.search||'') + (u.hash||'');
-      } catch { return '/chat'; }
+      } catch { return '/user/'; }
     }
   const nextUrl = safeNext(urlParams.get('next'));
   const hasNext = !!urlParams.get('next');
@@ -149,13 +149,6 @@
         return;
       }
       // Если указан next в URL — уважаем его, иначе ведём на оплату с gtc_user_id
-      try{
-        if (!hasNext && resp?.gtc_user_id){
-          const gid = String(resp.gtc_user_id);
-          window.location.href = `https://pay.gtstor.com/payment.php?user_id=${encodeURIComponent(gid)}`;
-          return;
-        }
-      } catch {}
       storeAndRedirect(resp);
     });
 

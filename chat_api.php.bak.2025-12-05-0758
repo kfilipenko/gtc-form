@@ -1,0 +1,428 @@
+<?php
+declare(strict_types=1);
+
+const N8N_WEBHOOK_URL = 'https://agent.gtstor.com/webhook/chat';
+const CHAT_JOURNAL_FILE = __DIR__ . '/chat_transactions.log';
+
+date_default_timezone_set('UTC');
+
+function respond_json(int $status, array $payload): void {
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+function respond_error(int $status, string $error, string $message): void {
+    respond_json($status, ['success' => false, 'error' => $error, 'message' => $message]);
+}
+
+function journal_event(string $event, array $context = []): void {
+    $entry = json_encode([
+        'ts' => gmdate('c'),
+        'event' => $event,
+        'context' => $context
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($entry === false) {
+        return;
+    }
+    $line = $entry . PHP_EOL;
+    $path = CHAT_JOURNAL_FILE;
+    if (@file_put_contents($path, $line, FILE_APPEND | LOCK_EX) === false) {
+        error_log('[chat_journal] write_failed ' . $entry);
+    }
+}
+
+function assert_post_json(): void {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Allow: POST');
+        respond_error(405, 'bad_request', 'Only POST requests are supported.');
+    }
+    $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+    if (stripos($contentType, 'application/json') === false) {
+        respond_error(415, 'bad_request', 'Content-Type must be application/json.');
+    }
+}
+
+function normalize_gtc_user_id(mixed $value): ?string {
+    if ($value === null) {
+        return null;
+    }
+    if (is_int($value) || is_float($value)) {
+        $intVal = (int) $value;
+        return $intVal > 0 ? (string) $intVal : null;
+    }
+    if (is_string($value)) {
+        $trimmed = trim($value);
+        if ($trimmed === '' || !preg_match('/^-?\d+$/', $trimmed)) {
+            return null;
+        }
+        $intVal = (int) $trimmed;
+        return $intVal > 0 ? (string) $intVal : null;
+    }
+    return null;
+}
+
+/** @return PgSql\Connection */
+function db(): PgSql\Connection {
+    static $conn = null;
+    if ($conn instanceof PgSql\Connection) {
+        return $conn;
+    }
+    $host = getenv('PGHOST') ?: 'localhost';
+    $port = getenv('PGPORT') ?: '5432';
+    $dbName = getenv('PGDATABASE') ?: 'gtc_db';
+    $user = getenv('PGUSER') ?: 'gtc_user';
+    $password = getenv('PGPASSWORD') ?: 'gtc_pass';
+    $connStr = sprintf('host=%s port=%s dbname=%s user=%s password=%s', $host, $port, $dbName, $user, $password);
+    $conn = pg_connect($connStr);
+    if (!$conn) {
+        respond_error(500, 'db_error', 'Unable to connect to Postgres.');
+    }
+    return $conn;
+}
+
+function ensure_chat_id(?string $providedChatId, string $gtcUserId, string $message): string {
+    $chatId = trim((string) ($providedChatId ?? ''));
+    if ($chatId !== '') {
+        return $chatId;
+    }
+    $title = mb_substr(trim($message), 0, 120) ?: 'New chat';
+    $query = 'INSERT INTO chats (gtc_user_id, title) VALUES ($1, $2) RETURNING chat_id';
+    $result = pg_query_params(db(), $query, [$gtcUserId, $title]);
+    if (!$result) {
+        respond_error(500, 'db_error', pg_last_error(db()) ?: 'Failed to insert chat.');
+    }
+    $row = pg_fetch_assoc($result);
+    if (!$row || empty($row['chat_id'])) {
+        respond_error(500, 'db_error', 'Chat creation did not return an id.');
+    }
+    return $row['chat_id'];
+}
+
+function insert_message(string $chatId, string $gtcUserId, string $role, string $content, array $metadata): array {
+    $metadataJson = json_encode($metadata, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($metadataJson === false) {
+        respond_error(500, 'db_error', 'Unable to encode metadata.');
+    }
+    $query = 'INSERT INTO chat_messages (chat_id, gtc_user_id, role, content, metadata)
+              VALUES ($1, $2, $3, $4, $5::jsonb)
+              RETURNING message_id, created_at';
+    $params = [$chatId, $gtcUserId, $role, $content, $metadataJson];
+    $result = pg_query_params(db(), $query, $params);
+    if (!$result) {
+        respond_error(500, 'db_error', pg_last_error(db()) ?: 'Failed to insert message.');
+    }
+    $row = pg_fetch_assoc($result);
+    if (!$row) {
+        respond_error(500, 'db_error', 'Insert message returned no row.');
+    }
+    return $row;
+}
+
+function forward_to_n8n(array $payload, array $journalContext = []): array {
+    $jsonBody = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($jsonBody === false) {
+        respond_error(500, 'bad_request', 'Unable to encode payload.');
+    }
+    journal_event('webhook_forward', array_merge($journalContext, [
+        'target' => N8N_WEBHOOK_URL
+    ]));
+    $ch = curl_init(N8N_WEBHOOK_URL);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_POSTFIELDS => $jsonBody,
+        CURLOPT_TIMEOUT => 20,
+        CURLOPT_CONNECTTIMEOUT => 10,
+    ]);
+    $responseBody = curl_exec($ch);
+    $curlErr = curl_error($ch);
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE) ?: 0;
+    curl_close($ch);
+    if ($responseBody === false) {
+        journal_event('webhook_error', array_merge($journalContext, [
+            'status' => $status,
+            'error' => $curlErr ?: 'curl_exec_failed'
+        ]));
+        respond_error(502, 'n8n_error', $curlErr ?: 'n8n webhook unreachable.');
+    }
+    $decoded = json_decode($responseBody, true);
+    if (!is_array($decoded)) {
+        journal_event('webhook_error', array_merge($journalContext, [
+            'status' => $status,
+            'error' => 'invalid_json'
+        ]));
+        respond_error(502, 'n8n_error', 'n8n returned invalid JSON.');
+    }
+    if ($status >= 400) {
+        journal_event('webhook_error', array_merge($journalContext, [
+            'status' => $status,
+            'error' => 'http_' . $status,
+            'body_preview' => mb_substr($responseBody, 0, 200)
+        ]));
+        respond_error(502, 'n8n_error', 'n8n responded with HTTP ' . $status);
+    }
+    journal_event('webhook_response', array_merge($journalContext, [
+        'status' => $status,
+        'trace_id' => $decoded['trace_id'] ?? null
+    ]));
+    return $decoded;
+}
+
+function touch_chat(string $chatId): void {
+    $query = 'UPDATE chats SET updated_at = NOW() WHERE chat_id = $1';
+    pg_query_params(db(), $query, [$chatId]);
+}
+
+function decode_payload(): array {
+    assert_post_json();
+    $rawBody = file_get_contents('php://input') ?: '';
+    $payload = json_decode($rawBody, true);
+    if (!is_array($payload)) {
+        respond_error(400, 'bad_request', 'Invalid JSON payload.');
+    }
+    return $payload;
+}
+
+function build_metadata(array $payload, string $channel, string $sessionId, array $client): array {
+    $metadata = [
+        'channel' => $channel,
+        'session_id' => $sessionId,
+        'client' => $client,
+        'source' => $payload['source'] ?? 'web_chat_logger',
+    ];
+    if (isset($payload['metadata']) && is_array($payload['metadata'])) {
+        $metadata['payload_metadata'] = $payload['metadata'];
+    }
+    if (isset($payload['headers']) && is_array($payload['headers'])) {
+        $metadata['headers'] = $payload['headers'];
+    }
+    foreach (['trace_id', 'stage', 'webhookUrl', 'executionMode'] as $key) {
+        if (array_key_exists($key, $payload)) {
+            $metadata[$key] = $payload[$key];
+        }
+    }
+    return $metadata;
+}
+
+function handle_proxy_mode(array $payload): void {
+    $message = trim((string)($payload['message'] ?? ''));
+    $sessionId = trim((string)($payload['session_id'] ?? ''));
+    $channel = trim((string)($payload['channel'] ?? 'web')) ?: 'web';
+    $client = $payload['client'] ?? null;
+    if ($message === '' || $sessionId === '' || !is_array($client)) {
+        respond_error(400, 'bad_request', 'message, session_id, and client are required.');
+    }
+    $gtcUserId = normalize_gtc_user_id($client['gtc_user_id'] ?? null);
+    if ($gtcUserId === null) {
+        respond_error(400, 'bad_request', 'client.gtc_user_id must be a positive integer.');
+    }
+
+    journal_event('proxy_request', [
+        'gtc_user_id' => $gtcUserId,
+        'session_id' => $sessionId,
+        'channel' => $channel,
+        'chat_id' => $payload['chat_id'] ?? null,
+        'message_preview' => mb_substr($message, 0, 120)
+    ]);
+
+    $logUser = array_key_exists('log_user', $payload) ? (bool)$payload['log_user'] : true;
+    $logAssistant = array_key_exists('log_assistant', $payload) ? (bool)$payload['log_assistant'] : true;
+
+    $chatId = ensure_chat_id($payload['chat_id'] ?? null, $gtcUserId, $message);
+    journal_event('chat_id_resolved', [
+        'gtc_user_id' => $gtcUserId,
+        'session_id' => $sessionId,
+        'chat_id' => $chatId,
+        'source' => 'proxy'
+    ]);
+    $payload['chat_id'] = $chatId;
+
+    if ($logUser) {
+        $userMetadata = build_metadata($payload, $channel, $sessionId, $client);
+        insert_message($chatId, $gtcUserId, 'user', $message, $userMetadata);
+        touch_chat($chatId);
+        journal_event('sql_insert', [
+            'chat_id' => $chatId,
+            'gtc_user_id' => $gtcUserId,
+            'session_id' => $sessionId,
+            'role' => 'user'
+        ]);
+    }
+
+    $webhookContext = [
+        'chat_id' => $chatId,
+        'gtc_user_id' => $gtcUserId,
+        'session_id' => $sessionId,
+        'channel' => $channel
+    ];
+    $n8nResponse = forward_to_n8n($payload, $webhookContext);
+    $reply = trim((string)($n8nResponse['reply'] ?? ''));
+    if ($reply === '') {
+        journal_event('webhook_reply_empty', $webhookContext);
+        respond_error(502, 'n8n_error', 'Webhook reply was empty.');
+    }
+    $traceId = $n8nResponse['trace_id'] ?? null;
+    $stage = $n8nResponse['stage'] ?? null;
+
+    $assistantPayload = $payload;
+    $assistantPayload['trace_id'] = $traceId;
+    $assistantPayload['stage'] = $stage;
+    $assistantRow = null;
+    if ($logAssistant) {
+        $assistantMetadata = build_metadata($assistantPayload, $channel, $sessionId, $client);
+        $assistantRow = insert_message($chatId, $gtcUserId, 'assistant', $reply, $assistantMetadata);
+        touch_chat($chatId);
+        journal_event('sql_insert', [
+            'chat_id' => $chatId,
+            'gtc_user_id' => $gtcUserId,
+            'session_id' => $sessionId,
+            'role' => 'assistant',
+            'trace_id' => $traceId,
+            'message_id' => $assistantRow['message_id'] ?? null
+        ]);
+    }
+
+    respond_json(200, [
+        'success' => true,
+        'chat_id' => $chatId,
+        'reply' => $reply,
+        'trace_id' => $traceId,
+        'stage' => $stage,
+        'created_at' => $assistantRow['created_at'] ?? null,
+        'proxied' => true,
+        'logged_user' => $logUser,
+        'logged_assistant' => $logAssistant,
+    ]);
+    journal_event('proxy_success', [
+        'chat_id' => $chatId,
+        'gtc_user_id' => $gtcUserId,
+        'session_id' => $sessionId,
+        'trace_id' => $traceId,
+        'logged_user' => $logUser,
+        'logged_assistant' => $logAssistant
+    ]);
+}
+
+function handle_log_mode(array $payload): void {
+    $message = trim((string)($payload['message'] ?? ''));
+    $sessionId = trim((string)($payload['session_id'] ?? ''));
+    $channel = trim((string)($payload['channel'] ?? 'web')) ?: 'web';
+    $client = $payload['client'] ?? null;
+    $role = strtolower(trim((string)($payload['role'] ?? 'user')));
+
+    if ($message === '' || $sessionId === '' || !is_array($client)) {
+        respond_error(400, 'bad_request', 'message, session_id, and client are required.');
+    }
+    if (!in_array($role, ['user', 'assistant', 'system'], true)) {
+        respond_error(400, 'bad_request', 'role must be user, assistant, or system.');
+    }
+
+    $gtcUserId = normalize_gtc_user_id($client['gtc_user_id'] ?? null);
+    if ($gtcUserId === null) {
+        respond_error(400, 'bad_request', 'client.gtc_user_id must be a positive integer.');
+    }
+
+    journal_event('log_mode_request', [
+        'gtc_user_id' => $gtcUserId,
+        'session_id' => $sessionId,
+        'role' => $role,
+        'channel' => $channel,
+        'chat_id' => $payload['chat_id'] ?? null,
+        'message_preview' => mb_substr($message, 0, 120)
+    ]);
+
+    $chatId = ensure_chat_id($payload['chat_id'] ?? null, $gtcUserId, $message);
+    journal_event('chat_id_resolved', [
+        'gtc_user_id' => $gtcUserId,
+        'session_id' => $sessionId,
+        'chat_id' => $chatId,
+        'role' => $role
+    ]);
+    $metadata = build_metadata($payload, $channel, $sessionId, $client);
+    $metadata['session_id'] = $sessionId;
+    $metadata['channel'] = $channel;
+    if (isset($payload['response']) && is_array($payload['response'])) {
+        $metadata['response'] = $payload['response'];
+    }
+
+    $row = insert_message($chatId, $gtcUserId, $role, $message, $metadata);
+    touch_chat($chatId);
+    journal_event('sql_insert', [
+        'chat_id' => $chatId,
+        'gtc_user_id' => $gtcUserId,
+        'session_id' => $sessionId,
+        'role' => $role,
+        'message_id' => $row['message_id'] ?? null
+    ]);
+
+    respond_json(200, [
+        'success' => true,
+        'chat_id' => $chatId,
+        'message_id' => $row['message_id'] ?? null,
+        'role' => $role,
+        'created_at' => $row['created_at'] ?? null,
+    ]);
+    journal_event('log_mode_success', [
+        'chat_id' => $chatId,
+        'gtc_user_id' => $gtcUserId,
+        'session_id' => $sessionId,
+        'role' => $role,
+        'message_id' => $row['message_id'] ?? null
+    ]);
+}
+
+function handle_list_chats(array $payload): void {
+    // TODO: implement real DB query later
+    respond_json(200, [
+        'success' => true,
+        'data' => [],
+    ]);
+}
+
+function handle_messages(array $payload): void {
+    // TODO: implement real DB query later
+    respond_json(200, [
+        'success' => true,
+        'data' => [],
+    ]);
+}
+
+function main(): void {
+    $payload = decode_payload();
+    $modeRaw = strtolower(trim((string)($payload['mode'] ?? 'log')));
+
+    $mode = match ($modeRaw) {
+        'proxy', 'sync' => 'proxy',
+        'log', 'log_only', 'logger' => 'log',
+        'list_chats' => 'list_chats',
+        'messages' => 'messages',
+        default => 'log',
+    };
+
+    switch ($mode) {
+        case 'proxy':
+            handle_proxy_mode($payload);
+            return;
+
+        case 'log':
+            handle_log_mode($payload);
+            return;
+
+        case 'list_chats':
+            handle_list_chats($payload);
+            return;
+
+        case 'messages':
+            handle_messages($payload);
+            return;
+
+        default:
+            respond_error(400, 'bad_request', 'Unsupported mode: ' . $modeRaw);
+    }
+}
+
+main();
+

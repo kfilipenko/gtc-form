@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GTC Support Chat (Admin)</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #60a5fa;
+      --accent-soft: rgba(96, 165, 250, 0.18);
+      --shadow: 0 16px 50px rgba(0, 0, 0, 0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at 20% 20%, rgba(96,165,250,0.06), transparent 35%),
+                  radial-gradient(circle at 80% 0%, rgba(16,185,129,0.06), transparent 30%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 32px 12px;
+    }
+    .shell {
+      width: min(1080px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      min-height: 620px;
+      overflow: hidden;
+    }
+    header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .title { margin: 0; font-size: 1.1rem; font-weight: 700; }
+    .status { font-size: 0.9rem; color: var(--muted); margin: 4px 0; }
+    .status.ok { color: #34d399; }
+    .status.warn { color: #fbbf24; }
+    .status.err { color: #f87171; }
+    .admin-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+    .admin-panel fieldset {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      min-width: 0;
+    }
+    .admin-panel legend { color: var(--muted); padding: 0 6px; font-size: 0.9rem; }
+    .admin-panel label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 4px; }
+    .admin-panel input { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: #0b1220; color: var(--text); }
+    .admin-panel button { margin-top: 6px; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: #0b1220; font-weight: 700; cursor: pointer; }
+    details.plan { margin: 0 16px 10px 16px; padding: 10px 12px; border: 1px dashed var(--border); border-radius: 10px; background: #1a2133; color: var(--text); }
+    details.plan summary { cursor: pointer; font-weight: 700; }
+    details.plan ul { margin: 8px 0 0 16px; padding-left: 12px; line-height: 1.4; color: var(--muted); }
+    .messages { padding: 16px 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: linear-gradient(180deg, rgba(96,165,250,0.06), rgba(16,185,129,0.04)); }
+    .bubble { max-width: 80%; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); background: #0b1220; box-shadow: 0 6px 18px rgba(0,0,0,0.25); line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+    .bubble.user { margin-left: auto; background: var(--accent-soft); border-color: rgba(96,165,250,0.5); color: var(--text); }
+    .bubble.bot { margin-right: auto; }
+    .bubble.system { margin: 0 auto; background: transparent; border-style: dashed; color: var(--muted); font-size: 0.9rem; }
+    .composer { border-top: 1px solid var(--border); padding: 14px 16px; display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
+    .composer textarea { width: 100%; min-height: 80px; max-height: 260px; border-radius: 12px; border: 1px solid var(--border); padding: 12px 14px; resize: vertical; font: inherit; color: var(--text); background: #0b1220; outline: none; transition: border 0.15s ease, box-shadow 0.15s ease; }
+    .composer textarea:focus-visible { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .composer button { border-radius: 12px; border: 1px solid var(--accent); background: var(--accent); color: #0b1220; font-weight: 700; padding: 12px 18px; cursor: pointer; transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease; }
+    .composer button:hover, .composer button:focus-visible { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(96,165,250,0.35); outline: none; }
+    .composer button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+    .auth-guard { padding: 20px; text-align: center; border-top: 1px solid var(--border); }
+    .auth-guard input { margin: 6px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: #0b1220; color: var(--text); }
+    .auth-guard button { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--accent); background: var(--accent); color: #0b1220; font-weight: 700; cursor: pointer; }
+    @media (max-width: 900px) { .admin-panel { grid-template-columns: 1fr; } .bubble { max-width: 100%; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <p class="title">Support chat (admin)</p>
+      <span class="status" id="status">Sign-in required</span>
+    </header>
+
+    <div class="admin-panel">
+      <fieldset>
+        <legend>Sign in</legend>
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="you@example.com" />
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="********" />
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="loginBtn" type="button">Sign in</button>
+          <button id="statusBtn" type="button">Check access</button>
+          <button id="logoutBtn" type="button" style="display:none">Sign out</button>
+        </div>
+        <div id="authStatus" class="status"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Context</legend>
+        <label for="gtc">gtc_user_id (optional)</label>
+        <input id="gtc" type="number" placeholder="3001" />
+        <label for="page">Page</label>
+        <input id="page" type="text" placeholder="/admin/chat" />
+      </fieldset>
+      <fieldset>
+        <legend>Contact (optional)</legend>
+        <label for="contact">Email/phone</label>
+        <input id="contact" type="text" placeholder="contact@example.com" />
+      </fieldset>
+      <fieldset>
+        <legend>Session</legend>
+        <div class="status">User: <span id="sessionEmail">—</span></div>
+        <div class="status">gtc_user_id: <span id="sessionGtc">—</span></div>
+        <button id="refreshSessionBtn" type="button">Refresh session</button>
+      </fieldset>
+    </div>
+
+    <details class="plan">
+      <summary>Integration plan (internal)</summary>
+      <ul>
+        <li>Front -> POST /game_chat.php: {chat_id, gtc_user_id?, message, contact?, page, user_agent, locale}</li>
+        <li>Identifiers: chat_id in localStorage; if signed-in, send gtc_user_id</li>
+        <li>Backend: validation, anti-spam, HMAC, proxy to n8n webhook support_webhook</li>
+        <li>n8n: webhook -> normalize -> LLM (ru, 3-5 sentences) -> reply; handoff when intent=operator</li>
+        <li>History (opt.): write to Postgres chat_messages; on 5xx show friendly fallback</li>
+      </ul>
+    </details>
+
+    <div class="messages" id="messages" aria-live="polite"></div>
+
+    <form class="composer" id="composer" autocomplete="off">
+      <textarea id="input" placeholder="Describe your question..." required></textarea>
+      <button type="submit" id="sendBtn">Send</button>
+    </form>
+
+    <div class="auth-guard" id="authGuard">
+      <p style="margin: 0 0 10px 0; color: var(--muted);">Staff-only access. Sign in to send messages.</p>
+      <button id="unlockBtn" type="button">Continue</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const ENDPOINT = '/game_chat.php';
+      const STORAGE_KEYS = {
+        chat: 'admin-game-chat:id',
+        user: 'admin-game-chat:user'
+      };
+
+      const messagesEl = document.getElementById('messages');
+      const inputEl = document.getElementById('input');
+      const formEl = document.getElementById('composer');
+      const sendBtn = document.getElementById('sendBtn');
+      const statusEl = document.getElementById('status');
+      const emailEl = document.getElementById('email');
+      const pwdEl = document.getElementById('password');
+      const loginBtn = document.getElementById('loginBtn');
+      const statusBtn = document.getElementById('statusBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const refreshSessionBtn = document.getElementById('refreshSessionBtn');
+      const gtcEl = document.getElementById('gtc');
+      const pageEl = document.getElementById('page');
+      const contactEl = document.getElementById('contact');
+      const authGuard = document.getElementById('authGuard');
+      const unlockBtn = document.getElementById('unlockBtn');
+      const authStatusEl = document.getElementById('authStatus');
+      const sessionEmailEl = document.getElementById('sessionEmail');
+      const sessionGtcEl = document.getElementById('sessionGtc');
+
+      const state = {
+        chatId: restoreChatId(),
+        user: restoreUser(),
+        authed: false,
+        sending: false,
+      };
+
+      updateAuthUI();
+      addBubble('system', 'Admin chat ready. Sign in to send.');
+      bootstrapAuthStatus();
+
+      loginBtn?.addEventListener('click', async () => {
+        await handleLogin();
+      });
+
+      statusBtn?.addEventListener('click', async () => {
+        await syncAuthStatus('manual-check');
+      });
+
+      logoutBtn?.addEventListener('click', () => {
+        handleLogout();
+      });
+
+      refreshSessionBtn?.addEventListener('click', async () => {
+        await syncAuthStatus('manual-refresh');
+      });
+
+      unlockBtn.addEventListener('click', () => {
+        if (!state.authed) {
+          setStatus('Sign-in required');
+          return;
+        }
+        authGuard.style.display = 'none';
+      });
+
+      formEl.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!state.authed) {
+          setStatus('Sign-in required');
+          return;
+        }
+        const text = inputEl.value.trim();
+        if (!text || state.sending) return;
+        const activeGtc = activeGtcUserId();
+        if (!activeGtc) {
+          setStatus('gtc_user_id missing. Refresh session.');
+          return;
+        }
+        inputEl.value = '';
+        addBubble('user', text);
+        await send(text);
+      });
+
+      async function handleLogin() {
+        const email = (emailEl.value || '').trim().toLowerCase();
+        const pwd = (pwdEl.value || '').trim();
+        if (!email || !pwd) {
+          setAuthStatus('Enter email and password.', 'warn');
+          return;
+        }
+        setAuthStatus('Signing in...', 'warn');
+        try {
+          const resp = await postJson('/auth/login', { email, password: pwd });
+          if (resp.error) {
+            if (resp._status === 401) {
+              setAuthStatus('Invalid email or password.', 'err');
+            } else if (resp._status === 403 && resp.error === 'email_not_verified') {
+              setAuthStatus('Email not verified. Complete verification first.', 'warn');
+            } else {
+              setAuthStatus('Auth error: ' + resp.error, 'err');
+            }
+            return;
+          }
+          setAuthStatus('Signed in. Checking status...', 'warn');
+          await syncAuthStatus('password-login');
+        } catch (error) {
+          setAuthStatus('Network error: ' + (error?.message || 'unknown'), 'err');
+        }
+      }
+
+      async function syncAuthStatus(reason = 'manual') {
+        setAuthStatus('Checking session...', 'warn');
+        try {
+          const resp = await fetch('/auth/status', { credentials: 'include' });
+          if (!resp.ok) {
+            const status = resp.status;
+            if (status === 401) {
+              handleLogout();
+              setAuthStatus('Session expired. Sign in again.', 'warn');
+              return { ok: false, status };
+            }
+            if (status === 403) {
+              setAuthStatus('Access forbidden. Verify email or contact admin.', 'err');
+              return { ok: false, status };
+            }
+            setAuthStatus('Status error: HTTP ' + status, 'err');
+            return { ok: false, status };
+          }
+          const data = await resp.json().catch(() => null);
+          const gtc = resolveGtcUserIdCandidate(data);
+          const user = {
+            email: data?.email || state.user?.email || emailEl.value || null,
+            id: data?.id || data?.user_id || null,
+            full_name: data?.full_name || state.user?.full_name || null,
+            gtc_user_id: gtc
+          };
+          persistUser(user);
+          updateAuthUI();
+          if (gtc) {
+            setAuthStatus('Session OK. gtc_user_id ' + gtc, 'ok');
+            setStatus('Ready');
+            return { ok: true, gtc };
+          }
+          setAuthStatus('Status returned no gtc_user_id. Try login again.', 'warn');
+          return { ok: false };
+        } catch (error) {
+          setAuthStatus('Status unavailable: ' + (error?.message || 'unknown'), 'err');
+          return { ok: false, error };
+        }
+      }
+
+      function handleLogout() {
+        state.user = null;
+        state.authed = false;
+        try {
+          localStorage.removeItem(STORAGE_KEYS.user);
+          localStorage.removeItem('gtc_user_id');
+        } catch {}
+        gtcEl.value = '';
+        updateAuthUI();
+        setAuthStatus('Signed out.', 'warn');
+      }
+
+      async function bootstrapAuthStatus() {
+        if (activeGtcUserId()) {
+          updateAuthUI();
+          return;
+        }
+        await syncAuthStatus('bootstrap');
+      }
+
+      async function send(text) {
+        setSending(true, 'Sending...');
+        try {
+          const payload = buildPayload(text);
+          const res = await fetch(ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json().catch(() => null);
+          if (!res.ok || !data?.success) {
+            throw new Error(data?.message || 'Request failed');
+          }
+          if (data.chat_id) {
+            persistChatId(data.chat_id);
+            state.chatId = data.chat_id;
+          }
+          const reply = (data.reply || '').trim();
+          if (reply) {
+            addBubble('bot', reply);
+            setStatus('Assistant replied');
+          } else {
+            addBubble('system', 'No reply from assistant. Please try again.');
+            setStatus('No reply');
+          }
+        } catch (error) {
+          addBubble('system', 'Failed to send: ' + (error?.message || 'unknown error'));
+          setStatus('Error');
+        } finally {
+          setSending(false, 'Ready');
+          inputEl.focus();
+        }
+      }
+
+      function buildPayload(message) {
+        const email = (emailEl.value || '').trim();
+        const contact = (contactEl.value || '').trim();
+        const gtcResolved = activeGtcUserId();
+        const gtcFallback = normalizeInt(gtcEl.value);
+        const gtc = gtcResolved ?? gtcFallback;
+        const page = (pageEl.value || window.location.pathname || '/admin/game-chat-admin.html');
+        return {
+          chat_id: state.chatId,
+          message,
+          page,
+          session_id: state.chatId,
+          gtc_user_id: gtc ?? undefined,
+          contact: contact || undefined,
+          client: {
+            gtc_user_id: gtc ?? undefined,
+            email: email || undefined,
+          },
+          metadata: {
+            language: navigator.language || 'en',
+            user_agent: navigator.userAgent,
+            page,
+            admin_panel: true
+          },
+        };
+      }
+
+      function addBubble(role, text) {
+        const div = document.createElement('div');
+        div.className = 'bubble ' + role;
+        div.textContent = text;
+        messagesEl.appendChild(div);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+
+      function setSending(isSending, label) {
+        state.sending = isSending;
+        sendBtn.disabled = isSending;
+        inputEl.disabled = isSending;
+        setStatus(label);
+      }
+
+      function setStatus(label) {
+        if (statusEl) statusEl.textContent = label;
+      }
+
+      function setAuthStatus(text, tone = 'warn') {
+        if (!authStatusEl) return;
+        authStatusEl.textContent = text || '';
+        authStatusEl.className = `status ${tone}`;
+      }
+
+      function updateAuthUI() {
+        const gtc = activeGtcUserId();
+        state.authed = Boolean(gtc);
+        if (gtcEl && gtc) gtcEl.value = gtc;
+        if (authGuard) {
+          authGuard.style.display = state.authed ? 'none' : 'block';
+        }
+        if (logoutBtn) logoutBtn.style.display = state.authed ? 'inline-flex' : 'none';
+        setStatus(state.authed ? 'Ready' : 'Sign-in required');
+        updateSessionDisplay();
+      }
+
+      function updateSessionDisplay() {
+        const user = state.user;
+        const gtc = activeGtcUserId();
+        if (sessionEmailEl) sessionEmailEl.textContent = user?.email || '—';
+        if (sessionGtcEl) sessionGtcEl.textContent = gtc || '—';
+      }
+
+      function restoreChatId() {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEYS.chat);
+          if (stored && stored.trim()) return stored;
+        } catch {}
+        const fresh = generateId();
+        persistChatId(fresh);
+        return fresh;
+      }
+
+      function persistChatId(id) {
+        try { localStorage.setItem(STORAGE_KEYS.chat, id); } catch {}
+      }
+
+      function generateId() {
+        if (window.crypto?.randomUUID) return crypto.randomUUID();
+        return 'chat-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+      }
+
+      function restoreUser() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEYS.user);
+          if (!raw) return null;
+          return JSON.parse(raw);
+        } catch { return null; }
+      }
+
+      function persistUser(user) {
+        state.user = user;
+        try {
+          localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(user));
+          if (user?.gtc_user_id) {
+            localStorage.setItem('gtc_user_id', user.gtc_user_id);
+          }
+        } catch {}
+      }
+
+      function activeGtcUserId() {
+        return normalizeGtcUserId(state.user?.gtc_user_id);
+      }
+
+      async function postJson(path, body) {
+        const response = await fetch(path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(body)
+        });
+        let json = null;
+        try { json = await response.json(); } catch { json = { error: 'bad_json' }; }
+        json._status = response.status;
+        return json;
+      }
+
+      function normalizeGtcUserId(value) {
+        if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+          return String(Math.trunc(value));
+        }
+        if (typeof value === 'string') {
+          const trimmed = value.trim();
+          if (!trimmed) return null;
+          if (/^\d+$/.test(trimmed)) {
+            return String(Number(trimmed));
+          }
+          const parsed = Number(trimmed);
+          if (Number.isFinite(parsed) && parsed > 0) {
+            return String(Math.trunc(parsed));
+          }
+        }
+        return null;
+      }
+
+      function resolveGtcUserIdCandidate(source) {
+        if (source == null) return null;
+        if (typeof source === 'string' || typeof source === 'number') {
+          return normalizeGtcUserId(source);
+        }
+        if (typeof source !== 'object') return null;
+        const candidates = [
+          source.gtc_user_id,
+          source.gtcUserId,
+          source.gtcId,
+          source.user_gtc_id,
+          source.userGtcId,
+          source.profile?.gtc_user_id,
+          source.profile?.gtcUserId,
+          source.account?.gtc_user_id,
+          source.account?.gtcUserId
+        ];
+        for (const candidate of candidates) {
+          const normalized = normalizeGtcUserId(candidate);
+          if (normalized) return normalized;
+        }
+        return null;
+      }
+
+      function normalizeInt(value) {
+        if (typeof value === 'number' && Number.isInteger(value)) return value;
+        if (typeof value === 'string' && /^-?\d+$/.test(value.trim())) return parseInt(value, 10);
+        return null;
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -96,16 +96,22 @@
             const rawNext = params.get('next');
             const hasNext = !!rawNext;
             function safeNext(n){
-              if (!n) return '/chat';
-              try{ const u = new URL(n, location.origin); if (u.origin !== location.origin) return '/chat'; return u.pathname + (u.search||'') + (u.hash||''); }catch{ return '/chat'; }
+              if (!n) return '/user/';
+              try {
+                const u = new URL(n, location.origin);
+                if (u.origin !== location.origin) return '/user/';
+                return u.pathname + (u.search||'') + (u.hash||'');
+              } catch {
+                return '/user/';
+              }
             }
             const nextUrl = safeNext(rawNext);
             if (!hasNext && j?.gtc_user_id){
               const gid = String(j.gtc_user_id);
-              window.location.href = `https://pay.gtstor.com/payment.php?user_id=${encodeURIComponent(gid)}`;
-            } else {
-              window.location.href = nextUrl;
+              const billingUrl = `https://pay.gtstor.com/payment.php?user_id=${encodeURIComponent(gid)}`;
+              window.open(billingUrl, '_blank', 'noopener');
             }
+            window.location.href = nextUrl;
           } else {
             alert('Google sign-in error: ' + (j?.error || 'unknown'));
           }

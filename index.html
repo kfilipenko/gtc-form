@@ -3,25 +3,28 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta http-equiv="refresh" content="0; url=/user/" />
   <title>GTC</title>
   <style>
-    body{margin:0;font-family:system-ui,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#fff;color:#111;display:grid;place-items:center;min-height:100vh}
-    .wrap{width:min(520px,92vw);padding:28px 22px;border-radius:14px;border:1px solid #eee;box-shadow:0 8px 24px rgba(0,0,0,.06)}
-    h1{font-size:1.8rem;margin:.2rem 0 1rem;text-align:center}
-    .btn{display:block;width:100%;padding:12px 14px;margin-top:12px;border-radius:10px;border:1px solid #ddd;background:#111;color:#fff;text-decoration:none;text-align:center;font-weight:600}
-    .btn.secondary{background:#fff;color:#111}
-    .links{margin-top:12px;text-align:center}
-    .links a{color:#2962ff;text-decoration:none}
+    body{margin:0;font-family:system-ui,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#04050f;color:#fff;display:grid;place-items:center;min-height:100vh}
+    .wrap{width:min(520px,92vw);padding:32px 24px;border-radius:18px;border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 54px rgba(0,0,0,.35);text-align:center;background:rgba(8,12,26,.85)}
+    h1{font-size:1.9rem;margin:0 0 1rem}
+    p{margin:0;color:#c5cbe3}
+    a{color:#6ed3ff;text-decoration:none}
   </style>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const target = '/user/';
+      if (window.location.pathname !== target) {
+        window.location.replace(target);
+      }
+    });
+  </script>
 </head>
 <body>
   <main class="wrap">
-    <h1>Welcome to GTC</h1>
-    <a class="btn secondary" href="/auth/email/">Continue with Email</a>
-    <a class="btn" href="/auth/google/">Continue with Google</a>
-    <div class="links">
-      <a href="/auth/">Auth Hub</a>
-    </div>
+    <h1>Redirecting to GTC chat…</h1>
+    <p>If nothing happens, <a href="/user/">open the user workspace</a>.</p>
   </main>
 </body>
 </html>
