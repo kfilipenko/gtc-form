@@ -1678,6 +1678,83 @@
         source: 'web_user_password_reset',
         chatResolver: () => state.selectedChatId || state.chatId || null
       });
+
+      // Generic analytics logger for visits and link interactions.
+      const analyticsLogger = chatService.attachLogger({
+        source: 'web_user_analytics',
+        chatResolver: () => state.selectedChatId || state.chatId || null
+      });
+
+      function resolveClientForTelemetry() {
+        const storedAuth = state.user?.gtc_user_id ? null : readStoredAuthContext();
+        const gtcId = state.user?.gtc_user_id || storedAuth?.gtc_user_id || null;
+        const email = state.user?.email || storedAuth?.email || null;
+        return { gtcId, email };
+      }
+
+      function logAnalyticsEvent(event, metadata = {}) {
+        if (!analyticsLogger || typeof analyticsLogger.queue !== 'function') return;
+        const { gtcId, email } = resolveClientForTelemetry();
+        analyticsLogger.queue(
+          {
+            message: event,
+            role: 'system',
+            session_id: state.sessionId,
+            stage: state.stage || null,
+            metadata: {
+              surface: 'user_portal',
+              path: window.location.pathname,
+              referrer: document.referrer || null,
+              theme: document.documentElement?.dataset?.theme || 'dark',
+              email_mask: maskEmailForTelemetry(email),
+              ...metadata
+            },
+            client: {
+              gtc_user_id: gtcId ? Number(gtcId) || gtcId : null,
+              email: email || null
+            }
+          },
+          { fallbackChatId: state.selectedChatId || state.chatId || null }
+        );
+      }
+
+      function logPageView() {
+        logAnalyticsEvent('page_view');
+      }
+
+      function logLinkClick(anchor) {
+        if (!anchor || !anchor.href) return;
+        const href = anchor.href;
+        if (!href || href.startsWith('javascript:')) return;
+        const label = (anchor.getAttribute('data-label') || anchor.textContent || '').trim().slice(0, 160);
+        logAnalyticsEvent('link_click', {
+          href,
+          label: label || null,
+          target: anchor.target || null,
+          rel: anchor.rel || null,
+          same_origin: href.startsWith(window.location.origin)
+        });
+      }
+
+      document.addEventListener('click', (event) => {
+        try {
+          const anchor = event.target?.closest?.('a');
+          if (!anchor) return;
+          logLinkClick(anchor);
+        } catch (error) {
+          console.warn('Analytics click handler failed', error);
+        }
+      });
+
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          const current = document.documentElement?.dataset?.theme || 'dark';
+          const next = current === 'light' ? 'dark' : 'light';
+          logAnalyticsEvent('theme_toggle', { theme: next });
+        });
+      }
+
+      requestAnimationFrame(logPageView);
       let groupFetchInFlight = null;
       let groupSaveInFlight = false;
       const SUBSCRIPTION_RETRY_LIMIT = 3;

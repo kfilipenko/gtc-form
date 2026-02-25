@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GTC Logs Viewer</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 16px; background: #0b1220; color: #e6eefc; }
+    .panel { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 16px; max-width: 1200px; margin: 0 auto; }
+    label { font-weight: 600; font-size: 0.9rem; }
+    input, select { padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: #fff; min-width: 120px; }
+    button { padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(104,181,255,0.2); color: #fff; cursor: pointer; font-weight: 600; }
+    button:hover { background: rgba(104,181,255,0.3); }
+    .status { font-size: 0.9rem; color: #9ba6bf; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 12px; margin-bottom: 12px; }
+    .card { background: #050912; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px; }
+    .card small { color: #9ba6bf; }
+    .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+    .tag { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 4px 8px; font-size: 0.8rem; }
+    .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+    #output { max-height: 70vh; overflow: auto; display: grid; gap: 8px; }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <h1>Log Viewer</h1>
+    <p class="status" id="status">Idle</p>
+    <div class="grid">
+      <div><label for="limit">Lines</label><br /><input id="limit" type="number" min="1" max="1000" value="200" /></div>
+      <div><label for="event">Event</label><br />
+        <select id="event">
+          <option value="">Any</option>
+          <option value="log_mode_request">log_mode_request</option>
+          <option value="chat_id_resolved">chat_id_resolved</option>
+          <option value="sql_insert">sql_insert</option>
+        </select>
+      </div>
+      <div><label for="role">Role</label><br />
+        <select id="role">
+          <option value="">Any</option>
+          <option value="user">user</option>
+          <option value="assistant">assistant</option>
+          <option value="system">system</option>
+        </select>
+      </div>
+      <div><label for="channel">Channel</label><br />
+        <select id="channel">
+          <option value="">Any</option>
+          <option value="web">web</option>
+          <option value="tg">tg</option>
+          <option value="api">api</option>
+        </select>
+      </div>
+      <div><label for="gtc_user_id">gtc_user_id</label><br /><input id="gtc_user_id" placeholder="3001" /></div>
+      <div><label for="session_id">session_id</label><br /><input id="session_id" placeholder="session" /></div>
+      <div><label for="chat_id">chat_id</label><br /><input id="chat_id" placeholder="chat" /></div>
+      <div><label for="q">Contains</label><br /><input id="q" placeholder="free text / JSON" /></div>
+      <div><label for="since">Since (ts)</label><br /><input id="since" placeholder="2025-12-18T00:00:00Z" /></div>
+      <div><label for="until">Until (ts)</label><br /><input id="until" placeholder="2025-12-19T00:00:00Z" /></div>
+    </div>
+    <div class="actions">
+      <button id="refresh">Refresh</button>
+      <button id="clear">Clear filters</button>
+      <p class="status" id="filter-status">No filter applied</p>
+    </div>
+    <div id="output">(no data)</div>
+  </div>
+  <script>
+    const statusEl = document.getElementById('status');
+    const outputEl = document.getElementById('output');
+    const filterStatusEl = document.getElementById('filter-status');
+
+    const inputs = {
+      limit: document.getElementById('limit'),
+      event: document.getElementById('event'),
+      role: document.getElementById('role'),
+      channel: document.getElementById('channel'),
+      gtc_user_id: document.getElementById('gtc_user_id'),
+      session_id: document.getElementById('session_id'),
+      chat_id: document.getElementById('chat_id'),
+      q: document.getElementById('q'),
+      since: document.getElementById('since'),
+      until: document.getElementById('until'),
+    };
+
+    document.getElementById('refresh').addEventListener('click', loadLogs);
+    document.getElementById('clear').addEventListener('click', () => {
+      Object.keys(inputs).forEach(key => {
+        if (key === 'limit') {
+          inputs[key].value = 200;
+        } else {
+          inputs[key].value = '';
+        }
+      });
+      loadLogs();
+    });
+
+    function buildQuery() {
+      const params = new URLSearchParams();
+      const limitVal = Math.min(1000, Math.max(1, Number(inputs.limit.value) || 200));
+      params.set('limit', String(limitVal));
+      ['event','role','channel','gtc_user_id','session_id','chat_id','q','since','until'].forEach(key => {
+        const val = (inputs[key].value || '').trim();
+        if (val) params.set(key, val);
+      });
+      return params.toString();
+    }
+
+    function render(items) {
+      if (!items || items.length === 0) {
+        outputEl.textContent = '(no data)';
+        return;
+      }
+      const html = items.map(item => {
+        const tags = [];
+        if (item.event) tags.push(`<span class="tag">event: ${item.event}</span>`);
+        if (item.role) tags.push(`<span class="tag">role: ${item.role}</span>`);
+        if (item.channel) tags.push(`<span class="tag">channel: ${item.channel}</span>`);
+        if (item.gtc_user_id) tags.push(`<span class="tag">user: ${item.gtc_user_id}</span>`);
+        if (item.session_id) tags.push(`<span class="tag">session: ${item.session_id}</span>`);
+        if (item.chat_id) tags.push(`<span class="tag">chat: ${item.chat_id}</span>`);
+        const preview = item.message_preview ? `<div class="mono">${escapeHtml(item.message_preview)}</div>` : '';
+        const raw = item.raw ? `<details><summary>Raw</summary><pre class="mono" style="white-space: pre-wrap; word-break: break-all;">${escapeHtml(item.raw)}</pre></details>` : '';
+        return `<div class="card"><div><strong>${item.ts || '—'}</strong></div><div class="tags">${tags.join(' ')}</div>${preview}${raw}</div>`;
+      }).join('');
+      outputEl.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c] || c));
+    }
+
+    async function loadLogs() {
+      const qs = buildQuery();
+      statusEl.textContent = 'Loading…';
+      try {
+        const res = await fetch(`./logs.php?${qs}`, { cache: 'no-store' });
+        if (!res.ok) {
+          statusEl.textContent = `Error: HTTP ${res.status}`;
+          outputEl.textContent = '';
+          return;
+        }
+        const data = await res.json();
+        if (!data.success) {
+          statusEl.textContent = `Error: ${data.error || 'unknown'}`;
+          outputEl.textContent = '';
+          return;
+        }
+        render(data.items || []);
+        filterStatusEl.textContent = `${data.count} matching line(s)`;
+        statusEl.textContent = `Loaded ${data.count} line(s)`;
+      } catch (error) {
+        statusEl.textContent = `Error: ${error.message}`;
+        outputEl.textContent = '';
+      }
+    }
+
+    loadLogs();
+  </script>
+</body>
+</html>

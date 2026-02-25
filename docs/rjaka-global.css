@@ -1,0 +1,185 @@
+:root {
+  --raspberry: #B0164D;
+  --magenta: #E34A8A;
+  --black: #0E0610;
+  --gold: #F2B94B;
+  --turquoise: #2FA4A9;
+  --mask: #D6D6D2;
+  --text: #f7f2f6;
+  --text-soft: #e5dce2;
+  --bg1: rgba(242,185,75,0.14);
+  --bg2: rgba(227,74,138,0.18);
+  --bg3: rgba(11,5,16,0.95);
+  --bg4: rgba(17,9,22,0.90);
+  --shellGradA: rgba(176,22,77,0.30);
+  --shellGradB: rgba(46,13,24,0.62);
+  --shellGradC: rgba(12,6,16,0.92);
+  --sectionA: rgba(14,6,16,0.92);
+  --sectionB: rgba(176,22,77,0.16);
+  --stroke: rgba(255,255,255,0.06);
+  --stroke2: rgba(255,255,255,0.10);
+  --shadowShell: 0 48px 140px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 0 1px rgba(255,255,255,0.05);
+  --shadowSection: 0 20px 60px rgba(0,0,0,0.45);
+  --shadowPill: 0 12px 28px rgba(0,0,0,0.35);
+  --shadowInfo: 0 12px 30px rgba(0,0,0,0.35);
+  --radiusShell: 28px;
+  --radiusSection: 18px;
+  --radiusCard: 16px;
+  --padBody: clamp(14px, 4vw, 52px);
+  --padShell: clamp(18px, 4vw, 38px);
+  --padSection: clamp(14px, 3vw, 22px);
+  --wShell: 1120px;
+}
+
+/* Import fonts (Wix Global CSS supports @import) */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Space+Grotesk:wght@400;500;600&display=swap');
+
+body {
+  margin: 0;
+  font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 18% 20%, var(--bg1), transparent 32%),
+    radial-gradient(circle at 82% 8%, var(--bg2), transparent 36%),
+    linear-gradient(135deg, var(--bg3), var(--bg4) 50%, var(--bg3));
+  min-height: 100vh;
+}
+
+/* Optional page wrapper: use on main container to control page padding without touching Wix chrome */
+.rj-page {
+  padding: var(--padBody);
+}
+
+h1, h2, h3 {
+  margin: 0 0 12px;
+  line-height: 1.2;
+  color: #ffe7f2;
+  font-family: "Playfair Display", serif;
+}
+
+h1 { font-size: clamp(1.8rem, 3.6vw, 2.5rem); letter-spacing: 0.01em; }
+h2 { font-size: clamp(1.3rem, 2.6vw, 1.9rem); color: var(--gold); }
+h3 { font-size: clamp(1.05rem, 2.2vw, 1.35rem); color: var(--turquoise); font-family: "Space Grotesk", sans-serif; }
+
+p, li {
+  color: rgba(248,244,247,0.9);
+  line-height: 1.62;
+  margin: 0 0 10px;
+}
+
+ul { padding-left: 20px; margin: 0 0 14px; }
+strong { color: var(--mask); }
+
+/* Shell / container */
+.rj-shell {
+  width: min(var(--wShell), 100%);
+  margin: 0 auto;
+  background: linear-gradient(160deg, var(--shellGradA), var(--shellGradB) 45%, var(--shellGradC) 100%);
+  border-radius: var(--radiusShell);
+  padding: var(--padShell);
+  box-shadow: var(--shadowShell);
+  backdrop-filter: blur(8px);
+}
+
+/* Sections */
+.rj-section {
+  padding: var(--padSection);
+  border-radius: var(--radiusSection);
+  margin-bottom: clamp(12px, 2vw, 20px);
+  background: linear-gradient(150deg, var(--sectionA), var(--sectionB));
+  border: 1px solid var(--stroke);
+  box-shadow: var(--shadowSection);
+}
+
+/* Hero block */
+.rj-hero {
+  display: flex;
+  gap: clamp(14px, 4vw, 28px);
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: clamp(16px, 3vw, 28px);
+}
+
+.rj-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(242,185,75,0.28), rgba(47,164,169,0.30));
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+  white-space: nowrap;
+}
+
+/* Pill for section labels */
+.rj-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  background: linear-gradient(90deg, rgba(242,185,75,0.30), rgba(47,164,169,0.26));
+  color: #fff;
+  margin-bottom: 12px;
+  box-shadow: var(--shadowPill);
+}
+
+/* Info/quote/cards */
+.rj-infobox {
+  border-radius: var(--radiusCard);
+  padding: 12px 14px;
+  background: linear-gradient(120deg, rgba(242,185,75,0.16), rgba(47,164,169,0.14));
+  color: #fff;
+  font-weight: 600;
+  margin: 10px 0 14px;
+  box-shadow: var(--shadowInfo);
+}
+
+.rj-quote {
+  margin: 14px 0 10px;
+  padding: 14px 16px;
+  border-radius: var(--radiusCard);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--stroke2);
+  font-style: italic;
+  color: #f3e8f0;
+}
+
+.rj-grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.rj-card {
+  border-radius: var(--radiusCard);
+  padding: 14px 14px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--stroke2);
+  box-shadow: 0 12px 34px rgba(0,0,0,0.35);
+}
+
+.rj-muted { color: rgba(248,244,247,0.78); }
+
+/* Responsive tweaks */
+@media (max-width: 960px) {
+  .rj-grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  body { padding: 14px; }
+  .rj-shell { padding: 16px; }
+  .rj-grid3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  h1 { font-size: clamp(1.6rem, 6vw, 2rem); }
+  .rj-badge { width: 100%; justify-content: center; }
+}

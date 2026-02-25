@@ -4,11 +4,11 @@
 
 const N8N_WEBHOOK_URL = 'https://agent.gtstor.com/webhook/game-chat';
 const MAX_MESSAGE_LENGTH = 1200;
-const CURL_TIMEOUT = 180; // allow slower LLM/n8n flows
+const CURL_TIMEOUT = 240; // allow slower LLM/n8n flows
 const CURL_CONNECT_TIMEOUT = 12;
 
 // Prevent PHP from killing long n8n runs before the webhook responds.
-@set_time_limit(CURL_TIMEOUT + 15);
+@set_time_limit(CURL_TIMEOUT + 30);
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -63,23 +63,8 @@ $forward = [
 
 $response = forward_to_webhook($forward);
 
-// Prefer explicit reply; fall back to common variants used by n8n flows.
-$reply = null;
-if (isset($response['reply']) && is_string($response['reply'])) {
-    $reply = trim($response['reply']);
-} elseif (isset($response['response']) && is_string($response['response'])) {
-    $reply = trim($response['response']);
-} elseif (isset($response['answer']) && is_string($response['answer'])) {
-    $reply = trim($response['answer']);
-} elseif (isset($response['output']['response']) && is_string($response['output']['response'])) {
-    $reply = trim($response['output']['response']);
-} elseif (isset($response['output']['answer']) && is_string($response['output']['answer'])) {
-    $reply = trim($response['output']['answer']);
-} elseif (isset($response[0]['output']['response']) && is_string($response[0]['output']['response'])) {
-    $reply = trim($response[0]['output']['response']);
-} elseif (isset($response[0]['output']['answer']) && is_string($response[0]['output']['answer'])) {
-    $reply = trim($response[0]['output']['answer']);
-}
+// Prefer explicit reply; fall back to history content if n8n only returns trace/history.
+$reply = extract_reply_from_response($response);
 
 // If n8n returns a chat_id, persist it.
 if (isset($response['chat_id']) && is_string($response['chat_id']) && $response['chat_id'] !== '') {
@@ -136,6 +121,122 @@ function forward_to_webhook(array $payload): array
 
     // If webhook returned plain text instead of JSON, surface it as reply text.
     return ['reply' => trim((string)$body)];
+}
+
+function extract_reply_from_response(array $response): ?string
+{
+    $directPaths = [
+        ['reply'],
+        ['response'],
+        ['answer'],
+        ['output', 'response'],
+        ['output', 'answer'],
+        [0, 'output', 'response'],
+        [0, 'output', 'answer'],
+    ];
+
+    foreach ($directPaths as $path) {
+        $candidate = array_path($response, $path);
+        if (is_string($candidate) && trim($candidate) !== '') {
+            return trim($candidate);
+        }
+    }
+
+    $historyPaths = [
+        ['history'],
+        ['output', 'history'],
+        [0, 'history'],
+        [0, 'output', 'history'],
+    ];
+
+    foreach ($historyPaths as $path) {
+        $history = array_path($response, $path);
+        $replyFromHistory = extract_from_history($history);
+        if ($replyFromHistory !== null) {
+            return $replyFromHistory;
+        }
+    }
+
+    return null;
+}
+
+function extract_from_history($history): ?string
+{
+    if (!is_array($history)) {
+        return null;
+    }
+
+    // Walk from the end to pick the latest assistant message.
+    for ($i = count($history) - 1; $i >= 0; $i--) {
+        $entry = $history[$i];
+        if (is_array($entry)) {
+            if (($entry['role'] ?? null) === 'assistant' && is_string($entry['content'] ?? null)) {
+                $formatted = format_ai_content($entry['content']);
+                if ($formatted !== null) {
+                    return $formatted;
+                }
+            }
+        } elseif (is_string($entry)) {
+            $formatted = format_ai_content($entry);
+            if ($formatted !== null) {
+                return $formatted;
+            }
+        }
+    }
+
+    return null;
+}
+
+function format_ai_content(string $content): ?string
+{
+    $trimmed = trim($content);
+    if ($trimmed === '') {
+        return null;
+    }
+
+    $decoded = json_decode($trimmed, true);
+    if (is_array($decoded)) {
+        // If the LLM returned structured JSON with summary/details, flatten to readable text.
+        $parts = [];
+        if (isset($decoded['summary']) && is_string($decoded['summary']) && trim($decoded['summary']) !== '') {
+            $parts[] = trim($decoded['summary']);
+        }
+        if (isset($decoded['details']) && is_array($decoded['details'])) {
+            foreach ($decoded['details'] as $detail) {
+                if (!is_array($detail)) {
+                    continue;
+                }
+                $title = isset($detail['title']) && is_string($detail['title']) ? trim($detail['title']) : '';
+                $description = isset($detail['description']) && is_string($detail['description']) ? trim($detail['description']) : '';
+                $line = trim($title . ($title && $description ? ': ' : '') . $description);
+                if ($line !== '') {
+                    $parts[] = $line;
+                }
+            }
+        }
+        if ($parts !== []) {
+            $first = array_shift($parts);
+            $lines = ['- ' . $first];
+            foreach ($parts as $part) {
+                $lines[] = '- ' . $part;
+            }
+            return implode("\n", $lines);
+        }
+    }
+
+    return $trimmed;
+}
+
+function array_path(array $source, array $keys)
+{
+    $value = $source;
+    foreach ($keys as $key) {
+        if (!is_array($value) || !array_key_exists($key, $value)) {
+            return null;
+        }
+        $value = $value[$key];
+    }
+    return $value;
 }
 
 function normalize_id($value): ?string
