@@ -1,0 +1,4468 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <title>GTC • Personal Shopping Agent</title>
+  <link rel="icon" href="/favicon.ico" />
+  <style>
+    :root {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color-scheme: dark;
+      --bg: #050712;
+      --bg-alt: #0b1224;
+      --panel: rgba(18, 24, 45, 0.7);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f2f4ff;
+      --muted: #9da6c6;
+      --accent: #6ed3ff;
+      --accent-strong: #2bc4ff;
+      --accent-bg: rgba(46, 164, 255, 0.16);
+      --header-surface: rgba(5, 7, 18, 0.9);
+      --hero-gradient: radial-gradient(circle at 18% 15%, rgba(110, 211, 255, 0.25), transparent 45%),
+        radial-gradient(circle at 80% 0%, rgba(182, 88, 255, 0.35), transparent 42%), #050712;
+      --chat-surface: rgba(255, 255, 255, 0.02);
+      --sidebar-surface: rgba(8, 10, 20, 0.65);
+      --sidebar-border: var(--border);
+      --card-surface: rgba(5, 7, 18, 0.85);
+      --card-border: var(--border);
+      --input-surface: rgba(255, 255, 255, 0.04);
+      --menu-surface: rgba(7, 12, 20, 0.96);
+      --menu-border: rgba(255, 255, 255, 0.12);
+      --menu-item-bg: rgba(255, 255, 255, 0.04);
+      --menu-item-hover: rgba(255, 255, 255, 0.12);
+      --toggle-bg: rgba(8, 10, 20, 0.85);
+      --toggle-fg: #ffffff;
+      --composer-bg: rgba(9, 12, 26, 0.92);
+      --composer-bg-focus: rgba(13, 18, 34, 0.98);
+      --composer-bg-disabled: rgba(255, 255, 255, 0.04);
+      --composer-border: rgba(255, 255, 255, 0.15);
+      --composer-focus-ring: rgba(110, 211, 255, 0.45);
+    }
+    [data-theme="light"] {
+      color-scheme: light;
+      --bg: #f7f8ff;
+      --bg-alt: #ffffff;
+      --panel: rgba(255, 255, 255, 0.85);
+      --border: rgba(16, 24, 40, 0.08);
+      --text: #0f172a;
+      --muted: #4c5166;
+      --accent: #2f6efc;
+      --accent-strong: #1a4be8;
+      --accent-bg: rgba(47, 110, 252, 0.12);
+      --header-surface: rgba(247, 248, 255, 0.9);
+      --hero-gradient: radial-gradient(circle at 18% 15%, rgba(47, 110, 252, 0.2), transparent 45%),
+        radial-gradient(circle at 80% 0%, rgba(139, 92, 246, 0.2), transparent 42%), #f7f8ff;
+      --chat-surface: rgba(255, 255, 255, 0.98);
+      --sidebar-surface: transparent;
+      --sidebar-border: rgba(15, 23, 42, 0.12);
+      --card-surface: rgba(255, 255, 255, 0.9);
+      --card-border: rgba(15, 23, 42, 0.12);
+      --input-surface: rgba(255, 255, 255, 0.96);
+      --menu-surface: rgba(255, 255, 255, 0.98);
+      --menu-border: rgba(15, 23, 42, 0.14);
+      --menu-item-bg: rgba(15, 23, 42, 0.04);
+      --menu-item-hover: rgba(15, 23, 42, 0.08);
+      --toggle-bg: rgba(255, 255, 255, 0.9);
+      --toggle-fg: #0f172a;
+      --composer-bg: rgba(255, 255, 255, 0.96);
+      --composer-bg-focus: rgba(255, 255, 255, 1);
+      --composer-bg-disabled: rgba(15, 23, 42, 0.05);
+      --composer-border: rgba(15, 23, 42, 0.12);
+      --composer-focus-ring: rgba(47, 110, 252, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+    body {
+      display: flex;
+      min-height: 100vh;
+    }
+    .page {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      min-width: 0;
+      background: var(--hero-gradient);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px clamp(18px, 6vw, 48px);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--header-surface);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: var(--accent-bg);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .public-actions,
+    .user-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .user-actions[hidden] { display: none; }
+    .page[data-view="app"] .public-actions { display: none; }
+    .page[data-view="public"] .user-actions { display: none; }
+
+    .ghost-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 18px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: border 0.2s ease, background 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ghost-btn:hover,
+    .ghost-btn:focus-visible {
+      border-color: rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.06);
+      outline: none;
+    }
+
+    .theme-toggle {
+      border: 1px solid var(--border);
+      background: rgba(15, 20, 35, 0.4);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .header-return-toggle {
+      position: sticky;
+      top: 0;
+      z-index: 39;
+      margin: 0 auto;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--toggle-bg, rgba(8, 10, 20, 0.85));
+      color: var(--toggle-fg, var(--text));
+      width: 32px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .header-return-toggle[hidden] {
+      display: none;
+    }
+
+    .user-chip-wrapper { position: relative; }
+
+    .user-chip {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      font-weight: 600;
+      padding: 9px 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .user-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 18px 38px rgba(0,0,0,0.4);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 220px;
+      z-index: 10;
+    }
+    .user-menu[hidden] { display: none; }
+    .menu-meta {
+      font-size: 0.82rem;
+      color: var(--muted);
+      padding: 0 12px 6px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 6px;
+    }
+
+    .menu-btn {
+      border: none;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    .menu-btn:hover { background: rgba(255,255,255,0.06); }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(24px, 8vw, 72px);
+      text-align: center;
+      gap: 24px;
+    }
+
+    .hero-title {
+      font-size: clamp(2rem, 5vw, 3.6rem);
+      margin: 0;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+    }
+
+    .hero-copy {
+      max-width: 700px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      border-radius: 14px;
+      padding: 14px 26px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(120deg, var(--accent), var(--accent-strong));
+      color: #040612;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.35);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-primary:hover,
+    .btn-secondary:hover {
+      transform: translateY(-1px);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .auth-card {
+      margin-top: 28px;
+      background: var(--card-surface);
+      border: 1px solid var(--card-border, var(--border));
+      border-radius: 20px;
+      padding: 20px;
+      width: min(100%, 640px);
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+    .auth-card--active {
+      box-shadow: 0 0 0 2px rgba(47, 110, 252, 0.2), 0 30px 60px rgba(0, 0, 0, 0.45);
+    }
+    .auth-card h2 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+    .auth-card p {
+      margin: 0;
+      color: var(--muted);
+    }
+    .auth-step {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .auth-step[hidden] { display: none; }
+    .auth-step label {
+      font-weight: 600;
+    }
+    .auth-step input {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--input-surface);
+      color: var(--text);
+      padding: 12px;
+      font-size: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 18px clamp(14px, 5vw, 24px);
+      }
+      .brand {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      .sidebar-toggle {
+        margin-left: 0;
+      }
+      main {
+        justify-content: flex-start;
+        align-items: stretch;
+        text-align: left;
+        padding: clamp(20px, 6vw, 32px) clamp(12px, 5vw, 24px) 32px;
+        gap: 18px;
+      }
+      .hero-title {
+        font-size: clamp(1.9rem, 9vw, 2.6rem);
+      }
+      .hero-copy {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        text-align: left;
+      }
+      .auth-card {
+        border-radius: 18px;
+        padding: 18px 14px 22px;
+        gap: 12px;
+      }
+      .auth-step input,
+      .auth-step button,
+      .auth-inline-link {
+        font-size: 1rem;
+      }
+      .auth-links {
+        flex-direction: column;
+      }
+      .screen-app {
+        padding: 0 0 24px;
+      }
+      .chat-area {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        padding: 10px 10px 16px;
+      }
+      .message-log {
+        padding: 10px 10px 16px;
+      }
+      .message-row {
+        max-width: 100%;
+      }
+      .message-row.user {
+        margin-left: 0;
+        align-items: flex-start;
+      }
+    }
+    .auth-step button {
+      align-self: flex-start;
+    }
+    .auth-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 0.92rem;
+    }
+    .auth-links button {
+      border: none;
+      background: transparent;
+      color: var(--accent);
+      cursor: pointer;
+      padding: 0;
+    }
+    .auth-links a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .auth-links a:hover,
+    .auth-links button:hover { text-decoration: underline; }
+    .auth-inline-link {
+      border: none;
+      background: transparent;
+      color: var(--accent);
+      cursor: pointer;
+      padding: 0;
+      font-size: 0.92rem;
+      align-self: flex-start;
+    }
+
+    @media (max-width: 600px) {
+      .user-menu {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: min(320px, 92vw);
+        min-width: 0;
+        text-align: right;
+      }
+      .menu-meta,
+      .menu-btn {
+        text-align: right;
+      }
+
+      html, body {
+        min-height: 100dvh;
+      }
+      .page {
+        min-height: 100dvh;
+      }
+
+      .screen-app {
+        padding: 4px 8px max(8px, env(safe-area-inset-bottom, 0px));
+      }
+
+      .chat-area {
+        border: none;
+        padding: 8px 0 8px;
+      }
+
+      .chat-thread {
+        border-radius: 12px;
+        box-shadow: none;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        border-bottom: none;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      .message-log {
+        padding: 10px 10px 12px;
+      }
+
+      .composer {
+        padding: 10px 10px max(10px, env(safe-area-inset-bottom, 0px));
+        border-radius: 0 0 12px 12px;
+      }
+    }
+    .auth-inline-link:hover,
+    .auth-inline-link:focus-visible {
+      text-decoration: underline;
+      outline: none;
+    }
+    .auth-msg {
+      min-height: 1.2rem;
+      font-size: 0.95rem;
+    }
+    .auth-msg[data-tone="error"] { color: #ff7b7b; }
+    .auth-msg[data-tone="success"] { color: #6ed3ff; }
+    .auth-msg[data-tone="warn"] { color: #f7c873; }
+    .auth-password-hints {
+      list-style: disc;
+      margin: 0 0 0 20px;
+      padding: 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .auth-password-hints li[data-state="ok"] {
+      color: #6ed3ff;
+    }
+
+    .screen-app {
+      display: none;
+      width: 100%;
+      padding: 0 0 clamp(28px, 5vw, 60px);
+      flex: 1 1 auto;
+      min-height: 0;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .page[data-view="app"] #screenPublic { display: none; }
+    .page[data-view="app"] #screenApp { display: flex; flex-direction: column; overflow: hidden; }
+
+    .page[data-header="hidden"] header {
+      transform: translateY(-100%);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      max-height: 0;
+      padding: 0;
+      margin: 0;
+      border: none;
+      box-shadow: none;
+    }
+    .page[data-header="hidden"] .header-return-toggle {
+      position: sticky;
+      top: 0;
+    }
+
+    .app-shell {
+      --sidebar-width: clamp(260px, 28vw, 320px);
+      flex: 1;
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr;
+      column-gap: 24px;
+      row-gap: 24px;
+      width: 100%;
+      min-height: 0;
+      height: 100%;
+      align-items: stretch;
+    }
+
+    .app-shell.sidebar-collapsed {
+      --sidebar-width: 0px;
+      column-gap: 16px;
+    }
+
+    .app-sidebar {
+      background: var(--sidebar-surface);
+      border: 1px solid var(--sidebar-border, var(--border));
+      border-radius: 24px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .app-shell.sidebar-collapsed .app-sidebar {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-32px);
+    }
+
+    .sidebar-toggle {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+      margin-left: 10px;
+    }
+
+    .sidebar-toggle:hover,
+    .sidebar-toggle:focus-visible {
+      background: rgba(255,255,255,0.08);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    @media (max-width: 960px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        row-gap: 16px;
+        column-gap: 0;
+      }
+      .app-shell.sidebar-collapsed {
+        grid-template-rows: 1fr;
+      }
+      .app-sidebar {
+        grid-column: 1;
+        grid-row: 1;
+      }
+      .app-shell.sidebar-collapsed .app-sidebar {
+        display: none;
+        transform: none;
+      }
+      .chat-area {
+        grid-column: 1;
+        grid-row: 2;
+      }
+      .app-shell.sidebar-collapsed .chat-area {
+        grid-row: 1;
+      }
+    }
+
+    .sidebar-section { display: flex; flex-direction: column; gap: 12px; }
+    .sidebar-section-chats { flex: 1 1 auto; min-height: 0; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 600;
+    }
+    .section-header button {
+      border: none;
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+    .chat-sidebar-scroll {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding-right: 4px;
+      padding-bottom: 4px;
+      scrollbar-gutter: stable;
+    }
+    .chat-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .chat-section-ungrouped {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 520px) {
+      .chat-section-ungrouped {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      }
+    }
+    .chat-placeholder {
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: left;
+    }
+    .chat-placeholder.is-inline {
+      border-style: solid;
+      border-color: rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+    }
+    .chat-list-entry {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 6px 8px 6px 14px;
+      background: rgba(255,255,255,0.01);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      transition: border 0.2s ease, background 0.2s ease, color 0.2s ease;
+    }
+    .chat-list-entry:hover,
+    .chat-list-entry:focus-within {
+      border-color: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      outline: none;
+    }
+    .chat-list-entry.is-active {
+      border-color: var(--accent);
+      background: rgba(46, 164, 255, 0.12);
+      color: var(--accent);
+    }
+    .chat-list-select {
+      flex: 1 1 auto;
+      border: none;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      padding: 6px 0;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chat-list-select:focus-visible {
+      outline: none;
+    }
+    .group-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .group-pill {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      padding: 6px 14px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .group-pill.active,
+    .group-pill:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .chat-item-menu {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .chat-item-menu-trigger {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.03);
+      color: inherit;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .chat-item-menu-trigger:hover,
+    .chat-item-menu-trigger:focus-visible {
+      border-color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.1);
+      outline: none;
+    }
+
+    .chat-item-menu-panel {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      border: 1px solid var(--menu-border, var(--border));
+      border-radius: 12px;
+      background: var(--menu-surface);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      padding: 8px;
+      min-width: 170px;
+      z-index: 10;
+    }
+
+    .chat-item-menu.open .chat-item-menu-panel {
+      display: flex;
+    }
+
+    .chat-item-menu-panel button {
+      border: none;
+      background: var(--menu-item-bg);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 10px;
+      text-align: left;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .chat-item-menu-panel button:hover,
+    .chat-item-menu-panel button:focus-visible {
+      background: var(--menu-item-hover);
+      outline: none;
+    }
+
+    .chat-item-menu-panel button.danger {
+      color: #ff7b7b;
+    }
+
+    .chat-group {
+      border: 1px solid var(--sidebar-border, var(--border));
+      border-radius: 18px;
+      background: transparent;
+      overflow: visible;
+      position: relative;
+    }
+
+    .chat-group-header {
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .chat-group-header:hover,
+    .chat-group-header:focus-visible {
+      background: rgba(255, 255, 255, 0.05);
+      outline: none;
+    }
+
+    .chat-group-name {
+      flex: 1;
+      text-align: left;
+    }
+
+    .chat-group-count {
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--muted);
+    }
+
+    .chat-group-toggle-icon {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      transition: transform 0.2s ease;
+    }
+
+    .chat-group-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 0 14px 14px;
+    }
+
+    .chat-group-collapsed {
+      border-color: rgba(255,255,255,0.04);
+    }
+
+    .chat-group-collapsed .chat-group-body {
+      display: none;
+    }
+
+    .chat-group-collapsed .chat-group-toggle-icon {
+      transform: rotate(-90deg);
+    }
+
+    .chat-area {
+      background: var(--chat-surface);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 18px 18px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(12px, 2vw, 22px);
+      flex: 1 1 auto;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chat-area > * { min-width: 0; }
+    .chat-area header {
+      padding: 0;
+      margin: 0;
+      border: none;
+    }
+    .chat-pane-header {
+      order: 0;
+      display: none;
+    }
+    .chat-title { margin: 0; font-size: 1.45rem; }
+    .chat-subtitle { margin: 4px 0 0; color: var(--muted); }
+    .chat-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chat-tag {
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .chat-preview {
+      flex: 1;
+      border: 1px dashed var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .chat-actions {
+      display: none !important;
+    }
+
+    .chat-scroll-region {
+      flex: 1 1 auto;
+      order: 1;
+      min-height: 0;
+      position: relative;
+      padding: 0;
+      display: flex;
+    }
+    .chat-thread {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-bottom: none;
+      border-radius: 18px;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      min-height: 100%;
+      overflow: hidden;
+      overflow-x: hidden;
+    }
+
+    .message-log {
+      flex: 1 1 auto;
+      padding: 14px 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      scrollbar-gutter: stable both-edge;
+    }
+    .message-row {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      max-width: 100%;
+      align-items: flex-start;
+    }
+    .message-row.user {
+      margin-left: auto;
+      align-items: flex-end;
+    }
+    .message-row.bot {
+      margin-right: auto;
+      align-items: flex-start;
+    }
+    .message-bubble {
+      border-radius: 18px;
+      padding: 10px 14px;
+      line-height: 1.45;
+      font-size: 0.95rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      word-wrap: break-word;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+    .message-row.user .message-bubble {
+      background: rgba(110, 211, 255, 0.15);
+      border-color: rgba(110, 211, 255, 0.35);
+      text-align: right;
+    }
+    .message-row.bot .message-bubble {
+      text-align: left;
+    }
+    .message-meta {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 0.85;
+      letter-spacing: 0.04em;
+    }
+    .product-card-grid {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .product-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: rgba(6,9,18,0.25);
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+    .product-card-order {
+      font-weight: 600;
+      color: var(--muted);
+      min-width: 24px;
+      text-align: right;
+      font-size: 0.85rem;
+    }
+    .product-card-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .product-card-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .product-card-body { display: flex; flex-direction: column; gap: 3px; }
+    .product-card-title { font-weight: 600; }
+    .product-card-store {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .product-card-desc { color: #d5ddf7; font-size: 0.9rem; }
+    .product-card-price { color: var(--accent); font-weight: 600; font-size: 0.86rem; }
+    .product-card-actions { display: flex; gap: 6px; }
+    .product-card-link {
+      border: 1px solid rgba(110,211,255,0.4);
+      border-radius: 999px;
+      padding: 5px 12px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 600px) {
+      .product-card {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+        padding: 8px 10px;
+        gap: 8px;
+      }
+      .product-card-order {
+        order: 1;
+        align-self: flex-start;
+      }
+      .product-card-thumb {
+        order: 2;
+      }
+      .product-card-body {
+        order: 3;
+        width: 100%;
+      }
+      .product-card-actions {
+        order: 4;
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+    }
+
+    .composer {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0 0 18px 18px;
+      padding: 16px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      background: transparent;
+      backdrop-filter: none;
+      order: 2;
+      z-index: 1;
+      box-shadow: none;
+      position: static;
+      margin-top: 0;
+    }
+    .composer textarea {
+      flex: 1;
+      resize: none;
+      border: 1px solid var(--composer-border);
+      background: var(--composer-bg);
+      color: var(--text);
+      font: inherit;
+      min-height: 54px;
+      max-height: 200px;
+      outline: none;
+      overflow-y: hidden;
+      line-height: 1.5;
+      border-radius: 16px;
+      padding: 14px 16px;
+      box-shadow: 0 15px 35px rgba(2, 6, 23, 0.45);
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+    .composer textarea:focus-visible {
+      border-color: var(--accent);
+      background: var(--composer-bg-focus);
+      box-shadow: 0 0 0 2px var(--composer-focus-ring), 0 18px 40px rgba(2, 6, 23, 0.55);
+    }
+    .composer textarea:disabled {
+      border-color: var(--composer-border);
+      background: var(--composer-bg-disabled);
+      box-shadow: none;
+      opacity: 0.65;
+    }
+    .composer button {
+      border-radius: 14px;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      font-weight: 600;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .composer button:hover,
+    .composer button:focus-visible {
+      background: rgba(46, 164, 255, 0.12);
+      box-shadow: 0 12px 28px rgba(2, 6, 23, 0.25);
+      outline: none;
+    }
+
+    dialog.modal-panel {
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      background: rgba(5, 7, 18, 0.95);
+      color: var(--text);
+      min-width: min(420px, 90vw);
+    }
+    dialog.modal-panel::backdrop {
+      background: rgba(4, 6, 12, 0.8);
+    }
+    .modal-panel h3 {
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+    .modal-panel form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .modal-panel .group-list-form {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 10px 12px;
+      max-height: 240px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .modal-panel label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    .modal-panel footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .chat-tag button {
+      border: none;
+      background: transparent;
+      color: inherit;
+      margin-left: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .plan-lock {
+      position: absolute;
+      inset: clamp(6px, 1.5vw, 18px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(4, 8, 20, 0.92);
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 25px 60px rgba(2, 6, 23, 0.55);
+      padding: clamp(24px, 5vw, 48px);
+      text-align: center;
+      z-index: 2;
+    }
+
+    .plan-lock[hidden] {
+      display: none;
+    }
+
+    .plan-lock-content {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      align-items: center;
+      justify-content: center;
+      max-width: 520px;
+      width: min(90vw, 540px);
+      padding: clamp(26px, 4vw, 48px);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: radial-gradient(circle at 20% 20%, rgba(110,211,255,0.12), rgba(4,8,20,0.92));
+      box-shadow: 0 25px 80px rgba(2, 6, 23, 0.65);
+    }
+
+    .plan-lock-text {
+      margin: 0;
+      color: var(--text);
+      font-size: 1rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .plan-lock-title {
+      margin: 0;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+    }
+
+    .plan-lock-caption {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    .group-manager-dialog .group-manager-body {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-height: 60vh;
+    }
+    .group-manager-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .group-manager-empty {
+      border: 1px dashed rgba(255,255,255,0.2);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    .group-manager-row {
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: rgba(255,255,255,0.02);
+    }
+    .group-manager-row-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1 1 auto;
+    }
+    .group-manager-swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.25);
+      flex-shrink: 0;
+    }
+    .group-manager-name-input {
+      flex: 1 1 auto;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.25);
+      color: var(--text);
+      padding: 6px 8px;
+      font: inherit;
+    }
+    .group-manager-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .group-manager-actions button {
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .group-manager-actions button.danger {
+      border-color: rgba(255,99,99,0.35);
+      color: #fda4af;
+    }
+    .group-manager-create {
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: rgba(255,255,255,0.02);
+    }
+    .group-manager-create label {
+      font-size: 0.85rem;
+      opacity: 0.75;
+    }
+    .group-manager-create input[type="text"] {
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(4,8,16,0.5);
+      color: var(--text);
+      padding: 8px 10px;
+      font: inherit;
+    }
+    .group-manager-palette {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .group-manager-color {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      background: var(--color, #fff);
+    }
+    .group-manager-color[data-selected="true"] {
+      border-color: rgba(255,255,255,0.9);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
+    }
+    .group-manager-status {
+      font-size: 0.82rem;
+      color: var(--muted);
+      min-height: 1.1em;
+    }
+    .group-manager-status[data-tone="success"] { color: #34d399; }
+    .group-manager-status[data-tone="warn"] { color: #facc15; }
+    .group-manager-status[data-tone="error"] { color: #f87171; }
+  </style>
+</head>
+<body>
+  <div class="page" id="page" data-view="public">
+    <header id="mainHeader">
+      <div class="brand">
+        <span class="brand-mark">G</span>
+        <span>GTC Agent</span>
+        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-controls="appSidebar" aria-expanded="false" aria-label="Show chat list" title="Toggle chat list">↔</button>
+      </div>
+      <div class="header-actions">
+        <div class="public-actions" id="publicActions">
+          <button class="ghost-btn" id="headerRegister" type="button" data-inline-auth="register">
+            <span aria-hidden="true">👤➕</span> Register
+          </button>
+          <button class="ghost-btn" id="headerLogin" type="button" data-inline-auth="login">
+            <span aria-hidden="true">🔑</span> Login
+          </button>
+        </div>
+        <div class="user-actions" id="userActions" hidden>
+          <div class="user-chip-wrapper">
+            <button class="user-chip" id="userMenuToggle" type="button" aria-haspopup="true" aria-expanded="false">
+              <span aria-hidden="true">👤</span>
+              <span id="userChipText">User</span>
+            </button>
+            <div class="user-menu" id="userMenu" hidden>
+              <div class="menu-meta" id="userMeta"></div>
+              <button class="menu-btn" id="profileBtn" type="button">Profile &amp; settings</button>
+              <button class="menu-btn" id="copyIdBtn" type="button">Copy gtc_user_id</button>
+              <button class="menu-btn" id="logoutBtn" type="button">Sign out</button>
+            </div>
+          </div>
+          <a
+            class="ghost-btn"
+            id="customerPortalLink"
+            href="https://billing.stripe.com/p/login/9B6cN60BK1xN5A4cs0dwc00"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Customer Portal
+          </a>
+        </div>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Toggle theme">
+          <span class="theme-icon" aria-hidden="true">🌙</span>
+          <span class="theme-label">Dark</span>
+        </button>
+      </div>
+    </header>
+
+    <main id="screenPublic" class="screen-public" role="main">
+      <p class="badge" hidden></p>
+      <h1 class="hero-title">Talk to your personal GTC shopping agent</h1>
+      <p class="hero-copy">
+        Plan your purchases smarter, compare offers, and get curated recommendations in real time.
+        Sign in with your GTC account to sync conversations and manage your subscription.
+      </p>
+      <section class="auth-card" id="inlineAuthPanel" hidden>
+        <form id="inlineAuthEmailForm" class="auth-step" autocomplete="off">
+          <label for="inlineAuthEmail" class="sr-only">Work email</label>
+          <input id="inlineAuthEmail" type="email" placeholder="you@example.com" required />
+          <button class="btn-primary" type="submit">Continue</button>
+        </form>
+        <form id="inlineLoginForm" class="auth-step" autocomplete="on" hidden>
+          <p class="auth-msg" id="inlineLoginHint"></p>
+          <label for="inlineLoginPassword">Password</label>
+          <input id="inlineLoginPassword" type="password" placeholder="••••••••" required autocomplete="current-password" />
+          <button class="auth-inline-link" id="inlineForgotPassword" type="button">Forgot your password?</button>
+          <button class="btn-primary" id="inlineLoginSubmit" type="submit">Sign in</button>
+        </form>
+        <form id="inlineRegisterForm" class="auth-step" autocomplete="off" hidden>
+          <p class="auth-msg" id="inlineRegisterHint">Create a password for <span id="inlineRegisterEmail"></span>.</p>
+          <label for="inlineRegisterPassword">Password</label>
+          <input id="inlineRegisterPassword" type="password" placeholder="At least 8 characters, 1 uppercase" required autocomplete="new-password" />
+          <ul class="auth-password-hints">
+            <li data-hint="len">At least 8 characters</li>
+            <li data-hint="uc">Contains uppercase letter (A-Z)</li>
+          </ul>
+          <button class="btn-primary" id="inlineRegisterSubmit" type="submit">Create account</button>
+        </form>
+        <div class="auth-links">
+          <button type="button" data-inline-auth-back hidden>Use another email</button>
+        </div>
+        <p class="auth-msg" id="inlineAuthStatus" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <button class="header-return-toggle" id="headerReturnToggle" type="button" aria-label="Show header" hidden>▼</button>
+
+    <section id="screenApp" class="screen-app" aria-live="polite">
+      <div class="app-shell sidebar-collapsed" id="appShell">
+        <aside class="app-sidebar" id="appSidebar">
+          <div class="sidebar-section sidebar-section-chats">
+            <div class="section-header">
+              <span>Chats</span>
+              <button type="button" id="newChatBtn">+ New chat</button>
+            </div>
+            <div class="chat-sidebar-scroll" id="chatList" role="region" aria-label="Chat list">
+              <div class="chat-placeholder">We will sync your conversations as soon as you sign in.</div>
+            </div>
+          </div>
+          <div class="sidebar-section">
+            <div class="section-header">
+              <span>Groups</span>
+              <button type="button" id="newGroupBtn">+ Group</button>
+            </div>
+          </div>
+        </aside>
+        <section class="chat-area">
+          <header class="chat-pane-header">
+            <h2 class="chat-title" id="chatTitle">Select a chat</h2>
+            <p class="chat-subtitle" id="chatSubtitle">Pick a thread from the left column to continue the conversation.</p>
+            <div class="chat-tags" id="chatTags"></div>
+          </header>
+          <div class="chat-scroll-region">
+            <div class="chat-thread">
+              <div class="message-log" id="messageLog">
+                <div class="chat-preview" id="chatPreview">Sign in to load your personal shopping history.</div>
+              </div>
+              <div class="composer" id="composer" aria-label="Message composer">
+                <textarea id="composerInput" placeholder="Describe what you need. For example: ‘Help me find a solution. I have a task...’" disabled></textarea>
+                <button type="button" id="composerSend" disabled>Send</button>
+              </div>
+            </div>
+          </div>
+          <div class="chat-actions">
+            <button class="ghost-btn" id="renameChatBtn" type="button" disabled>Rename</button>
+            <button class="ghost-btn" id="assignGroupBtn" type="button" disabled>Add to group</button>
+            <button class="ghost-btn" id="deleteChatBtn" type="button" disabled>Delete chat</button>
+          </div>
+          <div class="plan-lock" id="planLock" hidden>
+            <div class="plan-lock-content">
+              <h3 class="plan-lock-title">Start your GTC Agent plan</h3>
+              <p class="plan-lock-text">Choose a plan to unlock conversations with your personal GTC shopping agent.<br />You can change or cancel your plan at any time.</p>
+              <button type="button" class="btn-primary" id="planLockButton">Choose a plan</button>
+              <p class="plan-lock-caption">You'll be redirected to a secure payment page with your GTC ID and email filled in automatically.</p>
+            </div>
+          </div>
+          <dialog id="renameDialog" class="modal-panel">
+            <form method="dialog">
+              <h3>Rename chat</h3>
+              <p id="renameDialogSubtitle" style="margin-top:-6px;color:var(--muted);"></p>
+              <input type="text" id="renameDialogInput" placeholder="New chat title" style="border:1px solid var(--border); border-radius:12px; padding:12px; background:rgba(255,255,255,0.02); color:var(--text);" />
+              <footer>
+                <button type="button" id="renameDialogCancel" class="ghost-btn">Cancel</button>
+                <button type="button" id="renameDialogSave" class="btn-primary">Save</button>
+              </footer>
+            </form>
+          </dialog>
+          <dialog id="deleteDialog" class="modal-panel">
+            <form method="dialog">
+              <h3>Delete chat</h3>
+              <p id="deleteDialogMessage" style="color:var(--muted);"></p>
+              <footer>
+                <button type="button" id="deleteDialogCancel" class="ghost-btn">Cancel</button>
+                <button type="button" id="deleteDialogConfirm" class="btn-danger">Delete</button>
+              </footer>
+            </form>
+          </dialog>
+          <dialog id="groupManagerDialog" class="modal-panel group-manager-dialog">
+            <form method="dialog">
+              <h3>Manage groups</h3>
+              <p class="group-manager-note" style="margin:-6px 0 6px;color:var(--muted);">Create, rename, or delete chat groups.</p>
+              <div class="group-manager-body">
+                <div class="group-manager-empty" id="groupManagerEmpty" hidden>No groups yet. Create one below.</div>
+                <div class="group-manager-list" id="groupManagerList"></div>
+                <div class="group-manager-create">
+                  <label for="groupManagerCreateName">New group name</label>
+                  <input type="text" id="groupManagerCreateName" placeholder="Seasonal drops" />
+                  <div>
+                    <span class="group-manager-label" style="font-size:0.82rem;opacity:0.75;">Color</span>
+                    <div class="group-manager-palette" id="groupManagerPalette"></div>
+                  </div>
+                  <button type="button" id="groupManagerCreateBtn" class="btn-primary">Create group</button>
+                  <p class="group-manager-status" id="groupManagerStatus"></p>
+                </div>
+              </div>
+              <footer>
+                <button type="button" class="ghost-btn" id="groupManagerClose">Close</button>
+              </footer>
+            </form>
+          </dialog>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <script type="module">
+    import { fetchAuthStatus, checkEmail, login, register, logout, requestPasswordReset } from '../shared/auth.js';
+    import chatService, { listChats, getChatHistory, createChat, sendMessage, listChatGroups, setChatGroups, fetchSubscriptionSnapshot } from '../shared/chat-service.js';
+    import { escapeHtml, renderRichText, extractProductCards, createProductCardElement } from '../shared/ui-formatters.js';
+    import { GroupPicker } from '../shared/group-picker.js';
+
+    (function() {
+      const THEME_KEY = 'chat:user:theme';
+      const PAYMENT_URL = 'https://pay.gtstor.com/payment.php';
+      const CHAT_SOURCE = 'web_chat_user';
+      const AUTH_RETURN_PATH = window.location.pathname.startsWith('/user') ? window.location.pathname : '/user/';
+      const storageKeys = {
+        session: 'chat:user:session',
+        chat: 'chat:user:chat-id',
+        stage: 'chat:user:stage',
+        sidebar: 'chat:user:sidebar',
+        collapsedGroups: 'chat:user:collapsed-groups'
+      };
+
+      function restoreCollapsedGroups() {
+        try {
+          const raw = localStorage.getItem(storageKeys.collapsedGroups);
+          if (!raw) return new Set();
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            return new Set(parsed.filter(Boolean).map((id) => String(id).trim()).filter(Boolean).slice(0, 200));
+          }
+        } catch {}
+        return new Set();
+      }
+
+      const state = {
+        user: null,
+        view: 'public',
+        chats: [],
+        groups: [],
+        groupDrafts: [],
+        activeGroupId: 'all',
+        selectedChatId: null,
+        mockChatCounter: 1,
+        sessionId: ensureSession(),
+        chatId: loadChatId(),
+        stage: loadStage(),
+        chatMessages: Object.create(null),
+        sending: false,
+        pending: {
+          renameChatId: null,
+          deleteChatId: null
+        },
+        dataHydrated: false,
+        loading: {
+          chats: false,
+          groups: false,
+          messages: Object.create(null)
+        },
+        chatListError: null,
+        groupListError: null,
+        messageHydration: Object.create(null),
+        historyLoaded: Object.create(null),
+        groupIndex: Object.create(null),
+        collapsedGroups: restoreCollapsedGroups(),
+        subscriptionSnapshot: null,
+        subscriptionLocked: false,
+        openChatMenuId: null,
+        deletedChatIds: new Set(),
+        pendingDeletes: []
+      };
+      const inlineAuthState = {
+        email: ''
+      };
+      let verifiedLanding = new URLSearchParams(window.location.search).get('verified') === '1';
+      const POST_VERIFY_INITIAL_DELAY_MS = 350;
+      const POST_VERIFY_MAX_AUTH_ATTEMPTS = 4;
+      const POST_VERIFY_RETRY_DELAY_MS = 700;
+      if (state.chatId) {
+        state.selectedChatId = state.chatId;
+      }
+      const passwordResetLogger = chatService.attachLogger({
+        source: 'web_user_password_reset',
+        chatResolver: () => state.selectedChatId || state.chatId || null
+      });
+
+      // Generic analytics logger for visits and link interactions.
+      const analyticsLogger = chatService.attachLogger({
+        source: 'web_user_analytics',
+        chatResolver: () => state.selectedChatId || state.chatId || null
+      });
+
+      function resolveClientForTelemetry() {
+        const storedAuth = state.user?.gtc_user_id ? null : readStoredAuthContext();
+        const gtcId = state.user?.gtc_user_id || storedAuth?.gtc_user_id || null;
+        const email = state.user?.email || storedAuth?.email || null;
+        return { gtcId, email };
+      }
+
+      function logAnalyticsEvent(event, metadata = {}) {
+        if (!analyticsLogger || typeof analyticsLogger.queue !== 'function') return;
+        const { gtcId, email } = resolveClientForTelemetry();
+        analyticsLogger.queue(
+          {
+            message: event,
+            role: 'system',
+            session_id: state.sessionId,
+            stage: state.stage || null,
+            metadata: {
+              surface: 'user_portal',
+              path: window.location.pathname,
+              referrer: document.referrer || null,
+              theme: document.documentElement?.dataset?.theme || 'dark',
+              email_mask: maskEmailForTelemetry(email),
+              ...metadata
+            },
+            client: {
+              gtc_user_id: gtcId ? Number(gtcId) || gtcId : null,
+              email: email || null
+            }
+          },
+          { fallbackChatId: state.selectedChatId || state.chatId || null }
+        );
+      }
+
+      function logPageView() {
+        logAnalyticsEvent('page_view');
+      }
+
+      function logLinkClick(anchor) {
+        if (!anchor || !anchor.href) return;
+        const href = anchor.href;
+        if (!href || href.startsWith('javascript:')) return;
+        const label = (anchor.getAttribute('data-label') || anchor.textContent || '').trim().slice(0, 160);
+        logAnalyticsEvent('link_click', {
+          href,
+          label: label || null,
+          target: anchor.target || null,
+          rel: anchor.rel || null,
+          same_origin: href.startsWith(window.location.origin)
+        });
+      }
+
+      document.addEventListener('click', (event) => {
+        try {
+          const anchor = event.target?.closest?.('a');
+          if (!anchor) return;
+          logLinkClick(anchor);
+        } catch (error) {
+          console.warn('Analytics click handler failed', error);
+        }
+      });
+
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          const current = document.documentElement?.dataset?.theme || 'dark';
+          const next = current === 'light' ? 'dark' : 'light';
+          logAnalyticsEvent('theme_toggle', { theme: next });
+        });
+      }
+
+      requestAnimationFrame(logPageView);
+      let groupFetchInFlight = null;
+      let groupSaveInFlight = false;
+      const SUBSCRIPTION_RETRY_LIMIT = 3;
+      const SUBSCRIPTION_RETRY_DELAY_MS = 800;
+      const SUBSCRIPTION_ACTIVE_STATUSES = new Set(['active', 'trial', 'trialing', 'grace', 'paid', 'renewing']);
+
+      function delay(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      function coerceBooleanishFlag(value) {
+        if (typeof value === 'boolean') return value;
+        if (typeof value === 'number') return value > 0;
+        if (typeof value === 'string') {
+          const normalized = value.trim().toLowerCase();
+          if (!normalized) return false;
+          if (['1', 'true', 'yes', 'enabled', 'on'].includes(normalized)) return true;
+          if (['0', 'false', 'no', 'disabled', 'off', 'none'].includes(normalized)) return false;
+          if (SUBSCRIPTION_ACTIVE_STATUSES.has(normalized)) return true;
+        }
+        return false;
+      }
+
+      function subscriptionSnapshotIsActive(snapshot) {
+        if (!snapshot || typeof snapshot !== 'object') return false;
+        if (coerceBooleanishFlag(snapshot.subscriptionActive)) return true;
+        const status = (snapshot.subscriptionStatus || snapshot.snapshot?.status || '').toString().trim().toLowerCase();
+        if (status && SUBSCRIPTION_ACTIVE_STATUSES.has(status)) {
+          return true;
+        }
+        if (coerceBooleanishFlag(snapshot.snapshot?.active) || coerceBooleanishFlag(snapshot.snapshot?.is_active)) {
+          return true;
+        }
+        const expiry = snapshot.subscriptionEnd || snapshot.snapshot?.active_until || snapshot.snapshot?.expires_at;
+        if (expiry) {
+          const ts = Date.parse(expiry);
+          if (!Number.isNaN(ts)) {
+            return ts > Date.now();
+          }
+        }
+        return false;
+      }
+
+      function subscriptionRetryDelay(attempt) {
+        return SUBSCRIPTION_RETRY_DELAY_MS * Math.max(1, attempt) + Math.random() * 150;
+      }
+
+      async function fetchSubscriptionSnapshotWithRetry(gtcUserId, attempt = 1) {
+        try {
+          const snapshot = await fetchSubscriptionSnapshot(Number(gtcUserId));
+          if (subscriptionSnapshotIsActive(snapshot) || attempt >= SUBSCRIPTION_RETRY_LIMIT) {
+            return snapshot;
+          }
+          await delay(subscriptionRetryDelay(attempt));
+          return fetchSubscriptionSnapshotWithRetry(gtcUserId, attempt + 1);
+        } catch (error) {
+          if (attempt >= SUBSCRIPTION_RETRY_LIMIT) {
+            throw error;
+          }
+          await delay(subscriptionRetryDelay(attempt));
+          return fetchSubscriptionSnapshotWithRetry(gtcUserId, attempt + 1);
+        }
+      }
+
+      function rememberEmail(value) {
+        if (!value) return;
+        try {
+          localStorage.setItem('email', value);
+        } catch {}
+      }
+
+      function recalledEmail() {
+        try {
+          return localStorage.getItem('email') || '';
+        } catch {
+          return '';
+        }
+      }
+
+      function persistAuthContext(user) {
+        if (!user || typeof user !== 'object') return;
+        try {
+          if (user.email) localStorage.setItem('email', user.email);
+          if (user.gtc_user_id) localStorage.setItem('gtc_user_id', String(user.gtc_user_id));
+          if (user.id) localStorage.setItem('id', String(user.id));
+          if (user.email_verified !== undefined) {
+            localStorage.setItem('email_verified', String(!!user.email_verified));
+          }
+        } catch (error) {
+          console.warn('Unable to persist auth context', error);
+        }
+      }
+
+      function readStoredAuthContext() {
+        try {
+          const gtcUserId = localStorage.getItem('gtc_user_id');
+          if (!gtcUserId) return null;
+          const email = localStorage.getItem('email') || '';
+          const id = localStorage.getItem('id');
+          const emailVerifiedRaw = localStorage.getItem('email_verified');
+          let emailVerified;
+          if (emailVerifiedRaw === 'true') {
+            emailVerified = true;
+          } else if (emailVerifiedRaw === 'false') {
+            emailVerified = false;
+          }
+          return {
+            gtc_user_id: gtcUserId,
+            email,
+            id,
+            email_verified: emailVerified
+          };
+        } catch {
+          return null;
+        }
+      }
+
+      function clearStoredAuthContext() {
+        try {
+          localStorage.removeItem('gtc_user_id');
+          localStorage.removeItem('email_verified');
+        } catch {}
+      }
+
+      function clearVerifiedQueryFlag() {
+        if (!verifiedLanding) return;
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('verified');
+          const nextSearch = url.searchParams.toString();
+          const nextUrl = `${url.pathname}${nextSearch ? `?${nextSearch}` : ''}${url.hash}`;
+          window.history.replaceState({}, document.title, nextUrl);
+        } catch (error) {
+          console.warn('Unable to clear verified flag from URL', error);
+        }
+        verifiedLanding = false;
+      }
+
+      function maskEmailForTelemetry(email) {
+        const value = normalizedEmail(email);
+        if (!value) return null;
+        const [local, domain] = value.split('@');
+        if (!domain) {
+          return local.length > 3 ? `${local.slice(0, 3)}***` : `${local}***`;
+        }
+        const safeLocal = local.length <= 2 ? `${local}*` : `${local.slice(0, 2)}***`;
+        return `${safeLocal}@${domain}`;
+      }
+
+      function logPasswordResetEvent(status, email, extra = {}) {
+        if (!passwordResetLogger || typeof passwordResetLogger.queue !== 'function') return;
+        const storedAuth = state.user?.gtc_user_id ? null : readStoredAuthContext();
+        const gtcId = state.user?.gtc_user_id || storedAuth?.gtc_user_id || null;
+        const metadata = {
+          surface: 'user_portal',
+          status,
+          email_mask: maskEmailForTelemetry(email),
+          ...extra
+        };
+        passwordResetLogger.queue(
+          {
+            message: 'password_reset_request',
+            role: 'system',
+            session_id: state.sessionId,
+            stage: state.stage || null,
+            metadata,
+            client: {
+              gtc_user_id: gtcId ? Number(gtcId) || gtcId : null,
+              email: email || state.user?.email || null
+            }
+          },
+          { fallbackChatId: state.selectedChatId || state.chatId || null }
+        );
+      }
+
+      function defaultChatTitle(index = 1, chatId = '') {
+        const base = `Chat ${index}`;
+        if (chatId && typeof chatId === 'string') {
+          const suffix = chatId.slice(-4).toUpperCase();
+          return `${base} · ${suffix}`;
+        }
+        return base;
+      }
+
+      function coerceChatTitle(chat, index = 0) {
+        if (chat?.title && chat.title.trim()) return chat.title.trim();
+        const snippet = chat?.snippet || '';
+        if (snippet.trim()) {
+          const cleaned = snippet.replace(/^(You|Assistant):\s*/i, '').trim();
+          if (cleaned) {
+            return cleaned.slice(0, 60) + (cleaned.length > 60 ? '…' : '');
+          }
+        }
+        return defaultChatTitle(index + 1, chat?.chat_id || '');
+      }
+
+      function coerceChatSnippet(chat) {
+        if (chat?.snippet && chat.snippet.trim()) return chat.snippet.trim();
+        if (chat?.last_message && typeof chat.last_message === 'string' && chat.last_message.trim()) {
+          return chat.last_message.trim();
+        }
+        return 'Previous messages will load here once available.';
+      }
+
+      function normalizedEmail(value) {
+        return (value || '').trim().toLowerCase();
+      }
+
+      function setInlineAuthStep(step) {
+        if (!inlineAuthPanel) return;
+        inlineAuthPanel.dataset.step = step;
+        if (inlineAuthEmailForm) inlineAuthEmailForm.hidden = step !== 'email';
+        if (inlineLoginForm) inlineLoginForm.hidden = step !== 'login';
+        if (inlineRegisterForm) inlineRegisterForm.hidden = step !== 'register';
+        if (inlineAuthBackButton) inlineAuthBackButton.hidden = step === 'email';
+        if (step === 'email' && inlineAuthEmailInput) {
+          if (!inlineAuthEmailInput.value) {
+            inlineAuthEmailInput.value = inlineAuthState.email || recalledEmail();
+          }
+          inlineAuthEmailInput.focus();
+        } else if (step === 'login' && inlineLoginPassword) {
+          inlineLoginPassword.value = '';
+          inlineLoginPassword.focus();
+        } else if (step === 'register' && inlineRegisterPassword) {
+          inlineRegisterPassword.value = '';
+          inlineRegisterPassword.focus();
+          updateInlinePasswordHints('');
+        }
+      }
+
+      function setInlineAuthStatus(message, tone = 'info') {
+        if (!inlineAuthStatus) return;
+        inlineAuthStatus.textContent = message || '';
+        if (message) {
+          inlineAuthStatus.dataset.tone = tone;
+        } else {
+          delete inlineAuthStatus.dataset.tone;
+        }
+      }
+
+      function updateInlinePasswordHints(password) {
+        const value = password || '';
+        inlinePasswordHints.forEach((item) => {
+          const key = item.getAttribute('data-hint');
+          if (key === 'len') {
+            item.dataset.state = value.length >= 8 ? 'ok' : '';
+          } else if (key === 'uc') {
+            item.dataset.state = /[A-Z]/.test(value) ? 'ok' : '';
+          }
+        });
+      }
+
+      function passwordPolicyOk(password) {
+        const value = password || '';
+        return value.length >= 8 && /[A-Z]/.test(value);
+      }
+
+      function openInlineAuthPanel() {
+        if (!inlineAuthPanel) return false;
+        inlineAuthPanel.classList.add('auth-card--active');
+        setInlineAuthStep('email');
+        requestAnimationFrame(() => {
+          inlineAuthPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+        return true;
+      }
+
+      async function handleInlineAuthSuccess(payload, message) {
+        const email = payload?.email || inlineAuthState.email;
+        if (email) {
+          inlineAuthState.email = email;
+          rememberEmail(email);
+        }
+        persistAuthContext({
+          email,
+          gtc_user_id: payload?.gtc_user_id || payload?.gtcUserId,
+          id: payload?.id || payload?.user_id,
+          email_verified: payload?.email_verified
+        });
+        primeUserFromStoredAuth();
+        setInlineAuthStatus(message || 'Signed in.', 'success');
+        inlineAuthPanel?.classList.remove('auth-card--active');
+        await hydrateAuthState();
+      }
+
+      async function requestInlinePasswordReset(triggerButton) {
+        const email = normalizedEmail(inlineAuthState.email || inlineAuthEmailInput?.value);
+        if (!email) {
+          setInlineAuthStatus('Enter your email first so we know where to send the reset link.', 'warn');
+          setInlineAuthStep('email');
+          inlineAuthEmailInput?.focus();
+          return;
+        }
+        inlineAuthState.email = email;
+        rememberEmail(email);
+        setInlineAuthStatus('Sending password reset link…', 'info');
+        if (triggerButton) {
+          triggerButton.disabled = true;
+          triggerButton.setAttribute('aria-busy', 'true');
+        }
+        logPasswordResetEvent('started', email);
+        try {
+          const response = await requestPasswordReset(email);
+          if (response?.error) {
+            setInlineAuthStatus('Error: ' + response.error, 'error');
+            logPasswordResetEvent('api_error', email, {
+              error: response.error,
+              status: typeof response._status === 'number' ? response._status : null
+            });
+            return;
+          }
+          setInlineAuthStatus('If the address exists, a 60-minute reset link is on the way.', 'success');
+          logPasswordResetEvent('sent', email, { status: response?._status ?? null });
+        } catch (error) {
+          setInlineAuthStatus('Network error: ' + error.message, 'error');
+          logPasswordResetEvent('network_error', email, { error: error.message });
+        } finally {
+          if (triggerButton) {
+            triggerButton.disabled = false;
+            triggerButton.removeAttribute('aria-busy');
+          }
+        }
+      }
+
+      const page = document.getElementById('page');
+      const themeToggle = document.getElementById('themeToggle');
+      const themeLabel = themeToggle?.querySelector('.theme-label');
+      const themeIcon = themeToggle?.querySelector('.theme-icon');
+      const publicActions = document.getElementById('publicActions');
+      const userActions = document.getElementById('userActions');
+      const userChipText = document.getElementById('userChipText');
+      const userMenuToggle = document.getElementById('userMenuToggle');
+      const userMenu = document.getElementById('userMenu');
+      const userMeta = document.getElementById('userMeta');
+      const copyIdBtn = document.getElementById('copyIdBtn');
+      const profileBtn = document.getElementById('profileBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const newChatBtn = document.getElementById('newChatBtn');
+      const newGroupBtn = document.getElementById('newGroupBtn');
+      const groupList = document.getElementById('groupList');
+      const chatList = document.getElementById('chatList');
+      const messageLog = document.getElementById('messageLog');
+      const chatPreview = document.getElementById('chatPreview');
+      const chatTitle = document.getElementById('chatTitle');
+      const chatSubtitle = document.getElementById('chatSubtitle');
+      const chatTags = document.getElementById('chatTags');
+      const planLock = document.getElementById('planLock');
+      const planLockButton = document.getElementById('planLockButton');
+      const composer = document.getElementById('composer');
+      const composerInput = document.getElementById('composerInput');
+      const composerSend = document.getElementById('composerSend');
+      const groupManagerDialog = document.getElementById('groupManagerDialog');
+      const groupManagerList = document.getElementById('groupManagerList');
+      const groupManagerEmpty = document.getElementById('groupManagerEmpty');
+      const groupManagerCreateName = document.getElementById('groupManagerCreateName');
+      const groupManagerPalette = document.getElementById('groupManagerPalette');
+      const groupManagerCreateBtn = document.getElementById('groupManagerCreateBtn');
+      const groupManagerStatus = document.getElementById('groupManagerStatus');
+      const groupManagerClose = document.getElementById('groupManagerClose');
+      const renameChatBtn = document.getElementById('renameChatBtn');
+      const assignGroupBtn = document.getElementById('assignGroupBtn');
+      const deleteChatBtn = document.getElementById('deleteChatBtn');
+      const appShell = document.getElementById('appShell');
+      const sidebarToggle = document.getElementById('sidebarToggle');
+      const mainHeader = document.getElementById('mainHeader');
+      const headerReturnToggle = document.getElementById('headerReturnToggle');
+      const inlineAuthPanel = document.getElementById('inlineAuthPanel');
+      const inlineAuthEmailForm = document.getElementById('inlineAuthEmailForm');
+      const inlineAuthEmailInput = document.getElementById('inlineAuthEmail');
+      const inlineLoginForm = document.getElementById('inlineLoginForm');
+      const inlineLoginPassword = document.getElementById('inlineLoginPassword');
+      const inlineLoginHint = document.getElementById('inlineLoginHint');
+      const inlineLoginSubmit = document.getElementById('inlineLoginSubmit');
+      const inlineForgotPassword = document.getElementById('inlineForgotPassword');
+      const inlineRegisterForm = document.getElementById('inlineRegisterForm');
+      const inlineRegisterPassword = document.getElementById('inlineRegisterPassword');
+      const inlineRegisterHint = document.getElementById('inlineRegisterHint');
+      const inlineRegisterEmail = document.getElementById('inlineRegisterEmail');
+      const inlineRegisterSubmit = document.getElementById('inlineRegisterSubmit');
+      const inlineAuthStatus = document.getElementById('inlineAuthStatus');
+      const inlineAuthBackButton = document.querySelector('[data-inline-auth-back]');
+      const inlineAuthTriggers = document.querySelectorAll('[data-inline-auth]');
+      const inlinePasswordHints = inlineAuthPanel ? inlineAuthPanel.querySelectorAll('[data-hint]') : [];
+      const COMPOSER_MIN_HEIGHT = 56;
+      const COMPOSER_MAX_HEIGHT = 200;
+      const MAX_CHAT_GROUPS = 12;
+      const GROUP_COLOR_PALETTE = ['#60a5fa', '#f97316', '#34d399', '#a78bfa', '#f472b6', '#facc15', '#fb7185', '#10b981'];
+      let groupManagerSelectedColor = GROUP_COLOR_PALETTE[0];
+      const groupManagerBusyIds = new Set();
+
+      function autoSizeComposer(target = composerInput) {
+        if (!target) return;
+        const minHeight = Number(target.dataset.minHeight) || COMPOSER_MIN_HEIGHT;
+        const maxHeight = Number(target.dataset.maxHeight) || COMPOSER_MAX_HEIGHT;
+        target.style.height = 'auto';
+        const scrollHeight = target.scrollHeight || minHeight;
+        const next = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
+        target.style.height = next + 'px';
+        target.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
+      }
+
+      if (composerInput) {
+        composerInput.dataset.minHeight = String(COMPOSER_MIN_HEIGHT);
+        composerInput.dataset.maxHeight = String(COMPOSER_MAX_HEIGHT);
+        autoSizeComposer(composerInput);
+      }
+      const renameDialog = document.getElementById('renameDialog');
+      const renameDialogInput = document.getElementById('renameDialogInput');
+      const renameDialogSubtitle = document.getElementById('renameDialogSubtitle');
+      const renameDialogCancel = document.getElementById('renameDialogCancel');
+      const renameDialogSave = document.getElementById('renameDialogSave');
+      const deleteDialog = document.getElementById('deleteDialog');
+      const deleteDialogMessage = document.getElementById('deleteDialogMessage');
+      const deleteDialogCancel = document.getElementById('deleteDialogCancel');
+      const deleteDialogConfirm = document.getElementById('deleteDialogConfirm');
+      const groupPicker = new GroupPicker({ maxSelections: MAX_CHAT_GROUPS });
+      if (headerReturnToggle) {
+        headerReturnToggle.addEventListener('click', () => {
+          showHeader();
+        });
+      }
+
+      function applySidebarCollapsedState(collapsed) {
+        if (!appShell) return;
+        const isCollapsed = Boolean(collapsed);
+        appShell.classList.toggle('sidebar-collapsed', isCollapsed);
+        if (sidebarToggle) {
+          const label = isCollapsed ? 'Show chat list' : 'Hide chat list';
+          sidebarToggle.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+          sidebarToggle.setAttribute('aria-pressed', isCollapsed ? 'false' : 'true');
+          sidebarToggle.setAttribute('aria-label', label);
+        }
+      }
+
+      const storedSidebarPref = readSidebarPreference();
+      applySidebarCollapsedState(storedSidebarPref === 'expanded' ? false : true);
+
+      sidebarToggle?.addEventListener('click', () => {
+        const currentlyCollapsed = appShell ? appShell.classList.contains('sidebar-collapsed') : true;
+        const nextCollapsed = !currentlyCollapsed;
+        applySidebarCollapsedState(nextCollapsed);
+        rememberSidebarPreference(nextCollapsed);
+      });
+      inlineAuthTriggers.forEach((trigger) => {
+        trigger.addEventListener('click', (event) => {
+          event.preventDefault();
+          if (!openInlineAuthPanel()) {
+            openAuth(trigger.getAttribute('data-inline-auth') === 'register' ? 'register' : 'login');
+          }
+        });
+      });
+
+      inlineForgotPassword?.addEventListener('click', (event) => {
+        event.preventDefault();
+        void requestInlinePasswordReset(event.currentTarget);
+      });
+
+      function ensureSession() {
+        try {
+          const existing = localStorage.getItem(storageKeys.session);
+          if (existing) return existing;
+        } catch {}
+        const uid = crypto.randomUUID ? crypto.randomUUID() : `web-${Date.now()}`;
+        try {
+          localStorage.setItem(storageKeys.session, uid);
+        } catch {}
+        return uid;
+      }
+
+      function loadChatId() {
+        try {
+          return localStorage.getItem(storageKeys.chat) || null;
+        } catch {
+          return null;
+        }
+      }
+
+      function loadStage() {
+        try {
+          return localStorage.getItem(storageKeys.stage) || null;
+        } catch {
+          return null;
+        }
+      }
+
+      function saveChatId(chatId) {
+        state.chatId = chatId || null;
+        try {
+          if (chatId) {
+            localStorage.setItem(storageKeys.chat, chatId);
+          } else {
+            localStorage.removeItem(storageKeys.chat);
+          }
+        } catch {}
+      }
+
+      function saveStage(value) {
+        const normalized = typeof value === 'string' ? value.trim() : (value != null ? String(value) : '');
+        state.stage = normalized || null;
+        try {
+          if (normalized) {
+            localStorage.setItem(storageKeys.stage, normalized);
+          } else {
+            localStorage.removeItem(storageKeys.stage);
+          }
+        } catch {}
+      }
+
+      function rememberSidebarPreference(collapsed) {
+        try {
+          localStorage.setItem(storageKeys.sidebar, collapsed ? 'collapsed' : 'expanded');
+        } catch {}
+      }
+
+      function readSidebarPreference() {
+        try {
+          return localStorage.getItem(storageKeys.sidebar);
+        } catch {
+          return null;
+        }
+      }
+
+      function persistCollapsedGroupsState() {
+        if (!(state.collapsedGroups instanceof Set)) return;
+        try {
+          const payload = JSON.stringify(Array.from(state.collapsedGroups).slice(0, 200));
+          localStorage.setItem(storageKeys.collapsedGroups, payload);
+        } catch {}
+      }
+
+      function ensureCollapsedGroupSet() {
+        if (!(state.collapsedGroups instanceof Set)) {
+          state.collapsedGroups = restoreCollapsedGroups();
+        }
+        return state.collapsedGroups;
+      }
+
+      function normalizeChatId(value) {
+        if (value === null || value === undefined) return null;
+        return String(value);
+      }
+
+      function chatIdsMatch(left, right) {
+        const a = normalizeChatId(left);
+        const b = normalizeChatId(right);
+        if (a === null || b === null) return false;
+        return a === b;
+      }
+
+      function findChatById(chatId) {
+        const normalized = normalizeChatId(chatId);
+        if (!normalized) return null;
+        return state.chats.find((chat) => chatIdsMatch(chat.chat_id, normalized)) || null;
+      }
+
+      function ensureDeletedChatSet() {
+        if (!(state.deletedChatIds instanceof Set)) {
+          const seed = Array.isArray(state.deletedChatIds) ? state.deletedChatIds : [];
+          state.deletedChatIds = new Set(seed.filter(Boolean));
+        }
+        return state.deletedChatIds;
+      }
+
+      function isChatSoftDeleted(chat) {
+        if (!chat || !chat.chat_id) return true;
+        const deleted = ensureDeletedChatSet();
+        if (chat.deleted) return true;
+        return deleted.has(chat.chat_id);
+      }
+
+      function visibleChats() {
+        const deleted = ensureDeletedChatSet();
+        return (state.chats || []).filter((chat) => {
+          if (!chat?.chat_id) return false;
+          if (chat.deleted) return false;
+          return !deleted.has(chat.chat_id);
+        });
+      }
+
+      function markChatDeleted(chatId, chatRef) {
+        const deleted = ensureDeletedChatSet();
+        const fallbackId = chatId ? String(chatId) : null;
+        let chat = chatRef || null;
+        if (!chat && fallbackId) {
+          chat = findChatById(fallbackId);
+        }
+        if (!chat) {
+          console.warn('markChatDeleted: chat not found', { chatId: fallbackId });
+          return fallbackId;
+        }
+        if (!chat.chat_id) {
+          state.chats = state.chats.filter((entry) => entry !== chat);
+          console.info('Chat removed locally (missing chat_id)', {
+            title: chat.title || null,
+            requestChatId: fallbackId
+          });
+          return null;
+        }
+        const normalized = String(chat.chat_id);
+        deleted.add(normalized);
+        chat.deleted = true;
+        if (!Array.isArray(state.pendingDeletes)) {
+          state.pendingDeletes = [];
+        }
+        if (!state.pendingDeletes.includes(normalized)) {
+          state.pendingDeletes.push(normalized);
+        }
+        console.info('Chat marked for deletion', { chatId: normalized });
+        return normalized;
+      }
+
+      function applyTheme(value) {
+        const theme = value === 'light' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = theme;
+        if (themeToggle) {
+          themeToggle.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+          if (themeLabel) themeLabel.textContent = theme === 'light' ? 'Light' : 'Dark';
+          if (themeIcon) themeIcon.textContent = theme === 'light' ? '☀️' : '🌙';
+        }
+      }
+
+      function rememberTheme(theme) {
+        try {
+          localStorage.setItem(THEME_KEY, theme);
+        } catch (error) {
+          console.warn('Unable to store theme preference', error);
+        }
+      }
+
+      function restoreTheme() {
+        try {
+          return localStorage.getItem(THEME_KEY);
+        } catch {
+          return null;
+        }
+      }
+
+      function setView(next) {
+        state.view = next === 'app' ? 'app' : 'public';
+        if (page) {
+          page.dataset.view = state.view;
+          if (state.view === 'app') {
+            scheduleHeaderAutoHide();
+          } else {
+            showHeader();
+          }
+        }
+      }
+
+      function showHeader() {
+        if (!page) return;
+        delete page.dataset.header;
+        if (headerReturnToggle) headerReturnToggle.hidden = true;
+      }
+
+      function hideHeader() {
+        if (!page) return;
+        page.dataset.header = 'hidden';
+        if (headerReturnToggle) headerReturnToggle.hidden = false;
+      }
+
+      let headerHideTimeout = null;
+      function scheduleHeaderAutoHide() {
+        if (!page || !mainHeader) return;
+        if (headerHideTimeout) {
+          clearTimeout(headerHideTimeout);
+        }
+        headerHideTimeout = window.setTimeout(() => {
+          hideHeader();
+        }, 2000);
+      }
+
+      function displayName(user) {
+        if (!user) return '';
+        return user.full_name || user.email || `ID ${user.gtc_user_id}`;
+      }
+
+      function renderUserHeader() {
+        const loggedIn = Boolean(state.user?.gtc_user_id);
+        if (publicActions) publicActions.hidden = loggedIn;
+        if (userActions) userActions.hidden = !loggedIn;
+        if (!loggedIn) {
+          setUserMenu(false);
+          return;
+        }
+        if (userChipText) {
+          userChipText.textContent = `${displayName(state.user)} (${state.user.gtc_user_id})`;
+        }
+        if (userMeta) {
+          userMeta.textContent = `${state.user.email || '—'} · gtc_user_id ${state.user.gtc_user_id}`;
+        }
+      }
+
+      function primeUserFromStoredAuth() {
+        const snapshot = readStoredAuthContext();
+        if (!snapshot?.gtc_user_id) return;
+        state.user = { ...(state.user || {}), ...snapshot };
+        renderUserHeader();
+      }
+
+      function setUserMenu(open) {
+        if (!userMenu || !userMenuToggle) return;
+        userMenu.hidden = !open;
+        userMenuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+
+      function chatMessagesFor(chatId) {
+        if (!chatId) return [];
+        if (!state.chatMessages[chatId]) {
+          state.chatMessages[chatId] = [];
+        }
+        return state.chatMessages[chatId];
+      }
+
+      function sortChatsByRecency() {
+        state.chats.sort((a, b) => resolveChatTimestamp(b) - resolveChatTimestamp(a));
+      }
+
+      function resolveChatTimestamp(chat) {
+        if (!chat) return 0;
+        const raw = chat.updated_at || chat.last_message_at || chat.created_at || 0;
+        if (typeof raw === 'number') {
+          return raw;
+        }
+        const parsed = Date.parse(raw);
+        return Number.isFinite(parsed) ? parsed : 0;
+      }
+
+      function hasSeedOnlyMessages(chatId) {
+        if (!chatId) return false;
+        const bucket = state.chatMessages[chatId];
+        if (!Array.isArray(bucket) || !bucket.length) return false;
+        return bucket.every((msg) => Boolean(msg?.seeded));
+      }
+
+      function pushMessage(role, text, { chatId = state.selectedChatId, meta, traceId, stage } = {}) {
+        if (!chatId || !text) return;
+        const bucket = chatMessagesFor(chatId);
+        bucket.push({
+          id: crypto.randomUUID(),
+          role: role === 'user' ? 'user' : role === 'system' ? 'system' : 'bot',
+          text,
+          meta: meta || formatMessageMeta(role, Date.now()),
+          traceId: traceId || null,
+          stage: stage || null,
+          ts: Date.now()
+        });
+        if (chatId) {
+          state.historyLoaded[chatId] = true;
+        }
+        if (chatId === state.selectedChatId) {
+          renderMessagesForChat(findChatById(chatId));
+        }
+      }
+
+      function pushSystem(text) {
+        pushMessage('system', text, { meta: 'Notice · ' + new Date().toLocaleTimeString() });
+      }
+
+      function setChatHistoryLoading(chatId, isLoading) {
+        if (!chatId) return;
+        if (isLoading) {
+          state.loading.messages[chatId] = true;
+        } else {
+          delete state.loading.messages[chatId];
+        }
+      }
+
+      function isChatHistoryLoading(chatId) {
+        if (!chatId) return false;
+        return Boolean(state.loading.messages[chatId]);
+      }
+
+      async function hydrateChatMessages(chatId, options = {}) {
+        if (!chatId || !state.user?.gtc_user_id) return null;
+        if (!options.force && state.historyLoaded[chatId]) {
+          return state.chatMessages[chatId] || null;
+        }
+        if (state.messageHydration[chatId]) {
+          return state.messageHydration[chatId];
+        }
+        const task = (async () => {
+          setChatHistoryLoading(chatId, true);
+          try {
+            const result = await getChatHistory(chatId, state.user.gtc_user_id, { limit: options.limit || 200 });
+            if (result && Array.isArray(result.messages)) {
+              const adapted = result.messages.map((entry) => adaptServerMessage(entry)).filter(Boolean);
+              state.chatMessages[chatId] = adapted;
+              state.historyLoaded[chatId] = true;
+            }
+          } catch (error) {
+            console.warn('chat history hydration failed', error);
+          } finally {
+            setChatHistoryLoading(chatId, false);
+            renderMessagesForChat(findChatById(chatId));
+          }
+        })();
+        state.messageHydration[chatId] = task;
+        try {
+          await task;
+        } finally {
+          delete state.messageHydration[chatId];
+        }
+        return state.chatMessages[chatId] || null;
+      }
+
+      function adaptServerMessage(entry) {
+        if (!entry || typeof entry !== 'object') return null;
+        const role = entry.role === 'assistant' ? 'bot' : entry.role === 'system' ? 'system' : 'user';
+        const text = typeof entry.content === 'string' ? entry.content : '';
+        const timestamp = entry.created_at ? Date.parse(entry.created_at) : Date.now();
+        const metadata = entry.metadata && typeof entry.metadata === 'object' ? entry.metadata : {};
+        const traceId = entry.trace_id || metadata.trace_id || metadata.traceId || null;
+        const stage = entry.stage || metadata.stage || null;
+        return {
+          id: entry.message_id || randomMessageId(),
+          role,
+          text,
+          meta: formatMessageMeta(role, timestamp || Date.now()),
+          traceId,
+          stage,
+          ts: timestamp || Date.now()
+        };
+      }
+
+      function randomMessageId() {
+        if (typeof crypto?.randomUUID === 'function') {
+          return crypto.randomUUID();
+        }
+        return 'msg-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+      }
+
+      function formatMessageMeta(role, timestamp) {
+        const label = role === 'user' ? 'You' : role === 'system' ? 'Notice' : 'Assistant';
+        return `${label} · ${formatRelativeTime(timestamp)}`;
+      }
+
+      async function hydrateShellData(options = {}) {
+        if (!state.user) return;
+        if (state.dataHydrated && !options.force) {
+          renderChatList();
+          renderGroupList();
+          updateChatPanel();
+          return;
+        }
+        setLoadingState(true);
+        const [chatOutcome, groupOutcome] = await Promise.allSettled([
+          listChats(state.user.gtc_user_id, options.chatParams || {}),
+          listChatGroups(state.user.gtc_user_id)
+        ]);
+        try {
+          const chats = chatOutcome.status === 'fulfilled'
+            ? Array.isArray(chatOutcome.value) ? chatOutcome.value : []
+            : [];
+          if (chatOutcome.status === 'rejected') {
+            console.warn('chat list hydration failed', chatOutcome.reason);
+          }
+          state.chatListError = chatOutcome.status === 'rejected'
+            ? describeListError(chatOutcome.reason, 'Unable to sync chat history. Please retry later.')
+            : null;
+          state.chats = chats.map((chat, index) => {
+            const snippet = coerceChatSnippet(chat);
+            return {
+              ...chat,
+              title: coerceChatTitle({ ...chat, snippet }, index),
+              snippet
+            };
+          });
+          state.mockChatCounter = state.chats.length + 1;
+          sortChatsByRecency();
+          ingestChatGroupMetadata(state.chats);
+          if (!state.selectedChatId || !state.chats.some((chat) => chatIdsMatch(chat.chat_id, state.selectedChatId))) {
+            state.selectedChatId = state.chats[0]?.chat_id || null;
+            saveChatId(state.selectedChatId);
+          }
+          state.chats.forEach((chat) => {
+            if (!chat?.chat_id || state.chatMessages[chat.chat_id]?.length) return;
+            if (!chat.snippet) return;
+            state.chatMessages[chat.chat_id] = [{
+              id: `seed-${chat.chat_id}`,
+              role: 'bot',
+              text: chat.snippet,
+              meta: 'Assistant · synced',
+              ts: chat.updated_at || Date.now(),
+              seeded: true
+            }];
+          });
+
+          if (groupOutcome.status === 'fulfilled') {
+            const groups = Array.isArray(groupOutcome.value) ? groupOutcome.value : [];
+            state.groupListError = null;
+            state.groups = groups;
+            upsertGroupIndex(groups);
+          } else {
+            console.warn('group list hydration failed', groupOutcome.reason);
+            state.groupListError = describeListError(groupOutcome.reason, 'Unable to sync groups. Please retry later.');
+            if (!state.groups.length) {
+              state.groups = deriveGroupsFromChats(state.chats);
+            }
+          }
+          state.mockGroupCounter = state.groups.length + 1;
+          if (state.activeGroupId !== 'all' && !state.groups.some((group) => group.id === state.activeGroupId)) {
+            state.activeGroupId = 'all';
+          }
+        } catch (error) {
+          console.warn('shell hydration failed', error);
+          if (!state.chatListError) {
+            state.chatListError = describeListError(error, 'Unable to sync chat history. Please retry later.');
+          }
+          if (!state.groupListError) {
+            state.groupListError = describeListError(error, 'Unable to sync groups. Please retry later.');
+          }
+        } finally {
+          state.dataHydrated = true;
+          setLoadingState(false);
+          renderChatList();
+          renderGroupList();
+          updateChatPanel();
+          syncChatActions();
+          if (state.selectedChatId && state.user?.gtc_user_id) {
+            void hydrateChatMessages(state.selectedChatId);
+          }
+        }
+      }
+
+      function setLoadingState(isLoading) {
+        state.loading.chats = Boolean(isLoading);
+        state.loading.groups = Boolean(isLoading);
+        if (isLoading) {
+          state.chatListError = null;
+          state.groupListError = null;
+          if (chatList) chatList.innerHTML = '<div class="chat-placeholder">Loading chats...</div>';
+          if (groupList) groupList.innerHTML = '<button class="group-pill active" type="button" disabled>Loading...</button>';
+        }
+      }
+
+      async function hydrateAuthState(options = {}) {
+        const silent = Boolean(options.silent);
+        const result = await fetchAuthStatus();
+        if (result.ok) {
+          state.user = result.data;
+          persistAuthContext(result.data);
+          if (result.data?.email) {
+            inlineAuthState.email = result.data.email;
+          }
+          setInlineAuthStatus('');
+          await enterAppView();
+          return { ok: true };
+        }
+        if (!silent) {
+          if (result.error) {
+            console.warn('auth status unavailable', result.error);
+          } else if (result.status) {
+            console.warn('auth status unavailable', result.status);
+          }
+        }
+        state.user = null;
+        clearStoredAuthContext();
+        inlineAuthState.email = recalledEmail();
+        setInlineAuthStatus('');
+        exitAppView();
+        return { ok: false, error: result.error, status: result.status };
+      }
+
+      async function enterAppView() {
+        setView('app');
+        renderUserHeader();
+        await hydrateShellData();
+        await hydrateSubscriptionStatus();
+      }
+
+      function exitAppView() {
+        setView('public');
+        renderUserHeader();
+        toggleComposer(false);
+        clearStoredAuthContext();
+        state.subscriptionSnapshot = null;
+        setSubscriptionLock(false);
+        state.selectedChatId = null;
+        state.chats = [];
+        state.groups = [];
+        state.groupDrafts = [];
+        state.groupIndex = Object.create(null);
+        state.collapsedGroups = restoreCollapsedGroups();
+        state.openChatMenuId = null;
+        state.deletedChatIds = new Set();
+        state.pendingDeletes = [];
+        state.chatMessages = Object.create(null);
+        state.historyLoaded = Object.create(null);
+        state.messageHydration = Object.create(null);
+        state.loading.messages = Object.create(null);
+        state.activeGroupId = 'all';
+        groupFetchInFlight = null;
+        groupSaveInFlight = false;
+        setGroupActionBusy(false);
+        saveChatId(null);
+        saveStage(null);
+        chatTags.innerHTML = '';
+        chatTitle.textContent = 'Sign in to start chatting';
+        chatSubtitle.textContent = 'Use the login button above to sync your shopping history.';
+        messageLog.innerHTML = '';
+        closeChatMenus();
+        syncChatActions();
+      }
+
+      async function bootAuthFlow() {
+        if (verifiedLanding && POST_VERIFY_INITIAL_DELAY_MS > 0) {
+          await delay(POST_VERIFY_INITIAL_DELAY_MS);
+        }
+        const initial = await hydrateAuthState();
+        if (initial?.ok) {
+          clearVerifiedQueryFlag();
+          return;
+        }
+        if (!verifiedLanding) return;
+        for (let attempt = 1; attempt <= POST_VERIFY_MAX_AUTH_ATTEMPTS; attempt += 1) {
+          await delay(POST_VERIFY_RETRY_DELAY_MS * attempt);
+          const retry = await hydrateAuthState({ silent: true });
+          if (retry?.ok) {
+            clearVerifiedQueryFlag();
+            return;
+          }
+        }
+        console.warn('Post-verification auth hydration did not complete after retries.');
+      }
+
+      function buildAuthHref(target = 'login') {
+        const url = new URL('/auth/', window.location.origin);
+        if (target === 'register') {
+          url.searchParams.set('screen', 'signup');
+        } else {
+          url.searchParams.set('screen', 'login');
+        }
+        url.searchParams.set('next', AUTH_RETURN_PATH);
+        url.searchParams.set('source', 'user_portal');
+        return url.toString();
+      }
+
+      function openAuth(target = 'login') {
+        window.location.href = buildAuthHref(target);
+      }
+
+      function ensureAuth(action = 'chat') {
+        if (state.user?.gtc_user_id) return true;
+        if (!openInlineAuthPanel()) {
+          openAuth(action === 'billing' ? 'login' : 'login');
+        }
+        return false;
+      }
+
+      function openBillingPortal(options = {}) {
+        if (!ensureAuth('billing')) return;
+        if (!state.user?.gtc_user_id) return;
+        try {
+          const url = new URL(PAYMENT_URL);
+          url.searchParams.set('gtc_user_id', String(state.user.gtc_user_id));
+          if (state.user.email) url.searchParams.set('email', state.user.email);
+          if (options.plan) url.searchParams.set('plan', options.plan);
+          if (options.source) {
+            url.searchParams.set('source', options.source);
+          }
+          window.open(url.toString(), '_blank', 'noopener');
+        } catch (error) {
+          console.warn('billing portal error', error);
+        }
+      }
+
+      themeToggle?.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+        applyTheme(next);
+        rememberTheme(next);
+      });
+
+      userMenuToggle?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (!state.user) {
+          openAuth('login');
+          return;
+        }
+        const open = userMenu?.hidden;
+        setUserMenu(Boolean(open));
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!userMenu || userMenu.hidden) return;
+        if (event.target === userMenu || event.target === userMenuToggle || userMenu.contains(event.target)) {
+          return;
+        }
+        setUserMenu(false);
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!state.openChatMenuId) return;
+        if (event.target instanceof Element && event.target.closest('.chat-item-menu')) {
+          return;
+        }
+        closeChatMenus();
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        if (!state.openChatMenuId) return;
+        closeChatMenus();
+      });
+
+      planLockButton?.addEventListener('click', () => {
+        openBillingPortal({ source: 'user_plan_prompt' });
+      });
+
+      copyIdBtn?.addEventListener('click', async () => {
+        if (!ensureAuth()) return;
+        try {
+          await navigator.clipboard.writeText(String(state.user.gtc_user_id));
+          alert('Copied to clipboard');
+        } catch (error) {
+          console.warn('copy failed', error);
+        }
+      });
+
+      profileBtn?.addEventListener('click', () => {
+        if (!ensureAuth()) return;
+        window.location.href = '/auth/';
+      });
+
+      logoutBtn?.addEventListener('click', async () => {
+        if (!logoutBtn || logoutBtn.disabled) return;
+        logoutBtn.disabled = true;
+        setInlineAuthStatus('Signing out…');
+        try {
+          const result = await logout();
+          if (result?.error) {
+            console.warn('logout request failed', result.error);
+          }
+        } catch (error) {
+          console.warn('logout request failed', error);
+        } finally {
+          logoutBtn.disabled = false;
+        }
+        state.user = null;
+        exitAppView();
+        setInlineAuthStatus('You signed out. Sign in again to continue.', 'warn');
+        setInlineAuthStep('email');
+      });
+
+      inlineAuthBackButton?.addEventListener('click', () => {
+        inlineAuthState.email = '';
+        setInlineAuthStatus('');
+        setInlineAuthStep('email');
+      });
+
+      inlineAuthEmailForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!inlineAuthEmailInput) return;
+        const email = normalizedEmail(inlineAuthEmailInput.value);
+        if (!email) {
+          setInlineAuthStatus('Enter your work email to continue.', 'warn');
+          inlineAuthEmailInput.focus();
+          return;
+        }
+        inlineAuthState.email = email;
+        rememberEmail(email);
+        setInlineAuthStatus('Checking account…');
+        const submitBtn = inlineAuthEmailForm.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        try {
+          const resp = await checkEmail(email);
+          if (resp.error) {
+            setInlineAuthStatus('Error: ' + resp.error, 'error');
+            return;
+          }
+          if (resp.exists) {
+            if (inlineLoginHint) inlineLoginHint.textContent = `Enter the password for ${email}.`;
+            setInlineAuthStatus('Account found. Enter your password.', 'info');
+            setInlineAuthStep('login');
+          } else {
+            if (inlineRegisterEmail) inlineRegisterEmail.textContent = email;
+            if (inlineRegisterHint) inlineRegisterHint.textContent = `Create a password for ${email}.`;
+            setInlineAuthStatus('Let’s create your account.', 'info');
+            setInlineAuthStep('register');
+          }
+        } catch (error) {
+          setInlineAuthStatus('Network error: ' + error.message, 'error');
+        } finally {
+          if (submitBtn) submitBtn.disabled = false;
+        }
+      });
+
+      inlineLoginForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = inlineAuthState.email || normalizedEmail(inlineAuthEmailInput?.value);
+        if (!email) {
+          setInlineAuthStatus('Enter your email first.', 'warn');
+          setInlineAuthStep('email');
+          return;
+        }
+        const password = inlineLoginPassword?.value || '';
+        if (!password) {
+          setInlineAuthStatus('Enter your password.', 'warn');
+          inlineLoginPassword?.focus();
+          return;
+        }
+        inlineAuthState.email = email;
+        rememberEmail(email);
+        setInlineAuthStatus('Signing in…');
+        if (inlineLoginSubmit) inlineLoginSubmit.disabled = true;
+        try {
+          const resp = await login(email, password);
+          if (resp.error) {
+            if (resp._status === 403 && resp.error === 'email_not_verified') {
+              try {
+                localStorage.setItem('email', email);
+                localStorage.setItem('email_verified', 'false');
+              } catch {}
+              const qs = `?next=${encodeURIComponent('/user/')}`;
+              window.location.href = `/verify/${qs}`;
+              return;
+            }
+            if (resp._status === 409 && resp.error === 'password_not_set') {
+              if (inlineRegisterEmail) inlineRegisterEmail.textContent = email;
+              if (inlineRegisterHint) inlineRegisterHint.textContent = `Set a password for ${email}.`;
+              if (inlineRegisterPassword) inlineRegisterPassword.value = password;
+              updateInlinePasswordHints(password);
+              setInlineAuthStatus('This account needs a password. Create one below.', 'warn');
+              setInlineAuthStep('register');
+              return;
+            }
+            if (resp._status === 401) {
+              setInlineAuthStatus('Invalid email or password.', 'error');
+              return;
+            }
+            setInlineAuthStatus('Error: ' + (resp.error || 'unknown'), 'error');
+            return;
+          }
+          await handleInlineAuthSuccess(resp, 'Signed in.');
+        } catch (error) {
+          setInlineAuthStatus('Network error: ' + error.message, 'error');
+        } finally {
+          if (inlineLoginSubmit) inlineLoginSubmit.disabled = false;
+        }
+      });
+
+      inlineRegisterForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = inlineAuthState.email || normalizedEmail(inlineAuthEmailInput?.value);
+        if (!email) {
+          setInlineAuthStatus('Enter your email first.', 'warn');
+          setInlineAuthStep('email');
+          return;
+        }
+        const password = inlineRegisterPassword?.value || '';
+        if (!passwordPolicyOk(password)) {
+          setInlineAuthStatus('Password must contain 8+ characters and an uppercase letter.', 'warn');
+          updateInlinePasswordHints(password);
+          inlineRegisterPassword?.focus();
+          return;
+        }
+        inlineAuthState.email = email;
+        rememberEmail(email);
+        setInlineAuthStatus('Creating your account…');
+        if (inlineRegisterSubmit) inlineRegisterSubmit.disabled = true;
+        try {
+          const resp = await register({ email, password });
+          if (resp.error) {
+            if (resp._status === 409 && resp.error === 'email_exists') {
+              setInlineAuthStatus('This email already exists. Sign in instead.', 'warn');
+              setInlineAuthStep('login');
+              return;
+            }
+            setInlineAuthStatus('Registration error: ' + resp.error, 'error');
+            return;
+          }
+          try {
+            localStorage.setItem('email', email);
+            localStorage.setItem('email_verified', 'false');
+          } catch {}
+          setInlineAuthStatus('Check your inbox to confirm the email.', 'success');
+          const qs = `?next=${encodeURIComponent('/user/')}`;
+          window.location.href = `/verify/${qs}`;
+        } catch (error) {
+          setInlineAuthStatus('Network error: ' + error.message, 'error');
+        } finally {
+          if (inlineRegisterSubmit) inlineRegisterSubmit.disabled = false;
+        }
+      });
+
+      inlineRegisterPassword?.addEventListener('input', (event) => {
+        updateInlinePasswordHints(event.target.value);
+      });
+
+      if (inlineAuthEmailInput && !inlineAuthEmailInput.value) {
+        inlineAuthEmailInput.value = recalledEmail();
+      }
+
+      newChatBtn?.addEventListener('click', () => {
+        if (!ensureAuth()) return;
+        void createServerBackedChat();
+      });
+
+      newGroupBtn?.addEventListener('click', () => {
+        if (!ensureAuth()) return;
+        openGroupManagerDialog();
+      });
+
+      groupManagerCreateBtn?.addEventListener('click', () => {
+        if (!ensureAuth()) return;
+        handleGroupManagerCreate();
+      });
+
+      groupManagerCreateName?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          if (!ensureAuth()) return;
+          handleGroupManagerCreate();
+        }
+      });
+
+      groupManagerPalette?.addEventListener('click', (event) => {
+        const swatch = event.target instanceof Element ? event.target.closest('[data-color]') : null;
+        if (!swatch) return;
+        groupManagerSelectedColor = swatch.getAttribute('data-color') || GROUP_COLOR_PALETTE[0];
+        renderGroupManagerPalette();
+      });
+
+      groupManagerList?.addEventListener('click', (event) => {
+        const target = event.target instanceof Element ? event.target.closest('[data-action]') : null;
+        if (!target) return;
+        const groupId = target.getAttribute('data-group-id');
+        if (!groupId) return;
+        const action = target.getAttribute('data-action');
+        if (action === 'rename') {
+          const input = target.closest('[data-group-id]')?.querySelector('.group-manager-name-input');
+          const nextName = input?.value || '';
+          void handleGroupRename(groupId, nextName);
+        } else if (action === 'delete') {
+          void handleGroupDelete(groupId);
+        }
+      });
+
+      groupManagerList?.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter') return;
+        if (!(event.target instanceof HTMLInputElement)) return;
+        if (!event.target.classList.contains('group-manager-name-input')) return;
+        event.preventDefault();
+        const row = event.target.closest('[data-group-id]');
+        const groupId = row?.getAttribute('data-group-id');
+        if (!groupId) return;
+        void handleGroupRename(groupId, event.target.value);
+      });
+
+      groupManagerClose?.addEventListener('click', () => {
+        closeGroupManagerDialog();
+      });
+
+      groupManagerDialog?.addEventListener('close', () => {
+        resetGroupManagerDialog();
+      });
+
+      renameChatBtn?.addEventListener('click', () => {
+        if (!ensureAuth()) return;
+        openRenameDialog();
+      });
+
+      deleteChatBtn?.addEventListener('click', () => {
+        if (!ensureAuth()) return;
+        openDeleteDialog();
+      });
+
+      assignGroupBtn?.addEventListener('click', () => {
+        if (!ensureAuth()) return;
+        void openSharedGroupPicker();
+      });
+
+      renameDialogCancel?.addEventListener('click', () => closeRenameDialog());
+      renameDialogSave?.addEventListener('click', () => applyRenameDialog());
+      renameDialogInput?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          applyRenameDialog();
+        }
+      });
+
+      deleteDialogCancel?.addEventListener('click', () => closeDeleteDialog());
+      deleteDialogConfirm?.addEventListener('click', () => confirmDeleteDialog());
+      renameDialog?.addEventListener('close', () => {
+        state.pending.renameChatId = null;
+      });
+      deleteDialog?.addEventListener('close', () => {
+        state.pending.deleteChatId = null;
+      });
+      chatTags?.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const button = target.closest('button[data-remove-group]');
+        if (!button) return;
+        const groupId = button.dataset.removeGroup;
+        if (!ensureAuth()) return;
+        void removeGroupFromChat(groupId);
+      });
+
+      chatList?.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const toggle = target.closest('[data-group-toggle]');
+        if (toggle) {
+          event.preventDefault();
+          toggleGroupCollapsed(
+            toggle.getAttribute('data-group-toggle'),
+            toggle.closest('.chat-group')
+          );
+          return;
+        }
+        const menuTrigger = target.closest('[data-role="chat-menu-trigger"]');
+        if (menuTrigger) {
+          event.preventDefault();
+          event.stopPropagation();
+          const chatId = menuTrigger.getAttribute('data-chat-id')
+            || menuTrigger.closest('.chat-list-entry')?.getAttribute('data-chat-id');
+          if (chatId) {
+            openChatMenuFor(chatId, menuTrigger.closest('.chat-item-menu'));
+          }
+          return;
+        }
+        const actionBtn = target.closest('[data-chat-action]');
+        if (actionBtn) {
+          event.preventDefault();
+          event.stopPropagation();
+          closeChatMenus();
+          handleChatMenuAction(actionBtn.getAttribute('data-chat-action'), actionBtn.getAttribute('data-chat-id'));
+          return;
+        }
+        if (target.closest('.chat-item-menu')) {
+          return;
+        }
+        const chatNode = target.closest('[data-chat-id]');
+        if (chatNode) {
+          event.preventDefault();
+          handleChatSelection(chatNode.getAttribute('data-chat-id'));
+        }
+      });
+
+      async function createServerBackedChat() {
+        const provisionalTitle = `Chat ${state.mockChatCounter}`;
+        let createdChat = null;
+        try {
+          createdChat = await createChat(state.user.gtc_user_id, { title: provisionalTitle });
+        } catch (error) {
+          console.warn('chat create API failed, falling back to local entry', error);
+        }
+        const chatId = ensureActiveChat({
+          title: createdChat?.title || provisionalTitle,
+          forceNew: true,
+          preferredChatId: createdChat?.chat_id || null
+        });
+        const entry = findChatById(chatId);
+        if (entry && createdChat) {
+          entry.created_at = createdChat.created_at || entry.created_at;
+          entry.updated_at = createdChat.updated_at || entry.updated_at;
+          entry.snippet = createdChat.snippet || entry.snippet;
+        }
+        sortChatsByRecency();
+        renderChatList();
+        updateChatPanel();
+        toggleComposer(true);
+        composerInput?.focus();
+      }
+
+      function renderChatList() {
+        if (!chatList) return;
+        closeChatMenus();
+        if (state.chatListError) {
+          chatList.innerHTML = `<div class="chat-placeholder">${escapeHtml(state.chatListError)}</div>`;
+          return;
+        }
+        const chats = visibleChats();
+        if (state.selectedChatId && !chats.some((chat) => chatIdsMatch(chat.chat_id, state.selectedChatId))) {
+          state.selectedChatId = chats[0]?.chat_id || null;
+          saveChatId(state.selectedChatId);
+        }
+        if (!chats.length) {
+          chatList.innerHTML = '<div class="chat-placeholder">Chats will appear here after we sync your history.</div>';
+          return;
+        }
+        ensurePrimaryGroupExpandedForChat(state.selectedChatId);
+        const { ungrouped, groupedSections } = partitionChatsByPrimaryGroup(chats);
+        const sections = [];
+        sections.push(renderUngroupedSection(ungrouped));
+        groupedSections.forEach((section) => sections.push(renderGroupSection(section)));
+        const markup = sections.filter(Boolean).join('');
+        chatList.innerHTML = markup || '<div class="chat-placeholder">Chats will appear here after we sync your history.</div>';
+      }
+
+      function renderUngroupedSection(chats) {
+        const content = chats.length
+          ? chats.map(renderChatListItem).join('')
+          : '<div class="chat-placeholder is-inline">No ungrouped chats yet.</div>';
+        return `<div class="chat-section chat-section-ungrouped" data-section="all">${content}</div>`;
+      }
+
+      function renderGroupSection(section) {
+        if (!section || !section.id) return '';
+        const collapsed = isGroupCollapsed(section.id);
+        const safeId = escapeHtml(section.id);
+        const content = section.chats.length
+          ? section.chats.map(renderChatListItem).join('')
+          : '<div class="chat-placeholder is-inline">No chats assigned yet.</div>';
+        const groupClass = collapsed ? 'chat-group chat-group-collapsed' : 'chat-group';
+        const bodyHiddenAttr = collapsed ? ' hidden' : '';
+        return `
+          <div class="${groupClass}" data-group="${safeId}" aria-expanded="${collapsed ? 'false' : 'true'}">
+            <button type="button" class="chat-group-header" data-group-toggle="${safeId}" aria-expanded="${collapsed ? 'false' : 'true'}">
+              <span class="chat-group-name">${escapeHtml(section.name)}</span>
+              <span class="chat-group-count">${section.chats.length}</span>
+              <span class="chat-group-toggle-icon" aria-hidden="true">⌃</span>
+            </button>
+            <div class="chat-group-body"${bodyHiddenAttr}>
+              ${content}
+            </div>
+          </div>`;
+      }
+
+      function renderChatListItem(chat) {
+        if (!chat?.chat_id) return '';
+        const active = chatIdsMatch(chat.chat_id, state.selectedChatId) ? 'is-active' : '';
+        const safeId = escapeHtml(chat.chat_id);
+        const title = escapeHtml(chat.title);
+        return `
+          <div class="chat-list-entry ${active}" data-chat-id="${safeId}">
+            <button type="button" class="chat-list-select" data-chat-select="${safeId}" data-chat-id="${safeId}" title="${title}">${title}</button>
+            <div class="chat-item-menu" data-chat-id="${safeId}">
+              <button class="chat-item-menu-trigger" type="button" data-role="chat-menu-trigger" data-chat-id="${safeId}" aria-haspopup="true" aria-expanded="false" aria-label="Chat actions">•••</button>
+              <div class="chat-item-menu-panel" role="menu">
+                <button type="button" data-chat-action="rename" data-chat-id="${safeId}">Rename</button>
+                <button type="button" data-chat-action="group" data-chat-id="${safeId}">Add to group</button>
+                <button type="button" class="danger" data-chat-action="delete" data-chat-id="${safeId}">Delete chat</button>
+              </div>
+            </div>
+          </div>`;
+      }
+
+      function handleChatSelection(chatId) {
+        const normalized = normalizeChatId(chatId);
+        if (!normalized) return;
+        closeChatMenus();
+        const chat = findChatById(normalized);
+        if (!chat || isChatSoftDeleted(chat)) {
+          return;
+        }
+        if (chatIdsMatch(state.selectedChatId, normalized)) return;
+        state.selectedChatId = normalized;
+        saveChatId(normalized);
+        ensurePrimaryGroupExpandedForChat(normalized);
+        renderChatList();
+        updateChatPanel();
+        void hydrateChatMessages(normalized);
+      }
+
+      function toggleGroupCollapsed(groupId, groupNode) {
+        if (!groupId) return;
+        const key = String(groupId);
+        const collapsed = ensureCollapsedGroupSet();
+        let nextState;
+        if (collapsed.has(key)) {
+          collapsed.delete(key);
+          nextState = false;
+        } else {
+          collapsed.add(key);
+          nextState = true;
+        }
+        persistCollapsedGroupsState();
+        applyGroupCollapseState(key, nextState, groupNode || null);
+      }
+
+      function isGroupCollapsed(groupId) {
+        if (!groupId) return false;
+        return ensureCollapsedGroupSet().has(String(groupId));
+      }
+
+      function applyGroupCollapseState(groupId, collapsed, node) {
+        const target = node || findGroupNode(groupId);
+        if (!target) {
+          renderChatList();
+          return;
+        }
+        target.classList.toggle('chat-group-collapsed', collapsed);
+        target.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        const header = target.querySelector('[data-group-toggle]');
+        if (header) {
+          header.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        }
+        const body = target.querySelector('.chat-group-body');
+        if (body) {
+          if (collapsed) {
+            body.setAttribute('hidden', 'hidden');
+          } else {
+            body.removeAttribute('hidden');
+          }
+        }
+      }
+
+      function findGroupNode(groupId) {
+        if (!chatList || !groupId) return null;
+        const raw = String(groupId);
+        const selectorValue = typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
+          ? CSS.escape(raw)
+          : raw.replace(/"/g, '\\"');
+        try {
+          return chatList.querySelector(`[data-group="${selectorValue}"]`);
+        } catch {
+          return null;
+        }
+      }
+
+      function openChatMenuFor(chatId, menuNode) {
+        if (!chatId) return;
+        const normalized = String(chatId);
+        if (state.openChatMenuId === normalized) {
+          closeChatMenus();
+          return;
+        }
+        closeChatMenus();
+        const target = menuNode || findChatMenuNode(normalized);
+        if (!target) return;
+        target.classList.add('open');
+        const trigger = target.querySelector('[data-role="chat-menu-trigger"]');
+        if (trigger) {
+          trigger.setAttribute('aria-expanded', 'true');
+        }
+        state.openChatMenuId = normalized;
+      }
+
+      function closeChatMenus() {
+        state.openChatMenuId = null;
+        if (!chatList) return;
+        chatList.querySelectorAll('.chat-item-menu.open').forEach((menu) => {
+          menu.classList.remove('open');
+          const trigger = menu.querySelector('[data-role="chat-menu-trigger"]');
+          if (trigger) {
+            trigger.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
+
+      function findChatMenuNode(chatId) {
+        if (!chatList || !chatId) return null;
+        const raw = String(chatId);
+        const selectorValue = typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
+          ? CSS.escape(raw)
+          : raw.replace(/"/g, '\\"');
+        try {
+          return chatList.querySelector(`.chat-item-menu[data-chat-id="${selectorValue}"]`);
+        } catch {
+          return null;
+        }
+      }
+
+      function handleChatMenuAction(action, chatId) {
+        if (!action || !chatId) return;
+        if (!ensureAuth()) return;
+        const normalized = String(chatId);
+        if (state.selectedChatId !== normalized) {
+          state.selectedChatId = normalized;
+          saveChatId(normalized);
+          ensurePrimaryGroupExpandedForChat(normalized);
+          renderChatList();
+          updateChatPanel();
+        }
+        if (action === 'rename') {
+          openRenameDialog(normalized);
+        } else if (action === 'group') {
+          void openSharedGroupPicker();
+        } else if (action === 'delete') {
+          openDeleteDialog(normalized);
+        } else if (action === 'open') {
+          handleChatSelection(normalized);
+        }
+      }
+
+      function ensurePrimaryGroupExpandedForChat(chatId) {
+        if (!chatId) return;
+        const chat = findChatById(chatId);
+        if (!chat) return;
+        const primary = resolvePrimaryGroupId(chat);
+        if (!primary) return;
+        const collapsed = ensureCollapsedGroupSet();
+        if (collapsed.delete(primary)) {
+          persistCollapsedGroupsState();
+        }
+      }
+
+      function resolvePrimaryGroupId(chat) {
+        if (!chat || !Array.isArray(chat.groups)) return null;
+        const [first] = chat.groups.filter(Boolean);
+        return first ? String(first) : null;
+      }
+
+      function partitionChatsByPrimaryGroup(chats = state.chats) {
+        const ungrouped = [];
+        const groupedMap = new Map();
+        const orderLookup = new Map();
+        (state.groups || []).forEach((group, index) => {
+          if (group?.id) {
+            orderLookup.set(String(group.id), index);
+          }
+        });
+        (Array.isArray(chats) ? chats : state.chats).forEach((chat) => {
+          if (!chat?.chat_id) return;
+          const primary = resolvePrimaryGroupId(chat);
+          if (!primary) {
+            ungrouped.push(chat);
+            return;
+          }
+          const key = String(primary);
+          if (!groupedMap.has(key)) {
+            const groupMeta = findGroupEntry(key);
+            groupedMap.set(key, {
+              id: key,
+              name: groupMeta?.name || 'Unnamed group',
+              chats: []
+            });
+          }
+          groupedMap.get(key).chats.push(chat);
+        });
+        const groupedSections = Array.from(groupedMap.values());
+        groupedSections.sort((a, b) => {
+          const aIndex = orderLookup.has(a.id) ? orderLookup.get(a.id) : Number.POSITIVE_INFINITY;
+          const bIndex = orderLookup.has(b.id) ? orderLookup.get(b.id) : Number.POSITIVE_INFINITY;
+          if (aIndex === bIndex) {
+            return a.name.localeCompare(b.name);
+          }
+          return aIndex - bIndex;
+        });
+        return { ungrouped, groupedSections };
+      }
+
+      function updateChatPanel() {
+        if (!chatTitle || !chatSubtitle || !chatPreview || !chatTags) return;
+        const chat = findChatById(state.selectedChatId);
+        if (!chat) {
+          chatTitle.textContent = 'Start a new chat';
+          chatSubtitle.textContent = 'Use the New chat button to begin a conversation.';
+          chatPreview.textContent = 'Compose your first request to see the assistant in action.';
+          chatTags.innerHTML = '<span class="chat-tag">Personal</span>';
+          if (messageLog) {
+            messageLog.innerHTML = '';
+            messageLog.appendChild(chatPreview);
+          }
+          toggleComposer(false);
+          syncChatActions();
+          return;
+        }
+        chatTitle.textContent = chat.title;
+        chatSubtitle.textContent = 'Last updated ' + formatRelativeTime(chat.updated_at || chat.created_at || Date.now()) + '.';
+        renderMessagesForChat(chat);
+        const tags = (chat.groups || []).map((groupId) => {
+          const group = findGroupEntry(groupId);
+          const name = escapeHtml(group?.name || 'Group');
+          return `<span class="chat-tag">${name}<button type="button" data-remove-group="${groupId}" aria-label="Remove ${name}">×</button></span>`;
+        });
+        chatTags.innerHTML = tags.length ? tags.join('') : '<span class="chat-tag">Unassigned</span>';
+        toggleComposer(true);
+        syncChatActions();
+      }
+
+      function renderMessagesForChat(chat) {
+        if (!messageLog || !chatPreview) return;
+        const chatId = chat?.chat_id || null;
+        const messages = chatId ? chatMessagesFor(chatId) : [];
+        const loading = chatId ? isChatHistoryLoading(chatId) : false;
+        const seedOnly = chatId ? hasSeedOnlyMessages(chatId) : false;
+        messageLog.innerHTML = '';
+        if (!messages.length || seedOnly) {
+          chatPreview.textContent = loading
+            ? 'Loading chat history…'
+            : (chat?.snippet || 'Describe your request to begin.');
+          messageLog.appendChild(chatPreview);
+          return;
+        }
+        const fragment = document.createDocumentFragment();
+        messages.forEach((msg) => {
+          const row = document.createElement('div');
+          row.className = `message-row ${msg.role}`;
+          const bubble = document.createElement('div');
+          bubble.className = 'message-bubble';
+          if (msg.role === 'bot') {
+            const rich = renderRichText(msg.text);
+            if (rich) {
+              bubble.innerHTML = rich;
+            } else {
+              bubble.textContent = msg.text;
+            }
+            const cards = extractProductCards(msg.text);
+            if (cards.length) {
+              const grid = document.createElement('div');
+              grid.className = 'product-card-grid';
+              cards.forEach((card) => grid.appendChild(createProductCardElement(card)));
+              bubble.appendChild(grid);
+            }
+          } else {
+            bubble.textContent = msg.text;
+          }
+          row.appendChild(bubble);
+          fragment.appendChild(row);
+        });
+        messageLog.appendChild(fragment);
+        messageLog.scrollTop = messageLog.scrollHeight;
+      }
+
+      function toggleComposer(enabled) {
+        if (!composerInput || !composerSend) return;
+        const allowComposer = Boolean(enabled) && !state.subscriptionLocked;
+        if (!allowComposer) {
+          composerInput.disabled = true;
+          composerSend.disabled = true;
+          composerSend.textContent = 'Send';
+          autoSizeComposer();
+          return;
+        }
+        composerInput.disabled = state.sending;
+        composerSend.disabled = state.sending;
+        if (!state.sending) {
+          composerSend.textContent = 'Send';
+        }
+        autoSizeComposer();
+      }
+
+      function setSubscriptionLock(locked) {
+        state.subscriptionLocked = Boolean(locked);
+        renderSubscriptionPrompt();
+        const allowComposer = Boolean(state.selectedChatId) && !state.subscriptionLocked;
+        toggleComposer(allowComposer);
+      }
+
+      function renderSubscriptionPrompt() {
+        if (!planLock) return;
+        const locked = state.view === 'app' && state.subscriptionLocked;
+        planLock.hidden = !locked;
+      }
+
+      async function hydrateSubscriptionStatus(options = {}) {
+        if (!state.user?.gtc_user_id) {
+          state.subscriptionSnapshot = null;
+          setSubscriptionLock(false);
+          return;
+        }
+        if (!options.skipPrefetch) {
+          setSubscriptionLock(true);
+        }
+        try {
+          const snapshot = await fetchSubscriptionSnapshotWithRetry(Number(state.user.gtc_user_id));
+          state.subscriptionSnapshot = snapshot;
+          setSubscriptionLock(!subscriptionSnapshotIsActive(snapshot));
+        } catch (error) {
+          if (!options.silent) {
+            console.warn('subscription snapshot failed', error);
+          }
+          state.subscriptionSnapshot = null;
+          setSubscriptionLock(true);
+        }
+      }
+
+      function syncChatActions() {
+        const hasChat = Boolean(state.selectedChatId);
+        if (renameChatBtn) renameChatBtn.disabled = !hasChat;
+        if (deleteChatBtn) deleteChatBtn.disabled = !hasChat;
+        setGroupActionBusy(groupSaveInFlight);
+      }
+
+      function renderGroupList() {
+        if (!groupList) return;
+        if (state.groupListError) {
+          groupList.innerHTML = `<div class="group-list-error">${escapeHtml(state.groupListError)}</div>`;
+          return;
+        }
+        const entries = [
+          { id: 'all', name: 'All chats' },
+          ...state.groups
+        ];
+        groupList.innerHTML = entries.map((group) => {
+          const active = group.id === state.activeGroupId ? 'active' : '';
+          return `<button class="group-pill ${active}" type="button" data-group-id="${escapeHtml(group.id)}">${escapeHtml(group.name)}</button>`;
+        }).join('');
+        Array.from(groupList.querySelectorAll('.group-pill')).forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const id = btn.dataset.groupId || 'all';
+            state.activeGroupId = id;
+            renderGroupList();
+            renderChatList();
+          });
+        });
+      }
+
+      function ensureGroupIndex() {
+        if (!state.groupIndex || typeof state.groupIndex !== 'object') {
+          state.groupIndex = Object.create(null);
+        }
+        return state.groupIndex;
+      }
+
+      function upsertGroupIndex(groups = []) {
+        const index = ensureGroupIndex();
+        groups.forEach((group) => {
+          if (!group || typeof group !== 'object') return;
+          const id = group.id || group.group_id || null;
+          if (!id) return;
+          index[id] = {
+            ...index[id],
+            ...group,
+            id
+          };
+        });
+      }
+
+      function deriveGroupsFromChats(chats = []) {
+        const bucket = new Map();
+        if (!Array.isArray(chats)) return [];
+        chats.forEach((chat) => {
+          if (!Array.isArray(chat?.group_details)) return;
+          chat.group_details.forEach((group) => {
+            const id = group?.id || group?.group_id;
+            if (!id || bucket.has(id)) return;
+            bucket.set(id, {
+              id,
+              name: group.name || 'Unnamed group',
+              color: group.color || null
+            });
+          });
+        });
+        const list = Array.from(bucket.values());
+        if (list.length) {
+          upsertGroupIndex(list);
+        }
+        return list;
+      }
+
+      function ingestChatGroupMetadata(chats = []) {
+        if (!Array.isArray(chats) || !chats.length) return;
+        const knownIds = new Set((state.groups || []).map((group) => group.id));
+        let mutated = false;
+        chats.forEach((chat) => {
+          if (Array.isArray(chat?.group_details) && chat.group_details.length) {
+            upsertGroupIndex(chat.group_details);
+            chat.group_details.forEach((detail) => {
+              const id = detail?.id || detail?.group_id;
+              if (!id || knownIds.has(id)) return;
+              state.groups.push({
+                id,
+                name: detail.name || 'Unnamed group',
+                color: detail.color || null
+              });
+              knownIds.add(id);
+              mutated = true;
+            });
+          }
+        });
+        if (mutated) {
+          state.mockGroupCounter = state.groups.length + 1;
+        }
+      }
+
+      function findGroupEntry(identifier) {
+        if (!identifier) return null;
+        const id = String(identifier);
+        return state.groups.find((group) => group.id === id)
+          || state.groupDrafts.find((group) => group.id === id)
+          || ensureGroupIndex()[id]
+          || null;
+      }
+
+      async function refreshGroups(options = {}) {
+        if (!state.user?.gtc_user_id) return null;
+        if (groupFetchInFlight && !options.force) {
+          return groupFetchInFlight;
+        }
+        const task = (async () => {
+          try {
+            const groups = await listChatGroups(state.user.gtc_user_id);
+            state.groups = Array.isArray(groups) ? groups : [];
+            state.groupListError = null;
+            upsertGroupIndex(state.groups);
+            renderGroupList();
+            return state.groups;
+          } catch (error) {
+            console.warn('group refresh failed', error);
+            state.groupListError = describeListError(error, 'Unable to sync groups. Please retry later.');
+            renderGroupList();
+            return null;
+          } finally {
+            groupFetchInFlight = null;
+          }
+        })();
+        groupFetchInFlight = task;
+        return task;
+      }
+
+      async function persistChatGroupChanges(chat, selection = []) {
+        if (!chat || !state.user?.gtc_user_id) return false;
+        groupSaveInFlight = true;
+        setGroupActionBusy(true);
+        try {
+          const response = await setChatGroups(state.user.gtc_user_id, chat.chat_id, Array.isArray(selection) ? selection : []);
+          const serverGroups = Array.isArray(response?.groups) ? response.groups : [];
+          chat.groups = serverGroups.map((group) => group.id).filter(Boolean);
+          chat.group_details = serverGroups;
+          upsertGroupIndex(serverGroups);
+          await refreshGroups({ force: true });
+          renderChatList();
+          updateChatPanel();
+          return true;
+        } catch (error) {
+          console.warn('chat group persistence failed', error);
+          const friendly = error?.friendlyMessage || error?.message || 'unknown error';
+          alert('Unable to save chat groups: ' + friendly);
+          return false;
+        } finally {
+          groupSaveInFlight = false;
+          setGroupActionBusy(false);
+        }
+      }
+
+      function setGroupActionBusy(isBusy) {
+        const hasChat = Boolean(state.selectedChatId);
+        if (assignGroupBtn) {
+          assignGroupBtn.disabled = isBusy || !hasChat;
+          assignGroupBtn.textContent = isBusy ? 'Saving…' : 'Add to group';
+        }
+      }
+
+
+      function ensureActiveChat({ title, forceNew = false, preferredChatId = null } = {}) {
+        if (!forceNew && state.selectedChatId) return state.selectedChatId;
+        const id = preferredChatId || (crypto.randomUUID ? crypto.randomUUID() : `chat-${Date.now()}`);
+        let entry = findChatById(id);
+        const normalizedTitle = title && title.trim()
+          ? title.trim()
+          : defaultChatTitle(state.mockChatCounter, id);
+        if (!entry) {
+          state.mockChatCounter += 1;
+          entry = {
+            chat_id: id,
+            title: normalizedTitle,
+            snippet: 'Your first request will appear here.',
+            updated_at: Date.now(),
+            groups: []
+          };
+          state.chats = [entry, ...state.chats];
+        } else if (normalizedTitle) {
+          entry.title = normalizedTitle;
+        }
+        state.selectedChatId = id;
+        saveChatId(id);
+        saveStage(null);
+        state.stage = null;
+        state.chatMessages[id] = state.chatMessages[id] || [];
+        state.historyLoaded[id] = false;
+        sortChatsByRecency();
+        ensurePrimaryGroupExpandedForChat(id);
+        renderChatList();
+        return id;
+      }
+
+      function ensureChatIdForSend(title = null) {
+        const chatId = ensureActiveChat({ title });
+        if (chatId) return chatId;
+        // Fallback safety net: generate and persist a chat_id if ensureActiveChat could not.
+        const generated = crypto.randomUUID ? crypto.randomUUID() : `chat-${Date.now()}`;
+        saveChatId(generated);
+        state.selectedChatId = generated;
+        state.chatMessages[generated] = state.chatMessages[generated] || [];
+        return generated;
+      }
+
+      function touchChat(chatId, updates = {}) {
+        if (!chatId) return;
+        const index = state.chats.findIndex((c) => chatIdsMatch(c.chat_id, chatId));
+        if (index === -1) return;
+        const chat = state.chats[index];
+        if (typeof updates.title === 'string') chat.title = updates.title;
+        if (typeof updates.snippet === 'string') chat.snippet = updates.snippet;
+        if (!chat.title || !chat.title.trim()) {
+          chat.title = coerceChatTitle({ ...chat }, index);
+        }
+        if (!chat.snippet || !chat.snippet.trim()) {
+          chat.snippet = coerceChatSnippet(chat);
+        }
+        if (updates.updated_at) {
+          chat.updated_at = updates.updated_at;
+        } else {
+          chat.updated_at = Date.now();
+        }
+        sortChatsByRecency();
+        renderChatList();
+        if (chatId === state.selectedChatId && chatSubtitle) {
+          chatSubtitle.textContent = 'Last updated ' + formatRelativeTime(chat.updated_at) + '.';
+        }
+      }
+
+      function setComposerSending(isSending) {
+        state.sending = Boolean(isSending);
+        if (!composerInput || !composerSend) return;
+        const disabled = state.sending || page.dataset.view !== 'app';
+        composerInput.disabled = disabled;
+        composerSend.disabled = disabled;
+        composerSend.textContent = state.sending ? 'Sending…' : 'Send';
+        autoSizeComposer();
+      }
+
+      function openRenameDialog(chatId = state.selectedChatId) {
+        if (!chatId || !renameDialog) return;
+        const chat = findChatById(chatId);
+        if (!chat) return;
+        state.pending.renameChatId = chatId;
+        if (renameDialogSubtitle) {
+          renameDialogSubtitle.textContent = `Chat ID ${chatId}`;
+        }
+        if (renameDialogInput) {
+          renameDialogInput.value = chat.title;
+        }
+        renameDialog.showModal();
+        requestAnimationFrame(() => {
+          renameDialogInput?.focus();
+          renameDialogInput?.select();
+        });
+      }
+
+      function applyRenameDialog() {
+        const chatId = state.pending.renameChatId;
+        if (!chatId || !renameDialogInput) {
+          closeRenameDialog();
+          return;
+        }
+        const nextTitle = renameDialogInput.value.trim();
+        if (!nextTitle) {
+          renameDialogInput.focus();
+          return;
+        }
+        const chat = findChatById(chatId);
+        if (!chat) {
+          closeRenameDialog();
+          return;
+        }
+        chat.title = nextTitle;
+        touchChat(chatId, { title: nextTitle });
+        updateChatPanel();
+        closeRenameDialog();
+      }
+
+      function closeRenameDialog() {
+        state.pending.renameChatId = null;
+        try {
+          renameDialog?.close();
+        } catch {}
+      }
+
+      function openDeleteDialog(chatId = state.selectedChatId) {
+        if (!chatId || !deleteDialog) return;
+        const chat = findChatById(chatId);
+        if (!chat) return;
+        state.pending.deleteChatId = chatId;
+        if (deleteDialogMessage) {
+          deleteDialogMessage.textContent = `This will remove "${chat.title}" from this device. The conversation can be re-synced later if the backend stores it.`;
+        }
+        deleteDialog.showModal();
+      }
+
+      function confirmDeleteDialog() {
+        const chatId = state.pending.deleteChatId;
+        if (!chatId) {
+          closeDeleteDialog();
+          return;
+        }
+        const chat = findChatById(chatId);
+        if (!chat) {
+          closeDeleteDialog();
+          return;
+        }
+        console.info('DEBUG delete chat', {
+          requestChatId: chatId,
+          selectedChatId: state.selectedChatId,
+          chatSnapshot: chat ? {
+            chat_id: chat.chat_id || null,
+            title: chat.title || null,
+            deleted: Boolean(chat.deleted)
+          } : null
+        });
+        const deletedId = markChatDeleted(chatId, chat);
+        const cacheKeys = [deletedId, chatId, chat.local_id, chat.temp_id].filter(Boolean);
+        cacheKeys.forEach((key) => {
+          if (!key) return;
+          delete state.chatMessages[key];
+          delete state.historyLoaded[key];
+          delete state.messageHydration[key];
+        });
+        const remaining = visibleChats();
+        if (!remaining.some((entry) => chatIdsMatch(entry.chat_id, state.selectedChatId))) {
+          state.selectedChatId = remaining[0]?.chat_id || null;
+          saveChatId(state.selectedChatId);
+        }
+        renderChatList();
+        updateChatPanel();
+        closeDeleteDialog();
+      }
+
+      function closeDeleteDialog() {
+        state.pending.deleteChatId = null;
+        try {
+          deleteDialog?.close();
+        } catch {}
+      }
+      async function openSharedGroupPicker(options = {}) {
+        const chat = findChatById(state.selectedChatId);
+        if (!chat) {
+          pushSystem('Select a chat before managing groups.');
+          return;
+        }
+        const catalog = buildGroupPickerCatalog(chat);
+        const currentSelection = Array.isArray(chat.groups) ? chat.groups : [];
+        const result = await groupPicker.pick({
+          title: 'Assign chat to groups',
+          subtitle: chat.title,
+          groups: catalog,
+          selection: currentSelection,
+          maxSelections: MAX_CHAT_GROUPS,
+          focusNew: Boolean(options.focusNew),
+          prefillName: options.prefillName || ''
+        });
+        if (!result || result.status !== 'confirmed') return;
+        await persistChatGroupChanges(chat, result.selection);
+      }
+
+      function buildGroupPickerCatalog(chat) {
+        const map = new Map();
+        const add = (group) => {
+          if (!group || !group.id) return;
+          if (map.has(group.id)) return;
+          map.set(group.id, {
+            id: group.id,
+            name: group.name || 'Unnamed group',
+            color: group.color || null
+          });
+        };
+        (state.groups || []).forEach(add);
+        (state.groupDrafts || []).forEach(add);
+        const index = ensureGroupIndex();
+        Object.keys(index).forEach((key) => add(index[key]));
+        if (Array.isArray(chat?.group_details)) {
+          chat.group_details.forEach(add);
+        }
+        return Array.from(map.values());
+      }
+
+      function openGroupManagerDialog() {
+        if (!groupManagerDialog) return;
+        renderGroupManagerPalette();
+        renderGroupManagerList();
+        setGroupManagerStatus('');
+        groupManagerDialog.showModal();
+        requestAnimationFrame(() => {
+          groupManagerCreateName?.focus();
+        });
+      }
+
+      function closeGroupManagerDialog() {
+        try {
+          groupManagerDialog?.close();
+        } catch {}
+      }
+
+      function resetGroupManagerDialog() {
+        if (groupManagerCreateName) {
+          groupManagerCreateName.value = '';
+        }
+        groupManagerSelectedColor = GROUP_COLOR_PALETTE[0];
+        groupManagerBusyIds.clear();
+        renderGroupManagerPalette();
+        setGroupManagerStatus('');
+      }
+
+      function renderGroupManagerPalette() {
+        if (!groupManagerPalette) return;
+        groupManagerPalette.innerHTML = GROUP_COLOR_PALETTE.map((color) => (
+          `<button type="button" class="group-manager-color" data-color="${color}" data-selected="${groupManagerSelectedColor === color}" style="--color:${color};"></button>`
+        )).join('');
+      }
+
+      function getAllKnownGroups() {
+        const seen = new Set();
+        const list = [];
+        const append = (entry) => {
+          if (!entry || !entry.id || seen.has(entry.id)) return;
+          list.push(entry);
+          seen.add(entry.id);
+        };
+        (state.groups || []).forEach(append);
+        (state.groupDrafts || []).forEach(append);
+        return list;
+      }
+
+      function renderGroupManagerList() {
+        if (!groupManagerList || !groupManagerEmpty) return;
+        const groups = getAllKnownGroups().sort((a, b) => {
+          const left = (a.name || '').toLowerCase();
+          const right = (b.name || '').toLowerCase();
+          if (left === right) return 0;
+          return left < right ? -1 : 1;
+        });
+        if (!groups.length) {
+          groupManagerEmpty.hidden = false;
+          groupManagerList.innerHTML = '';
+          return;
+        }
+        groupManagerEmpty.hidden = true;
+        groupManagerList.innerHTML = groups.map((group) => {
+          const busy = groupManagerBusyIds.has(group.id);
+          const disabledAttr = busy ? 'disabled' : '';
+          return `
+            <div class="group-manager-row" data-group-id="${escapeHtml(group.id)}">
+              <div class="group-manager-row-main">
+                <span class="group-manager-swatch" style="background:${group.color || '#94a3b8'};"></span>
+                <input type="text" class="group-manager-name-input" value="${escapeHtml(group.name || '')}" ${disabledAttr} />
+              </div>
+              <div class="group-manager-actions">
+                <button type="button" data-action="rename" data-group-id="${escapeHtml(group.id)}" ${disabledAttr}>Save</button>
+                <button type="button" class="danger" data-action="delete" data-group-id="${escapeHtml(group.id)}" ${disabledAttr}>Delete</button>
+              </div>
+            </div>`;
+        }).join('');
+      }
+
+      function setGroupManagerStatus(message, tone = '') {
+        if (!groupManagerStatus) return;
+        groupManagerStatus.textContent = message || '';
+        if (tone) {
+          groupManagerStatus.dataset.tone = tone;
+        } else {
+          delete groupManagerStatus.dataset.tone;
+        }
+      }
+
+      function createDraftGroupId(name = '') {
+        const slug = name ? name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : 'group';
+        const nonce = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+        return `draft:${slug || 'group'}-${nonce}`;
+      }
+
+      function handleGroupManagerCreate() {
+        if (!groupManagerCreateName) return;
+        const name = groupManagerCreateName.value.trim();
+        if (!name) {
+          setGroupManagerStatus('Enter a group name first.', 'warn');
+          groupManagerCreateName.focus();
+          return;
+        }
+        const exists = getAllKnownGroups().some((group) => group.name?.toLowerCase() === name.toLowerCase());
+        if (exists) {
+          setGroupManagerStatus('That name already exists.', 'error');
+          return;
+        }
+        const draft = {
+          id: createDraftGroupId(name),
+          name,
+          color: groupManagerSelectedColor,
+          draft: true
+        };
+        state.groupDrafts = [draft, ...(state.groupDrafts || [])];
+        renderGroupManagerList();
+        setGroupManagerStatus(`Added "${name}". Assign it from any chat menu to sync.`, 'success');
+        groupManagerCreateName.value = '';
+      }
+
+      function updateLocalGroupEntry(groupId, updates = {}) {
+        if (!groupId) return null;
+        const applyUpdates = (bucket) => {
+          if (!Array.isArray(bucket)) return null;
+          const index = bucket.findIndex((entry) => entry.id === groupId);
+          if (index === -1) return null;
+          const next = { ...bucket[index], ...updates };
+          bucket[index] = next;
+          return next;
+        };
+        let updated = applyUpdates(state.groups);
+        if (updated) return updated;
+        updated = applyUpdates(state.groupDrafts);
+        if (updated) return updated;
+        const indexed = ensureGroupIndex()[groupId];
+        if (indexed) {
+          const next = { ...indexed, ...updates };
+          ensureGroupIndex()[groupId] = next;
+          state.groups.push(next);
+          return next;
+        }
+        return null;
+      }
+
+      function removeLocalGroupEntry(groupId) {
+        const removeFrom = (bucket) => {
+          if (!Array.isArray(bucket)) return false;
+          const index = bucket.findIndex((entry) => entry.id === groupId);
+          if (index === -1) return false;
+          bucket.splice(index, 1);
+          return true;
+        };
+        return removeFrom(state.groups) || removeFrom(state.groupDrafts);
+      }
+
+      function setGroupManagerRowBusy(groupId, busy) {
+        if (!groupId) return;
+        if (busy) {
+          groupManagerBusyIds.add(groupId);
+        } else {
+          groupManagerBusyIds.delete(groupId);
+        }
+        renderGroupManagerList();
+      }
+
+      function buildSelectionForChat(chat, mapper) {
+        if (!chat) return [];
+        const details = Array.isArray(chat.group_details) && chat.group_details.length
+          ? chat.group_details.map((detail) => ({ ...detail }))
+          : (Array.isArray(chat.groups)
+            ? chat.groups.map((id) => {
+                const meta = findGroupEntry(id) || { id, name: 'Group', color: null };
+                return { id: meta.id || id, name: meta.name || 'Group', color: meta.color || null };
+              })
+            : []);
+        return details
+          .map((detail) => {
+            if (typeof mapper === 'function') {
+              return mapper({ ...detail });
+            }
+            return detail;
+          })
+          .filter(Boolean);
+      }
+
+      async function applyGroupMetadataToChats(groupId, mapper) {
+        if (!groupId) return 0;
+        const affected = (state.chats || []).filter((chat) => Array.isArray(chat.groups) && chat.groups.includes(groupId));
+        let updatedCount = 0;
+        for (const chat of affected) {
+          const selection = buildSelectionForChat(chat, mapper);
+          const saved = await persistChatGroupChanges(chat, selection);
+          if (saved) {
+            updatedCount += 1;
+          }
+        }
+        return updatedCount;
+      }
+
+      async function handleGroupRename(groupId, nextName) {
+        if (!groupId) return;
+        if (!ensureAuth()) {
+          setGroupManagerStatus('Sign in to manage groups.', 'warn');
+          return;
+        }
+        const trimmed = (nextName || '').trim();
+        if (!trimmed) {
+          setGroupManagerStatus('Enter a name before saving.', 'warn');
+          return;
+        }
+        const entry = findGroupEntry(groupId);
+        if (!entry) {
+          setGroupManagerStatus('Group not found.', 'error');
+          return;
+        }
+        if (entry.name === trimmed) {
+          setGroupManagerStatus('Name unchanged.', 'info');
+          return;
+        }
+        const collision = getAllKnownGroups().some((group) => group.id !== groupId && group.name?.toLowerCase() === trimmed.toLowerCase());
+        if (collision) {
+          setGroupManagerStatus('Another group already uses that name.', 'error');
+          return;
+        }
+        setGroupManagerRowBusy(groupId, true);
+        updateLocalGroupEntry(groupId, { name: trimmed });
+        upsertGroupIndex([findGroupEntry(groupId)]);
+        renderChatList();
+        updateChatPanel();
+        try {
+          if (!groupId.startsWith('draft:')) {
+            const updated = await applyGroupMetadataToChats(groupId, (detail) => detail.id === groupId ? { ...detail, name: trimmed } : detail);
+            const suffix = updated ? ` Updated ${updated} chat${updated === 1 ? '' : 's'}.` : '';
+            setGroupManagerStatus(`Renamed to ${trimmed}.${suffix}`, 'success');
+          } else {
+            setGroupManagerStatus(`Renamed to ${trimmed}.`, 'success');
+          }
+        } catch (error) {
+          console.warn('group rename failed', error);
+          setGroupManagerStatus('Unable to rename group. Please retry.', 'error');
+        } finally {
+          setGroupManagerRowBusy(groupId, false);
+        }
+      }
+
+      async function handleGroupDelete(groupId) {
+        if (!groupId) return;
+        if (!ensureAuth()) {
+          setGroupManagerStatus('Sign in to manage groups.', 'warn');
+          return;
+        }
+        const entry = findGroupEntry(groupId);
+        if (!entry) {
+          setGroupManagerStatus('Group already removed.', 'info');
+          return;
+        }
+        const confirmed = window.confirm(`Delete "${entry.name}"? Chats will simply lose this label.`);
+        if (!confirmed) return;
+        setGroupManagerRowBusy(groupId, true);
+        removeLocalGroupEntry(groupId);
+        const index = ensureGroupIndex();
+        delete index[groupId];
+        renderGroupManagerList();
+        renderChatList();
+        updateChatPanel();
+        try {
+          if (!groupId.startsWith('draft:')) {
+            const removed = await applyGroupMetadataToChats(groupId, (detail) => (detail.id === groupId ? null : detail));
+            const suffix = removed ? ` Updated ${removed} chat${removed === 1 ? '' : 's'}.` : '';
+            setGroupManagerStatus(`Deleted ${entry.name}.${suffix}`, 'success');
+          } else {
+            setGroupManagerStatus(`Deleted ${entry.name}.`, 'success');
+          }
+        } catch (error) {
+          console.warn('group delete failed', error);
+          setGroupManagerStatus('Unable to delete group. Please retry.', 'error');
+        } finally {
+          setGroupManagerRowBusy(groupId, false);
+        }
+      }
+
+      async function removeGroupFromChat(groupId) {
+        if (!groupId || groupSaveInFlight) return;
+        const chat = findChatById(state.selectedChatId);
+        if (!chat) return;
+        const previous = Array.isArray(chat.groups) ? [...chat.groups] : [];
+        const next = previous.filter((id) => id !== groupId);
+        if (next.length === previous.length) return;
+        const saved = await persistChatGroupChanges(chat, next);
+        if (!saved) {
+          chat.groups = previous;
+          updateChatPanel();
+        }
+      }
+
+      function reconcileChatIdentity(localId, remoteId) {
+        if (!localId || !remoteId || localId === remoteId) return;
+        const sourceChat = findChatById(localId);
+        const existingTarget = findChatById(remoteId);
+        if (sourceChat && existingTarget && sourceChat !== existingTarget) {
+          existingTarget.title = sourceChat.title || existingTarget.title;
+          existingTarget.snippet = sourceChat.snippet || existingTarget.snippet;
+          existingTarget.updated_at = sourceChat.updated_at || existingTarget.updated_at;
+          state.chats = state.chats.filter((chat) => chat !== sourceChat);
+        } else if (sourceChat) {
+          sourceChat.chat_id = remoteId;
+        }
+        if (state.chatMessages[localId]) {
+          state.chatMessages[remoteId] = state.chatMessages[localId];
+          delete state.chatMessages[localId];
+        }
+        if (state.historyLoaded[localId]) {
+          state.historyLoaded[remoteId] = state.historyLoaded[localId];
+          delete state.historyLoaded[localId];
+        }
+        if (state.messageHydration[localId]) {
+          state.messageHydration[remoteId] = state.messageHydration[localId];
+          delete state.messageHydration[localId];
+        }
+        if (state.loading.messages[localId]) {
+          state.loading.messages[remoteId] = state.loading.messages[localId];
+          delete state.loading.messages[localId];
+        }
+        if (state.selectedChatId === localId) {
+          state.selectedChatId = remoteId;
+        }
+        if (state.chatId === localId) {
+          saveChatId(remoteId);
+        }
+        sortChatsByRecency();
+        renderChatList();
+        updateChatPanel();
+      }
+
+      function ingestServiceMessage(message, fallbackChatId = state.selectedChatId) {
+        if (!message) return;
+        const normalized = adaptServerMessage(message);
+        if (!normalized) return;
+        const chatId = normalized.chat_id || fallbackChatId;
+        if (!chatId) return;
+        normalized.chat_id = chatId;
+        const bucket = chatMessagesFor(chatId);
+        bucket.push(normalized);
+        state.chatMessages[chatId] = bucket;
+        state.historyLoaded[chatId] = true;
+        if (chatId === state.selectedChatId) {
+          renderMessagesForChat(findChatById(chatId));
+        }
+      }
+
+      async function handleComposerSend() {
+        if (!composerInput || composerInput.disabled) return;
+        if (!ensureAuth()) {
+          pushSystem('Session expired. Please sign in again.');
+          return;
+        }
+        const text = composerInput.value.trim();
+        if (!text || state.sending) return;
+        const chatId = ensureChatIdForSend(text.slice(0, 60) || null);
+        const timestamp = Date.now();
+        pushMessage('user', text, { chatId, meta: formatMessageMeta('user', timestamp) });
+        composerInput.value = '';
+        autoSizeComposer();
+        setComposerSending(true);
+        touchChat(chatId, { snippet: text, updated_at: timestamp });
+        try {
+          const result = await sendMessage({
+            chatId,
+            gtcUserId: state.user.gtc_user_id,
+            sessionId: state.sessionId,
+            source: CHAT_SOURCE,
+            content: text,
+            stage: state.stage,
+            metadata: {
+              user: {
+                email: state.user.email || null,
+                full_name: state.user.full_name || null
+              }
+            }
+          });
+          const resolvedChatId = result?.chatId || chatId;
+          reconcileChatIdentity(chatId, resolvedChatId);
+          if (typeof result?.stage === 'string' && result.stage.trim()) {
+            saveStage(result.stage.trim());
+          }
+          if (result?.assistant) {
+            ingestServiceMessage(result.assistant, resolvedChatId);
+            const reply = typeof result.assistant.content === 'string' ? result.assistant.content.trim() : '';
+            if (reply) {
+              touchChat(resolvedChatId, { snippet: reply, updated_at: Date.now() });
+            }
+          }
+        } catch (error) {
+          console.warn('message send failed', error);
+          pushSystem('Message failed: ' + (error?.message || 'Network issue.'));
+        } finally {
+          setComposerSending(false);
+          composerInput?.focus();
+        }
+      }
+
+
+      function formatRelativeTime(timestamp) {
+        if (!timestamp) return 'just now';
+        let numeric = typeof timestamp === 'string' ? Date.parse(timestamp) : Number(timestamp);
+        if (!Number.isFinite(numeric)) {
+          numeric = Date.now();
+        }
+        const delta = Date.now() - numeric;
+        if (delta < 1000 * 60) return 'just now';
+        if (delta < 1000 * 60 * 60) {
+          const mins = Math.round(delta / (1000 * 60));
+          return `${mins} min ago`;
+        }
+        if (delta < 1000 * 60 * 60 * 24) {
+          const hrs = Math.round(delta / (1000 * 60 * 60));
+          return `${hrs} hr${hrs === 1 ? '' : 's'} ago`;
+        }
+        const days = Math.round(delta / (1000 * 60 * 60 * 24));
+        return `${days} day${days === 1 ? '' : 's'} ago`;
+      }
+
+      function describeListError(error, fallbackMessage) {
+        if (!error) return fallbackMessage;
+        if (error?.code === 'chat_groups_disabled') {
+          return 'Chat groups are not enabled in this environment yet. Deploy the latest backend to turn this on.';
+        }
+        const message = typeof error.message === 'string' ? error.message : String(error);
+        if (/status_401/i.test(message)) return 'Session expired. Sign in again to sync chats.';
+        if (/status_403/i.test(message)) return 'Access restricted. Confirm email or billing to view chats.';
+        if (/status_404/i.test(message)) return 'History service is offline. Contact support if the issue persists.';
+        if (/status_5\d{2}/i.test(message)) return 'History service is temporarily unavailable. Please retry later.';
+        if (/network/i.test(message)) return 'Network error. Check your connection and retry.';
+        return fallbackMessage;
+      }
+
+      applyTheme(restoreTheme());
+      setView('public');
+      primeUserFromStoredAuth();
+      bootAuthFlow();
+
+      if (composerSend) {
+        composerSend.addEventListener('click', () => {
+          void handleComposerSend();
+        });
+      }
+
+      composerInput?.addEventListener('input', () => {
+        autoSizeComposer();
+        if (state.view === 'app') scheduleHeaderAutoHide();
+      });
+
+      composerInput?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          void handleComposerSend();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

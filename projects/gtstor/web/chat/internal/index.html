@@ -1,0 +1,3760 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>GTC • Web Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <link rel="icon" href="/favicon.ico" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #060912;
+      --panel: #0f1625;
+      --panel-soft: rgba(255,255,255,0.02);
+      --border: #1f2a44;
+      --accent: #68b5ff;
+      --muted: #9ba6bf;
+      --danger: #ff7b7b;
+      --success: #7be0c3;
+      --warning: #f7c873;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: #e6eefc;
+      overflow-x: hidden;
+    }
+    body {
+      display: flex;
+      min-height: 100vh;
+      transition: background 0.2s ease;
+    }
+
+    .layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(320px, 380px) 1fr;
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto;
+      min-height: 100vh;
+      min-width: 0;
+    }
+
+    aside {
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      padding: 28px 22px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    body.sidebar-collapsed .layout {
+      grid-template-columns: 0 1fr;
+    }
+    body.sidebar-collapsed aside {
+      transform: translateX(-110%);
+      opacity: 0;
+      pointer-events: none;
+    }
+    body.sidebar-expanded aside {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    body.sidebar-collapsed .chat-pane {
+      --chat-pane-padding: max(20px, 5vw);
+    }
+
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { border-right: none; border-bottom: 1px solid var(--border); }
+      body.sidebar-collapsed .layout { grid-template-columns: 1fr; }
+      body.sidebar-collapsed aside { transform: translateY(-100%); }
+      .chat-pane {
+        --chat-pane-padding: 22px;
+      }
+    }
+
+    h1 { margin: 0; font-size: 1.35rem; }
+    .subtitle { font-size: 0.9rem; color: var(--muted); margin: 0; }
+
+    label { display: block; margin-bottom: 6px; font-size: 0.9rem; }
+    input, textarea, button { font-family: inherit; font-size: 1rem; }
+    input, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: #fff;
+    }
+    input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+    textarea { min-height: 90px; resize: vertical; }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 600;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    button:disabled { opacity: 0.65; cursor: not-allowed; }
+    .btn-primary { background: linear-gradient(120deg, #2d7dff, #68b5ff); color: #051021; }
+    .btn-secondary { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+    .btn-danger { background: rgba(255,91,91,0.18); color: var(--danger); border: 1px solid rgba(255,91,91,0.5); }
+
+    .stack { display: flex; flex-direction: column; gap: 12px; }
+    .row { display: flex; gap: 12px; align-items: center; }
+    .row.wrap { flex-wrap: wrap; }
+
+    .hint { font-size: 0.82rem; color: var(--muted); }
+    .status {
+      font-size: 0.9rem;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: #e6eefc;
+    }
+    .status.ok { border-color: rgba(123,224,195,0.6); color: var(--success); }
+    .status.warn { border-color: rgba(247,200,115,0.6); color: var(--warning); }
+    .status.err { border-color: rgba(255,123,123,0.8); color: var(--danger); background: rgba(255,123,123,0.12); }
+    .chat-pane {
+      --chat-pane-padding: clamp(22px, 4vw, 36px);
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      min-height: 0;
+      min-width: 0;
+      position: relative;
+    }
+    .chat-pane > * { min-width: 0; }
+    .chat-top-shell {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: calc(var(--chat-pane-padding, 28px) * 0.4) var(--chat-pane-padding, 28px) calc(var(--chat-pane-padding, 28px) * 0.2);
+      background: rgba(6,9,18,0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+    }
+    .chat-top-bar {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 16px 20px 12px;
+      background: rgba(4,8,16,0.9);
+    }
+    .chat-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      min-height: 0;
+      padding: calc(var(--chat-pane-padding, 28px) * 0.2) var(--chat-pane-padding, 28px) var(--chat-pane-padding, 28px);
+    }
+
+    .sidebar-header { display: flex; flex-direction: column; gap: 6px; }
+    .sidebar-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .sidebar-toggle {
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sidebar-toggle .toggle-icon {
+      position: relative;
+      width: 16px;
+      height: 10px;
+    }
+    .sidebar-toggle .toggle-icon::before,
+    .sidebar-toggle .toggle-icon::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: currentColor;
+      border-radius: 2px;
+    }
+    .sidebar-toggle .toggle-icon::before { top: 0; }
+    .sidebar-toggle .toggle-icon::after { bottom: 0; }
+
+    .sidebar-floating-toggle {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+    }
+    body.sidebar-collapsed .sidebar-floating-toggle {
+      display: inline-flex;
+    }
+    @media (max-width: 960px) {
+      .sidebar-floating-toggle {
+        top: 14px;
+        left: 14px;
+      }
+    }
+
+    .accordion { display: flex; flex-direction: column; gap: 12px; }
+    .accordion-item { border: 1px solid var(--border); border-radius: 16px; background: var(--panel-soft); overflow: hidden; }
+    .accordion-header {
+      width: 100%;
+      background: none;
+      border: none;
+      color: inherit;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-align: left;
+    }
+    .accordion-title { font-weight: 600; display: block; }
+    .accordion-subtitle { font-size: 0.78rem; color: var(--muted); display: block; }
+    .accordion-icon { font-size: 1rem; color: var(--muted); transition: transform 0.2s ease; }
+    .accordion-item[data-open="true"] .accordion-icon { transform: rotate(90deg); }
+    .accordion-body { display: none; padding: 0 18px 18px; }
+    .accordion-item[data-open="true"] .accordion-body { display: flex; flex-direction: column; gap: 12px; }
+
+    .sidebar-block {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: rgba(4,8,16,0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .sidebar-block form { margin: 0; }
+    .section-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+
+    .payment-panel { border: 1px solid rgba(247,200,115,0.6); background: rgba(247,200,115,0.08); }
+    .payment-panel[data-critical="true"] { border-color: rgba(255,123,123,0.7); background: rgba(255,123,123,0.12); }
+
+    .link { color: var(--accent); text-decoration: none; }
+    .link:hover { text-decoration: underline; }
+    .divider { height: 1px; background: rgba(255,255,255,0.08); margin: 6px 0; }
+    .badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.15); }
+    .text-button { background: none; border: none; color: var(--accent); cursor: pointer; font: inherit; padding: 0; }
+    .text-button:hover { text-decoration: underline; }
+    .subtle-panel { border: 1px dashed rgba(255,255,255,0.2); border-radius: 14px; padding: 14px; background: rgba(255,255,255,0.02); margin-top: 6px; }
+
+    .google-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+    }
+    .insight-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chat-thread-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .chat-thread-item {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.02);
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .chat-thread-item:hover { border-color: rgba(255,255,255,0.25); }
+    .chat-thread-item.active {
+      border-color: var(--accent);
+      background: rgba(104,181,255,0.12);
+    }
+    .chat-thread-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .chat-thread-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .chat-thread-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin: 0 0 4px;
+    }
+    .chat-thread-meta {
+      display: flex;
+      justify-content: flex-start;
+      gap: 12px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+    .chat-thread-control {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+      color: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .chat-thread-control:hover {
+      border-color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.08);
+    }
+    .chat-thread-control:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .chat-thread-control svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+    .chat-thread-action-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(7,12,20,0.96);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.55);
+      width: 200px;
+      z-index: 50;
+    }
+    .chat-thread-action-menu[data-open="true"] {
+      display: flex;
+    }
+    .chat-thread-action-btn {
+      border: none;
+      background: rgba(255,255,255,0.04);
+      color: #fff;
+      border-radius: 10px;
+      padding: 8px 10px;
+      text-align: left;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .chat-thread-action-btn:hover {
+      background: rgba(255,255,255,0.12);
+    }
+    .chat-thread-action-btn.danger {
+      color: var(--danger);
+    }
+    .chat-thread-empty {
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: left;
+    }
+
+    .chat-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 6px;
+      font-weight: 400;
+    }
+    .chat-log {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px 20px clamp(120px, 16vh, 190px);
+      background: rgba(4,8,16,0.55);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 0;
+      min-width: 0;
+      scrollbar-gutter: stable;
+      order: 1;
+    }
+    .chat-scroll-control {
+      display: block;
+      padding: 6px 0 0;
+      margin: 0;
+      order: 2;
+    }
+    #chatScrollSlider {
+      width: min(240px, 100%);
+      max-width: 100%;
+      accent-color: var(--accent);
+      display: block;
+    }
+    .chat-msg {
+      border-radius: 14px;
+      padding: 12px 14px;
+      max-width: 90%;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .chat-msg.user { margin-left: auto; background: rgba(104,181,255,0.12); border: 1px solid rgba(104,181,255,0.4); }
+    .chat-msg.bot { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); }
+    .chat-msg.system { background: rgba(255,123,123,0.12); border: 1px dashed rgba(255,123,123,0.45); font-size: 0.9rem; }
+    .msg-meta { font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
+
+    .product-card-grid {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .product-card {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.02);
+      display: grid;
+      grid-template-columns: auto auto 1fr;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .product-card-order {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--muted);
+      min-width: 32px;
+      text-align: right;
+    }
+    .product-card-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .product-card-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .product-card-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .product-card-title { font-weight: 600; font-size: 0.95rem; }
+    .product-card-store { font-size: 0.82rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .product-card-desc { font-size: 0.9rem; color: #d7e1f7; }
+    .product-card-price { font-size: 0.88rem; color: var(--accent); }
+    .product-card-actions { margin-top: 6px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .product-card-link {
+      border: 1px solid rgba(104,181,255,0.6);
+      color: #fff;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .product-card-link:hover { background: rgba(104,181,255,0.2); color: #fff; }
+    .chat-msg.bot a {
+      color: var(--accent);
+      text-decoration: underline;
+      word-break: break-all;
+    }
+
+    .chat-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(4,8,16,0.85);
+      backdrop-filter: blur(12px);
+      order: 4;
+      box-shadow: 0 -12px 36px rgba(0,0,0,0.35);
+      position: sticky;
+      bottom: clamp(18px, 4vw, 40px);
+      z-index: 3;
+    }
+    .chat-form .row { align-items: stretch; }
+    #chatStatus { order: 3; margin-top: 12px; }
+    #chatInput {
+      min-height: 54px;
+      max-height: 220px;
+      resize: none;
+      overflow-y: hidden;
+      line-height: 1.5;
+    }
+    .chat-meta-bar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 4px 0 0;
+      flex-wrap: wrap;
+      font-weight: 400;
+    }
+    .chat-controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .chat-action-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      line-height: 1.1;
+      font-weight: 400;
+    }
+    .chat-action-btn.danger {
+      border-color: rgba(255,123,123,0.5);
+      color: var(--danger);
+    }
+    .chat-action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .chat-groups-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 32px;
+    }
+    .chat-group-tag {
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: rgba(255,255,255,0.04);
+    }
+    .chat-thread-groups {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .chat-thread-groups .chat-group-tag {
+      font-size: 0.72rem;
+      padding: 2px 8px;
+    }
+    .chat-group-library {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 32px;
+    }
+    .chat-group-chip {
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 0.78rem;
+      color: #fff;
+      background: rgba(255,255,255,0.04);
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .chat-group-chip:hover {
+      border-color: rgba(255,255,255,0.55);
+      background: rgba(104,181,255,0.15);
+    }
+    .tagline { font-size: 0.85rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <button id="sidebarFloatingToggle" class="sidebar-toggle sidebar-floating-toggle" type="button" aria-label="Open sidebar" aria-pressed="false" data-tooltip="Open sidebar">
+    <span class="toggle-icon" aria-hidden="true"></span>
+  </button>
+  <div class="layout">
+    <aside>
+      <div class="sidebar-header">
+        <div class="sidebar-title">
+          <h1>GTC Web Chat</h1>
+          <button id="sidebarToggleBtn" class="sidebar-toggle" type="button" aria-label="Close sidebar" aria-pressed="true" data-tooltip="Close sidebar">
+            <span class="toggle-icon" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="accordion" id="sidebarAccordion">
+        <section class="accordion-item" data-section="account" data-open="false">
+          <button class="accordion-header" type="button" aria-expanded="false">
+            <div>
+              <span class="accordion-title">Account management</span>
+              <span class="accordion-subtitle">Sessions, profile, billing</span>
+            </div>
+            <span class="accordion-icon" aria-hidden="true">›</span>
+          </button>
+          <div class="accordion-body">
+            <div id="userSection" class="sidebar-block stack" hidden>
+              <div class="section-label">Current session</div>
+              <div class="row" style="justify-content: space-between; align-items: center; gap:10px;">
+                <div>
+                  <div class="hint" style="text-transform:uppercase;letter-spacing:.2em;font-size:.72rem">Your code</div>
+                  <div class="user-id" id="userIdDisplay">—</div>
+                </div>
+                <button id="copyIdBtn" class="btn-secondary" type="button">Copy</button>
+              </div>
+              <div class="stack" style="gap:8px">
+                <div><span class="hint">Email:</span> <span id="userEmail">—</span></div>
+                <div class="divider"></div>
+                <div class="hint">Chat ID: <span id="chatIdDisplay"></span></div>
+                <div class="row wrap" style="gap:8px;">
+                  <button id="resetSession" class="btn-secondary" type="button">New chat session</button>
+                  <button id="clearChat" class="btn-secondary" type="button">Clear history</button>
+                </div>
+                <div class="row wrap" style="gap:8px;">
+                  <button id="refreshProfile" class="btn-secondary" type="button">Refresh profile</button>
+                  <button id="logoutBtn" class="btn-danger" type="button" hidden>Sign out</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="sidebar-block stack">
+              <div class="section-label">Access & password</div>
+              <form id="accessLinkForm" class="stack" autocomplete="off">
+                <div>
+                  <label for="accessLinkEmail">Email for access link</label>
+                  <input id="accessLinkEmail" type="email" placeholder="you@example.com" required />
+                </div>
+                <button id="accessLinkSubmit" class="btn-secondary" type="submit">Send verification link</button>
+              </form>
+              <div id="accessLinkStatus" class="status" hidden></div>
+              <div class="hint">We’ll send the same verification link the signup flow uses.</div>
+              <div class="divider"></div>
+              <form id="passwordResetForm" class="stack" autocomplete="off">
+                <div>
+                  <label for="passwordResetEmail">Email to reset password</label>
+                  <input id="passwordResetEmail" type="email" placeholder="you@example.com" required />
+                </div>
+                <button id="passwordResetSubmit" class="btn-secondary" type="submit">Send password reset</button>
+              </form>
+              <div id="passwordResetStatus" class="status" hidden></div>
+              <div class="hint">We email a 60-minute link to /auth/password/reset.</div>
+            </div>
+
+            <div id="paymentPanel" class="sidebar-block stack payment-panel" hidden>
+              <div class="section-label">Billing</div>
+              <p id="paymentMessage">We could not confirm an active subscription. Complete payment to unlock the chat.</p>
+              <button id="billingPortalBtn" class="btn-secondary" type="button">Open billing portal</button>
+              <div id="billingStatus" class="status" hidden></div>
+            </div>
+
+            <div class="sidebar-block stack">
+              <div class="section-label">Knowledge base</div>
+              <ul style="margin:0;padding-left:18px;color:#cfd8f5;display:flex;flex-direction:column;gap:6px;font-size:0.85rem;">
+                <li>We store history per <code>session_id</code>. Use “New chat session” to start over.</li>
+                <li>If access is denied, verify email first, then ensure billing is active.</li>
+                <li>Replies come from n8n workflow <strong>GTC Sales Agent - Web Chat</strong>.</li>
+              </ul>
+            </div>
+
+            <div class="sidebar-block stack" id="userLookupSection">
+              <div class="section-label">User lookup</div>
+              <form id="userLookupForm" class="stack" autocomplete="off">
+                <div>
+                  <label for="userLookupId">gtc_user_id</label>
+                  <input id="userLookupId" type="text" inputmode="numeric" pattern="[0-9]+" placeholder="e.g. 12345" />
+                </div>
+                <div>
+                  <label for="userLookupEmail">E-mail (optional)</label>
+                  <input id="userLookupEmail" type="email" placeholder="user@example.com" />
+                </div>
+                <div class="hint">Введите ID и (опционально) email, чтобы подтянуть все чаты пользователя без авторизации.</div>
+                <button id="userLookupSubmit" class="btn-secondary" type="submit">Load chats</button>
+              </form>
+              <div id="userLookupStatus" class="status" hidden></div>
+            </div>
+
+            <div class="sidebar-block stack" id="chatThreadsSection">
+              <div class="section-label">Chat threads</div>
+              <div id="chatListStatus" class="status" hidden></div>
+              <ul id="chatList" class="chat-thread-list">
+                <li class="chat-thread-empty">Chats will appear here after syncing your account.</li>
+              </ul>
+            </div>
+
+            <div class="sidebar-block stack" id="chatGroupLibrarySection">
+              <div class="section-label">Saved chat groups</div>
+              <div id="chatGroupLibrary" class="chat-group-library" aria-live="polite">
+                <span class="hint">Groups will appear here after you assign them.</span>
+              </div>
+              <div class="hint">Click a saved label to apply it to the selected chat.</div>
+            </div>
+          </div>
+        </section>
+        <section class="accordion-item" data-section="registration" data-open="false">
+          <button class="accordion-header" type="button" aria-expanded="false">
+            <div>
+              <span class="accordion-title">Registration</span>
+              <span class="accordion-subtitle">Create an account or resend email</span>
+            </div>
+            <span class="accordion-icon" aria-hidden="true">›</span>
+          </button>
+          <div class="accordion-body">
+            <div id="signupSection" class="sidebar-block stack">
+              <div class="section-label">New account</div>
+              <form id="signupForm" class="stack" autocomplete="off">
+                <div>
+                  <label for="signupName">Name</label>
+                  <input id="signupName" type="text" placeholder="John" minlength="2" />
+                </div>
+                <div>
+                  <label for="signupEmail">Work email</label>
+                  <input id="signupEmail" type="email" placeholder="you@example.com" required />
+                </div>
+                <div>
+                  <label for="signupPassword">Password</label>
+                  <input id="signupPassword" type="password" placeholder="Min 8 chars, 1 uppercase" minlength="8" required autocomplete="new-password" />
+                </div>
+                <button id="signupSubmit" class="btn-primary" type="submit">Create account</button>
+                <div class="hint">After confirming the email, return to “Authorization” and press “Check access”.</div>
+              </form>
+              <div id="signupStatus" class="status" hidden></div>
+            </div>
+
+            <div class="sidebar-block stack">
+              <div class="section-label">Resend verification</div>
+              <form id="resendForm" class="stack" autocomplete="off">
+                <div>
+                  <label for="resendEmail">Email to resend</label>
+                  <input id="resendEmail" type="email" placeholder="you@example.com" required />
+                </div>
+                <button id="resendSubmit" class="btn-secondary" type="submit">Send email again</button>
+              </form>
+              <div id="resendStatus" class="status" hidden></div>
+              <div class="hint">We show the exact response from the auth service so you know if the message was queued.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="accordion-item" data-section="authorization" data-open="false">
+          <button class="accordion-header" type="button" aria-expanded="false">
+            <div>
+              <span class="accordion-title">Authorization</span>
+              <span class="accordion-subtitle">Email + password, OTP</span>
+            </div>
+            <span class="accordion-icon" aria-hidden="true">›</span>
+          </button>
+          <div class="accordion-body">
+            <div id="authSection" class="sidebar-block stack">
+              <div class="section-label">Email & password</div>
+              <form id="authForm" class="stack" autocomplete="on">
+                <div>
+                  <label for="authEmail">Email</label>
+                  <input id="authEmail" type="email" placeholder="you@example.com" required />
+                </div>
+                <div>
+                  <label for="authPassword">Password</label>
+                  <input id="authPassword" type="password" placeholder="••••••••" required autocomplete="current-password" />
+                </div>
+                <button id="authSubmit" class="btn-primary" type="submit">Sign in & fetch gtc_user_id</button>
+                <button id="accessCheckBtn" class="btn-secondary" type="button">Check workspace access</button>
+                <div class="hint">Use the same email you employ inside GTC. We will store the user record locally for chat.</div>
+                <div class="hint">No email yet? <button id="openResendShortcut" type="button" class="text-button">Request the access link</button></div>
+                <div class="hint">Forgot your password? <button id="forgotPasswordToggle" type="button" class="text-button">Send a reset link</button></div>
+              </form>
+              <div id="authStatus" class="status" hidden></div>
+              <div id="forgotPasswordPanel" class="subtle-panel stack" hidden>
+                <form id="passwordResetFormAuth" class="stack" autocomplete="off">
+                  <div>
+                    <label for="passwordResetEmailAuth">Email for password reset</label>
+                    <input id="passwordResetEmailAuth" type="email" placeholder="you@example.com" required />
+                  </div>
+                  <button id="passwordResetSubmitAuth" class="btn-secondary" type="submit">Send password reset</button>
+                </form>
+                <div id="passwordResetStatusAuth" class="status" hidden></div>
+                <div class="hint">We email a secure 60-minute link to /auth/password/reset.</div>
+              </div>
+            </div>
+
+            <div id="quickAuthSection" class="sidebar-block stack">
+              <div id="otpSection" class="stack">
+                <div class="section-label">One-time passcode (OTP)</div>
+                <p class="hint">Use OTP if your workspace blocks password logins or you need a quick, one-off access.</p>
+                <div class="stack" style="gap:10px">
+                  <div>
+                    <label for="otpEmail">Email for OTP</label>
+                    <input id="otpEmail" type="email" placeholder="you@example.com" />
+                  </div>
+                  <div class="row wrap" style="gap:10px">
+                    <button id="otpRequestBtn" class="btn-secondary" type="button">Get code</button>
+                    <button id="otpVerifyBtn" class="btn-primary" type="button" disabled>Verify code</button>
+                  </div>
+                  <div>
+                    <label for="otpCode">Code from email</label>
+                    <input id="otpCode" type="text" placeholder="123456" inputmode="numeric" pattern="[0-9]{4,6}" maxlength="6" disabled />
+                  </div>
+                  <div class="hint">Codes stay valid for 10 minutes. We reset attempts after each success.</div>
+                  <div id="otpStatus" class="status" hidden></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="accordion-item" data-section="google" data-open="false">
+          <button class="accordion-header" type="button" aria-expanded="false">
+            <div>
+              <span class="accordion-title">Google & Enterprise</span>
+              <span class="accordion-subtitle">OAuth sign-in, diagnostics, fallback</span>
+            </div>
+            <span class="accordion-icon" aria-hidden="true">›</span>
+          </button>
+          <div class="accordion-body">
+            <div class="google-grid">
+              <div class="sidebar-block stack" id="googlePanel">
+                <div class="section-label">Google sign-in</div>
+                <div id="googleBtnHost" style="min-height:54px"></div>
+                <button id="googleFallbackBtn" class="btn-secondary" type="button" hidden aria-label="Открыть резервное окно Google" title="Открыть резервное окно Google">
+                  ↗︎
+                </button>
+                <div id="googleStatus" class="status" hidden></div>
+              </div>
+              <div class="sidebar-block stack">
+                <div class="section-label">Access diagnostics</div>
+                <div class="insight-grid" id="googleInsightList"></div>
+                <div class="hint">Values refresh automatically after Google sign-in or profile sync.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </aside>
+
+    <main class="chat-pane">
+      <div class="chat-top-shell">
+        <div class="chat-top-bar">
+          <div class="chat-header">
+            <div>
+              <div class="pill"><small>Status</small> <span id="statusLabel">offline</span></div>
+              <div class="tagline" id="stageLabel"></div>
+            </div>
+            <div class="tagline">Webhook: <code>https://agent.gtstor.com/webhook/chat</code></div>
+          </div>
+
+          <div class="chat-meta-bar">
+            <div class="chat-groups-panel" id="chatGroupsPanel">
+              <span class="chat-group-tag">No chat selected</span>
+            </div>
+            <div class="chat-controls">
+              <button type="button" class="chat-action-btn" id="chatGroupBtn">Assign group</button>
+              <button type="button" class="chat-action-btn" id="chatRenameBtn">Rename</button>
+              <button type="button" class="chat-action-btn danger" id="chatDeleteBtn">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-body">
+        <div id="chatLog" class="chat-log"></div>
+        <div class="chat-scroll-control">
+          <input id="chatScrollSlider" type="range" min="0" max="100" value="100" aria-label="Scroll history" />
+        </div>
+
+        <form id="chatForm" class="chat-form">
+          <div>
+            <label for="chatInput">Enter your message</label>
+            <textarea id="chatInput" placeholder="For example: Help me find a solution. I have a task...." required></textarea>
+          </div>
+          <div class="row" style="justify-content: space-between; gap:12px; flex-wrap: wrap;">
+            <div class="tagline">Shift+Enter inserts a line break.</div>
+            <div class="row" style="gap:10px;">
+              <button id="sendBtn" class="btn-primary" type="submit">Send</button>
+            </div>
+          </div>
+        </form>
+        <div id="chatStatus" class="status" hidden></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script type="module">
+    import { chatService } from '../../shared/chat-service.js';
+    import { GroupPicker } from '../../shared/group-picker.js';
+
+    (() => {
+      const GOOGLE_CLIENT_ID = '295337863113-sjl11e4rfttsqgaubfhl9ketv5nv20jc.apps.googleusercontent.com';
+      const PAYMENT_URL = 'https://pay.gtstor.com/payment.php';
+      const $ = (sel) => document.querySelector(sel);
+      const statusLabel = $('#statusLabel');
+      const stageLabel = $('#stageLabel');
+      const chatLog = $('#chatLog');
+      const chatScrollSlider = $('#chatScrollSlider');
+      const chatInput = $('#chatInput');
+      const chatForm = $('#chatForm');
+      const sendBtn = $('#sendBtn');
+      const defaultChatInputPlaceholder = chatInput?.getAttribute('placeholder') || '';
+      const lockedChatInputPlaceholder = 'Sign in to start chatting.';
+      const chatStatus = $('#chatStatus');
+      const chatGroupsPanel = $('#chatGroupsPanel');
+      const chatGroupBtn = $('#chatGroupBtn');
+      const chatRenameBtn = $('#chatRenameBtn');
+      const chatDeleteBtn = $('#chatDeleteBtn');
+      const authForm = $('#authForm');
+      const authStatus = $('#authStatus');
+      const authEmailInput = $('#authEmail');
+      const authPasswordInput = $('#authPassword');
+      const forgotPasswordToggle = $('#forgotPasswordToggle');
+      const forgotPasswordPanel = $('#forgotPasswordPanel');
+      const logoutBtn = $('#logoutBtn');
+      const userSection = $('#userSection');
+      const authSection = $('#authSection');
+      const copyIdBtn = $('#copyIdBtn');
+      const chatIdDisplay = $('#chatIdDisplay');
+      const clearChatBtn = $('#clearChat');
+      const resetSessionBtn = $('#resetSession');
+      const refreshProfileBtn = $('#refreshProfile');
+      const quickAuthSection = $('#quickAuthSection');
+      const otpSection = $('#otpSection');
+      const googleBtnHost = $('#googleBtnHost');
+      const googleFallbackBtn = $('#googleFallbackBtn');
+      const googleStatusBox = $('#googleStatus');
+      const googleInsightList = $('#googleInsightList');
+      const otpEmailInput = $('#otpEmail');
+      const otpCodeInput = $('#otpCode');
+      const otpRequestBtn = $('#otpRequestBtn');
+      const otpVerifyBtn = $('#otpVerifyBtn');
+      const otpStatus = $('#otpStatus');
+      const signupForm = $('#signupForm');
+      const signupStatus = $('#signupStatus');
+      const signupNameInput = $('#signupName');
+      const signupEmailInput = $('#signupEmail');
+      const signupPasswordInput = $('#signupPassword');
+      const resendForm = $('#resendForm');
+      const resendStatus = $('#resendStatus');
+      const resendEmailInput = $('#resendEmail');
+      const resendShortcutBtn = $('#openResendShortcut');
+      const accessLinkForm = $('#accessLinkForm');
+      const accessLinkEmailInput = $('#accessLinkEmail');
+      const accessLinkStatus = $('#accessLinkStatus');
+      const passwordResetForm = $('#passwordResetForm');
+      const passwordResetEmailInput = $('#passwordResetEmail');
+      const passwordResetStatus = $('#passwordResetStatus');
+      const passwordResetFormAuth = $('#passwordResetFormAuth');
+      const passwordResetEmailInputAuth = $('#passwordResetEmailAuth');
+      const passwordResetStatusAuth = $('#passwordResetStatusAuth');
+      const accessCheckBtn = $('#accessCheckBtn');
+      const billingPortalBtn = $('#billingPortalBtn');
+      const billingStatus = $('#billingStatus');
+      const paymentPanel = $('#paymentPanel');
+      const paymentMessage = $('#paymentMessage');
+      const userLookupForm = $('#userLookupForm');
+      const userLookupIdInput = $('#userLookupId');
+      const userLookupEmailInput = $('#userLookupEmail');
+      const userLookupStatus = $('#userLookupStatus');
+      const sidebarToggleBtn = $('#sidebarToggleBtn');
+      const sidebarFloatingToggle = $('#sidebarFloatingToggle');
+      const accordionRoot = $('#sidebarAccordion');
+      const accordionItems = accordionRoot ? Array.from(accordionRoot.querySelectorAll('.accordion-item')) : [];
+      const chatThreadsSection = $('#chatThreadsSection');
+      const chatListElement = $('#chatList');
+      const chatListStatus = $('#chatListStatus');
+      const chatGroupLibrarySection = $('#chatGroupLibrarySection');
+      const chatGroupLibrary = $('#chatGroupLibrary');
+      const chatActionMenu = document.createElement('div');
+      chatActionMenu.className = 'chat-thread-action-menu';
+      chatActionMenu.dataset.open = 'false';
+      chatActionMenu.innerHTML = `
+        <button type="button" class="chat-thread-action-btn" data-action="open">Open chat</button>
+        <button type="button" class="chat-thread-action-btn" data-action="group">Assign group</button>
+        <button type="button" class="chat-thread-action-btn" data-action="rename">Rename</button>
+        <button type="button" class="chat-thread-action-btn danger" data-action="delete">Delete locally</button>
+      `;
+      if (document.body) {
+        document.body.appendChild(chatActionMenu);
+      }
+      const chatActionMenuState = {
+        chatId: null,
+        anchor: null
+      };
+      const CHAT_INPUT_MIN_HEIGHT = 56;
+      const CHAT_INPUT_MAX_HEIGHT = 240;
+
+      function autoSizeChatInput(target = chatInput) {
+        if (!target) return;
+        const minHeight = Number(target.dataset.minHeight) || CHAT_INPUT_MIN_HEIGHT;
+        const maxHeight = Number(target.dataset.maxHeight) || CHAT_INPUT_MAX_HEIGHT;
+        target.style.height = 'auto';
+        const scrollHeight = target.scrollHeight || minHeight;
+        const next = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
+        target.style.height = next + 'px';
+        target.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
+      }
+
+      if (chatInput) {
+        chatInput.dataset.minHeight = String(CHAT_INPUT_MIN_HEIGHT);
+        chatInput.dataset.maxHeight = String(CHAT_INPUT_MAX_HEIGHT);
+        autoSizeChatInput(chatInput);
+      }
+
+      const CHAT_SOURCE = 'web_chat_admin';
+      const CHAT_HISTORY_LIMIT = 200;
+      const MAX_CHAT_GROUPS = 12;
+      const groupPicker = new GroupPicker({ maxSelections: MAX_CHAT_GROUPS });
+      const SUBSCRIPTION_OK_STATUSES = new Set(['active', 'trialing', 'trial', 'grace', 'paid', 'renewing']);
+
+      const storageKeys = {
+        user: 'chat:user',
+        session: 'chat:session',
+        history: 'chat:history',
+        sidebar: 'chat:sidebar',
+        sqlChat: 'chat:sql-id',
+        stage: 'chat:stage',
+        groupLibrary: 'chat:group-library'
+      };
+
+      const state = {
+        user: loadUser(),
+        sending: false,
+        sessionId: ensureSession(),
+        history: loadHistory(),
+        historyMeta: null,
+        historySource: null,
+        chatList: [],
+        traceId: null,
+        chatId: loadChatId(),
+        sqlChatId: loadSqlChatId(),
+        stage: loadStage(),
+        lastSyncedUserId: null,
+        lookupGtcUserId: null,
+        subscriptionSnapshot: null,
+        chatGroups: loadChatGroups(),
+        groupLibrary: loadGroupLibrary(),
+        groupIndex: Object.create(null)
+      };
+      if (!state.chatGroups || typeof state.chatGroups !== 'object') {
+        state.chatGroups = {};
+      }
+      if (!Array.isArray(state.groupLibrary)) {
+        state.groupLibrary = [];
+      }
+      if (!state.groupLibrary.length) {
+        const seededGroups = Object.values(state.chatGroups || {})
+          .flatMap((groupList) => (Array.isArray(groupList) ? groupList : []));
+        if (seededGroups.length) {
+          extendGroupLibrary(seededGroups);
+        }
+      }
+      const otpState = {
+        email: '',
+        requested: false
+      };
+
+      state.historySource = state.history.length ? 'local' : 'empty';
+      state.lastSyncedUserId = null;
+      let chatBootstrapInFlight = false;
+      let subscriptionCheckInFlight = false;
+      let groupFetchInFlight = null;
+
+      updateChatIdDisplay();
+
+      accordionItems.forEach((item) => {
+        syncAccordionHeader(item);
+        const header = item.querySelector('.accordion-header');
+        if (!header) return;
+        header.addEventListener('click', () => {
+          const next = item.dataset.open !== 'true';
+          setAccordionState(item, next);
+        });
+      });
+
+      function findAccordionItem(name) {
+        if (!name) return null;
+        return accordionItems.find((node) => node.dataset.section === name) || null;
+      }
+
+      function enforceAuthAccordionState(loggedIn) {
+        const authItem = findAccordionItem('authorization');
+        const accountItem = findAccordionItem('account');
+        if (loggedIn) {
+          if (authItem) setAccordionState(authItem, false);
+          if (accountItem) setAccordionState(accountItem, true);
+        } else {
+          if (accountItem) setAccordionState(accountItem, false);
+          if (authItem) setAccordionState(authItem, true);
+        }
+      }
+
+      function initSidebarState() {
+        const saved = localStorage.getItem(storageKeys.sidebar);
+        let collapsed;
+        if (saved === 'collapsed' || saved === 'expanded') {
+          collapsed = saved === 'collapsed';
+        } else {
+          collapsed = window.matchMedia('(max-width: 960px)').matches;
+        }
+        applySidebarState(collapsed);
+      }
+
+      function applySidebarState(collapsed) {
+        document.body.classList.toggle('sidebar-collapsed', collapsed);
+        document.body.classList.toggle('sidebar-expanded', !collapsed);
+        syncSidebarToggleButton(sidebarToggleBtn, collapsed);
+        syncSidebarToggleButton(sidebarFloatingToggle, collapsed);
+      }
+
+      function syncSidebarToggleButton(button, collapsed) {
+        if (!button) return;
+        const tooltip = collapsed ? 'Open sidebar' : 'Close sidebar';
+        button.setAttribute('aria-pressed', collapsed ? 'false' : 'true');
+        button.setAttribute('aria-label', tooltip);
+        button.setAttribute('title', tooltip);
+        button.setAttribute('data-tooltip', tooltip);
+      }
+
+      function hideChatActionMenu() {
+        if (!chatActionMenu) return;
+        chatActionMenu.dataset.open = 'false';
+        chatActionMenu.style.left = '-9999px';
+        chatActionMenu.style.top = '-9999px';
+        chatActionMenuState.chatId = null;
+        chatActionMenuState.anchor = null;
+      }
+
+      function positionChatActionMenu(anchor) {
+        if (!chatActionMenu || !anchor) return;
+        requestAnimationFrame(() => {
+          const rect = anchor.getBoundingClientRect();
+          const menuRect = chatActionMenu.getBoundingClientRect();
+          const maxLeft = window.innerWidth - menuRect.width - 12;
+          let left = rect.right - menuRect.width;
+          left = Math.max(12, Math.min(maxLeft, left));
+          let top = rect.bottom + 8;
+          const maxTop = window.innerHeight - menuRect.height - 12;
+          if (top > maxTop) {
+            top = rect.top - menuRect.height - 8;
+          }
+          if (top < 12) top = 12;
+          chatActionMenu.style.left = `${Math.round(left)}px`;
+          chatActionMenu.style.top = `${Math.round(top)}px`;
+        });
+      }
+
+      function toggleChatActionMenu(chatId, anchor) {
+        if (!chatActionMenu || !chatId || !anchor) return;
+        if (chatActionMenuState.chatId === chatId && chatActionMenu.dataset.open === 'true') {
+          hideChatActionMenu();
+          return;
+        }
+        chatActionMenu.dataset.open = 'true';
+        chatActionMenuState.chatId = chatId;
+        chatActionMenuState.anchor = anchor;
+        positionChatActionMenu(anchor);
+      }
+
+      resendShortcutBtn?.addEventListener('click', () => {
+        openAccordionSection('registration');
+        prefillSupportEmails(true);
+        if (resendEmailInput) {
+          resendEmailInput.focus();
+          setTimeout(() => resendEmailInput.select(), 50);
+        }
+      });
+
+      chatActionMenu?.addEventListener('click', (event) => {
+        const button = event.target instanceof Element ? event.target.closest('[data-action]') : null;
+        if (!button) return;
+        event.stopPropagation();
+        const chatId = chatActionMenuState.chatId;
+        hideChatActionMenu();
+        if (!chatId) return;
+        const action = button.getAttribute('data-action');
+        switch (action) {
+          case 'open':
+            handleChatSelection(chatId);
+            break;
+          case 'group':
+            promptAssignChatGroups(chatId);
+            break;
+          case 'rename':
+            promptRenameActiveChat(chatId);
+            break;
+          case 'delete':
+            deleteActiveChatLocally(chatId);
+            break;
+          default:
+            break;
+        }
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!chatActionMenu || chatActionMenu.dataset.open !== 'true') return;
+        const target = event.target instanceof Element ? event.target : null;
+        if (target && (target.closest('.chat-thread-control') || target.closest('.chat-thread-action-menu'))) {
+          return;
+        }
+        hideChatActionMenu();
+      });
+
+      window.addEventListener('resize', () => {
+        hideChatActionMenu();
+      });
+
+      window.addEventListener('scroll', () => {
+        if (!chatActionMenu || chatActionMenu.dataset.open !== 'true') return;
+        hideChatActionMenu();
+      }, true);
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          hideChatActionMenu();
+        }
+      });
+
+      chatListElement?.addEventListener('click', (event) => {
+        const controlBtn = event.target instanceof Element ? event.target.closest('.chat-thread-control') : null;
+        if (controlBtn) {
+          event.preventDefault();
+          event.stopPropagation();
+          const chatId = controlBtn.getAttribute('data-chat-control');
+          toggleChatActionMenu(chatId, controlBtn);
+          return;
+        }
+        const target = event.target instanceof Element ? event.target.closest('[data-chat-id]') : null;
+        if (!target) return;
+        hideChatActionMenu();
+        handleChatSelection(target.getAttribute('data-chat-id'));
+      });
+
+      chatGroupLibrary?.addEventListener('click', (event) => {
+        const chip = event.target instanceof Element ? event.target.closest('[data-saved-group]') : null;
+        if (!chip) return;
+        event.preventDefault();
+        const groupName = chip.getAttribute('data-saved-group');
+        assignSavedGroupToChat(groupName);
+      });
+
+      userLookupForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const rawId = userLookupIdInput?.value || '';
+        const normalizedId = normalizeGtcUserId(rawId);
+        const email = (userLookupEmailInput?.value || '').trim().toLowerCase() || null;
+        if (!normalizedId) {
+          setUserLookupStatus('Введите gtc_user_id (число).', 'err');
+          userLookupIdInput?.focus();
+          return;
+        }
+        const submitBtn = userLookupForm.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        setUserLookupStatus('Применяем контекст пользователя…', 'warn');
+        setChatStatus('Switching to user ' + normalizedId + '…', 'warn');
+        const exists = await verifyUserExists(normalizedId).catch(() => false);
+        if (!exists) {
+          setUserLookupStatus('Пользователь ' + normalizedId + ' не найден.', 'err');
+          setChatListStatus('Нет данных по gtc_user_id ' + normalizedId + '.', 'err');
+          if (submitBtn) submitBtn.disabled = false;
+          return;
+        }
+        state.lookupGtcUserId = normalizedId;
+        state.lastSyncedUserId = null;
+        state.chatList = [];
+        state.chatGroups = {};
+        state.groupIndex = Object.create(null);
+        renderChatList();
+        renderGroupLibrary();
+        saveChatId(null);
+        saveSqlChatId(null);
+        setHistoryFromMessages([], 'local');
+        setChatListStatus('Loading chats for user ' + normalizedId + '…', 'warn');
+        try {
+          await ensureChatBootstrap('manual-lookup');
+          if (!Array.isArray(state.chatList) || state.chatList.length === 0) {
+            setUserLookupStatus('Пользователь ' + normalizedId + ' найден. У него пока нет чатов.', 'warn');
+            setChatListStatus('Нет сохранённых чатов для gtc_user_id ' + normalizedId + '.', 'warn');
+          } else {
+            setUserLookupStatus('Готово. Чаты пользователя ' + normalizedId + ' загружены.', 'ok');
+            setChatListStatus('Выберите чат из списка.', 'ok');
+          }
+        } catch (error) {
+          console.warn('user lookup failed', error);
+          setUserLookupStatus('Не удалось загрузить чаты: ' + (error?.message || 'unknown error'), 'err');
+        } finally {
+          if (submitBtn) submitBtn.disabled = false;
+        }
+      });
+
+      chatRenameBtn?.addEventListener('click', () => {
+        promptRenameActiveChat();
+      });
+
+      chatGroupBtn?.addEventListener('click', () => {
+        promptAssignChatGroups();
+      });
+
+      chatDeleteBtn?.addEventListener('click', () => {
+        deleteActiveChatLocally();
+      });
+
+      forgotPasswordToggle?.addEventListener('click', () => {
+        if (!forgotPasswordPanel) return;
+        const isHidden = forgotPasswordPanel.hidden;
+        forgotPasswordPanel.hidden = !isHidden;
+        if (!forgotPasswordPanel.hidden) {
+          prefillSupportEmails(true);
+          passwordResetEmailInputAuth?.focus();
+          setTimeout(() => passwordResetEmailInputAuth?.select(), 50);
+        }
+      });
+
+      function syncAccordionHeader(item) {
+        const header = item.querySelector('.accordion-header');
+        if (!header) return;
+        header.setAttribute('aria-expanded', item.dataset.open === 'true' ? 'true' : 'false');
+      }
+
+      function setAccordionState(item, open) {
+        if (!item) return;
+        item.dataset.open = open ? 'true' : 'false';
+        syncAccordionHeader(item);
+      }
+
+      function openAccordionSection(name) {
+        const item = accordionItems.find((node) => node.dataset.section === name);
+        if (item) setAccordionState(item, true);
+      }
+
+      function openBillingPortal() {
+        const gtcUserId = activeGtcUserId();
+        if (!gtcUserId || !state.user?.email) {
+          setBillingStatus('Please sign in to your GTC account before opening the billing portal.', 'warn');
+          openAccordionSection('authorization');
+          return;
+        }
+        try {
+          const url = new URL(PAYMENT_URL);
+          url.searchParams.set('gtc_user_id', gtcUserId);
+          url.searchParams.set('email', state.user.email);
+          window.open(url.toString(), '_blank', 'noopener');
+          setBillingStatus('Billing portal opened in a new tab.', 'ok');
+        } catch (error) {
+          setBillingStatus('Unable to open billing portal: ' + error.message, 'err');
+        }
+      }
+
+      prefillSupportEmails();
+      initSidebarState();
+      renderHistory();
+      renderChatList();
+      renderGroupLibrary();
+      updateAuthUI();
+      updateStatus('offline');
+      setGoogleStatus('Use the button above to launch Google sign-in when ready.', 'warn');
+      if (state.stage) {
+        setStageLabel(state.stage);
+      }
+      if (!activeGtcUserId()) {
+        void bootstrapAuthStatus();
+      }
+
+      function loadUser() {
+        try {
+          const raw = localStorage.getItem(storageKeys.user);
+          if (!raw) return null;
+          return JSON.parse(raw);
+        } catch { return null; }
+      }
+
+      function normalizeGtcUserId(value) {
+        if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+          return String(Math.trunc(value));
+        }
+        if (typeof value === 'string') {
+          const trimmed = value.trim();
+          if (!trimmed) return null;
+          if (/^\d+$/.test(trimmed)) {
+            return String(Number(trimmed));
+          }
+          const parsed = Number(trimmed);
+          if (Number.isFinite(parsed) && parsed > 0) {
+            return String(Math.trunc(parsed));
+          }
+        }
+        return null;
+      }
+
+      function resolveGtcUserIdCandidate(source) {
+        if (source == null) return null;
+        if (typeof source === 'string' || typeof source === 'number') {
+          return normalizeGtcUserId(source);
+        }
+        if (typeof source !== 'object') return null;
+        const candidates = [
+          source.gtc_user_id,
+          source.gtcUserId,
+          source.gtcId,
+          source.user_gtc_id,
+          source.userGtcId,
+          source.profile?.gtc_user_id,
+          source.profile?.gtcUserId,
+          source.account?.gtc_user_id,
+          source.account?.gtcUserId
+        ];
+        for (const candidate of candidates) {
+          const normalized = normalizeGtcUserId(candidate);
+          if (normalized) return normalized;
+        }
+        return null;
+      }
+
+      function readStoredGtcUserId() {
+        try {
+          return localStorage.getItem('gtc_user_id');
+        } catch {
+          return null;
+        }
+      }
+
+      function activeGtcUserId() {
+        const sources = [state.user?.gtc_user_id, readStoredGtcUserId()];
+        for (const value of sources) {
+          const normalized = normalizeGtcUserId(value);
+          if (normalized) return normalized;
+        }
+        return null;
+      }
+
+      function chatUserId() {
+        return state.lookupGtcUserId || activeGtcUserId();
+      }
+
+      function saveUser(user, message) {
+        const mergedUser = {
+          ...(state.user || {}),
+          ...(user || {})
+        };
+        const normalizedId = resolveGtcUserIdCandidate(mergedUser);
+        mergedUser.gtc_user_id = normalizedId;
+        if (user?.email_verified !== undefined) {
+          mergedUser.email_verified = user.email_verified;
+        } else if (state.user?.email_verified !== undefined && mergedUser.email_verified === undefined) {
+          mergedUser.email_verified = state.user.email_verified;
+        }
+        state.user = mergedUser;
+        if (mergedUser?.email) rememberEmail(mergedUser.email);
+        try {
+          localStorage.setItem(storageKeys.user, JSON.stringify(mergedUser));
+          if (normalizedId) {
+            localStorage.setItem('gtc_user_id', normalizedId);
+          } else {
+            localStorage.removeItem('gtc_user_id');
+          }
+        } catch {}
+        const greeting = message === undefined ? ('Welcome, ' + (mergedUser?.email || '')) : message;
+        updateAuthUI(greeting);
+        prefillSupportEmails(true);
+        if (mergedUser?.gtc_user_id) {
+          void ensureChatBootstrap('save-user');
+        }
+      }
+
+      function rememberEmail(email) {
+        if (!email) return;
+        try { localStorage.setItem('email', email); } catch {}
+      }
+
+      function recalledEmail() {
+        try { return localStorage.getItem('email') || ''; } catch { return ''; }
+      }
+
+      function bestKnownEmail() {
+        if (state.user?.email) return state.user.email;
+        if (authEmailInput?.value) return authEmailInput.value.trim().toLowerCase();
+        if (signupEmailInput?.value) return signupEmailInput.value.trim().toLowerCase();
+        if (resendEmailInput?.value) return resendEmailInput.value.trim().toLowerCase();
+        if (passwordResetEmailInputAuth?.value) return passwordResetEmailInputAuth.value.trim().toLowerCase();
+        const stored = recalledEmail();
+        if (stored) return stored;
+        return '';
+      }
+
+      function prefillSupportEmails(force = false) {
+        const email = bestKnownEmail();
+        if (!email) return;
+        if (resendEmailInput && (force || !resendEmailInput.value)) resendEmailInput.value = email;
+        if (accessLinkEmailInput && (force || !accessLinkEmailInput.value)) accessLinkEmailInput.value = email;
+        if (passwordResetEmailInput && (force || !passwordResetEmailInput.value)) passwordResetEmailInput.value = email;
+        if (passwordResetEmailInputAuth && (force || !passwordResetEmailInputAuth.value)) passwordResetEmailInputAuth.value = email;
+      }
+
+      function setChatListStatus(message, tone = 'warn') {
+        if (!chatListStatus) return;
+        if (!message) {
+          chatListStatus.hidden = true;
+          chatListStatus.textContent = '';
+          chatListStatus.classList.remove('ok', 'warn', 'err');
+          return;
+        }
+        chatListStatus.hidden = false;
+        chatListStatus.textContent = message;
+        chatListStatus.classList.remove('ok', 'warn', 'err');
+        chatListStatus.classList.add(tone === 'err' ? 'err' : tone === 'ok' ? 'ok' : 'warn');
+      }
+
+      function renderGroupLibrary() {
+        if (!chatGroupLibrary) return;
+        const names = savedGroupNames();
+        if (!names.length) {
+          chatGroupLibrary.innerHTML = '<span class="hint">Groups will appear here after you assign them.</span>';
+          return;
+        }
+        chatGroupLibrary.innerHTML = names.map((name) => {
+          const safe = escapeHtml(name);
+          return `<button type="button" class="chat-group-chip" data-saved-group="${safe}" title="Assign ${safe}">${safe}</button>`;
+        }).join('');
+      }
+
+      function formatRelativeTime(value) {
+        if (!value) return 'just now';
+        const ts = typeof value === 'string' ? Date.parse(value) : Number(value);
+        const clamped = Number.isFinite(ts) ? ts : Date.now();
+        const delta = Date.now() - clamped;
+        if (delta < 60_000) return 'just now';
+        if (delta < 3_600_000) {
+          const mins = Math.round(delta / 60_000);
+          return `${mins} min${mins === 1 ? '' : 's'} ago`;
+        }
+        if (delta < 86_400_000) {
+          const hrs = Math.round(delta / 3_600_000);
+          return `${hrs} hr${hrs === 1 ? '' : 's'} ago`;
+        }
+        const days = Math.round(delta / 86_400_000);
+        return `${days} day${days === 1 ? '' : 's'} ago`;
+      }
+
+      function fallbackChatTitle(chatId, index = 0) {
+        if (chatId && typeof chatId === 'string') {
+          const suffix = chatId.slice(-4).toUpperCase();
+          return `Chat · ${suffix}`;
+        }
+        return `Chat ${index + 1}`;
+      }
+
+      function deriveChatGroups() {
+        if (Array.isArray(state.chatList) && state.chatList.length) {
+          return state.chatList.map((chat, index) => ({
+            chat_id: chat.chat_id || chat.id || `chat-${index}`,
+            title: chat.title || fallbackChatTitle(chat.chat_id, index),
+            snippet: (chat.snippet || chat.last_message || '').trim(),
+            updated_at: chat.updated_at || chat.last_message_at || chat.created_at || null,
+            message_count: chat.message_count || 0
+          })).sort((a, b) => (Date.parse(b.updated_at || 0) || 0) - (Date.parse(a.updated_at || 0) || 0));
+        }
+        if (!state.history.length) return [];
+        const buckets = new Map();
+        state.history.forEach((entry) => {
+          const chatId = entry?.meta?.chat_id || currentChatId() || 'unspecified';
+          if (!buckets.has(chatId)) {
+            buckets.set(chatId, {
+              chat_id: chatId,
+              title: fallbackChatTitle(chatId, buckets.size),
+              snippet: '',
+              updated_at: null,
+              message_count: 0
+            });
+          }
+          const bucket = buckets.get(chatId);
+          bucket.message_count += 1;
+          bucket.snippet = entry.text || bucket.snippet;
+          bucket.updated_at = entry.ts || bucket.updated_at;
+        });
+        return Array.from(buckets.values()).sort((a, b) => (Date.parse(b.updated_at || 0) || 0) - (Date.parse(a.updated_at || 0) || 0));
+      }
+
+      function renderChatList() {
+        if (!chatListElement) return;
+        hideChatActionMenu();
+        const groups = deriveChatGroups();
+        const activeChatId = currentChatId();
+        if (!groups.length) {
+          chatListElement.innerHTML = '<li class="chat-thread-empty">No chats yet. Start a conversation to see it here.</li>';
+          refreshChatMetaPanels();
+          return;
+        }
+        chatListElement.innerHTML = groups.map((chat) => {
+          const safeId = escapeHtml(chat.chat_id || 'unknown');
+          const title = escapeHtml(chat.title || fallbackChatTitle(chat.chat_id));
+          const updatedLabel = formatRelativeTime(chat.updated_at || Date.now());
+          const isActive = chat.chat_id && chat.chat_id === activeChatId;
+          const groupNames = groupsForChat(chat.chat_id);
+          const groupMarkup = groupNames.length
+            ? `<div class="chat-thread-groups">${groupNames.map((name) => `<span class="chat-group-tag">${escapeHtml(name)}</span>`).join('')}</div>`
+            : '';
+          return `
+            <li class="chat-thread-item ${isActive ? 'active' : ''}" data-chat-id="${safeId}">
+              <div class="chat-thread-head">
+                <div class="chat-thread-info">
+                  <p class="chat-thread-title">${title}</p>
+                  <div class="chat-thread-meta">
+                    <span>${escapeHtml(updatedLabel)}</span>
+                  </div>
+                </div>
+                <button class="chat-thread-control" type="button" aria-label="Chat actions" title="Chat actions" data-chat-control="${safeId}">
+                  <svg viewBox="0 0 4 16" role="presentation" focusable="false" aria-hidden="true">
+                    <circle cx="2" cy="2" r="1.5"></circle>
+                    <circle cx="2" cy="8" r="1.5"></circle>
+                    <circle cx="2" cy="14" r="1.5"></circle>
+                  </svg>
+                </button>
+              </div>
+              ${groupMarkup}
+            </li>`;
+        }).join('');
+        refreshChatMetaPanels();
+      }
+
+      function handleChatSelection(chatId) {
+        if (!chatId) return;
+        if (!activeGtcUserId()) {
+          pushSystem('Sign in to load chat history.', 'warn');
+          openAccordionSection('authorization');
+          return;
+        }
+        if (chatId === currentChatId()) {
+          setChatStatus('This chat is already open.', 'warn');
+          return;
+        }
+        saveSqlChatId(chatId);
+        saveChatId(chatId);
+        setChatStatus('Loading chat history…', 'warn');
+        renderChatList();
+        void loadChatHistory(chatId, { reason: 'manual' });
+      }
+
+      function promptRenameActiveChat(targetChatId = currentChatId()) {
+        const chatId = targetChatId || currentChatId();
+        if (!chatId) {
+          setChatStatus('Select a chat to rename.', 'warn');
+          return;
+        }
+        const entry = state.chatList.find((chat) => chat.chat_id === chatId);
+        const baseline = entry?.title || fallbackChatTitle(chatId, 0);
+        const next = window.prompt('Rename chat', baseline || chatId);
+        if (next === null) return;
+        const trimmed = next.trim();
+        if (!trimmed) {
+          setChatStatus('Title cannot be empty.', 'warn');
+          return;
+        }
+        if (entry) entry.title = trimmed;
+        touchChatSummary(chatId, { title: trimmed });
+        renderChatList();
+        refreshChatMetaPanels();
+        setChatStatus('Chat renamed locally. Re-sync to apply server-side.', 'ok');
+      }
+
+      async function promptAssignChatGroups(targetChatId = currentChatId(), options = {}) {
+        const chatId = targetChatId || currentChatId();
+        if (!chatId) {
+          setChatStatus('Select a chat to assign groups.', 'warn');
+          return;
+        }
+        const summary = Array.isArray(state.chatList)
+          ? state.chatList.find((chat) => chat && chat.chat_id === chatId)
+          : null;
+        const selection = groupSelectionForChat(chatId);
+        const catalog = buildGroupPickerCatalog(chatId);
+        try {
+          const result = await groupPicker.pick({
+            title: 'Assign chat to groups',
+            subtitle: summary?.title || fallbackChatTitle(chatId, 0),
+            groups: catalog,
+            selection,
+            maxSelections: MAX_CHAT_GROUPS,
+            focusNew: Boolean(options?.focusNew)
+          });
+          if (!result || result.status !== 'confirmed') {
+            return;
+          }
+          await saveChatGroups(chatId, result.selection);
+        } catch (error) {
+          console.warn('group picker failed', error);
+          setChatStatus('Unable to open group picker: ' + (error.message || 'unknown error'), 'err');
+        }
+      }
+
+      async function assignSavedGroupToChat(groupName, targetChatId = currentChatId()) {
+        const trimmed = typeof groupName === 'string' ? groupName.trim() : '';
+        if (!trimmed) return;
+        const chatId = targetChatId || currentChatId();
+        if (!chatId) {
+          setChatStatus('Select a chat before applying a saved group.', 'warn');
+          return;
+        }
+        const currentGroups = groupsForChat(chatId);
+        if (currentGroups.some((name) => name.toLowerCase() === trimmed.toLowerCase())) {
+          setChatStatus(`Chat already has group "${trimmed}".`, 'warn');
+          return;
+        }
+        const nextGroups = [...currentGroups, trimmed].slice(0, MAX_CHAT_GROUPS);
+        await saveChatGroups(chatId, nextGroups);
+      }
+
+      function groupSelectionForChat(chatId) {
+        if (!chatId) return [];
+        const summary = Array.isArray(state.chatList)
+          ? state.chatList.find((chat) => chat && chat.chat_id === chatId)
+          : null;
+        if (Array.isArray(summary?.group_details) && summary.group_details.length) {
+          return summary.group_details
+            .map((group) => group?.id || group?.group_id)
+            .filter(Boolean);
+        }
+        const names = groupsForChat(chatId);
+        if (!names.length) return [];
+        return names
+          .map((name) => {
+            const entry = lookupGroupByName(name);
+            return entry?.id || entry?.group_id || name;
+          })
+          .filter(Boolean);
+      }
+
+      function buildGroupPickerCatalog(chatId) {
+        const catalog = new Map();
+        const index = ensureGroupIndex();
+        Object.keys(index).forEach((key) => {
+          const entry = index[key];
+          if (!entry?.id) return;
+          catalog.set(entry.id, {
+            id: entry.id,
+            name: entry.name || 'Unnamed group',
+            color: entry.color || null
+          });
+        });
+        const summary = Array.isArray(state.chatList)
+          ? state.chatList.find((chat) => chat && chat.chat_id === chatId)
+          : null;
+        if (Array.isArray(summary?.group_details)) {
+          summary.group_details.forEach((group) => {
+            const id = group?.id || group?.group_id;
+            if (!id || catalog.has(id)) return;
+            catalog.set(id, {
+              id,
+              name: group.name || 'Unnamed group',
+              color: group.color || null
+            });
+          });
+        }
+        return Array.from(catalog.values());
+      }
+
+      function deleteActiveChatLocally(targetChatId = currentChatId()) {
+        const chatId = targetChatId || currentChatId();
+        if (!chatId) {
+          setChatStatus('Select a chat to delete.', 'warn');
+          return;
+        }
+        const entry = state.chatList.find((chat) => chat.chat_id === chatId);
+        const label = entry?.title || chatId;
+        const confirmed = window.confirm(`Remove chat "${label}" from this view? This does not delete server data.`);
+        if (!confirmed) return;
+        const wasActive = chatId === currentChatId();
+        state.chatList = state.chatList.filter((chat) => chat.chat_id !== chatId);
+        if (state.chatGroups && state.chatGroups[chatId]) {
+          delete state.chatGroups[chatId];
+        }
+        persistChatGroups();
+        renderChatList();
+        refreshChatMetaPanels();
+        if (!wasActive) {
+          setChatStatus('Chat removed locally. Refresh chats to sync from server again.', 'warn');
+          return;
+        }
+        const nextChatId = state.chatList[0]?.chat_id || null;
+        saveSqlChatId(nextChatId);
+        saveChatId(nextChatId);
+        if (nextChatId) {
+          void loadChatHistory(nextChatId, { reason: 'manual' });
+        } else {
+          state.history = [];
+          persistHistory();
+          renderHistory();
+          setChatStatus('No chats selected. Start a new conversation to continue.', 'warn');
+        }
+        setChatStatus('Chat removed locally. Refresh chats to sync from server again.', 'warn');
+      }
+
+      function touchChatSummary(chatId, updates = {}) {
+        if (!chatId) return;
+        const list = Array.isArray(state.chatList) ? [...state.chatList] : [];
+        const index = list.findIndex((chat) => chat.chat_id === chatId);
+        const merged = {
+          chat_id: chatId,
+          title: fallbackChatTitle(chatId, Math.max(index, 0)),
+          snippet: updates.snippet || '',
+          updated_at: updates.updated_at || new Date().toISOString(),
+          message_count: updates.message_count || 0
+        };
+        if (index === -1) {
+          merged.title = updates.title || fallbackChatTitle(chatId, list.length);
+          list.unshift(merged);
+        } else {
+          const existing = list[index];
+          list[index] = {
+            ...existing,
+            ...updates,
+            chat_id: chatId,
+            title: updates.title || existing.title || fallbackChatTitle(chatId, index),
+            snippet: typeof updates.snippet === 'string' ? updates.snippet : existing.snippet,
+            updated_at: updates.updated_at || existing.updated_at
+          };
+        }
+        list.sort((a, b) => (Date.parse(b.updated_at || 0) || 0) - (Date.parse(a.updated_at || 0) || 0));
+        state.chatList = list;
+        renderChatList();
+      }
+
+      function syncActiveChatSummaryFromHistory(chatId = currentChatId()) {
+        if (!chatId) return;
+        const meaningfulEntries = state.history.filter((entry) => entry.role !== 'system');
+        if (!meaningfulEntries.length) return;
+        const lastEntry = meaningfulEntries[meaningfulEntries.length - 1];
+        touchChatSummary(chatId, {
+          snippet: (lastEntry.text || '').trim().slice(0, 240),
+          updated_at: lastEntry.ts || new Date().toISOString(),
+          message_count: meaningfulEntries.length
+        });
+      }
+
+      function ensureSession() {
+        const existing = localStorage.getItem(storageKeys.session);
+        if (existing) return existing;
+        const uid = crypto.randomUUID ? crypto.randomUUID() : 'web-' + Date.now();
+        localStorage.setItem(storageKeys.session, uid);
+        return uid;
+      }
+
+      function currentChatId() {
+        return state.sqlChatId || state.chatId || null;
+      }
+
+      function updateChatIdDisplay() {
+        if (!chatIdDisplay) return;
+        chatIdDisplay.textContent = currentChatId() || '—';
+      }
+
+      function groupsForChat(chatId) {
+        if (!chatId || !state.chatGroups) return [];
+        const groups = state.chatGroups[chatId];
+        return Array.isArray(groups) ? groups : [];
+      }
+
+      function renderChatGroupsPanel(chatId = currentChatId()) {
+        if (!chatGroupsPanel) return;
+        if (!chatId) {
+          chatGroupsPanel.innerHTML = '<span class="chat-group-tag">No chat selected</span>';
+          return;
+        }
+        const groups = groupsForChat(chatId);
+        if (!groups.length) {
+          chatGroupsPanel.innerHTML = '<span class="chat-group-tag">Unassigned</span>';
+          return;
+        }
+        chatGroupsPanel.innerHTML = groups
+          .map((name) => `<span class="chat-group-tag">${escapeHtml(name)}</span>`)
+          .join('');
+      }
+
+      function updateChatControlsState() {
+        const hasChat = Boolean(currentChatId());
+        [chatGroupBtn, chatRenameBtn, chatDeleteBtn].forEach((btn) => {
+          if (btn) btn.disabled = !hasChat;
+        });
+      }
+
+      function refreshChatMetaPanels() {
+        renderChatGroupsPanel();
+        updateChatControlsState();
+      }
+
+      function resolveActiveChatId(preferred) {
+        if (typeof preferred === 'string' && preferred.trim()) {
+          return preferred.trim();
+        }
+        if (state.sqlChatId) return state.sqlChatId;
+        if (state.chatId) return state.chatId;
+        return null;
+      }
+
+      function ensureActiveChatId(preferred = null) {
+        const existing = resolveActiveChatId(preferred);
+        if (existing) return existing;
+        const generated = crypto.randomUUID ? crypto.randomUUID() : `chat-${Date.now()}`;
+        saveChatId(generated);
+        return generated;
+      }
+
+      function loadChatId() {
+        try {
+          return localStorage.getItem('chat:active-id') || null;
+        } catch {
+          return null;
+        }
+      }
+
+      function loadSqlChatId() {
+        try {
+          return localStorage.getItem(storageKeys.sqlChat) || null;
+        } catch {
+          return null;
+        }
+      }
+
+      function loadStage() {
+        try {
+          return localStorage.getItem(storageKeys.stage) || null;
+        } catch {
+          return null;
+        }
+      }
+
+      function loadChatGroups() {
+        try {
+          const raw = localStorage.getItem('chat:groups');
+          if (!raw) return {};
+          const parsed = JSON.parse(raw);
+          return parsed && typeof parsed === 'object' ? parsed : {};
+        } catch {
+          return {};
+        }
+      }
+
+      function loadGroupLibrary() {
+        try {
+          const raw = localStorage.getItem(storageKeys.groupLibrary);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            return parsed
+              .map((name) => (typeof name === 'string' ? name.trim() : ''))
+              .filter(Boolean)
+              .slice(0, 32);
+          }
+          return [];
+        } catch {
+          return [];
+        }
+      }
+
+      function persistGroupLibrary() {
+        try {
+          localStorage.setItem(storageKeys.groupLibrary, JSON.stringify(state.groupLibrary || []));
+        } catch {}
+      }
+
+      function extendGroupLibrary(names = []) {
+        if (!Array.isArray(names) || !names.length) return;
+        if (!Array.isArray(state.groupLibrary)) state.groupLibrary = [];
+        const normalized = names
+          .map((name) => (typeof name === 'string' ? name.trim() : ''))
+          .filter(Boolean);
+        if (!normalized.length) return;
+        const existing = Array.isArray(state.groupLibrary) ? [...state.groupLibrary] : [];
+        normalized.forEach((name) => {
+          const index = existing.findIndex((entry) => entry.toLowerCase() === name.toLowerCase());
+          if (index !== -1) existing.splice(index, 1);
+          existing.unshift(name);
+        });
+        state.groupLibrary = existing.slice(0, 32);
+        persistGroupLibrary();
+      }
+
+      function ensureGroupIndex() {
+        if (!state.groupIndex || typeof state.groupIndex !== 'object') {
+          state.groupIndex = Object.create(null);
+        }
+        return state.groupIndex;
+      }
+
+      function upsertGroupIndex(groups = []) {
+        const index = ensureGroupIndex();
+        groups.forEach((group) => {
+          if (!group || typeof group !== 'object') return;
+          const id = group.id || group.group_id || null;
+          if (!id) return;
+          index[id] = {
+            ...(index[id] || {}),
+            ...group,
+            id
+          };
+        });
+      }
+
+      function lookupGroupByName(name) {
+        const trimmed = typeof name === 'string' ? name.trim() : '';
+        if (!trimmed) return null;
+        const target = trimmed.toLowerCase();
+        const index = ensureGroupIndex();
+        for (const key of Object.keys(index)) {
+          const entry = index[key];
+          if (entry?.name && entry.name.trim().toLowerCase() === target) {
+            return entry;
+          }
+        }
+        return null;
+      }
+
+      function savedGroupNames() {
+        if (!Array.isArray(state.groupLibrary)) return [];
+        return state.groupLibrary;
+      }
+
+      function saveStage(value) {
+        const normalized = typeof value === 'string' ? value : (value != null ? String(value) : null);
+        state.stage = normalized;
+        try {
+          if (normalized) {
+            localStorage.setItem(storageKeys.stage, normalized);
+          } else {
+            localStorage.removeItem(storageKeys.stage);
+          }
+        } catch {}
+      }
+
+      function persistChatGroups() {
+        try {
+          localStorage.setItem('chat:groups', JSON.stringify(state.chatGroups || {}));
+        } catch {}
+      }
+
+      function saveChatId(chatId) {
+        state.chatId = chatId;
+        try {
+          if (chatId) {
+            localStorage.setItem('chat:active-id', chatId);
+          } else {
+            localStorage.removeItem('chat:active-id');
+          }
+        } catch {}
+        updateChatIdDisplay();
+        refreshChatMetaPanels();
+      }
+
+      function saveSqlChatId(chatId) {
+        state.sqlChatId = chatId;
+        try {
+          if (chatId) {
+            localStorage.setItem(storageKeys.sqlChat, chatId);
+          } else {
+            localStorage.removeItem(storageKeys.sqlChat);
+          }
+        } catch {}
+        updateChatIdDisplay();
+        refreshChatMetaPanels();
+      }
+
+      function resetSession() {
+        const uid = crypto.randomUUID ? crypto.randomUUID() : 'web-' + Date.now();
+        localStorage.setItem(storageKeys.session, uid);
+        state.sessionId = uid;
+        saveChatId(null);
+        saveSqlChatId(null);
+        saveStage(null);
+        setStageLabel('');
+        updateChatIdDisplay();
+        pushSystem('Session reset. Start a fresh conversation.', 'warn');
+      }
+
+      function loadHistory() {
+        try {
+          const raw = localStorage.getItem(storageKeys.history);
+          if (!raw) return [];
+          return JSON.parse(raw);
+        } catch {
+          return [];
+        }
+      }
+
+      function persistHistory() {
+        try {
+          localStorage.setItem(storageKeys.history, JSON.stringify(state.history.slice(-CHAT_HISTORY_LIMIT)));
+        } catch {}
+      }
+
+      function clearHistory() {
+        state.history = [];
+        persistHistory();
+        renderHistory();
+        renderChatList();
+      }
+
+      function escapeHtml(text) {
+        if (typeof text !== 'string') return '';
+        return text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function convertNewlines(text) {
+        return text.replace(/\r?\n/g, '<br />');
+      }
+
+      function stripTrackingParams(rawUrl) {
+        if (typeof rawUrl !== 'string') return null;
+        let parsed;
+        try {
+          parsed = new URL(rawUrl);
+        } catch {
+          return null;
+        }
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+          return null;
+        }
+        const params = Array.from(parsed.searchParams.keys());
+        params.forEach((key) => {
+          const lower = key.toLowerCase();
+          if (lower.startsWith('utm') || lower === 'ref' || lower === 'ref_src' || lower === 'source') {
+            parsed.searchParams.delete(key);
+          }
+        });
+        return parsed.toString();
+      }
+
+      function renderLink(label, rawUrl) {
+        const safeUrl = stripTrackingParams(rawUrl);
+        if (!safeUrl) return escapeHtml(label);
+        const safeLabel = escapeHtml(label || safeUrl);
+        const href = escapeHtml(safeUrl);
+        return `<a href="${href}" target="_blank" rel="noopener noreferrer">${safeLabel}</a>`;
+      }
+
+      function renderRichText(text) {
+        if (typeof text !== 'string' || !text.trim()) {
+          return '';
+        }
+        const linkPattern = /\[([^\]]+?)]\((https?:\/\/[^)\s]+)\)/gi;
+        let html = '';
+        let lastIndex = 0;
+        let match;
+        while ((match = linkPattern.exec(text)) !== null) {
+          const chunk = text.slice(lastIndex, match.index);
+          html += convertNewlines(escapeHtml(chunk));
+          html += renderLink(match[1], match[2]);
+          lastIndex = match.index + match[0].length;
+        }
+        html += convertNewlines(escapeHtml(text.slice(lastIndex)));
+        return html;
+      }
+
+      function extractDomain(urlString) {
+        try {
+          const hostname = new URL(urlString).hostname;
+          return hostname.replace(/^www\./, '');
+        } catch {
+          return '';
+        }
+      }
+
+      function buildStoreIconUrl(urlString) {
+        try {
+          const parsed = new URL(urlString);
+          return `https://www.google.com/s2/favicons?sz=128&domain=${encodeURIComponent(parsed.hostname)}`;
+        } catch {
+          return 'https://www.google.com/s2/favicons?sz=128&domain=gtstor.com';
+        }
+      }
+
+      function extractProductCards(text) {
+        if (typeof text !== 'string') return [];
+        const cards = [];
+        const entryPattern = /(^|\n)\s*(\d+)[\).\]]\s+([\s\S]*?)(?=(\n\s*\d+[\).\]]\s+)|$)/g;
+        const linkPattern = /\[([^\]]+?)]\((https?:\/\/[^)\s]+)\)/i;
+        let match;
+        while ((match = entryPattern.exec(text)) !== null) {
+          const order = Number(match[2]) || cards.length + 1;
+          let block = (match[3] || '').trim();
+          if (!block) continue;
+          const linkMatch = block.match(linkPattern);
+          if (!linkMatch) continue;
+          const url = stripTrackingParams(linkMatch[2]);
+          if (!url) continue;
+          block = block.replace(linkMatch[0], '').trim();
+          const split = block.split(/\s+[–—-]\s+/u, 2);
+          const title = split[0]?.trim();
+          if (!title) continue;
+          let detail = split[1]?.trim() || '';
+          detail = detail.replace(/^[-–—\s]+/, '').trim();
+          let store = '';
+          const storeMatch = detail.match(/^([^.,]+)(?:[.,]|$)/);
+          if (storeMatch) {
+            store = storeMatch[1].trim();
+            detail = detail.slice(storeMatch[0].length).trim();
+          }
+          let price = null;
+          const priceMatch = detail.match(/\(([^)]+)\)/);
+          if (priceMatch) {
+            price = priceMatch[1].trim();
+            detail = (detail.slice(0, priceMatch.index) + detail.slice(priceMatch.index + priceMatch[0].length)).trim();
+          }
+          detail = detail.replace(/^[-–—\s,.]+/, '').trim();
+          cards.push({
+            order,
+            title,
+            store: store || extractDomain(url) || linkMatch[1],
+            description: detail,
+            price,
+            url
+          });
+        }
+        return cards.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      }
+
+      function createProductCardElement(card) {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'product-card';
+        const orderEl = document.createElement('div');
+        orderEl.className = 'product-card-order';
+        orderEl.textContent = card.order ? `${card.order})` : '•';
+        cardEl.appendChild(orderEl);
+
+        const thumbWrapper = document.createElement('div');
+        thumbWrapper.className = 'product-card-thumb';
+        const thumbImg = document.createElement('img');
+        thumbImg.src = buildStoreIconUrl(card.url);
+        thumbImg.alt = card.store ? `${card.store} icon` : 'Store icon';
+        thumbImg.loading = 'lazy';
+        thumbWrapper.appendChild(thumbImg);
+        cardEl.appendChild(thumbWrapper);
+
+        const body = document.createElement('div');
+        body.className = 'product-card-body';
+
+        const titleEl = document.createElement('div');
+        titleEl.className = 'product-card-title';
+        titleEl.textContent = card.title;
+        body.appendChild(titleEl);
+
+        if (card.store) {
+          const storeEl = document.createElement('div');
+          storeEl.className = 'product-card-store';
+          storeEl.textContent = card.store;
+          body.appendChild(storeEl);
+        }
+
+        if (card.description) {
+          const descEl = document.createElement('div');
+          descEl.className = 'product-card-desc';
+          descEl.textContent = card.description;
+          body.appendChild(descEl);
+        }
+
+        if (card.price) {
+          const priceEl = document.createElement('div');
+          priceEl.className = 'product-card-price';
+          priceEl.textContent = card.price;
+          body.appendChild(priceEl);
+        }
+
+        const actions = document.createElement('div');
+        actions.className = 'product-card-actions';
+        const link = document.createElement('a');
+        link.className = 'product-card-link';
+        link.href = card.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Открыть магазин';
+        actions.appendChild(link);
+        body.appendChild(actions);
+
+        cardEl.appendChild(body);
+        return cardEl;
+      }
+
+      function pushMessage(role, text, meta = {}) {
+        const entry = { role, text, meta, ts: new Date().toISOString() };
+        state.history.push(entry);
+        persistHistory();
+        appendMessage(entry);
+        renderChatList();
+        return entry;
+      }
+
+      function pushSystem(text, tone = 'warn') {
+        pushMessage('system', text, { tone });
+      }
+
+      function convertChatMessageToEntry(message) {
+        if (!message || typeof message !== 'object') return null;
+        const role = message.role === 'assistant'
+          ? 'bot'
+          : (message.role === 'system' ? 'system' : 'user');
+        return {
+          role,
+          text: message.content || '',
+          meta: {
+            chat_id: message.chat_id || null,
+            stage: message.stage || null,
+            trace_id: message.trace_id || null,
+            source: message.metadata?.source || null,
+            metadata: message.metadata || {}
+          },
+          ts: message.created_at || new Date().toISOString()
+        };
+      }
+
+      function mergeEntryWithChatMessage(entry, message) {
+        if (!entry) return;
+        const normalized = convertChatMessageToEntry(message);
+        if (!normalized) return;
+        entry.text = normalized.text;
+        entry.meta = normalized.meta;
+        entry.ts = normalized.ts;
+      }
+
+      function setHistoryFromMessages(messages = [], source = 'api') {
+        const normalized = Array.isArray(messages)
+          ? messages.map(convertChatMessageToEntry).filter(Boolean)
+          : [];
+        state.history = normalized;
+        state.historySource = source;
+        persistHistory();
+        renderHistory();
+        renderChatList();
+      }
+
+      async function ensureChatBootstrap(reason = 'auto') {
+        const gtcUserId = chatUserId();
+        if (!gtcUserId) return;
+        if (chatBootstrapInFlight) return;
+        if (state.lastSyncedUserId === gtcUserId && reason !== 'force') return;
+        chatBootstrapInFlight = true;
+        try {
+          const synced = await refreshChatData(reason);
+          if (synced) {
+            state.lastSyncedUserId = gtcUserId;
+            void refreshGroupIndex();
+          }
+        } finally {
+          chatBootstrapInFlight = false;
+        }
+      }
+
+      function syncChatGroupsFromList(chats = []) {
+        if (!state.chatGroups || typeof state.chatGroups !== 'object') {
+          state.chatGroups = {};
+        }
+        chats.forEach((chat) => {
+          if (!chat?.chat_id) return;
+          state.chatGroups[chat.chat_id] = Array.isArray(chat.groups) ? [...chat.groups] : [];
+          if (Array.isArray(chat.group_details) && chat.group_details.length) {
+            upsertGroupIndex(chat.group_details);
+          }
+        });
+        persistChatGroups();
+        renderChatList();
+        refreshChatMetaPanels();
+      }
+
+      async function refreshGroupIndex(options = {}) {
+        const gtcUserId = chatUserId();
+        if (!gtcUserId) return null;
+        if (groupFetchInFlight && !options.force) {
+          return groupFetchInFlight;
+        }
+        const task = (async () => {
+          try {
+            const groups = await chatService.listChatGroups(Number(gtcUserId));
+            upsertGroupIndex(groups);
+            extendGroupLibrary(groups.map((group) => group.name).filter(Boolean));
+            renderGroupLibrary();
+            return groups;
+          } catch (error) {
+            console.warn('chat group fetch failed', error);
+            return null;
+          } finally {
+            groupFetchInFlight = null;
+          }
+        })();
+        groupFetchInFlight = task;
+        return task;
+      }
+
+      async function saveChatGroups(chatId, groupEntries = []) {
+        const gtcUserId = chatUserId();
+        if (!gtcUserId) {
+          setChatStatus('Sign in to sync chat groups with the server.', 'warn');
+          return null;
+        }
+        if (!chatId) {
+          setChatStatus('Select a chat before assigning groups.', 'warn');
+          return null;
+        }
+        const entries = Array.isArray(groupEntries) ? groupEntries : [];
+        const hasObjectEntries = entries.some((entry) => entry && typeof entry === 'object');
+        const requestPayload = hasObjectEntries
+          ? entries.slice(0, MAX_CHAT_GROUPS)
+          : entries
+              .map((name) => (typeof name === 'string' ? name.trim() : ''))
+              .filter(Boolean)
+              .slice(0, MAX_CHAT_GROUPS);
+        const isClearing = requestPayload.length === 0;
+        setChatStatus(isClearing ? 'Clearing chat groups…' : 'Saving chat groups…', 'warn');
+        try {
+          const response = await chatService.setChatGroups(Number(gtcUserId), chatId, requestPayload);
+          const serverGroups = Array.isArray(response?.groups) ? response.groups : [];
+          const normalizedNames = serverGroups.map((group) => group.name).filter(Boolean);
+          const detailEntries = serverGroups.map((group) => {
+            const id = group.id || group.group_id || group.slug || group.name || null;
+            return {
+              id,
+              group_id: id,
+              name: group.name || id || 'Unnamed group',
+              color: group.color || null,
+              created_at: group.created_at || null,
+              updated_at: group.updated_at || null
+            };
+          });
+          if (!state.chatGroups) state.chatGroups = {};
+          if (normalizedNames.length) {
+            state.chatGroups[chatId] = normalizedNames;
+          } else {
+            delete state.chatGroups[chatId];
+          }
+          if (serverGroups.length) {
+            upsertGroupIndex(serverGroups);
+          }
+          const chatSummary = Array.isArray(state.chatList)
+            ? state.chatList.find((entry) => entry && entry.chat_id === chatId)
+            : null;
+          if (chatSummary) {
+            chatSummary.groups = [...normalizedNames];
+            chatSummary.group_details = detailEntries;
+          }
+          extendGroupLibrary(normalizedNames);
+          renderGroupLibrary();
+          persistChatGroups();
+          renderChatList();
+          refreshChatMetaPanels();
+          setChatStatus('Chat groups saved to the server.', 'ok');
+          return serverGroups;
+        } catch (error) {
+          console.warn('chat group save failed', error);
+          const friendly = error?.friendlyMessage || error?.message || 'unknown error';
+          setChatStatus('Unable to save chat groups: ' + friendly, 'err');
+          return null;
+        }
+      }
+
+      async function refreshChatData(reason = 'auto') {
+        const gtcUserId = chatUserId();
+        if (!gtcUserId) {
+          setChatStatus('Missing GTC user ID. Please sign in again.', 'warn');
+          return false;
+        }
+        const showStatus = reason === 'manual';
+        if (showStatus) {
+          setChatStatus('Syncing chats…', 'warn');
+        }
+        setChatListStatus('Loading chats…', 'warn');
+        try {
+          const chats = await chatService.listChats(Number(gtcUserId), { limit: 50 });
+          state.chatList = Array.isArray(chats) ? chats : [];
+          syncChatGroupsFromList(state.chatList);
+          let nextChatId = resolveActiveChatId(null);
+          if (!nextChatId && state.chatList.length) {
+            nextChatId = state.chatList[0].chat_id;
+          }
+          if (nextChatId) {
+            saveSqlChatId(nextChatId);
+            saveChatId(nextChatId);
+            await loadChatHistory(nextChatId, { reason });
+          } else {
+            state.history = [];
+            state.historySource = 'empty';
+            renderHistory();
+            persistHistory();
+          }
+          renderChatList();
+          if (state.chatList.length) {
+            setChatListStatus('Select a chat thread to load history.', 'ok');
+          } else {
+            setChatListStatus('No chats synced yet. Start a conversation using the composer.', 'warn');
+          }
+          if (showStatus) {
+            setChatStatus('Chats synced from database.', 'ok');
+          }
+          return true;
+        } catch (error) {
+          console.warn('chat list fetch failed', error);
+          setChatStatus('Unable to load chats: ' + (error.message || 'unknown error'), 'warn');
+          setChatListStatus('Unable to load chats: ' + (error.message || 'unknown error'), 'err');
+          renderChatList();
+          return false;
+        }
+      }
+
+      async function loadChatHistory(chatId, { reason = 'manual', limit = CHAT_HISTORY_LIMIT } = {}) {
+        const gtcUserId = chatUserId();
+        if (!chatId || !gtcUserId) return;
+        try {
+          const historyRequest = { chatId, gtcUserId: Number(gtcUserId), limit };
+          console.log('[chat] getChatHistory request', historyRequest);
+          const result = await chatService.getChatHistory(
+            historyRequest.chatId,
+            historyRequest.gtcUserId,
+            { limit: historyRequest.limit }
+          );
+          console.log('[chat] getChatHistory result', result);
+          state.historyMeta = result?.meta || null;
+          setHistoryFromMessages(result?.messages || [], result?.meta?.source || 'api');
+          syncActiveChatSummaryFromHistory(chatId);
+          if (reason === 'manual') {
+            const sourceHint = state.historySource === 'log' ? 'log snapshot' : 'database';
+            setChatStatus('History refreshed from ' + sourceHint + '.', 'ok');
+          }
+        } catch (error) {
+          console.warn('chat history fetch failed', error);
+          setChatStatus('Unable to fetch chat history: ' + (error.message || 'unknown error'), 'warn');
+        }
+      }
+
+      function updateChatScrollSlider() {
+        if (!chatScrollSlider || !chatLog) return;
+        const maxScroll = chatLog.scrollHeight - chatLog.clientHeight;
+        if (maxScroll <= 0) {
+          chatScrollSlider.disabled = true;
+          chatScrollSlider.value = '100';
+          return;
+        }
+        chatScrollSlider.disabled = false;
+        const ratio = chatLog.scrollTop / maxScroll;
+        chatScrollSlider.value = String(Math.round(ratio * 100));
+      }
+
+      function appendMessage(entry) {
+        const div = document.createElement('div');
+        div.className = `chat-msg ${entry.role}`;
+        if (entry.role === 'bot') {
+          const richHtml = renderRichText(entry.text);
+          if (richHtml) {
+            div.innerHTML = richHtml;
+          } else {
+            div.textContent = entry.text;
+          }
+          const cards = extractProductCards(entry.text);
+          if (cards.length) {
+            const cardGrid = document.createElement('div');
+            cardGrid.className = 'product-card-grid';
+            cards.forEach((card) => {
+              cardGrid.appendChild(createProductCardElement(card));
+            });
+            div.appendChild(cardGrid);
+          }
+        } else {
+          div.textContent = entry.text;
+        }
+        if (entry.meta?.trace_id || entry.meta?.stage || entry.meta?.chat_id) {
+          const meta = document.createElement('div');
+          meta.className = 'msg-meta';
+          const parts = [];
+          if (entry.meta.chat_id) parts.push('Chat ID: ' + entry.meta.chat_id);
+          if (entry.meta.stage) parts.push('Stage: ' + entry.meta.stage);
+          if (entry.meta.trace_id) parts.push('Trace: ' + entry.meta.trace_id);
+          meta.textContent = parts.join(' | ');
+          div.appendChild(meta);
+        }
+        chatLog.appendChild(div);
+        chatLog.scrollTop = chatLog.scrollHeight;
+        updateChatScrollSlider();
+      }
+
+      function renderHistory() {
+        chatLog.innerHTML = '';
+        state.history.forEach(appendMessage);
+        updateChatScrollSlider();
+      }
+
+      function updateStatus(label, tone = 'warn') {
+        statusLabel.textContent = label;
+        if (tone === 'ok') {
+          statusLabel.style.color = varColor('--success');
+        } else if (tone === 'err') {
+          statusLabel.style.color = varColor('--danger');
+        } else {
+          statusLabel.style.color = varColor('--muted');
+        }
+      }
+
+      function varColor(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name) || '#cfd8f5';
+      }
+
+      function setChatStatus(text, variant = 'warn') {
+        if (!text) {
+          chatStatus.hidden = true;
+          return;
+        }
+        chatStatus.hidden = false;
+        chatStatus.textContent = text;
+        chatStatus.className = `status ${variant}`;
+      }
+
+      function setUserLookupStatus(text, variant = 'warn') {
+        if (!userLookupStatus) return;
+        if (!text) {
+          userLookupStatus.hidden = true;
+          return;
+        }
+        userLookupStatus.hidden = false;
+        userLookupStatus.textContent = text;
+        userLookupStatus.className = `status ${variant}`;
+      }
+
+      async function verifyUserExists(gtcUserId) {
+        const numericId = Number(gtcUserId);
+        if (!Number.isFinite(numericId) || numericId <= 0) return false;
+        try {
+          const resp = await fetch('/chat_api.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ mode: 'subscription_status', gtc_user_id: numericId })
+          });
+          if (!resp.ok) return false;
+          const data = await resp.json().catch(() => null);
+          if (!data || data.error) return false;
+          const returnedId = data.gtc_user_id ?? data.gtcUserId ?? null;
+          return String(returnedId || '') === String(numericId);
+        } catch (error) {
+          console.warn('verifyUserExists failed', error);
+          return false;
+        }
+      }
+
+      function setStageLabel(text) {
+        if (!stageLabel) return;
+        stageLabel.textContent = text || '';
+      }
+
+      function updateComposerAvailability() {
+        const loggedIn = Boolean(activeGtcUserId());
+        if (chatInput) {
+          chatInput.disabled = !loggedIn;
+          chatInput.placeholder = loggedIn ? defaultChatInputPlaceholder : lockedChatInputPlaceholder;
+          if (!loggedIn) {
+            chatInput.value = '';
+          }
+          autoSizeChatInput();
+        }
+        if (sendBtn) {
+          if (state.sending) {
+            sendBtn.disabled = true;
+          } else {
+            sendBtn.disabled = !loggedIn;
+          }
+        }
+      }
+
+      function focusChatInputIfReady() {
+        if (!chatInput || chatInput.disabled) return;
+        requestAnimationFrame(() => {
+          if (!chatInput.disabled) {
+            chatInput.focus();
+            const length = chatInput.value.length;
+            chatInput.setSelectionRange(length, length);
+          }
+        });
+      }
+
+      function setAuthStatus(text, variant = 'err') {
+        if (!text) {
+          authStatus.hidden = true;
+          return;
+        }
+        authStatus.hidden = false;
+        authStatus.textContent = text;
+        authStatus.className = `status ${variant}`;
+      }
+
+      function setOtpStatus(text, variant = 'warn') {
+        if (!otpStatus) return;
+        if (!text) {
+          otpStatus.hidden = true;
+          return;
+        }
+        otpStatus.hidden = false;
+        otpStatus.textContent = text;
+        otpStatus.className = `status ${variant}`;
+      }
+
+      function setSignupStatus(text, variant = 'warn') {
+        if (!signupStatus) return;
+        if (!text) {
+          signupStatus.hidden = true;
+          return;
+        }
+        signupStatus.hidden = false;
+        signupStatus.textContent = text;
+        signupStatus.className = `status ${variant}`;
+      }
+
+      function setResendStatus(text, variant = 'warn') {
+        if (!resendStatus) return;
+        if (!text) {
+          resendStatus.hidden = true;
+          return;
+        }
+        resendStatus.hidden = false;
+        resendStatus.textContent = text;
+        resendStatus.className = `status ${variant}`;
+      }
+
+      function setAccessLinkStatus(text, variant = 'warn') {
+        if (!accessLinkStatus) return;
+        if (!text) {
+          accessLinkStatus.hidden = true;
+          return;
+        }
+        accessLinkStatus.hidden = false;
+        accessLinkStatus.textContent = text;
+        accessLinkStatus.className = `status ${variant}`;
+      }
+
+      function setPasswordResetStatus(text, variant = 'warn') {
+        if (!passwordResetStatus) return;
+        if (!text) {
+          passwordResetStatus.hidden = true;
+          return;
+        }
+        passwordResetStatus.hidden = false;
+        passwordResetStatus.textContent = text;
+        passwordResetStatus.className = `status ${variant}`;
+      }
+
+      function setPasswordResetStatusAuth(text, variant = 'warn') {
+        if (!passwordResetStatusAuth) return;
+        if (!text) {
+          passwordResetStatusAuth.hidden = true;
+          return;
+        }
+        passwordResetStatusAuth.hidden = false;
+        passwordResetStatusAuth.textContent = text;
+        passwordResetStatusAuth.className = `status ${variant}`;
+      }
+
+      function setBillingStatus(text, variant = 'warn') {
+        if (!billingStatus) return;
+        if (!text) {
+          billingStatus.hidden = true;
+          return;
+        }
+        billingStatus.hidden = false;
+        billingStatus.textContent = text;
+        billingStatus.className = `status ${variant}`;
+      }
+
+      function refreshBillingContextMessage() {
+        if (!paymentPanel || paymentPanel.hidden) return;
+        const hasContext = !!(activeGtcUserId() && state.user?.email);
+        if (billingPortalBtn) billingPortalBtn.disabled = !hasContext;
+        if (!hasContext) {
+          setBillingStatus('Please sign in to your GTC account before opening the billing portal.', 'warn');
+        } else {
+          setBillingStatus('Your billing session will open with your account details.', 'warn');
+        }
+      }
+
+      function setPaymentPanelState(message, variant = 'warn', options = {}) {
+        if (!paymentPanel) return;
+        const { critical = false } = options;
+        if (!message) {
+          paymentPanel.hidden = true;
+          if (paymentPanel.dataset) {
+            delete paymentPanel.dataset.state;
+            paymentPanel.dataset.critical = 'false';
+          }
+          if (billingStatus) billingStatus.hidden = true;
+          return;
+        }
+        paymentPanel.hidden = false;
+        if (paymentPanel.dataset) {
+          paymentPanel.dataset.state = variant;
+          paymentPanel.dataset.critical = critical ? 'true' : 'false';
+        }
+        if (paymentMessage) paymentMessage.textContent = message;
+        refreshBillingContextMessage();
+      }
+
+      async function verifySubscriptionViaSql(reason = 'manual') {
+        const gtcUserId = activeGtcUserId();
+        if (!gtcUserId) {
+          return { ok: false, reason: 'no-user' };
+        }
+        if (subscriptionCheckInFlight) {
+          return { ok: false, reason: 'busy' };
+        }
+        subscriptionCheckInFlight = true;
+        const silent = reason === 'startup';
+        if (!silent) {
+          setChatStatus('Checking subscription via SQL…', 'warn');
+        }
+        try {
+          const snapshot = await chatService.fetchSubscriptionSnapshot(Number(gtcUserId));
+          state.subscriptionSnapshot = snapshot;
+          const subscriptionActive = snapshot.subscriptionActive;
+          if (subscriptionActive === true) {
+            setPaymentPanelState('Subscription confirmed via SQL. Chats unlocked.', 'ok', { critical: false });
+            if (!silent) {
+              setChatStatus('Subscription confirmed via SQL.', 'ok');
+            }
+            if (reason === 'status-payment') {
+              pushSystem('Subscription restored after SQL verification.', 'ok');
+            }
+            return { ok: true, snapshot };
+          }
+          if (subscriptionActive === false) {
+            setPaymentPanelState('SQL reports no active subscription. Complete payment via the portal below.', 'warn', { critical: true });
+            if (!silent) {
+              setChatStatus('SQL reports no active subscription. Complete payment to continue.', 'warn');
+            }
+            return { ok: false, snapshot };
+          }
+          if (!silent) {
+            const infoMsg = 'SQL snapshot missing subscription data. Keeping chat access in its current state.';
+            setChatStatus(infoMsg, 'warn');
+            pushSystem('Subscription verification returned no snapshot data. Please try again later or contact support.', 'warn');
+          }
+          return { ok: false, snapshot, reason: 'no-snapshot-data' };
+        } catch (error) {
+          console.warn('subscription check failed', error);
+          if (!silent) {
+            setChatStatus('Subscription check unavailable: ' + (error.message || 'unknown error'), 'warn');
+          }
+          return { ok: false, error };
+        } finally {
+          subscriptionCheckInFlight = false;
+        }
+      }
+
+      function setGoogleStatus(text, variant = 'warn') {
+        if (!googleStatusBox) return;
+        if (!text) {
+          googleStatusBox.hidden = true;
+          return;
+        }
+        googleStatusBox.hidden = false;
+        googleStatusBox.textContent = text;
+        googleStatusBox.className = `status ${variant}`;
+      }
+
+      function updateGoogleInsights() {
+        if (!googleInsightList) return;
+        const user = state.user;
+        const normalizedId = activeGtcUserId();
+        const rows = [
+          {
+            label: 'Google email',
+            value: user?.email || 'Not connected',
+            tone: user?.email ? 'ok' : 'warn'
+          },
+          {
+            label: 'Workspace ID',
+            value: normalizedId ? normalizedId : 'Issue ID via Google sign-in',
+            tone: normalizedId ? 'ok' : 'warn'
+          },
+          {
+            label: 'Email verified',
+            value: user?.email_verified ? 'Verified' : 'Pending',
+            tone: user?.email_verified ? 'ok' : 'warn'
+          },
+          {
+            label: 'Chat readiness',
+            value: user?.gtc_user_id ? 'Ready — jump into chat' : 'Complete Google auth to unlock chat',
+            tone: user?.gtc_user_id ? 'ok' : 'warn'
+          }
+        ];
+        googleInsightList.innerHTML = rows.map((row) => (
+          `<div class="insight-card" data-tone="${row.tone}">
+             <div class="insight-label">${row.label}</div>
+             <div class="insight-value">${row.value}</div>
+           </div>`
+        )).join('');
+      }
+
+      async function hydrateUserFromProfile(fallbackUser = null) {
+        try {
+          const resp = await fetch('/auth/profile', { credentials: 'include' });
+          if (resp.ok) {
+            const data = await resp.json().catch(() => null);
+            const profileGtcId = resolveGtcUserIdCandidate(data);
+            if (profileGtcId) {
+              saveUser({
+                email: data.email || fallbackUser?.email || state.user?.email || null,
+                id: data.id || data.user_id || fallbackUser?.id || state.user?.id || null,
+                gtc_user_id: profileGtcId,
+                full_name: data.full_name || data.name || fallbackUser?.full_name || state.user?.full_name || null
+              });
+              return { ok: true, source: 'profile' };
+            }
+          }
+        } catch (error) {
+          console.warn('profile fetch failed', error);
+        }
+        const fallbackGtcId = resolveGtcUserIdCandidate(fallbackUser);
+        if (fallbackGtcId) {
+          saveUser({ ...fallbackUser, gtc_user_id: fallbackGtcId });
+          return { ok: true, source: 'fallback' };
+        }
+        return { ok: false };
+      }
+
+      async function syncAuthStatus(context = 'manual') {
+        try {
+          const resp = await fetch('/auth/status', { credentials: 'include' });
+          if (!resp.ok) {
+            const err = new Error('status_http_' + resp.status);
+            err.status = resp.status;
+            err.statusText = resp.statusText;
+            try { err.body = await resp.text(); } catch {}
+            throw err;
+          }
+          const data = await resp.json().catch(() => null);
+          if (!data) {
+            const err = new Error('status_bad_json');
+            err.status = resp.status;
+            throw err;
+          }
+          applyStatusDecision(data, context);
+          return { ok: true, data };
+        } catch (error) {
+          console.warn('auth status error', error);
+          return { ok: false, error };
+        }
+      }
+
+      async function bootstrapAuthStatus() {
+        if (activeGtcUserId()) return;
+        setChatStatus('Checking your session…', 'warn');
+        const statusResult = await syncAuthStatus('bootstrap');
+        if (!statusResult.ok) {
+          setChatStatus(describeStatusError(statusResult.error), 'warn');
+        }
+      }
+
+      function describeStatusError(error) {
+        if (!error) return 'Status service unavailable. Please retry in a moment.';
+        if (error.status === 401) return 'Session expired. Please sign in again.';
+        if (error.status === 403) return 'Email is not verified yet. Complete verification first.';
+        if (error.status === 404) return '/auth/status is not deployed yet.';
+        if (error.message === 'status_bad_json') return 'Status service returned malformed JSON.';
+        if (error.name === 'TypeError') return 'Unable to reach /auth/status (check network).';
+        return `Status service unavailable (code ${error.status || error.message || 'unknown'}).`;
+      }
+
+      function coerceDecisionBoolean(value) {
+        if (typeof value === 'boolean') return value;
+        if (typeof value === 'number') return Number.isFinite(value) && value > 0;
+        if (typeof value === 'string') {
+          const normalized = value.trim().toLowerCase();
+          if (!normalized) return false;
+          if (['1', 'true', 'yes', 'y', 'enabled', 'active', 'on'].includes(normalized)) return true;
+          if (['0', 'false', 'no', 'n', 'disabled', 'inactive', 'off', 'none'].includes(normalized)) return false;
+          if (SUBSCRIPTION_OK_STATUSES.has(normalized)) return true;
+        }
+        return false;
+      }
+
+      function subscriptionActiveFromPayload(payload) {
+        if (!payload) return false;
+        const direct = payload.subscription_active ?? payload.subscriptionActive ?? payload.subscription?.active;
+        if (coerceDecisionBoolean(direct)) return true;
+        const statusSource = payload.subscription_status
+          ?? payload.subscriptionStatus
+          ?? payload.subscription?.status
+          ?? null;
+        if (typeof statusSource === 'string' && SUBSCRIPTION_OK_STATUSES.has(statusSource.trim().toLowerCase())) {
+          return true;
+        }
+        const expirySource = payload.subscription_end
+          ?? payload.subscriptionEnd
+          ?? payload.subscription?.active_until
+          ?? payload.subscription?.expires_at
+          ?? payload.subscription?.renewal_date
+          ?? null;
+        if (expirySource) {
+          const expiryTs = Date.parse(expirySource);
+          if (Number.isFinite(expiryTs) && expiryTs > Date.now()) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      function manualAccessGranted(payload) {
+        if (!payload) return false;
+        return coerceDecisionBoolean(payload.manual_access ?? payload.manualAccess);
+      }
+
+      function applyStatusDecision(data, context = 'manual') {
+        if (!data) return;
+        const resolvedStatusGtcId = resolveGtcUserIdCandidate(data);
+        if (resolvedStatusGtcId) {
+          saveUser({
+            email: data.email || state.user?.email || null,
+            id: data.id || data.user_id || state.user?.id || null,
+            gtc_user_id: resolvedStatusGtcId,
+            full_name: data.full_name || state.user?.full_name || null
+          }, '');
+        }
+        const decision = deduceDecision(data);
+        if (decision === 'payment') {
+          handlePaymentRequired(data, context);
+          return;
+        }
+        if (decision === 'chat') {
+          setChatStatus('Access confirmed.', 'ok');
+          pushSystem('Authorization completed.', 'ok');
+          const manualAccess = manualAccessGranted(data);
+          const subscriptionActive = subscriptionActiveFromPayload(data);
+          const okMessage = manualAccess
+            ? 'Manual access is active for your workspace. Use billing only if you need to add a subscription.'
+            : (subscriptionActive
+              ? 'Active subscription confirmed. Manage billing below whenever you need.'
+              : 'Access confirmed. Billing portal stays available if you want to manage payment.');
+          setPaymentPanelState(okMessage, 'ok', { critical: false });
+          return;
+        }
+        if (decision === 'auth') {
+          setChatStatus('Sign-in required.', 'warn');
+          pushSystem('Session not found. Please authenticate again.', 'warn');
+          setPaymentPanelState(null);
+          return;
+        }
+      }
+
+      function deduceDecision(data) {
+        if (!data) return null;
+        if (manualAccessGranted(data) || subscriptionActiveFromPayload(data)) {
+          return 'chat';
+        }
+        if (data.decision) return data.decision;
+        if (data.status === 'payment_required') return 'payment';
+        if (data.status === 'ok') return 'chat';
+        if (data.status === 'unauthorized') return 'auth';
+        const redirect = data.redirect || data.next;
+        if (typeof redirect === 'string') {
+          if (redirect.includes('payment')) return 'payment';
+          if (redirect.includes('/chat')) return 'chat';
+        }
+        return null;
+      }
+
+      function handlePaymentRequired(data, context = 'manual') {
+        const paymentUrl = data?.payment_url || PAYMENT_URL;
+        const msg = paymentUrl ? `Subscription required. Open ${paymentUrl}, complete the payment, then return to chat.` : 'Subscription required. Open the billing portal and retry.';
+        pushSystem(msg, 'warn');
+        setChatStatus('Subscription inactive. Complete payment and retry.', 'warn');
+        setPaymentPanelState(msg, 'warn', { critical: context !== 'manual' });
+        openAccordionSection('account');
+        void verifySubscriptionViaSql('status-payment');
+      }
+
+      let googleInitTimer = null;
+      let googleButtonReady = false;
+      let googleFallbackWindow = null;
+
+      function bootGoogle() {
+        if (!googleBtnHost) return;
+        if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes('REPLACE')) {
+          setGoogleStatus('Google Client ID is not configured. Contact support to enable Google onboarding.', 'err');
+          if (googleFallbackBtn) googleFallbackBtn.hidden = true;
+          return;
+        }
+        setGoogleStatus('Loading Google Identity Services…', 'warn');
+        if (window.google?.accounts?.id) {
+          renderGoogleButton();
+          return;
+        }
+        googleInitTimer = setInterval(() => {
+          if (window.google?.accounts?.id) {
+            clearInterval(googleInitTimer);
+            renderGoogleButton();
+          }
+        }, 250);
+        setTimeout(() => {
+          if (googleInitTimer) {
+            clearInterval(googleInitTimer);
+            googleInitTimer = null;
+          }
+          if (!googleButtonReady) {
+            if (googleFallbackBtn) googleFallbackBtn.hidden = false;
+            setGoogleStatus('Inline Google sign-in unavailable. Use the fallback button below.', 'warn');
+          }
+        }, 10000);
+      }
+
+      function renderGoogleButton() {
+        if (!googleBtnHost || googleButtonReady) return;
+        if (googleInitTimer) {
+          clearInterval(googleInitTimer);
+          googleInitTimer = null;
+        }
+        try {
+          google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGoogleCredential,
+            ux_mode: 'popup'
+          });
+          google.accounts.id.renderButton(googleBtnHost, {
+            theme: 'outline',
+            size: 'large',
+            shape: 'pill',
+            text: 'continue_with',
+            locale: navigator.language || 'en'
+          });
+          googleButtonReady = true;
+          if (googleFallbackBtn) googleFallbackBtn.hidden = true;
+          setGoogleStatus('Google button ready. Continue whenever you are ready.', 'warn');
+        } catch (error) {
+          console.warn('GIS render failed', error);
+          if (googleFallbackBtn) googleFallbackBtn.hidden = false;
+          setGoogleStatus('Inline Google sign-in failed. Use the fallback button below.', 'warn');
+        }
+      }
+
+      function openGoogleFallbackWindow() {
+        if (!GOOGLE_CLIENT_ID) {
+          setGoogleStatus('Google Client ID is not configured. Contact support.', 'err');
+          return;
+        }
+        try {
+          if (googleFallbackWindow && !googleFallbackWindow.closed) {
+            googleFallbackWindow.close();
+          }
+        } catch {}
+        const fallbackUrl = `/chat/google-fallback.html?client_id=${encodeURIComponent(GOOGLE_CLIENT_ID)}&ts=${Date.now()}`;
+        googleFallbackWindow = window.open(fallbackUrl, 'gtcGoogleFallback', 'width=520,height=700,resizable=yes,scrollbars=yes');
+        if (!googleFallbackWindow) {
+          setGoogleStatus('Popup blocked. Allow pop-ups for app.gtstor.com and try again.', 'err');
+        } else {
+          setGoogleStatus('Fallback window opened. Complete Google sign-in in the popup.', 'warn');
+        }
+      }
+
+      googleFallbackBtn?.addEventListener('click', openGoogleFallbackWindow);
+
+      async function handleGoogleCredential(response) {
+        if (!response?.credential) {
+          setChatStatus('Google did not return a credential. Please try again.', 'err');
+          setGoogleStatus('Google did not return a credential. Please retry.', 'err');
+          return;
+        }
+        setChatStatus('Validating Google credential...', 'warn');
+        setGoogleStatus('Validating Google credential...', 'warn');
+        try {
+          const result = await postJson('/auth/google', { google_credential: response.credential });
+          if (result.error) {
+            const msg = 'Google sign-in rejected: ' + result.error;
+            setChatStatus(msg, 'err');
+            setGoogleStatus(msg, 'err');
+            return;
+          }
+          const fallbackUser = {
+            email: result.email || state.user?.email || null,
+            id: result.id || result.user_id || state.user?.id || null,
+            gtc_user_id: result.gtc_user_id || result.gtcUserId || null,
+            full_name: result.full_name || result.name || state.user?.full_name || null,
+            email_verified: result.email_verified ?? state.user?.email_verified ?? null
+          };
+          await hydrateUserFromProfile(fallbackUser);
+          setGoogleStatus('Google account linked. Syncing workspace status…', 'warn');
+          const statusResult = await syncAuthStatus('google-oauth');
+          if (!statusResult.ok) {
+            const errMsg = 'Signed in but status request failed: ' + describeStatusError(statusResult.error);
+            setChatStatus(errMsg, 'warn');
+            setGoogleStatus(errMsg, 'warn');
+            return;
+          }
+          setGoogleStatus('Google account linked. You can continue in chat.', 'ok');
+        } catch (error) {
+          const msg = 'Google sign-in error: ' + error.message;
+          setChatStatus(msg, 'err');
+          setGoogleStatus(msg, 'err');
+        }
+      }
+
+      window.addEventListener('message', (event) => {
+        if (event.origin !== window.location.origin) return;
+        const data = event.data;
+        if (data?.type === 'google-fallback-credential' && data.credential) {
+          setGoogleStatus('Credential received from fallback window. Completing sign-in…', 'warn');
+          handleGoogleCredential({ credential: data.credential, source: 'fallback' });
+          try {
+            if (googleFallbackWindow && !googleFallbackWindow.closed) {
+              googleFallbackWindow.close();
+            }
+          } catch {}
+        }
+      });
+
+      function updateAuthUI(message) {
+        const user = state.user;
+        const gtcUserId = activeGtcUserId();
+        const loggedIn = Boolean(gtcUserId);
+        authSection.hidden = loggedIn;
+        userSection.hidden = !loggedIn;
+        logoutBtn.hidden = !loggedIn;
+        if (quickAuthSection) quickAuthSection.hidden = loggedIn;
+        if (otpSection) otpSection.hidden = loggedIn;
+        enforceAuthAccordionState(loggedIn);
+        updateComposerAvailability();
+        if (loggedIn) {
+          if (state.chatList.length) {
+            setChatListStatus('Select a chat thread to load history.', 'ok');
+          } else {
+            setChatListStatus('Syncing chats…', 'warn');
+          }
+          $('#userIdDisplay').textContent = gtcUserId || '—';
+          $('#userEmail').textContent = user?.email || '—';
+          updateStatus('ready', 'ok');
+          setStageLabel('Готов к диалогу');
+          if (message === undefined) {
+            setChatStatus('Signed in successfully.', 'ok');
+          } else if (message) {
+            setChatStatus(message, 'ok');
+          }
+          focusChatInputIfReady();
+          void ensureChatBootstrap('auth-ui');
+          void verifySubscriptionViaSql('startup');
+        } else {
+          setChatListStatus('Sign in to view your chats.', 'warn');
+          updateStatus('offline');
+          setStageLabel('');
+          setChatStatus('Sign in to request a gtc_user_id.', 'warn');
+          setPaymentPanelState(null);
+          saveStage(null);
+        }
+        prefillSupportEmails(loggedIn);
+        updateGoogleInsights();
+        refreshBillingContextMessage();
+      }
+
+      async function postJson(path, body) {
+        const response = await fetch(path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(body)
+        });
+        let json = null;
+        try { json = await response.json(); } catch (err) { json = { error: 'bad_json' }; }
+        json._status = response.status;
+        return json;
+      }
+
+      async function sendVerificationRequest(email, statusSetter, button) {
+        if (!statusSetter) return false;
+        if (!email) {
+          statusSetter('Enter the email associated with your workspace.', 'err');
+          return false;
+        }
+        rememberEmail(email);
+        prefillSupportEmails(true);
+        statusSetter('Sending email...', 'warn');
+        if (button) button.disabled = true;
+        try {
+          const resp = await postJson('/auth/request_email_verification', { email });
+          if (resp.error) {
+            statusSetter('Error: ' + resp.error, 'err');
+            return false;
+          }
+          if (resp.already_verified) {
+            statusSetter('Email already verified. Press “Check access”.', 'ok');
+          } else if (resp.sent) {
+            statusSetter('Verification email sent. Check your inbox and spam folder.', 'ok');
+          } else if (resp.not_found) {
+            statusSetter('Account not found. Register first or double-check the address.', 'warn');
+          } else {
+            statusSetter('Request accepted. If nothing arrives, contact support with a timestamp.', 'warn');
+          }
+          return true;
+        } catch (error) {
+          statusSetter('Network error: ' + error.message, 'err');
+          return false;
+        } finally {
+          if (button) button.disabled = false;
+        }
+      }
+
+      async function requestPasswordReset(email, statusSetter, button) {
+        if (!statusSetter) return false;
+        if (!email) {
+          statusSetter('Enter the email you used for your account.', 'err');
+          return false;
+        }
+        rememberEmail(email);
+        prefillSupportEmails(true);
+        statusSetter('Sending password reset link...', 'warn');
+        if (button) button.disabled = true;
+        try {
+          await postJson('/auth/request_password_reset', { email });
+          statusSetter('If the address exists, we just sent a 60-minute reset link.', 'ok');
+          return true;
+        } catch (error) {
+          statusSetter('Network error: ' + error.message, 'err');
+          return false;
+        } finally {
+          if (button) button.disabled = false;
+        }
+      }
+
+      authForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        setAuthStatus('');
+        const email = (authEmailInput?.value || '').trim().toLowerCase();
+        const password = authPasswordInput?.value || '';
+        if (!email || !password) {
+          setAuthStatus('Enter email and password.');
+          return;
+        }
+        rememberEmail(email);
+        prefillSupportEmails(true);
+        const btn = $('#authSubmit');
+        btn.disabled = true;
+        btn.textContent = 'Signing in...';
+        try {
+          const resp = await postJson('/auth/login', { email, password });
+          if (resp.error) {
+            if (resp._status === 401) {
+              setAuthStatus('Invalid email or password.');
+            } else if (resp._status === 403 && resp.error === 'email_not_verified') {
+              setAuthStatus('Email is not verified. Check your inbox or open /verify.', 'warn');
+            } else {
+              setAuthStatus('Error: ' + resp.error);
+            }
+            return;
+          }
+          const fallbackUser = {
+            email: resp.email || email,
+            id: resp.id || resp.user_id || null,
+            gtc_user_id: resp.gtc_user_id || resp.gtcUserId || null,
+            full_name: resp.full_name || resp.name || null
+          };
+          const result = await hydrateUserFromProfile(fallbackUser);
+          if (!result.ok) {
+            setAuthStatus('Signed in but profile refresh failed. Use “Refresh profile”.', 'warn');
+          } else {
+            setAuthStatus('Signed in.', 'ok');
+          }
+          const statusResult = await syncAuthStatus('password-login');
+          if (!statusResult.ok) {
+            setChatStatus('Auth succeeded but status API failed: ' + describeStatusError(statusResult.error), 'warn');
+          }
+        } catch (error) {
+          setAuthStatus('Network error: ' + error.message);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Sign in & fetch gtc_user_id';
+        }
+      });
+
+      otpRequestBtn?.addEventListener('click', async () => {
+        if (!otpEmailInput) return;
+        const email = otpEmailInput.value.trim().toLowerCase();
+        if (!email) {
+          setOtpStatus('Enter the email that should receive the code.');
+          return;
+        }
+        rememberEmail(email);
+        prefillSupportEmails(false);
+        otpRequestBtn.disabled = true;
+        setOtpStatus('Sending code...');
+        try {
+          const resp = await postJson('/auth/otp/request', { email });
+          if (resp.error) {
+            setOtpStatus('Error: ' + (resp.error || 'unknown'), 'err');
+            return;
+          }
+          otpState.email = email;
+          otpState.requested = true;
+          if (otpCodeInput) otpCodeInput.disabled = false;
+          otpVerifyBtn.disabled = false;
+          setOtpStatus('Code sent. Check your inbox and paste it below.', 'ok');
+        } catch (error) {
+          setOtpStatus('Network error: ' + error.message, 'err');
+        } finally {
+          otpRequestBtn.disabled = false;
+        }
+      });
+
+      otpVerifyBtn?.addEventListener('click', async () => {
+        if (!otpState.requested) {
+          setOtpStatus('Request a code first.', 'warn');
+          return;
+        }
+        const code = (otpCodeInput?.value || '').trim();
+        if (code.length < 4) {
+          setOtpStatus('Enter the code from the email.', 'warn');
+          return;
+        }
+        otpVerifyBtn.disabled = true;
+        setOtpStatus('Verifying code...');
+        try {
+          const resp = await postJson('/auth/otp/verify', { email: otpState.email, code });
+          if (resp.error) {
+            setOtpStatus('Error: ' + resp.error, 'err');
+            return;
+          }
+          const fallbackUser = {
+            email: resp.email || otpState.email,
+            id: resp.id || resp.user_id || null,
+            gtc_user_id: resp.gtc_user_id || resp.gtcUserId || null,
+            full_name: resp.full_name || resp.name || null
+          };
+          const result = await hydrateUserFromProfile(fallbackUser);
+          if (!result.ok) {
+            setOtpStatus('Code accepted but profile refresh failed. Use “Refresh profile”.', 'warn');
+          } else {
+            setOtpStatus('Done! You are signed in via OTP.', 'ok');
+          }
+          const statusResult = await syncAuthStatus('otp-login');
+          if (!statusResult.ok) {
+            setChatStatus('OTP login succeeded but status check failed: ' + describeStatusError(statusResult.error), 'warn');
+          }
+          if (otpCodeInput) {
+            otpCodeInput.value = '';
+            otpCodeInput.disabled = true;
+          }
+          otpVerifyBtn.disabled = true;
+          otpState.requested = false;
+          setOtpStatus('Done! You are signed in via OTP.', 'ok');
+        } catch (error) {
+          setOtpStatus('Network error: ' + error.message, 'err');
+        } finally {
+          if (otpState.requested) {
+            otpVerifyBtn.disabled = false;
+          }
+        }
+      });
+
+      signupForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const name = (signupNameInput?.value || '').trim();
+        const email = (signupEmailInput?.value || '').trim().toLowerCase();
+        const password = signupPasswordInput?.value || '';
+        if (!email || !password) {
+          setSignupStatus('Enter email and password.', 'err');
+          return;
+        }
+        if (password.length < 8) {
+          setSignupStatus('Password is too short (min 8 characters).', 'err');
+          return;
+        }
+        rememberEmail(email);
+        prefillSupportEmails(true);
+        setSignupStatus('Sending data...', 'warn');
+        const btn = $('#signupSubmit');
+        if (btn) btn.disabled = true;
+        try {
+          const resp = await postJson('/auth/register', { name, email, password });
+          if (resp.error) {
+            setSignupStatus('Registration error: ' + resp.error, 'err');
+            return;
+          }
+          setSignupStatus('Check your inbox, confirm the email, then press “Check access”.', 'ok');
+          if (signupPasswordInput) signupPasswordInput.value = '';
+        } catch (error) {
+          setSignupStatus('Ошибка сети: ' + error.message, 'err');
+        } finally {
+          if (btn) btn.disabled = false;
+        }
+      });
+
+      resendForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = (resendEmailInput?.value || '').trim().toLowerCase();
+        const btn = $('#resendSubmit');
+        await sendVerificationRequest(email, setResendStatus, btn);
+      });
+
+      accessLinkForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = (accessLinkEmailInput?.value || '').trim().toLowerCase();
+        const btn = $('#accessLinkSubmit');
+        await sendVerificationRequest(email, setAccessLinkStatus, btn);
+      });
+
+      passwordResetForm?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = (passwordResetEmailInput?.value || '').trim().toLowerCase();
+        const btn = $('#passwordResetSubmit');
+        await requestPasswordReset(email, setPasswordResetStatus, btn);
+      });
+
+      passwordResetFormAuth?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = (passwordResetEmailInputAuth?.value || '').trim().toLowerCase();
+        const btn = $('#passwordResetSubmitAuth');
+        await requestPasswordReset(email, setPasswordResetStatusAuth, btn);
+      });
+
+      billingPortalBtn?.addEventListener('click', () => {
+        openBillingPortal();
+      });
+
+      function toggleSidebar(nextState) {
+        const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+        const next = typeof nextState === 'boolean' ? nextState : !isCollapsed;
+        applySidebarState(next);
+        localStorage.setItem(storageKeys.sidebar, next ? 'collapsed' : 'expanded');
+      }
+
+      sidebarToggleBtn?.addEventListener('click', () => {
+        toggleSidebar();
+      });
+      sidebarFloatingToggle?.addEventListener('click', () => {
+        toggleSidebar(false);
+      });
+
+      window.addEventListener('resize', () => {
+        const saved = localStorage.getItem(storageKeys.sidebar);
+        if (saved === 'collapsed' || saved === 'expanded') return;
+        const shouldCollapse = window.matchMedia('(max-width: 960px)').matches;
+        applySidebarState(shouldCollapse);
+      });
+
+      accessCheckBtn?.addEventListener('click', async () => {
+        setChatStatus('Checking chat access...', 'warn');
+        const statusResult = await syncAuthStatus('manual-check');
+        if (statusResult.ok) return;
+        const tone = statusResult.error?.status && statusResult.error.status >= 500 ? 'err' : 'warn';
+        setChatStatus(describeStatusError(statusResult.error), tone);
+        if (statusResult.error?.status === 401) {
+          state.user = null;
+          localStorage.removeItem(storageKeys.user);
+          updateAuthUI();
+          return;
+        }
+        if (statusResult.error?.status === 403) return;
+        const fallback = await hydrateUserFromProfile(state.user);
+        if (fallback.ok) {
+          setChatStatus('Profile confirmed locally, but /auth/status is still unavailable. Chat will unlock once the service is deployed.', 'warn');
+          return;
+        }
+        if (activeGtcUserId()) {
+          setChatStatus('gtc_user_id is saved, but /auth/status is unavailable. Try again later or contact support.', 'warn');
+        } else {
+          setChatStatus('Profile not found and /auth/status is unavailable. Sign in again.', 'warn');
+        }
+      });
+
+      logoutBtn.addEventListener('click', () => {
+        state.user = null;
+        localStorage.removeItem(storageKeys.user);
+        localStorage.removeItem('gtc_user_id');
+        saveChatId(null);
+        saveSqlChatId(null);
+        state.lastSyncedUserId = null;
+        state.chatList = [];
+        state.history = [];
+        state.historySource = 'empty';
+        state.subscriptionSnapshot = null;
+        renderHistory();
+        renderChatList();
+        persistHistory();
+        setChatListStatus('Sign in to view your chats.', 'warn');
+        setChatStatus('You signed out.', 'warn');
+        updateAuthUI();
+      });
+
+      copyIdBtn.addEventListener('click', async () => {
+        const gtcUserId = activeGtcUserId();
+        if (!gtcUserId) return;
+        try {
+          await navigator.clipboard.writeText(gtcUserId);
+          setChatStatus('gtc_user_id copied to clipboard.', 'ok');
+        } catch {
+          setChatStatus('Copy failed. Please copy it manually.', 'err');
+        }
+      });
+
+      refreshProfileBtn.addEventListener('click', async () => {
+        if (!state.user) return;
+        setChatStatus('Refreshing profile...', 'warn');
+        const result = await hydrateUserFromProfile(state.user);
+        if (result.ok) {
+          setChatStatus('Profile refreshed.', 'ok');
+        } else {
+          setChatStatus('Profile refresh failed.', 'err');
+        }
+      });
+
+      resetSessionBtn.addEventListener('click', () => {
+        resetSession();
+      });
+
+      clearChatBtn.addEventListener('click', () => {
+        clearHistory();
+        pushSystem('Local history cleared.');
+      });
+
+      chatForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!activeGtcUserId()) {
+          setChatStatus('Sign in first to obtain a gtc_user_id.', 'warn');
+          return;
+        }
+        const message = chatInput.value.trim();
+        if (!message) return;
+        await sendMessage(message);
+      });
+
+      chatLog?.addEventListener('scroll', () => updateChatScrollSlider());
+      chatScrollSlider?.addEventListener('input', () => {
+        if (!chatLog) return;
+        const maxScroll = chatLog.scrollHeight - chatLog.clientHeight;
+        if (maxScroll <= 0) return;
+        const ratio = Number(chatScrollSlider.value) / 100;
+        chatLog.scrollTop = maxScroll * ratio;
+      });
+
+      chatInput?.addEventListener('input', () => autoSizeChatInput());
+
+      chatInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          chatForm.dispatchEvent(new Event('submit'));
+        }
+      });
+
+      window.addEventListener('load', bootGoogle);
+
+      async function sendMessage(text) {
+        if (state.sending) return;
+        state.sending = true;
+        if (sendBtn) sendBtn.textContent = 'Sending...';
+        updateComposerAvailability();
+        setChatStatus('Sending request to chat service…', 'warn');
+        const gtcUserId = activeGtcUserId();
+        if (!gtcUserId) {
+          state.sending = false;
+          if (sendBtn) sendBtn.textContent = 'Send';
+          updateComposerAvailability();
+          setChatStatus('Sign in first to obtain a gtc_user_id.', 'warn');
+          return;
+        }
+        const chatId = ensureActiveChatId(null);
+        const pendingEntry = pushMessage('user', text, { chat_id: chatId });
+        chatInput.value = '';
+        autoSizeChatInput();
+        try {
+          const sendPayload = {
+            chatId,
+            gtcUserId: Number(gtcUserId),
+            userId: state.user?.id ?? state.user?.user_id ?? null,
+            content: text,
+            stage: state.stage ?? null,
+            sessionId: state.sessionId,
+            source: CHAT_SOURCE,
+            metadata: {
+              admin_panel: true,
+              user: {
+                email: state.user?.email ?? null,
+                full_name: state.user?.full_name ?? null
+              }
+            }
+          };
+          console.log('[chat] sendMessage request payload', sendPayload);
+          const result = await chatService.sendMessage(sendPayload);
+          console.log('[chat] sendMessage result', result);
+          applySendResult(result, pendingEntry);
+        } catch (error) {
+          console.error('[chat] sendMessage failed', error);
+          pushSystem('Network error: ' + error.message, 'err');
+          setChatStatus('Network error.', 'err');
+        } finally {
+          state.sending = false;
+          if (sendBtn) sendBtn.textContent = 'Send';
+          updateComposerAvailability();
+        }
+      }
+
+      function applySendResult(result, pendingEntry) {
+        if (!result) return;
+        if (result.chatId) {
+          saveSqlChatId(result.chatId);
+          saveChatId(result.chatId);
+        }
+        if (result.message && pendingEntry) {
+          mergeEntryWithChatMessage(pendingEntry, result.message);
+        }
+        if (result.assistant) {
+          const assistantEntry = convertChatMessageToEntry(result.assistant);
+          if (assistantEntry) {
+            state.history.push(assistantEntry);
+          }
+        }
+        if (result.stage) {
+          saveStage(result.stage);
+          setStageLabel(result.stage);
+        }
+        state.traceId = result.traceId || null;
+        persistHistory();
+        renderHistory();
+        syncActiveChatSummaryFromHistory(result.chatId || currentChatId());
+        const statusParts = [];
+        const activeChat = result.chatId || currentChatId();
+        if (activeChat) statusParts.push('Chat ID ' + activeChat);
+        if (result.traceId) statusParts.push('Trace ' + result.traceId);
+        if (result.stage || state.stage) statusParts.push('Stage ' + (result.stage || state.stage));
+        if (result.assistant) {
+          setChatStatus(statusParts.length ? statusParts.join(' · ') : 'Done', 'ok');
+        } else {
+          setChatStatus('Awaiting assistant response…', 'warn');
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+component_type,path,current_usage,target_project,migration_action,notes
+page,game-chat.html,RJAKA game chat,RJAKA,keep+move_to_rjaka_repo,Core RJAKA chat UI
+page,chat-qa.html,RJAKA chat history,RJAKA,keep+move_to_rjaka_repo,History with feedback
+api,game_chat.php,RJAKA chat webhook proxy,RJAKA,keep+move_to_rjaka_repo,Depends on anon chat tables
+api,admin/chat-qa.php,RJAKA chat history API,RJAKA,keep+move_to_rjaka_repo,Returns Q/A pairs + feedback counters
+api,admin/chat-qa-feedback.php,RJAKA feedback API,RJAKA,keep+move_to_rjaka_repo,Writes like/dislike votes
+db_migration,db/migrations/20260121_anon_chat.sql,RJAKA anon chat schema,RJAKA,keep+move_to_rjaka_repo,Creates anon_chats + anon_chat_messages
+db_migration,db/migrations/20260305_anon_chat_feedback.sql,RJAKA feedback fields,RJAKA,keep+move_to_rjaka_repo,Adds like/dislike counters
+db_migration,db/migrations/20260305_anon_chat_feedback_votes.sql,RJAKA feedback vote uniqueness,RJAKA,keep+move_to_rjaka_repo,One vote per token/message
+page,chat/index.html,GTSTOR user chat,GTSTOR,move_to_gtstor_repo,Main product chat
+page,chat/internal/index.html,GTSTOR admin chat,GTSTOR,move_to_gtstor_repo,Internal/admin interface
+page,user/index.html,GTSTOR portal page,GTSTOR,move_to_gtstor_repo,Part of platform site
+page,news/index.html,GTSTOR news page,GTSTOR,move_to_gtstor_repo,Uses root favicon set
+page,index.html,GTSTOR main site shell,GTSTOR,move_to_gtstor_repo,Root landing shell
+api,chat_api.php,GTSTOR chat API,GTSTOR,move_to_gtstor_repo,Core business chat API
+api,chat_api2.php,GTSTOR chat API v2/alt,GTSTOR,move_to_gtstor_repo,Validate active usage before cutover
+doc,docs/rjaka-game-chat.md,RJAKA docs,RJAKA,move_to_rjaka_repo,RJAKA functional doc
+doc,docs/rjaka-design-standard.md,RJAKA docs,RJAKA,move_to_rjaka_repo,UI/design standard
+doc,docs/project-overview.md,GTSTOR docs,GTSTOR,move_to_gtstor_repo,Platform overview
+doc,docs/TECHNICAL_DOCUMENTATION.md,GTSTOR docs,GTSTOR,move_to_gtstor_repo,Technical reference
+doc,docs/chat-user-current.md,GTSTOR docs,GTSTOR,move_to_gtstor_repo,User chat state
+doc,docs/chat-admin-current.md,GTSTOR docs,GTSTOR,move_to_gtstor_repo,Admin chat state
+doc,docs/chat-service-spec.md,GTSTOR docs,GTSTOR,move_to_gtstor_repo,Service contract
+favicon_set,assets/game-chat/favicons/favicon.ico,RJAKA pages active,RJAKA,keep+rename_path_optional,Current canonical RJAKA icon
+favicon_set,assets/game-chat/favicons/favicon-16x16.png,RJAKA pages active,RJAKA,keep+rename_path_optional,Used by game-chat/chat-qa
+favicon_set,assets/game-chat/favicons/favicon-32x32.png,RJAKA pages active,RJAKA,keep+rename_path_optional,Used by game-chat/chat-qa
+favicon_set,assets/game-chat/favicons/apple-touch-icon.png,RJAKA pages active,RJAKA,keep+rename_path_optional,Used by game-chat/chat-qa
+favicon_set,assets/game-chat/favicons/favicon-48x48.png,RJAKA asset,RJAKA,keep+move_to_rjaka_assets,Optional size variant
+favicon_set,assets/game-chat/favicons/favicon-64x64.png,RJAKA asset,RJAKA,keep+move_to_rjaka_assets,Optional size variant
+favicon_set,assets/game-chat/favicons/favicon-128x128.png,RJAKA asset,RJAKA,keep+move_to_rjaka_assets,Optional size variant
+favicon_set,assets/game-chat/favicons/favicon-180x180.png,RJAKA asset,RJAKA,keep+move_to_rjaka_assets,Optional size variant
+favicon_set,assets/game-chat/favicons/favicon-192x192.png,RJAKA asset,RJAKA,keep+move_to_rjaka_assets,Optional size variant
+favicon_set,assets/game-chat/favicons/favicon-256x256.png,RJAKA asset,RJAKA,keep+move_to_rjaka_assets,Optional size variant
+favicon_set,assets/game-chat/favicons/favicon-512x512.png,RJAKA asset,RJAKA,keep+move_to_rjaka_assets,Optional size variant
+favicon_set,favicon.ico,GTSTOR root pages active,GTSTOR,keep+move_to_gtstor_assets,Used by chat/user/news/root pages
+favicon_set,favicon-16.png,GTSTOR legacy asset,GTSTOR,review+normalize_naming,Unify to favicon-16x16.png
+favicon_set,favicon-32.png,GTSTOR legacy asset,GTSTOR,review+normalize_naming,Unify to favicon-32x32.png
+favicon_set,favicon-48.png,GTSTOR legacy asset,GTSTOR,review+normalize_naming,Optional size variant
+favicon_set,apple-touch-icon.png,GTSTOR root pages active,GTSTOR,keep+move_to_gtstor_assets,Used by root/news/test pages
+favicon_set,site.webmanifest,GTSTOR root pages active,GTSTOR,split_into_gtstor_and_rjaka_manifest,Create separate project manifests
+favicon_set,apple-touch-icon.v1.png,GTSTOR news branding,GTSTOR,review+keep_if_needed,Used in news logo block
+favicon_set,apple-touch-icon.v1.webp,GTSTOR news branding,GTSTOR,review+keep_if_needed,Used in news logo block
+favicon_set,apple-touch-icon-0.png,Unknown/legacy,Shared/TBD,audit_and_cleanup,Legacy duplicate candidate
+favicon_set,apple-touch-icon-1.png,Unknown/legacy,Shared/TBD,audit_and_cleanup,Legacy duplicate candidate
+favicon_set,apple-touch-icon-2.png,Unknown/legacy,Shared/TBD,audit_and_cleanup,Legacy duplicate candidate
+favicon_set,favicon-16x16-0.png,Unknown/legacy,Shared/TBD,audit_and_cleanup,Legacy duplicate candidate
+favicon_set,favicon-16x16-1.png,Unknown/legacy,Shared/TBD,audit_and_cleanup,Legacy duplicate candidate
+favicon_set,favicon-16x16-2.png,Unknown/legacy,Shared/TBD,audit_and_cleanup,Legacy duplicate candidate
+favicon_set,favicon-32x32-0.png,Unknown/legacy,Shared/TBD,audit_and_cleanup,Legacy duplicate candidate
+favicon_set,favicon-32x32-1.png,Unknown/legacy,Shared/TBD,audit_and_cleanup,Legacy duplicate candidate
+favicon_set,favicon-32x32-2.png,Unknown/legacy,Shared/TBD,audit_and_cleanup,Legacy duplicate candidate
+favicon_set,favicon.svg,GTSTOR/Shared root icon,Shared/TBD,audit_and_assign,Decide final owner and usage
+favicon_set,android-chrome-192x192.png,GTSTOR PWA asset,GTSTOR,move_to_gtstor_assets,Potential manifest icon
+favicon_set,android-chrome-512x512.png,GTSTOR PWA asset,GTSTOR,move_to_gtstor_assets,Potential manifest icon

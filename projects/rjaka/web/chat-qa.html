@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>РЖАКА — Вопросы и ответы</title>
+  <link rel="icon" href="/assets/game-chat/favicons/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/game-chat/favicons/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/game-chat/favicons/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/game-chat/favicons/apple-touch-icon.png" />
+  <style>
+    :root {
+      --bg: #0e0610;
+      --panel: #1a0d16;
+      --border: rgba(255, 255, 255, 0.06);
+      --text: #f7f5f4;
+      --muted: #d6d6d2;
+      --accent: #e34a8a;
+      --accent-velvet: #b0164d;
+      --gold: #f2b94b;
+      --turquoise: #2fa4a9;
+      --shadow: 0 22px 70px rgba(0, 0, 0, 0.5);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background:
+        radial-gradient(1200px 900px at 20% 10%, rgba(243, 140, 196, 0.22), transparent 60%),
+        radial-gradient(900px 700px at 80% 0%, rgba(242, 185, 75, 0.25), transparent 55%),
+        radial-gradient(1000px 900px at 50% 100%, rgba(47, 164, 169, 0.22), transparent 55%),
+        #0e0610;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 12px;
+    }
+    .chat-shell {
+      width: min(960px, 100%);
+      background:
+        linear-gradient(145deg, rgba(176, 22, 77, 0.22), rgba(227, 74, 138, 0.15)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: 520px;
+      height: calc(100vh - 24px);
+      overflow: hidden;
+      backdrop-filter: blur(2px);
+    }
+    header {
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, rgba(227, 74, 138, 0.25), rgba(47, 164, 169, 0.15));
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .logo-box {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      border: 1px solid rgba(242, 185, 75, 0.5);
+      overflow: hidden;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      background: radial-gradient(circle at 30% 30%, rgba(242, 185, 75, 0.35), rgba(176, 22, 77, 0.55));
+      flex-shrink: 0;
+    }
+    .logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .title {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      color: #fbeff7;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+    }
+    .status {
+      font-size: 0.9rem;
+      color: #f2b94b;
+      font-weight: 600;
+      text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+      margin: 0;
+      text-align: right;
+    }
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .search-toggle {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid rgba(242, 185, 75, 0.7);
+      background: linear-gradient(160deg, #f2b94b, #e34a8a);
+      color: #0e0610;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 14px 34px rgba(227, 74, 138, 0.35);
+    }
+    .search-toggle:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(242, 185, 75, 0.25), 0 14px 34px rgba(227, 74, 138, 0.35);
+    }
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      border: 1px solid rgba(242, 185, 75, 0.7);
+      background: linear-gradient(160deg, #f2b94b, #e34a8a);
+      color: #0e0610;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 14px 34px rgba(227, 74, 138, 0.35);
+    }
+    .icon-btn:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(242, 185, 75, 0.25), 0 14px 34px rgba(227, 74, 138, 0.35);
+    }
+    .limit-wrap {
+      position: relative;
+    }
+    .limit-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      display: none;
+      min-width: 68px;
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: #4b5563;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.4);
+      z-index: 20;
+    }
+    .limit-menu.open {
+      display: grid;
+      gap: 4px;
+    }
+    .limit-option {
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 8px;
+      background: rgba(17, 24, 39, 0.55);
+      color: #ffffff;
+      font: inherit;
+      font-weight: 700;
+      padding: 6px 8px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .limit-option.active {
+      background: rgba(242, 185, 75, 0.28);
+      border-color: rgba(242, 185, 75, 0.7);
+      color: #fff7e6;
+    }
+    .search-panel {
+      padding: 0 18px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease, padding 0.2s ease;
+      border-bottom: 1px solid transparent;
+      background: linear-gradient(180deg, rgba(176, 22, 77, 0.1), rgba(14, 6, 16, 0.2));
+    }
+    .search-panel.open {
+      max-height: 90px;
+      padding: 12px 18px;
+      border-bottom-color: rgba(255, 255, 255, 0.08);
+    }
+    .search-panel input {
+      width: 100%;
+      min-height: 50px;
+      border-radius: 14px;
+      border: 1px solid rgba(242, 185, 75, 0.55);
+      padding: 13px 15px;
+      font: inherit;
+      color: #f7f2f6;
+      background:
+        radial-gradient(120% 120% at 20% 15%, rgba(242, 185, 75, 0.08), transparent 55%),
+        linear-gradient(160deg, rgba(47, 164, 169, 0.08), rgba(26, 13, 22, 0.9));
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+      box-shadow:
+        inset 0 2px 12px rgba(0, 0, 0, 0.35),
+        0 8px 26px rgba(0, 0, 0, 0.35);
+    }
+    .search-panel input::placeholder {
+      color: rgba(247, 242, 246, 0.7);
+    }
+    .search-panel input:focus-visible {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(242, 185, 75, 0.25);
+      transform: translateY(-1px);
+    }
+    .messages {
+      padding: 18px 20px 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: linear-gradient(180deg, rgba(47, 164, 169, 0.08), rgba(13, 9, 16, 0.3));
+    }
+    .bubble {
+      max-width: 80%;
+      padding: 13px 15px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      backdrop-filter: blur(1px);
+      color: #f8f3f7;
+    }
+    .bubble.user {
+      margin-left: auto;
+      background: linear-gradient(145deg, rgba(227, 74, 138, 0.8), rgba(176, 22, 77, 0.8));
+      border-color: rgba(242, 185, 75, 0.35);
+      box-shadow: 0 14px 36px rgba(176, 22, 77, 0.45);
+    }
+    .bubble.bot {
+      margin-right: auto;
+      background: linear-gradient(145deg, rgba(47, 164, 169, 0.8), rgba(14, 6, 16, 0.6));
+      border-color: rgba(47, 164, 169, 0.35);
+      box-shadow: 0 14px 36px rgba(47, 164, 169, 0.35);
+    }
+    .bubble.system {
+      margin: 0 auto;
+      background: transparent;
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      color: rgba(242, 185, 75, 0.9);
+      font-size: 0.85rem;
+      letter-spacing: 0.3px;
+      box-shadow: none;
+      max-width: 100%;
+      width: 100%;
+      text-align: center;
+    }
+    .bubble .hl {
+      background: rgba(242, 185, 75, 0.32);
+      color: #fff3cf;
+      border-radius: 6px;
+      padding: 0 2px;
+      box-shadow: 0 0 0 1px rgba(242, 185, 75, 0.35) inset;
+    }
+    .feedback-row {
+      margin-right: auto;
+      max-width: 80%;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding-left: 2px;
+    }
+    .feedback-btn {
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(17, 24, 39, 0.58);
+      color: #ffffff;
+      border-radius: 10px;
+      padding: 5px 10px;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .feedback-btn:hover,
+    .feedback-btn:focus-visible {
+      border-color: rgba(242, 185, 75, 0.7);
+      outline: none;
+    }
+    .feedback-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+    .feedback-btn.active-like {
+      border-color: rgba(34, 197, 94, 0.8);
+      background: rgba(34, 197, 94, 0.2);
+    }
+    .feedback-btn.active-dislike {
+      border-color: rgba(239, 68, 68, 0.8);
+      background: rgba(239, 68, 68, 0.2);
+    }
+    .icon-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    @media (max-width: 720px) {
+      body {
+        padding: 0;
+      }
+      .chat-shell {
+        min-height: 100dvh;
+        height: 100dvh;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+      }
+      header { padding: 12px 14px; }
+      .messages { padding: 12px 14px; }
+      .search-panel { padding: 0 14px; }
+      .search-panel.open { padding: 10px 14px; }
+      .bubble { max-width: 100%; }
+      .feedback-row { max-width: 100%; }
+      .top-controls { gap: 6px; }
+      .search-toggle, .icon-btn { width: 38px; height: 38px; }
+      .limit-menu { right: -6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-shell">
+    <header>
+      <div class="brand">
+        <div class="logo-box" aria-hidden="true">
+          <img src="/assets/game-chat/favicons/rjaka-logo.png" alt="РЖАКА" onerror="this.onerror=null;this.src='/assets/game-chat/favicons/logo.png';" />
+        </div>
+        <p class="title">История чатов</p>
+      </div>
+      <div class="top-controls">
+        <button class="search-toggle" id="searchToggle" type="button" aria-expanded="false" aria-controls="searchPanel" title="Поиск">🔍</button>
+        <div class="limit-wrap">
+          <button class="icon-btn" id="limitBtn" type="button" title="Лимит: 50" aria-expanded="false" aria-controls="limitMenu">▤</button>
+          <div class="limit-menu" id="limitMenu" role="menu" aria-label="Лимит выдачи">
+            <button class="limit-option" type="button" data-limit="20">20</button>
+            <button class="limit-option" type="button" data-limit="50">50</button>
+            <button class="limit-option" type="button" data-limit="100">100</button>
+            <button class="limit-option" type="button" data-limit="200">200</button>
+          </div>
+        </div>
+        <button class="icon-btn" id="refreshBtn" type="button" title="Обновить">↻</button>
+      </div>
+    </header>
+    <div class="search-panel" id="searchPanel">
+      <input id="search" type="search" placeholder="Поиск по вопросу или ответу" />
+    </div>
+    <div class="messages" id="messages" aria-live="polite"></div>
+  </div>
+
+  <script>
+    (() => {
+      const API_URL = '/admin/chat-qa.php';
+      const FEEDBACK_URL = '/admin/chat-qa-feedback.php';
+      const messagesEl = document.getElementById('messages');
+      const searchEl = document.getElementById('search');
+      const searchPanelEl = document.getElementById('searchPanel');
+      const searchToggleEl = document.getElementById('searchToggle');
+      const limitBtn = document.getElementById('limitBtn');
+      const limitMenuEl = document.getElementById('limitMenu');
+      const limitOptionEls = Array.from(document.querySelectorAll('.limit-option'));
+      const refreshBtn = document.getElementById('refreshBtn');
+      const VOTER_KEY = 'chat-qa:voter-token';
+      const VOTES_KEY = 'chat-qa:votes';
+      const LIMITS = [20, 50, 100, 200];
+      let limitIndex = 1;
+      const voterToken = getOrCreateVoterToken();
+      const voteState = loadVoteState();
+
+      searchToggleEl.addEventListener('click', () => {
+        const opened = searchPanelEl.classList.toggle('open');
+        searchToggleEl.setAttribute('aria-expanded', opened ? 'true' : 'false');
+        if (opened) {
+          searchEl.focus();
+        }
+      });
+
+      refreshBtn.addEventListener('click', () => {
+        loadData();
+      });
+
+      limitBtn.addEventListener('click', () => {
+        const opened = limitMenuEl.classList.toggle('open');
+        limitBtn.setAttribute('aria-expanded', opened ? 'true' : 'false');
+      });
+
+      limitOptionEls.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const selected = Number(btn.dataset.limit || 50);
+          const nextIndex = LIMITS.indexOf(selected);
+          if (nextIndex >= 0) {
+            limitIndex = nextIndex;
+            syncLimitUi();
+            closeLimitMenu();
+            loadData();
+          }
+        });
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!limitMenuEl.classList.contains('open')) return;
+        if (event.target === limitBtn || limitBtn.contains(event.target)) return;
+        if (limitMenuEl.contains(event.target)) return;
+        closeLimitMenu();
+      });
+
+      searchEl.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          loadData();
+        }
+      });
+
+      syncLimitUi();
+
+      loadData();
+
+      async function loadData() {
+        setBusy(true);
+        try {
+          const url = new URL(API_URL, window.location.origin);
+          const query = (searchEl.value || '').trim();
+          if (query) url.searchParams.set('q', query);
+          url.searchParams.set('limit', String(LIMITS[limitIndex]));
+
+          const res = await fetch(url.toString(), {
+            method: 'GET',
+            headers: { Accept: 'application/json' }
+          });
+          const data = await res.json().catch(() => null);
+
+          if (!res.ok || !data?.success) {
+            throw new Error(data?.error || 'Ошибка загрузки истории');
+          }
+
+          renderPairs(Array.isArray(data.items) ? data.items : [], query);
+
+        } catch (error) {
+          messagesEl.innerHTML = '';
+          addBubble('system', 'Не удалось загрузить данные: ' + (error?.message || 'неизвестная ошибка'));
+        } finally {
+          setBusy(false);
+        }
+      }
+
+      function renderPairs(items, query) {
+        messagesEl.innerHTML = '';
+        if (!items.length) {
+          addBubble('system', 'Пары вопрос-ответ пока не найдены.');
+          return;
+        }
+
+        for (const item of items) {
+          const question = String(item.question || '').trim();
+          const answer = String(item.answer || '').trim();
+          const assistantMessageId = String(item.assistant_message_id || '').trim();
+          const likeCount = Number(item.like_count || 0);
+          const dislikeCount = Number(item.dislike_count || 0);
+          if (question) addBubble('user', question, query);
+          if (answer) {
+            addBubble('bot', answer, query);
+            if (assistantMessageId) {
+              addFeedbackRow({ assistantMessageId, likeCount, dislikeCount });
+            }
+          }
+        }
+
+        messagesEl.scrollTop = 0;
+      }
+
+      function addFeedbackRow({ assistantMessageId, likeCount, dislikeCount }) {
+        const wrap = document.createElement('div');
+        wrap.className = 'feedback-row';
+        wrap.dataset.messageId = assistantMessageId;
+
+        const likeBtn = document.createElement('button');
+        likeBtn.type = 'button';
+        likeBtn.className = 'feedback-btn';
+        likeBtn.innerHTML = `👍 <span>${likeCount}</span>`;
+        likeBtn.title = 'Лайк';
+
+        const dislikeBtn = document.createElement('button');
+        dislikeBtn.type = 'button';
+        dislikeBtn.className = 'feedback-btn';
+        dislikeBtn.innerHTML = `👎 <span>${dislikeCount}</span>`;
+        dislikeBtn.title = 'Дизлайк';
+
+        likeBtn.addEventListener('click', async () => {
+          await sendFeedback(assistantMessageId, 'like', likeBtn, dislikeBtn);
+        });
+        dislikeBtn.addEventListener('click', async () => {
+          await sendFeedback(assistantMessageId, 'dislike', likeBtn, dislikeBtn);
+        });
+
+        const storedVote = voteState[assistantMessageId] || '';
+        if (storedVote === 'like') {
+          likeBtn.classList.add('active-like');
+          likeBtn.disabled = true;
+          dislikeBtn.disabled = true;
+        } else if (storedVote === 'dislike') {
+          dislikeBtn.classList.add('active-dislike');
+          likeBtn.disabled = true;
+          dislikeBtn.disabled = true;
+        }
+
+        wrap.appendChild(likeBtn);
+        wrap.appendChild(dislikeBtn);
+        messagesEl.appendChild(wrap);
+      }
+
+      async function sendFeedback(assistantMessageId, vote, likeBtn, dislikeBtn) {
+        if (!assistantMessageId) return;
+        if (voteState[assistantMessageId]) return;
+        likeBtn.disabled = true;
+        dislikeBtn.disabled = true;
+        try {
+          const res = await fetch(FEEDBACK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ assistant_message_id: assistantMessageId, vote, voter_token: voterToken })
+          });
+          const data = await res.json().catch(() => null);
+          if (!res.ok || !data?.success) {
+            throw new Error(data?.error || 'feedback_failed');
+          }
+          likeBtn.innerHTML = `👍 <span>${Number(data.like_count || 0)}</span>`;
+          dislikeBtn.innerHTML = `👎 <span>${Number(data.dislike_count || 0)}</span>`;
+          const effectiveVote = String(data.existing_vote || vote);
+          likeBtn.classList.toggle('active-like', effectiveVote === 'like');
+          dislikeBtn.classList.toggle('active-dislike', effectiveVote === 'dislike');
+          voteState[assistantMessageId] = effectiveVote;
+          persistVoteState(voteState);
+          likeBtn.disabled = true;
+          dislikeBtn.disabled = true;
+          if (data.already_voted) {
+            addBubble('system', 'Оценка уже была сохранена ранее');
+          }
+        } catch (error) {
+          addBubble('system', 'Не удалось сохранить оценку');
+          likeBtn.disabled = false;
+          dislikeBtn.disabled = false;
+        } finally {
+          
+        }
+      }
+
+      function addBubble(role, text, query = '') {
+        const div = document.createElement('div');
+        div.className = 'bubble ' + role;
+        div.innerHTML = highlightText(text, query);
+        messagesEl.appendChild(div);
+      }
+
+      function highlightText(text, query) {
+        const source = String(text || '');
+        const q = String(query || '').trim();
+        if (!q) {
+          return escapeHtml(source);
+        }
+
+        const regexp = new RegExp(`(${escapeRegExp(q)})`, 'gi');
+        return source
+          .split(regexp)
+          .map((part, idx) => (idx % 2 === 1 ? `<mark class="hl">${escapeHtml(part)}</mark>` : escapeHtml(part)))
+          .join('');
+      }
+
+      function escapeRegExp(value) {
+        return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function setBusy(isBusy) {
+        refreshBtn.disabled = isBusy;
+        searchEl.disabled = isBusy;
+        limitBtn.disabled = isBusy;
+        limitOptionEls.forEach((btn) => { btn.disabled = isBusy; });
+      }
+
+      function getOrCreateVoterToken() {
+        try {
+          const stored = localStorage.getItem(VOTER_KEY);
+          if (stored && stored.trim()) return stored.trim();
+          const fresh = (globalThis.crypto?.randomUUID?.() || ('v-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10)));
+          localStorage.setItem(VOTER_KEY, fresh);
+          return fresh;
+        } catch {
+          return 'anon-' + Date.now();
+        }
+      }
+
+      function loadVoteState() {
+        try {
+          const raw = localStorage.getItem(VOTES_KEY);
+          if (!raw) return {};
+          const parsed = JSON.parse(raw);
+          return parsed && typeof parsed === 'object' ? parsed : {};
+        } catch {
+          return {};
+        }
+      }
+
+      function persistVoteState(state) {
+        try {
+          localStorage.setItem(VOTES_KEY, JSON.stringify(state));
+        } catch {}
+      }
+
+      function syncLimitUi() {
+        const current = LIMITS[limitIndex];
+        limitBtn.title = `Лимит: ${current}`;
+        limitOptionEls.forEach((btn) => {
+          btn.classList.toggle('active', Number(btn.dataset.limit) === current);
+        });
+      }
+
+      function closeLimitMenu() {
+        limitMenuEl.classList.remove('open');
+        limitBtn.setAttribute('aria-expanded', 'false');
+      }
+
+    })();
+  </script>
+</body>
+</html>
