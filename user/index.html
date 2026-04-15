@@ -1695,6 +1695,10 @@
       function logAnalyticsEvent(event, metadata = {}) {
         if (!analyticsLogger || typeof analyticsLogger.queue !== 'function') return;
         const { gtcId, email } = resolveClientForTelemetry();
+        const fallbackChatId = state.selectedChatId || state.chatId || null;
+        if (!gtcId && !fallbackChatId) {
+          return;
+        }
         analyticsLogger.queue(
           {
             message: event,
@@ -1714,7 +1718,7 @@
               email: email || null
             }
           },
-          { fallbackChatId: state.selectedChatId || state.chatId || null }
+          { fallbackChatId }
         );
       }
 
@@ -1745,14 +1749,6 @@
           console.warn('Analytics click handler failed', error);
         }
       });
-
-      if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-          const current = document.documentElement?.dataset?.theme || 'dark';
-          const next = current === 'light' ? 'dark' : 'light';
-          logAnalyticsEvent('theme_toggle', { theme: next });
-        });
-      }
 
       requestAnimationFrame(logPageView);
       let groupFetchInFlight = null;
@@ -1908,6 +1904,10 @@
         if (!passwordResetLogger || typeof passwordResetLogger.queue !== 'function') return;
         const storedAuth = state.user?.gtc_user_id ? null : readStoredAuthContext();
         const gtcId = state.user?.gtc_user_id || storedAuth?.gtc_user_id || null;
+        const fallbackChatId = state.selectedChatId || state.chatId || null;
+        if (!gtcId && !fallbackChatId) {
+          return;
+        }
         const metadata = {
           surface: 'user_portal',
           status,
@@ -1926,7 +1926,7 @@
               email: email || state.user?.email || null
             }
           },
-          { fallbackChatId: state.selectedChatId || state.chatId || null }
+          { fallbackChatId }
         );
       }
 

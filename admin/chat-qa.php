@@ -19,9 +19,23 @@ if (!$conn) {
     respond(500, ['success' => false, 'error' => 'db_unavailable']);
 }
 
-$filters = [];
+$filters = ['dislike_count < 3'];
+$excludedAssistantIds = [
+    '2c7a7b61-3602-4ee8-ba50-f4921b6495e1',
+    '681cd77d-a380-44aa-9d59-fa2a253643d3',
+];
 $params = [];
 $idx = 1;
+
+if ($excludedAssistantIds !== []) {
+    $placeholders = [];
+    foreach ($excludedAssistantIds as $excludedId) {
+        $placeholders[] = '$' . $idx;
+        $params[] = $excludedId;
+        $idx++;
+    }
+    $filters[] = 'assistant_message_id NOT IN (' . implode(', ', $placeholders) . ')';
+}
 
 if ($chatId !== null) {
     $filters[] = "chat_id = $" . $idx;

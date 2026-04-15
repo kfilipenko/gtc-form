@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🎭 РЖАКА — Правила игры</title>
+  <link rel="icon" href="/assets/game-chat/favicons/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/game-chat/favicons/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/game-chat/favicons/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/game-chat/favicons/apple-touch-icon.png" />
+  <meta name="description" content="Полные правила игры РЖАКА: главный закон, ходы, варианты игры и финал." />
+  <link rel="stylesheet" href="/assets/styles/rjaka-shared.css" />
+  <style>
+    .page { max-width: var(--max); margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+    .steps { display: grid; gap: 12px; }
+    .steps .panel { padding: 24px 26px; }
+    .rules-hero h2 { margin-top: 8px; font-size: clamp(22px, 3.2vw, 34px); }
+    .rules-hero h1 a { color: inherit; text-decoration-color: rgba(242, 185, 75, 0.75); text-underline-offset: 4px; }
+    .steps p { margin: 0 0 12px; color: var(--muted); }
+    .steps ul { margin: 8px 0 12px; padding-left: 22px; color: var(--muted); }
+    .steps li { margin-bottom: 8px; }
+    .steps h3 {
+      margin: 14px 0 10px;
+      font-size: clamp(18px, 2.6vw, 24px);
+      color: #fbeff7;
+      letter-spacing: 0.1px;
+    }
+    .info-line {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid rgba(242, 185, 75, 0.35);
+      border-radius: 12px;
+      background: rgba(47, 164, 169, 0.12);
+      color: #f8f2e8;
+      font-weight: 700;
+    }
+    .rule-alert {
+      border: 1px solid rgba(227, 74, 138, 0.45);
+      border-radius: 12px;
+      background: rgba(227, 74, 138, 0.16);
+      padding: 10px 12px;
+      color: #fbeff7;
+    }
+    .variant-title {
+      margin-top: 8px;
+      margin-bottom: 4px;
+      color: #fbeff7;
+      font-weight: 800;
+    }
+    .quote-line {
+      border-left: 3px solid rgba(242, 185, 75, 0.65);
+      padding: 8px 0 8px 12px;
+      color: #fbeff7;
+      font-style: italic;
+    }
+    @media (max-width: 760px) {
+      .steps .panel { padding: 20px; }
+      .steps ul { padding-left: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header id="topHeader">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo-box">
+          <img src="/assets/game-chat/favicons/rjaka-logo.png" alt="RJAKA" onerror="this.onerror=null;this.src='/assets/game-chat/favicons/logo.png';" />
+        </div>
+        <span>РЖАКА</span>
+      </div>
+      <nav class="nav" aria-label="Навигация сайта">
+        <a href="/">Главная</a>
+        <a href="/chat/" target="_blank" rel="noopener noreferrer">Открыть чат</a>
+        <a href="/chat/history/" target="_blank" rel="noopener noreferrer">История чатов</a>
+        <a href="/buy/">Купить</a>
+        <a class="is-active" href="/rules/" aria-current="page">Правила</a>
+        <a href="/rgame/">Об игре</a>
+        <a href="/meaning/">Смысл</a>
+        <a href="/game-card/">Роли</a>
+      </nav>
+    </div>
+  </header>
+  <div class="glow" aria-hidden="true"></div>
+  <main class="page steps">
+    <section class="panel rules-hero">
+      <h1>🎭 РЖАКА — <a href="/rules/">Правила игры</a></h1>
+      <h2>Как это работает</h2>
+      <p class="lead">РЖАКА — это игра, где смех рождается не из заготовленных шуток, а из ролей, реакции и коротких сценок. Правила простые, вход быстрый — и уже через 30 секунд смеются даже те, кто обычно говорит: «Я не артист».</p>
+      <p>Каждый ход — это маленький спектакль. Роль даёт характер, действие — импульс, а реакция других игроков превращает всё в живую сцену.</p>
+      <p class="info-line">🔎 Инфографика: принцип игры — РОЛЬ → ДЕЙСТВИЕ → СЦЕНКА → УЛЫБКИ</p>
+    </section>
+
+    <section class="panel">
+      <h2>Главный закон РЖАКА</h2>
+      <p class="rule-alert"><strong>❗ Запрещены отрицательные комментарии и замечания.</strong></p>
+      <p>В РЖАКА нет фраз «плохо сыграл» или «не смешно». Есть только поддержка и азарт:</p>
+      <ul>
+        <li>«Смелый ход!»</li>
+        <li>«Вот это поворот!»</li>
+        <li>«Давай ещё!»</li>
+      </ul>
+      <p>Исполнителя сценки поддерживают одобрением, а при желании — картой Улыбки. РЖАКА всегда находит своего Героя — и очень часто самым смешным оказывается самый тихий игрок.</p>
+      <p class="info-line">🔎 Инфографика: главный закон — ❌ Критика · ❌ Оценки · ❌ Замечания · ✅ Поддержка · ✅ Смелость · ✅ Смех</p>
+    </section>
+
+    <section class="panel">
+      <h2>Как проходит ход</h2>
+      <p>Каждый ход — это мини-сцена:</p>
+      <ul>
+        <li>Игрок получает или выбирает Роль.</li>
+        <li>Получает Действие — импульс для сценки.</li>
+        <li>Играет сценку (20–60 секунд): голос, мимика, поза, паузы — всё работает.</li>
+        <li>Остальные реагируют, поддерживают и при желании вручают карту Улыбки.</li>
+      </ul>
+      <p class="info-line">🔎 Инфографика: один ход — 1️⃣ Роль → 2️⃣ Действие → 3️⃣ Сценка → 4️⃣ Улыбки</p>
+    </section>
+
+    <section class="panel">
+      <h2>Когда заканчивается игра</h2>
+      <p>Игра РЖАКА не обрывается внезапно — момент окончания всегда ясен и согласован заранее. Перед началом партии игроки договариваются, по какому из вариантов игра завершится:</p>
+      <p class="variant-title">😊 Вариант 1 — По Улыбкам</p>
+      <p>Игра заканчивается, когда у одного игрока собраны все карты Улыбки. Это знак: группа признала его главным героем этой партии.</p>
+      <p class="variant-title">🔁 Вариант 2 — По кругу Действий</p>
+      <p>Игра заканчивается, когда закончился полный круг по картам Действий.</p>
+      <p class="variant-title">⏱ Вариант 3 — По времени</p>
+      <p>Игроки заранее договариваются: «Играем 20 минут / 1 час / до конца вечера».</p>
+      <p class="info-line">🔎 Инфографика: окончание игры — 😊 Все Улыбки · 🔁 Круг Действий · ⏱ По времени</p>
+    </section>
+
+    <section class="panel">
+      <h2>Вариант 1 — «Быстрый старт» (для начинающих)</h2>
+      <h3>Подготовка стола — 30 секунд</h3>
+      <ul>
+        <li>В центр стола выложите две колоды: Роли и Действия.</li>
+        <li>Карту RJAKA положите на стол — это приз игры.</li>
+        <li>Раздайте игрокам поровну карты Улыбки — это «валюта аплодисментов».</li>
+        <li>Договоритесь, когда заканчивается игра.</li>
+      </ul>
+      <h3>Игра</h3>
+      <ul>
+        <li>Игру начинает раздающий.</li>
+        <li>Он берёт 1 карту Роли и 1 карту Действия, кладёт их на стол.</li>
+        <li>Читает Действие и разыгрывает сценку из выбранной Роли (20–60 секунд).</li>
+        <li>Остальные поддерживают игрока и при желании дарят карту Улыбки.</li>
+        <li>Сыгранные карты Роли и Действия кладутся в две отдельные стопки «сыграно».</li>
+      </ul>
+      <p>🔄 Когда колода Ролей заканчивается — сыгранные роли возвращаются в игру.</p>
+      <p class="info-line">🔎 Инфографика: быстрый старт — 🃏 Роли + Действия → ⭐ Улыбки → 🏆 RJAKA → ▶ Игра по кругу</p>
+    </section>
+
+    <section class="panel">
+      <h2>Вариант 2 — «Роли в руках» (диалог и борьба за RJAKA)</h2>
+      <p>Здесь начинается настоящая магия: игроки играют не просто сценки, а столкновения ролей.</p>
+      <h3>Подготовка стола — 30 секунд</h3>
+      <ul>
+        <li>Раздайте каждому игроку поровну карты Ролей и карты Улыбки.</li>
+        <li>Раздайте каждому игроку по 4 карты Действий.</li>
+        <li>Остальные карты Действий положите в центр стола.</li>
+        <li>Игрок с картой RJAKA кладёт её в центр стола — это трофей.</li>
+      </ul>
+      <h3>Игра</h3>
+      <ul>
+        <li>Игрок выбирает карту Роли и карту Действия и выкладывает их на стол.</li>
+        <li>Принимая Роль, он задаёт Действие следующему игроку.</li>
+        <li>Следующий игрок выбирает Роль и разыгрывает сценку.</li>
+        <li>Карта Действия уходит в «отбой», роли остаются у игроков.</li>
+        <li>Ход переходит исполнителю сценки.</li>
+      </ul>
+      <p class="info-line">🔎 Инфографика: роли в руках — 🎭 Игрок A → Действие → 🎭 Игрок B → Сценка</p>
+    </section>
+
+    <section class="panel">
+      <h2>Финал, который хочется повторить</h2>
+      <p>В РЖАКА может быть победитель, но не бывает проигравших.</p>
+      <p class="quote-line"><strong>«Мы были настоящей компанией. Мы смеялись. Мы играли. И это было легко.»</strong></p>
+      <p>🔁 Карты перемешиваются — и игра начинается снова.</p>
+      <p class="info-line">🔎 Инфографика: финал — 😊 Смех · 🤝 Компания · 🎭 Герои</p>
+    </section>
+  </main>
+</body>
+</html>

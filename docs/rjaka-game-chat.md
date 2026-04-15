@@ -1,15 +1,43 @@
 # RJAKA Game Chat
 
+## Каноническая матрица чатов (чтобы избежать путаницы)
+- Административный чат GTC: `https://app.gtstor.com/chat/`
+- Пользовательский чат GTC: `https://app.gtstor.com/user/`
+- Игровой чат RJAKA: `https://rjaka.pro/chat/`
+
 ## Назначение
-- Одностраничный анонимный чат для игры "RJAKA — Roles & Actions Card Game" (frontend: /game-chat.html).
+- Одностраничный анонимный чат для игры "RJAKA — Roles & Actions Card Game" (primary frontend route: `/chat/` on `rjaka.pro`).
 - Прокси backend: /game_chat.php → n8n webhook https://agent.gtstor.com/webhook/game-chat.
 - Отображает ответы ассистента, сохраняет историю (опционально) в anon_* таблицы.
 
 ## Размещение и поток
-- Веб-страница: /game-chat.html (статический клиент, хранит chat_id в localStorage).
+- Primary веб-страница: `https://rjaka.pro/chat/`.
+- История чатов: `https://rjaka.pro/chat/history/`.
+- Alias host for history route: `https://www.rjaka.pro/chat/history/`.
+- Legacy aliases (compat only): `/game-chat.html` и `/chat-qa.html`.
+- Адресная настройка выполняется в nginx vhost `/etc/nginx/sites-enabled/www.rjaka.pro` через include `/var/www/gtc-form/projects/shared/nginx/rjaka-compat.conf`.
 - Прокси: [game_chat.php](game_chat.php) — принимает JSON, проверяет message, проставляет chat_id/session_id, отправляет в n8n; ждёт до 60s.
 - n8n: активный webhook `/webhook/game-chat`; формирует ответ и возвращает JSON с `reply`/`response`/`answer` (любое из этих полей парсится).
 - Для адм. панели: /admin/game-chat-admin.html (отдельный интерфейс, авторизация, gtc_user_id опционален).
+
+## Архитектура страницы истории `/chat/history/`
+- Public route: `/chat/history/` (host: `rjaka.pro` и alias `www.rjaka.pro`).
+- Compatibility source: nginx compat map `/chat/history/ -> /chat-qa.html`.
+- Data read endpoint: `/admin/chat-qa.php` (read Q/A history).
+- Feedback endpoint: `/admin/chat-qa-feedback.php` (like/dislike and quality signals).
+- Data layer: `anon_chat_messages` и `anon_chat_feedback_votes`.
+
+Route contract:
+1. `/chat/history` -> `301` to `/chat/history/`.
+2. `/chat/history/` -> `200` and page marker `РЖАКА — Вопросы и ответы`.
+3. `rjaka.pro` and `www.rjaka.pro` must serve identical history page behavior.
+
+## Предложения по включению в общую архитектуру чатов
+1. Вынести `/chat/history/` в отдельный архитектурный блок в chat matrix как `RJAKA History UI`, а не только как подпункт RJAKA chat.
+2. Зафиксировать для history страницы свой API-контракт (`chat-qa.php` + `chat-qa-feedback.php`) в единой спецификации зависимостей.
+3. Добавить обязательный smoke-check history маршрута в pre-merge gate (включая `www` и проверку маркера страницы).
+4. Разделить в документации «compat layer» и «primary route», чтобы `/chat-qa.html` не воспринимался как публичный canonical URL.
+5. Добавить мониторинг SLA для history route (HTTP code, TTFB, error rate) как отдельный чатовый KPI.
 
 ## Хранение истории (опция)
 - Таблицы для анонимного чата (миграция: [db/migrations/20260121_anon_chat.sql](db/migrations/20260121_anon_chat.sql)):
@@ -51,7 +79,7 @@
 curl -sS -w "\nHTTP_STATUS:%{http_code}\nTIME_TOTAL:%{time_total}\n" \
   -H "Content-Type: application/json" \
   -X POST https://agent.gtstor.com/game_chat.php \
-  -d '{"chat_id":"diag","message":"Привет, дай правила в 5 пунктах","metadata":{"page":"/game-chat.html"}}'
+  -d '{"chat_id":"diag","message":"Привет, дай правила в 5 пунктах","metadata":{"page":"/chat/"}}'
 ```
 - Убедиться, что поле reply непустое и HTTP_STATUS=200.
 

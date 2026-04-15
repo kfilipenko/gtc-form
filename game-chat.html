@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>РЖАКА - Ваш помощьник в игре</title>
+  <title>РЖАКА - Ваш помощник в игре</title>
   <link rel="icon" href="/assets/game-chat/favicons/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/game-chat/favicons/favicon-16x16.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/game-chat/favicons/favicon-32x32.png" />
@@ -176,6 +176,16 @@
       letter-spacing: 0.3px;
       box-shadow: none;
     }
+    .bubble a {
+      color: #e9f2ff;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-thickness: 2px;
+      word-break: break-word;
+    }
+    .bubble a:hover {
+      color: #ffffff;
+    }
     .composer {
       border-top: 1px solid rgba(255, 255, 255, 0.06);
       padding: 16px 18px;
@@ -295,10 +305,10 @@
         <div class="logo-box" aria-hidden="true">
           <img src="/assets/game-chat/favicons/rjaka-logo.png" alt="RJAKA" onerror="this.onerror=null;this.src='/assets/game-chat/favicons/logo.png';" />
         </div>
-        <p class="title">РЖАКА - Ваш помощьник в игре</p>
+        <p class="title">РЖАКА - Ваш помощник в игре</p>
       </div>
       <div class="header-actions">
-        <a class="history-link" href="/chat-qa.html" target="_blank" rel="noopener noreferrer" title="История чатов" aria-label="Открыть историю чатов">
+        <a class="history-link" href="/chat/history/" target="_blank" rel="noopener noreferrer" title="История чатов" aria-label="Открыть историю чатов">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
             <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2"/>
             <path d="M16 16L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -398,9 +408,65 @@
       function addBubble(role, text) {
         const div = document.createElement('div');
         div.className = 'bubble ' + role;
-        div.textContent = text;
+        div.innerHTML = formatMessage(text);
         messagesEl.appendChild(div);
         messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+
+      function formatMessage(text) {
+        const source = String(text || '');
+        let html = '';
+        let cursor = 0;
+        const markdownLinkRegex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+        let match;
+
+        while ((match = markdownLinkRegex.exec(source)) !== null) {
+          const start = match.index;
+          const end = markdownLinkRegex.lastIndex;
+          const label = match[1] || match[2];
+          const href = match[2];
+
+          html += linkifyPlainText(source.slice(cursor, start));
+          html += `<a href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`;
+          cursor = end;
+        }
+
+        html += linkifyPlainText(source.slice(cursor));
+        return html;
+      }
+
+      function linkifyPlainText(text) {
+        const source = String(text || '');
+        let html = '';
+        let cursor = 0;
+        const urlRegex = /https?:\/\/[^\s<>"]+/g;
+        let match;
+
+        while ((match = urlRegex.exec(source)) !== null) {
+          const start = match.index;
+          const end = urlRegex.lastIndex;
+          const href = match[0];
+
+          html += escapeHtml(source.slice(cursor, start));
+          html += `<a href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(href)}</a>`;
+          cursor = end;
+        }
+
+        html += escapeHtml(source.slice(cursor));
+        return html;
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function escapeAttr(value) {
+        return escapeHtml(value);
       }
 
       function setSending(isSending) {

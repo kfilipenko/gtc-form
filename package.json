@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "test:chat": "playwright test"
+    "test:chat": "playwright test",
+    "check:rules-links": "python3 scripts/check_rules_phrase_links.py"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1"

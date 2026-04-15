@@ -2,6 +2,20 @@
 
 > **Refactor note (Dec 2025):** `/chat` now imports `../shared/chat-service.js` and routes every chat list, history, and send operation through that shared layer. PostgreSQL via `/chat_api.php` is once again the canonical source of transcripts; the browser keeps a capped local cache purely for offline resilience.
 
+## Canonical Chat Matrix (Source Of Truth)
+- Admin chat (GTC operations): `https://app.gtstor.com/chat/`
+- User chat (end-user workspace): `https://app.gtstor.com/user/`
+- RJAKA game chat: `https://rjaka.pro/chat/`
+
+`/chat/internal/` is not a primary public chat route in the current model and must be treated as internal/legacy unless explicitly documented otherwise.
+
+## Address Configuration (Projects, Domains, Nginx)
+- GTSTOR admin chat address is configured under app vhost: `/etc/nginx/sites-enabled/app.gtstor.com`.
+- Runtime project/root for this route: `gtc-core-web`, code root `/var/www/gtc-form`, frontend path `chat/`.
+- Canonical entrypoint `/chat/` must render the admin UI from `chat/internal/index.html` (via nginx route mapping), to avoid accidental fallback to legacy/RJAKA `chat/index.html` content.
+- User chat on `https://app.gtstor.com/user/` is served by the same app vhost and project, but a different frontend path `user/`.
+- RJAKA chat is a separate domain route (`rjaka.pro`) and must not be documented as part of app.gtstor.com chat ownership.
+
 ## Backend state — December 2025
 - `/chat` relies on `chat-service.js` calling `/chat_api.php` with the new read-only modes: `mode=list_chats` for the sidebar and `mode=messages` for the active transcript. Both modes return `{"success":true,"data":[]}` today while SQL queries are being fleshed out, but they already prevent validation errors for bootstrap requests.
 - The legacy 400 error (`"message, session_id, and client are required."`) on read-only calls is gone because those requests never hit `mode=log` anymore. Only write operations (manual logging or proxying to n8n) must include the stricter fields.
@@ -13,7 +27,7 @@
 - When the admin filters by a `gtc_user_id`, they should see the identical threads, group names/colors, and assignments that the end-user sees in `/user`. There are no global/shared groups in the current model; each user owns their own set and applies them to their own chats.
 
 ## 1. Entry Points
-- **Front-end URL**: `https://app.gtstor.com/chat/` (served from `chat/index.html`). Delivered as a static HTML/JS page with all logic embedded.
+- **Front-end URL**: `https://app.gtstor.com/chat/` (entrypoint mapped to `chat/internal/index.html`). Delivered as a static HTML/JS page with all logic embedded.
 - **Authentication helpers**: The UI talks to `/auth/login`, `/auth/status`, `/auth/profile`, `/auth/request_email_verification`, `/auth/request_password_reset`, `/auth/otp/*`, and `/auth/google`. These endpoints set cookies and return user metadata (`gtc_user_id`, email, etc.).
 - **Shared chat service**: `shared/chat-service.js` is imported directly by `chat/index.html` and exposes `chatService.listChats`, `.getChatHistory`, `.createChat`, and `.sendMessage`. This keeps `/chat/` and `/user/` on the same integration contract.
 - **Canonical chat API**: `/chat_api.php` stays the PHP façade for PostgreSQL. chatService now owns every `mode=list_chats`, `mode=messages`, `mode=create_chat`, and `mode=log` call, so the UI never `fetch`es these endpoints manually.

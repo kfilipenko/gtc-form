@@ -4,6 +4,7 @@ import { buildChatPayload, captureRequestHeaders, createSqlLogger } from './tran
 const CHAT_API_ENDPOINT = '/chat_api.php';
 const CHAT_JOURNAL_ENDPOINT = '/chat_transactions.log';
 const N8N_WEBHOOK_URL = 'https://agent.gtstor.com/webhook/chat';
+const N8N_WEBHOOK_FALLBACK_URL = 'https://agent.gtstor.com/webhook/web-chat';
 const JSON_HEADERS = { 'Content-Type': 'application/json', Accept: 'application/json' };
 const MAX_GROUPS_PER_CHAT = 12;
 const LOG_HISTORY_TTL = 30 * 1000;
@@ -445,20 +446,104 @@ async function callChatApi(body) {
 }
 
 async function callWebhook(body) {
-  const response = await fetch(N8N_WEBHOOK_URL, {
-    method: 'POST',
-    headers: JSON_HEADERS,
-    body: JSON.stringify(body)
-  });
-  const payload = await response.json().catch(() => null);
-  if (!response.ok) {
-    throw new Error('chatService.sendMessage webhook failed with HTTP ' + response.status);
+  const candidates = [N8N_WEBHOOK_URL, N8N_WEBHOOK_FALLBACK_URL];
+  const failures = [];
+
+  for (const webhookUrl of candidates) {
+    let response;
+    let rawText = '';
+    try {
+      response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: JSON_HEADERS,
+        body: JSON.stringify(body)
+      });
+      rawText = await response.text();
+    } catch (error) {
+      failures.push(`${webhookUrl}: network_error`);
+      continue;
+    }
+
+    if (!response.ok) {
+      const preview = (rawText || '').trim().slice(0, 160);
+      failures.push(`${webhookUrl}: http_${response.status}${preview ? ` ${preview}` : ''}`);
+      continue;
+    }
+
+    if (!rawText || !rawText.trim()) {
+      failures.push(`${webhookUrl}: empty_response`);
+      continue;
+    }
+
+    let payload;
+    try {
+      payload = JSON.parse(rawText);
+    } catch {
+      failures.push(`${webhookUrl}: invalid_json ${rawText.trim().slice(0, 160)}`);
+      continue;
+    }
+
+    if (!payload || typeof payload !== 'object') {
+      failures.push(`${webhookUrl}: non_object_payload`);
+      continue;
+    }
+
+    const normalized = normalizeAssistantWebhook(payload, body.source, body.client?.gtc_user_id || null);
+    normalized.httpStatus = response.status;
+    normalized.webhookUrl = webhookUrl;
+
+    if (!normalized.assistant || !normalized.assistant.content) {
+      failures.push(`${webhookUrl}: missing_assistant_reply`);
+      continue;
+    }
+
+    return normalized;
   }
-  if (!payload || typeof payload !== 'object') {
-    throw new Error('chatService.sendMessage webhook returned invalid JSON');
+
+  try {
+    return await callWebhookViaProxy(body, failures);
+  } catch (proxyError) {
+    const proxyMessage = proxyError?.message || 'proxy_fallback_failed';
+    throw new Error('chatService.sendMessage webhook failed: ' + failures.join(' | ') + ' | proxy: ' + proxyMessage);
   }
-  const normalized = normalizeAssistantWebhook(payload, body.source, body.client?.gtc_user_id || null);
-  normalized.httpStatus = response.status;
+}
+
+async function callWebhookViaProxy(body, failures = []) {
+  const proxyPayload = {
+    mode: 'proxy',
+    message: body?.message || '',
+    session_id: body?.session_id || '',
+    channel: body?.channel || 'web',
+    chat_id: body?.chat_id || null,
+    stage: body?.stage || null,
+    source: body?.source || 'web_chat_shared',
+    metadata: body?.metadata || {},
+    headers: body?.headers || {},
+    client: body?.client || {}
+  };
+
+  const proxyResponse = await callChatApi(proxyPayload);
+  if (!proxyResponse || proxyResponse.success !== true) {
+    throw new Error('proxy returned non-success payload');
+  }
+
+  const fallbackRaw = {
+    reply: proxyResponse.reply || '',
+    trace_id: proxyResponse.trace_id || null,
+    stage: proxyResponse.stage || null,
+    chat_id: proxyResponse.chat_id || body?.chat_id || null,
+    proxied: true,
+    failures
+  };
+
+  const normalized = normalizeAssistantWebhook(fallbackRaw, body?.source, body?.client?.gtc_user_id || null);
+  normalized.httpStatus = 200;
+  normalized.webhookUrl = CHAT_API_ENDPOINT + '::proxy';
+
+  if (!normalized.assistant || !normalized.assistant.content) {
+    throw new Error('proxy returned empty assistant reply');
+  }
+
   return normalized;
 }
 

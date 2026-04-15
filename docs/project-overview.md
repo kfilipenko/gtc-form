@@ -1,13 +1,46 @@
 # Обзор проекта GTC
 
+## Каноническая матрица чатов (источник истины)
+- Административный чат GTC: `https://app.gtstor.com/chat/`
+- Пользовательский чат GTC: `https://app.gtstor.com/user/`
+- Игровой чат RJAKA: `https://rjaka.pro/chat/`
+
+RJAKA history route:
+- `https://rjaka.pro/chat/history/`
+
+Legacy compatibility routes (не primary):
+- `/game-chat.html` -> `/chat/`
+- `/chat-qa.html` -> `/chat/history/`
+
+## Как настраивается адрес каждого чата
+1. `https://app.gtstor.com/chat/` (админ-чат GTC)
+- Проект: `gtc-core-web`
+- Nginx vhost: `/etc/nginx/sites-enabled/app.gtstor.com`
+- Root кода: `/var/www/gtc-form`
+- Frontend path: `/var/www/gtc-form/chat/`
+
+2. `https://app.gtstor.com/user/` (пользовательский чат GTC)
+- Проект: `gtc-core-web`
+- Nginx vhost: `/etc/nginx/sites-enabled/app.gtstor.com`
+- Root кода: `/var/www/gtc-form`
+- Frontend path: `/var/www/gtc-form/user/`
+
+3. `https://rjaka.pro/chat/` (игровой чат RJAKA)
+- Проект: `rjaka-web`
+- Nginx vhost: `/etc/nginx/sites-enabled/www.rjaka.pro`
+- Root кода: `/var/www/gtc-form`
+- Compat include: `/var/www/gtc-form/projects/shared/nginx/rjaka-compat.conf`
+- Compat mapping: `/chat/` -> `/game-chat.html`, `/chat/history/` -> `/chat-qa.html`
+
 ## Назначение
 - Единую витрину и точку входа для сервисов GTC (витрина `/user/` на app.gtstor.com).
 - Маркетинговый лендинг и шлюз доступа (репозиторий gtc-site, Next.js).
-- Поддержку, чат и оплату: чат на app.gtstor.com/chat, биллинг на pay.gtstor.com.
+- Поддержку, чат и оплату: админ-чат на app.gtstor.com/chat, пользовательский чат на app.gtstor.com/user, биллинг на pay.gtstor.com.
 
 ## Архитектура взаимодействия
 1) Пользователь открывает витрину `/user/` на app.gtstor.com (GTC1). Витрина показывает ссылки на сервисы:
-   - Чат консультанта (ведёт в gtc-site `/auth` или `/chat` с user_id).
+   - Пользовательский чат (`/user/`, после авторизации и проверки доступа).
+   - Административный/операторский чат (`/chat/`) для поддержки и управления.
    - Новости (app.gtstor.com/news/).
    - Кабинет/профиль (app.gtstor.com/user/ — сама витрина или связанный раздел).
    - Портал оплаты (https://pay.gtstor.com/payment.php).
@@ -17,14 +50,18 @@
    - Строит AccessTicket по локальным JSON: data/users.json и data/subscriptions.json (опционально внешний API подписок).
    - Формирует decision: при доступе — отправляет в чат (`CHAT_URL`, по умолчанию https://app.gtstor.com/chat/); при отсутствии подписки — даёт ссылку на оплату (`PAYMENT_URL`, по умолчанию https://pay.gtstor.com/payment.php?user_id=...).
    - При ошибке показывает Service Hub с статусом и ссылкой на поддержку (help@gtstor.com).
-3) Чат (app.gtstor.com/chat/) — фронтенд поддержки/консультанта. Получает пользователя уже после SSR-решения или прямого входа.
-4) Оплата (pay.gtstor.com/payment.php) — принимает user_id, позволяет продлить/оформить доступ.
+3) Админ-чат (app.gtstor.com/chat/) — фронтенд операторского/административного контура.
+4) Пользовательский чат (app.gtstor.com/user/) — фронтенд пользовательского контура.
+5) Игровой чат RJAKA (rjaka.pro/chat/) — отдельный домен и отдельный проектный контур.
+6) Оплата (pay.gtstor.com/payment.php) — принимает user_id, позволяет продлить/оформить доступ.
 
 ## Основные URL и роли
 - Витрина: app.gtstor.com/user/ — ссылки на сервисы, витринный экран.
+- Пользовательский чат: app.gtstor.com/user/ — основной пользовательский контур общения.
+- Административный чат: app.gtstor.com/chat/ — административный/операторский контур.
 - Лендинг: gtc-site `/` (Hero + CTA, ссылки на Telegram, новости, чат, GTChain).
 - Доступ: gtc-site `/auth`, `/chat` — SSR решает доступ и перенаправляет.
-- Чат: app.gtstor.com/chat/ — основное приложение поддержки.
+- Игровой чат RJAKA: rjaka.pro/chat/ — отдельный игровой контур.
 - Новости: app.gtstor.com/news/.
 - Оплата: pay.gtstor.com/payment.php.
 - Поддержка: help@gtstor.com (mailto).
@@ -42,6 +79,9 @@
 
 ## Ссылки на документацию
 - Полная техдок gtc-site: [docs/TECHNICAL_DOCUMENTATION.md](docs/TECHNICAL_DOCUMENTATION.md).
+- Реестр приложений и доменов сервера: [docs/ops/server-applications-registry.md](docs/ops/server-applications-registry.md).
+- Стандарт хранения и бэкапов: [docs/ops/storage-architecture-standard.md](docs/ops/storage-architecture-standard.md).
+- Паспорта приложений и runbooks: [docs/apps/README.md](docs/apps/README.md).
 
 ## Заметки по улучшениям (фиксировать в бэклоге)
 - Подписывать идентификатор пользователя (JWT/подписанные cookies), не доверять сырому query.

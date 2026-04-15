@@ -9,16 +9,29 @@
 
 ---
 
+## Canonical Chat Matrix (Authoritative)
+
+- Admin chat (GTC operations): `https://app.gtstor.com/chat/`
+- User chat (end-user workspace): `https://app.gtstor.com/user/`
+- RJAKA game chat: `https://rjaka.pro/chat/`
+
+Legacy compatibility routes:
+- RJAKA: `/game-chat.html` -> `/chat/`
+- RJAKA history: `/chat-qa.html` -> `/chat/history/`
+
+---
+
 ## 1) RJAKA dependency chain
 
 ## 1.1 Pages
-- `game-chat.html`
-- `chat-qa.html`
+- Primary: `/chat/`
+- Primary history: `/chat/history/`
+- Legacy compatibility: `/game-chat.html`, `/chat-qa.html`
 
 ## 1.2 Frontend → API
-- `game-chat.html` → `POST /game_chat.php`
-- `chat-qa.html` → `GET /admin/chat-qa.php`
-- `chat-qa.html` → `POST /admin/chat-qa-feedback.php`
+- `/chat/` (compat target: `game-chat.html`) → `POST /game_chat.php`
+- `/chat/history/` (compat target: `chat-qa.html`) → `GET /admin/chat-qa.php`
+- `/chat/history/` (compat target: `chat-qa.html`) → `POST /admin/chat-qa-feedback.php`
 
 ## 1.3 API → DB
 - `game_chat.php`:
@@ -41,17 +54,17 @@
 ## 1.6 Brand assets (RJAKA)
 - `assets/game-chat/favicons/*`
 - используются в:
-  - `game-chat.html`
-  - `chat-qa.html`
+  - `/chat/` (through `game-chat.html`)
+  - `/chat/history/` (through `chat-qa.html`)
 
 ---
 
 ## 2) GTSTOR dependency chain
 
 ## 2.1 Pages / UI
-- `chat/index.html` (user chat)
-- `chat/internal/index.html` (admin chat)
-- `user/index.html`
+- `chat/index.html` (admin chat on `https://app.gtstor.com/chat/`)
+- `user/index.html` (end-user chat on `https://app.gtstor.com/user/`)
+- `chat/internal/index.html` (internal/legacy, non-primary)
 - `news/index.html`
 - `index.html`
 
@@ -75,7 +88,7 @@
 
 ---
 
-## 3) Nginx / routing dependencies (app.gtstor.com)
+## 3) Nginx / routing dependencies
 
 Source: `/etc/nginx/sites-enabled/app.gtstor.com`
 
@@ -90,6 +103,14 @@ Source: `/etc/nginx/sites-enabled/app.gtstor.com`
 - include `docs/nginx/chat-block-public.conf`
 
 Implication: во время split потребуется route decoupling, иначе оба проекта остаются связаны через единый `root`.
+
+Source (RJAKA): `/etc/nginx/sites-enabled/www.rjaka.pro`
+
+- `root /var/www/gtc-form`
+- include `/var/www/gtc-form/projects/shared/nginx/rjaka-compat.conf`
+- `/chat/` -> serves `/game-chat.html` (compat layer)
+- `/chat/history/` -> serves `/chat-qa.html` (compat layer)
+- `/game-chat.html` and `/chat-qa.html` remain compatibility aliases and are not primary URLs in docs
 
 ---
 
@@ -106,8 +127,8 @@ Implication: во время split потребуется route decoupling, ин
 
 ## 5) Cross-project coupling points (critical)
 
-1. **Shared domain + shared nginx root**
-- Both projects served from `/var/www/gtc-form`.
+1. **Shared code root despite separate domains**
+- app.gtstor.com and rjaka.pro are different domains/projects, but both currently serve from `/var/www/gtc-form`.
 
 2. **Common PHP runtime routing (`~ \.php$`)**
 - RJAKA and GTSTOR endpoints live in same PHP execution surface.

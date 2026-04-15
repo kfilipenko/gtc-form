@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>РЖАКА — Главная 3D (MVP)</title>
+   <link rel="icon" href="/assets/game-chat/favicons/favicon.ico" sizes="any" />
+   <link rel="icon" type="image/png" sizes="16x16" href="/assets/game-chat/favicons/favicon-16x16.png" />
+   <link rel="icon" type="image/png" sizes="32x32" href="/assets/game-chat/favicons/favicon-32x32.png" />
+   <link rel="apple-touch-icon" sizes="180x180" href="/assets/game-chat/favicons/apple-touch-icon.png" />
+  <meta name="description" content="РЖАКА — игра живых ролей и настоящего смеха. Одна главная страница с переходом в чат и историю чатов." />
+  <link rel="stylesheet" href="/assets/styles/rjaka-shared.css" />
+</head>
+<body>
+  <canvas id="scene" aria-hidden="true"></canvas>
+  <div class="glow" aria-hidden="true"></div>
+
+  <header id="topHeader">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo-box">
+          <img src="/assets/game-chat/favicons/rjaka-logo.png" alt="RJAKA" onerror="this.onerror=null;this.src='/assets/game-chat/favicons/logo.png';" />
+        </div>
+        <span>РЖАКА</span>
+      </div>
+      <nav class="nav" aria-label="Главная навигация">
+        <a class="is-active" href="/" aria-current="page">Главная</a>
+        <a href="/chat/" target="_blank" rel="noopener noreferrer">Открыть чат</a>
+        <a href="/chat/history/" target="_blank" rel="noopener noreferrer">История чатов</a>
+        <a href="/buy/">Купить</a>
+        <a href="/rules/">Правила</a>
+        <a href="/rgame/">Об игре</a>
+        <a href="/meaning/">Смысл</a>
+        <a href="/game-card/">Роли</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero" id="home">
+      <div class="panel">
+        <h1>РЖАКА — игра живых ролей и настоящего смеха</h1>
+        <p class="lead">Выбирайте роль, запускайте сценки, подключайте чат-помощника и сохраняйте лучшие диалоги. Эта страница — новый вход в экосистему игры.</p>
+        <div class="actions">
+          <a class="btn secondary" href="/buy">Купить игру</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="media">
+      <div class="panel">
+        <h2>Медиа</h2>
+        <p>Видео и фото показывают атмосферу игры и реальные эмоции игроков.</p>
+        <div class="media-grid">
+          <div class="video-wrap" aria-label="Видео-презентация">
+            <video controls preload="metadata" playsinline src="/assets/rjaka/media/rjaka-avatar.mp4" poster="https://static.wixstatic.com/media/4f5515_c56df0a7a77d457ea61d8e9c87359dc4~mv2.png/v1/fill/w_1200,h_630,al_c,q_90,enc_avif,quality_auto/IMG_2555.png">
+              <source src="/assets/rjaka/media/rjaka-avatar.mp4" type="video/mp4" />
+            </video>
+          </div>
+          <div class="photo-grid" aria-label="Галерея фото">
+            <img src="/assets/rjaka/media/IMG_2627.PNG" alt="Игровая атмосфера РЖАКА — фото 0" />
+            <img src="/assets/rjaka/media/IMG_2628.PNG" alt="Игровая атмосфера РЖАКА — фото 1" />
+            <img src="/assets/rjaka/media/IMG_2629.PNG" alt="Игровая атмосфера РЖАКА — фото 2" />
+            <img src="/assets/rjaka/media/IMG_2630.PNG" alt="Игровая атмосфера РЖАКА — фото 3" />
+            <img src="/assets/rjaka/media/IMG_2631.PNG" alt="Игровая атмосфера РЖАКА — фото 4" />
+            <img src="/assets/rjaka/media/IMG_2632.PNG" alt="Игровая атмосфера РЖАКА — фото 5" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how">
+      <div class="panel">
+        <h2>Как это работает</h2>
+        <p>Одна партия — это динамичные раунды, импровизация и юмор без сложных правил.</p>
+        <div class="grid-3">
+          <article class="card">
+            <h3>1. Выберите роль</h3>
+            <p>Каждый участник получает роль и сразу входит в игровой образ.</p>
+          </article>
+          <article class="card">
+            <h3>2. Разыграйте действие</h3>
+            <p>Карты действий запускают сценки, в которых рождается живой смех.</p>
+          </article>
+          <article class="card">
+            <h3>3. Сохраните диалог</h3>
+            <p>Лучшие игровые моменты можно вернуть через историю чатов.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="pages">
+      <div class="panel">
+        <h2>Разделы сайта</h2>
+        <p>Ниже собраны все новые страницы, чтобы посмотреть структуру в реальном виде.</p>
+        <div class="grid-3" style="margin-top:14px;">
+          <article class="card">
+            <h3><a class="card-title-link" href="/buy/" target="_blank" rel="noopener noreferrer">Купить игру</a></h3>
+            <p>Что входит в коробку, кому подходит формат и быстрый старт.</p>
+          </article>
+          <article class="card">
+            <h3><a class="card-title-link" href="/rules/" target="_blank" rel="noopener noreferrer">Правила игры</a></h3>
+            <p>Как проходит раунд, главный закон РЖАКА и варианты завершения партии.</p>
+          </article>
+          <article class="card">
+            <h3><a class="card-title-link" href="/rgame/" target="_blank" rel="noopener noreferrer">Об игре</a></h3>
+            <p>Герои, формат, где и как играть в компаниях, семьях и командах.</p>
+          </article>
+          <article class="card">
+            <h3><a class="card-title-link" href="/meaning/" target="_blank" rel="noopener noreferrer">Смысл игры</a></h3>
+            <p>Зачем игра нужна и как смех работает как инструмент общения.</p>
+          </article>
+          <article class="card">
+            <h3><a class="card-title-link" href="/game-card/" target="_blank" rel="noopener noreferrer">Карты роли</a></h3>
+            <p>Список персонажей: Полицейский, Папа, Блогер, Робот и другие роли.</p>
+          </article>
+          <article class="card">
+            <h3><a class="card-title-link" href="/assets/rjaka/media/README.md" target="_blank" rel="noopener noreferrer">Медиа-папка</a></h3>
+            <p>Путь загрузки фото и видео, которые будут отображаться на страницах.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="inside">
+      <div class="panel">
+        <h2>Что внутри игры</h2>
+        <p>Набор механик, который помогает легко начать и долго не выгорать по динамике.</p>
+        <div class="grid-3 grid-4">
+          <article class="card"><h3>Карты ролей</h3><p>Быстрый вход в характер и подачу.</p></article>
+          <article class="card"><h3>Карты действий</h3><p>Сценки, задачи и неожиданные повороты.</p></article>
+          <article class="card"><h3>Карты улыбок</h3><p>Оценка креативности и юмора участников.</p></article>
+          <article class="card"><h3>Режимы игры</h3><p>Для компаний разного размера и темпа.</p></article>
+        </div>
+        <div class="chips">
+          <a class="chip" href="/rules">Правила игры</a>
+          <a class="chip" href="/rgame">Об игре</a>
+          <a class="chip" href="/meaning">Смысл игры</a>
+          <a class="chip" href="/game-card">Карты роли</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="panel">
+        <h2>FAQ</h2>
+        <div class="faq">
+          <div class="item">
+            <h3>Что такое РЖАКА?</h3>
+            <p>РЖАКА — это карточная ролевая игра, где игроки получают роли и задания, разыгрывают короткие сценки и запускают смех через импровизацию и реакцию участников.</p>
+          </div>
+          <div class="item">
+            <h3><a href="/rules/" target="_blank" rel="noopener noreferrer">Какие правила игры РЖАКА?</a></h3>
+            <p><a href="/rules/" target="_blank" rel="noopener noreferrer">Правила игры</a> описаны на странице «<a href="/rules/" target="_blank" rel="noopener noreferrer">Правила игры</a>». Смотрите меню.</p>
+          </div>
+          <div class="item">
+            <h3>С какого возраста можно играть?</h3>
+            <p>Игра подходит для разных возрастов. Для детей лучше выбирать простые задания и сокращать время сценки. Взрослым можно добавлять больше диалогов и гротеска.</p>
+          </div>
+          <div class="item">
+            <h3>Сколько игроков нужно для партии?</h3>
+            <p>Комфортно играть от 2 до 10+ человек. Чем больше компания, тем живее реакции и больше вариантов сценок.</p>
+          </div>
+          <div class="item">
+            <h3>Нужен ли ведущий?</h3>
+            <p>Нет. Игра запускается сама. Но в большой компании удобно выбрать «ведущего круга», чтобы следить за темпом и очередностью.</p>
+          </div>
+          <div class="item">
+            <h3>Как помогает чат на сайте?</h3>
+            <p>В чате вы можете спросить что угодно по ходу игры: как разыграть роль, какие реплики добавить, как адаптировать задания под возраст, как разогреть компанию — и получить быстрые рекомендации от Героя РЖАКА.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-final">
+      <div class="panel">
+        <h2>Готовы к следующему раунду?</h2>
+        <p>Переходите в раздел покупки и запускайте новую партию.</p>
+        <div class="actions" style="justify-content:center;">
+          <a class="btn" href="/buy/">Купить игру</a>
+        </div>
+      </div>
+    </section>
+
+    <footer>© 2026 RJAKA — MVP новой главной страницы</footer>
+  </main>
+
+  <script>
+    (() => {
+      const header = document.getElementById('topHeader');
+      if (!header) return;
+
+      let lastY = window.scrollY;
+      let hidden = false;
+      const threshold = 10;
+      const revealAt = 72;
+
+      function setHidden(next) {
+        if (hidden === next) return;
+        hidden = next;
+        header.classList.toggle('header-hidden', hidden);
+      }
+
+      window.addEventListener('scroll', () => {
+        const currentY = window.scrollY;
+        const delta = currentY - lastY;
+
+        if (Math.abs(delta) < threshold) return;
+
+        if (delta > 0 && currentY > revealAt) {
+          setHidden(true);
+        } else {
+          setHidden(false);
+        }
+
+        lastY = currentY;
+      }, { passive: true });
+    })();
+
+    (() => {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const canvas = document.getElementById('scene');
+      if (!canvas || reduceMotion) return;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      let width = 0;
+      let height = 0;
+      let pointerX = 0;
+      let pointerY = 0;
+      let raf = 0;
+
+      const dots = Array.from({ length: 52 }, () => ({
+        x: Math.random(),
+        y: Math.random(),
+        z: 0.2 + Math.random() * 0.8,
+        vx: (-0.2 + Math.random() * 0.4) * 0.00035,
+        vy: (-0.2 + Math.random() * 0.4) * 0.00035,
+      }));
+
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        for (let i = 0; i < dots.length; i++) {
+          const point = dots[i];
+          point.x += point.vx;
+          point.y += point.vy;
+
+          if (point.x < 0 || point.x > 1) point.vx *= -1;
+          if (point.y < 0 || point.y > 1) point.vy *= -1;
+
+          const px = point.x * width + (pointerX - width * 0.5) * 0.008 * point.z;
+          const py = point.y * height + (pointerY - height * 0.5) * 0.008 * point.z;
+
+          const radius = 0.8 + point.z * 2.3;
+          const alpha = 0.2 + point.z * 0.5;
+
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(227, 74, 138, ${alpha})`;
+          ctx.arc(px, py, radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          for (let j = i + 1; j < dots.length; j++) {
+            const other = dots[j];
+            const ox = other.x * width;
+            const oy = other.y * height;
+            const dx = px - ox;
+            const dy = py - oy;
+            const dist = Math.hypot(dx, dy);
+            if (dist < 140) {
+              const lineAlpha = (1 - dist / 140) * 0.2;
+              ctx.strokeStyle = `rgba(47, 164, 169, ${lineAlpha})`;
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(px, py);
+              ctx.lineTo(ox, oy);
+              ctx.stroke();
+            }
+          }
+        }
+
+        raf = requestAnimationFrame(draw);
+      }
+
+      window.addEventListener('mousemove', (event) => {
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+      }, { passive: true });
+
+      window.addEventListener('resize', resize, { passive: true });
+      resize();
+      draw();
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          cancelAnimationFrame(raf);
+          return;
+        }
+        draw();
+      });
+    })();
+  </script>
+</body>
+</html>

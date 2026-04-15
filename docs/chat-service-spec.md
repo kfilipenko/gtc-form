@@ -1,5 +1,23 @@
 # Shared Chat Service Specification
 
+## Canonical Chat Matrix (Authoritative)
+- Admin chat (GTC operations): `https://app.gtstor.com/chat/`
+- User chat (end-user workspace): `https://app.gtstor.com/user/`
+- RJAKA game chat: `https://rjaka.pro/chat/`
+
+RJAKA history route:
+- `https://rjaka.pro/chat/history/`
+
+Legacy compatibility routes:
+- `/game-chat.html` -> `/chat/`
+- `/chat-qa.html` -> `/chat/history/`
+
+## Address Configuration (Domains, Projects, Nginx)
+- `https://app.gtstor.com/chat/` and `https://app.gtstor.com/user/` are in `gtc-core-web` and configured in `/etc/nginx/sites-enabled/app.gtstor.com`.
+- `https://rjaka.pro/chat/` is in `rjaka-web` and configured in `/etc/nginx/sites-enabled/www.rjaka.pro`.
+- RJAKA route compatibility is configured via `/var/www/gtc-form/projects/shared/nginx/rjaka-compat.conf`.
+- This service spec applies to GTSTOR chat service (`/chat` and `/user`). RJAKA route ownership is documented to prevent cross-project route confusion.
+
 ## Purpose
 Provide a single frontend service (`shared/chat-service.js`) that both `/chat` (admin) and `/user` (end-user) import to interact with the canonical Chat backend. The service hides transport differences, enforces identical payloads, and returns normalized objects so both UIs display the same conversations regardless of feature depth.
 

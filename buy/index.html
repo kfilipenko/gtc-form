@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Купить Игру — РЖАКА</title>
+    <link rel="icon" href="/assets/game-chat/favicons/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/game-chat/favicons/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/game-chat/favicons/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/game-chat/favicons/apple-touch-icon.png" />
+    <meta name="description" content="Купить игру РЖАКА и выбрать формат." />
+  <link rel="stylesheet" href="/assets/styles/rjaka-shared.css" />
+  <style>
+    .page { max-width: var(--max); margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+    .stack { display: grid; gap: 14px; }
+    .list { margin: 0; padding-left: 18px; }
+    .article-code {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(242, 185, 75, 0.5);
+      background: rgba(227, 74, 138, 0.16);
+      color: var(--text);
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .note { color: var(--muted); font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header id="topHeader">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo-box">
+          <img src="/assets/game-chat/favicons/rjaka-logo.png" alt="RJAKA" onerror="this.onerror=null;this.src='/assets/game-chat/favicons/logo.png';" />
+        </div>
+        <span>РЖАКА</span>
+      </div>
+      <nav class="nav" aria-label="Навигация сайта">
+        <a href="/">Главная</a>
+        <a href="/chat/" target="_blank" rel="noopener noreferrer">Открыть чат</a>
+        <a href="/chat/history/" target="_blank" rel="noopener noreferrer">История чатов</a>
+        <a class="is-active" href="/buy/" aria-current="page">Купить</a>
+        <a href="/rules/">Правила</a>
+        <a href="/rgame/">Об игре</a>
+        <a href="/meaning/">Смысл</a>
+        <a href="/game-card/">Роли</a>
+      </nav>
+    </div>
+  </header>
+  <div class="glow" aria-hidden="true"></div>
+  <main class="page stack">
+    <section class="panel">
+      <h1>Купить Игру РЖАКА</h1>
+      <h2>Готов к вечеру, который запомнят?</h2>
+      <p class="lead">Одна коробка — и компания уже смеётся, играет и вовлекается. Без подготовки. Без сценариев. Просто открой и начни.</p>
+      <ul class="list">
+        <li>Старт за 30 секунд — правила простые, вход лёгкий.</li>
+        <li>Смех и импровизация — каждый ход превращается в мини-шоу.</li>
+        <li>Идеально для друзей — дома, на даче, на вечеринке.</li>
+      </ul>
+      <div class="actions">
+        <a class="btn" href="https://www.wildberries.ru/catalog/0/search.aspx?search=328439027" target="_blank" rel="noopener noreferrer">Найти на Wildberries</a>
+        <button class="btn secondary" type="button" id="copyArticleBtn">Скопировать артикул</button>
+      </div>
+      <p class="note">Для корректной аналитики WB рекомендуем переходить через поиск по артикулу.</p>
+      <p><strong>Ссылка на поиск:</strong> <a href="https://www.wildberries.ru/catalog/0/search.aspx?search=328439027" target="_blank" rel="noopener noreferrer">https://www.wildberries.ru/catalog/0/search.aspx?search=328439027</a></p>
+      <p><strong>Артикул:</strong><span class="article-code" id="articleCode">328439027</span></p>
+      <p class="note" id="copyStatus" aria-live="polite"></p>
+    </section>
+
+    <section class="panel">
+      <h2>Что внутри</h2>
+      <div class="grid-3">
+        <article class="card"><h3>Карты ролей</h3><p>Игроки получают персонажей и разыгрывают поведение в сценках.</p></article>
+        <article class="card"><h3>Карты действий</h3><p>Каждый раунд задаёт новую неожиданную ситуацию для импровизации.</p></article>
+        <article class="card"><h3>Карты улыбок</h3><p>Механика оценки юмора и креативности без жёсткой соревновательности.</p></article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Кому подходит</h2>
+      <ul class="list">
+        <li>Дружеским компаниям и домашним вечеринкам.</li>
+        <li>Семейным встречам.</li>
+        <li>Тимбилдингам и неформальным корпоративным форматам.</li>
+      </ul>
+    </section>
+
+  </main>
+  <script>
+    (() => {
+      const copyButton = document.getElementById('copyArticleBtn');
+      const copyStatus = document.getElementById('copyStatus');
+      const articleCode = '328439027';
+
+      if (!copyButton) return;
+
+      copyButton.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(articleCode);
+          if (copyStatus) copyStatus.textContent = 'Артикул скопирован: 328439027';
+        } catch {
+          if (copyStatus) copyStatus.textContent = 'Не удалось скопировать автоматически. Скопируйте артикул вручную: 328439027';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

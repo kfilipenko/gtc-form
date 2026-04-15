@@ -1,0 +1,15 @@
+[Unit]
+Description=GTC Chat Monitoring Runner
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/gtc-form
+EnvironmentFile=-/etc/default/gtc-chat-monitoring
+ExecStart=/var/www/gtc-form/scripts/chat_monitoring_run.sh
+
+[Install]
+WantedBy=multi-user.target

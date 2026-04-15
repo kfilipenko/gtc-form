@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Смысл Игры — РЖАКА</title>
+  <link rel="icon" href="/assets/game-chat/favicons/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/game-chat/favicons/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/game-chat/favicons/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/game-chat/favicons/apple-touch-icon.png" />
+  <meta name="description" content="Смысл игры РЖАКА: управляемый смех как инструмент общения и понимания людей." />
+  <link rel="stylesheet" href="/assets/styles/rjaka-shared.css" />
+  <style>
+    .page { max-width: var(--max); margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+    .stack { display: grid; gap: 14px; }
+    .stack .panel { padding: 24px 26px; }
+    .stack p { margin: 0 0 12px; color: var(--muted); }
+    .stack ul { margin: 8px 0 12px; padding-left: 22px; color: var(--muted); }
+    .stack li { margin-bottom: 8px; }
+    .hero-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid rgba(242, 185, 75, 0.35);
+      border-radius: 12px;
+      background: rgba(47, 164, 169, 0.12);
+      color: #f8f2e8;
+      font-weight: 700;
+    }
+    .accent-quote {
+      border-left: 3px solid rgba(227, 74, 138, 0.65);
+      padding: 8px 0 8px 12px;
+      color: #fbeff7;
+      font-style: italic;
+    }
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .insight {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(14, 6, 16, 0.58);
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .insight strong { color: #fbeff7; }
+    @media (max-width: 860px) {
+      .insight-grid { grid-template-columns: 1fr; }
+      .stack .panel { padding: 20px; }
+      .stack ul { padding-left: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header id="topHeader">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo-box">
+          <img src="/assets/game-chat/favicons/rjaka-logo.png" alt="RJAKA" onerror="this.onerror=null;this.src='/assets/game-chat/favicons/logo.png';" />
+        </div>
+        <span>РЖАКА</span>
+      </div>
+      <nav class="nav" aria-label="Навигация сайта">
+        <a href="/">Главная</a>
+        <a href="/chat/" target="_blank" rel="noopener noreferrer">Открыть чат</a>
+        <a href="/chat/history/" target="_blank" rel="noopener noreferrer">История чатов</a>
+        <a href="/buy/">Купить</a>
+        <a href="/rules/">Правила</a>
+        <a href="/rgame/">Об игре</a>
+        <a class="is-active" href="/meaning/" aria-current="page">Смысл</a>
+        <a href="/game-card/">Роли</a>
+      </nav>
+    </div>
+  </header>
+  <div class="glow" aria-hidden="true"></div>
+  <main class="page stack">
+    <section class="panel">
+      <h1>💡 Смысл Игры</h1>
+      <p class="lead">РЖАКА использует смех как практичный инструмент общения. Через роли и действия людям проще открываться, договариваться и понимать друг друга.</p>
+      <p class="hero-note">🔎 Идея: игра даёт безопасный формат быть ярче, смелее и ближе друг к другу.</p>
+    </section>
+
+    <section class="panel">
+      <h2>🧠 Ключевая идея</h2>
+      <p>Это не только развлечение. В игре совмещаются юмор, импровизация и наблюдение за реакциями участников. Осознание появляется естественно — через игровой опыт, а не через теорию.</p>
+      <p class="accent-quote">«Сначала мы смеёмся, а потом замечаем, как легко стали общаться.»</p>
+    </section>
+
+    <section class="panel">
+      <h2>✨ Чем отличается подход РЖАКА</h2>
+      <ul>
+        <li>Смешно из-за узнаваемости ролей и столкновения характеров.</li>
+        <li>Подходит для разных возрастов и профессий.</li>
+        <li>Не требует актёрского опыта.</li>
+      </ul>
+      <div class="insight-grid">
+        <div class="insight"><strong>🤝 Коммуникация</strong><br>Люди быстрее находят общий язык.</div>
+        <div class="insight"><strong>🎭 Импровизация</strong><br>Снимает зажим и страх «ошибиться».</div>
+        <div class="insight"><strong>😊 Эмоции</strong><br>Создаёт общий позитивный опыт.</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>🏁 Результат</h2>
+      <p>Игроки получают сразу два эффекта: яркий досуг и развитие коммуникации в лёгком формате.</p>
+      <div class="actions">
+        <a class="btn" href="/chat/" target="_blank" rel="noopener noreferrer">Попробовать чат-помощник</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

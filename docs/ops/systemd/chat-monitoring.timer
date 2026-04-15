@@ -1,0 +1,10 @@
+[Unit]
+Description=Run GTC Chat Monitoring Daily
+
+[Timer]
+OnCalendar=*-*-* 02:30:00 UTC
+Persistent=true
+Unit=chat-monitoring.service
+
+[Install]
+WantedBy=timers.target

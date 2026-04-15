@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Карты Роли — РЖАКА</title>
+  <link rel="icon" href="/assets/game-chat/favicons/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/game-chat/favicons/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/game-chat/favicons/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/game-chat/favicons/apple-touch-icon.png" />
+  <meta name="description" content="Список ролей игры РЖАКА." />
+  <link rel="stylesheet" href="/assets/styles/rjaka-shared.css" />
+  <style>
+    .page{max-width:var(--max);margin:0 auto;padding:20px;position:relative;z-index:1}
+    .roles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .role{padding:8px;border:1px solid var(--border);border-radius:12px;background:rgba(14,6,16,.58);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:transform .12s ease,border-color .12s ease,box-shadow .12s ease}
+    .role:hover{transform:translateY(-2px);border-color:rgba(242,185,75,.45);box-shadow:0 12px 24px rgba(0,0,0,.28)}
+    .role img{display:block;width:100%;height:auto;border-radius:8px}
+    .role-like{position:absolute;right:12px;bottom:12px;border:1px solid rgba(242,185,75,.6);background:rgba(14,6,16,.78);color:#fbeff7;border-radius:999px;padding:6px 10px;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;cursor:pointer}
+    .role-like:hover{background:rgba(176,22,77,.72)}
+    .role.liked{border-color:rgba(227,74,138,.65);box-shadow:0 0 0 1px rgba(227,74,138,.3),0 12px 24px rgba(0,0,0,.3)}
+    .role.liked .role-like{background:rgba(176,22,77,.88);color:#fff0f6}
+    .vote-leader{margin-top:16px;padding:12px;border:1px solid var(--border);border-radius:12px;background:rgba(14,6,16,.5);display:flex;align-items:center;gap:12px;min-height:76px}
+    .vote-leader img{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.2)}
+    .vote-leader .meta{display:flex;flex-direction:column;gap:3px}
+    .vote-leader .title{font-weight:800;color:#fbeff7}
+    .vote-leader .sub{font-size:14px;color:var(--muted)}
+    .image-modal{position:fixed;inset:0;background:rgba(0,0,0,.84);display:flex;align-items:center;justify-content:center;padding:20px;z-index:30}
+    .image-modal[hidden]{display:none}
+    .image-modal img{max-width:min(92vw,980px);max-height:88vh;border-radius:14px;border:1px solid rgba(255,255,255,.2);box-shadow:0 24px 56px rgba(0,0,0,.55)}
+    .image-modal-close{position:fixed;top:18px;right:18px;border:1px solid rgba(242,185,75,.7);background:rgba(14,6,16,.9);color:#fff;border-radius:999px;width:42px;height:42px;font-size:24px;line-height:1;cursor:pointer}
+    .roles-desc-intro{margin:0 0 14px;color:var(--muted)}
+    .roles-desc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .desc-card{border:1px solid var(--border);border-radius:12px;padding:14px;background:rgba(14,6,16,.58)}
+    .desc-card h3{margin:0 0 8px;font-size:18px;color:#fbeff7}
+    .desc-card p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+    @media(max-width:1100px){.roles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    @media(max-width:900px){.roles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:760px){.roles-desc{grid-template-columns:1fr}}
+    @media(max-width:620px){.roles{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header id="topHeader">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo-box">
+          <img src="/assets/game-chat/favicons/rjaka-logo.png" alt="RJAKA" onerror="this.onerror=null;this.src='/assets/game-chat/favicons/logo.png';" />
+        </div>
+        <span>РЖАКА</span>
+      </div>
+      <nav class="nav" aria-label="Навигация сайта">
+        <a href="/">Главная</a>
+        <a href="/chat/" target="_blank" rel="noopener noreferrer">Открыть чат</a>
+        <a href="/chat/history/" target="_blank" rel="noopener noreferrer">История чатов</a>
+        <a href="/buy/">Купить</a>
+        <a href="/rules/">Правила</a>
+        <a href="/rgame/">Об игре</a>
+        <a href="/meaning/">Смысл</a>
+        <a class="is-active" href="/game-card/" aria-current="page">Роли</a>
+      </nav>
+    </div>
+  </header>
+  <div class="glow" aria-hidden="true"></div>
+  <main class="page">
+    <section class="panel">
+      <h1>Карты Роли</h1>
+      <p class="lead">Поставь лайк любимому герою</p>
+      <div class="vote-leader" id="voteLeader" aria-live="polite">
+        <img id="voteLeaderImg" src="" alt="Лидер голосования" hidden />
+        <div class="meta">
+          <div class="title" id="voteLeaderTitle">Лучший герой по версии игроков</div>
+          <div class="sub" id="voteLeaderText">Пока нет лайков</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="roles">
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_3302.PNG" alt="Карта роли РЖАКА" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2784.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2786.JPG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2787.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2788.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2789.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2790.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2791.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2792.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2793.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2794.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2795.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2796.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2797.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2798.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2799.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2800.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2801.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2802.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2804.JPG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2805.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2806.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2807.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2808.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2809.PNG" alt="Карта роли" loading="lazy" /></div>
+        <div class="role"><img src="/assets/rjaka/media/Role/IMG_2810.PNG" alt="Карта роли" loading="lazy" /></div>
+      </div>
+      <div class="actions">
+        <a class="btn" href="/chat/" target="_blank" rel="noopener noreferrer">Получить сценку в чате</a>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Описание ролей</h2>
+      <p class="roles-desc-intro">Каждому Герою Вы можете назначить свой характер и поведение. Мы предлагаем примерные описания ролей.</p>
+      <div class="roles-desc">
+        <article class="desc-card">
+          <h3>Карта Ржака</h3>
+          <p>Карта Ржака — самый веселый и артистичный Игрок.</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта Пират</h3>
+          <p>Его главные цели — грабить, учинить разбой и находить сокровища, но иногда он может проявить «пиратскую честь». Очень любит золото!</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта Фанат</h3>
+          <p>Изображай фаната во всем и все делай фантастически!</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта Учитель</h3>
+          <p>Ты всегда всех учишь и представляешь, что перед тобой сидит класс учеников!</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта Хиппи Бабушка</h3>
+          <p>Это не обычная бабушка! Она помнит 60-е, вечно ищет веселья и верит, что «любовь спасет мир». Может накормить пирожками, а может неожиданно устроить протест против «системы». Вечно веселая! В кайфе!</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта Таксист</h3>
+          <p>Он вечно хочет на всем заработать и все продать! Делай задания, как будто куда-то везешь, что-то продаешь или просишь много денег!</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта Старец ЧЁ</h3>
+          <p>Он так долго был в лесу и теперь на все говорит только одно слово: «Че?!»</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта Робот</h3>
+          <p>Выполняй задания как РОБОТ, двигайся и говори. И даже смейся как РОБОТ!</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта Ребенок</h3>
+          <p>Это карта любых капризов! Выполняя задание, веди себя как ребенок: плачь, капризничай и хочешь все время играть!</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта Психолог</h3>
+          <p>Ты во всех видишь диагнозы! Всех лечишь! Выполнять задания старайся так, как будто ты проводишь психологическую консультацию.</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта Полицейский</h3>
+          <p>Ты за соблюдение порядка и правил! Очень подозрителен и хочешь всех задержать или оштрафовать!</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта Блогер</h3>
+          <p>Всегда все и всех снимает, записывает посты! Создает вирусное видео, выполняя задание!</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта Инста-Самка</h3>
+          <p>Это суперзвезда! Во всех заданиях делает фотографии с собой.</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта Кот</h3>
+          <p>Он всегда мяукает, выполняя задание.</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта Директор</h3>
+          <p>В этой роли ты пытаешься технично и смешно передать задание другому. Директор сам раздает задание, а выполняют другие.</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта Ведущий</h3>
+          <p>Ты во главе любого события! Из всего делаешь праздник и всех веселишь! Говоришь пожелания и тосты!</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта МАМА</h3>
+          <p>Ты любящая и заботливая, всегда всех хочешь накормить и обнять! Поцелуи тоже возможны!</p>
+        </article>
+        <article class="desc-card">
+          <h3>Карта ПАПА</h3>
+          <p>В этой роли тебе все по силам! Ты силен и могуч, но вечно занят делами! Делай все быстро!</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <div class="image-modal" id="imageModal" hidden>
+    <button class="image-modal-close" id="imageModalClose" type="button" aria-label="Закрыть">×</button>
+    <img id="imageModalImg" src="" alt="Увеличенная карта роли" />
+  </div>
+
+  <script>
+    (() => {
+      const likedKey = 'rjakaRoleLikedV2';
+      const countKey = 'rjakaRoleLikeCountV2';
+      const modal = document.getElementById('imageModal');
+      const modalImg = document.getElementById('imageModalImg');
+      const modalClose = document.getElementById('imageModalClose');
+      const voteLeaderImg = document.getElementById('voteLeaderImg');
+      const voteLeaderText = document.getElementById('voteLeaderText');
+      let likedState = {};
+      let likeCounts = {};
+
+      try {
+        likedState = JSON.parse(localStorage.getItem(likedKey) || '{}') || {};
+      } catch {
+        likedState = {};
+      }
+
+      try {
+        likeCounts = JSON.parse(localStorage.getItem(countKey) || '{}') || {};
+      } catch {
+        likeCounts = {};
+      }
+
+      function persistState() {
+        localStorage.setItem(likedKey, JSON.stringify(likedState));
+        localStorage.setItem(countKey, JSON.stringify(likeCounts));
+      }
+
+      function openModal(src) {
+        if (!src) return;
+        modalImg.src = src;
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        modal.hidden = true;
+        modalImg.src = '';
+        document.body.style.overflow = '';
+      }
+
+      modalClose.addEventListener('click', closeModal);
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) closeModal();
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modal.hidden) closeModal();
+      });
+
+      function updateLeader() {
+        const entries = Object.entries(likeCounts).filter(([,count]) => Number(count) > 0);
+        if (!entries.length) {
+          voteLeaderImg.hidden = true;
+          voteLeaderImg.src = '';
+          voteLeaderText.textContent = 'Пока нет лайков';
+          return;
+        }
+
+        const [leaderId, leaderCount] = entries.sort((a, b) => Number(b[1]) - Number(a[1]))[0];
+        voteLeaderImg.src = leaderId;
+        voteLeaderImg.hidden = false;
+        voteLeaderText.textContent = `Лайков: ${leaderCount}`;
+      }
+
+      document.querySelectorAll('.role').forEach((card, index) => {
+        const image = card.querySelector('img');
+        if (!image) return;
+
+        const cardId = image.getAttribute('src') || `role-${index}`;
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', 'Открыть карту роли');
+
+        const likeButton = document.createElement('button');
+        likeButton.type = 'button';
+        likeButton.className = 'role-like';
+        likeButton.setAttribute('aria-label', 'Поставить лайк карте');
+        likeButton.innerHTML = '<span aria-hidden="true">❤</span><span>0</span>';
+        card.appendChild(likeButton);
+
+        function syncLikeState() {
+          const liked = Boolean(likedState[cardId]);
+          const count = Number(likeCounts[cardId] || 0);
+          card.classList.toggle('liked', liked);
+          likeButton.setAttribute('aria-pressed', liked ? 'true' : 'false');
+          likeButton.querySelector('span:last-child').textContent = String(count);
+        }
+
+        function toggleLike(event) {
+          event.stopPropagation();
+          if (likedState[cardId]) {
+            delete likedState[cardId];
+            likeCounts[cardId] = Math.max(0, Number(likeCounts[cardId] || 0) - 1);
+          } else {
+            likedState[cardId] = 1;
+            likeCounts[cardId] = Number(likeCounts[cardId] || 0) + 1;
+          }
+          persistState();
+          syncLikeState();
+          updateLeader();
+        }
+
+        likeButton.addEventListener('click', toggleLike);
+        card.addEventListener('click', (event) => {
+          if (event.target.closest('.role-like')) return;
+          openModal(image.src);
+        });
+        card.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openModal(image.src);
+          }
+        });
+
+        syncLikeState();
+      });
+
+      updateLeader();
+    })();
+  </script>
+</body>
+</html>

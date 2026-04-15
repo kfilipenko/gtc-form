@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Об Игре — РЖАКА</title>
+  <link rel="icon" href="/assets/game-chat/favicons/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/game-chat/favicons/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/game-chat/favicons/favicon-32x32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/game-chat/favicons/apple-touch-icon.png" />
+  <meta name="description" content="Об игре РЖАКА: герои, формат, где использовать и почему это работает." />
+  <link rel="stylesheet" href="/assets/styles/rjaka-shared.css" />
+  <style>
+    .page { max-width: var(--max); margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+    .stack { display: grid; gap: 14px; }
+    .stack .panel { padding: 24px 26px; }
+    .stack p { margin: 0 0 12px; color: var(--muted); }
+    .stack ul { margin: 8px 0 12px; padding-left: 22px; color: var(--muted); }
+    .stack li { margin-bottom: 8px; }
+    .hero-title h1 { margin-bottom: 10px; }
+    .hero-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid rgba(242, 185, 75, 0.35);
+      border-radius: 12px;
+      background: rgba(47, 164, 169, 0.12);
+      color: #f8f2e8;
+      font-weight: 700;
+    }
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .mini-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(14, 6, 16, 0.58);
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .mini-card strong { color: #fbeff7; }
+    @media (max-width: 860px) {
+      .mini-grid { grid-template-columns: 1fr; }
+      .stack .panel { padding: 20px; }
+      .stack ul { padding-left: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header id="topHeader">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo-box">
+          <img src="/assets/game-chat/favicons/rjaka-logo.png" alt="RJAKA" onerror="this.onerror=null;this.src='/assets/game-chat/favicons/logo.png';" />
+        </div>
+        <span>РЖАКА</span>
+      </div>
+      <nav class="nav" aria-label="Навигация сайта">
+        <a href="/">Главная</a>
+        <a href="/chat/" target="_blank" rel="noopener noreferrer">Открыть чат</a>
+        <a href="/chat/history/" target="_blank" rel="noopener noreferrer">История чатов</a>
+        <a href="/buy/">Купить</a>
+        <a href="/rules/">Правила</a>
+        <a class="is-active" href="/rgame/" aria-current="page">Об игре</a>
+        <a href="/meaning/">Смысл</a>
+        <a href="/game-card/">Роли</a>
+      </nav>
+    </div>
+  </header>
+  <div class="glow" aria-hidden="true"></div>
+  <main class="page stack">
+    <section class="panel hero-title">
+      <h1>🎭 Об Игре РЖАКА</h1>
+      <p class="lead">РЖАКА — ролевая карточная игра про импровизацию, эмоции и коммуникацию. Игроки примеряют узнаваемые характеры и действуют в неожиданных сценках.</p>
+      <p class="hero-note">🔎 Формула игры: Роль + Действие + Реакция компании = живой юмор и энергия за столом.</p>
+    </section>
+
+    <section class="panel">
+      <h2>🦸 Герои игры</h2>
+      <p>Ключевой элемент — роли персонажей. Наиболее популярные: Полицейский, Папа, Директор, Блогер, Психолог, Робот и другие.</p>
+      <div class="mini-grid">
+        <div class="mini-card"><strong>🎭 Роль</strong><br>Создаёт характер и настроение сценки.</div>
+        <div class="mini-card"><strong>⚡ Действие</strong><br>Даёт импульс и поворот в сюжете.</div>
+        <div class="mini-card"><strong>😊 Реакция</strong><br>Поддержка игроков усиливает эффект.</div>
+      </div>
+      <div class="actions">
+        <a class="btn secondary" href="/game-card">Смотреть все роли</a>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>📍 Где используется</h2>
+      <ul>
+        <li>Домашние игры и вечеринки.</li>
+        <li>Неформальные командные встречи.</li>
+        <li>Тренинги коммуникации и раскрепощения.</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>🚀 Быстрый старт</h2>
+      <div class="actions">
+        <a class="btn" href="/chat/" target="_blank" rel="noopener noreferrer">Открыть чат Ржака</a>
+        <a class="btn secondary" href="/chat/history/" target="_blank" rel="noopener noreferrer">История чатов</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

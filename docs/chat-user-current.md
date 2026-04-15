@@ -1,5 +1,16 @@
 # /user End-User UI — Current Behavior
 
+## Canonical Chat Matrix (Source Of Truth)
+- Admin chat (GTC operations): `https://app.gtstor.com/chat/`
+- User chat (end-user workspace): `https://app.gtstor.com/user/`
+- RJAKA game chat: `https://rjaka.pro/chat/`
+
+## Address Configuration (Projects, Domains, Nginx)
+- User chat route is configured under `/etc/nginx/sites-enabled/app.gtstor.com` and served from `/var/www/gtc-form/user/`.
+- Admin chat route `https://app.gtstor.com/chat/` is served by the same vhost/project but from `/var/www/gtc-form/chat/`.
+- RJAKA game chat is served from a different domain vhost (`/etc/nginx/sites-enabled/www.rjaka.pro`) and belongs to `rjaka-web` route ownership.
+- Documentation for `/user/` must never redefine `/chat/` as end-user primary route.
+
 ## 1. UI Structure
 - **Public landing (default `data-view="public"`)**: hero header with brand, marketing copy, CTA buttons, and an inline auth card (`#inlineAuthPanel`) that walks through email capture → login → register without leaving the page. This state hides the app shell and keeps the composer disabled.
 - **Header controls**: theme toggle (persists `chat:user:theme`), "Sign in"/"Register" ghost buttons (hidden the moment an authenticated session is detected), and once authenticated a user chip with a dropdown (profile, billing, logout). Billing button links to `/payment.php` with prefilled query params.
