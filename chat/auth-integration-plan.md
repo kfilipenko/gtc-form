@@ -14,7 +14,7 @@
 3. **Единый поток `/auth/*` → `/chat`**
    - После каждой удачной операции вызывать `await fetch('/auth/finish', { credentials: 'include', redirect: 'manual' })`, парсить заголовок `Location` и показывать подсказку (чат/оплата).
    - Немедленно дергать `/auth/profile` (или новый `/auth/status`) и передавать данные в `saveUser()` → `localStorage`.
-   - Если `finish` вернул оплату, показывать карточку с кнопкой на `https://pay.gtstor.com/payment.php` и блокировать отправку сообщений.
+   - Если `finish` вернул оплату, показывать карточку с кнопкой на `https://pay.gtstor.com/payment.php` как current web billing path и блокировать отправку сообщений. Эта ссылка не описывает Telegram runtime payment flow.
 4. **Google и OTP внутри страницы**
    - Интегрировать Google Identity Services (popup/one-tap), отправлять `credential` на `/auth/google`, затем запускать шаг 3.
    - Убедиться, что `/auth/otp/*` вызывает те же статусные обработчики и не требует отдельного UI.

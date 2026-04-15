@@ -43,17 +43,23 @@ Legacy compatibility routes (не primary):
    - Административный/операторский чат (`/chat/`) для поддержки и управления.
    - Новости (app.gtstor.com/news/).
    - Кабинет/профиль (app.gtstor.com/user/ — сама витрина или связанный раздел).
-   - Портал оплаты (https://pay.gtstor.com/payment.php).
+   - Web payment portal (https://pay.gtstor.com/payment.php).
+   - Telegram runtime payment entrypoint (https://pay.gtstor.com/payment_tg.php).
    - GTChain, Telegram-бот и др. внешние ссылки.
 2) gtc-site (Next.js 14) обрабатывает SSR-маршруты `/auth` и `/chat`:
-   - Извлекает идентификатор пользователя из query/cookies (ключи user_id/userId/gtc_user_id и т.д.).
+   - Извлекает доступные идентификаторы пользователя из query/cookies; для billing и entitlement canonical internal key remains `gtc_user_id`.
    - Строит AccessTicket по локальным JSON: data/users.json и data/subscriptions.json (опционально внешний API подписок).
-   - Формирует decision: при доступе — отправляет в чат (`CHAT_URL`, по умолчанию https://app.gtstor.com/chat/); при отсутствии подписки — даёт ссылку на оплату (`PAYMENT_URL`, по умолчанию https://pay.gtstor.com/payment.php?user_id=...).
+   - Формирует decision: при доступе — отправляет в чат (`CHAT_URL`, по умолчанию https://app.gtstor.com/chat/); при отсутствии подписки — для web flow даёт ссылку на оплату (`PAYMENT_URL`, по умолчанию https://pay.gtstor.com/payment.php?gtc_user_id=...).
+   - Этот пункт описывает web/SSR gateway и не должен использоваться как описание активного Telegram payment runtime.
    - При ошибке показывает Service Hub с статусом и ссылкой на поддержку (help@gtstor.com).
 3) Админ-чат (app.gtstor.com/chat/) — фронтенд операторского/административного контура.
 4) Пользовательский чат (app.gtstor.com/user/) — фронтенд пользовательского контура.
 5) Игровой чат RJAKA (rjaka.pro/chat/) — отдельный домен и отдельный проектный контур.
-6) Оплата (pay.gtstor.com/payment.php) — принимает user_id, позволяет продлить/оформить доступ.
+6) Оплата:
+   - Web flow: pay.gtstor.com/payment.php — текущая web payment page; runtime не менялся в этом шаге и по-прежнему использует `gtc_user_id` и `email`.
+   - Telegram flow: pay.gtstor.com/payment_tg.php — текущая Telegram payment page; runtime now resolves `gtc_user_id -> stripe_customer_id -> Stripe Customer Session -> Pricing Table / Checkout`, preserves `client_reference_id` and `metadata.gtc_user_id`, and treats `email` only as optional billing/contact data.
+   - Runtime validation on 2026-04-04 confirmed that a Telegram user completed subscription checkout successfully, a trial subscription was created, access was granted, and reuse of the same email no longer triggered an email-based "already subscribed" block in the Telegram flow.
+   - Operational dependency: payment_tg.php requires host-level PHP-FPM env exposure for PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD, and STRIPE_SECRET_KEY.
 
 ## Основные URL и роли
 - Витрина: app.gtstor.com/user/ — ссылки на сервисы, витринный экран.
@@ -63,7 +69,8 @@ Legacy compatibility routes (не primary):
 - Доступ: gtc-site `/auth`, `/chat` — SSR решает доступ и перенаправляет.
 - Игровой чат RJAKA: rjaka.pro/chat/ — отдельный игровой контур.
 - Новости: app.gtstor.com/news/.
-- Оплата: pay.gtstor.com/payment.php.
+- Web payment: pay.gtstor.com/payment.php.
+- Telegram payment runtime: pay.gtstor.com/payment_tg.php.
 - Поддержка: help@gtstor.com (mailto).
 
 ## Витрина /user/

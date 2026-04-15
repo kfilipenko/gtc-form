@@ -7,7 +7,9 @@
 
 ## 2. Backend Pipeline
 ### Entry Points Used Today
-- **PHP endpoints** (e.g., `chat_api.php`, `payment.php`) accept form posts from both UIs, add authentication/context, and forward payloads.
+- **PHP endpoints** (e.g., `chat_api.php`, `payment.php`, `payment_tg.php`) accept form posts from the current UI surfaces, add authentication/context, and forward payloads.
+
+> Scope note: payment runtime is currently split. `payment.php` is the web payment entrypoint, while `payment_tg.php` is the active Telegram payment entrypoint.
 - **PostgREST** exposes read-only queries for chats/messages when a direct SQL view is sufficient.
 - **n8n webhooks** collect normalized payloads for workflow orchestration (AI completions, notifications, CRM sync).
 

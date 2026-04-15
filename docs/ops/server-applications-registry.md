@@ -1,6 +1,6 @@
 # Server Applications Registry
 
-Updated: 2026-03-10
+Updated: 2026-04-04
 Scope: production host layout under /var/www and active nginx virtual hosts.
 
 ## Purpose
@@ -22,7 +22,7 @@ This document is the single source of truth for deployed applications, domains, 
 | app.gtstor.com | /etc/nginx/sites-enabled/app.gtstor.com | Static + PHP + reverse proxy | root /var/www/gtc-form; /auth -> 127.0.0.1:8085; /api -> 127.0.0.1:3100 | Main GTC app shell, user portal, shared frontend modules |
 | rjaka.pro, www.rjaka.pro | /etc/nginx/sites-enabled/www.rjaka.pro | Static + PHP | root /var/www/gtc-form | RJAKA site/chat routes (compat include enabled) |
 | new-rjaka.gtstor.com | /etc/nginx/sites-enabled/new-rjaka.gtstor.com | Static + PHP (IP restricted) | root /var/www/gtc-form | Internal RJAKA staging/preview |
-| pay.gtstor.com | /etc/nginx/sites-enabled/pay-gtstor | PHP | root /var/www/html | Public payment pages |
+| pay.gtstor.com | /etc/nginx/sites-enabled/pay-gtstor | PHP | root /var/www/html | Public payment pages for Telegram payment_tg.php and web payment.php |
 | pay.agent.gtstor.com | /etc/nginx/sites-enabled/payment | PHP | root /var/www/html | Agent payment endpoint |
 | agent.gtstor.com | /etc/nginx/sites-enabled/agent.gtstor.com | Reverse proxy | 127.0.0.1:5678 | n8n/webhook service |
 | mcpn8n.gtstor.com | /etc/nginx/sites-enabled/mcpn8n.gtstor.com | Reverse proxy | 127.0.0.1:3333 | MCP/n8n adjacent service |
@@ -35,7 +35,7 @@ This document is the single source of truth for deployed applications, domains, 
 |---|---|---|---|
 | gtc-core-web | /var/www/gtc-form | /user/, /chat/, /news/, /buy/, /auth/* (proxied) | nginx, php8.1-fpm, auth service :8085, PostgREST :3100 |
 | rjaka-web | /var/www/gtc-form | rjaka.pro/, /chat/, /chat/history/ | nginx, php8.1-fpm, shared assets |
-| payment-web | /var/www/html | /payment.php, /payment.html | nginx, php8.1-fpm |
+| payment-web | /var/www/html | /payment_tg.php, /payment.php, /payment.html | nginx, php8.1-fpm, Stripe API, host-level php-fpm env wiring for PGHOST/PGPORT/PGDATABASE/PGUSER/PGPASSWORD/STRIPE_SECRET_KEY |
 | n8n-agent | external process | agent.gtstor.com/* | nginx proxy, process on :5678 |
 | mcpn8n | external process | mcpn8n.gtstor.com/* | nginx proxy, process on :3333 |
 

@@ -1,5 +1,9 @@
 # GTC Sales Agent — Web Chat Workflow Plan
 
+> Scope note: this document describes the planned and saved web chat workflow only. It is not authoritative for Telegram payment runtime behavior.
+>
+> Active Telegram billing runtime uses `https://pay.gtstor.com/payment_tg.php` with `gtc_user_id` as the primary parameter. Saved web workflow exports and web workflow plans should be treated as artifacts when evaluating Telegram runtime behavior.
+
 ## Goal
 Создать HTTP-based версию пайплайна "GTC Sales Agent" для веб-чата (страница `/chat`). В отличие от Telegram, канал использует Webhook (HTTP POST) и возвращает JSON-ответ клиенту. Workflow должен:
 
@@ -37,6 +41,7 @@
 - `message` — чистый текст пользователя (обязателен).
 - `session_id` — строка для sticky истории; если пусто, нода `Normalize Input` сгенерирует UUID.
 - `client` — всё, что фронтенд знает о пользователе. Workflow использует эти поля для lookup в БД.
+- `email` in this contract is a web lookup convenience field. It is not the canonical entitlement identifier.
 
 ## Node Layout
 

@@ -19,6 +19,7 @@
 ## n8n Workflows
 - Import `docs/workflows/GTC Sales Agent - Web Chat.json` and `docs/workflows/Web Search OpenAI.json` into n8n as described in `web_chat_workflow_instructions.md`.
 - Workflow contract: POST `/webhook/web-chat` with `{ message, session_id, client:{gtc_user_id,...}, metadata }` (see `web_chat_workflow_plan.md`). Always return `chat_id` so the browser and SQL logger stay in sync.
+- Treat saved workflow exports in `docs/workflows/*.json` as artifacts. If a saved export conflicts with verified production behavior, prefer observed runtime behavior and document the mismatch rather than assuming the export is authoritative.
 - Required creds/env: `DB_GTC` Postgres, `OPENAI_AZURE_CREDENTIAL`, `TAVILY_API_KEY`; missing any of these will break execution before the AI node runs.
 - Test via the sample payload in `web_chat_workflow_instructions.md` and ensure both user/assistant rows appear in `chat_log`.
 
@@ -27,8 +28,14 @@
 - Subscription checks (Telegram + web chat) depend on `subscriptions` keyed by `gtc_user_id`; follow the SQL snippets in `billing/stripe-flow.md` when extending entitlements.
 
 ## Billing Portal & Stripe Bridge
-- `payment.php` builds Billing links as `https://pay.gtstor.com/payment.php?gtc_user_id=<int>&email=<encoded>` and mirrors both values into Stripe via the `attach-metadata` action.
-- Any change to the portal must continue setting `client_reference_id` and `metadata.gtc_user_id` so n8n can reconcile webhook events with subscriptions.
+- Current runtime uses two payment pages: `payment_tg.php` for Telegram and `payment.php` for web.
+- `payment_tg.php` is the active Telegram payment entrypoint. It now resolves Stripe identity by `gtc_user_id -> stripe_customer_id -> Customer Session -> Pricing Table / Checkout` and can operate without email.
+- `payment.php` remains the current web payment entrypoint. The web flow currently passes `gtc_user_id` plus `email`.
+- Email may be sent to Stripe for billing or contact purposes, but it is not the canonical entitlement identifier in GTC.
+- Any change to either portal must continue setting `client_reference_id` and `metadata.gtc_user_id` so n8n can reconcile webhook events with subscriptions.
+- Do not reintroduce `customer-email` or `customer_email` as the primary Telegram identity mechanism; `metadata.gtc_email` may remain optional billing/contact metadata.
+- `payment_tg.php` depends on host-level PHP-FPM env exposure for `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD`, and `STRIPE_SECRET_KEY`.
+- `payment.php`, downstream webhook extraction, and entitlement logic remained unchanged in this step.
 - Stripe events are processed only by the n8n listener; do not enable duplicate listeners or you risk double-granting access.
 
 ## Developer Workflow

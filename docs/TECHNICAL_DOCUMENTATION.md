@@ -77,11 +77,13 @@
 ## 5.2 `/chat` и `/chat/[...slug]`
 - `/chat/[...slug]` реэкспортирует `/chat/index.tsx`.
 - SSR алгоритм:
-  1) взять `userId` из query/cookies по набору ключей (`user_id`, `userId`, `gtc_user_id`, ...);
+  1) взять идентификатор из query/cookies; при наличии `gtc_user_id` он имеет приоритет, а `user_id`/`userId` считаются legacy compatibility inputs;
   2) если не найден — вернуть ошибку в props;
   3) получить `ticket` через `resolveAccessTicket`;
-  4) построить `paymentUrl` с `user_id`;
+  4) построить `paymentUrl` для web/SSR flow с `gtc_user_id`;
   5) отдать `ServiceHubPage`.
+
+> Эта часть документа описывает только web/SSR gateway. Активный Telegram payment runtime uses `https://pay.gtstor.com/payment_tg.php`, уже реализован как customer-bound flow через `gtc_user_id`, и не определяется этим разделом.
 
 ## 5.3 `/auth`, `/auth/router`, `/auth/[...slug]`
 - `/auth/index.tsx` и `/auth/[...slug]` реэкспортируют `./router`.
@@ -162,7 +164,7 @@ Lookup кандидаты: основной `userId`, затем `gtcUserId`, з
 | Переменная | Назначение | Значение по умолчанию |
 |---|---|---|
 | `CHAT_URL` / `NEXT_PUBLIC_CHAT_URL` | URL целевого чата | `https://app.gtstor.com/chat/` |
-| `PAYMENT_URL` / `NEXT_PUBLIC_PAYMENT_URL` | URL оплаты | `https://pay.gtstor.com/payment.php` |
+| `PAYMENT_URL` / `NEXT_PUBLIC_PAYMENT_URL` | Web payment URL | `https://pay.gtstor.com/payment.php` |
 | `SUPPORT_EMAIL` / `NEXT_PUBLIC_SUPPORT_EMAIL` | Email поддержки | `help@gtstor.com` |
 | `USER_DB_PATH` | путь к users.json | `data/users.json` |
 | `SUBSCRIPTION_DB_PATH` | путь к subscriptions.json | `data/subscriptions.json` |
@@ -170,6 +172,14 @@ Lookup кандидаты: основной `userId`, затем `gtcUserId`, з
 | `SUBSCRIBED_USER_IDS` | override-список id через запятую | unset |
 | `SUBSCRIBED_PLAN_NAME` | план для override | unset |
 | `SUBSCRIBED_EXPIRES_AT` | expiry для override | unset |
+
+---
+
+Telegram runtime payment URL is `https://pay.gtstor.com/payment_tg.php`.
+This document does not define the Telegram payment runtime contract.
+Current runtime status outside this app: Telegram billing now resolves `gtc_user_id -> stripe_customer_id -> Stripe Customer Session -> Pricing Table / Checkout`, preserves `client_reference_id` and `metadata.gtc_user_id`, and does not use email as the entitlement identity.
+The web `PAYMENT_URL` flow remains unchanged.
+Operational dependency: `payment_tg.php` requires host-level PHP-FPM env wiring for `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD`, and `STRIPE_SECRET_KEY`.
 
 ---
 
@@ -265,9 +275,9 @@ npm test
 3. Запустить локально: `npm run dev`.
 4. Проверить:
    - `/` (лендинг),
-   - `/chat?user_id=3001`,
-   - `/chat?user_id=unknown-user`,
-   - `/auth?user_id=3001`.
+  - `/chat?gtc_user_id=3001`,
+  - `/chat?gtc_user_id=unknown-user`,
+  - `/auth?gtc_user_id=3001`.
 5. Перед релизом: `npm run test && npm run build`.
 
 ---

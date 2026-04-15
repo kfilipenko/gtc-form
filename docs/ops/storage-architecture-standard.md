@@ -1,6 +1,6 @@
 # Storage Architecture Standard
 
-Updated: 2026-03-10
+Updated: 2026-04-04
 Scope: filesystem organization, naming, backup hygiene, and documentation contracts.
 
 ## Goals
@@ -51,6 +51,7 @@ Current state is transitional:
 2. Legacy snapshots must be moved to /var/www/backups/<app>/<date>/.
 3. Active roots should contain only deployable artifacts, not one-off operation dumps.
 4. Runtime-generated outputs must not be written to app code folders unless explicitly required.
+5. Secret-bearing runtime configuration must stay in host-managed config outside app roots. For payment-web, `payment_tg.php` depends on PHP-FPM pool env wiring for `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD`, and `STRIPE_SECRET_KEY`.
 
 ## Rules for Backups
 
@@ -112,5 +113,6 @@ Recommended locations:
 Before moving or renaming app roots:
 1. nginx -t must pass against staged configs.
 2. Full snapshot of both source and target roots must exist.
-3. Smoke checks must validate at least: /, /user/, /chat/, /auth/status, /payment.php.
-4. Rollback command must be prepared and tested in dry run.
+3. Smoke checks must validate at least: /, /user/, /chat/, /auth/status, /payment_tg.php, /payment.php.
+4. If payment_tg.php behavior changed, verify the required PHP-FPM env wiring before concluding the smoke check.
+5. Rollback command must be prepared and tested in dry run.
