@@ -50,10 +50,22 @@ DOCS: Final = [
         "summary": "Initial public privacy baseline for profile, document, operational and compliance data.",
     },
     {
+      "slug": "legal/seafarer-candidate-agreement",
+      "category": "Trust Center",
+      "nav_label": "Seafarer Agreement",
+      "summary": "No-fee candidate agreement for seafarers covering profiles, documents, document readiness and human-reviewed matching workflows.",
+    },
+    {
         "slug": "legal/terms",
         "category": "Legal",
         "nav_label": "Terms",
         "summary": "Core platform rules for the early public launch and AI-assisted workflow support.",
+    },
+    {
+      "slug": "legal/shipowner-service-terms",
+      "category": "B2B",
+      "nav_label": "Shipowner Agreement",
+      "summary": "Commercial and compliance baseline for shipowners, vessel operators, ship managers and crew managers using CrewPortGlobal.",
     },
     {
         "slug": "legal/complaints",
@@ -126,23 +138,7 @@ def render_page(doc: dict[str, str]) -> str:
     page_title, markdown_body = extract_title(markdown_text)
     html_body = markdown.markdown(markdown_body, extensions=markdown_extensions())
     lead_heading = first_section_title(html_body)
-    css_href = Path("assets/crewportglobal-docs.css")
-    css_href = Path(
-        Path.cwd().joinpath(doc["slug"]).relative_to(Path.cwd()) if False else ""
-    )
-    relative_css = Path(Path("..")).as_posix()
-    css_rel = Path(Path.cwd().as_posix())
-    css_link = Path(Path("assets") / "crewportglobal-docs.css")
-    css_path = Path(
-        Path(doc_dir.relative_to(PUBLIC_ROOT)).as_posix()
-    )
-    asset_href = Path(
-        Path(
-            "/".join([".."] * len(doc_dir.relative_to(PUBLIC_ROOT).parts))
-            if doc_dir.relative_to(PUBLIC_ROOT).parts
-            else "."
-        )
-    )
+    asset_href = Path("/".join([".."] * len(doc_dir.relative_to(PUBLIC_ROOT).parts)) or ".")
     stylesheet_href = (asset_href / "assets" / CSS_PATH.name).as_posix()
     if stylesheet_href.startswith("./"):
         stylesheet_href = stylesheet_href[2:]
