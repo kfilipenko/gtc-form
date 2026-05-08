@@ -54,6 +54,32 @@ DOCS: Final = [
       "category": "Trust Center",
       "nav_label": "Seafarer Agreement",
       "summary": "No-fee candidate agreement for seafarers covering profiles, documents, document readiness and human-reviewed matching workflows.",
+      "trust_note": "CrewPortGlobal does not charge seafarers recruitment, placement or employment fees.",
+      "hero_ctas": [
+        ("Create Seafarer Profile", f"{SITE_ORIGIN}/for-seafarers/", "primary"),
+        ("Read No Recruitment Fees Policy", f"{SITE_ORIGIN}/legal/no-recruitment-fees/", "secondary"),
+        ("Contact Support", f"{SITE_ORIGIN}/legal/complaints/", "secondary"),
+      ],
+      "summary_cards": [
+        ("No recruitment fees", "No payment is required to create a profile, enter the matching pool or be considered for a relevant crew request."),
+        ("Professional profile", "Candidates manage a structured maritime profile with rank, experience, documents and availability."),
+        ("Document readiness", "Uploaded documents can be reviewed, flagged as incomplete, expired or verified for workflow support."),
+        ("Human-reviewed workflow", "AI may assist with structuring and matching, but serious actions and shortlist submissions remain human-reviewed."),
+      ],
+      "acknowledgements": [
+        "I understand that CrewPortGlobal does not charge seafarers recruitment, placement or employment fees.",
+        "I understand that optional paid services are not required for job access.",
+        "I understand that creating a profile does not guarantee employment.",
+        "I confirm that the information and documents I submit are accurate and belong to me.",
+        "I agree that my professional profile may be processed for crew matching purposes.",
+        "I agree to the Privacy Policy, Complaint Handling Procedure and this Seafarer Candidate Agreement.",
+      ],
+      "related_links": [
+        ("No Recruitment Fees Policy", f"{SITE_ORIGIN}/legal/no-recruitment-fees/"),
+        ("Privacy Policy", f"{SITE_ORIGIN}/legal/privacy/"),
+        ("Complaint Handling Procedure", f"{SITE_ORIGIN}/legal/complaints/"),
+        ("Terms of Service", f"{SITE_ORIGIN}/legal/terms/"),
+      ],
     },
     {
         "slug": "legal/terms",
@@ -132,7 +158,76 @@ def render_library(current_slug: str) -> str:
     return "\n".join(cards)
 
 
-def render_page(doc: dict[str, str]) -> str:
+def render_hero_ctas(doc: dict[str, object]) -> str:
+    items = []
+    for label, href, style in doc.get("hero_ctas", []):
+        items.append(f'<a class="button {style}" href="{href}">{label}</a>')
+    items.append(f'<a class="button secondary" href="{slug_to_raw_url(doc["slug"])}">Canonical Markdown</a>')
+    return "\n".join(items)
+
+
+def render_summary_cards(doc: dict[str, object]) -> str:
+    cards = doc.get("summary_cards", [])
+    if not cards:
+        return ""
+    items = []
+    for title, text in cards:
+        items.append(
+            "\n".join(
+                [
+                    '<article class="summary-card">',
+                    f'  <h2>{title}</h2>',
+                    f'  <p>{text}</p>',
+                    "</article>",
+                ]
+            )
+        )
+    return "\n".join(
+        [
+            '<section class="summary-grid">',
+            *items,
+            "</section>",
+        ]
+    )
+
+
+def render_acknowledgements(doc: dict[str, object]) -> str:
+    items = doc.get("acknowledgements", [])
+    if not items:
+        return ""
+    lines = [
+        '<section class="acknowledgement-panel">',
+        '  <p class="eyebrow">Onboarding acknowledgement</p>',
+        '  <h2>Candidate confirmations for registration</h2>',
+        '  <ul class="acknowledgement-list">',
+    ]
+    for item in items:
+        lines.append(f'    <li class="acknowledgement-item">{item}</li>')
+    lines.extend(["  </ul>", "</section>"])
+    return "\n".join(lines)
+
+
+def render_related_links(doc: dict[str, object]) -> str:
+    items = doc.get("related_links", [])
+    if not items:
+        return ""
+    links = []
+    for label, href in items:
+        links.append(f'<a class="related-link" href="{href}">{label}</a>')
+    return "\n".join(
+        [
+            '<section class="card related-panel">',
+            '  <p class="eyebrow">Related Trust Center links</p>',
+            '  <h2>Next documents to review</h2>',
+            '  <div class="related-links">',
+            *links,
+            '  </div>',
+            '</section>',
+        ]
+    )
+
+
+def render_page(doc: dict[str, object]) -> str:
     doc_dir = PUBLIC_ROOT / doc["slug"]
     markdown_text = (doc_dir / "index.md").read_text(encoding="utf-8")
     page_title, markdown_body = extract_title(markdown_text)
@@ -146,6 +241,10 @@ def render_page(doc: dict[str, str]) -> str:
     title_suffix = f"{page_title} | CrewPortGlobal"
     intro = doc["summary"]
     key_focus = lead_heading or "Public document"
+    trust_note = doc.get("trust_note", "")
+    summary_cards = render_summary_cards(doc)
+    acknowledgements = render_acknowledgements(doc)
+    related_links = render_related_links(doc)
 
     return f"""<!doctype html>
 <html lang="en">
@@ -180,6 +279,7 @@ def render_page(doc: dict[str, str]) -> str:
           <p class="eyebrow">{doc['category']}</p>
           <h1>{page_title}</h1>
           <p class="lead">{intro}</p>
+          {'<p class="trust-note">' + trust_note + '</p>' if trust_note else ''}
         </div>
         <div class="hero-meta">
           <div>
@@ -188,14 +288,17 @@ def render_page(doc: dict[str, str]) -> str:
           </div>
           <div class="hero-actions">
             <a class="button primary" href="{SITE_ORIGIN}/">Back to home</a>
-            <a class="button secondary" href="{slug_to_raw_url(doc['slug'])}">Canonical Markdown</a>
+            {render_hero_ctas(doc)}
           </div>
         </div>
       </section>
 
+      {summary_cards}
+
       <section class="doc-layout">
         <article class="doc-content card prose">
           {html_body}
+          {acknowledgements}
         </article>
 
         <aside class="doc-sidebar">
@@ -204,6 +307,8 @@ def render_page(doc: dict[str, str]) -> str:
             <h2>Client-facing library</h2>
             <p>All public CrewPortGlobal documents share the same navigation, routing model and visual treatment.</p>
           </section>
+
+          {related_links}
 
           <section class="card library-grid">
             {render_library(doc['slug'])}
