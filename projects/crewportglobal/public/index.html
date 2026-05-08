@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal</title>
+  <meta name="description" content="Digital maritime crew data, documentation and matching platform.">
+  <style>
+    :root {
+      --bg: #f4f1e8;
+      --panel: rgba(255, 250, 242, 0.78);
+      --ink: #182229;
+      --muted: #52636a;
+      --line: rgba(24, 34, 41, 0.12);
+      --accent: #0b6e6e;
+      --accent-2: #d97b2d;
+      --shadow: 0 22px 60px rgba(24, 34, 41, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(217, 123, 45, 0.22), transparent 28%),
+        radial-gradient(circle at right 15%, rgba(11, 110, 110, 0.18), transparent 24%),
+        linear-gradient(180deg, #f8f5ed 0%, var(--bg) 100%);
+    }
+
+    .shell {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 64px;
+    }
+
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 36px;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.58);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .hero-copy {
+      padding: 40px;
+    }
+
+    h1 {
+      margin: 0 0 18px;
+      font-size: clamp(40px, 7vw, 72px);
+      line-height: 0.94;
+      letter-spacing: -0.05em;
+      max-width: 10ch;
+    }
+
+    .lead {
+      margin: 0 0 28px;
+      max-width: 58ch;
+      font-size: 18px;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .actions a,
+    .doc-list a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 12px 18px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      font-weight: 600;
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .button.primary {
+      background: var(--ink);
+      color: #fff7eb;
+    }
+
+    .button.secondary {
+      background: rgba(255, 255, 255, 0.68);
+      border-color: var(--line);
+    }
+
+    .button:hover,
+    .doc-list a:hover {
+      transform: translateY(-1px);
+    }
+
+    .trust {
+      display: inline-flex;
+      padding: 12px 16px;
+      border-radius: 16px;
+      background: rgba(11, 110, 110, 0.08);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .hero-panel {
+      padding: 26px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero-panel section {
+      padding: 20px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .docs {
+      margin-top: 24px;
+      padding: 28px;
+    }
+
+    .docs-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .doc-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .doc-list li {
+      min-height: 140px;
+    }
+
+    .doc-list a {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      padding: 20px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px solid var(--line);
+    }
+
+    .doc-type {
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+    }
+
+    .doc-title {
+      font-size: 22px;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+    }
+
+    .doc-note {
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .doc-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topline">
+      <span>CrewPortGlobal</span>
+      <span class="badge">Stage 1 • Documentation and Matching Platform</span>
+    </div>
+
+    <main>
+      <section class="hero">
+        <article class="card hero-copy">
+          <h1>Maritime crew workflows with a compliance-first spine.</h1>
+          <p class="lead">CrewPortGlobal is being developed as a digital maritime crew data, document and matching platform for shipowners, operators and seafarers. Public client documentation is prepared in Markdown as the canonical publishing format.</p>
+          <div class="actions">
+            <a class="button primary" href="about/index.md">View Project Scope</a>
+            <a class="button secondary" href="how-it-works/index.md">How It Works</a>
+            <a class="button secondary" href="legal/no-recruitment-fees/index.md">No Recruitment Fees</a>
+             <a class="button secondary" href="legal/privacy/index.md">Privacy</a>
+             <a class="button secondary" href="legal/terms/index.md">Terms</a>
+          </div>
+          <div class="trust">CrewPortGlobal does not charge seafarers recruitment or placement fees.</div>
+        </article>
+
+        <aside class="card hero-panel">
+          <section>
+            <p class="eyebrow">For Shipowners</p>
+            <h2>Structured intake and verified shortlists</h2>
+            <p>Collect crew requests, review candidate readiness and move toward shortlist preparation with documented compliance checkpoints.</p>
+          </section>
+          <section>
+            <p class="eyebrow">For Seafarers</p>
+            <h2>Professional profile and document readiness</h2>
+            <p>Create a profile, prepare core maritime documents and stay inside a no-fee access model.</p>
+          </section>
+          <section>
+            <p class="eyebrow">Governance</p>
+            <h2>AI assistance with human review</h2>
+            <p>Automation may assist with intake and matching support, but final candidate submission requires human review.</p>
+          </section>
+        </aside>
+      </section>
+
+      <section class="card docs">
+        <div class="docs-head">
+          <div>
+            <p class="eyebrow">Public Documents</p>
+            <h2>Initial client-facing Markdown package</h2>
+          </div>
+          <p>Early publication set for trust, compliance and positioning.</p>
+        </div>
+
+        <ul class="doc-list">
+          <li>
+            <a href="legal/no-recruitment-fees/index.md">
+              <span class="doc-type">Policy</span>
+              <strong class="doc-title">No Recruitment Fees Policy</strong>
+              <span class="doc-note">Core public trust document for seafarers and shipowners.</span>
+            </a>
+          </li>
+          <li>
+            <a href="about/index.md">
+              <span class="doc-type">Positioning</span>
+              <strong class="doc-title">Project Scope and Positioning</strong>
+              <span class="doc-note">Defines what the platform is and what it is not at Stage 1.</span>
+            </a>
+          </li>
+          <li>
+            <a href="how-it-works/index.md">
+              <span class="doc-type">Overview</span>
+              <strong class="doc-title">How It Works</strong>
+              <span class="doc-note">Explains the initial workflow for shipowners and seafarers.</span>
+            </a>
+          </li>
+           <li>
+             <a href="legal/privacy/index.md">
+               <span class="doc-type">Legal</span>
+               <strong class="doc-title">Privacy Policy</strong>
+               <span class="doc-note">Initial public privacy baseline for profile, document and workflow data.</span>
+             </a>
+           </li>
+           <li>
+             <a href="legal/terms/index.md">
+               <span class="doc-type">Legal</span>
+               <strong class="doc-title">Terms of Service</strong>
+               <span class="doc-note">Core rules for platform use during the early launch phase.</span>
+             </a>
+           </li>
+        </ul>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
