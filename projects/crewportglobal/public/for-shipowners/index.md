@@ -1,3 +1,10 @@
+---
+title: CrewPortGlobal — For Shipowners
+nav_label: For Shipowners
+category: Audience
+description: Structured intake, candidate readiness review and compliance-oriented shortlist support for maritime employers.
+---
+
 # CrewPortGlobal — For Shipowners
 
 CrewPortGlobal is being prepared as a digital maritime crew data, documentation and matching platform for shipowners, vessel operators, ship managers and crew managers.

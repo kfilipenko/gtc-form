@@ -1,3 +1,10 @@
+---
+title: CrewPortGlobal — How It Works
+nav_label: How It Works
+category: Overview
+description: Explains the initial workflow for seafarers, shipowners and human-reviewed shortlist preparation.
+---
+
 # CrewPortGlobal — How It Works
 
 CrewPortGlobal is being prepared as a structured workflow platform for maritime hiring support.

@@ -1,3 +1,10 @@
+---
+title: CrewPortGlobal — Privacy Policy
+nav_label: Privacy
+category: Legal
+description: Initial public privacy baseline for profile, document, operational and compliance data.
+---
+
 # CrewPortGlobal — Privacy Policy
 
 CrewPortGlobal collects and processes data only for legitimate platform, operational, security and compliance purposes.

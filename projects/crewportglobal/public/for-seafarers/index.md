@@ -1,3 +1,10 @@
+---
+title: CrewPortGlobal — For Seafarers
+nav_label: For Seafarers
+category: Audience
+description: Profile, documents, complaint handling and no-fee access expectations for seafarers.
+---
+
 # CrewPortGlobal — For Seafarers
 
 CrewPortGlobal is being prepared as a digital platform where seafarers can build professional profiles, submit key documents and participate in structured matching workflows.

@@ -1,3 +1,10 @@
+---
+title: CrewPortGlobal — Complaint Handling Procedure
+nav_label: Complaints
+category: Procedure
+description: Public complaint intake, expected evidence, priority handling and temporary contact channels.
+---
+
 # CrewPortGlobal — Complaint Handling Procedure
 
 CrewPortGlobal takes complaints seriously and aims to provide a clear, fair and documented review process.
