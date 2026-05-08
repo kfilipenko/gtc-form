@@ -138,6 +138,7 @@ After that:
 2. 20_website_start_page_content.md
 3. 03_privacy_policy.md
 4. 02_platform_terms_of_service.md
+5. 11_complaint_handling_procedure.md
 
 ## 6. Technical publication model on GTC1
 
@@ -160,9 +161,14 @@ Recommended source repository structure:
 ```text
 projects/crewportglobal/
   public/
+    for-shipowners/
+    for-seafarers/
   legal/
   docs/
   workflows/
+  deploy/
+    nginx/
+    structure/
 ```
 
 ## Revision history

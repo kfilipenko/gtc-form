@@ -34,6 +34,7 @@
 - Создать разделы About, How It Works, For Shipowners, For Seafarers.
 - Создать legal-раздел для trust documents.
 - Подготовить публикационную структуру для Markdown-документов.
+- Подготовить public complaints page.
 
 ### 3. Документы первой очереди
 
@@ -49,6 +50,7 @@
 - Отделить internal documents от public markdown.
 - Согласовать схему публикации: raw markdown, HTML rendering, либо статическая сборка.
 - Подготовить директорию для дальнейшего деплоя на сервер.
+- Подготовить nginx-конфиг и deployment scaffold для GTC1.
 
 ### 5. Governance и запуск
 
@@ -63,6 +65,9 @@
 - Создан каркас проекта в репозитории.
 - Подготовлены первые public markdown pages.
 - Подготовлена стартовая HTML-страница для раннего preview.
+- Подготовлены страницы For Shipowners, For Seafarers и Complaint Handling Procedure.
+- Подготовлен operational checklist по домену, DNS, SSL и публикации.
+- Подготовлен стартовый nginx/deployment scaffold для GTC1.
 
 ## Внешние блокеры
 
@@ -72,10 +77,10 @@
 
 ## Следующие практические шаги
 
-1. Подготовить Privacy Policy и Terms of Service.
-2. Добавить client-facing pages для shipowners и seafarers.
-3. Определить окончательный deployment path на GTC1.
-4. После получения доступа завершить domain/DNS/SSL registration checklist.
+1. Утвердить complaint contact channels и итоговые email-адреса.
+2. Определить окончательный deployment path на GTC1.
+3. Подтвердить домен, DNS authority и SSL issuance flow.
+4. После получения доступа завершить production activation checklist.
 
 ## Revision History
 
