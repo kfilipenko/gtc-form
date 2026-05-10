@@ -1,8 +1,7 @@
 ---
-title: CrewPortGlobal — Privacy Policy
-nav_label: Privacy
 category: Legal
-description: Initial public privacy baseline for profile, document, operational and compliance data.
+nav_label: Privacy
+summary: Initial public privacy baseline for profile, document, operational and compliance data.
 ---
 
 # CrewPortGlobal — Privacy Policy

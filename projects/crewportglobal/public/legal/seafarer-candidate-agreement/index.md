@@ -1,9 +1,9 @@
 ---
-title: CrewPortGlobal — Seafarer Candidate Agreement
-nav_label: Seafarer Agreement
 category: Trust Center
-description: No-fee candidate agreement for seafarers covering profiles, documents, document readiness and human-reviewed matching workflows.
+nav_label: Seafarer Agreement
+summary: No-fee candidate agreement for seafarers covering profiles, documents, document readiness and human-reviewed matching workflows.
 trust_note: CrewPortGlobal does not charge seafarers recruitment, placement or employment fees.
+primary_focus: Candidate registration baseline
 hero_ctas:
   - label: Create Seafarer Profile
     href: https://crewportglobal.com/onboarding/seafarer-registration/
@@ -39,9 +39,6 @@ related_links:
     href: https://crewportglobal.com/legal/complaints/
   - label: Terms of Service
     href: https://crewportglobal.com/legal/terms/
-audience: Seafarers
-status: Draft for legal review
-accent: signal-cyan
 ---
 
 # CrewPortGlobal — Seafarer Candidate Agreement

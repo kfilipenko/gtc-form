@@ -1,8 +1,7 @@
 ---
-title: CrewPortGlobal — For Shipowners
-nav_label: For Shipowners
 category: Audience
-description: Structured intake, candidate readiness review and compliance-oriented shortlist support for maritime employers.
+nav_label: For Shipowners
+summary: Structured intake, candidate readiness review and compliance-oriented shortlist support for maritime employers.
 ---
 
 # CrewPortGlobal — For Shipowners

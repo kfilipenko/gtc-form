@@ -1,17 +1,24 @@
 ---
-title: CrewPortGlobal — KYB Policy for Business Clients
-nav_label: KYB Policy
 category: Compliance
-description: Business-client verification baseline for shipowners, managers, operators and authorized representatives.
+nav_label: KYB Policy
+summary: Business-client verification baseline for shipowners, managers, operators and authorized representatives.
+primary_focus: Why KYB is required
+hero_ctas:
+  - label: Review Shipowner Agreement
+    href: https://crewportglobal.com/legal/shipowner-service-terms/
+    style: primary
+  - label: Review Matching Policy
+    href: https://crewportglobal.com/legal/recruitment-and-matching-policy/
+    style: secondary
 summary_cards:
-  - title: Risk-based verification
-    text: Business users may be verified based on legal identity, authority to act, sanctions exposure and ownership profile.
-  - title: Access can be limited
-    text: Candidate workflows and commercial functions may be delayed or refused until satisfactory KYB review is complete.
-  - title: Refresh when risk changes
-    text: CrewPortGlobal may request updated business information when ownership, authority or jurisdiction changes.
+  - title: Authorized counterparties
+    text: CrewPortGlobal may verify the legal entity, operational role and authority of each business client before service delivery.
+  - title: Risk-based review
+    text: KYB depth may increase where ownership, sanctions exposure, payment risk or document inconsistency creates heightened concern.
+  - title: Ongoing monitoring
+    text: Access may be paused or narrowed if submitted business data becomes outdated, misleading or inconsistent with compliance checks.
 related_links:
-  - label: Shipowner Service Agreement
+  - label: Shipowner Agreement
     href: https://crewportglobal.com/legal/shipowner-service-terms/
   - label: Privacy Policy
     href: https://crewportglobal.com/legal/privacy/
@@ -21,46 +28,70 @@ related_links:
 
 # CrewPortGlobal — KYB Policy for Business Clients
 
-This document explains how CrewPortGlobal approaches Know Your Business verification for shipowners, vessel operators, ship managers, crew managers and other business users requesting access to candidate workflows or commercial services.
+This policy describes the know-your-business baseline applied to shipowners, vessel operators, ship managers, crew managers and other business counterparties using CrewPortGlobal.
 
-## Why KYB is required
+## 1. Purpose
 
-CrewPortGlobal may process seafarer profiles, documentation status, client requests, operational data and business communications.
+CrewPortGlobal uses KYB controls to reduce fraud, impersonation, sanctions exposure, prohibited-party risk and unauthorized use of maritime candidate data.
 
-Before granting or maintaining access to certain workflows, CrewPortGlobal may need to verify that a business user is genuine, authorized and acting for a legitimate maritime purpose.
+## 2. Who may be reviewed
 
-## Scope
+KYB may apply to:
 
-KYB may apply to shipowners and beneficial owners interacting directly with the platform, ship managers, crew managers, operators, charter-side representatives, authorized agencies and consultants acting on behalf of a maritime business client.
+- shipowners and beneficial owners;
+- vessel operators and ship managers;
+- crewing or crew-management entities;
+- chartering-side users where relevant to crew onboarding;
+- authorized representatives acting on behalf of a business client.
 
-## Verification signals
+## 3. Typical verification elements
 
-CrewPortGlobal may request or review information such as registered legal name, jurisdiction of incorporation, registration number, office address, corporate website, representative identity, evidence of authority to act, sanctions screening results and beneficial ownership details where proportionate to the risk profile.
+CrewPortGlobal may request or review:
 
-## Risk-based review
+1. company legal name and registration details;
+2. jurisdiction of incorporation and operating address;
+3. vessel ownership or management context;
+4. identity and authority of the representative;
+5. beneficial ownership or control context where needed;
+6. sanctions, embargo or prohibited-party screening results;
+7. supporting corporate or authorization documents.
 
-Business verification may be handled using a risk-based approach.
+## 4. Why KYB is required
 
-Additional review may be required where there are concerns about identity mismatch, unusual payment instructions, sanctions exposure, high-risk jurisdictions, unverifiable ownership or inconsistent communication patterns.
+KYB helps ensure that candidate profiles, documents and communications are shared only with legitimate counterparties that have a real operational reason to access the workflow.
 
-## Access controls
+CrewPortGlobal may refuse to proceed where authority, identity or business legitimacy cannot be reasonably established.
 
-CrewPortGlobal may delay, limit or refuse access to candidate information, commercial discussions or platform functions until satisfactory KYB review is completed.
+## 5. Risk-based approach
 
-If material concerns remain unresolved, CrewPortGlobal may suspend or terminate business access.
+KYB is applied on a risk-based basis. Additional review may be required when:
 
-## Ongoing refresh
+- the ownership chain is unclear;
+- the representative cannot demonstrate authority;
+- sanctions or reputational concerns arise;
+- the requested activity is unusually sensitive;
+- documents are incomplete, contradictory or misleading.
 
-KYB is not necessarily a one-time event.
+## 6. Outcomes of review
 
-CrewPortGlobal may request updated information when there is a material change in ownership, control, representative authority, billing profile, jurisdiction, sanctions exposure or operational behavior.
+Following review, CrewPortGlobal may:
 
-## Data handling
+1. approve onboarding;
+2. request additional evidence;
+3. limit access to specific workflows;
+4. suspend onboarding pending clarification;
+5. refuse or terminate service where risk is unacceptable.
 
-KYB materials are handled as compliance and trust records and may be retained for audit, security, contractual or legal purposes in line with applicable privacy and retention rules.
+## 7. Ongoing obligations of business clients
 
-## Reservations
+Business clients are expected to keep their legal, operational and representative information current.
 
-CrewPortGlobal may use third-party providers, internal review, open-source intelligence or documentary checks to support KYB decisions.
+If material changes occur, including ownership, vessel authority, sanctions exposure or authorized personnel, CrewPortGlobal may require updated KYB review.
 
-Completion of KYB does not represent a warranty of financial standing, solvency or legal compliance by the client. It is a trust and risk-control measure only.
+## 8. Records and privacy
+
+KYB records may be retained for audit, compliance, dispute handling and platform integrity purposes, subject to the platform's Privacy Policy and applicable legal requirements.
+
+## 9. Policy updates
+
+This policy may be revised as CrewPortGlobal's compliance model expands, including additions to sanctions screening, representative validation and risk-tier controls.

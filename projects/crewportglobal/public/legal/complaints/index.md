@@ -1,8 +1,7 @@
 ---
-title: CrewPortGlobal — Complaint Handling Procedure
-nav_label: Complaints
 category: Procedure
-description: Public complaint intake, expected evidence, priority handling and temporary contact channels.
+nav_label: Complaints
+summary: Public complaint intake, expected evidence, priority handling and temporary contact channels.
 ---
 
 # CrewPortGlobal — Complaint Handling Procedure

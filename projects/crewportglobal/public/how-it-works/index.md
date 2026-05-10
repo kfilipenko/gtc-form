@@ -1,8 +1,7 @@
 ---
-title: CrewPortGlobal — How It Works
-nav_label: How It Works
 category: Overview
-description: Explains the initial workflow for seafarers, shipowners and human-reviewed shortlist preparation.
+nav_label: How It Works
+summary: Explains the initial workflow for seafarers, shipowners and human-reviewed shortlist preparation.
 ---
 
 # CrewPortGlobal — How It Works

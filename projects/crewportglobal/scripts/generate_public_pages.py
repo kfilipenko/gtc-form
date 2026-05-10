@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import html
 from pathlib import Path
-from typing import Any, Final
+from typing import Final
 import re
 
 import markdown
@@ -38,47 +37,84 @@ def clean_title(raw_title: str) -> str:
     return raw_title.replace("# ", "", 1).strip()
 
 
-def split_frontmatter(markdown_text: str) -> tuple[dict[str, Any], str]:
-    if not markdown_text.startswith("---\n"):
-        return {}, markdown_text
-
-    marker = "\n---\n"
-    end_index = markdown_text.find(marker, 4)
-    if end_index == -1:
-        return {}, markdown_text
-
-    frontmatter_text = markdown_text[4:end_index]
-    body = markdown_text[end_index + len(marker):]
-    loaded = yaml.safe_load(frontmatter_text) or {}
-    return loaded if isinstance(loaded, dict) else {}, body
-
-
 def extract_title(markdown_text: str) -> tuple[str, str]:
-    lines = markdown_text.lstrip().splitlines()
+    lines = markdown_text.splitlines()
     if not lines or not lines[0].startswith("# "):
         raise ValueError("Each document must start with a level-1 heading")
     return clean_title(lines[0]), "\n".join(lines[1:]).strip()
 
 
-def load_doc(slug: str) -> dict[str, Any]:
-    markdown_path = PUBLIC_ROOT / slug / "index.md"
-    markdown_text = markdown_path.read_text(encoding="utf-8")
-    metadata, content = split_frontmatter(markdown_text)
-    heading, markdown_body = extract_title(content)
-
-    doc = dict(metadata)
-    doc["slug"] = slug
-    doc["title"] = str(doc.get("title") or heading)
-    doc["body_title"] = heading
-    doc["nav_label"] = str(doc.get("nav_label") or heading.replace("CrewPortGlobal — ", ""))
-    doc["category"] = str(doc.get("category") or "Document")
-    doc["description"] = str(doc.get("description") or doc.get("summary") or "Public document")
-    doc["html_body"] = markdown.markdown(markdown_body, extensions=markdown_extensions())
-    return doc
+def split_frontmatter(markdown_text: str) -> tuple[dict[str, object], str]:
+    if not markdown_text.startswith("---\n"):
+        raise ValueError("Each document must start with YAML frontmatter")
+    frontmatter_block, separator, body = markdown_text[4:].partition("\n---\n")
+    if not separator:
+        raise ValueError("YAML frontmatter must be closed with ---")
+    metadata = yaml.safe_load(frontmatter_block) or {}
+    if not isinstance(metadata, dict):
+        raise ValueError("YAML frontmatter must parse to a mapping")
+    return metadata, body.strip()
 
 
-def load_docs() -> list[dict[str, Any]]:
-    return [load_doc(slug) for slug in DOC_ORDER]
+def require_text(metadata: dict[str, object], field_name: str) -> str:
+    value = metadata.get(field_name)
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"Frontmatter field '{field_name}' is required")
+    return value.strip()
+
+
+def read_text_list(metadata: dict[str, object], field_name: str) -> list[str]:
+    raw_items = metadata.get(field_name, [])
+    if raw_items in (None, ""):
+        return []
+    if not isinstance(raw_items, list):
+        raise ValueError(f"Frontmatter field '{field_name}' must be a list")
+    items: list[str] = []
+    for raw_item in raw_items:
+        if not isinstance(raw_item, str) or not raw_item.strip():
+            raise ValueError(f"Each '{field_name}' item must be a non-empty string")
+        items.append(raw_item.strip())
+    return items
+
+
+def read_link_items(metadata: dict[str, object], field_name: str) -> list[dict[str, str]]:
+    raw_items = metadata.get(field_name, [])
+    if raw_items in (None, ""):
+        return []
+    if not isinstance(raw_items, list):
+        raise ValueError(f"Frontmatter field '{field_name}' must be a list")
+
+    items: list[dict[str, str]] = []
+    for raw_item in raw_items:
+        if not isinstance(raw_item, dict):
+            raise ValueError(f"Each '{field_name}' item must be a mapping")
+        label = require_text(raw_item, "label")
+        href = require_text(raw_item, "href")
+        style = raw_item.get("style", "secondary")
+        if not isinstance(style, str) or not style.strip():
+            raise ValueError(f"Each '{field_name}' item must have a valid style")
+        items.append({"label": label, "href": href, "style": style.strip()})
+    return items
+
+
+def read_summary_cards(metadata: dict[str, object]) -> list[dict[str, str]]:
+    raw_cards = metadata.get("summary_cards", [])
+    if raw_cards in (None, ""):
+        return []
+    if not isinstance(raw_cards, list):
+        raise ValueError("Frontmatter field 'summary_cards' must be a list")
+
+    cards: list[dict[str, str]] = []
+    for raw_card in raw_cards:
+        if not isinstance(raw_card, dict):
+            raise ValueError("Each 'summary_cards' item must be a mapping")
+        cards.append(
+            {
+                "title": require_text(raw_card, "title"),
+                "text": require_text(raw_card, "text"),
+            }
+        )
+    return cards
 
 
 def slug_to_clean_url(slug: str) -> str:
@@ -94,27 +130,51 @@ def first_section_title(html_body: str) -> str | None:
     return match.group(1) if match else None
 
 
-def render_nav(current_slug: str, docs: list[dict[str, Any]]) -> str:
+def load_doc(slug: str) -> dict[str, object]:
+    markdown_path = PUBLIC_ROOT / slug / "index.md"
+    metadata, markdown_body = split_frontmatter(markdown_path.read_text(encoding="utf-8"))
+    page_title, body_markdown = extract_title(markdown_body)
+    return {
+        "slug": slug,
+        "title": page_title,
+        "body_markdown": body_markdown,
+        "category": require_text(metadata, "category"),
+        "nav_label": require_text(metadata, "nav_label"),
+        "summary": require_text(metadata, "summary"),
+        "trust_note": str(metadata.get("trust_note", "")).strip(),
+        "primary_focus": str(metadata.get("primary_focus", "")).strip(),
+        "hero_ctas": read_link_items(metadata, "hero_ctas"),
+        "summary_cards": read_summary_cards(metadata),
+        "acknowledgements": read_text_list(metadata, "acknowledgements"),
+        "related_links": read_link_items(metadata, "related_links"),
+    }
+
+
+def load_docs() -> list[dict[str, object]]:
+    return [load_doc(slug) for slug in DOC_ORDER]
+
+
+def render_nav(docs: list[dict[str, object]], current_slug: str) -> str:
     items = []
     for doc in docs:
         class_name = "nav-link is-active" if doc["slug"] == current_slug else "nav-link"
         items.append(
-            f'<a class="{class_name}" href="{slug_to_clean_url(str(doc["slug"]))}">{html.escape(str(doc["nav_label"]))}</a>'
+            f'<a class="{class_name}" href="{slug_to_clean_url(doc["slug"])}">{doc["nav_label"]}</a>'
         )
     return "\n".join(items)
 
 
-def render_library(current_slug: str, docs: list[dict[str, Any]]) -> str:
+def render_library(docs: list[dict[str, object]], current_slug: str) -> str:
     cards = []
     for doc in docs:
         class_name = "library-link is-active" if doc["slug"] == current_slug else "library-link"
         cards.append(
             "\n".join(
                 [
-                    f'<a class="{class_name}" href="{slug_to_clean_url(str(doc["slug"]))}">',
-                    f'  <span class="library-type">{html.escape(str(doc["category"]))}</span>',
-                    f'  <strong>{html.escape(str(doc["nav_label"]))}</strong>',
-                    f'  <span>{html.escape(str(doc["description"]))}</span>',
+                    f'<a class="{class_name}" href="{slug_to_clean_url(doc["slug"])}">',
+                    f'  <span class="library-type">{doc["category"]}</span>',
+                    f'  <strong>{doc["nav_label"]}</strong>',
+                    f'  <span>{doc["summary"]}</span>',
                     "</a>",
                 ]
             )
@@ -122,49 +182,42 @@ def render_library(current_slug: str, docs: list[dict[str, Any]]) -> str:
     return "\n".join(cards)
 
 
-def render_hero_ctas(doc: dict[str, Any]) -> str:
+def render_hero_ctas(doc: dict[str, object]) -> str:
     items = []
     for item in doc.get("hero_ctas", []):
-        if not isinstance(item, dict):
-            continue
-        label = html.escape(str(item.get("label") or "Open"))
-        href = html.escape(str(item.get("href") or SITE_ORIGIN), quote=True)
-        style = html.escape(str(item.get("style") or "secondary"))
-        items.append(f'<a class="button {style}" href="{href}">{label}</a>')
-    items.append(f'<a class="button secondary" href="{slug_to_raw_url(str(doc["slug"]))}">Canonical Markdown</a>')
+        items.append(f'<a class="button {item["style"]}" href="{item["href"]}">{item["label"]}</a>')
+    items.append(f'<a class="button secondary" href="{slug_to_raw_url(doc["slug"])}">Canonical Markdown</a>')
     return "\n".join(items)
 
 
-def render_summary_cards(doc: dict[str, Any]) -> str:
+def render_summary_cards(doc: dict[str, object]) -> str:
     cards = doc.get("summary_cards", [])
     if not cards:
         return ""
 
     items = []
-    for item in cards:
-        if not isinstance(item, dict):
-            continue
-        title = html.escape(str(item.get("title") or "Summary"))
-        text = html.escape(str(item.get("text") or ""))
+    for card in cards:
         items.append(
             "\n".join(
                 [
                     '<article class="summary-card">',
-                    f'  <h2>{title}</h2>',
-                    f'  <p>{text}</p>',
+                    f'  <h2>{card["title"]}</h2>',
+                    f'  <p>{card["text"]}</p>',
                     "</article>",
                 ]
             )
         )
 
-    return "\n".join([
-        '<section class="summary-grid">',
-        *items,
-        "</section>",
-    ])
+    return "\n".join(
+        [
+            '<section class="summary-grid">',
+            *items,
+            "</section>",
+        ]
+    )
 
 
-def render_acknowledgements(doc: dict[str, Any]) -> str:
+def render_acknowledgements(doc: dict[str, object]) -> str:
     items = doc.get("acknowledgements", [])
     if not items:
         return ""
@@ -176,49 +229,46 @@ def render_acknowledgements(doc: dict[str, Any]) -> str:
         '  <ul class="acknowledgement-list">',
     ]
     for item in items:
-        lines.append(f'    <li class="acknowledgement-item">{html.escape(str(item))}</li>')
+        lines.append(f'    <li class="acknowledgement-item">{item}</li>')
     lines.extend(["  </ul>", "</section>"])
     return "\n".join(lines)
 
 
-def render_related_links(doc: dict[str, Any]) -> str:
+def render_related_links(doc: dict[str, object]) -> str:
     items = doc.get("related_links", [])
     if not items:
         return ""
 
     links = []
     for item in items:
-        if not isinstance(item, dict):
-            continue
-        label = html.escape(str(item.get("label") or "Open"))
-        href = html.escape(str(item.get("href") or SITE_ORIGIN), quote=True)
-        links.append(f'<a class="related-link" href="{href}">{label}</a>')
+        links.append(f'<a class="related-link" href="{item["href"]}">{item["label"]}</a>')
 
-    return "\n".join([
-        '<section class="card related-panel">',
-        '  <p class="eyebrow">Related Trust Center links</p>',
-        '  <h2>Next documents to review</h2>',
-        '  <div class="related-links">',
-        *links,
-        '  </div>',
-        '</section>',
-    ])
+    return "\n".join(
+        [
+            '<section class="card related-panel">',
+            '  <p class="eyebrow">Related Trust Center links</p>',
+            '  <h2>Next documents to review</h2>',
+            '  <div class="related-links">',
+            *links,
+            '  </div>',
+            '</section>',
+        ]
+    )
 
 
-def render_page(doc: dict[str, Any], docs: list[dict[str, Any]]) -> str:
-    doc_dir = PUBLIC_ROOT / str(doc["slug"])
-    page_title = str(doc["title"])
-    html_body = str(doc["html_body"])
+def render_page(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
+    doc_dir = PUBLIC_ROOT / doc["slug"]
+    html_body = markdown.markdown(doc["body_markdown"], extensions=markdown_extensions())
     lead_heading = first_section_title(html_body)
     asset_href = Path("/".join([".."] * len(doc_dir.relative_to(PUBLIC_ROOT).parts)) or ".")
     stylesheet_href = (asset_href / "assets" / CSS_PATH.name).as_posix()
     if stylesheet_href.startswith("./"):
         stylesheet_href = stylesheet_href[2:]
 
-    title_suffix = f"{page_title} | CrewPortGlobal"
-    intro = str(doc["description"])
-    key_focus = lead_heading or "Public document"
-    trust_note = str(doc.get("trust_note") or "")
+    title_suffix = f"{doc['title']} | CrewPortGlobal"
+    intro = doc["summary"]
+    key_focus = doc.get("primary_focus") or lead_heading or "Public document"
+    trust_note = doc.get("trust_note", "")
     summary_cards = render_summary_cards(doc)
     acknowledgements = render_acknowledgements(doc)
     related_links = render_related_links(doc)
@@ -228,9 +278,9 @@ def render_page(doc: dict[str, Any], docs: list[dict[str, Any]]) -> str:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{html.escape(title_suffix)}</title>
-  <meta name="description" content="{html.escape(intro, quote=True)}">
-  <link rel="canonical" href="{slug_to_clean_url(str(doc['slug']))}">
+  <title>{title_suffix}</title>
+  <meta name="description" content="{intro}">
+  <link rel="canonical" href="{slug_to_clean_url(doc['slug'])}">
   <link rel="stylesheet" href="{stylesheet_href}">
 </head>
 <body class="doc-body">
@@ -247,21 +297,21 @@ def render_page(doc: dict[str, Any], docs: list[dict[str, Any]]) -> str:
     </header>
 
     <nav class="site-nav" aria-label="Document navigation">
-      {render_nav(str(doc['slug']), docs)}
+      {render_nav(docs, doc['slug'])}
     </nav>
 
     <main class="doc-main">
       <section class="doc-hero card">
         <div>
-          <p class="eyebrow">{html.escape(str(doc['category']))}</p>
-          <h1>{html.escape(page_title)}</h1>
-          <p class="lead">{html.escape(intro)}</p>
-          {'<p class="trust-note">' + html.escape(trust_note) + '</p>' if trust_note else ''}
+          <p class="eyebrow">{doc['category']}</p>
+          <h1>{doc['title']}</h1>
+          <p class="lead">{intro}</p>
+          {'<p class="trust-note">' + trust_note + '</p>' if trust_note else ''}
         </div>
         <div class="hero-meta">
           <div>
             <span class="meta-label">Primary focus</span>
-            <strong>{html.escape(key_focus)}</strong>
+            <strong>{key_focus}</strong>
           </div>
           <div class="hero-actions">
             <a class="button primary" href="{SITE_ORIGIN}/">Back to home</a>
@@ -288,7 +338,7 @@ def render_page(doc: dict[str, Any], docs: list[dict[str, Any]]) -> str:
           {related_links}
 
           <section class="card library-grid">
-            {render_library(str(doc['slug']), docs)}
+            {render_library(docs, doc['slug'])}
           </section>
         </aside>
       </section>
@@ -302,9 +352,9 @@ def render_page(doc: dict[str, Any], docs: list[dict[str, Any]]) -> str:
 def build_site() -> None:
     docs = load_docs()
     for doc in docs:
-        doc_dir = PUBLIC_ROOT / str(doc["slug"])
-        html_output = render_page(doc, docs)
-        (doc_dir / "index.html").write_text(html_output, encoding="utf-8")
+        doc_dir = PUBLIC_ROOT / doc["slug"]
+        html = render_page(doc, docs)
+        (doc_dir / "index.html").write_text(html, encoding="utf-8")
 
 
 if __name__ == "__main__":

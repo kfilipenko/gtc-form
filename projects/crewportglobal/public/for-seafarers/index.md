@@ -1,8 +1,7 @@
 ---
-title: CrewPortGlobal — For Seafarers
-nav_label: For Seafarers
 category: Audience
-description: Profile, documents, complaint handling and no-fee access expectations for seafarers.
+nav_label: For Seafarers
+summary: Profile, documents, complaint handling and no-fee access expectations for seafarers.
 ---
 
 # CrewPortGlobal — For Seafarers

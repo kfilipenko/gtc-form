@@ -1,9 +1,7 @@
 ---
-title: CrewPortGlobal — No Recruitment Fees Policy
-nav_label: No Recruitment Fees
 category: Policy
-description: "Core trust rule: seafarers must not be charged recruitment, placement or employment-access fees."
-trust_note: CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.
+nav_label: No Recruitment Fees
+summary: "Core trust rule: seafarers must not be charged recruitment, placement or employment-access fees."
 ---
 
 # CrewPortGlobal — No Recruitment Fees Policy

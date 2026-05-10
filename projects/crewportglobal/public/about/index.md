@@ -1,8 +1,7 @@
 ---
-title: CrewPortGlobal — Project Scope and Positioning
-nav_label: Project Scope
 category: Positioning
-description: Defines what CrewPortGlobal is, what it is not, and how the Stage 1 commercial model is framed.
+nav_label: Project Scope
+summary: Defines what CrewPortGlobal is, what it is not, and how the Stage 1 commercial model is framed.
 ---
 
 # CrewPortGlobal — Project Scope and Positioning

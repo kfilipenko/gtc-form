@@ -1,18 +1,7 @@
 ---
-title: CrewPortGlobal — Shipowner Service Agreement
-nav_label: Shipowner Agreement
 category: B2B
-description: Commercial and compliance baseline for shipowners, vessel operators, ship managers and crew managers using CrewPortGlobal.
-trust_note: CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.
-related_links:
-  - label: No Recruitment Fees Policy
-    href: https://crewportglobal.com/legal/no-recruitment-fees/
-  - label: Privacy Policy
-    href: https://crewportglobal.com/legal/privacy/
-  - label: Complaint Handling Procedure
-    href: https://crewportglobal.com/legal/complaints/
-  - label: Terms of Service
-    href: https://crewportglobal.com/legal/terms/
+nav_label: Shipowner Agreement
+summary: Commercial and compliance baseline for shipowners, vessel operators, ship managers and crew managers using CrewPortGlobal.
 ---
 
 # CrewPortGlobal — Shipowner Service Agreement

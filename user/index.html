@@ -1227,6 +1227,65 @@
       justify-content: flex-end;
       gap: 8px;
     }
+    .modal-panel .profile-onboarding-form {
+      gap: 16px;
+    }
+    .profile-onboarding-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .profile-onboarding-field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .profile-onboarding-field.full {
+      grid-column: 1 / -1;
+    }
+    .profile-onboarding-field input,
+    .profile-onboarding-field select {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,0.02);
+      color: var(--text);
+      font: inherit;
+    }
+    .profile-onboarding-field option {
+      color: #111827;
+    }
+    .profile-onboarding-help,
+    .profile-onboarding-status {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+    .profile-onboarding-status[data-tone="error"] {
+      color: #fda4af;
+    }
+    .profile-onboarding-status[data-tone="success"] {
+      color: #86efac;
+    }
+    .profile-onboarding-vessels {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.02);
+    }
+    .profile-onboarding-vessels label {
+      align-items: center;
+      font-size: 0.92rem;
+    }
+    @media (max-width: 720px) {
+      .profile-onboarding-grid,
+      .profile-onboarding-vessels {
+        grid-template-columns: 1fr;
+      }
+    }
     .chat-tag button {
       border: none;
       background: transparent;
@@ -1592,6 +1651,54 @@
               </footer>
             </form>
           </dialog>
+          <dialog id="crewportProfileDialog" class="modal-panel">
+            <form method="dialog" id="crewportProfileForm" class="profile-onboarding-form">
+              <h3>Complete your CrewPortGlobal profile</h3>
+              <p class="profile-onboarding-help">After email verification, we collect the first professional fields needed for maritime matching: full name, rank, department and vessel experience.</p>
+              <div class="profile-onboarding-grid">
+                <div class="profile-onboarding-field full">
+                  <label for="crewportProfileFullName">Full name</label>
+                  <input type="text" id="crewportProfileFullName" placeholder="As shown in your maritime documents" />
+                </div>
+                <div class="profile-onboarding-field">
+                  <label for="crewportProfileRank">Rank</label>
+                  <input type="text" id="crewportProfileRank" placeholder="Chief Officer, 2/E, AB, Cook" />
+                </div>
+                <div class="profile-onboarding-field">
+                  <label for="crewportProfileDepartment">Department</label>
+                  <select id="crewportProfileDepartment">
+                    <option value="">Select department</option>
+                    <option value="Deck">Deck</option>
+                    <option value="Engine">Engine</option>
+                    <option value="Electro-Technical">Electro-Technical</option>
+                    <option value="Catering">Catering</option>
+                    <option value="Offshore">Offshore</option>
+                    <option value="Hotel">Hotel</option>
+                    <option value="Cadet">Cadet</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="profile-onboarding-field full">
+                  <label>Vessel experience</label>
+                  <div class="profile-onboarding-vessels" id="crewportProfileVesselList">
+                    <label><input type="checkbox" value="Bulk Carrier" /> Bulk Carrier</label>
+                    <label><input type="checkbox" value="Container Ship" /> Container Ship</label>
+                    <label><input type="checkbox" value="Oil/Chemical Tanker" /> Oil/Chemical Tanker</label>
+                    <label><input type="checkbox" value="LNG/LPG" /> LNG/LPG</label>
+                    <label><input type="checkbox" value="General Cargo" /> General Cargo</label>
+                    <label><input type="checkbox" value="Ro-Ro" /> Ro-Ro</label>
+                    <label><input type="checkbox" value="Offshore Support" /> Offshore Support</label>
+                    <label><input type="checkbox" value="Passenger/Cruise" /> Passenger/Cruise</label>
+                  </div>
+                </div>
+              </div>
+              <p id="crewportProfileStatus" class="profile-onboarding-status"></p>
+              <footer>
+                <button type="button" id="crewportProfileLater" class="ghost-btn">Later</button>
+                <button type="button" id="crewportProfileSave" class="btn-primary">Save profile</button>
+              </footer>
+            </form>
+          </dialog>
         </section>
       </div>
     </section>
@@ -1608,6 +1715,15 @@
       const PAYMENT_URL = 'https://pay.gtstor.com/payment.php';
       const CHAT_SOURCE = 'web_chat_user';
       const AUTH_RETURN_PATH = window.location.pathname.startsWith('/user') ? window.location.pathname : '/user/';
+      const CREWPORT_PROFILE_API = '/user/crewportglobal_profile_api.php';
+      const CREWPORT_PENDING_KEY = 'crewportglobal:user:pending-profile';
+      const currentSearchParams = new URLSearchParams(window.location.search);
+      const crewportSourceLanding = currentSearchParams.get('source') === 'crewportglobal';
+      if (crewportSourceLanding) {
+        try {
+          localStorage.setItem(CREWPORT_PENDING_KEY, '1');
+        } catch {}
+      }
       const storageKeys = {
         session: 'chat:user:session',
         chat: 'chat:user:chat-id',
@@ -1662,7 +1778,9 @@
         subscriptionLocked: false,
         openChatMenuId: null,
         deletedChatIds: new Set(),
-        pendingDeletes: []
+        pendingDeletes: [],
+        crewportProfile: null,
+        crewportProfileLoaded: false
       };
       const inlineAuthState = {
         email: ''
@@ -1876,10 +1994,11 @@
       }
 
       function clearVerifiedQueryFlag() {
-        if (!verifiedLanding) return;
+        if (!verifiedLanding && !crewportSourceLanding) return;
         try {
           const url = new URL(window.location.href);
           url.searchParams.delete('verified');
+          url.searchParams.delete('source');
           const nextSearch = url.searchParams.toString();
           const nextUrl = `${url.pathname}${nextSearch ? `?${nextSearch}` : ''}${url.hash}`;
           window.history.replaceState({}, document.title, nextUrl);
@@ -2170,6 +2289,15 @@
       const deleteDialogMessage = document.getElementById('deleteDialogMessage');
       const deleteDialogCancel = document.getElementById('deleteDialogCancel');
       const deleteDialogConfirm = document.getElementById('deleteDialogConfirm');
+      const crewportProfileDialog = document.getElementById('crewportProfileDialog');
+      const crewportProfileForm = document.getElementById('crewportProfileForm');
+      const crewportProfileFullName = document.getElementById('crewportProfileFullName');
+      const crewportProfileRank = document.getElementById('crewportProfileRank');
+      const crewportProfileDepartment = document.getElementById('crewportProfileDepartment');
+      const crewportProfileVesselList = document.getElementById('crewportProfileVesselList');
+      const crewportProfileStatus = document.getElementById('crewportProfileStatus');
+      const crewportProfileLater = document.getElementById('crewportProfileLater');
+      const crewportProfileSave = document.getElementById('crewportProfileSave');
       const groupPicker = new GroupPicker({ maxSelections: MAX_CHAT_GROUPS });
       if (headerReturnToggle) {
         headerReturnToggle.addEventListener('click', () => {
@@ -2724,6 +2852,7 @@
         renderUserHeader();
         await hydrateShellData();
         await hydrateSubscriptionStatus();
+        await maybeOpenCrewPortProfileDialog();
       }
 
       function exitAppView() {
@@ -2742,6 +2871,8 @@
         state.openChatMenuId = null;
         state.deletedChatIds = new Set();
         state.pendingDeletes = [];
+        state.crewportProfile = null;
+        state.crewportProfileLoaded = false;
         state.chatMessages = Object.create(null);
         state.historyLoaded = Object.create(null);
         state.messageHydration = Object.create(null);
@@ -2758,6 +2889,172 @@
         messageLog.innerHTML = '';
         closeChatMenus();
         syncChatActions();
+      }
+
+      function readCrewPortPendingFlag() {
+        try {
+          return localStorage.getItem(CREWPORT_PENDING_KEY) === '1';
+        } catch {
+          return false;
+        }
+      }
+
+      function writeCrewPortPendingFlag(value) {
+        try {
+          if (value) {
+            localStorage.setItem(CREWPORT_PENDING_KEY, '1');
+          } else {
+            localStorage.removeItem(CREWPORT_PENDING_KEY);
+          }
+        } catch {}
+      }
+
+      async function requestCrewPortProfile(method = 'GET', payload = null) {
+        const response = await fetch(CREWPORT_PROFILE_API, {
+          method,
+          headers: payload ? { 'Content-Type': 'application/json' } : {},
+          credentials: 'include',
+          body: payload ? JSON.stringify(payload) : undefined
+        });
+        const data = await response.json().catch(() => ({ success: false, error: 'bad_json' }));
+        if (data && typeof data === 'object' && !('_status' in data)) {
+          data._status = response.status;
+        }
+        return data;
+      }
+
+      function crewPortProfileIsComplete(profile) {
+        if (!profile || typeof profile !== 'object') return false;
+        const rank = (profile.rank || '').trim();
+        const department = (profile.department || '').trim();
+        const vesselExperience = Array.isArray(profile.vessel_experience) ? profile.vessel_experience.filter(Boolean) : [];
+        return Boolean(rank && department && vesselExperience.length > 0);
+      }
+
+      function setCrewPortProfileStatus(message, tone = '') {
+        if (!crewportProfileStatus) return;
+        crewportProfileStatus.textContent = message || '';
+        if (tone) {
+          crewportProfileStatus.dataset.tone = tone;
+        } else {
+          delete crewportProfileStatus.dataset.tone;
+        }
+      }
+
+      function populateCrewPortProfileForm(profile) {
+        if (!crewportProfileDialog) return;
+        const vesselSet = new Set(Array.isArray(profile?.vessel_experience) ? profile.vessel_experience : []);
+        if (crewportProfileFullName) {
+          crewportProfileFullName.value = profile?.full_name || state.user?.full_name || '';
+        }
+        if (crewportProfileRank) {
+          crewportProfileRank.value = profile?.rank || '';
+        }
+        if (crewportProfileDepartment) {
+          crewportProfileDepartment.value = profile?.department || '';
+        }
+        crewportProfileVesselList?.querySelectorAll('input[type="checkbox"]').forEach((node) => {
+          node.checked = vesselSet.has(node.value);
+        });
+      }
+
+      async function loadCrewPortProfile(force = false) {
+        if (state.crewportProfileLoaded && !force) {
+          return state.crewportProfile;
+        }
+        const response = await requestCrewPortProfile('GET');
+        if (!response || response.success === false) {
+          throw new Error(response?.message || response?.error || 'profile_load_failed');
+        }
+        state.crewportProfile = response.profile || null;
+        state.crewportProfileLoaded = true;
+        return state.crewportProfile;
+      }
+
+      function openCrewPortProfileDialog(profile = null) {
+        if (!crewportProfileDialog) return;
+        populateCrewPortProfileForm(profile || state.crewportProfile || null);
+        setCrewPortProfileStatus('');
+        crewportProfileDialog.showModal();
+        requestAnimationFrame(() => {
+          crewportProfileRank?.focus();
+        });
+      }
+
+      function closeCrewPortProfileDialog() {
+        try {
+          crewportProfileDialog?.close();
+        } catch {}
+      }
+
+      async function maybeOpenCrewPortProfileDialog(options = {}) {
+        if (!state.user?.gtc_user_id || !crewportProfileDialog) return;
+        const force = Boolean(options.force);
+        const pending = force || verifiedLanding || crewportSourceLanding || readCrewPortPendingFlag();
+        if (!pending) return;
+        try {
+          const profile = await loadCrewPortProfile(force);
+          if (!force && crewPortProfileIsComplete(profile)) {
+            writeCrewPortPendingFlag(false);
+            clearVerifiedQueryFlag();
+            return;
+          }
+          writeCrewPortPendingFlag(true);
+          openCrewPortProfileDialog(profile);
+        } catch (error) {
+          console.warn('Unable to load CrewPortGlobal profile', error);
+        }
+      }
+
+      async function saveCrewPortProfile() {
+        if (!state.user?.gtc_user_id) return;
+        const fullName = (crewportProfileFullName?.value || '').trim();
+        const rank = (crewportProfileRank?.value || '').trim();
+        const department = (crewportProfileDepartment?.value || '').trim();
+        const vesselExperience = Array.from(crewportProfileVesselList?.querySelectorAll('input[type="checkbox"]:checked') || []).map((node) => node.value);
+
+        if (!rank) {
+          setCrewPortProfileStatus('Rank is required.', 'error');
+          crewportProfileRank?.focus();
+          return;
+        }
+        if (!department) {
+          setCrewPortProfileStatus('Department is required.', 'error');
+          crewportProfileDepartment?.focus();
+          return;
+        }
+        if (!vesselExperience.length) {
+          setCrewPortProfileStatus('Select at least one vessel experience area.', 'error');
+          return;
+        }
+
+        if (crewportProfileSave) {
+          crewportProfileSave.disabled = true;
+        }
+        setCrewPortProfileStatus('Saving profile…');
+        try {
+          const response = await requestCrewPortProfile('POST', {
+            full_name: fullName,
+            rank,
+            department,
+            vessel_experience: vesselExperience
+          });
+          if (!response || response.success === false) {
+            throw new Error(response?.message || response?.error || 'profile_save_failed');
+          }
+          state.crewportProfile = response.profile || null;
+          state.crewportProfileLoaded = true;
+          writeCrewPortPendingFlag(false);
+          clearVerifiedQueryFlag();
+          setCrewPortProfileStatus('Profile saved.', 'success');
+          window.setTimeout(() => closeCrewPortProfileDialog(), 250);
+        } catch (error) {
+          setCrewPortProfileStatus('Unable to save profile: ' + error.message, 'error');
+        } finally {
+          if (crewportProfileSave) {
+            crewportProfileSave.disabled = false;
+          }
+        }
       }
 
       async function bootAuthFlow() {
@@ -2876,7 +3173,7 @@
 
       profileBtn?.addEventListener('click', () => {
         if (!ensureAuth()) return;
-        window.location.href = '/auth/';
+        void maybeOpenCrewPortProfileDialog({ force: true });
       });
 
       logoutBtn?.addEventListener('click', async () => {
@@ -3110,6 +3407,18 @@
 
       groupManagerDialog?.addEventListener('close', () => {
         resetGroupManagerDialog();
+      });
+      crewportProfileLater?.addEventListener('click', () => {
+        closeCrewPortProfileDialog();
+      });
+      crewportProfileSave?.addEventListener('click', () => {
+        void saveCrewPortProfile();
+      });
+      crewportProfileForm?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && event.target instanceof HTMLInputElement) {
+          event.preventDefault();
+          void saveCrewPortProfile();
+        }
       });
 
       renameChatBtn?.addEventListener('click', () => {

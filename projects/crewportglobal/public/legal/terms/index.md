@@ -1,8 +1,7 @@
 ---
-title: CrewPortGlobal — Terms of Service
-nav_label: Terms
 category: Legal
-description: Core platform rules for the early public launch and AI-assisted workflow support.
+nav_label: Terms
+summary: Core platform rules for the early public launch and AI-assisted workflow support.
 ---
 
 # CrewPortGlobal — Terms of Service
