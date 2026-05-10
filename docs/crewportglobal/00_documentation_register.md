@@ -113,6 +113,7 @@ docs/crewportglobal/
   39_registration_automation_implementation_plan.md
   40_registration_automation_implementation_plan_review.md
   41_registration_automation_technical_task_decomposition.md
+  42_registration_automation_decomposition_owner_review.md
 ```
 
 ## 4. Priority order for drafting
@@ -198,6 +199,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.18 | 2026-05-10 | GTC IT / AI Assistant | Added decomposition owner review confirming readiness to create implementation tickets |
 | 0.17 | 2026-05-10 | GTC IT / AI Assistant | Added technical task decomposition for Increment 1 seafarer-only prototype planning |
 | 0.16 | 2026-05-10 | GTC IT / AI Assistant | Added implementation-plan review confirming n8n exclusion and readiness for technical task decomposition |
 | 0.15 | 2026-05-10 | GTC IT / AI Assistant | Added registration automation implementation plan with dedicated website application, internal service modules and explicit n8n exclusion |
