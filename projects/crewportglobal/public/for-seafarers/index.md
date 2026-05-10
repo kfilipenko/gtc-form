@@ -5,26 +5,26 @@ summary: Profile, documents, complaint handling and no-fee access expectations f
 trust_note: CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.
 primary_focus: Start with onboarding acceptance
 hero_ctas:
-	- label: Start Seafarer Onboarding
-		href: https://crewportglobal.com/onboarding/seafarer-registration/
-		style: primary
-	- label: Review Verification Policy
-		href: https://crewportglobal.com/legal/verification-policy/
-		style: secondary
+  - label: Start Seafarer Onboarding
+    href: https://crewportglobal.com/onboarding/seafarer-registration/
+    style: primary
+  - label: Review Verification Policy
+    href: https://crewportglobal.com/legal/verification-policy/
+    style: secondary
 summary_cards:
-	- title: Acceptance-first onboarding
-		text: Seafarers can start through an explicit acceptance page before later identity integration and workspace access are introduced.
-	- title: Document readiness
-		text: CrewPortGlobal is designed to help candidates keep core maritime documents organized and reviewable.
-	- title: No-fee access rule
-		text: Profile visibility, matching consideration and onboarding acceptance are not conditioned on recruitment or placement fees.
+  - title: Acceptance-first onboarding
+    text: Seafarers can start through an explicit acceptance page before later identity integration and workspace access are introduced.
+  - title: Document readiness
+    text: CrewPortGlobal is designed to help candidates keep core maritime documents organized and reviewable.
+  - title: No-fee access rule
+    text: Profile visibility, matching consideration and onboarding acceptance are not conditioned on recruitment or placement fees.
 related_links:
-	- label: Seafarer Onboarding Acceptance
-		href: https://crewportglobal.com/onboarding/seafarer-registration/
-	- label: Verification Policy
-		href: https://crewportglobal.com/legal/verification-policy/
-	- label: Seafarer Candidate Agreement
-		href: https://crewportglobal.com/legal/seafarer-candidate-agreement/
+  - label: Seafarer Onboarding Acceptance
+    href: https://crewportglobal.com/onboarding/seafarer-registration/
+  - label: Verification Policy
+    href: https://crewportglobal.com/legal/verification-policy/
+  - label: Seafarer Candidate Agreement
+    href: https://crewportglobal.com/legal/seafarer-candidate-agreement/
 ---
 
 # CrewPortGlobal — For Seafarers
