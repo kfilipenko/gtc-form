@@ -32,11 +32,27 @@ Every registration flow should be assembled from these shared primitives:
 5. category-specific record creation;
 6. `consent_records` capture;
 7. `verification_events` seeding;
-8. readiness evaluation through the relevant view or operator queue.
+8. state transition into the next gated stage;
+9. readiness evaluation through the relevant view or operator queue.
 
-## 4. Canonical Flow Groups
+## 4. Shared Stage 1 States
 
-### 4.1 Seafarer flow
+The common workflow state model for Stage 1 is:
+
+1. `draft`
+2. `pending_consent`
+3. `pending_documents`
+4. `pending_human_review`
+5. `active_limited`
+6. `active_verified`
+7. `suspended`
+8. `rejected`
+
+These states are planning-level workflow states and may map later to one or more concrete schema states.
+
+## 5. Canonical Flow Groups
+
+### 5.1 Seafarer flow
 
 Canonical records:
 
@@ -47,27 +63,55 @@ Canonical records:
 - `verification_events`
 - `seafarer_documents`
 
+Required Stage 1 guardrails:
+
+- capture a No Recruitment Fees acknowledgement;
+- do not create any recruitment fee or placement fee;
+- keep optional paid services, if introduced later, completely separate from vacancy access.
+
+Typical state path:
+
+- `draft`
+- `pending_consent`
+- `pending_documents`
+- `pending_human_review`
+- `active_limited` or `active_verified`
+
 Readiness output:
 
 - `seafarer_readiness`
 
-### 4.2 Individual user / non-seafarer flow
+### 5.2 Individual user / non-seafarer flow
 
 Canonical records:
 
 - `physical_persons`
-- optional `consent_records`
-- optional `billing_accounts` for later product scope
+- `consent_records`
 
-Current limitation:
+Stage 1 definition:
 
-- no dedicated non-seafarer public role code is defined yet.
+- limited project account for a physical person;
+- not yet a seafarer;
+- not yet linked to a business client;
+- may later transition into `Seafarer` or `Business Client Representative`.
+
+Billing rule:
+
+- no automatic billing handoff is allowed at initial registration;
+- any later billing scope must be a separate approved product flow.
+
+Typical state path:
+
+- `draft`
+- `pending_consent`
+- `pending_human_review`
+- `active_limited`
 
 Readiness output:
 
 - no dedicated readiness view yet.
 
-### 4.3 Business representative flow
+### 5.3 Business representative flow
 
 Canonical records:
 
@@ -78,11 +122,19 @@ Canonical records:
 - `consent_records`
 - `verification_events`
 
+Typical state path:
+
+- `draft`
+- `pending_consent`
+- `pending_documents`
+- `pending_human_review`
+- `active_limited` or `active_verified`
+
 Readiness output:
 
 - `business_readiness`
 
-### 4.4 Business client company flow
+### 5.4 Business client company flow
 
 Canonical records:
 
@@ -98,11 +150,19 @@ Supporting relationship records when applicable:
 - `vessels`
 - `vessel_documents`
 
+Typical state path:
+
+- `draft`
+- `pending_consent`
+- `pending_documents`
+- `pending_human_review`
+- `active_limited` or `active_verified`
+
 Readiness output:
 
 - `business_readiness`
 
-### 4.5 Internal operator flow
+### 5.5 Internal operator flow
 
 Canonical records:
 
@@ -113,13 +173,22 @@ Canonical records:
   - `complaint_operator`
   - `billing_operator`
 
-Current limitation:
+Stage 1 rule:
 
-- `Admin` is a planning umbrella, not a dedicated database role code.
+- `Admin` is internal-only;
+- public self-registration for `Admin` is prohibited;
+- creation happens only through manual provisioning and approval;
+- `Admin` remains an umbrella operational label, not a dedicated public database role code.
 
-## 5. Category Mapping Rules
+Typical state path:
 
-### 5.1 Seafarer
+- `draft`
+- `pending_human_review`
+- `active_limited` or `active_verified`
+
+## 6. Category Mapping Rules
+
+### 6.1 Seafarer
 
 Entry type:
 
@@ -129,7 +198,11 @@ Primary automation outcome:
 
 - create a person root and a seafarer operational profile.
 
-### 5.2 Individual user / non-seafarer
+Handoff criterion:
+
+- move to human review only after consent capture and minimum declared document set submission.
+
+### 6.2 Individual user / non-seafarer
 
 Entry type:
 
@@ -137,9 +210,13 @@ Entry type:
 
 Primary automation outcome:
 
-- create a person root without forcing the seafarer path.
+- create a limited project account without forcing the seafarer path or business linkage.
 
-### 5.3 Business client representative
+Handoff criterion:
+
+- move to human review after required consent capture and purpose validation.
+
+### 6.3 Business client representative
 
 Entry type:
 
@@ -149,7 +226,11 @@ Primary automation outcome:
 
 - attach a verified or reviewable person to a business client.
 
-### 5.4 Shipowner company
+Handoff criterion:
+
+- move to human review after authority evidence and required consents are captured.
+
+### 6.4 Shipowner company
 
 Entry type:
 
@@ -159,55 +240,91 @@ Primary automation outcome:
 
 - create a `business_clients` shell with `operational_role = 'shipowner'` and at least one representative path.
 
-### 5.5 Vessel operator
+Handoff criterion:
+
+- move to human review after KYB evidence and primary representative authority path are present.
+
+### 6.5 Vessel operator
 
 Primary automation outcome:
 
 - create a `business_clients` shell with `operational_role = 'vessel_operator'` and optional vessel relationship records.
 
-### 5.6 Ship manager
+Handoff criterion:
+
+- move to human review after business evidence and any declared vessel linkage evidence are present.
+
+### 6.6 Ship manager
 
 Primary automation outcome:
 
 - create a `business_clients` shell with `operational_role = 'ship_manager'` and optional vessel relationship records.
 
-### 5.7 Crew manager
+Handoff criterion:
+
+- move to human review after business evidence and any declared vessel linkage evidence are present.
+
+### 6.7 Crew manager
 
 Primary automation outcome:
 
 - create a `business_clients` shell with `operational_role = 'crew_manager'`.
 
-### 5.8 Manning agency
+Handoff criterion:
+
+- move to human review after business evidence and representative authority evidence are present.
+
+### 6.8 Manning agency
 
 Primary automation outcome:
 
 - create a `business_clients` shell with `operational_role = 'manning_agency'` and representative verification path.
 
-### 5.9 Training provider
+Handoff criterion:
+
+- move to human review after business evidence, representative authority evidence and policy-specific evidence are present.
+
+### 6.9 Training provider
 
 Primary automation outcome:
 
 - create a `business_clients` shell with `operational_role = 'training_provider'`.
 
-### 5.10 Medical provider
+Handoff criterion:
+
+- move to human review after business evidence, representative authority evidence and provider evidence are present.
+
+### 6.10 Medical provider
 
 Primary automation outcome:
 
 - create a `business_clients` shell with `operational_role = 'medical_provider'`.
 
-### 5.11 Travel provider
+Handoff criterion:
+
+- move to human review after business evidence, representative authority evidence and provider evidence are present.
+
+### 6.11 Travel provider
 
 Primary automation outcome:
 
 - create a `business_clients` shell with `operational_role = 'travel_provider'`.
 
-### 5.12 Admin
+Handoff criterion:
+
+- move to human review after business evidence, representative authority evidence and provider evidence are present.
+
+### 6.12 Admin
 
 Primary automation outcome:
 
 - map internal operators to explicit `user_roles` rather than to a generic admin entity.
 
-## 6. Shared Consent and Verification Pattern
+Handoff criterion:
+
+- move to human review only after manual provisioning request and internal approval are complete.
+
+## 7. Shared Consent and Verification Pattern
 
 Every externally facing registration path should plan for:
 
@@ -218,7 +335,20 @@ Every externally facing registration path should plan for:
 
 Provider and agency categories may later require narrower consent bundles, but that is not modeled yet in this planning step.
 
-## 7. Readiness and Review Outputs
+## 8. Stage 1 Mandatory Human Review Checkpoints
+
+In Stage 1, human review is mandatory for:
+
+1. seafarer profile verification;
+2. document verification;
+3. business client KYB approval;
+4. representative authority approval;
+5. vessel verification;
+6. crew request approval before matching;
+7. candidate submission to shipowner;
+8. complaint escalation.
+
+## 9. Readiness and Review Outputs
 
 The current planning outputs are:
 
@@ -228,16 +358,17 @@ The current planning outputs are:
 
 No dedicated readiness view exists yet for a generic non-seafarer individual user.
 
-## 8. Known Planning Gaps
+## 10. Known Planning Gaps
 
 The workflow plan still has these explicit gaps:
 
-1. no explicit non-seafarer public role model;
+1. no dedicated non-seafarer readiness view;
 2. no single `admin` role code;
 3. provider-specific document taxonomies are still policy-driven;
 4. no final API contract is defined yet;
 5. no implementation approval exists.
 
-## 9. Final Control Statement
+## 11. Final Control Statement
 
-This workflow specification is planning material only. Implementation is not approved yet.
+Registration automation planning package is ready for re-review.
+Implementation remains not approved.

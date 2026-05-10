@@ -41,7 +41,34 @@ The current planning baseline already provides the main data surfaces required f
 
 This means the planning package is already strong enough to define automation paths without introducing new SQL in this step.
 
-## 4. Category Coverage
+## 4. Stage 1 Guardrails
+
+The automation package must preserve the current Stage 1 policy boundaries inside the flow definitions themselves.
+
+### 4.1 Seafarer no-fee rule
+
+For the seafarer path, automation must explicitly preserve all of the following:
+
+- registration captures a No Recruitment Fees acknowledgement;
+- the registration flow does not create any recruitment fee or placement fee for the seafarer;
+- optional paid services, if introduced later, must not affect access to vacancies.
+
+### 4.2 Billing separation
+
+Billing remains project-local and bounded.
+
+- CrewPortGlobal billing must remain separated from other GTC services;
+- the current Stripe workflow remains out of scope;
+- no billable step may be attached to the Stage 1 seafarer access path.
+
+### 4.3 Internal-only admin rule
+
+`Admin` is internal-only at Stage 1.
+
+- public self-registration for `Admin` is prohibited;
+- admin access requires manual provisioning and approval.
+
+## 5. Category Coverage
 
 The registration automation planning package covers these categories:
 
@@ -58,13 +85,14 @@ The registration automation planning package covers these categories:
 11. Travel provider
 12. Admin
 
-## 5. Readiness Assessment by Category
+## 6. Readiness Assessment by Category
 
-### 5.1 Planning-ready categories
+### 6.1 Planning-ready or bounded categories
 
-The following categories are planning-ready under the current data model:
+The following categories are sufficiently defined for re-review under the current planning model:
 
 - Seafarer
+- Individual user / non-seafarer
 - Business client representative
 - Shipowner company
 - Vessel operator
@@ -74,24 +102,25 @@ The following categories are planning-ready under the current data model:
 - Training provider
 - Medical provider
 - Travel provider
+- Admin
 
-These categories can already be mapped onto existing `crewport` planning entities and readiness outputs.
+These categories can already be mapped onto existing `crewport` planning entities, bounded Stage 1 rules and readiness outputs.
 
-### 5.2 Partial-model categories
+### 6.2 Bounded categories that still remain intentionally narrow
 
-The following categories are only partially explicit in the current planning model:
+The following categories remain intentionally narrow even after this fix pass:
 
 - Individual user / non-seafarer
 - Admin
 
-Current reason:
+Current bounded semantics:
 
-- there is no dedicated self-service role code for a generic non-seafarer individual user;
-- there is no single `admin` role code, only internal operator roles such as `verifier`, `reviewer`, `complaint_operator` and `billing_operator`.
+- `Individual user / non-seafarer` is a limited project account for a physical person who is not yet a seafarer and is not yet linked to a business client, but may later transition into `Seafarer` or `Business Client Representative`;
+- `Admin` is internal-only and maps to explicit operator roles such as `verifier`, `reviewer`, `complaint_operator` and `billing_operator` through manual provisioning and approval.
 
-These are planning gaps, not implementation blockers for the rest of the package.
+These are controlled Stage 1 limitations, not undefined categories.
 
-## 6. Workflow Outputs Created in This Planning Step
+## 7. Workflow Outputs Created in This Planning Step
 
 This readiness step introduces two workflow-level planning artifacts:
 
@@ -103,7 +132,22 @@ Purpose of these files:
 - `registration_flow_spec.md` defines the canonical automation flow shapes;
 - `category_onboarding_matrix.md` maps each requested category to concrete records, gates and outputs.
 
-## 7. Automation Primitives
+## 8. Shared Stage 1 States
+
+The automation package uses the following common Stage 1 states as a planning model:
+
+1. `draft`
+2. `pending_consent`
+3. `pending_documents`
+4. `pending_human_review`
+5. `active_limited`
+6. `active_verified`
+7. `suspended`
+8. `rejected`
+
+These states are a workflow-planning contract for implementation planning and do not yet imply that every state is stored as-is in the current SQL schema.
+
+## 9. Automation Primitives
 
 Every automated registration flow should be composed from the same planning primitives:
 
@@ -118,33 +162,58 @@ Every automated registration flow should be composed from the same planning prim
 
 This keeps category-specific differences inside controlled branches without changing the global identity or billing boundary.
 
-## 8. Main Planning Gaps Before Implementation Review
+## 10. Mandatory Human Review Checkpoints
 
-The following items still require explicit product or operations decisions before implementation planning can advance:
+In Stage 1, human review is mandatory for:
 
-1. exact semantics for `Individual user / non-seafarer`;
-2. whether a dedicated non-seafarer role code is needed later;
-3. whether `Admin` remains an umbrella label or must always map to explicit operator roles;
+1. seafarer profile verification;
+2. document verification;
+3. business client KYB approval;
+4. representative authority approval;
+5. vessel verification;
+6. crew request approval before matching;
+7. candidate submission to shipowner;
+8. complaint escalation.
+
+## 11. Handoff Criteria
+
+The common handoff rule for Stage 1 is:
+
+- `draft` -> `pending_consent` after intake capture;
+- `pending_consent` -> `pending_documents` after required acknowledgements and consent capture;
+- `pending_documents` -> `pending_human_review` once the minimum declared evidence set is submitted;
+- `pending_human_review` -> `active_limited` or `active_verified` only after the required human checkpoint is completed;
+- `suspended` and `rejected` remain operator-controlled outcomes.
+
+## 12. Main Planning Gaps Before Re-Review
+
+The following items still require product or operations clarification, but they no longer block re-review of the package:
+
+1. whether `Individual user / non-seafarer` eventually gets a dedicated role code;
+2. whether a dedicated generic readiness view is needed for limited individual accounts;
+3. whether `Admin` should stay an umbrella label or later split into narrower provisioning templates;
 4. category-specific consent bundles for providers and agency classes;
 5. category-specific verification requirements for training, medical and travel providers;
 6. onboarding UX entry points and API contract boundaries.
 
-## 9. Review Path
+## 13. Review Path
 
-Before any implementation work is proposed, reviewers should confirm:
+Before any further review step, reviewers should confirm:
 
 1. the category list is final enough for planning;
 2. each category is mapped to the correct `crewport` records;
-3. readiness outputs are sufficient for operator review;
-4. partial-model categories are explicitly acknowledged;
-5. workflow planning remains isolated from SQL execution and infrastructure changes.
+3. the no-fee seafarer rule is explicit in all relevant automation artifacts;
+4. state transitions and handoff criteria are sufficient for operator review;
+5. internal-only admin provisioning is explicit;
+6. workflow planning remains isolated from SQL execution and infrastructure changes.
 
-## 10. Planning Recommendation
+## 14. Planning Recommendation
 
-Recommendation: the registration automation planning package is ready for review.
+Recommendation: the registration automation planning package is ready for re-review.
 
-The package is suitable for architecture and workflow review, but not for implementation approval.
+The package is suitable for another planning review pass, but implementation is still not approved.
 
-## 11. Final Control Statement
+## 15. Final Control Statement
 
-Registration automation planning package is ready for review. Implementation is not approved yet.
+Registration automation planning package is ready for re-review.
+Implementation remains not approved.
