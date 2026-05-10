@@ -119,6 +119,7 @@ docs/crewportglobal/
   45_increment_1_individual_issue_drafts_index.md
   46_increment_1_individual_issue_drafts_owner_review.md
   47_increment_1_github_issue_creation_approval_package.md
+  48_architecture_decision_gtc1_app_gtc_agent_openclaw.md
 ```
 
 ## 4. Priority order for drafting
@@ -204,6 +205,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.24 | 2026-05-10 | GTC IT / AI Assistant | Added ADR 48 fixing runtime placement: GTC1 for website app and SQL, GTC-AGENT for OpenClaw, n8n excluded |
 | 0.23 | 2026-05-10 | GTC IT / AI Assistant | Added GitHub issue creation approval package and checklist for project-owner decision on Increment 1 issue draft creation |
 | 0.22 | 2026-05-10 | GTC IT / AI Assistant | Added owner review confirming Increment 1 repository issue drafts are ready to convert into GitHub implementation issue drafts |
 | 0.21 | 2026-05-10 | GTC IT / AI Assistant | Added Increment 1 individual issue drafts index and 12 draft issue files for CPG-I1-001 through CPG-I1-012 |
