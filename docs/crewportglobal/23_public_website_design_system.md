@@ -1,7 +1,7 @@
 # CrewPortGlobal — Public Website Design System
 
 - Document owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.1
+- Version: 0.2
 - Status: Active baseline
 - Classification: Internal
 - Effective date: 2026-05-10
@@ -45,6 +45,8 @@ Main UI surfaces should remain consistent across homepage and public document pa
 - one consistent shadow family for elevated cards.
 
 Homepage-specific layouts may differ, but they should still look like part of the same system as the Trust Center pages.
+
+The homepage now uses the same dark maritime palette and the same shared stylesheet baseline as the generated public document pages.
 
 ## 5. Homepage composition
 
@@ -116,3 +118,10 @@ Any major visual redesign should update:
 - the homepage content document;
 - the live homepage source in projects/crewportglobal/public/index.html;
 - any affected document-page frontmatter where CTA hierarchy changes.
+
+## Revision history
+
+| Version | Date | Author | Changes |
+|---|---|---|---|
+| 0.2 | 2026-05-10 | GitHub Copilot | Homepage aligned to the shared dark Trust Center theme and shared stylesheet baseline |
+| 0.1 | 2026-05-10 | GitHub Copilot | Initial design-system baseline created |

@@ -5,95 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CrewPortGlobal</title>
   <meta name="description" content="Digital maritime crew data, documentation and matching platform.">
+  <link rel="stylesheet" href="assets/crewportglobal-docs.css">
   <style>
-    :root {
-      --bg: #f4f1e8;
-      --panel: rgba(255, 250, 242, 0.78);
-      --ink: #182229;
-      --muted: #52636a;
-      --line: rgba(24, 34, 41, 0.12);
-      --accent: #0b6e6e;
-      --accent-2: #d97b2d;
-      --shadow: 0 22px 60px rgba(24, 34, 41, 0.14);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
-      color: var(--ink);
-      background:
-        radial-gradient(circle at top left, rgba(217, 123, 45, 0.22), transparent 28%),
-        radial-gradient(circle at right 15%, rgba(11, 110, 110, 0.18), transparent 24%),
-        linear-gradient(180deg, #f8f5ed 0%, var(--bg) 100%);
-    }
-
-    .shell {
-      width: min(1120px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 32px 0 64px;
-    }
-
-    .topline {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 36px;
-      font-size: 14px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .badge {
+    .status-pill {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
+      justify-content: center;
+      min-height: 46px;
+      padding: 12px 16px;
       border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.58);
-      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--muted-on-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 13px;
     }
 
-    .hero {
+    .landing-hero {
       display: grid;
       grid-template-columns: 1.25fr 0.95fr;
       gap: 24px;
       align-items: stretch;
     }
 
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 28px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-    }
-
     .hero-copy {
       padding: 40px;
     }
 
-    h1 {
+    .landing-title {
       margin: 0 0 18px;
       font-size: clamp(40px, 7vw, 72px);
       line-height: 0.94;
       letter-spacing: -0.05em;
       max-width: 10ch;
+      color: var(--paper-strong);
     }
 
-    .lead {
+    .landing-lead {
       margin: 0 0 28px;
       max-width: 58ch;
       font-size: 18px;
       line-height: 1.65;
-      color: var(--muted);
+      color: var(--muted-on-dark);
     }
 
     .actions {
@@ -101,48 +55,6 @@
       flex-wrap: wrap;
       gap: 12px;
       margin-bottom: 28px;
-    }
-
-    .actions a,
-    .doc-list a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 48px;
-      padding: 12px 18px;
-      border-radius: 14px;
-      border: 1px solid transparent;
-      font-weight: 600;
-      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
-    }
-
-    .button.primary {
-      background: var(--ink);
-      color: #fff7eb;
-    }
-
-    .button.secondary {
-      background: rgba(255, 255, 255, 0.68);
-      border-color: var(--line);
-    }
-
-    .button:hover,
-    .doc-list a:hover {
-      transform: translateY(-1px);
-    }
-
-    .trust {
-      display: inline-flex;
-      padding: 12px 16px;
-      border-radius: 16px;
-      background: rgba(11, 110, 110, 0.08);
-      color: var(--accent);
-      font-weight: 700;
     }
 
     .hero-panel {
@@ -154,28 +66,18 @@
     .hero-panel section {
       padding: 20px;
       border-radius: 20px;
-      background: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--line);
     }
 
-    .eyebrow {
-      margin: 0 0 10px;
-      font-size: 12px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent-2);
-    }
-
-    h2 {
+    .hero-panel h2,
+    .docs-head h2,
+    .verification-card strong,
+    .doc-title {
       margin: 0 0 10px;
       font-size: 22px;
       letter-spacing: -0.03em;
-    }
-
-    p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.6;
+      color: var(--paper-strong);
     }
 
     .docs {
@@ -189,6 +91,14 @@
       align-items: end;
       gap: 16px;
       margin-bottom: 18px;
+    }
+
+    .docs-head > p,
+    .hero-panel p,
+    .doc-note,
+    .verification-band .docs-head p {
+      color: var(--muted-on-dark);
+      line-height: 1.6;
     }
 
     .doc-list {
@@ -211,22 +121,17 @@
       height: 100%;
       padding: 20px;
       border-radius: 20px;
-      background: rgba(255, 255, 255, 0.68);
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--line);
+      color: inherit;
+      text-decoration: none;
     }
 
     .doc-type {
       font-size: 12px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--accent-2);
-    }
-
-    .doc-title {
-      font-size: 22px;
-      line-height: 1.15;
-      letter-spacing: -0.03em;
-      color: var(--ink);
+      color: var(--amber);
     }
 
     .verification-band {
@@ -248,16 +153,10 @@
       min-height: 180px;
       padding: 22px;
       border-radius: 20px;
-      background: rgba(255, 255, 255, 0.68);
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--line);
       text-decoration: none;
       color: inherit;
-    }
-
-    .verification-card strong {
-      font-size: 22px;
-      line-height: 1.15;
-      letter-spacing: -0.03em;
     }
 
     .doc-note {
@@ -265,7 +164,11 @@
     }
 
     @media (max-width: 900px) {
-      .hero {
+      .site-header {
+        align-items: start;
+      }
+
+      .landing-hero {
         grid-template-columns: 1fr;
       }
 
@@ -279,18 +182,40 @@
     }
   </style>
 </head>
-<body>
-  <div class="shell">
-    <div class="topline">
-      <span>CrewPortGlobal</span>
-      <span class="badge">Stage 1 • Documentation and Matching Platform</span>
-    </div>
+<body class="doc-body">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span>Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <span class="status-pill">Stage 1 • Documentation and Matching Platform</span>
+    </header>
 
-    <main>
-      <section class="hero">
+    <nav class="site-nav" aria-label="Homepage navigation">
+      <a class="nav-link" href="https://crewportglobal.com/about/">Project Scope</a>
+      <a class="nav-link" href="https://crewportglobal.com/how-it-works/">How It Works</a>
+      <a class="nav-link" href="https://crewportglobal.com/for-shipowners/">For Shipowners</a>
+      <a class="nav-link" href="https://crewportglobal.com/for-seafarers/">For Seafarers</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/no-recruitment-fees/">No Recruitment Fees</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/privacy/">Privacy</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/">Seafarer Agreement</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/terms/">Terms</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/shipowner-service-terms/">Shipowner Agreement</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/recruitment-and-matching-policy/">Matching Policy</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/verification-policy/">Verification Policy</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/complaints/">Complaints</a>
+    </nav>
+
+    <main class="doc-main">
+      <section class="landing-hero">
         <article class="card hero-copy">
-          <h1>Maritime crew workflows with a compliance-first spine.</h1>
-          <p class="lead">CrewPortGlobal is being developed as a digital maritime crew data, document and matching platform for shipowners, operators and seafarers. Public client documentation is prepared in Markdown as the canonical publishing format, while seafarer onboarding starts through a dedicated acceptance-first route.</p>
+          <p class="eyebrow">Stage 1</p>
+          <h1 class="landing-title">Maritime crew workflows with a compliance-first spine.</h1>
+          <p class="landing-lead">CrewPortGlobal is being developed as a digital maritime crew data, document and matching platform for shipowners, operators and seafarers. Public client documentation is prepared in Markdown as the canonical publishing format, while seafarer onboarding starts through a dedicated acceptance-first route.</p>
           <div class="actions">
             <a class="button primary" href="https://crewportglobal.com/for-shipowners/">For Shipowners</a>
             <a class="button secondary" href="https://crewportglobal.com/for-seafarers/">For Seafarers</a>
@@ -299,7 +224,7 @@
             <a class="button secondary" href="https://crewportglobal.com/how-it-works/">How It Works</a>
             <a class="button secondary" href="https://crewportglobal.com/about/">Project Scope</a>
           </div>
-          <div class="trust">CrewPortGlobal does not charge seafarers recruitment or placement fees.</div>
+          <p class="trust-note">CrewPortGlobal does not charge seafarers recruitment or placement fees.</p>
         </article>
 
         <aside class="card hero-panel">
