@@ -98,6 +98,7 @@ docs/crewportglobal/
   24_isolated_database_schema_and_registration_flows.md
   25_category_onboarding_matrix.md
   26_database_schema_design_review.md
+  27_database_schema_v1_fix_plan.md
 ```
 
 ## 4. Priority order for drafting
@@ -183,5 +184,6 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.3 | 2026-05-10 | GTC IT / AI Assistant | Added schema design review follow-up and v1 fix-plan documentation |
 | 0.2 | 2026-05-10 | GTC IT / AI Assistant | Added isolated database schema planning docs and project-local SQL planning path |
 | 0.1 | 2026-05-08 | GTC IT / AI Assistant | Initial documentation register created |
