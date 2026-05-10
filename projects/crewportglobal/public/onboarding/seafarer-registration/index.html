@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Seafarer onboarding acceptance</title>
+  <meta name="description" content="Create a seafarer account under a no-fee onboarding flow with explicit agreement acknowledgements and email verification.">
+  <link rel="canonical" href="https://crewportglobal.com/onboarding/seafarer-registration/">
+  <link rel="stylesheet" href="../../assets/crewportglobal-docs.css">
+</head>
+<body class="doc-body">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span>Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <a class="home-link" href="https://crewportglobal.com/">Overview</a>
+    </header>
+
+    <nav class="site-nav" aria-label="Trust center navigation">
+      <a class="nav-link" href="https://crewportglobal.com/for-seafarers/">For Seafarers</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/">Seafarer Agreement</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/no-recruitment-fees/">No Recruitment Fees</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/privacy/">Privacy</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/complaints/">Complaints</a>
+    </nav>
+
+    <main class="doc-main">
+      <section class="doc-hero card">
+        <div>
+          <p class="eyebrow">Onboarding</p>
+          <h1>Seafarer registration with explicit acceptance controls.</h1>
+          <p class="lead">This onboarding step creates your CrewPortGlobal account, records the required no-fee and privacy acknowledgements, and sends you to email verification before secure workspace access.</p>
+          <p class="trust-note">CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.</p>
+        </div>
+        <div class="hero-meta">
+          <div>
+            <span class="meta-label">Primary focus</span>
+            <strong>Accepted registration before verification</strong>
+          </div>
+          <div class="hero-actions">
+            <a class="button primary" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/">Review agreement</a>
+            <a class="button secondary" href="https://crewportglobal.com/legal/privacy/">Review privacy</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="flow-grid">
+        <article class="card flow-stack">
+          <div class="info-copy">
+            <p class="eyebrow">Account creation</p>
+            <h2>Complete the acceptance checklist and create your account</h2>
+            <p>The account is created on the CrewPortGlobal domain through the same authentication backend used by the wider GTC platform. Email verification is still required before you continue to the secure user workspace.</p>
+          </div>
+
+          <form id="registrationForm" class="flow-form" novalidate>
+            <div class="field-grid">
+              <div class="field full">
+                <label for="fullName">Full name</label>
+                <input id="fullName" name="fullName" type="text" autocomplete="name" placeholder="As shown in your professional documents">
+                <div class="field-hint">Stored locally in this browser as onboarding context. Profile completion continues after email verification.</div>
+              </div>
+
+              <div class="field full">
+                <label for="email">Email address</label>
+                <input id="email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="captain@example.com">
+              </div>
+
+              <div class="field full">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" autocomplete="new-password" required placeholder="Minimum 8 characters and at least one uppercase letter">
+                <div class="inline-actions">
+                  <button class="button secondary" type="button" id="togglePassword">Show password</button>
+                  <button class="button secondary" type="button" id="generatePassword">Generate strong password</button>
+                </div>
+                <ul class="hint-list" id="passwordHints">
+                  <li data-rule="length">Minimum 8 characters</li>
+                  <li data-rule="uppercase">At least one uppercase letter</li>
+                </ul>
+              </div>
+            </div>
+
+            <div>
+              <p class="eyebrow">Required acknowledgements</p>
+              <div class="checklist">
+                <label class="check-item">
+                  <input type="checkbox" name="ack_no_fee" required>
+                  <span>
+                    <strong>No recruitment fees</strong>
+                    I understand that CrewPortGlobal does not charge seafarers recruitment, placement or employment fees.
+                  </span>
+                </label>
+                <label class="check-item">
+                  <input type="checkbox" name="ack_optional_services" required>
+                  <span>
+                    <strong>Optional services are not required</strong>
+                    I understand that any optional paid service is separate and not required for job access.
+                  </span>
+                </label>
+                <label class="check-item">
+                  <input type="checkbox" name="ack_accuracy" required>
+                  <span>
+                    <strong>Accuracy of data</strong>
+                    I confirm that the information and documents I submit are accurate and belong to me.
+                  </span>
+                </label>
+                <label class="check-item">
+                  <input type="checkbox" name="ack_no_guarantee" required>
+                  <span>
+                    <strong>No job guarantee</strong>
+                    I understand that profile creation and matching support do not guarantee employment or embarkation.
+                  </span>
+                </label>
+                <label class="check-item">
+                  <input type="checkbox" name="ack_policies" required>
+                  <span>
+                    <strong>Agreement and privacy acceptance</strong>
+                    I agree to the Seafarer Candidate Agreement, Privacy Policy and Complaint Handling Procedure.
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div id="statusMessage" class="status-message" aria-live="polite"></div>
+
+            <div class="inline-actions">
+              <button id="submitButton" class="button primary" type="submit">Create account and send verification email</button>
+              <a class="button secondary" href="https://app.gtstor.com/auth/email/?next=%2Fuser%2F">Already registered? Sign in</a>
+            </div>
+          </form>
+        </article>
+
+        <aside class="info-stack">
+          <section class="card info-copy">
+            <p class="eyebrow">What happens next</p>
+            <h2>Verification before workspace access</h2>
+            <ul>
+              <li>Your account is created through same-origin CrewPortGlobal auth routing.</li>
+              <li>A verification email is sent to the address you provide.</li>
+              <li>After verification, you continue to the secure workspace on app.gtstor.com.</li>
+            </ul>
+          </section>
+
+          <section class="card info-copy">
+            <p class="eyebrow">Documents to review</p>
+            <h3>Trust Center references</h3>
+            <div class="support-links">
+              <a href="https://crewportglobal.com/legal/seafarer-candidate-agreement/">Seafarer Candidate Agreement</a>
+              <a href="https://crewportglobal.com/legal/no-recruitment-fees/">No Recruitment Fees Policy</a>
+              <a href="https://crewportglobal.com/legal/privacy/">Privacy Policy</a>
+              <a href="https://crewportglobal.com/legal/complaints/">Complaint Handling Procedure</a>
+            </div>
+          </section>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const nextUrl = 'https://app.gtstor.com/user/';
+
+    function api(path, body) {
+      return fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body || {})
+      }).then(async (response) => {
+        const data = await response.json().catch(() => ({ error: 'bad_json' }));
+        if (data && typeof data === 'object' && !('_status' in data)) {
+          data._status = response.status;
+        }
+        return data;
+      });
+    }
+
+    function setStatus(message, kind) {
+      const statusNode = document.getElementById('statusMessage');
+      statusNode.textContent = message;
+      statusNode.className = 'status-message' + (kind ? ' is-' + kind : '');
+    }
+
+    function passwordIsValid(value) {
+      return value.length >= 8 && /[A-Z]/.test(value);
+    }
+
+    function updatePasswordHints() {
+      const value = document.getElementById('password').value || '';
+      const list = document.getElementById('passwordHints');
+      const lengthItem = list.querySelector('[data-rule="length"]');
+      const upperItem = list.querySelector('[data-rule="uppercase"]');
+      lengthItem.style.color = value.length >= 8 ? 'var(--teal)' : 'var(--muted-on-dark)';
+      upperItem.style.color = /[A-Z]/.test(value) ? 'var(--teal)' : 'var(--muted-on-dark)';
+    }
+
+    function generatePassword() {
+      const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+      const lower = 'abcdefghijkmnopqrstuvwxyz';
+      const digits = '23456789';
+      const special = '!@#$%^&*()-_=+[]{}';
+      const all = upper + lower + digits + special;
+      let password = '';
+      password += upper[Math.floor(Math.random() * upper.length)];
+      password += upper[Math.floor(Math.random() * upper.length)];
+      for (let index = 0; index < 10; index += 1) {
+        password += all[Math.floor(Math.random() * all.length)];
+      }
+      return password.split('').sort(() => Math.random() - 0.5).join('');
+    }
+
+    document.getElementById('password').addEventListener('input', updatePasswordHints);
+    document.getElementById('togglePassword').addEventListener('click', () => {
+      const input = document.getElementById('password');
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      document.getElementById('togglePassword').textContent = isPassword ? 'Hide password' : 'Show password';
+    });
+    document.getElementById('generatePassword').addEventListener('click', () => {
+      const input = document.getElementById('password');
+      input.value = generatePassword();
+      updatePasswordHints();
+      input.focus();
+      input.select();
+    });
+    updatePasswordHints();
+
+    document.getElementById('registrationForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setStatus('', '');
+
+      const submitButton = document.getElementById('submitButton');
+      const fullName = document.getElementById('fullName').value.trim();
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
+      const requiredChecks = Array.from(document.querySelectorAll('.check-item input[required]'));
+
+      if (!email) {
+        setStatus('Email is required.', 'error');
+        return;
+      }
+      if (!passwordIsValid(password)) {
+        setStatus('Password must have minimum 8 characters and at least one uppercase letter.', 'error');
+        return;
+      }
+      if (requiredChecks.some((node) => !node.checked)) {
+        setStatus('All required acknowledgements must be accepted before registration.', 'error');
+        return;
+      }
+
+      submitButton.disabled = true;
+      const originalLabel = submitButton.textContent;
+      submitButton.textContent = 'Creating account...';
+
+      try {
+        const check = await api('/auth/check_email', { email });
+        if (check && !check.error && check.exists) {
+          try {
+            localStorage.setItem('email', email);
+            if (fullName) {
+              localStorage.setItem('crewportglobal_full_name', fullName);
+            }
+          } catch (error) {}
+          setStatus('This email is already registered. Use the sign-in link to continue.', 'error');
+          submitButton.disabled = false;
+          submitButton.textContent = originalLabel;
+          return;
+        }
+        if (check && check.error) {
+          setStatus('Email check failed: ' + check.error, 'error');
+          submitButton.disabled = false;
+          submitButton.textContent = originalLabel;
+          return;
+        }
+
+        const response = await api('/auth/register', { email, password });
+        if (!response || response.error) {
+          if (response && response._status === 409 && response.error === 'email_exists') {
+            setStatus('This email is already registered. Use the sign-in link to continue.', 'error');
+          } else {
+            setStatus('Registration failed: ' + (response && response.error ? response.error : 'unknown'), 'error');
+          }
+          submitButton.disabled = false;
+          submitButton.textContent = originalLabel;
+          return;
+        }
+
+        try {
+          localStorage.setItem('email', email);
+          localStorage.setItem('email_verified', 'false');
+          if (fullName) {
+            localStorage.setItem('crewportglobal_full_name', fullName);
+          }
+          localStorage.setItem('crewportglobal_seafarer_acceptance', JSON.stringify({
+            acceptedAt: new Date().toISOString(),
+            email,
+            fullName,
+            acknowledgements: requiredChecks.map((node) => node.name)
+          }));
+        } catch (error) {}
+
+        setStatus('Account created. Redirecting to verification...', 'success');
+        window.location.href = '/verify/?next=' + encodeURIComponent(nextUrl);
+      } catch (error) {
+        setStatus('Registration failed: ' + error.message, 'error');
+        submitButton.disabled = false;
+        submitButton.textContent = originalLabel;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -441,10 +441,166 @@ a {
   color: #f5efe4;
 }
 
+.flow-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: 22px;
+  margin-top: 22px;
+  align-items: start;
+}
+
+.flow-stack,
+.flow-form,
+.info-stack,
+.support-links,
+.hint-list,
+.checklist {
+  display: grid;
+  gap: 16px;
+}
+
+.flow-form {
+  margin-top: 22px;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field.full {
+  grid-column: 1 / -1;
+}
+
+.field label,
+.check-item strong {
+  color: var(--text-on-dark);
+  font-weight: 600;
+}
+
+.field input {
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-on-dark);
+  font: inherit;
+}
+
+.field input::placeholder {
+  color: rgba(232, 240, 247, 0.42);
+}
+
+.field-hint,
+.support-links a,
+.hint-list li,
+.status-message,
+.info-copy p,
+.check-item span {
+  color: var(--muted-on-dark);
+}
+
+.field-hint {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hint-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.status-message {
+  min-height: 24px;
+  font-size: 15px;
+}
+
+.status-message.is-error {
+  color: #ffb6ab;
+}
+
+.status-message.is-success {
+  color: var(--teal);
+}
+
+.checklist {
+  margin-top: 10px;
+}
+
+.check-item {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 12px;
+  align-items: start;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.check-item input {
+  margin-top: 2px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--amber);
+}
+
+.check-item strong,
+.info-copy h2,
+.info-copy h3 {
+  margin: 0 0 6px;
+}
+
+.support-links {
+  margin-top: 18px;
+}
+
+.support-links a {
+  text-decoration: none;
+}
+
+.support-links a:hover {
+  color: var(--teal);
+}
+
+.info-copy {
+  display: grid;
+  gap: 12px;
+}
+
+.info-copy ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted-on-dark);
+}
+
+.verify-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
 @media (max-width: 980px) {
   .summary-grid,
   .doc-hero,
-  .doc-layout {
+  .doc-layout,
+  .flow-grid,
+  .field-grid {
     grid-template-columns: 1fr;
     display: grid;
   }

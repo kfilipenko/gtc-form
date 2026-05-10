@@ -24,6 +24,8 @@ DOC_ORDER: Final = [
     "legal/seafarer-candidate-agreement",
     "legal/terms",
     "legal/shipowner-service-terms",
+    "legal/recruitment-and-matching-policy",
+    "legal/kyb-policy",
     "legal/complaints",
 ]
 

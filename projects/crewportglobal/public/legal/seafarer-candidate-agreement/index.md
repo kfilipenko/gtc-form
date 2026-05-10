@@ -5,40 +5,40 @@ category: Trust Center
 description: No-fee candidate agreement for seafarers covering profiles, documents, document readiness and human-reviewed matching workflows.
 trust_note: CrewPortGlobal does not charge seafarers recruitment, placement or employment fees.
 hero_ctas:
-	- label: Create Seafarer Profile
-		href: https://crewportglobal.com/for-seafarers/
-		style: primary
-	- label: Read No Recruitment Fees Policy
-		href: https://crewportglobal.com/legal/no-recruitment-fees/
-		style: secondary
-	- label: Contact Support
-		href: https://crewportglobal.com/legal/complaints/
-		style: secondary
+  - label: Create Seafarer Profile
+    href: https://crewportglobal.com/onboarding/seafarer-registration/
+    style: primary
+  - label: Read No Recruitment Fees Policy
+    href: https://crewportglobal.com/legal/no-recruitment-fees/
+    style: secondary
+  - label: Contact Support
+    href: https://crewportglobal.com/legal/complaints/
+    style: secondary
 summary_cards:
-	- title: No recruitment fees
-		text: No payment is required to create a profile, enter the matching pool or be considered for a relevant crew request.
-	- title: Professional profile
-		text: Candidates manage a structured maritime profile with rank, experience, documents and availability.
-	- title: Document readiness
-		text: Uploaded documents can be reviewed, flagged as incomplete, expired or verified for workflow support.
-	- title: Human-reviewed workflow
-		text: AI may assist with structuring and matching, but serious actions and shortlist submissions remain human-reviewed.
+  - title: No recruitment fees
+    text: No payment is required to create a profile, enter the matching pool or be considered for a relevant crew request.
+  - title: Professional profile
+    text: Candidates manage a structured maritime profile with rank, experience, documents and availability.
+  - title: Document readiness
+    text: Uploaded documents can be reviewed, flagged as incomplete, expired or verified for workflow support.
+  - title: Human-reviewed workflow
+    text: AI may assist with structuring and matching, but serious actions and shortlist submissions remain human-reviewed.
 acknowledgements:
-	- I understand that CrewPortGlobal does not charge seafarers recruitment, placement or employment fees.
-	- I understand that optional paid services are not required for job access.
-	- I understand that creating a profile does not guarantee employment.
-	- I confirm that the information and documents I submit are accurate and belong to me.
-	- I agree that my professional profile may be processed for crew matching purposes.
-	- I agree to the Privacy Policy, Complaint Handling Procedure and this Seafarer Candidate Agreement.
+  - I understand that CrewPortGlobal does not charge seafarers recruitment, placement or employment fees.
+  - I understand that optional paid services are not required for job access.
+  - I understand that creating a profile does not guarantee employment.
+  - I confirm that the information and documents I submit are accurate and belong to me.
+  - I agree that my professional profile may be processed for crew matching purposes.
+  - I agree to the Privacy Policy, Complaint Handling Procedure and this Seafarer Candidate Agreement.
 related_links:
-	- label: No Recruitment Fees Policy
-		href: https://crewportglobal.com/legal/no-recruitment-fees/
-	- label: Privacy Policy
-		href: https://crewportglobal.com/legal/privacy/
-	- label: Complaint Handling Procedure
-		href: https://crewportglobal.com/legal/complaints/
-	- label: Terms of Service
-		href: https://crewportglobal.com/legal/terms/
+  - label: No Recruitment Fees Policy
+    href: https://crewportglobal.com/legal/no-recruitment-fees/
+  - label: Privacy Policy
+    href: https://crewportglobal.com/legal/privacy/
+  - label: Complaint Handling Procedure
+    href: https://crewportglobal.com/legal/complaints/
+  - label: Terms of Service
+    href: https://crewportglobal.com/legal/terms/
 audience: Seafarers
 status: Draft for legal review
 accent: signal-cyan
