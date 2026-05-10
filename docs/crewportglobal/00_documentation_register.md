@@ -109,6 +109,7 @@ docs/crewportglobal/
   35_registration_automation_readiness_plan.md
   36_registration_automation_planning_review.md
   37_registration_automation_fix_plan.md
+  38_registration_automation_re_review.md
 ```
 
 ## 4. Priority order for drafting
@@ -194,6 +195,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.14 | 2026-05-10 | GTC IT / AI Assistant | Added registration automation re-review with updated verdict: ready for implementation planning |
 | 0.13 | 2026-05-10 | GTC IT / AI Assistant | Added registration automation fix plan and blocker-closing planning updates for re-review |
 | 0.12 | 2026-05-10 | GTC IT / AI Assistant | Added registration automation planning review and implementation-planning readiness verdict |
 | 0.11 | 2026-05-10 | GTC IT / AI Assistant | Added registration automation readiness planning document and workflow planning artifacts |
