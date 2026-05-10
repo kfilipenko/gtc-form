@@ -10,6 +10,7 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - public/how-it-works/: introductory workflow description.
 - public/for-shipowners/: shipowner-facing overview.
 - public/for-seafarers/: seafarer-facing overview.
+- db/migrations/: planning SQL artifacts for isolated CrewPortGlobal schema design.
 - deploy/: future nginx and deployment scaffold for GTC1.
 
 ## Publishing model
@@ -30,11 +31,20 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 ## Onboarding
 
 - Public seafarer acceptance flow lives at public/onboarding/seafarer-registration/index.html.
-- The page performs same-origin /auth/check_email and /auth/register calls through the CrewPortGlobal domain and redirects to /verify/?next=https://app.gtstor.com/user/ after successful registration.
-- Required no-fee, data-accuracy and Trust Center acknowledgements are captured as real checkbox controls before account creation.
+- The page currently stores acceptance data locally in the browser and does not mutate shared auth state.
+- Required no-fee, data-accuracy and Trust Center acknowledgements are captured as real checkbox controls before later identity workstreams are introduced.
+
+## Isolated database planning
+
+- CrewPortGlobal isolated database planning is documented in docs/crewportglobal/22_identity_and_project_database_architecture.md.
+- Detailed registration-flow and schema planning is documented in docs/crewportglobal/24_isolated_database_schema_and_registration_flows.md.
+- Category-level onboarding gates are documented in docs/crewportglobal/25_category_onboarding_matrix.md.
+- Planning SQL lives in projects/crewportglobal/db/migrations/20260510_crewport_initial_schema.sql.
+- These files are planning artifacts only and must not be applied to production without a separate approval step.
 
 ## Immediate next steps
 
 1. Confirm complaint contact channels and production mailbox ownership.
-2. Re-run the document generator after any public Markdown update.
-3. Activate nginx and SSL only after domain and DNS control are confirmed.
+2. Review the isolated `crewport` schema and registration-flow planning before any server-side implementation work.
+3. Re-run the document generator after any public Markdown update.
+4. Activate nginx and SSL only after domain and DNS control are confirmed.

@@ -99,3 +99,13 @@ This structure should remain self-contained.
 Stage 1 architecture favors separation over premature integration.
 
 CrewPortGlobal should keep its own documentation, source files, publishing logic and future project-data design coherent inside its project roots first. Shared authentication and deeper cross-product data links can be introduced later only as an explicit follow-up architecture task.
+
+## 10. Detailed planning artifacts
+
+The higher-detail planning artifacts for the isolated database and registration model now live in:
+
+- `docs/crewportglobal/24_isolated_database_schema_and_registration_flows.md`
+- `docs/crewportglobal/25_category_onboarding_matrix.md`
+- `projects/crewportglobal/db/migrations/20260510_crewport_initial_schema.sql`
+
+Those artifacts remain planning-only until a separate production execution review is approved.

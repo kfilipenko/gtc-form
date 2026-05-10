@@ -95,6 +95,9 @@ docs/crewportglobal/
   21_operational_checklist_domain_dns_ssl_publication.md
   22_identity_and_project_database_architecture.md
   23_public_website_design_system.md
+  24_isolated_database_schema_and_registration_flows.md
+  25_category_onboarding_matrix.md
+  26_database_schema_design_review.md
 ```
 
 ## 4. Priority order for drafting
@@ -163,6 +166,8 @@ Recommended source repository structure:
 
 ```text
 projects/crewportglobal/
+  db/
+    migrations/
   public/
     for-shipowners/
     for-seafarers/
@@ -178,4 +183,5 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.2 | 2026-05-10 | GTC IT / AI Assistant | Added isolated database schema planning docs and project-local SQL planning path |
 | 0.1 | 2026-05-08 | GTC IT / AI Assistant | Initial documentation register created |
