@@ -111,6 +111,7 @@ docs/crewportglobal/
   37_registration_automation_fix_plan.md
   38_registration_automation_re_review.md
   39_registration_automation_implementation_plan.md
+  40_registration_automation_implementation_plan_review.md
 ```
 
 ## 4. Priority order for drafting
@@ -196,6 +197,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.16 | 2026-05-10 | GTC IT / AI Assistant | Added implementation-plan review confirming n8n exclusion and readiness for technical task decomposition |
 | 0.15 | 2026-05-10 | GTC IT / AI Assistant | Added registration automation implementation plan with dedicated website application, internal service modules and explicit n8n exclusion |
 | 0.14 | 2026-05-10 | GTC IT / AI Assistant | Added registration automation re-review with updated verdict: ready for implementation planning |
 | 0.13 | 2026-05-10 | GTC IT / AI Assistant | Added registration automation fix plan and blocker-closing planning updates for re-review |
