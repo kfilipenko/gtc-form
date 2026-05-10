@@ -106,6 +106,7 @@ docs/crewportglobal/
   32_test_migration_manual_approval_record.md
   33_test_migration_post_execution_report_template.md
   34_migration_planning_audit_trail_index.md
+  35_registration_automation_readiness_plan.md
 ```
 
 ## 4. Priority order for drafting
@@ -191,6 +192,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.11 | 2026-05-10 | GTC IT / AI Assistant | Added registration automation readiness planning document and workflow planning artifacts |
 | 0.10 | 2026-05-10 | GTC IT / AI Assistant | Added migration-planning audit trail index for documents 24-33 |
 | 0.9 | 2026-05-10 | GTC IT / AI Assistant | Added post-execution report template for future non-production test migration sessions |
 | 0.8 | 2026-05-10 | GTC IT / AI Assistant | Added manual approval record template for future non-production test migration review |
