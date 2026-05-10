@@ -1,52 +1,21 @@
----
-category: Trust Center
-nav_label: Matching Policy
-summary: Human-reviewed matching rules, non-discrimination baseline and MLC-aligned handling of candidate presentation.
-trust_note: CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.
-primary_focus: Core principles
-hero_ctas:
-  - label: Review Seafarer Agreement
-    href: https://crewportglobal.com/legal/seafarer-candidate-agreement/
-    style: primary
-  - label: Review No Recruitment Fees Policy
-    href: https://crewportglobal.com/legal/no-recruitment-fees/
-    style: secondary
-summary_cards:
-  - title: Human-reviewed matching
-    text: AI may help structure data and propose relevance, but shortlist decisions remain subject to human review.
-  - title: No discrimination baseline
-    text: Matching criteria must be role-relevant, lawful and defensible, without prohibited discrimination.
-  - title: Document readiness aware
-    text: Candidate presentation may consider certificate validity, completeness and stated vessel experience.
-related_links:
-  - label: Seafarer Agreement
-    href: https://crewportglobal.com/legal/seafarer-candidate-agreement/
-  - label: Shipowner Agreement
-    href: https://crewportglobal.com/legal/shipowner-service-terms/
-  - label: Verification Policy
-    href: https://crewportglobal.com/legal/verification-policy/
-  - label: Complaint Handling Procedure
-    href: https://crewportglobal.com/legal/complaints/
----
+# CrewPortGlobal — Recruitment and Matching Policy (MLC Regulation 1.4 Baseline)
 
-# CrewPortGlobal — Recruitment and Matching Policy
+This document defines how CrewPortGlobal structures recruitment-support and candidate matching at Stage 1.
 
-This policy describes how CrewPortGlobal structures candidate matching, shortlist preparation and human review at the current stage of the platform.
-
-The policy is aligned with the platform's no-fee principle and with an MLC Regulation 1.4 style baseline for fair, reviewable and documented recruitment-support workflows.
+It is written as an internal and publication-source baseline for a digital maritime workflow platform that aims to remain compatible with an MLC Regulation 1.4 style approach: fair treatment of seafarers, no prohibited recruitment fees, documented review paths and accountable handling of candidate presentation.
 
 ## 1. Purpose
 
 CrewPortGlobal uses structured profile data, document-readiness signals and role-specific requirements to support maritime matching workflows between candidates and business clients.
 
-The purpose of this policy is to define the baseline for lawful, fair and reviewable candidate presentation.
+The purpose of this policy is to define a lawful, fair and reviewable baseline for candidate presentation and shortlist preparation.
 
 ## 2. Scope
 
 This policy applies to:
 
-- seafarer profiles created on the platform;
-- crew requests submitted by shipowners, vessel operators, ship managers or authorized business users;
+- seafarer profiles and candidate records maintained on the platform;
+- crew requests submitted by shipowners, vessel operators, ship managers, crew managers or other authorized business users;
 - AI-assisted ranking, summarization or relevance scoring used inside the workflow;
 - human-reviewed shortlist preparation and candidate presentation.
 
@@ -57,8 +26,9 @@ CrewPortGlobal applies the following principles:
 1. Matching support must remain role-relevant and commercially legitimate.
 2. Final shortlist, submission and hiring decisions must remain human-reviewed.
 3. Seafarers must not be charged recruitment, placement or employment-access fees.
-4. Candidate data must be handled consistently with the published Privacy Policy and related trust documents.
+4. Candidate data must be handled consistently with the Privacy Policy and related trust documents.
 5. Matching outputs must be explainable at a practical operational level.
+6. CrewPortGlobal should maintain records sufficient to explain how a candidate was shortlisted or withheld where a material dispute arises.
 
 ## 4. Data points used in matching
 
@@ -74,13 +44,25 @@ Matching may consider one or more of the following inputs:
 
 CrewPortGlobal should not use irrelevant or prohibited criteria as a basis for candidate selection.
 
-## 5. Non-discrimination baseline
+## 5. No-fee and fair recruitment baseline
 
-CrewPortGlobal expects matching criteria to be connected to the job, vessel, trade, safety obligations or lawful operational requirements.
+CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.
+
+The platform should not be used to:
+
+- request payment from seafarers as a condition of profile review or hiring;
+- conceal a fee-bearing third-party requirement that is prohibited by applicable rules;
+- route candidates toward unlawful or coercive onboarding practices.
+
+Where such conduct is identified or credibly alleged, the request may be flagged, narrowed, suspended or refused.
+
+## 6. Non-discrimination baseline
+
+CrewPortGlobal expects matching criteria to be connected to the job, vessel, trade, safety obligations or other lawful operational requirements.
 
 The platform should not intentionally prioritize or exclude candidates on the basis of unlawful discrimination factors. Where a client requirement appears improper, unsupported or inconsistent with law or policy, the request may be flagged for review, narrowed, suspended or refused.
 
-## 6. AI-assisted workflow support
+## 7. AI-assisted workflow support
 
 AI assistance may be used to:
 
@@ -91,21 +73,28 @@ AI assistance may be used to:
 
 AI outputs are support signals only and must not be treated as automatic employment decisions.
 
-## 7. Human review requirement
+## 8. Human review requirement
 
 Before a candidate is presented or shortlisted for a serious hiring workflow, a human reviewer should verify that:
 
 1. the request is real and sufficiently defined;
 2. the candidate profile is materially relevant to the request;
 3. any document-readiness flags are understood;
-4. no prohibited fee, coercive or suspicious pattern is present.
+4. no prohibited fee, coercive or suspicious pattern is present;
+5. the workflow is consistent with current trust, verification and privacy rules.
 
-## 8. Candidate transparency and complaints
+## 9. Candidate transparency and complaints
 
 Where appropriate, candidates may be informed that their profile is being considered for a specific request.
 
 If a candidate believes the workflow involved unfair handling, prohibited fee conduct, misleading representation or misuse of profile data, the matter may be raised through the published Complaint Handling Procedure.
 
-## 9. Policy updates
+## 10. Relation to verification controls
+
+This matching policy works together with the identity, business and vessel verification policy.
+
+Matching should not be treated as independent from verification. Where a business client, vessel context or candidate identity cannot be reasonably trusted, shortlist activity may be delayed, narrowed or stopped.
+
+## 11. Policy updates
 
 This policy may be updated as CrewPortGlobal expands its operating model, matching controls and compliance framework.

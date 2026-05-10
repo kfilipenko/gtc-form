@@ -21,7 +21,8 @@ Primary actions:
 
 - For Shipowners
 - For Seafarers
-- View Legal Documents
+- Start Seafarer Onboarding
+- Verification Policy
 
 ## Trust statement
 
@@ -42,6 +43,18 @@ CrewPortGlobal does not charge seafarers recruitment or placement fees.
 - Secure document collection.
 - Verified profile support.
 - Clear no-fee access rule.
+
+### Verification block
+
+- Verified on both sides of the crew workflow.
+- Seafarer Identity & Professional Readiness.
+- Business Client KYB.
+- Vessel Verification.
+
+### Navigation rule
+
+- Homepage hero should keep only the highest-signal audience and onboarding actions.
+- Legal and trust documents should remain discoverable through the document grid and verification block rather than overloading the hero.
 
 ### How it works
 
@@ -68,3 +81,4 @@ Initial contact channel:
 | Version | Date | Author | Changes |
 |---|---|---|---|
 | 0.1 | 2026-05-08 | GitHub Copilot | Initial draft created |
+| 0.2 | 2026-05-10 | GitHub Copilot | Updated homepage CTA set, added onboarding entry point and verification block guidance |

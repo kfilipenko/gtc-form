@@ -79,7 +79,7 @@ docs/crewportglobal/
   05_seafarer_candidate_agreement.md
   06_shipowner_service_agreement.md
   07_recruitment_and_matching_policy_mlc_a1_4.md
-  08_kyc_kyb_policy.md
+  08_identity_business_and_vessel_verification_policy.md
   09_aml_sanctions_screening_policy.md
   10_document_verification_policy.md
   11_complaint_handling_procedure.md
@@ -92,6 +92,9 @@ docs/crewportglobal/
   18_seafarer_onboarding_form.md
   19_ra_k_mohre_licensing_request_pack.md
   20_website_start_page_content.md
+  21_operational_checklist_domain_dns_ssl_publication.md
+  22_identity_and_project_database_architecture.md
+  23_public_website_design_system.md
 ```
 
 ## 4. Priority order for drafting
@@ -115,7 +118,7 @@ docs/crewportglobal/
 ### Phase C — Internal compliance documents
 
 11. 07_recruitment_and_matching_policy_mlc_a1_4.md
-12. 08_kyc_kyb_policy.md
+12. 08_identity_business_and_vessel_verification_policy.md
 13. 09_aml_sanctions_screening_policy.md
 14. 10_document_verification_policy.md
 15. 12_data_retention_and_deletion_policy.md
