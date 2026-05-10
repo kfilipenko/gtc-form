@@ -101,6 +101,7 @@ docs/crewportglobal/
   27_database_schema_v1_fix_plan.md
   28_database_schema_v2_delta_review.md
   29_test_migration_review_plan.md
+  30_split_sql_package_review.md
 ```
 
 ## 4. Priority order for drafting
@@ -186,6 +187,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.6 | 2026-05-10 | GTC IT / AI Assistant | Added split SQL package consistency review and execution-plan discussion readiness verdict |
 | 0.5 | 2026-05-10 | GTC IT / AI Assistant | Added split SQL planning package review plan and manual approval gate for any future execution discussion |
 | 0.4 | 2026-05-10 | GTC IT / AI Assistant | Added v2 delta review and test-migration-review readiness assessment |
 | 0.3 | 2026-05-10 | GTC IT / AI Assistant | Added schema design review follow-up and v1 fix-plan documentation |
