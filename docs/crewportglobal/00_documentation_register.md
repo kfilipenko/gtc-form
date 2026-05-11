@@ -125,6 +125,7 @@ docs/crewportglobal/
   51_cpg_i1_001_application_shell_implementation_plan.md
   52_cpg_i1_001_application_shell_skeleton_record.md
   53_cpg_i1_001_application_shell_skeleton_owner_review.md
+  54_cpg_i1_001_frontend_shell_placeholder_plan.md
 ```
 
 ## 4. Priority order for drafting
@@ -210,6 +211,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.30 | 2026-05-11 | GTC IT / AI Assistant | Added CPG-I1-001 frontend shell placeholder plan covering pages, interface zones, shell states, route and consent handoffs, accessibility, privacy/security, OpenClaw separation and n8n exclusion |
 | 0.29 | 2026-05-11 | GTC IT / AI Assistant | Added owner review confirming CPG-I1-001 application shell skeleton remains placeholder-only, ADR 48-aligned and ready for the next project-owner approval decision |
 | 0.28 | 2026-05-11 | GTC IT / AI Assistant | Added CPG-I1-001 application shell directory skeleton record and README placeholders only; implementation execution remains not approved |
 | 0.27 | 2026-05-10 | GTC IT / AI Assistant | Added CPG-I1-001 application shell implementation plan for project-owner review under ADR 48 baseline and execution restrictions |
