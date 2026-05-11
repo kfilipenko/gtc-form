@@ -143,19 +143,3 @@ Implementation execution remains not approved.
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
 | 0.1 | 2026-05-11 | GTC IT / AI Assistant | Initial owner review confirming the approved CPG-I1-001 application shell skeleton remains placeholder-only and aligned with ADR 48 |
-
-*** Update File: /var/www/gtc-form/docs/crewportglobal/00_documentation_register.md
-   49_limited_github_issue_draft_package_001_002_004.md
-   50_limited_github_issues_001_002_004_review.md
-   51_cpg_i1_001_application_shell_implementation_plan.md
-   52_cpg_i1_001_application_shell_skeleton_record.md
-+  53_cpg_i1_001_application_shell_skeleton_owner_review.md
- ```
-
- ## 4. Priority order for drafting
-@@
- | Version | Date | Author | Changes |
- |---|---|---|---|
-+| 0.29 | 2026-05-11 | GTC IT / AI Assistant | Added owner review confirming CPG-I1-001 application shell skeleton remains placeholder-only, ADR 48-aligned and ready for the next project-owner approval decision |
- | 0.28 | 2026-05-11 | GTC IT / AI Assistant | Added CPG-I1-001 application shell directory skeleton record and README placeholders only; implementation execution remains not approved |
- | 0.27 | 2026-05-10 | GTC IT / AI Assistant | Added CPG-I1-001 application shell implementation plan for project-owner review under ADR 48 baseline and execution restrictions |
