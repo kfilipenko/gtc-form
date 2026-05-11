@@ -269,19 +269,3 @@ This document does not authorize or define:
 ## 17. Final Control Statement
 
 CPG-I1-001 application shell implementation plan is ready for project-owner review. Implementation execution remains not approved.
-
-*** Update File: /var/www/gtc-form/docs/crewportglobal/00_documentation_register.md
-  47_increment_1_github_issue_creation_approval_package.md
-  48_architecture_decision_gtc1_app_gtc_agent_openclaw.md
-  49_limited_github_issue_draft_package_001_002_004.md
-  50_limited_github_issues_001_002_004_review.md
-+  51_cpg_i1_001_application_shell_implementation_plan.md
-```
-
-## 4. Priority order for drafting
-@@
-| Version | Date | Author | Changes |
-|---|---|---|---|
-+| 0.27 | 2026-05-10 | GTC IT / AI Assistant | Added CPG-I1-001 application shell implementation plan for project-owner review under ADR 48 baseline and execution restrictions |
-| 0.26 | 2026-05-10 | GTC IT / AI Assistant | Added review of live GitHub issues #3, #4 and #5 confirming ADR 48 alignment and readiness for project-owner implementation approval decision |
-| 0.25 | 2026-05-10 | GTC IT / AI Assistant | Added limited GitHub issue draft package for CPG-I1-001, CPG-I1-002 and CPG-I1-004 after ADR 48 baseline approval; full 12-issue creation postponed |
