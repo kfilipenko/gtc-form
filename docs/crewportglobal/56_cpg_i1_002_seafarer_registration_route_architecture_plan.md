@@ -36,9 +36,13 @@ Draft implementation issue. Implementation remains not approved.
 
 ## 4. Non-Execution Statement
 
+This document is a planning-only route architecture artifact. It does not authorize runtime route implementation, UI code creation, backend/API handler creation, SQL execution, database changes, authentication changes, payment workflow changes, nginx changes, OpenClaw configuration changes, n8n usage or deployment.
+
 This issue does not authorize implementation. No code may be written, no SQL may be executed, no database may be touched, no authentication or payment workflow may be changed, no nginx configuration may be changed, no OpenClaw configuration may be modified, no n8n workflow may be created, and no deployment may be performed without separate explicit project-owner approval.
 
 ## 5. ADR 48 Architecture Baseline
+
+CrewPortGlobal website application runtime and SQL database locality are planned on GTC1. OpenClaw remains separated on GTC-AGENT and may be used only as assisted operator support through controlled procedures. n8n is excluded from the CrewPortGlobal architecture.
 
 This planning document remains bound to the ADR 48 architecture baseline:
 
@@ -261,6 +265,8 @@ The route must not imply that registration completion produces hiring, placement
 
 OpenClaw remains separated from the route runtime and stays on GTC-AGENT.
 
+OpenClaw must not be placed inside the CrewPortGlobal route runtime and must not be treated as a route dependency, route orchestrator, verification authority, approval authority or replacement for human review. Any future OpenClaw support must remain operator-assisted, controlled, auditable and separated on GTC-AGENT.
+
 Allowed future planning role:
 
 1. operator support only;
@@ -282,6 +288,8 @@ OpenClaw must not be planned as a route runtime dependency.
 ## 19. n8n Exclusion Boundary
 
 `n8n` is excluded from the CrewPortGlobal project architecture.
+
+n8n is excluded from the CrewPortGlobal project architecture. The seafarer registration route must not depend on n8n workflow triggers, n8n route orchestration, n8n consent handling, n8n state management, n8n integration fallback, n8n deployment steps or any future n8n dependency.
 
 The route must not depend on `n8n` for:
 
