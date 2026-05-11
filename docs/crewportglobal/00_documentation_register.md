@@ -128,6 +128,7 @@ docs/crewportglobal/
   54_cpg_i1_001_frontend_shell_placeholder_plan.md
   55_cpg_i1_001_frontend_shell_placeholder_owner_review.md
   56_cpg_i1_002_seafarer_registration_route_architecture_plan.md
+  57_cpg_i1_002_seafarer_registration_route_architecture_owner_review.md
 ```
 
 ## 4. Priority order for drafting
@@ -213,6 +214,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.33 | 2026-05-11 | GTC IT / AI Assistant | Added owner review for CPG-I1-002 seafarer registration route architecture plan confirming planning-only status, positive architecture baseline, seafarer-only boundary, terminal human-review state and consent dependency |
 | 0.32 | 2026-05-11 | GTC IT / AI Assistant | Added CPG-I1-002 seafarer registration route architecture plan covering route model, allowed Increment 1 states, consent dependency, human-review terminal state and OpenClaw separation |
 | 0.31 | 2026-05-11 | GTC IT / AI Assistant | Added owner review for CPG-I1-001 frontend shell placeholder plan confirming planning-only status, ADR 48 preservation and OpenClaw separation |
 | 0.30 | 2026-05-11 | GTC IT / AI Assistant | Added CPG-I1-001 frontend shell placeholder plan covering pages, interface zones, shell states, route and consent handoffs, accessibility, privacy/security and OpenClaw separation |
