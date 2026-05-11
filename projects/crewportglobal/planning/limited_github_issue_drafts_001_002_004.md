@@ -12,8 +12,7 @@ Baseline assumptions:
 1. CrewPortGlobal website application runtime locality: GTC1;
 2. CrewPortGlobal SQL database locality: GTC1;
 3. OpenClaw runtime and assistive agent platform locality: GTC-AGENT;
-4. OpenClaw use is limited to assisted operator support;
-5. `n8n` is excluded.
+4. OpenClaw use is limited to assisted operator support through controlled procedures.
 
 ## 2. Limited Draft Set
 
@@ -51,8 +50,7 @@ This planning file does not authorize:
 6. changing Stripe;
 7. changing nginx;
 8. changing OpenClaw configuration;
-9. creating `n8n` workflows;
-10. deployment.
+9. deployment.
 
 ## 5. Final Control Statement
 

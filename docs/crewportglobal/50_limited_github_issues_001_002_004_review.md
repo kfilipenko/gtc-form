@@ -36,10 +36,9 @@ This review checks whether issues #3, #4 and #5:
 1. align with ADR 48;
 2. preserve GTC1 as the CrewPortGlobal website application runtime;
 3. preserve OpenClaw on GTC-AGENT as assistive operator support only;
-4. exclude `n8n`;
-5. preserve the no-code, no-SQL, no-database, no-auth, no-Stripe, no-nginx, no-OpenClaw-config and no-deployment boundary;
-6. preserve the seafarer-only Increment 1 scope;
-7. preserve no-fee and human-review boundaries.
+4. preserve the no-code, no-SQL, no-database, no-auth, no-Stripe, no-nginx, no-OpenClaw-config and no-deployment boundary;
+5. preserve the seafarer-only Increment 1 scope;
+6. preserve no-fee and human-review boundaries.
 
 This review does not approve implementation.
 
@@ -52,8 +51,7 @@ Assessment:
 - each reviewed issue includes an `Architecture baseline` section;
 - each reviewed issue states `CrewPortGlobal website application runtime: GTC1`;
 - each reviewed issue states `CrewPortGlobal SQL database locality: GTC1`;
-- each reviewed issue states `OpenClaw runtime / agent platform: GTC-AGENT`;
-- each reviewed issue states `n8n: excluded`.
+- each reviewed issue states `OpenClaw runtime / agent platform: GTC-AGENT`.
 
 Conclusion:
 
@@ -67,7 +65,7 @@ Assessment:
 
 - each reviewed issue contains an explicit implementation-approval restriction section;
 - each reviewed issue states that implementation remains not approved;
-- each reviewed issue prohibits code writing, SQL execution, database touch, authentication changes, payment workflow changes, nginx changes, OpenClaw configuration changes, `n8n` workflow creation and deployment without separate explicit project-owner approval;
+- each reviewed issue prohibits code writing, SQL execution, database touch, authentication changes, payment workflow changes, nginx changes, OpenClaw configuration changes and deployment without separate explicit project-owner approval;
 - no reviewed issue grants runtime configuration authority, production DB authority or deployment authority.
 
 Conclusion:
@@ -113,7 +111,6 @@ Rationale:
 
 - the reviewed GitHub issues keep ADR 48 unchanged as the architecture baseline;
 - the reviewed GitHub issues preserve GTC1 for the application runtime and GTC-AGENT for OpenClaw;
-- the reviewed GitHub issues keep `n8n` excluded;
 - the reviewed GitHub issues preserve the mandatory non-implementation safety restrictions;
 - the reviewed GitHub issues remain inside the seafarer-only, no-fee and human-review Increment 1 boundary.
 

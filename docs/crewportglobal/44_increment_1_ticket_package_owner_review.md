@@ -33,7 +33,7 @@ This review checks whether the Increment 1 ticket package:
 3. is specific enough to be converted into separate implementation issue drafts;
 4. preserves all planning-only restrictions;
 5. avoids implementation authority;
-6. preserves the exclusion of `n8n` and deployment activity.
+6. preserves bounded dependencies and keeps deployment activity out of scope.
 
 This review does not authorize implementation.
 No SQL was executed.
@@ -84,8 +84,7 @@ The reviewed package preserves the required Increment 1 limitations:
 4. no matching automation;
 5. no external KYC provider;
 6. no production DB writes;
-7. no `n8n` dependency;
-8. OpenClaw limited to assistive planning scope only.
+7. OpenClaw limited to assistive planning scope only.
 
 Conclusion:
 
@@ -104,8 +103,7 @@ The reviewed package continues to prohibit:
 5. Stripe changes;
 6. nginx changes;
 7. OpenClaw configuration changes;
-8. `n8n` workflow creation;
-9. deployment.
+8. deployment.
 
 Conclusion:
 
@@ -143,7 +141,7 @@ Rationale:
 
 This verdict authorizes only preparation of separate issue drafts.
 
-It does not approve writing code, implementing automation, executing SQL, touching any database, changing auth, changing Stripe, changing nginx, changing OpenClaw configuration, creating `n8n` workflows or performing deployment.
+It does not approve writing code, implementing automation, executing SQL, touching any database, changing auth, changing Stripe, changing nginx, changing OpenClaw configuration or performing deployment.
 
 ## 10. Final Control Statement
 

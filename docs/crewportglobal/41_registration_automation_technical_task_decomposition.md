@@ -35,8 +35,7 @@ The following constraints remain mandatory:
 4. do not change global auth schema;
 5. do not change Stripe workflow;
 6. do not change nginx;
-7. do not modify OpenClaw configuration;
-8. do not create `n8n` workflows.
+7. do not modify OpenClaw configuration.
 
 Implementation remains not approved.
 
@@ -56,7 +55,7 @@ It does not permit coding, rollout, SQL execution or live-environment changes.
 
 ## 5. Increment 1 Baseline
 
-Increment 1 is limited to a website-application prototype for seafarer registration only, with no payment, no candidate submission, no matching automation, no external KYC provider, no production DB writes, no n8n dependency, and only planning-level OpenClaw assistance for operator support.
+Increment 1 is limited to a website-application prototype for seafarer registration only, with no payment, no candidate submission, no matching automation, no external KYC provider, no production DB writes, and only planning-level OpenClaw assistance for operator support.
 
 This means Increment 1 is intentionally narrow and excludes all business-client, operator-side approval implementation and monetization flows from execution scope.
 
@@ -230,8 +229,7 @@ The following items are explicitly out of Increment 1 scope:
 5. production database writes;
 6. business-client onboarding implementation;
 7. admin-console rollout;
-8. OpenClaw autonomous decisions;
-9. `n8n` dependency or workflow creation.
+8. OpenClaw autonomous decisions.
 
 ## 11. Stop Conditions
 
@@ -243,9 +241,8 @@ The decomposition package must be treated as invalid if it introduces any of the
 4. changes to Stripe workflow;
 5. nginx changes;
 6. OpenClaw configuration changes;
-7. `n8n` workflows or `n8n` dependency planning;
-8. candidate submission or payment scope inside Increment 1;
-9. production DB write assumptions.
+7. candidate submission or payment scope inside Increment 1;
+8. production DB write assumptions.
 
 ## 12. Review Questions for Project Owner
 

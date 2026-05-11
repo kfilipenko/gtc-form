@@ -47,7 +47,7 @@ The indexed issue drafts cover only Increment 1 planning work for:
 
 ## 4. Control Boundaries
 
-The indexed issue drafts do not authorize code writing, SQL execution, database changes, authentication changes, payment workflow changes, nginx changes, OpenClaw configuration changes, `n8n` workflow creation or deployment.
+The indexed issue drafts do not authorize code writing, SQL execution, database changes, authentication changes, payment workflow changes, nginx changes, OpenClaw configuration changes or deployment.
 
 ## 5. Final Control Statement
 

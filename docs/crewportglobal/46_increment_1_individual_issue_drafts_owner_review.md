@@ -40,7 +40,7 @@ This review checks whether the repository draft issues:
 
 1. cover the full Increment 1 ticket set;
 2. preserve `Draft issue, not approved for implementation` status in every issue file;
-3. preserve the mandatory no-code, no-SQL, no-DB, no-auth, no-Stripe, no-nginx, no-OpenClaw-config, no-`n8n`, no-deployment restriction;
+3. preserve the mandatory no-code, no-SQL, no-DB, no-auth, no-Stripe, no-nginx, no-OpenClaw-config and no-deployment restriction;
 4. are specific enough to be converted into GitHub implementation issue drafts;
 5. remain inside planning scope only.
 
@@ -87,7 +87,7 @@ Result: confirmed.
 Assessment:
 
 - every issue draft carries the required mandatory restriction paragraph;
-- the restriction text explicitly prohibits code writing, SQL execution, database touch, auth changes, payment workflow changes, nginx changes, OpenClaw configuration changes, `n8n` workflow creation and deployment;
+- the restriction text explicitly prohibits code writing, SQL execution, database touch, auth changes, payment workflow changes, nginx changes, OpenClaw configuration changes and deployment;
 - no issue draft weakens or contradicts these restrictions.
 
 Conclusion:
@@ -125,7 +125,7 @@ Rationale:
 
 This verdict authorizes only preparation of GitHub implementation issue drafts.
 
-It does not approve writing code, implementing automation, executing SQL, touching any database, changing auth, changing Stripe, changing nginx, changing OpenClaw configuration, creating `n8n` workflows or performing deployment.
+It does not approve writing code, implementing automation, executing SQL, touching any database, changing auth, changing Stripe, changing nginx, changing OpenClaw configuration or performing deployment.
 
 ## 9. Final Control Statement
 

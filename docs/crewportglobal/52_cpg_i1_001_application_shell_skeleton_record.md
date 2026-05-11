@@ -29,7 +29,7 @@ The skeleton preserves the approved architecture baseline:
 1. CrewPortGlobal website application runtime: GTC1
 2. CrewPortGlobal SQL database locality: GTC1
 3. OpenClaw runtime / agent platform: GTC-AGENT
-4. n8n: excluded
+4. OpenClaw usage: assisted operator support only, through controlled procedures
 
 ## 4. Directories Created
 
@@ -68,8 +68,7 @@ The following prohibited artifacts were not created:
 13. systemd service
 14. SQL migration
 15. OpenClaw config
-16. n8n workflow
-17. deployment artifacts
+16. deployment artifacts
 
 ## 7. Control Boundary Confirmation
 
@@ -82,8 +81,7 @@ While applying this step:
 5. Stripe was not changed
 6. nginx was not changed
 7. OpenClaw configuration was not changed
-8. n8n was not used
-9. deployment was not performed
+8. deployment was not performed
 
 ## 8. Final Control Statement
 

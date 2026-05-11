@@ -23,8 +23,7 @@ The approved baseline for this limited package is:
 1. CrewPortGlobal website application runtime locality: GTC1;
 2. CrewPortGlobal SQL database locality: GTC1;
 3. OpenClaw runtime and agent platform: GTC-AGENT;
-4. OpenClaw usage: assisted operator support only;
-5. `n8n`: excluded.
+4. OpenClaw usage: assisted operator support only, through controlled procedures.
 
 Implementation remains not approved.
 
@@ -81,8 +80,7 @@ While preparing this limited package:
 6. no Stripe changes were made;
 7. no nginx changes were made;
 8. no OpenClaw configuration changes were made;
-9. no `n8n` workflows were created;
-10. no deployment was performed.
+9. no deployment was performed.
 
 ## 7. Administrative Boundary
 

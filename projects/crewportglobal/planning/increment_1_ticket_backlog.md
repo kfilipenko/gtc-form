@@ -16,8 +16,7 @@ It does not authorize:
 5. changing Stripe;
 6. changing nginx;
 7. changing OpenClaw configuration;
-8. creating `n8n` workflows;
-9. deployment.
+8. deployment.
 
 ## 2. Ticket Backlog
 

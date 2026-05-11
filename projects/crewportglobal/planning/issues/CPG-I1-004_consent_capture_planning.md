@@ -37,7 +37,7 @@ Depends on route and form planning.
 
 ## 6. Mandatory Restriction
 
-No code may be written, no SQL may be executed, no database may be touched, no authentication or payment workflow may be changed, no nginx configuration may be changed, no OpenClaw configuration may be modified, no n8n workflow may be created, and no deployment may be performed without separate explicit project-owner approval.
+No code may be written, no SQL may be executed, no database may be touched, no authentication or payment workflow may be changed, no nginx configuration may be changed, no OpenClaw configuration may be modified, and no deployment may be performed without separate explicit project-owner approval.
 
 ## 7. Final Control Statement
 

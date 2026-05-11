@@ -32,7 +32,7 @@ This owner review checks whether document 41:
 2. preserves all execution and architecture constraints;
 3. is specific enough to support future implementation ticket creation;
 4. avoids introducing implementation authority;
-5. avoids new dependencies such as `n8n`;
+5. avoids new unapproved dependencies;
 6. keeps OpenClaw limited to planning-level operator support;
 7. keeps payment, candidate submission and matching automation out of Increment 1.
 
@@ -71,8 +71,7 @@ Document 41 preserves the required constraints:
 4. no global auth schema changes;
 5. no Stripe workflow changes;
 6. no nginx changes;
-7. no OpenClaw configuration changes;
-8. no `n8n` workflows.
+7. no OpenClaw configuration changes.
 
 Conclusion:
 
@@ -124,20 +123,19 @@ Conclusion:
 
 The package is ready to support creation of implementation tickets, even though those future tickets will require additional specification depth.
 
-## 8. n8n and OpenClaw Verification
+## 8. Architecture and OpenClaw Verification
 
 Result: confirmed.
 
 Assessment:
 
-- document 41 does not introduce `n8n` as a dependency;
-- `n8n` remains excluded through explicit stop conditions and hard constraints;
+- document 41 preserves the positive architecture baseline without introducing new runtime or orchestration dependencies;
 - OpenClaw remains limited to planning-level operator support;
 - OpenClaw is not given approval authority, payment authority, candidate-submission authority or deployment authority.
 
 Conclusion:
 
-The decomposition package preserves the approved architecture baseline with `n8n` excluded and OpenClaw assistive only.
+The decomposition package preserves the approved architecture baseline with OpenClaw assistive only.
 
 ## 9. Remaining Open Questions
 
@@ -158,7 +156,7 @@ Rationale:
 - the decomposition package preserves the approved Increment 1 boundary;
 - it provides bounded workstreams and task groups;
 - it preserves all non-implementation constraints;
-- it does not introduce `n8n`, execution drift or deployment authority.
+- it does not introduce execution drift or deployment authority.
 
 This verdict authorizes only the creation of future implementation tickets.
 

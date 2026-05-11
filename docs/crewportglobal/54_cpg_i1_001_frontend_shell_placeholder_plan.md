@@ -37,8 +37,7 @@ The planning baseline for this document is:
 1. CrewPortGlobal website application runtime: GTC1;
 2. CrewPortGlobal SQL database locality: GTC1;
 3. OpenClaw runtime / agent platform: GTC-AGENT;
-4. OpenClaw usage: assistive operator support only;
-5. `n8n`: excluded.
+4. OpenClaw usage: assistive operator support only, through controlled procedures.
 
 ## 4. Hard Constraints
 
@@ -56,8 +55,7 @@ The following constraints remain unchanged:
 10. no Stripe integration may be introduced;
 11. nginx must not be changed;
 12. no OpenClaw frontend integration may be introduced;
-13. `n8n` must not be used;
-14. deployment must not be performed.
+13. deployment must not be performed.
 
 Implementation execution remains not approved.
 
@@ -291,17 +289,14 @@ The frontend shell must not be planned as:
 
 If OpenClaw is mentioned at all in future UI copy, it should be described only as an internal assistive operator-support layer on GTC-AGENT.
 
-## 16. n8n Exclusion
+## 16. Positive Architecture Reminder
 
-`n8n` is excluded from the frontend shell plan.
+The frontend shell plan remains bound to the positive CrewPortGlobal architecture baseline:
 
-The frontend shell must not be planned as depending on:
-
-1. `n8n` workflow triggers;
-2. `n8n` route orchestration;
-3. `n8n` consent handling;
-4. `n8n` state management;
-5. `n8n` deployment steps.
+1. CrewPortGlobal website application runtime: GTC1;
+2. CrewPortGlobal SQL database locality: GTC1;
+3. OpenClaw runtime / agent platform: GTC-AGENT;
+4. OpenClaw usage: assisted operator support only, through controlled procedures.
 
 ## 17. Explicit Non-Goals
 
@@ -319,8 +314,7 @@ This document does not authorize or define:
 10. Stripe integration;
 11. nginx changes;
 12. OpenClaw frontend integration;
-13. `n8n` usage;
-14. deployment.
+13. deployment.
 
 ## 18. Final Control Statement
 

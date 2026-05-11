@@ -213,15 +213,15 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
-| 0.32 | 2026-05-11 | GTC IT / AI Assistant | Added CPG-I1-002 seafarer registration route architecture plan covering route model, allowed Increment 1 states, consent dependency, human-review terminal state, OpenClaw separation and n8n exclusion |
-| 0.31 | 2026-05-11 | GTC IT / AI Assistant | Added owner review for CPG-I1-001 frontend shell placeholder plan confirming planning-only status, ADR 48 preservation, OpenClaw separation and n8n exclusion |
-| 0.30 | 2026-05-11 | GTC IT / AI Assistant | Added CPG-I1-001 frontend shell placeholder plan covering pages, interface zones, shell states, route and consent handoffs, accessibility, privacy/security, OpenClaw separation and n8n exclusion |
+| 0.32 | 2026-05-11 | GTC IT / AI Assistant | Added CPG-I1-002 seafarer registration route architecture plan covering route model, allowed Increment 1 states, consent dependency, human-review terminal state and OpenClaw separation |
+| 0.31 | 2026-05-11 | GTC IT / AI Assistant | Added owner review for CPG-I1-001 frontend shell placeholder plan confirming planning-only status, ADR 48 preservation and OpenClaw separation |
+| 0.30 | 2026-05-11 | GTC IT / AI Assistant | Added CPG-I1-001 frontend shell placeholder plan covering pages, interface zones, shell states, route and consent handoffs, accessibility, privacy/security and OpenClaw separation |
 | 0.29 | 2026-05-11 | GTC IT / AI Assistant | Added owner review confirming CPG-I1-001 application shell skeleton remains placeholder-only, ADR 48-aligned and ready for the next project-owner approval decision |
 | 0.28 | 2026-05-11 | GTC IT / AI Assistant | Added CPG-I1-001 application shell directory skeleton record and README placeholders only; implementation execution remains not approved |
 | 0.27 | 2026-05-10 | GTC IT / AI Assistant | Added CPG-I1-001 application shell implementation plan for project-owner review under ADR 48 baseline and execution restrictions |
 | 0.26 | 2026-05-10 | GTC IT / AI Assistant | Added review of live GitHub issues #3, #4 and #5 confirming ADR 48 alignment and readiness for project-owner implementation approval decision |
 | 0.25 | 2026-05-10 | GTC IT / AI Assistant | Added limited GitHub issue draft package for CPG-I1-001, CPG-I1-002 and CPG-I1-004 after ADR 48 baseline approval; full 12-issue creation postponed |
-| 0.24 | 2026-05-10 | GTC IT / AI Assistant | Added ADR 48 fixing runtime placement: GTC1 for website app and SQL, GTC-AGENT for OpenClaw, n8n excluded |
+| 0.24 | 2026-05-10 | GTC IT / AI Assistant | Added ADR 48 fixing runtime placement: GTC1 for website app and SQL, GTC-AGENT for OpenClaw-assisted operator support |
 | 0.23 | 2026-05-10 | GTC IT / AI Assistant | Added GitHub issue creation approval package and checklist for project-owner decision on Increment 1 issue draft creation |
 | 0.22 | 2026-05-10 | GTC IT / AI Assistant | Added owner review confirming Increment 1 repository issue drafts are ready to convert into GitHub implementation issue drafts |
 | 0.21 | 2026-05-10 | GTC IT / AI Assistant | Added Increment 1 individual issue drafts index and 12 draft issue files for CPG-I1-001 through CPG-I1-012 |
@@ -229,8 +229,8 @@ projects/crewportglobal/
 | 0.19 | 2026-05-10 | GTC IT / AI Assistant | Added Increment 1 implementation ticket package and planning backlog with draft tickets CPG-I1-001 through CPG-I1-012 |
 | 0.18 | 2026-05-10 | GTC IT / AI Assistant | Added decomposition owner review confirming readiness to create implementation tickets |
 | 0.17 | 2026-05-10 | GTC IT / AI Assistant | Added technical task decomposition for Increment 1 seafarer-only prototype planning |
-| 0.16 | 2026-05-10 | GTC IT / AI Assistant | Added implementation-plan review confirming n8n exclusion and readiness for technical task decomposition |
-| 0.15 | 2026-05-10 | GTC IT / AI Assistant | Added registration automation implementation plan with dedicated website application, internal service modules and explicit n8n exclusion |
+| 0.16 | 2026-05-10 | GTC IT / AI Assistant | Added implementation-plan review confirming architecture consistency and readiness for technical task decomposition |
+| 0.15 | 2026-05-10 | GTC IT / AI Assistant | Added registration automation implementation plan with dedicated website application, internal service modules and positive architecture baseline |
 | 0.14 | 2026-05-10 | GTC IT / AI Assistant | Added registration automation re-review with updated verdict: ready for implementation planning |
 | 0.13 | 2026-05-10 | GTC IT / AI Assistant | Added registration automation fix plan and blocker-closing planning updates for re-review |
 | 0.12 | 2026-05-10 | GTC IT / AI Assistant | Added registration automation planning review and implementation-planning readiness verdict |

@@ -47,14 +47,12 @@ This review checks whether document 54:
 6. keeps CrewPortGlobal SQL database locality on GTC1;
 7. keeps OpenClaw separated on GTC-AGENT;
 8. confirms OpenClaw is not a frontend dependency;
-9. confirms `n8n` is excluded from CrewPortGlobal architecture;
-10. confirms `n8n` is not a workflow engine, integration layer, route orchestrator, consent handler, state manager, fallback automation tool or deployment dependency;
-11. remains aligned with CPG-I1-002 route planning;
-12. remains aligned with CPG-I1-004 consent capture planning;
-13. preserves seafarer-only Increment 1 scope;
-14. preserves no-fee and human-review boundaries;
-15. does not imply candidate submission, matching automation, employment guarantee or production registration;
-16. does not introduce database, auth, Stripe, nginx, OpenClaw or deployment scope.
+9. remains aligned with CPG-I1-002 route planning;
+10. remains aligned with CPG-I1-004 consent capture planning;
+11. preserves seafarer-only Increment 1 scope;
+12. preserves no-fee and human-review boundaries;
+13. does not imply candidate submission, matching automation, employment guarantee or production registration;
+14. does not introduce database, auth, Stripe, nginx, OpenClaw or deployment scope.
 
 ## 4. Document 54 Scope Verification
 
@@ -128,20 +126,20 @@ Conclusion:
 
 OpenClaw remains separated on GTC-AGENT and is not treated as a frontend dependency.
 
-## 9. n8n Exclusion Verification
+## 9. Architecture Consistency Verification
 
 Result: confirmed.
 
 Assessment:
 
-- n8n is excluded from the CrewPortGlobal project architecture. Document 54 must not be interpreted as allowing n8n workflow triggers, n8n route orchestration, n8n consent handling, n8n state management, n8n integration fallback, n8n deployment steps or any future n8n dependency.
-- document 54 states that `n8n` is excluded from the frontend shell plan;
-- document 54 does not present `n8n` as a workflow engine, integration layer, route orchestrator, consent handler, state manager, fallback automation tool or deployment path;
-- no reviewed artifact introduces `n8n` into the frontend placeholder scope.
+- document 54 preserves the positive architecture baseline with the website application runtime on GTC1;
+- document 54 preserves SQL locality on GTC1;
+- document 54 keeps OpenClaw separated on GTC-AGENT;
+- document 54 keeps OpenClaw limited to assisted operator support through controlled procedures.
 
 Conclusion:
 
-`n8n` remains excluded from CrewPortGlobal architecture and is not introduced as any current or future dependency in document 54.
+Document 54 remains aligned with the approved positive architecture baseline.
 
 ## 10. CPG-I1-002 Route Handoff Verification
 
@@ -214,7 +212,6 @@ Assessment:
 - no database connection was introduced;
 - no SQL was executed and no database was touched;
 - auth, Stripe, nginx and OpenClaw configuration were not changed;
-- `n8n` was not used;
 - deployment artifacts were not created and no deployment was performed.
 
 Conclusion:
@@ -248,18 +245,17 @@ Rationale:
 
 - document 54 remains planning-only;
 - document 54 does not authorize runtime UI work or supporting implementation artifacts;
-- ADR 48 is preserved, including GTC1 locality, OpenClaw separation and `n8n` exclusion;
-- document 54 does not introduce `n8n` as a workflow engine, integration layer, route orchestrator, consent handler, state manager, fallback automation tool or deployment dependency;
+- ADR 48 is preserved, including GTC1 locality and OpenClaw separation;
 - handoff alignment with CPG-I1-002 and CPG-I1-004 remains intact;
 - seafarer-only, no-fee and human-review boundaries remain intact.
 
 ## 18. Final Control Statement
 
-Frontend shell placeholder plan is ready for the next project-owner approval decision. Implementation execution remains not approved. n8n remains excluded from the CrewPortGlobal architecture.
+Frontend shell placeholder plan is ready for the next project-owner approval decision. Implementation execution remains not approved.
 
 ## 19. Revision History
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
-| 0.2 | 2026-05-11 | GTC IT / AI Assistant | Tightened n8n exclusion wording, confirmed documentation-register update and aligned the control statement with corrected review requirements |
+| 0.2 | 2026-05-11 | GTC IT / AI Assistant | Refined architecture wording, confirmed documentation-register update and aligned the control statement with corrected review requirements |
 | 0.1 | 2026-05-11 | GTC IT / AI Assistant | Initial owner review for the CPG-I1-001 frontend shell placeholder plan |

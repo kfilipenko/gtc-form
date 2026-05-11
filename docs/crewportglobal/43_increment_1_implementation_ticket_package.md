@@ -36,8 +36,7 @@ The following rules remain mandatory for this package:
 5. do not change Stripe;
 6. do not change nginx;
 7. do not change OpenClaw configuration;
-8. do not create `n8n` workflows;
-9. do not perform deployment.
+8. do not perform deployment.
 
 Implementation remains not approved.
 
@@ -53,8 +52,7 @@ The package therefore excludes:
 4. external KYC provider integration;
 5. production DB writes;
 6. business-client onboarding implementation;
-7. autonomous OpenClaw decisions;
-8. `n8n` dependency.
+7. autonomous OpenClaw decisions.
 
 ## 5. Ticket Package Overview
 
@@ -70,7 +68,7 @@ All tickets in this package must remain in `Draft` status.
 | CPG-I1-006 | Document metadata capture planning | Define metadata fields, completeness checks and missing-item summaries | no file-storage implementation, no provider integration, no production writes | Draft |
 | CPG-I1-007 | Review queue planning | Define queue-entry conditions, review states and operator handoff points | no review-engine implementation, no approval bypass, no DB execution | Draft |
 | CPG-I1-008 | Operator console planning | Define planning scope for internal operator views, actions and audit visibility | no console rollout, no auth changes, no deployment | Draft |
-| CPG-I1-009 | OpenClaw assist endpoint planning | Define planning-only assist surfaces for summaries, completeness hints and recommendation drafting | no autonomous decisions, no OpenClaw configuration changes, no `n8n` dependency | Draft |
+| CPG-I1-009 | OpenClaw assist endpoint planning | Define planning-only assist surfaces for summaries, completeness hints and recommendation drafting | no autonomous decisions, no OpenClaw configuration changes, no new runtime dependency | Draft |
 | CPG-I1-010 | Audit event logging planning | Define intake, consent, review and state-change event groups for future implementation planning | no telemetry rollout, no logging implementation, no production writes | Draft |
 | CPG-I1-011 | Access-control planning | Define planning-level public, operator and admin boundary assumptions for Increment 1 | no auth changes, no permission rollout, no implementation | Draft |
 | CPG-I1-012 | Prototype test strategy planning | Define planning-only validation scenarios, negative-path checks and scope-preservation checks | no automated test implementation, no DB-backed tests, no deployment | Draft |
@@ -200,7 +198,7 @@ This ticket package becomes invalid if any ticket introduces:
 2. SQL execution or database-touch assumptions;
 3. auth, Stripe or nginx changes;
 4. OpenClaw configuration changes;
-5. `n8n` workflows or `n8n` dependency;
+5. an unapproved external dependency;
 6. payment, candidate submission or matching automation inside Increment 1;
 7. deployment activity.
 

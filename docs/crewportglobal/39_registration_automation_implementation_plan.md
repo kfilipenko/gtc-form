@@ -240,7 +240,7 @@ The following conditions must be treated as planning errors or stop conditions:
 2. the plan introduces a dependency that changes the current Stripe workflow;
 3. the plan assumes autonomous approval without human review;
 4. the plan bypasses bounded category rules;
-5. the plan introduces n8n as a dependency.
+5. the plan introduces an unapproved external dependency.
 
 If any of these conditions appears, the implementation plan must be corrected before review approval.
 
@@ -258,10 +258,9 @@ Before this implementation plan is accepted for further review, reviewers should
 
 ## 20. Architecture Control Statement
 
-CrewPortGlobal Stage 1 must be planned as a dedicated website application with internal service modules and OpenClaw-assisted operator or agent workflows where applicable. n8n is not part of the planned architecture for this project.
+CrewPortGlobal Stage 1 must be planned as a dedicated website application with internal service modules and OpenClaw-assisted operator or agent workflows where applicable.
 
 ## 21. Final Control Statement
 
 Registration automation implementation plan is ready for review.
 Implementation remains not approved.
-n8n is excluded from the project architecture.

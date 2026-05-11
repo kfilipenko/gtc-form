@@ -11,7 +11,7 @@ It exists only to record the approved top-level application shell split for the 
 1. CrewPortGlobal website application runtime: GTC1
 2. CrewPortGlobal SQL database locality: GTC1
 3. OpenClaw runtime / agent platform: GTC-AGENT
-4. n8n: excluded
+4. OpenClaw usage: assisted operator support only, through controlled procedures
 
 ## Approved Directory Scope
 
@@ -36,8 +36,7 @@ This directory does not authorize or include:
 9. nginx or systemd configuration
 10. SQL migrations
 11. OpenClaw configuration
-12. n8n workflows
-13. deployment artifacts
+12. deployment artifacts
 
 ## Control Statement
 

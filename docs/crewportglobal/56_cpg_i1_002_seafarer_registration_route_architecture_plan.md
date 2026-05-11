@@ -36,20 +36,20 @@ Draft implementation issue. Implementation remains not approved.
 
 ## 4. Non-Execution Statement
 
-This document is a planning-only route architecture artifact. It does not authorize runtime route implementation, UI code creation, backend/API handler creation, SQL execution, database changes, authentication changes, payment workflow changes, nginx changes, OpenClaw configuration changes, n8n usage or deployment.
+This document is a planning-only route architecture artifact. It does not authorize runtime route implementation, UI code creation, backend/API handler creation, SQL execution, database changes, authentication changes, payment workflow changes, nginx changes, OpenClaw configuration changes or deployment.
 
-This issue does not authorize implementation. No code may be written, no SQL may be executed, no database may be touched, no authentication or payment workflow may be changed, no nginx configuration may be changed, no OpenClaw configuration may be modified, no n8n workflow may be created, and no deployment may be performed without separate explicit project-owner approval.
+This issue does not authorize implementation. No code may be written, no SQL may be executed, no database may be touched, no authentication or payment workflow may be changed, no nginx configuration may be changed, no OpenClaw configuration may be modified, and no deployment may be performed without separate explicit project-owner approval.
 
 ## 5. ADR 48 Architecture Baseline
 
-CrewPortGlobal website application runtime and SQL database locality are planned on GTC1. OpenClaw remains separated on GTC-AGENT and may be used only as assisted operator support through controlled procedures. n8n is excluded from the CrewPortGlobal architecture.
+CrewPortGlobal website application runtime and SQL database locality are planned on GTC1. OpenClaw remains separated on GTC-AGENT and may be used only as assisted operator support through controlled procedures.
 
 This planning document remains bound to the ADR 48 architecture baseline:
 
 1. CrewPortGlobal website application runtime: GTC1;
 2. CrewPortGlobal SQL database locality: GTC1;
 3. OpenClaw runtime / agent platform: GTC-AGENT;
-4. n8n: excluded.
+4. OpenClaw usage: assisted operator support only, through controlled procedures.
 
 ## 6. Increment 1 Route Objective
 
@@ -285,23 +285,13 @@ Prohibited role:
 
 OpenClaw must not be planned as a route runtime dependency.
 
-## 19. n8n Exclusion Boundary
+## 19. Positive Architecture Boundary
 
-`n8n` is excluded from the CrewPortGlobal project architecture.
+The seafarer registration route remains part of the CrewPortGlobal website application runtime on GTC1.
 
-n8n is excluded from the CrewPortGlobal project architecture. The seafarer registration route must not depend on n8n workflow triggers, n8n route orchestration, n8n consent handling, n8n state management, n8n integration fallback, n8n deployment steps or any future n8n dependency.
+OpenClaw remains separated on GTC-AGENT and may be used only as assisted operator support through controlled procedures.
 
-The route must not depend on `n8n` for:
-
-1. orchestration;
-2. consent handling;
-3. state management;
-4. automation;
-5. fallback processing;
-6. deployment;
-7. any future dependency path.
-
-`n8n` must not be introduced as a workflow engine, integration layer, route orchestrator, consent handler, state manager, fallback automation tool or deployment step.
+The route must preserve direct human-review control and must not introduce new runtime dependencies or orchestration layers.
 
 ## 20. Out of Scope
 
@@ -319,12 +309,11 @@ The following items are explicitly out of scope for this route architecture plan
 10. Stripe changes;
 11. nginx changes;
 12. OpenClaw configuration changes;
-13. `n8n` usage;
-14. deployment;
-15. candidate submission;
-16. matching automation;
-17. production registration;
-18. shipowner onboarding.
+13. deployment;
+14. candidate submission;
+15. matching automation;
+16. production registration;
+17. shipowner onboarding.
 
 ## 21. Validation Checklist for This Planning Step
 
@@ -336,9 +325,8 @@ Before this route architecture plan is accepted for further owner review, confir
 4. consent dependency on CPG-I1-004 remains explicit;
 5. no-fee and no-employment-guarantee boundaries remain explicit;
 6. OpenClaw remains separated on GTC-AGENT and outside route runtime;
-7. `n8n` remains excluded from architecture and route planning;
-8. no runtime route implementation is implied;
-9. no database, auth, Stripe, nginx or deployment scope is introduced.
+7. no runtime route implementation is implied;
+8. no database, auth, Stripe, nginx or deployment scope is introduced.
 
 ## 22. Stop Conditions
 
@@ -350,9 +338,8 @@ This planning step must stop immediately if any request attempts to:
 4. execute SQL or touch the database;
 5. change auth, payment, Stripe or nginx behavior;
 6. modify OpenClaw configuration;
-7. create any n8n workflow or dependency;
-8. perform deployment;
-9. expand scope beyond the seafarer-only Increment 1 boundary.
+7. perform deployment;
+8. expand scope beyond the seafarer-only Increment 1 boundary.
 
 ## 23. Open Questions Before Future Implementation
 
@@ -376,5 +363,5 @@ CPG-I1-002 seafarer registration route architecture plan is ready for project-ow
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
-| 0.2 | 2026-05-11 | GTC IT / AI Assistant | Restructured document to match the approved issue #4 section layout while preserving the planning-only route architecture, state model, terminal human-review boundary, OpenClaw separation and n8n exclusion |
+| 0.2 | 2026-05-11 | GTC IT / AI Assistant | Restructured document to match the approved issue #4 section layout while preserving the planning-only route architecture, state model, terminal human-review boundary and OpenClaw separation |
 | 0.1 | 2026-05-11 | GTC IT / AI Assistant | Initial route architecture planning baseline for CPG-I1-002 |

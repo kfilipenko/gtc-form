@@ -34,8 +34,8 @@ This review checks whether:
 1. only the approved directories `app/`, `frontend/`, `backend/` and `shared/` were created;
 2. only README or planning placeholder files exist inside the approved skeleton;
 3. no runtime code was introduced;
-4. no prohibited artifacts such as `package.json`, `src/`, `routes/`, `api/`, `.env`, Docker, nginx, systemd, SQL, OpenClaw config or `n8n` files were created;
-5. ADR 48 remains preserved with GTC1 application runtime, GTC1 SQL locality, OpenClaw on GTC-AGENT and `n8n` excluded;
+4. no prohibited artifacts such as `package.json`, `src/`, `routes/`, `api/`, `.env`, Docker, nginx, systemd, SQL or OpenClaw config files were created;
+5. ADR 48 remains preserved with GTC1 application runtime, GTC1 SQL locality and OpenClaw on GTC-AGENT;
 6. implementation execution remains not approved.
 
 This review does not approve implementation execution.
@@ -82,7 +82,7 @@ Assessment:
 - no `package.json`, `vite.config.*`, `next.config.*` or `tsconfig.json` files were created in the skeleton;
 - no `src/`, `routes/`, `api/` or `server.*` runtime files were created;
 - no `.env`, Docker, nginx or systemd artifacts were created;
-- no SQL migration, OpenClaw config or `n8n` workflow files were created.
+- no SQL migration or OpenClaw config files were created.
 
 Conclusion:
 
@@ -96,8 +96,7 @@ Assessment:
 
 - the skeleton record and README placeholders preserve GTC1 as the CrewPortGlobal website application runtime;
 - the skeleton record and README placeholders preserve GTC1 as the SQL locality baseline;
-- the skeleton record and README placeholders preserve OpenClaw on GTC-AGENT;
-- the skeleton record and README placeholders continue to exclude `n8n`.
+- the skeleton record and README placeholders preserve OpenClaw on GTC-AGENT.
 
 Conclusion:
 

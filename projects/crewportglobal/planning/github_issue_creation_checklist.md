@@ -12,7 +12,7 @@ Use this checklist before creating actual GitHub issue drafts from the repositor
 - [ ] Document 46 confirms `Ready to create GitHub implementation issue drafts`.
 - [ ] All twelve repository issue drafts exist.
 - [ ] Every repository issue draft contains `Status: Draft issue, not approved for implementation.`
-- [ ] Every repository issue draft contains the mandatory no-code, no-SQL, no-DB, no-auth, no-Stripe, no-nginx, no-OpenClaw-config, no-`n8n`, no-deployment restriction.
+- [ ] Every repository issue draft contains the mandatory no-code, no-SQL, no-DB, no-auth, no-Stripe, no-nginx, no-OpenClaw-config and no-deployment restriction.
 - [ ] The backlog still links to all twelve repository issue draft files.
 - [ ] The issue set remains limited to Increment 1 seafarer-only prototype scope.
 - [ ] No payment scope has been introduced.
@@ -20,7 +20,6 @@ Use this checklist before creating actual GitHub issue drafts from the repositor
 - [ ] No matching automation scope has been introduced.
 - [ ] No external KYC provider scope has been introduced.
 - [ ] No database or infrastructure change authority has been introduced.
-- [ ] No `n8n` dependency or workflow planning has been introduced.
 - [ ] Project-owner decision is recorded in document 47.
 
 ## 3. Final Control Statement

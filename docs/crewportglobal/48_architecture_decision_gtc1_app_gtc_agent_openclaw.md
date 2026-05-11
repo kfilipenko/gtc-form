@@ -17,7 +17,7 @@ CrewPortGlobal SQL database is planned on GTC1.
 
 OpenClaw runtime and agent platform remain on GTC-AGENT.
 
-`n8n` is excluded from the planned architecture.
+OpenClaw usage is limited to assisted operator support through controlled procedures.
 
 ## 2. Decision Statement
 
@@ -36,7 +36,7 @@ The current planning package already establishes the following architectural dir
 1. the CrewPortGlobal website application is the primary public-facing surface;
 2. the CrewPortGlobal database boundary remains project-local;
 3. OpenClaw is assistive only and not a final decision authority;
-4. `n8n` is not part of the planned architecture.
+4. OpenClaw remains separated on GTC-AGENT.
 
 The remaining unresolved placement question was where the website application runtime, SQL runtime and assistive-agent runtime should live operationally.
 
@@ -93,7 +93,7 @@ This decision means:
 2. the app runtime and SQL boundary stay co-located on GTC1 for Stage 1 planning;
 3. assistive-agent runtime remains separated from the public application host;
 4. OpenClaw stays outside the primary application runtime and database host;
-5. `n8n` remains excluded and is not used as a workflow, app or integration layer.
+5. OpenClaw support remains limited to assisted operator procedures through the separated GTC-AGENT runtime.
 
 ## 7. Explicit Non-Goals
 
@@ -106,8 +106,7 @@ This ADR does not authorize:
 5. Stripe changes;
 6. nginx changes;
 7. OpenClaw configuration changes;
-8. `n8n` workflow creation;
-9. deployment.
+8. deployment.
 
 ## 8. OpenClaw Boundary
 
@@ -126,17 +125,14 @@ OpenClaw is not approved for:
 4. payment decisions;
 5. bypass of human review.
 
-## 9. n8n Exclusion
+## 9. Architecture Consistency
 
-`n8n` is excluded from the CrewPortGlobal planned architecture.
+The approved CrewPortGlobal architecture remains positive and concise:
 
-It is not planned as:
-
-1. website runtime;
-2. application runtime;
-3. orchestration layer;
-4. integration dependency;
-5. workflow engine for this project.
+1. CrewPortGlobal website application runtime: GTC1;
+2. CrewPortGlobal SQL database locality: GTC1;
+3. OpenClaw runtime / agent platform: GTC-AGENT;
+4. OpenClaw usage: assisted operator support only, through controlled procedures.
 
 ## 10. Operational Safety Note
 

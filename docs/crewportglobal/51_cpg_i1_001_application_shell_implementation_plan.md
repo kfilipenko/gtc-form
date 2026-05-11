@@ -36,8 +36,7 @@ The planning baseline for this document is:
 1. CrewPortGlobal website application runtime: GTC1;
 2. CrewPortGlobal SQL database locality: GTC1;
 3. OpenClaw runtime / agent platform: GTC-AGENT;
-4. OpenClaw usage: assistive operator support only;
-5. `n8n`: excluded.
+4. OpenClaw usage: assistive operator support only, through controlled procedures.
 
 ## 4. Hard Constraints
 
@@ -50,8 +49,7 @@ The following constraints remain unchanged:
 5. Stripe must not be changed;
 6. nginx must not be changed;
 7. OpenClaw configuration must not be changed;
-8. `n8n` must not be used;
-9. deployment must not be performed.
+8. deployment must not be performed.
 
 Implementation execution remains not approved.
 
@@ -239,8 +237,7 @@ The CPG-I1-001 shell plan must preserve all of the following:
 4. no production registration assumption;
 5. no candidate submission to shipowners;
 6. no matching automation;
-7. no external KYC or KYB provider dependency;
-8. no `n8n` dependency.
+7. no external KYC or KYB provider dependency.
 
 ## 15. Planning Deliverables from This Slice
 
@@ -266,9 +263,8 @@ This document does not authorize or define:
 5. Stripe or payment workflow changes;
 6. nginx changes;
 7. OpenClaw configuration changes;
-8. `n8n` workflows;
-9. deployment;
-10. implementation execution.
+8. deployment;
+9. implementation execution.
 
 ## 17. Final Control Statement
 

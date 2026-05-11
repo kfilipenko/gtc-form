@@ -29,7 +29,7 @@ The following source documents were reviewed:
 This review checks whether document 39:
 
 1. preserves the approved architecture baseline;
-2. excludes `n8n` from the planned architecture;
+2. preserves the positive architecture baseline;
 3. keeps OpenClaw inside an assistive non-authoritative role;
 4. preserves mandatory human review gates;
 5. preserves the no-fee seafarer rule;
@@ -53,7 +53,7 @@ No auth, Stripe, nginx or OpenClaw configuration changes were made.
 | CrewPortGlobal database schema boundary | Yes | Sections 6 and 10 keep writes inside the CrewPortGlobal schema boundary | Low | Confirmed |
 | Operator/admin console | Yes | Sections 7 and 11 define operator or admin console responsibilities and human control | Low | Confirmed |
 | OpenClaw-assisted support | Yes | Sections 7, 12, 13, 17, 19 and 20 limit OpenClaw to assistive support | Low | Confirmed |
-| No n8n dependency | Yes | Sections 18, 19, 20 and 21 explicitly exclude `n8n` and define it as a stop condition | Low | Confirmed |
+| Positive architecture baseline | Yes | Sections 18, 19, 20 and 21 preserve bounded dependencies, keep the website application as the primary onboarding surface and keep OpenClaw assistive only | Low | Confirmed |
 | Human review gates | Yes | Sections 6, 13, 16 and 19 preserve mandatory human review and approval gates | Low | Confirmed |
 | No autonomous employment placement decisions | Yes | Section 13 explicitly prohibits autonomous decisions on employment or placement outcomes | Low | Confirmed |
 
@@ -61,20 +61,20 @@ Review conclusion:
 
 The architecture baseline in document 39 is coherent and aligned with the approved implementation-planning direction.
 
-## 5. n8n exclusion verification
+## 5. Architecture consistency verification
 
 Result: confirmed.
 
 Assessment:
 
-- document 39 does not position `n8n` as a workflow engine, orchestration layer or dependency;
-- `n8n` appears only as an excluded component and explicit stop condition;
-- the architecture control statement explicitly says that `n8n` is not part of the planned architecture;
-- the final control statement repeats that `n8n` is excluded from the project architecture.
+- document 39 keeps the website application as the primary public onboarding surface on project-local infrastructure;
+- document 39 keeps internal service modules bounded to CrewPortGlobal responsibilities;
+- the architecture control statement preserves OpenClaw as assistive support only;
+- the final control statement stays inside documentation-only review boundaries.
 
 Conclusion:
 
-`n8n` is not part of the CrewPortGlobal Stage 1 architecture baseline and no `n8n` workflow planning is introduced.
+The CrewPortGlobal Stage 1 architecture baseline remains internally consistent and does not introduce unapproved dependency or orchestration drift.
 
 ## 6. OpenClaw planning verification
 
@@ -181,7 +181,7 @@ Document 39 correctly defines stop conditions for:
 2. Stripe workflow drift;
 3. autonomous approval without human review;
 4. category-boundary bypass;
-5. introduction of `n8n` as a dependency.
+5. introduction of an unapproved external dependency.
 
 Conclusion:
 
@@ -208,17 +208,16 @@ Final verdict: Implementation plan ready for technical task decomposition.
 Rationale:
 
 - the architecture baseline is explicit and internally consistent;
-- `n8n` is excluded rather than introduced;
 - OpenClaw is bounded to assistive support only;
 - human review remains mandatory for material verification and candidate submission;
 - the plan remains documentation-only and non-authorizing.
 
 This verdict does not approve implementation, SQL execution, database changes, authentication changes, payment workflow changes, nginx changes, OpenClaw configuration changes or deployment.
 
-Implementation plan is ready for technical task decomposition. Implementation remains not approved. n8n is excluded from the project architecture.
+Implementation plan is ready for technical task decomposition. Implementation remains not approved.
 
 ## 15. Revision history
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
-| 0.1 | 2026-05-10 | GTC IT / AI Assistant | Initial implementation-plan review with architecture verification, n8n exclusion confirmation and technical-task-decomposition verdict |
+| 0.1 | 2026-05-10 | GTC IT / AI Assistant | Initial implementation-plan review with architecture verification and technical-task-decomposition verdict |

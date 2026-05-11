@@ -38,8 +38,7 @@ It does not authorize:
 6. changing Stripe workflow;
 7. changing nginx;
 8. changing OpenClaw configuration;
-9. creating `n8n` workflows beyond the already prohibited scope;
-10. deployment.
+9. deployment.
 
 ## 4. Source Package Under Decision
 
@@ -68,7 +67,7 @@ The current package confirms that:
 
 1. all twelve Increment 1 issue drafts exist;
 2. every draft carries `Draft issue, not approved for implementation` status;
-3. every draft carries the mandatory no-code, no-SQL, no-DB, no-auth, no-Stripe, no-nginx, no-OpenClaw-config, no-`n8n`, no-deployment restriction;
+3. every draft carries the mandatory no-code, no-SQL, no-DB, no-auth, no-Stripe, no-nginx, no-OpenClaw-config and no-deployment restriction;
 4. the set remains limited to the seafarer-only Increment 1 prototype planning scope;
 5. the current owner review verdict is `Ready to create GitHub implementation issue drafts`.
 
@@ -81,7 +80,7 @@ Before deciding, the project owner should confirm:
 3. the seafarer-only Increment 1 boundary remains intact;
 4. no payment, candidate submission, matching automation or external KYC scope has been introduced;
 5. no database or infrastructure change authority has been introduced;
-6. no `n8n` dependency or workflow planning has been introduced.
+6. no unapproved dependency planning has been introduced.
 
 ## 7. Decision Form
 
@@ -101,7 +100,7 @@ Decision timestamp: ____________________
 
 If the decision is approved, the approval is limited to creation of GitHub issue drafts only.
 
-It still does not approve writing code, implementing automation, executing SQL, touching any database, changing auth, changing Stripe, changing nginx, changing OpenClaw configuration, creating `n8n` workflows or performing deployment.
+It still does not approve writing code, implementing automation, executing SQL, touching any database, changing auth, changing Stripe, changing nginx, changing OpenClaw configuration or performing deployment.
 
 ## 9. Recommended Next Administrative Action
 
