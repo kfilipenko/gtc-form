@@ -2,7 +2,7 @@
 
 - Project: CrewPortGlobal
 - Document owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.1
+- Version: 0.2
 - Status: Route architecture planning baseline
 - Classification: Internal
 - Effective date: 2026-05-11
@@ -30,7 +30,36 @@ This architecture plan builds on the following reviewed inputs:
 - `projects/crewportglobal/planning/issues/CPG-I1-002_seafarer_registration_route_planning.md`
 - `projects/crewportglobal/planning/issues/CPG-I1-004_consent_capture_planning.md`
 
-## 3. Route Architecture Model
+## 3. Current Approval Status
+
+Draft implementation issue. Implementation remains not approved.
+
+## 4. Non-Execution Statement
+
+This issue does not authorize implementation. No code may be written, no SQL may be executed, no database may be touched, no authentication or payment workflow may be changed, no nginx configuration may be changed, no OpenClaw configuration may be modified, no n8n workflow may be created, and no deployment may be performed without separate explicit project-owner approval.
+
+## 5. ADR 48 Architecture Baseline
+
+This planning document remains bound to the ADR 48 architecture baseline:
+
+1. CrewPortGlobal website application runtime: GTC1;
+2. CrewPortGlobal SQL database locality: GTC1;
+3. OpenClaw runtime / agent platform: GTC-AGENT;
+4. n8n: excluded.
+
+## 6. Increment 1 Route Objective
+
+Prepare the planning basis for the seafarer registration route in the CrewPortGlobal website application on GTC1.
+
+The route objective is limited to the Increment 1 seafarer registration prototype and must preserve no-fee, human-review and non-production-write boundaries.
+
+## 7. Seafarer-Only Boundary
+
+This route plan is limited to the seafarer registration contour only.
+
+The route must not be interpreted as covering shipowner onboarding, employer onboarding, agency onboarding or any multi-role registration expansion.
+
+## 8. Planned Route Architecture Model
 
 The planned seafarer registration route is a controlled registration contour rather than a simple field-entry form.
 
@@ -54,7 +83,7 @@ Pending Human Review
 
 The route model is planning-only and must not be interpreted as approved runtime routing.
 
-## 4. Planned Route States
+## 9. Planned Route State Model
 
 The approved planning state set for Increment 1 is:
 
@@ -76,7 +105,7 @@ The following states are explicitly excluded from Increment 1 route planning:
 5. `approved`
 6. `employed`
 
-## 5. State Transition Map
+## 10. State Transition Map
 
 The planned transition map is:
 
@@ -128,25 +157,29 @@ Transition interpretation guidance:
 4. `pending_documents -> pending_human_review` is allowed only after completeness conditions are satisfied;
 5. no transition may lead to approval, verification, matching or candidate submission states in Increment 1.
 
-## 6. Blocked and Incomplete Route Behavior
+## 11. Entry and Start State Planning
 
-Blocked and incomplete states must remain distinct.
+Entry planning begins at Shell Entry and then moves to Seafarer Registration Start before the route enters working registration states.
 
-Planned blocked behavior:
+Planning requirements for entry and start:
 
-1. represent scope exclusion, policy exclusion or route-level access limitation;
-2. stop forward progression toward review;
-3. provide a safe return path without implying hidden override logic.
+1. entry must be controlled rather than implicit;
+2. the route must begin in `not_started`;
+3. transition into `draft` marks the first valid route progression;
+4. entry planning must preserve the seafarer-only Increment 1 boundary.
 
-Planned incomplete behavior:
+## 12. Draft Intake State Planning
 
-1. represent interrupted or insufficient route progress;
-2. preserve resumable progression at planning level only;
-3. avoid implying production persistence or completed registration.
+The `draft` state represents active planning-level intake of seafarer registration information before consent completion and before review readiness.
 
-The route architecture must not collapse blocked and incomplete into a single generic state because they represent different compliance and UX meanings.
+Planning requirements for draft intake:
 
-## 7. Consent Dependency on CPG-I1-004
+1. `draft` must remain resumable at planning level;
+2. `draft` must not imply production persistence or successful registration completion;
+3. `draft` may progress toward `pending_consent`, `incomplete`, `blocked` or `unavailable` only;
+4. `draft` must not imply approval, verification, matching or shipowner submission outcomes.
+
+## 13. Consent Dependency on CPG-I1-004
 
 CPG-I1-002 remains explicitly dependent on CPG-I1-004 consent capture planning.
 
@@ -166,20 +199,36 @@ Required consent planning dependencies include:
 
 This document does not authorize consent-storage implementation.
 
-## 8. No-Fee and No-Employment-Guarantee Boundary
+## 14. Document Metadata Step Planning
 
-The route must preserve the following boundary conditions:
+The route architecture includes a Document Metadata Step between Consent Gate and Completeness Check.
 
-1. no payment;
-2. no recruitment fee;
-3. no placement fee;
-4. no employment-access fee;
-5. no employment guarantee;
-6. no production placement action.
+Planning requirements for this step:
 
-The route must not imply that registration completion produces hiring, placement, matching or candidate publication outcomes.
+1. it remains metadata-oriented planning, not document verification;
+2. it may contribute to `pending_documents` and later completeness evaluation;
+3. it must not be interpreted as autonomous screening, approval or production document processing;
+4. it must remain subordinate to the human-review boundary.
 
-## 9. Human-Review Terminal State
+## 15. Incomplete and Blocked State Planning
+
+Blocked and incomplete states must remain distinct.
+
+Planned blocked behavior:
+
+1. represent scope exclusion, policy exclusion or route-level access limitation;
+2. stop forward progression toward review;
+3. provide a safe return path without implying hidden override logic.
+
+Planned incomplete behavior:
+
+1. represent interrupted or insufficient route progress;
+2. preserve resumable progression at planning level only;
+3. avoid implying production persistence or completed registration.
+
+The route architecture must not collapse blocked and incomplete into a single generic state because they represent different compliance and UX meanings.
+
+## 16. Pending Human Review as Terminal State
 
 For Increment 1, the terminal route state is:
 
@@ -195,7 +244,20 @@ This means:
 4. the route does not submit the candidate to any shipowner;
 5. the route does not create the impression of automated employment processing.
 
-## 10. OpenClaw Separation
+## 17. No-Fee and No-Employment-Guarantee Boundary
+
+The route must preserve the following boundary conditions:
+
+1. no payment;
+2. no recruitment fee;
+3. no placement fee;
+4. no employment-access fee;
+5. no employment guarantee;
+6. no production placement action.
+
+The route must not imply that registration completion produces hiring, placement, matching or candidate publication outcomes.
+
+## 18. OpenClaw Separation Boundary
 
 OpenClaw remains separated from the route runtime and stays on GTC-AGENT.
 
@@ -217,7 +279,7 @@ Prohibited role:
 
 OpenClaw must not be planned as a route runtime dependency.
 
-## 11. n8n Exclusion
+## 19. n8n Exclusion Boundary
 
 `n8n` is excluded from the CrewPortGlobal project architecture.
 
@@ -233,7 +295,7 @@ The route must not depend on `n8n` for:
 
 `n8n` must not be introduced as a workflow engine, integration layer, route orchestrator, consent handler, state manager, fallback automation tool or deployment step.
 
-## 12. Out-of-Scope Items
+## 20. Out of Scope
 
 The following items are explicitly out of scope for this route architecture plan:
 
@@ -256,7 +318,7 @@ The following items are explicitly out of scope for this route architecture plan
 17. production registration;
 18. shipowner onboarding.
 
-## 13. Validation Checklist
+## 21. Validation Checklist for This Planning Step
 
 Before this route architecture plan is accepted for further owner review, confirm that:
 
@@ -270,12 +332,41 @@ Before this route architecture plan is accepted for further owner review, confir
 8. no runtime route implementation is implied;
 9. no database, auth, Stripe, nginx or deployment scope is introduced.
 
-## 14. Final Recommendation
+## 22. Stop Conditions
+
+This planning step must stop immediately if any request attempts to:
+
+1. convert planning states into runtime routes;
+2. add UI code, frontend routing or components;
+3. add backend or API handlers;
+4. execute SQL or touch the database;
+5. change auth, payment, Stripe or nginx behavior;
+6. modify OpenClaw configuration;
+7. create any n8n workflow or dependency;
+8. perform deployment;
+9. expand scope beyond the seafarer-only Increment 1 boundary.
+
+## 23. Open Questions Before Future Implementation
+
+The following questions remain open for any future separately approved implementation phase:
+
+1. how Shell Entry and Seafarer Registration Start should be represented in a runtime shell without expanding scope;
+2. how consent completion should be surfaced without violating the CPG-I1-004 boundary;
+3. how document metadata completeness should be signalled without implying document verification;
+4. how resumable draft and incomplete states should be represented without production-write assumptions;
+5. what explicit human-review handoff markers should exist before any later implementation decision.
+
+## 24. Final Recommendation
 
 The route architecture should proceed only as planning review material for the next project-owner decision.
 
 Any later request to create runtime routes, frontend code, backend handlers, persistence logic or automation dependencies must require separate explicit approval.
 
-## 15. Final Control Statement
-
 CPG-I1-002 seafarer registration route architecture plan is ready for project-owner review. Implementation execution remains not approved.
+
+## 25. Revision History
+
+| Version | Date | Author | Changes |
+|---|---|---|---|
+| 0.2 | 2026-05-11 | GTC IT / AI Assistant | Restructured document to match the approved issue #4 section layout while preserving the planning-only route architecture, state model, terminal human-review boundary, OpenClaw separation and n8n exclusion |
+| 0.1 | 2026-05-11 | GTC IT / AI Assistant | Initial route architecture planning baseline for CPG-I1-002 |
