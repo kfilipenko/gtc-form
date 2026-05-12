@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CrewPortGlobal</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body data-title-key="home.pageTitle">
+    <div class="site-shell">
+      <header class="site-header">
+        <div class="brand-block">
+          <a class="brand-mark" href="index.html">CrewPortGlobal</a>
+          <p class="brand-tagline" data-i18n="site.tagline"></p>
+        </div>
+        <div class="site-header__actions">
+          <a
+            id="current-language-link"
+            class="language-link"
+            href="language.html"
+            aria-label="Open language selection page"
+          >
+            <span id="current-language-flag" class="language-link__flag" aria-hidden="true"></span>
+            <span id="current-language-label" class="language-link__label"></span>
+          </a>
+        </div>
+      </header>
+
+      <main class="page-layout">
+        <section class="hero-card card">
+          <p class="eyebrow" data-i18n="home.eyebrow"></p>
+          <h1 data-i18n="home.title"></h1>
+          <p class="hero-copy" data-i18n="home.intro"></p>
+
+          <div class="notice-banner">
+            <strong data-i18n="home.noticeTitle"></strong>
+            <p data-i18n="home.noticeBody"></p>
+          </div>
+        </section>
+
+        <section class="card-grid">
+          <article class="card">
+            <p class="card-kicker" data-i18n="home.entryKicker"></p>
+            <h2 data-i18n="home.entryTitle"></h2>
+            <p data-i18n="home.entryBody"></p>
+            <a class="button" href="language.html" data-i18n="home.entryAction"></a>
+          </article>
+
+          <article class="card">
+            <p class="card-kicker">Prototype state</p>
+            <h2 data-i18n="home.stateTitle"></h2>
+            <p data-i18n="home.stateBody"></p>
+            <span class="state-chip">pending_human_review</span>
+          </article>
+
+          <article class="card">
+            <p class="card-kicker" data-i18n="home.translationKicker"></p>
+            <h2 data-i18n="home.translationTitle"></h2>
+            <p data-i18n="home.translationBody"></p>
+            <p class="support-note" data-i18n="home.translationNote"></p>
+          </article>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p data-i18n="site.footer"></p>
+      </footer>
+    </div>
+  </body>
+</html>

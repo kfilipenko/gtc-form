@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CrewPortGlobal Languages</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body data-title-key="language.pageTitle">
+    <div class="site-shell">
+      <header class="site-header">
+        <div class="brand-block">
+          <a class="brand-mark" href="index.html">CrewPortGlobal</a>
+          <p class="brand-tagline" data-i18n="site.tagline"></p>
+        </div>
+        <div class="site-header__actions">
+          <a
+            id="current-language-link"
+            class="language-link"
+            href="language.html"
+            aria-label="Open language selection page"
+          >
+            <span id="current-language-flag" class="language-link__flag" aria-hidden="true"></span>
+            <span id="current-language-label" class="language-link__label"></span>
+          </a>
+        </div>
+      </header>
+
+      <main class="page-layout page-layout--language">
+        <section class="hero-card card">
+          <p class="eyebrow" data-i18n="language.eyebrow"></p>
+          <h1 data-i18n="language.title"></h1>
+          <p class="hero-copy" data-i18n="language.intro"></p>
+
+          <div class="language-current card card--subtle">
+            <h2 data-i18n="language.currentTitle"></h2>
+            <p id="selected-language-summary"></p>
+            <p class="support-note" data-i18n="language.currentDetail"></p>
+          </div>
+        </section>
+
+        <section class="language-grid-section card">
+          <div class="section-heading">
+            <h2 data-i18n="language.listTitle"></h2>
+            <p data-i18n="language.listIntro"></p>
+          </div>
+          <div id="language-options" class="language-grid" aria-live="polite"></div>
+        </section>
+
+        <section class="card-grid">
+          <article class="card card--subtle">
+            <h2 data-i18n="language.flagsNoteTitle"></h2>
+            <p data-i18n="language.flagsNoteBody"></p>
+          </article>
+
+          <article class="card card--subtle">
+            <h2 data-i18n="language.reviewNoteTitle"></h2>
+            <p data-i18n="language.reviewNoteBody"></p>
+          </article>
+        </section>
+
+        <div class="page-actions">
+          <a class="button button--secondary" href="index.html" data-i18n="language.backLink"></a>
+        </div>
+      </main>
+
+      <footer class="site-footer">
+        <p data-i18n="site.footer"></p>
+      </footer>
+    </div>
+  </body>
+</html>

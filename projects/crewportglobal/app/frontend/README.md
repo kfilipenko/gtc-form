@@ -1,31 +1,43 @@
-# Frontend Skeleton Placeholder
+# Frontend Static Prototype Boundary
 
 ## Purpose
 
-This directory reserves the future frontend shell boundary for the CrewPortGlobal application skeleton.
+This directory now contains the first limited static multilingual frontend prototype for the CrewPortGlobal application shell.
 
-At this stage it is a planning placeholder only.
+The current approved scope is limited to static frontend pages, shared styling and browser-side language-state behavior only.
 
 ## Planned Responsibility Boundary
 
-The frontend boundary is expected to hold only future website-facing shell concerns such as:
+The frontend boundary currently holds website-facing shell concerns such as:
 
 1. visible shell framing
-2. shell state presentation
-3. navigation between approved shell states
-4. public informational notices for blocked, incomplete and review-pending states
+2. global language selector behavior
+3. multilingual static page presentation
+4. public informational notices for prototype and pending_human_review states
+
+## Approved Static Files
+
+The current approved frontend file set is:
+
+1. index.html
+2. language.html
+3. styles.css
+4. app.js
+5. README.md
 
 ## Not Approved Here
 
 This directory must not contain:
 
-1. frontend implementation code
-2. route implementation
-3. package manager files
-4. framework config
-5. build tooling
-6. deployment config
+1. backend or API handlers
+2. database access or database writes
+3. SQL execution
+4. authentication integration
+5. payment integration
+6. server configuration changes
+7. OpenClaw configuration changes
+8. deployment artifacts
 
 ## Control Statement
 
-Frontend skeleton placeholder is prepared for project-owner review only. Implementation execution remains not approved.
+Static multilingual frontend prototype is prepared for project-owner review only. Backend, database and deployment work remain not approved.

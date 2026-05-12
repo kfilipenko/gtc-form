@@ -7,19 +7,48 @@
   <meta name="description" content="Digital maritime crew data, documentation and matching platform.">
   <link rel="stylesheet" href="assets/crewportglobal-docs.css">
   <style>
-    .status-pill {
+    .language-pill {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
+      gap: 10px;
       min-height: 46px;
       padding: 12px 16px;
       border: 1px solid var(--line);
       border-radius: 24px;
       background: rgba(255, 255, 255, 0.08);
+      color: var(--text-on-dark);
+      text-decoration: none;
+      transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+    }
+
+    .language-pill:hover,
+    .language-pill:focus-visible {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.18);
+      outline: none;
+    }
+
+    .language-pill__flag {
+      font-size: 17px;
+      line-height: 1;
+    }
+
+    .language-pill__copy {
+      display: grid;
+      gap: 2px;
+    }
+
+    .language-pill__hint {
       color: var(--muted-on-dark);
       text-transform: uppercase;
       letter-spacing: 0.08em;
+      font-size: 10px;
+    }
+
+    .language-pill__label {
       font-size: 13px;
+      font-weight: 600;
     }
 
     .landing-hero {
@@ -192,7 +221,13 @@
           <span>Maritime documentation and matching platform</span>
         </span>
       </a>
-      <span class="status-pill">Stage 1 • Documentation and Matching Platform</span>
+      <a class="language-pill" id="current-language-link" href="https://crewportglobal.com/language.html" aria-label="Open language selection page">
+        <span class="language-pill__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+        <span class="language-pill__copy">
+          <span class="language-pill__hint">Language</span>
+          <span class="language-pill__label" id="current-language-label">English</span>
+        </span>
+      </a>
     </header>
 
     <nav class="site-nav" aria-label="Homepage navigation">
@@ -365,5 +400,56 @@
       </section>
     </main>
   </div>
+  <script>
+    (function () {
+      const STORAGE_KEY = 'crewportglobal.language';
+      const LANGUAGES = {
+        en: { code: 'en', flag: '🇬🇧', english: 'English', native: 'English' },
+        ru: { code: 'ru', flag: '🇷🇺', english: 'Russian', native: 'Русский' },
+        pt: { code: 'pt', flag: '🇵🇹', english: 'Portuguese', native: 'Português' },
+        uk: { code: 'uk', flag: '🇺🇦', english: 'Ukrainian', native: 'Українська' },
+        ar: { code: 'ar', flag: '🇦🇪', english: 'Arabic', native: 'العربية' },
+        fil: { code: 'fil', flag: '🇵🇭', english: 'Filipino', native: 'Filipino' },
+        hi: { code: 'hi', flag: '🇮🇳', english: 'Hindi', native: 'हिन्दी' },
+        id: { code: 'id', flag: '🇮🇩', english: 'Indonesian', native: 'Bahasa Indonesia' },
+        es: { code: 'es', flag: '🇪🇸', english: 'Spanish', native: 'Español' },
+        fr: { code: 'fr', flag: '🇫🇷', english: 'French', native: 'Français' },
+        tr: { code: 'tr', flag: '🇹🇷', english: 'Turkish', native: 'Türkçe' },
+        el: { code: 'el', flag: '🇬🇷', english: 'Greek', native: 'Ελληνικά' }
+      };
+
+      function resolveLanguage(code) {
+        return LANGUAGES[code] || LANGUAGES.en;
+      }
+
+      let stored = 'en';
+
+      try {
+        stored = window.localStorage.getItem(STORAGE_KEY) || 'en';
+      } catch (error) {
+        stored = 'en';
+      }
+
+      const current = resolveLanguage(stored);
+      const flag = document.getElementById('current-language-flag');
+      const label = document.getElementById('current-language-label');
+      const link = document.getElementById('current-language-link');
+
+      document.documentElement.lang = current.code;
+      document.documentElement.dir = current.code === 'ar' ? 'rtl' : 'ltr';
+
+      if (flag) {
+        flag.textContent = current.flag;
+      }
+
+      if (label) {
+        label.textContent = current.native;
+      }
+
+      if (link) {
+        link.setAttribute('aria-label', 'Open language selection page. Current language: ' + current.english + '.');
+      }
+    })();
+  </script>
 </body>
 </html>
