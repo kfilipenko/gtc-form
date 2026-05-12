@@ -13,7 +13,7 @@ test('first visit uses supported browser language and updates html metadata', as
     window.localStorage.removeItem('crewportglobal.language');
   });
 
-  await page.goto('/projects/crewportglobal/public/index.html');
+  await page.goto('/index.html');
 
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
   await expect(page.locator('.landing-title')).toContainText('Морские кадровые процессы');
@@ -35,7 +35,7 @@ test('first visit falls back to English when browser language is unsupported', a
     window.localStorage.removeItem('crewportglobal.language');
   });
 
-  await page.goto('/projects/crewportglobal/public/index.html');
+  await page.goto('/index.html');
 
   await expect(page.locator('#current-language-label')).toHaveText('English');
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
@@ -43,7 +43,7 @@ test('first visit falls back to English when browser language is unsupported', a
 });
 
 test('same-page selector translates the homepage and persists after reload', async ({ page }) => {
-  await page.goto('/projects/crewportglobal/public/index.html');
+  await page.goto('/index.html');
 
   await expect(page.locator('.landing-title')).toContainText('Maritime crew workflows');
   await expect(page.locator('#current-language-label')).toHaveText('English');
@@ -51,7 +51,7 @@ test('same-page selector translates the homepage and persists after reload', asy
   await page.locator('#current-language-toggle').click();
   await page.locator('.language-option').filter({ hasText: 'Русский' }).click();
 
-  await expect(page).toHaveURL(/projects\/crewportglobal\/public\/index\.html/);
+  await expect(page).toHaveURL(/\/index\.html/);
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
   await expect(page.locator('.landing-title')).toContainText('Морские кадровые процессы');
   await expect(page.locator('.site-nav')).toContainText('Для судовладельцев');
@@ -69,7 +69,7 @@ test('same-page selector translates the homepage and persists after reload', asy
 });
 
 test('same-page selector works on generated public pages and persists after reload', async ({ page }) => {
-  await page.goto('/projects/crewportglobal/public/legal/complaints/index.html');
+  await page.goto('/legal/complaints/index.html');
 
   await expect(page.locator('h1')).toContainText('Complaint Handling Procedure');
   await expect(page.locator('#current-language-label')).toHaveText('English');
@@ -90,7 +90,7 @@ test('same-page selector works on generated public pages and persists after relo
 });
 
 test('homepage falls back to English for missing non-English page translations', async ({ page }) => {
-  await page.goto('/projects/crewportglobal/public/index.html');
+  await page.goto('/index.html');
 
   await page.locator('#current-language-toggle').click();
   await page.locator('.language-option').filter({ hasText: 'Português' }).click();
@@ -102,6 +102,6 @@ test('homepage falls back to English for missing non-English page translations',
 });
 
 test('fallback language page remains accessible', async ({ page }) => {
-  await page.goto('/projects/crewportglobal/public/language.html');
+  await page.goto('/language.html');
   await expect(page.locator('h1')).toContainText('Choose the display language');
 });
