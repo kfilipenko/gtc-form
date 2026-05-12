@@ -387,8 +387,7 @@ def render_page(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
         </aside>
       </section>
     </main>
-  </div>
-    <div id="google_translate_element" class="google-translate-anchor" aria-hidden="true"></div>
+    </div>
 </body>
 </html>
 """

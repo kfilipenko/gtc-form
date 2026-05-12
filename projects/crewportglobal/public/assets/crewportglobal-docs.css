@@ -180,31 +180,6 @@ a {
   font-weight: 600;
 }
 
-.google-translate-anchor,
-#google_translate_element {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.goog-logo-link,
-.goog-te-gadget,
-.goog-te-gadget span {
-  font-size: 0 !important;
-}
-
-.goog-te-banner-frame.skiptranslate,
-iframe.goog-te-banner-frame {
-  display: none !important;
-}
-
-body.doc-body {
-  top: 0 !important;
-}
-
 .brand {
   display: inline-flex;
   align-items: center;

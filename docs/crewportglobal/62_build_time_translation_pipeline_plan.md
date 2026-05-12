@@ -55,6 +55,10 @@ Current publish-time behavior remains:
 
 The new i18n directory is the approved seed path for future automatic draft translation work.
 
+Browser-side JavaScript must not attempt to force the browser's built-in translation UI.
+
+Public pages may still be prepared for browser translation through correct html lang metadata, absence of translate=no on normal content, and a manual language selector.
+
 ## 6. Provider model
 
 Approved provider classes for build-time draft generation:

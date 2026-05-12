@@ -68,10 +68,12 @@ Rule:
 ## 4. Runtime rule
 
 - The shared runtime in projects/crewportglobal/public/assets/crewportglobal-public-i18n.js is the canonical browser-side translation runtime.
+- On first visit without a stored preference, the runtime may select a supported language from navigator.language or navigator.languages and persist that choice locally.
 - Homepage logic must reuse the shared runtime instead of maintaining a second selector or translation engine.
 - Missing non-English translations must fall back to the English canonical value rather than exposing raw key names.
 - External translation services may only be used as build-time draft assistance and must not require frontend API keys.
 - Browser-side code must consume prebuilt dictionaries only and must not call translation providers directly.
+- Browser-side code must not attempt to force the browser's built-in page translation UI from JavaScript.
 
 ## 5. Rebuild rule
 
@@ -126,6 +128,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.4 | 2026-05-12 | GTC IT / AI Assistant | Added first-visit browser language detection through navigator.language or navigator.languages, required local persistence of the resolved supported language, and prohibited attempts to force built-in browser translation UI from JavaScript |
 | 0.3 | 2026-05-12 | GTC IT / AI Assistant | Added the approved build-time draft translation skeleton path under projects/crewportglobal/i18n, clarified that providers are build-time only, and extended validation expectations to include JSON catalogs when present |
 | 0.2 | 2026-05-12 | GTC IT / AI Assistant | Elevated this document to canonical methodology status, added the mandatory synchronized-update rule for methodology changes, and linked the implementation report as the companion operational record |
 | 0.1 | 2026-05-12 | GTC IT / AI Assistant | Initial translation pipeline rule covering English canonical source, shared runtime reuse, fallback behavior, rebuild workflow and human-review boundaries |

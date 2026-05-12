@@ -1,5 +1,47 @@
 import { expect, test } from '@playwright/test';
 
+test('first visit uses supported browser language and updates html metadata', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window.navigator, 'language', {
+      configurable: true,
+      get: () => 'ru-RU',
+    });
+    Object.defineProperty(window.navigator, 'languages', {
+      configurable: true,
+      get: () => ['ru-RU', 'en-US'],
+    });
+    window.localStorage.removeItem('crewportglobal.language');
+  });
+
+  await page.goto('/projects/crewportglobal/public/index.html');
+
+  await expect(page.locator('#current-language-label')).toHaveText('Русский');
+  await expect(page.locator('.landing-title')).toContainText('Морские кадровые процессы');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+  await expect(page.locator('html')).toHaveAttribute('translate', 'yes');
+  await expect.poll(() => page.evaluate(() => window.localStorage.getItem('crewportglobal.language'))).toBe('ru');
+});
+
+test('first visit falls back to English when browser language is unsupported', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window.navigator, 'language', {
+      configurable: true,
+      get: () => 'pl-PL',
+    });
+    Object.defineProperty(window.navigator, 'languages', {
+      configurable: true,
+      get: () => ['pl-PL'],
+    });
+    window.localStorage.removeItem('crewportglobal.language');
+  });
+
+  await page.goto('/projects/crewportglobal/public/index.html');
+
+  await expect(page.locator('#current-language-label')).toHaveText('English');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect.poll(() => page.evaluate(() => window.localStorage.getItem('crewportglobal.language'))).toBe('en');
+});
+
 test('same-page selector translates the homepage and persists after reload', async ({ page }) => {
   await page.goto('/projects/crewportglobal/public/index.html');
 

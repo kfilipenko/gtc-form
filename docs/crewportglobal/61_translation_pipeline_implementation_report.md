@@ -18,22 +18,24 @@ This report is an operational companion to the canonical methodology rule in doc
 The current website text-translation methodology is:
 
 1. English is the canonical source language.
-2. Shared public UI runtime is implemented in projects/crewportglobal/public/assets/crewportglobal-public-i18n.js.
+2. Shared public UI runtime is implemented in projects/crewportglobal/public/assets/crewportglobal-public-i18n.js and auto-selects a supported browser locale on first visit when no stored preference exists.
 3. Homepage-specific strings remain page-local in projects/crewportglobal/public/index.html through window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.
 4. Generated public pages are rebuilt from canonical Markdown through projects/crewportglobal/scripts/generate_public_pages.py and projects/crewportglobal/scripts/run_public_generator.sh.
 5. Missing non-English UI translations fall back to English.
-6. Legal, consent, no-fee and seafarer-facing text may use machine translation only as draft input and require human review before publication.
-7. An approved build-time draft translation skeleton now exists in projects/crewportglobal/i18n/ for seeded languages en, ru, pt and uk.
+6. Browser-side code does not attempt to force the browser's built-in page translation UI from JavaScript.
+7. Legal, consent, no-fee and seafarer-facing text may use machine translation only as draft input and require human review before publication.
+8. An approved build-time draft translation skeleton now exists in projects/crewportglobal/i18n/ for seeded languages en, ru, pt and uk.
 
 ## 3. Implemented controls
 
 The following controls are now in place:
 
 1. Shared language selector and runtime behavior across homepage and generated public pages.
-2. Reproducible rebuild wrapper for generated public pages.
-3. Public i18n coverage validator: node projects/crewportglobal/scripts/check_public_i18n.js.
-4. Focused browser regression for homepage, generated pages and fallback behavior.
-5. Seed build-time JSON catalogs and an example automation script for draft translation generation.
+2. First-visit auto-selection from supported browser locales with local persistence in crewportglobal.language.
+3. Reproducible rebuild wrapper for generated public pages.
+4. Public i18n coverage validator: node projects/crewportglobal/scripts/check_public_i18n.js.
+5. Focused browser regression for homepage, generated pages and fallback behavior.
+6. Seed build-time JSON catalogs and an example automation script for draft translation generation.
 
 ## 4. Validation results
 
@@ -49,9 +51,10 @@ Observed current-state result:
 1. English canonical coverage is complete for referenced i18n keys.
 2. Non-English gaps fall back to English instead of exposing raw key names.
 3. Homepage and generated public pages share one runtime path.
-4. Live homepage keeps selector state in crewportglobal.language.
-5. Representative generated legal pages continue to translate through the shared runtime path.
-6. The validator now reads build-time JSON catalogs when they are present.
+4. Live homepage keeps auto-detected or manually selected language state in crewportglobal.language.
+5. Document root metadata is updated at runtime through html lang and dir.
+6. Representative generated legal pages continue to use the shared chrome runtime without attempting to trigger browser translation UI.
+7. The validator now reads build-time JSON catalogs when they are present.
 
 ## 5. Publication and review boundary
 
@@ -88,5 +91,6 @@ This methodology slice did not require changes to:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.3 | 2026-05-12 | GTC IT / AI Assistant | Recorded first-visit browser language detection, html lang synchronization, local persistence of the resolved language, and removal of runtime attempts to bridge translation behavior through browser-side JavaScript |
 | 0.2 | 2026-05-12 | GTC IT / AI Assistant | Recorded the approved build-time translation skeleton under projects/crewportglobal/i18n and the validator extension that reads JSON catalogs when present |
 | 0.1 | 2026-05-12 | GTC IT / AI Assistant | Initial implementation report for the current public translation methodology, validation flow and maintenance rule |
