@@ -45,7 +45,9 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - Every new visible UI text must use an i18n key with an English canonical value.
 - Missing non-English values may fall back to English, but must not render raw key names.
 - Legal, consent, no-fee and seafarer-facing text may use machine translation only as draft input and require human review before publication.
-- The detailed translation policy is documented in docs/crewportglobal/60_translation_pipeline_rule.md.
+- The canonical methodology is documented in docs/crewportglobal/60_translation_pipeline_rule.md.
+- The current operational report is documented in docs/crewportglobal/61_translation_pipeline_implementation_report.md.
+- If the translation methodology changes, update both documents and the documentation register in the same slice.
 
 ## Onboarding
 

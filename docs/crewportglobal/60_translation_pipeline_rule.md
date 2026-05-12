@@ -4,6 +4,7 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Stage: Stage 1
 - Document type: Translation pipeline rule
+- Canonical status: Source of truth for website text-translation methodology
 - Status: For internal implementation and review
 
 ## 1. Purpose
@@ -11,6 +12,12 @@
 This rule defines how multilingual text must be introduced, rebuilt and reviewed across the public CrewPortGlobal surface.
 
 The goal is to prevent accidental untranslated UI, uncontrolled legal auto-translation and non-reproducible rebuilds.
+
+This document is the canonical methodology record for website text translation.
+
+If the translation methodology changes, this document must be updated in the same implementation slice.
+
+The related operational report in docs/crewportglobal/61_translation_pipeline_implementation_report.md should also be updated when the methodology or validation flow changes materially.
 
 ## 2. Canonical source model
 
@@ -72,6 +79,17 @@ After any canonical Markdown change or shared public translation change:
 2. Validate i18n coverage with node projects/crewportglobal/scripts/check_public_i18n.js.
 3. Run focused regression checks for homepage and representative generated public pages.
 
+## 5.1 Methodology change rule
+
+When translation methodology changes, the same slice must update at minimum:
+
+1. docs/crewportglobal/60_translation_pipeline_rule.md
+2. docs/crewportglobal/61_translation_pipeline_implementation_report.md
+3. projects/crewportglobal/README.md
+4. docs/crewportglobal/00_documentation_register.md
+
+If the methodology change modifies validation behavior, the related validator or test entrypoints must be updated in the same slice.
+
 ## 6. Validation rule
 
 The repository must enforce these minimum checks:
@@ -99,3 +117,10 @@ Human review is required before publication for:
 
 - Only rebuilt and validated static output may be synced to the live public tree.
 - Backend, database, secrets, auth and OpenClaw configuration remain out of scope for this translation pipeline.
+
+## 9. Revision history
+
+| Version | Date | Author | Changes |
+| --- | --- | --- | --- |
+| 0.2 | 2026-05-12 | GTC IT / AI Assistant | Elevated this document to canonical methodology status, added the mandatory synchronized-update rule for methodology changes, and linked the implementation report as the companion operational record |
+| 0.1 | 2026-05-12 | GTC IT / AI Assistant | Initial translation pipeline rule covering English canonical source, shared runtime reuse, fallback behavior, rebuild workflow and human-review boundaries |
