@@ -47,6 +47,18 @@ test('same-page selector works on generated public pages and persists after relo
   await expect(page.locator('.site-nav')).toContainText('Жалобы');
 });
 
+test('homepage falls back to English for missing non-English page translations', async ({ page }) => {
+  await page.goto('/projects/crewportglobal/public/index.html');
+
+  await page.locator('#current-language-toggle').click();
+  await page.locator('.language-option').filter({ hasText: 'Português' }).click();
+
+  await expect(page.locator('#current-language-label')).toHaveText('Português');
+  await expect(page.locator('.site-nav')).toContainText('Para armadores');
+  await expect(page.locator('.docs .docs-head h2')).toHaveText('Initial client-facing Markdown package');
+  await expect(page.locator('.doc-list')).toContainText('Complaint Handling');
+});
+
 test('fallback language page remains accessible', async ({ page }) => {
   await page.goto('/projects/crewportglobal/public/language.html');
   await expect(page.locator('h1')).toContainText('Choose the display language');

@@ -36,8 +36,16 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - Preferred runtime is the workspace virtualenv at ../.venv relative to the repository root, which resolves to /var/www/.venv in this workspace.
 - Install or refresh generator dependencies with: source /var/www/.venv/bin/activate && python -m pip install -r projects/crewportglobal/requirements.txt
 - Rebuild public document HTML with: ./projects/crewportglobal/scripts/run_public_generator.sh
+- Validate public i18n coverage with: node projects/crewportglobal/scripts/check_public_i18n.js
 - The wrapper prefers an already activated virtualenv, then falls back to ../.venv or .venv if present, and stops with a clear error if Markdown or PyYAML are unavailable.
 - If a canonical public Markdown file does not start with valid YAML frontmatter, the generator will fail fast instead of silently emitting partial HTML.
+
+## Translation pipeline rule
+
+- Every new visible UI text must use an i18n key with an English canonical value.
+- Missing non-English values may fall back to English, but must not render raw key names.
+- Legal, consent, no-fee and seafarer-facing text may use machine translation only as draft input and require human review before publication.
+- The detailed translation policy is documented in docs/crewportglobal/60_translation_pipeline_rule.md.
 
 ## Onboarding
 
