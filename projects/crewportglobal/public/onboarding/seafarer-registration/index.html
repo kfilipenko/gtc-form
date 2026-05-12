@@ -207,11 +207,70 @@
       border-color: rgba(255, 139, 61, 0.28);
     }
 
+    .completeness-summary {
+      display: grid;
+      gap: 16px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .completeness-summary > p,
+    .completeness-summary h2 {
+      margin: 0;
+    }
+
+    .completeness-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .completeness-card {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .completeness-card strong,
+    .completeness-card span {
+      display: block;
+    }
+
+    .completeness-card.is-complete {
+      border-color: rgba(127, 231, 187, 0.36);
+      background: rgba(127, 231, 187, 0.08);
+    }
+
+    .completeness-card.is-pending {
+      border-color: rgba(255, 139, 61, 0.28);
+    }
+
+    .completeness-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted-on-dark);
+      line-height: 1.6;
+    }
+
+    .completeness-list li.is-complete {
+      color: #7fe7bb;
+    }
+
+    .button[disabled] {
+      cursor: not-allowed;
+      opacity: 0.55;
+      transform: none;
+    }
+
     @media (max-width: 980px) {
       .flow-grid,
       .hero-fact-grid,
       .field-grid,
-      .state-grid {
+      .state-grid,
+      .completeness-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -315,6 +374,24 @@
               </article>
             </div>
             <p id="routeStateHint" class="state-note"></p>
+          </section>
+
+          <section class="completeness-summary" aria-live="polite">
+            <p class="eyebrow" data-i18n="reg.completeEyebrow">Completeness check</p>
+            <h2 data-i18n="reg.completeTitle">What is complete and what is still missing</h2>
+            <p class="state-note" data-i18n="reg.completeLead">This frontend-only check explains why the route cannot continue yet and when the page can move to pending human review.</p>
+            <div class="completeness-grid">
+              <article id="completeness-required-card" class="completeness-card is-pending">
+                <span class="meta-label" data-i18n="reg.completeRequiredLabel">Required items</span>
+                <strong id="completeness-required-value" class="state-value">0 / 5 complete</strong>
+              </article>
+              <article id="completeness-ready-card" class="completeness-card is-pending">
+                <span class="meta-label" data-i18n="reg.completeReadyLabel">Ready to continue</span>
+                <strong id="completeness-ready-value" class="state-value">Not ready</strong>
+              </article>
+            </div>
+            <ul id="completeness-list" class="completeness-list"></ul>
+            <p id="completeness-hint" class="state-note"></p>
           </section>
 
           <form id="registrationForm" class="flow-form" novalidate>
@@ -421,6 +498,11 @@
         'reg.routeEyebrow': 'Route state',
         'reg.routeTitle': 'Acceptance-first progress',
         'reg.routeLead': 'The UI keeps no-fee acknowledgement and consent dependency visible before the route can end in pending human review.',
+        'reg.completeEyebrow': 'Completeness check',
+        'reg.completeTitle': 'What is complete and what is still missing',
+        'reg.completeLead': 'This frontend-only check explains why the route cannot continue yet and when the page can move to pending human review.',
+        'reg.completeRequiredLabel': 'Required items',
+        'reg.completeReadyLabel': 'Ready to continue',
         'reg.routeDraftLabel': 'Draft intake',
         'reg.routeNoFeeLabel': 'No-fee acknowledgement',
         'reg.routeConsentLabel': 'Consent dependency',
@@ -461,12 +543,29 @@
         'reg.statePending': 'Pending',
         'reg.stateAcknowledged': 'Acknowledged',
         'reg.stateSatisfied': 'Satisfied',
+        'reg.stateIncomplete': 'Incomplete',
+        'reg.stateNotReady': 'Not ready',
+        'reg.stateReady': 'Ready',
         'reg.routeNotStarted': 'Not started',
+        'reg.routeIncomplete': 'Incomplete',
         'reg.routePendingConsent': 'Pending consent',
         'reg.routePendingHumanReview': 'Pending human review',
         'reg.routeStateHintNotStarted': 'The route remains at not_started until the draft intake begins in this browser.',
+        'reg.routeStateHintIncomplete': 'The route is incomplete. Finish the required inputs and acknowledgements before the page can move toward pending human review.',
         'reg.routeStateHintPendingConsent': 'Required no-fee and consent acknowledgements must be satisfied before the draft can be handed off to pending human review.',
         'reg.routeStateHintPendingHumanReview': 'This acceptance-first slice ends at pending_human_review and keeps backend, auth and database writes out of scope.',
+        'reg.completeValuePattern': '{complete} / {total} complete',
+        'reg.completeHintIncomplete': 'The page cannot continue yet because one or more required items are still missing.',
+        'reg.completeHintReady': 'All required items are complete. Saving the draft can now move the page to pending human review.',
+        'reg.completeItemEmail': 'Email address is provided',
+        'reg.completeItemNoFee': 'No recruitment fee acknowledgement is accepted',
+        'reg.completeItemOptional': 'Optional services acknowledgement is accepted',
+        'reg.completeItemAccuracy': 'Data accuracy acknowledgement is accepted',
+        'reg.completeItemPrivacy': 'Trust Center acceptance is confirmed',
+        'reg.completeItemName': 'Full name is provided as a recommended field',
+        'reg.completeItemDone': 'Complete',
+        'reg.completeItemMissing': 'Missing',
+        'reg.completeItemRecommended': 'Recommended',
         'reg.errorEmailRequired': 'Email is required.',
         'reg.errorAcknowledgementsRequired': 'All required acknowledgements must be accepted before registration.',
         'reg.successSaved': 'Acceptance draft saved in this browser with final UI state pending human review. Shared authentication will be introduced later as a separate CrewPortGlobal stage.',
@@ -488,6 +587,7 @@
       const statusNode = document.getElementById('statusMessage');
       const fullNameField = document.getElementById('fullName');
       const emailField = document.getElementById('email');
+      const completenessList = document.getElementById('completeness-list');
 
       let statusModel = { key: '', kind: '', suffix: '' };
       let isSaving = false;
@@ -501,6 +601,12 @@
         return (PAGE_TRANSLATIONS[language] && PAGE_TRANSLATIONS[language][key])
           || (PAGE_TRANSLATIONS.en && PAGE_TRANSLATIONS.en[key])
           || key;
+      }
+
+      function translatePattern(key, values) {
+        return Object.entries(values).reduce((result, [token, value]) => {
+          return result.replace(`{${token}}`, String(value));
+        }, translateKey(key));
       }
 
       function getRequiredChecks() {
@@ -551,6 +657,8 @@
       function determineRouteState(snapshot) {
         const savedDraft = readSavedDraft();
         const hasStarted = Boolean(snapshot.fullName || snapshot.email || snapshot.acknowledgements.length > 0);
+        const allAcknowledged = REQUIRED_ACKNOWLEDGEMENTS.every((key) => snapshot.acknowledgements.includes(key));
+        const isComplete = Boolean(snapshot.email) && allAcknowledged;
 
         if (isSavedDraftCurrent(savedDraft, snapshot)) {
           return 'pending_human_review';
@@ -558,6 +666,10 @@
 
         if (!hasStarted) {
           return 'not_started';
+        }
+
+        if (!isComplete) {
+          return 'incomplete';
         }
 
         return 'pending_consent';
@@ -590,15 +702,52 @@
         const noFeeAccepted = snapshot.acknowledgements.includes('ack_no_fee') && snapshot.acknowledgements.includes('ack_optional_services');
         const consentSatisfied = REQUIRED_ACKNOWLEDGEMENTS.every((key) => snapshot.acknowledgements.includes(key));
         const draftStarted = Boolean(snapshot.fullName || snapshot.email || snapshot.acknowledgements.length > 0);
+        const completenessItems = [
+          { key: 'reg.completeItemEmail', complete: Boolean(snapshot.email), required: true },
+          { key: 'reg.completeItemNoFee', complete: snapshot.acknowledgements.includes('ack_no_fee'), required: true },
+          { key: 'reg.completeItemOptional', complete: snapshot.acknowledgements.includes('ack_optional_services'), required: true },
+          { key: 'reg.completeItemAccuracy', complete: snapshot.acknowledgements.includes('ack_accuracy'), required: true },
+          { key: 'reg.completeItemPrivacy', complete: snapshot.acknowledgements.includes('ack_privacy'), required: true },
+          { key: 'reg.completeItemName', complete: Boolean(snapshot.fullName), required: false },
+        ];
+        const requiredTotal = completenessItems.filter((item) => item.required).length;
+        const requiredComplete = completenessItems.filter((item) => item.required && item.complete).length;
+        const readinessComplete = requiredComplete === requiredTotal;
 
         document.getElementById('draft-state-value').textContent = translateKey(draftStarted ? 'reg.stateDraftStarted' : 'reg.stateDraftNotStarted');
         document.getElementById('no-fee-state-value').textContent = translateKey(noFeeAccepted ? 'reg.stateAcknowledged' : 'reg.statePending');
         document.getElementById('consent-state-value').textContent = translateKey(consentSatisfied ? 'reg.stateSatisfied' : 'reg.statePending');
+        document.getElementById('completeness-required-value').textContent = translatePattern('reg.completeValuePattern', {
+          complete: requiredComplete,
+          total: requiredTotal,
+        });
+        document.getElementById('completeness-ready-value').textContent = translateKey(readinessComplete ? 'reg.stateReady' : 'reg.stateNotReady');
+
+        completenessList.innerHTML = '';
+        completenessItems.forEach((item) => {
+          const entry = document.createElement('li');
+          entry.className = item.complete ? 'is-complete' : '';
+          const statusKey = item.complete
+            ? 'reg.completeItemDone'
+            : item.required
+              ? 'reg.completeItemMissing'
+              : 'reg.completeItemRecommended';
+          entry.textContent = `${translateKey(item.key)}: ${translateKey(statusKey)}`;
+          completenessList.appendChild(entry);
+        });
+
+        setCardState('completeness-required-card', readinessComplete ? 'is-complete' : 'is-pending');
+        setCardState('completeness-ready-card', readinessComplete ? 'is-complete' : 'is-pending');
+        document.getElementById('completeness-hint').textContent = translateKey(readinessComplete ? 'reg.completeHintReady' : 'reg.completeHintIncomplete');
 
         if (routeState === 'pending_human_review') {
           document.getElementById('route-final-value').textContent = translateKey('reg.routePendingHumanReview');
           document.getElementById('routeStateHint').textContent = translateKey('reg.routeStateHintPendingHumanReview');
           setCardState('route-final-card', 'is-complete');
+        } else if (routeState === 'incomplete') {
+          document.getElementById('route-final-value').textContent = translateKey('reg.routeIncomplete');
+          document.getElementById('routeStateHint').textContent = translateKey('reg.routeStateHintIncomplete');
+          setCardState('route-final-card', 'is-active');
         } else if (routeState === 'pending_consent') {
           document.getElementById('route-final-value').textContent = translateKey('reg.routePendingConsent');
           document.getElementById('routeStateHint').textContent = translateKey('reg.routeStateHintPendingConsent');
@@ -612,6 +761,7 @@
         setCardState('draft-state-card', draftStarted ? 'is-active' : 'is-pending');
         setCardState('no-fee-state-card', noFeeAccepted ? 'is-complete' : 'is-pending');
         setCardState('consent-state-card', consentSatisfied ? 'is-complete' : 'is-pending');
+        submitButton.disabled = !readinessComplete || isSaving;
       }
 
       function restoreDraft() {

@@ -106,7 +106,7 @@ test('fallback language page remains accessible', async ({ page }) => {
   await expect(page.locator('h1')).toContainText('Choose the display language');
 });
 
-test('onboarding page respects global language state and saves pending human review locally', async ({ page }) => {
+test('onboarding page shows completeness feedback and saves pending human review locally', async ({ page }) => {
   await page.addInitScript(() => {
     window.localStorage.setItem('crewportglobal.language', 'ru');
     window.localStorage.removeItem('crewportglobal_seafarer_acceptance');
@@ -120,9 +120,16 @@ test('onboarding page respects global language state and saves pending human rev
   await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
   await expect(page.locator('.site-nav')).toContainText('Для моряков');
   await expect(page.locator('#route-final-value')).toHaveText('Not started');
+  await expect(page.locator('#completeness-required-value')).toHaveText('0 / 5 complete');
+  await expect(page.locator('#completeness-ready-value')).toHaveText('Not ready');
+  await expect(page.locator('#submitButton')).toBeDisabled();
 
   await page.locator('#fullName').fill('Ivan Petrov');
   await page.locator('#email').fill('ivan@example.com');
+
+  await expect(page.locator('#route-final-value')).toHaveText('Incomplete');
+  await expect(page.locator('#completeness-required-value')).toHaveText('1 / 5 complete');
+
   await page.locator('input[name="ack_no_fee"]').check();
   await page.locator('input[name="ack_optional_services"]').check();
   await page.locator('input[name="ack_accuracy"]').check();
@@ -130,6 +137,11 @@ test('onboarding page respects global language state and saves pending human rev
 
   await expect(page.locator('#consent-state-value')).toHaveText('Satisfied');
   await expect(page.locator('#route-final-value')).toHaveText('Pending consent');
+  await expect(page.locator('#completeness-required-value')).toHaveText('5 / 5 complete');
+  await expect(page.locator('#completeness-ready-value')).toHaveText('Ready');
+  await expect(page.locator('#submitButton')).toBeEnabled();
+  await expect(page.locator('#completeness-list')).toContainText('Email address is provided: Complete');
+  await expect(page.locator('#completeness-list')).toContainText('Full name is provided as a recommended field: Complete');
 
   await page.locator('#submitButton').click();
 
