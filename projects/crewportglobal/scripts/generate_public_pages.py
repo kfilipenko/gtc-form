@@ -12,6 +12,22 @@ SITE_ORIGIN: Final = "https://crewportglobal.com"
 PROJECT_ROOT: Final = Path(__file__).resolve().parent.parent
 PUBLIC_ROOT: Final = PROJECT_ROOT / "public"
 CSS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-docs.css"
+I18N_JS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-public-i18n.js"
+
+NAV_TRANSLATION_KEYS: Final = {
+    "about": "nav.projectScope",
+    "how-it-works": "nav.howItWorks",
+    "for-shipowners": "nav.forShipowners",
+    "for-seafarers": "nav.forSeafarers",
+    "legal/no-recruitment-fees": "nav.noRecruitmentFees",
+    "legal/privacy": "nav.privacy",
+    "legal/seafarer-candidate-agreement": "nav.seafarerAgreement",
+    "legal/terms": "nav.terms",
+    "legal/shipowner-service-terms": "nav.shipownerAgreement",
+    "legal/recruitment-and-matching-policy": "nav.matchingPolicy",
+    "legal/verification-policy": "nav.verificationPolicy",
+    "legal/complaints": "nav.complaints",
+}
 
 DOC_ORDER: Final = [
     "about",
@@ -158,8 +174,9 @@ def render_nav(docs: list[dict[str, object]], current_slug: str) -> str:
     items = []
     for doc in docs:
         class_name = "nav-link is-active" if doc["slug"] == current_slug else "nav-link"
+        translation_key = NAV_TRANSLATION_KEYS[doc["slug"]]
         items.append(
-            f'<a class="{class_name}" href="{slug_to_clean_url(doc["slug"])}">{doc["nav_label"]}</a>'
+            f'<a class="{class_name}" href="{slug_to_clean_url(doc["slug"])}" data-i18n="{translation_key}">{doc["nav_label"]}</a>'
         )
     return "\n".join(items)
 
@@ -186,7 +203,9 @@ def render_hero_ctas(doc: dict[str, object]) -> str:
     items = []
     for item in doc.get("hero_ctas", []):
         items.append(f'<a class="button {item["style"]}" href="{item["href"]}">{item["label"]}</a>')
-    items.append(f'<a class="button secondary" href="{slug_to_raw_url(doc["slug"])}">Canonical Markdown</a>')
+    items.append(
+        f'<a class="button secondary" href="{slug_to_raw_url(doc["slug"])}" data-i18n="doc.canonicalMarkdown">Canonical Markdown</a>'
+    )
     return "\n".join(items)
 
 
@@ -224,8 +243,8 @@ def render_acknowledgements(doc: dict[str, object]) -> str:
 
     lines = [
         '<section class="acknowledgement-panel">',
-        '  <p class="eyebrow">Onboarding acknowledgement</p>',
-        '  <h2>Candidate confirmations for registration</h2>',
+        '  <p class="eyebrow" data-i18n="doc.acknowledgementEyebrow">Onboarding acknowledgement</p>',
+        '  <h2 data-i18n="doc.acknowledgementTitle">Candidate confirmations for registration</h2>',
         '  <ul class="acknowledgement-list">',
     ]
     for item in items:
@@ -246,8 +265,8 @@ def render_related_links(doc: dict[str, object]) -> str:
     return "\n".join(
         [
             '<section class="card related-panel">',
-            '  <p class="eyebrow">Related Trust Center links</p>',
-            '  <h2>Next documents to review</h2>',
+            '  <p class="eyebrow" data-i18n="doc.relatedEyebrow">Related Trust Center links</p>',
+            '  <h2 data-i18n="doc.relatedTitle">Next documents to review</h2>',
             '  <div class="related-links">',
             *links,
             '  </div>',
@@ -262,8 +281,11 @@ def render_page(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
     lead_heading = first_section_title(html_body)
     asset_href = Path("/".join([".."] * len(doc_dir.relative_to(PUBLIC_ROOT).parts)) or ".")
     stylesheet_href = (asset_href / "assets" / CSS_PATH.name).as_posix()
+    script_href = (asset_href / "assets" / I18N_JS_PATH.name).as_posix()
     if stylesheet_href.startswith("./"):
         stylesheet_href = stylesheet_href[2:]
+    if script_href.startswith("./"):
+        script_href = script_href[2:]
 
     title_suffix = f"{doc['title']} | CrewPortGlobal"
     intro = doc["summary"]
@@ -279,21 +301,34 @@ def render_page(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{title_suffix}</title>
-  <meta name="description" content="{intro}">
+    <meta name="description" content="{intro}">
   <link rel="canonical" href="{slug_to_clean_url(doc['slug'])}">
   <link rel="stylesheet" href="{stylesheet_href}">
+    <script src="{script_href}" defer></script>
 </head>
-<body class="doc-body">
+<body class="doc-body" data-enable-public-translate="true">
   <div class="site-shell">
     <header class="site-header">
       <a class="brand" href="{SITE_ORIGIN}/">
         <span class="brand-mark">CPG</span>
         <span class="brand-copy">
           <strong>CrewPortGlobal</strong>
-          <span>Maritime documentation and matching platform</span>
+                    <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
         </span>
       </a>
-      <a class="home-link" href="{SITE_ORIGIN}/">Overview</a>
+            <div id="language-selector" class="language-selector">
+                <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+                    <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+                    <span class="language-toggle__copy">
+                        <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+                        <span class="language-toggle__label" id="current-language-label">English</span>
+                    </span>
+                    <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+                </button>
+                <div id="header-language-menu" class="language-menu" hidden>
+                    <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+                </div>
+            </div>
     </header>
 
     <nav class="site-nav" aria-label="Document navigation">
@@ -310,11 +345,11 @@ def render_page(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
         </div>
         <div class="hero-meta">
           <div>
-            <span class="meta-label">Primary focus</span>
+                        <span class="meta-label" data-i18n="doc.primaryFocus">Primary focus</span>
             <strong>{key_focus}</strong>
           </div>
           <div class="hero-actions">
-            <a class="button primary" href="{SITE_ORIGIN}/">Back to home</a>
+                        <a class="button primary" href="{SITE_ORIGIN}/" data-i18n="doc.backToHome">Back to home</a>
             {render_hero_ctas(doc)}
           </div>
         </div>
@@ -330,9 +365,9 @@ def render_page(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
 
         <aside class="doc-sidebar">
           <section class="card sidebar-panel">
-            <p class="eyebrow">Publication set</p>
-            <h2>Client-facing library</h2>
-            <p>All public CrewPortGlobal documents share the same navigation, routing model and visual treatment.</p>
+                        <p class="eyebrow" data-i18n="doc.publicationSet">Publication set</p>
+                        <h2 data-i18n="doc.clientFacingLibrary">Client-facing library</h2>
+                        <p data-i18n="doc.libraryBody">All public CrewPortGlobal documents share the same navigation, routing model and visual treatment.</p>
           </section>
 
           {related_links}
@@ -344,6 +379,7 @@ def render_page(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
       </section>
     </main>
   </div>
+    <div id="google_translate_element" class="google-translate-anchor" aria-hidden="true"></div>
 </body>
 </html>
 """
