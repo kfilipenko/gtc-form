@@ -15,15 +15,23 @@
           <p class="brand-tagline" data-i18n="site.tagline"></p>
         </div>
         <div class="site-header__actions">
-          <a
-            id="current-language-link"
-            class="language-link"
-            href="language.html"
-            aria-label="Open language selection page"
-          >
-            <span id="current-language-flag" class="language-link__flag" aria-hidden="true"></span>
-            <span id="current-language-label" class="language-link__label"></span>
-          </a>
+          <div id="language-selector" class="language-selector">
+            <button
+              id="current-language-toggle"
+              class="language-toggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="header-language-menu"
+              aria-label="Open language selector"
+            >
+              <span id="current-language-flag" class="language-toggle__flag" aria-hidden="true"></span>
+              <span id="current-language-label" class="language-toggle__label"></span>
+              <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+            </button>
+            <div id="header-language-menu" class="language-menu" hidden>
+              <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+            </div>
+          </div>
         </div>
       </header>
 

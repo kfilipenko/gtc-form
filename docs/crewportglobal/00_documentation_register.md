@@ -216,6 +216,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.37 | 2026-05-12 | GTC IT / AI Assistant | Updated document 59 to record the same-page header language accordion or dropdown as the primary selector flow, with browser-local dictionary switching and language.html retained only as fallback or reference |
 | 0.36 | 2026-05-12 | GTC IT / AI Assistant | Added static language selection page record covering top-right global selector placement, browser-local language state and translation-dictionary-driven UI text for the first multilingual frontend prototype |
 | 0.35 | 2026-05-12 | GTC IT / AI Assistant | Refined multilingual frontend shell plan with top-right global language-selector placement, whole-shell language-state behavior and local persistence expectations for the first static prototype |
 | 0.34 | 2026-05-12 | GTC IT / AI Assistant | Added CPG-I1-001 multilingual frontend shell plan covering mandatory and additional language sets, language selector rules, translation dictionaries and human review requirements for sensitive translated content |

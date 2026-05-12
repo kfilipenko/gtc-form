@@ -482,11 +482,11 @@
     }
   }
 
-  function updateLanguageLink(language) {
+  function updateLanguageToggle(language) {
     const option = getLanguageOption(language);
     const flag = document.getElementById('current-language-flag');
     const label = document.getElementById('current-language-label');
-    const link = document.getElementById('current-language-link');
+    const toggle = document.getElementById('current-language-toggle');
 
     if (flag) {
       flag.textContent = option.flag;
@@ -496,9 +496,112 @@
       label.textContent = option.native;
     }
 
-    if (link) {
-      link.setAttribute('aria-label', `${option.english} language selector`);
+    if (toggle) {
+      toggle.setAttribute('aria-label', `${option.english} language selector`);
     }
+  }
+
+  function setLanguageMenuOpen(isOpen) {
+    const selector = document.getElementById('language-selector');
+    const toggle = document.getElementById('current-language-toggle');
+    const menu = document.getElementById('header-language-menu');
+
+    if (!selector || !toggle || !menu) {
+      return;
+    }
+
+    selector.classList.toggle('is-open', isOpen);
+    toggle.setAttribute('aria-expanded', String(isOpen));
+    menu.hidden = !isOpen;
+  }
+
+  function renderHeaderLanguageOptions(language) {
+    const container = document.getElementById('header-language-options');
+    if (!container) {
+      return;
+    }
+
+    container.innerHTML = '';
+
+    LANGUAGES.forEach((option) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = option.code === language ? 'language-option is-current' : 'language-option';
+      button.dataset.languageCode = option.code;
+      button.setAttribute('role', 'option');
+      button.setAttribute('aria-selected', String(option.code === language));
+
+      const flag = document.createElement('span');
+      flag.className = 'language-option__flag';
+      flag.setAttribute('aria-hidden', 'true');
+      flag.textContent = option.flag;
+
+      const label = document.createElement('span');
+      label.className = 'language-option__label';
+      label.textContent = option.native;
+
+      button.append(flag, label);
+      button.addEventListener('click', () => {
+        setStoredLanguage(option.code);
+        applyLanguage(option.code);
+        setLanguageMenuOpen(false);
+      });
+
+      container.appendChild(button);
+    });
+  }
+
+  function wireHeaderLanguageMenu() {
+    const selector = document.getElementById('language-selector');
+    const toggle = document.getElementById('current-language-toggle');
+
+    if (!selector || !toggle) {
+      return;
+    }
+
+    toggle.addEventListener('click', () => {
+      const shouldOpen = toggle.getAttribute('aria-expanded') !== 'true';
+      setLanguageMenuOpen(shouldOpen);
+
+      if (shouldOpen) {
+        const currentOption = document.querySelector('#header-language-menu .language-option.is-current');
+        if (currentOption) {
+          currentOption.focus();
+        }
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!selector.contains(event.target)) {
+        setLanguageMenuOpen(false);
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setLanguageMenuOpen(false);
+        toggle.focus();
+      }
+    });
+  }
+
+  function wireHeroLanguageAction() {
+    const action = document.getElementById('hero-language-action');
+    const toggle = document.getElementById('current-language-toggle');
+
+    if (!action || !toggle) {
+      return;
+    }
+
+    action.addEventListener('click', () => {
+      setLanguageMenuOpen(true);
+      const currentOption = document.querySelector('#header-language-menu .language-option.is-current');
+      if (currentOption) {
+        currentOption.focus();
+      } else {
+        toggle.focus();
+      }
+    });
   }
 
   function updateSelectedLanguageSummary(language) {
@@ -530,23 +633,11 @@
       flag.setAttribute('aria-hidden', 'true');
       flag.textContent = option.flag;
 
-      const names = document.createElement('span');
-      names.className = 'language-card__names';
+      const label = document.createElement('span');
+      label.className = 'language-card__label';
+      label.textContent = option.native;
 
-      const nativeName = document.createElement('strong');
-      nativeName.textContent = option.native;
-
-      const englishName = document.createElement('small');
-      englishName.textContent = option.english;
-
-      const status = document.createElement('span');
-      status.className = 'language-card__status';
-      status.textContent = option.code === language
-        ? translate(language, 'language.currentBadge')
-        : translate(language, 'language.chooseBadge');
-
-      names.append(nativeName, englishName);
-      button.append(flag, names, status);
+      button.append(flag, label);
       button.addEventListener('click', () => {
         setStoredLanguage(option.code);
         applyLanguage(option.code);
@@ -569,10 +660,14 @@
       document.title = translate(resolved, document.body.dataset.titleKey);
     }
 
-    updateLanguageLink(resolved);
+    updateLanguageToggle(resolved);
+    renderHeaderLanguageOptions(resolved);
     updateSelectedLanguageSummary(resolved);
     renderLanguageOptions(resolved);
   }
 
+  wireHeaderLanguageMenu();
+  wireHeroLanguageAction();
   applyLanguage(getStoredLanguage());
+  setLanguageMenuOpen(false);
 })();
