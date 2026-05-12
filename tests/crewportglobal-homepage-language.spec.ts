@@ -7,7 +7,7 @@ test('same-page selector translates the homepage and persists after reload', asy
   await expect(page.locator('#current-language-label')).toHaveText('English');
 
   await page.locator('#current-language-toggle').click();
-  await page.getByRole('button', { name: 'Русский' }).click();
+  await page.locator('.language-option').filter({ hasText: 'Русский' }).click();
 
   await expect(page).toHaveURL(/projects\/crewportglobal\/public\/index\.html/);
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
