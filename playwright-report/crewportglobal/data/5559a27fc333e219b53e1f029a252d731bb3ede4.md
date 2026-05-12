@@ -1,0 +1,171 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - link "CPG CrewPortGlobal Maritime documentation and matching platform" [ref=e4] [cursor=pointer]:
+      - /url: https://crewportglobal.com/
+      - generic [ref=e5]: CPG
+      - generic [ref=e6]:
+        - strong [ref=e7]: CrewPortGlobal
+        - generic [ref=e8]: Maritime documentation and matching platform
+    - button "English language selector" [ref=e10] [cursor=pointer]:
+      - generic [ref=e11]: 🇬🇧
+      - generic [ref=e12]:
+        - generic [ref=e13]: Language
+        - generic [ref=e14]: English
+      - generic [ref=e15]: ▾
+  - navigation "Homepage navigation" [ref=e16]:
+    - link "Project Scope" [ref=e17] [cursor=pointer]:
+      - /url: https://crewportglobal.com/about/
+    - link "How It Works" [ref=e18] [cursor=pointer]:
+      - /url: https://crewportglobal.com/how-it-works/
+    - link "For Shipowners" [ref=e19] [cursor=pointer]:
+      - /url: https://crewportglobal.com/for-shipowners/
+    - link "For Seafarers" [ref=e20] [cursor=pointer]:
+      - /url: https://crewportglobal.com/for-seafarers/
+    - link "No Recruitment Fees" [ref=e21] [cursor=pointer]:
+      - /url: https://crewportglobal.com/legal/no-recruitment-fees/
+    - link "Privacy" [ref=e22] [cursor=pointer]:
+      - /url: https://crewportglobal.com/legal/privacy/
+    - link "Seafarer Agreement" [ref=e23] [cursor=pointer]:
+      - /url: https://crewportglobal.com/legal/seafarer-candidate-agreement/
+    - link "Terms" [ref=e24] [cursor=pointer]:
+      - /url: https://crewportglobal.com/legal/terms/
+    - link "Shipowner Agreement" [ref=e25] [cursor=pointer]:
+      - /url: https://crewportglobal.com/legal/shipowner-service-terms/
+    - link "Matching Policy" [ref=e26] [cursor=pointer]:
+      - /url: https://crewportglobal.com/legal/recruitment-and-matching-policy/
+    - link "Verification Policy" [ref=e27] [cursor=pointer]:
+      - /url: https://crewportglobal.com/legal/verification-policy/
+    - link "Complaints" [ref=e28] [cursor=pointer]:
+      - /url: https://crewportglobal.com/legal/complaints/
+  - main [ref=e29]:
+    - generic [ref=e30]:
+      - article [ref=e31]:
+        - paragraph [ref=e32]: home.stage
+        - heading "home.title" [level=1] [ref=e33]
+        - paragraph [ref=e34]: home.lead
+        - generic [ref=e35]:
+          - link "For Shipowners" [ref=e36] [cursor=pointer]:
+            - /url: https://crewportglobal.com/for-shipowners/
+          - link "For Seafarers" [ref=e37] [cursor=pointer]:
+            - /url: https://crewportglobal.com/for-seafarers/
+          - link "home.startOnboarding" [ref=e38] [cursor=pointer]:
+            - /url: https://crewportglobal.com/onboarding/seafarer-registration/
+          - link "Verification Policy" [ref=e39] [cursor=pointer]:
+            - /url: https://crewportglobal.com/legal/verification-policy/
+          - link "How It Works" [ref=e40] [cursor=pointer]:
+            - /url: https://crewportglobal.com/how-it-works/
+          - link "Project Scope" [ref=e41] [cursor=pointer]:
+            - /url: https://crewportglobal.com/about/
+        - paragraph [ref=e42]: home.trustNote
+      - complementary [ref=e43]:
+        - generic [ref=e44]:
+          - paragraph [ref=e45]: For Shipowners
+          - heading "home.shipownersTitle" [level=2] [ref=e46]
+          - paragraph [ref=e47]: home.shipownersBody
+        - generic [ref=e48]:
+          - paragraph [ref=e49]: For Seafarers
+          - heading "home.seafarersTitle" [level=2] [ref=e50]
+          - paragraph [ref=e51]: home.seafarersBody
+        - generic [ref=e52]:
+          - paragraph [ref=e53]: home.governanceLabel
+          - heading "home.governanceTitle" [level=2] [ref=e54]
+          - paragraph [ref=e55]: home.governanceBody
+    - generic [ref=e56]:
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - paragraph [ref=e59]: home.verificationLabel
+          - heading "home.verificationTitle" [level=2] [ref=e60]
+        - paragraph [ref=e61]: home.verificationBody
+      - generic [ref=e62]:
+        - link "home.verificationSeafarersType home.verificationSeafarersTitle home.verificationSeafarersBody" [ref=e63] [cursor=pointer]:
+          - /url: https://crewportglobal.com/legal/verification-policy/
+          - generic [ref=e64]: home.verificationSeafarersType
+          - strong [ref=e65]: home.verificationSeafarersTitle
+          - generic [ref=e66]: home.verificationSeafarersBody
+        - link "home.verificationBusinessType home.verificationBusinessTitle home.verificationBusinessBody" [ref=e67] [cursor=pointer]:
+          - /url: https://crewportglobal.com/legal/verification-policy/
+          - generic [ref=e68]: home.verificationBusinessType
+          - strong [ref=e69]: home.verificationBusinessTitle
+          - generic [ref=e70]: home.verificationBusinessBody
+        - link "home.verificationVesselsType home.verificationVesselsTitle home.verificationVesselsBody" [ref=e71] [cursor=pointer]:
+          - /url: https://crewportglobal.com/legal/verification-policy/
+          - generic [ref=e72]: home.verificationVesselsType
+          - strong [ref=e73]: home.verificationVesselsTitle
+          - generic [ref=e74]: home.verificationVesselsBody
+    - generic [ref=e75]:
+      - generic [ref=e76]:
+        - generic [ref=e77]:
+          - paragraph [ref=e78]: home.docsLabel
+          - heading "home.docsTitle" [level=2] [ref=e79]
+        - paragraph [ref=e80]: home.docsBody
+      - list [ref=e81]:
+        - listitem [ref=e82]:
+          - link "home.docShipownersType home.docShipownersTitle home.docShipownersBody" [ref=e83] [cursor=pointer]:
+            - /url: https://crewportglobal.com/for-shipowners/
+            - generic [ref=e84]: home.docShipownersType
+            - strong [ref=e85]: home.docShipownersTitle
+            - generic [ref=e86]: home.docShipownersBody
+        - listitem [ref=e87]:
+          - link "home.docSeafarersType home.docSeafarersTitle home.docSeafarersBody" [ref=e88] [cursor=pointer]:
+            - /url: https://crewportglobal.com/for-seafarers/
+            - generic [ref=e89]: home.docSeafarersType
+            - strong [ref=e90]: home.docSeafarersTitle
+            - generic [ref=e91]: home.docSeafarersBody
+        - listitem [ref=e92]:
+          - link "home.docOnboardingType home.docOnboardingTitle home.docOnboardingBody" [ref=e93] [cursor=pointer]:
+            - /url: https://crewportglobal.com/onboarding/seafarer-registration/
+            - generic [ref=e94]: home.docOnboardingType
+            - strong [ref=e95]: home.docOnboardingTitle
+            - generic [ref=e96]: home.docOnboardingBody
+        - listitem [ref=e97]:
+          - link "home.docNoFeesType home.docNoFeesTitle home.docNoFeesBody" [ref=e98] [cursor=pointer]:
+            - /url: https://crewportglobal.com/legal/no-recruitment-fees/
+            - generic [ref=e99]: home.docNoFeesType
+            - strong [ref=e100]: home.docNoFeesTitle
+            - generic [ref=e101]: home.docNoFeesBody
+        - listitem [ref=e102]:
+          - link "home.docScopeType home.docScopeTitle home.docScopeBody" [ref=e103] [cursor=pointer]:
+            - /url: https://crewportglobal.com/about/
+            - generic [ref=e104]: home.docScopeType
+            - strong [ref=e105]: home.docScopeTitle
+            - generic [ref=e106]: home.docScopeBody
+        - listitem [ref=e107]:
+          - link "home.docHowType home.docHowTitle home.docHowBody" [ref=e108] [cursor=pointer]:
+            - /url: https://crewportglobal.com/how-it-works/
+            - generic [ref=e109]: home.docHowType
+            - strong [ref=e110]: home.docHowTitle
+            - generic [ref=e111]: home.docHowBody
+        - listitem [ref=e112]:
+          - link "home.docPrivacyType home.docPrivacyTitle home.docPrivacyBody" [ref=e113] [cursor=pointer]:
+            - /url: https://crewportglobal.com/legal/privacy/
+            - generic [ref=e114]: home.docPrivacyType
+            - strong [ref=e115]: home.docPrivacyTitle
+            - generic [ref=e116]: home.docPrivacyBody
+        - listitem [ref=e117]:
+          - link "home.docAgreementType home.docAgreementTitle home.docAgreementBody" [ref=e118] [cursor=pointer]:
+            - /url: https://crewportglobal.com/legal/seafarer-candidate-agreement/
+            - generic [ref=e119]: home.docAgreementType
+            - strong [ref=e120]: home.docAgreementTitle
+            - generic [ref=e121]: home.docAgreementBody
+        - listitem [ref=e122]:
+          - link "home.docTermsType home.docTermsTitle home.docTermsBody" [ref=e123] [cursor=pointer]:
+            - /url: https://crewportglobal.com/legal/terms/
+            - generic [ref=e124]: home.docTermsType
+            - strong [ref=e125]: home.docTermsTitle
+            - generic [ref=e126]: home.docTermsBody
+        - listitem [ref=e127]:
+          - link "home.docShipownerAgreementType home.docShipownerAgreementTitle home.docShipownerAgreementBody" [ref=e128] [cursor=pointer]:
+            - /url: https://crewportglobal.com/legal/shipowner-service-terms/
+            - generic [ref=e129]: home.docShipownerAgreementType
+            - strong [ref=e130]: home.docShipownerAgreementTitle
+            - generic [ref=e131]: home.docShipownerAgreementBody
+        - listitem [ref=e132]:
+          - link "home.docComplaintsType home.docComplaintsTitle home.docComplaintsBody" [ref=e133] [cursor=pointer]:
+            - /url: https://crewportglobal.com/legal/complaints/
+            - generic [ref=e134]: home.docComplaintsType
+            - strong [ref=e135]: home.docComplaintsTitle
+            - generic [ref=e136]: home.docComplaintsBody
+```
