@@ -4,10 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CrewPortGlobal</title>
-  <meta name="description" content="Digital maritime crew data, documentation and matching platform.">
+  <meta id="page-description" name="description" content="Digital maritime crew data, documentation and matching platform.">
   <link rel="stylesheet" href="assets/crewportglobal-docs.css">
   <style>
-    .language-pill {
+    .language-selector {
+      position: relative;
+    }
+
+    .language-toggle {
       display: inline-flex;
       align-items: center;
       gap: 10px;
@@ -19,35 +23,95 @@
       color: var(--text-on-dark);
       text-decoration: none;
       transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+      cursor: pointer;
     }
 
-    .language-pill:hover,
-    .language-pill:focus-visible {
+    .language-toggle:hover,
+    .language-toggle:focus-visible,
+    .language-option:hover,
+    .language-option:focus-visible {
       transform: translateY(-1px);
       background: rgba(255, 255, 255, 0.12);
       border-color: rgba(255, 255, 255, 0.18);
       outline: none;
     }
 
-    .language-pill__flag {
+    .language-toggle__flag,
+    .language-option__flag {
       font-size: 17px;
       line-height: 1;
     }
 
-    .language-pill__copy {
+    .language-toggle__copy {
       display: grid;
       gap: 2px;
+      text-align: left;
     }
 
-    .language-pill__hint {
+    .language-toggle__hint {
       color: var(--muted-on-dark);
       text-transform: uppercase;
       letter-spacing: 0.08em;
       font-size: 10px;
     }
 
-    .language-pill__label {
+    .language-toggle__label {
       font-size: 13px;
+      font-weight: 600;
+    }
+
+    .language-toggle__chevron {
+      font-size: 11px;
+      color: var(--muted-on-dark);
+      transition: transform 180ms ease;
+    }
+
+    .language-selector.is-open .language-toggle__chevron {
+      transform: rotate(180deg);
+    }
+
+    .language-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      inset-inline-end: 0;
+      width: min(260px, calc(100vw - 32px));
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(22, 40, 61, 0.96);
+      box-shadow: 0 20px 44px rgba(0, 0, 0, 0.28);
+      z-index: 40;
+    }
+
+    .language-menu[hidden] {
+      display: none;
+    }
+
+    .language-menu__options {
+      display: grid;
+      gap: 8px;
+    }
+
+    .language-option {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid transparent;
+      border-radius: 14px;
+      background: transparent;
+      color: var(--text-on-dark);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .language-option.is-current {
+      border-color: rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .language-option__label {
       font-weight: 600;
     }
 
@@ -218,65 +282,71 @@
         <span class="brand-mark">CPG</span>
         <span class="brand-copy">
           <strong>CrewPortGlobal</strong>
-          <span>Maritime documentation and matching platform</span>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
         </span>
       </a>
-      <a class="language-pill" id="current-language-link" href="https://crewportglobal.com/language.html" aria-label="Open language selection page">
-        <span class="language-pill__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
-        <span class="language-pill__copy">
-          <span class="language-pill__hint">Language</span>
-          <span class="language-pill__label" id="current-language-label">English</span>
-        </span>
-      </a>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
     </header>
 
     <nav class="site-nav" aria-label="Homepage navigation">
-      <a class="nav-link" href="https://crewportglobal.com/about/">Project Scope</a>
-      <a class="nav-link" href="https://crewportglobal.com/how-it-works/">How It Works</a>
-      <a class="nav-link" href="https://crewportglobal.com/for-shipowners/">For Shipowners</a>
-      <a class="nav-link" href="https://crewportglobal.com/for-seafarers/">For Seafarers</a>
-      <a class="nav-link" href="https://crewportglobal.com/legal/no-recruitment-fees/">No Recruitment Fees</a>
-      <a class="nav-link" href="https://crewportglobal.com/legal/privacy/">Privacy</a>
-      <a class="nav-link" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/">Seafarer Agreement</a>
-      <a class="nav-link" href="https://crewportglobal.com/legal/terms/">Terms</a>
-      <a class="nav-link" href="https://crewportglobal.com/legal/shipowner-service-terms/">Shipowner Agreement</a>
-      <a class="nav-link" href="https://crewportglobal.com/legal/recruitment-and-matching-policy/">Matching Policy</a>
-      <a class="nav-link" href="https://crewportglobal.com/legal/verification-policy/">Verification Policy</a>
-      <a class="nav-link" href="https://crewportglobal.com/legal/complaints/">Complaints</a>
+      <a class="nav-link" href="https://crewportglobal.com/about/" data-i18n="nav.projectScope">Project Scope</a>
+      <a class="nav-link" href="https://crewportglobal.com/how-it-works/" data-i18n="nav.howItWorks">How It Works</a>
+      <a class="nav-link" href="https://crewportglobal.com/for-shipowners/" data-i18n="nav.forShipowners">For Shipowners</a>
+      <a class="nav-link" href="https://crewportglobal.com/for-seafarers/" data-i18n="nav.forSeafarers">For Seafarers</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/no-recruitment-fees/" data-i18n="nav.noRecruitmentFees">No Recruitment Fees</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/privacy/" data-i18n="nav.privacy">Privacy</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/" data-i18n="nav.seafarerAgreement">Seafarer Agreement</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/terms/" data-i18n="nav.terms">Terms</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/shipowner-service-terms/" data-i18n="nav.shipownerAgreement">Shipowner Agreement</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/recruitment-and-matching-policy/" data-i18n="nav.matchingPolicy">Matching Policy</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/verification-policy/" data-i18n="nav.verificationPolicy">Verification Policy</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/complaints/" data-i18n="nav.complaints">Complaints</a>
     </nav>
 
     <main class="doc-main">
       <section class="landing-hero">
         <article class="card hero-copy">
-          <p class="eyebrow">Stage 1</p>
-          <h1 class="landing-title">Maritime crew workflows with a compliance-first spine.</h1>
-          <p class="landing-lead">CrewPortGlobal is being developed as a digital maritime crew data, document and matching platform for shipowners, operators and seafarers. Public client documentation is prepared in Markdown as the canonical publishing format, while seafarer onboarding starts through a dedicated acceptance-first route.</p>
+          <p class="eyebrow" data-i18n="home.stage">Stage 1</p>
+          <h1 class="landing-title" data-i18n="home.title">Maritime crew workflows with a compliance-first spine.</h1>
+          <p class="landing-lead" data-i18n="home.lead">CrewPortGlobal is being developed as a digital maritime crew data, document and matching platform for shipowners, operators and seafarers. Public client documentation is prepared in Markdown as the canonical publishing format, while seafarer onboarding starts through a dedicated acceptance-first route.</p>
           <div class="actions">
-            <a class="button primary" href="https://crewportglobal.com/for-shipowners/">For Shipowners</a>
-            <a class="button secondary" href="https://crewportglobal.com/for-seafarers/">For Seafarers</a>
-            <a class="button secondary" href="https://crewportglobal.com/onboarding/seafarer-registration/">Start Seafarer Onboarding</a>
-            <a class="button secondary" href="https://crewportglobal.com/legal/verification-policy/">Verification Policy</a>
-            <a class="button secondary" href="https://crewportglobal.com/how-it-works/">How It Works</a>
-            <a class="button secondary" href="https://crewportglobal.com/about/">Project Scope</a>
+            <a class="button primary" href="https://crewportglobal.com/for-shipowners/" data-i18n="nav.forShipowners">For Shipowners</a>
+            <a class="button secondary" href="https://crewportglobal.com/for-seafarers/" data-i18n="nav.forSeafarers">For Seafarers</a>
+            <a class="button secondary" href="https://crewportglobal.com/onboarding/seafarer-registration/" data-i18n="home.startOnboarding">Start Seafarer Onboarding</a>
+            <a class="button secondary" href="https://crewportglobal.com/legal/verification-policy/" data-i18n="nav.verificationPolicy">Verification Policy</a>
+            <a class="button secondary" href="https://crewportglobal.com/how-it-works/" data-i18n="nav.howItWorks">How It Works</a>
+            <a class="button secondary" href="https://crewportglobal.com/about/" data-i18n="nav.projectScope">Project Scope</a>
           </div>
-          <p class="trust-note">CrewPortGlobal does not charge seafarers recruitment or placement fees.</p>
+          <p class="trust-note" data-i18n="home.trustNote">CrewPortGlobal does not charge seafarers recruitment or placement fees.</p>
         </article>
 
         <aside class="card hero-panel">
           <section>
-            <p class="eyebrow">For Shipowners</p>
-            <h2>Structured intake and verified shortlists</h2>
-            <p>Collect crew requests, review candidate readiness and move toward shortlist preparation with documented compliance checkpoints.</p>
+            <p class="eyebrow" data-i18n="nav.forShipowners">For Shipowners</p>
+            <h2 data-i18n="home.shipownersTitle">Structured intake and verified shortlists</h2>
+            <p data-i18n="home.shipownersBody">Collect crew requests, review candidate readiness and move toward shortlist preparation with documented compliance checkpoints.</p>
           </section>
           <section>
-            <p class="eyebrow">For Seafarers</p>
-            <h2>Professional profile and document readiness</h2>
-            <p>Start with onboarding acceptance, prepare core maritime documents and stay inside a no-fee access model.</p>
+            <p class="eyebrow" data-i18n="nav.forSeafarers">For Seafarers</p>
+            <h2 data-i18n="home.seafarersTitle">Professional profile and document readiness</h2>
+            <p data-i18n="home.seafarersBody">Start with onboarding acceptance, prepare core maritime documents and stay inside a no-fee access model.</p>
           </section>
           <section>
-            <p class="eyebrow">Governance</p>
-            <h2>AI assistance with human review</h2>
-            <p>Automation may assist with intake and matching support, but final candidate submission requires human review.</p>
+            <p class="eyebrow" data-i18n="home.governanceLabel">Governance</p>
+            <h2 data-i18n="home.governanceTitle">AI assistance with human review</h2>
+            <p data-i18n="home.governanceBody">Automation may assist with intake and matching support, but final candidate submission requires human review.</p>
           </section>
         </aside>
       </section>
@@ -284,27 +354,27 @@
       <section class="card verification-band">
         <div class="docs-head">
           <div>
-            <p class="eyebrow">Verification</p>
-            <h2>Verified on both sides of the crew workflow</h2>
+            <p class="eyebrow" data-i18n="home.verificationLabel">Verification</p>
+            <h2 data-i18n="home.verificationTitle">Verified on both sides of the crew workflow</h2>
           </div>
-          <p>Identity, business and vessel checks are treated as one operational verification surface rather than separate disconnected trust notes.</p>
+          <p data-i18n="home.verificationBody">Identity, business and vessel checks are treated as one operational verification surface rather than separate disconnected trust notes.</p>
         </div>
 
         <div class="verification-grid">
           <a class="verification-card" href="https://crewportglobal.com/legal/verification-policy/">
-            <span class="doc-type">Seafarers</span>
-            <strong>Seafarer Identity &amp; Professional Readiness</strong>
-            <span class="doc-note">Identity, certificates, document completeness and professional readiness checks before serious matching activity.</span>
+            <span class="doc-type" data-i18n="home.verificationSeafarersType">Seafarers</span>
+            <strong data-i18n="home.verificationSeafarersTitle">Seafarer Identity &amp; Professional Readiness</strong>
+            <span class="doc-note" data-i18n="home.verificationSeafarersBody">Identity, certificates, document completeness and professional readiness checks before serious matching activity.</span>
           </a>
           <a class="verification-card" href="https://crewportglobal.com/legal/verification-policy/">
-            <span class="doc-type">Business</span>
-            <strong>Business Client KYB</strong>
-            <span class="doc-note">Verification of legal entity, representative authority, sanctions context and onboarding legitimacy for business clients.</span>
+            <span class="doc-type" data-i18n="home.verificationBusinessType">Business</span>
+            <strong data-i18n="home.verificationBusinessTitle">Business Client KYB</strong>
+            <span class="doc-note" data-i18n="home.verificationBusinessBody">Verification of legal entity, representative authority, sanctions context and onboarding legitimacy for business clients.</span>
           </a>
           <a class="verification-card" href="https://crewportglobal.com/legal/verification-policy/">
-            <span class="doc-type">Vessels</span>
-            <strong>Vessel Verification</strong>
-            <span class="doc-note">Vessel identity, ownership or management context, flag and operational legitimacy checks where the workflow requires them.</span>
+            <span class="doc-type" data-i18n="home.verificationVesselsType">Vessels</span>
+            <strong data-i18n="home.verificationVesselsTitle">Vessel Verification</strong>
+            <span class="doc-note" data-i18n="home.verificationVesselsBody">Vessel identity, ownership or management context, flag and operational legitimacy checks where the workflow requires them.</span>
           </a>
         </div>
       </section>
@@ -403,52 +473,674 @@
   <script>
     (function () {
       const STORAGE_KEY = 'crewportglobal.language';
-      const LANGUAGES = {
-        en: { code: 'en', flag: '🇬🇧', english: 'English', native: 'English' },
-        ru: { code: 'ru', flag: '🇷🇺', english: 'Russian', native: 'Русский' },
-        pt: { code: 'pt', flag: '🇵🇹', english: 'Portuguese', native: 'Português' },
-        uk: { code: 'uk', flag: '🇺🇦', english: 'Ukrainian', native: 'Українська' },
-        ar: { code: 'ar', flag: '🇦🇪', english: 'Arabic', native: 'العربية' },
-        fil: { code: 'fil', flag: '🇵🇭', english: 'Filipino', native: 'Filipino' },
-        hi: { code: 'hi', flag: '🇮🇳', english: 'Hindi', native: 'हिन्दी' },
-        id: { code: 'id', flag: '🇮🇩', english: 'Indonesian', native: 'Bahasa Indonesia' },
-        es: { code: 'es', flag: '🇪🇸', english: 'Spanish', native: 'Español' },
-        fr: { code: 'fr', flag: '🇫🇷', english: 'French', native: 'Français' },
-        tr: { code: 'tr', flag: '🇹🇷', english: 'Turkish', native: 'Türkçe' },
-        el: { code: 'el', flag: '🇬🇷', english: 'Greek', native: 'Ελληνικά' }
+      const DEFAULT_LANGUAGE = 'en';
+      const RTL_LANGUAGES = new Set(['ar']);
+
+      const LANGUAGES = [
+        { code: 'en', flag: '🇬🇧', english: 'English', native: 'English' },
+        { code: 'ru', flag: '🇷🇺', english: 'Russian', native: 'Русский' },
+        { code: 'pt', flag: '🇵🇹', english: 'Portuguese', native: 'Português' },
+        { code: 'uk', flag: '🇺🇦', english: 'Ukrainian', native: 'Українська' },
+        { code: 'ar', flag: '🇦🇪', english: 'Arabic', native: 'العربية' },
+        { code: 'fil', flag: '🇵🇭', english: 'Filipino', native: 'Filipino' },
+        { code: 'hi', flag: '🇮🇳', english: 'Hindi', native: 'हिन्दी' },
+        { code: 'id', flag: '🇮🇩', english: 'Indonesian', native: 'Bahasa Indonesia' },
+        { code: 'es', flag: '🇪🇸', english: 'Spanish', native: 'Español' },
+        { code: 'fr', flag: '🇫🇷', english: 'French', native: 'Français' },
+        { code: 'tr', flag: '🇹🇷', english: 'Turkish', native: 'Türkçe' },
+        { code: 'el', flag: '🇬🇷', english: 'Greek', native: 'Ελληνικά' }
+      ];
+
+      const TRANSLATIONS = {
+        en: {
+          'site.pageTitle': 'CrewPortGlobal',
+          'site.metaDescription': 'Digital maritime crew data, documentation and matching platform.',
+          'site.tagline': 'Maritime documentation and matching platform',
+          'site.languageLabel': 'Language',
+          'nav.projectScope': 'Project Scope',
+          'nav.howItWorks': 'How It Works',
+          'nav.forShipowners': 'For Shipowners',
+          'nav.forSeafarers': 'For Seafarers',
+          'nav.noRecruitmentFees': 'No Recruitment Fees',
+          'nav.privacy': 'Privacy',
+          'nav.seafarerAgreement': 'Seafarer Agreement',
+          'nav.terms': 'Terms',
+          'nav.shipownerAgreement': 'Shipowner Agreement',
+          'nav.matchingPolicy': 'Matching Policy',
+          'nav.verificationPolicy': 'Verification Policy',
+          'nav.complaints': 'Complaints',
+          'home.stage': 'Stage 1',
+          'home.title': 'Maritime crew workflows with a compliance-first spine.',
+          'home.lead': 'CrewPortGlobal is being developed as a digital maritime crew data, document and matching platform for shipowners, operators and seafarers. Public client documentation is prepared in Markdown as the canonical publishing format, while seafarer onboarding starts through a dedicated acceptance-first route.',
+          'home.startOnboarding': 'Start Seafarer Onboarding',
+          'home.trustNote': 'CrewPortGlobal does not charge seafarers recruitment or placement fees.',
+          'home.shipownersTitle': 'Structured intake and verified shortlists',
+          'home.shipownersBody': 'Collect crew requests, review candidate readiness and move toward shortlist preparation with documented compliance checkpoints.',
+          'home.seafarersTitle': 'Professional profile and document readiness',
+          'home.seafarersBody': 'Start with onboarding acceptance, prepare core maritime documents and stay inside a no-fee access model.',
+          'home.governanceLabel': 'Governance',
+          'home.governanceTitle': 'AI assistance with human review',
+          'home.governanceBody': 'Automation may assist with intake and matching support, but final candidate submission requires human review.',
+          'home.verificationLabel': 'Verification',
+          'home.verificationTitle': 'Verified on both sides of the crew workflow',
+          'home.verificationBody': 'Identity, business and vessel checks are treated as one operational verification surface rather than separate disconnected trust notes.',
+          'home.verificationSeafarersType': 'Seafarers',
+          'home.verificationSeafarersTitle': 'Seafarer Identity & Professional Readiness',
+          'home.verificationSeafarersBody': 'Identity, certificates, document completeness and professional readiness checks before serious matching activity.',
+          'home.verificationBusinessType': 'Business',
+          'home.verificationBusinessTitle': 'Business Client KYB',
+          'home.verificationBusinessBody': 'Verification of legal entity, representative authority, sanctions context and onboarding legitimacy for business clients.',
+          'home.verificationVesselsType': 'Vessels',
+          'home.verificationVesselsTitle': 'Vessel Verification',
+          'home.verificationVesselsBody': 'Vessel identity, ownership or management context, flag and operational legitimacy checks where the workflow requires them.'
+        },
+        ru: {
+          'site.pageTitle': 'CrewPortGlobal',
+          'site.metaDescription': 'Цифровая платформа морских данных экипажей, документации и matching workflows.',
+          'site.tagline': 'Платформа морской документации и matching workflows',
+          'site.languageLabel': 'Язык',
+          'nav.projectScope': 'О проекте',
+          'nav.howItWorks': 'Как это работает',
+          'nav.forShipowners': 'Для судовладельцев',
+          'nav.forSeafarers': 'Для моряков',
+          'nav.noRecruitmentFees': 'Без рекрутинговых сборов',
+          'nav.privacy': 'Конфиденциальность',
+          'nav.seafarerAgreement': 'Соглашение моряка',
+          'nav.terms': 'Условия',
+          'nav.shipownerAgreement': 'Соглашение судовладельца',
+          'nav.matchingPolicy': 'Политика matching',
+          'nav.verificationPolicy': 'Политика verification',
+          'nav.complaints': 'Жалобы',
+          'home.stage': 'Этап 1',
+          'home.title': 'Морские кадровые процессы с комплаенсом в основе.',
+          'home.lead': 'CrewPortGlobal развивается как цифровая платформа для морских данных экипажей, документов и matching workflows для судовладельцев, операторов и моряков. Публичная клиентская документация публикуется в Markdown как канонический формат, а онбординг моряков начинается через отдельный acceptance-first route.',
+          'home.startOnboarding': 'Начать онбординг моряка',
+          'home.trustNote': 'CrewPortGlobal не взимает с моряков рекрутинговые или placement fees.',
+          'home.shipownersTitle': 'Структурированный intake и проверенные shortlists',
+          'home.shipownersBody': 'Собирайте crew requests, оценивайте readiness кандидатов и переходите к shortlist preparation через документированные compliance checkpoints.',
+          'home.seafarersTitle': 'Профессиональный профиль и готовность документов',
+          'home.seafarersBody': 'Начните с acceptance onboarding, подготовьте базовые морские документы и оставайтесь внутри no-fee access model.',
+          'home.governanceLabel': 'Управление',
+          'home.governanceTitle': 'AI assistance с human review',
+          'home.governanceBody': 'Автоматизация может помогать intake и matching support, но финальная подача кандидата требует human review.',
+          'home.verificationLabel': 'Verification',
+          'home.verificationTitle': 'Проверка по обеим сторонам кадрового процесса',
+          'home.verificationBody': 'Проверки identity, business и vessel рассматриваются как единая verification surface, а не как разрозненные trust notes.',
+          'home.verificationSeafarersType': 'Моряки',
+          'home.verificationSeafarersTitle': 'Identity моряка и профессиональная готовность',
+          'home.verificationSeafarersBody': 'Identity, сертификаты, полнота документов и профессиональная readiness проверяются до серьёзной matching activity.',
+          'home.verificationBusinessType': 'Бизнес',
+          'home.verificationBusinessTitle': 'KYB бизнес-клиента',
+          'home.verificationBusinessBody': 'Проверка legal entity, authority представителя, санкционного контекста и legitimacy onboarding для business clients.',
+          'home.verificationVesselsType': 'Суда',
+          'home.verificationVesselsTitle': 'Проверка судна',
+          'home.verificationVesselsBody': 'Проверяются identity судна, ownership или management context, flag и operational legitimacy там, где этого требует workflow.'
+        },
+        pt: {
+          'site.pageTitle': 'CrewPortGlobal',
+          'site.metaDescription': 'Plataforma digital para dados de tripulação marítima, documentação e fluxos de matching.',
+          'site.tagline': 'Plataforma de documentação marítima e matching',
+          'site.languageLabel': 'Idioma',
+          'nav.projectScope': 'Escopo do projeto',
+          'nav.howItWorks': 'Como funciona',
+          'nav.forShipowners': 'Para armadores',
+          'nav.forSeafarers': 'Para marítimos',
+          'nav.noRecruitmentFees': 'Sem taxas de recrutamento',
+          'nav.privacy': 'Privacidade',
+          'nav.seafarerAgreement': 'Acordo do marítimo',
+          'nav.terms': 'Termos',
+          'nav.shipownerAgreement': 'Acordo do armador',
+          'nav.matchingPolicy': 'Política de matching',
+          'nav.verificationPolicy': 'Política de verificação',
+          'nav.complaints': 'Reclamações',
+          'home.stage': 'Fase 1',
+          'home.title': 'Fluxos de tripulação marítima com uma espinha de compliance.',
+          'home.lead': 'A CrewPortGlobal está sendo desenvolvida como uma plataforma digital para dados de tripulação, documentos e matching para armadores, operadores e marítimos. A documentação pública é publicada em Markdown como formato canônico, enquanto o onboarding do marítimo começa por uma rota dedicada de aceitação.',
+          'home.startOnboarding': 'Iniciar onboarding do marítimo',
+          'home.trustNote': 'A CrewPortGlobal não cobra taxas de recrutamento ou colocação dos marítimos.',
+          'home.shipownersTitle': 'Intake estruturado e shortlists verificados',
+          'home.shipownersBody': 'Colete solicitações de tripulação, revise a prontidão dos candidatos e avance para a preparação de shortlist com checkpoints documentados de compliance.',
+          'home.seafarersTitle': 'Perfil profissional e prontidão documental',
+          'home.seafarersBody': 'Comece pela aceitação do onboarding, prepare os documentos marítimos principais e permaneça dentro de um modelo sem taxas.',
+          'home.governanceLabel': 'Governança',
+          'home.governanceTitle': 'Assistência de IA com revisão humana',
+          'home.governanceBody': 'A automação pode ajudar no intake e no suporte ao matching, mas a submissão final do candidato exige revisão humana.',
+          'home.verificationLabel': 'Verificação',
+          'home.verificationTitle': 'Verificado dos dois lados do fluxo de tripulação',
+          'home.verificationBody': 'As verificações de identidade, negócio e embarcação são tratadas como uma superfície operacional única de verificação.',
+          'home.verificationSeafarersType': 'Marítimos',
+          'home.verificationSeafarersTitle': 'Identidade do marítimo e prontidão profissional',
+          'home.verificationSeafarersBody': 'Identidade, certificados, completude documental e prontidão profissional antes de atividade séria de matching.',
+          'home.verificationBusinessType': 'Negócio',
+          'home.verificationBusinessTitle': 'KYB do cliente empresarial',
+          'home.verificationBusinessBody': 'Verificação de entidade legal, autoridade do representante, contexto sancionatório e legitimidade do onboarding empresarial.',
+          'home.verificationVesselsType': 'Embarcações',
+          'home.verificationVesselsTitle': 'Verificação de embarcação',
+          'home.verificationVesselsBody': 'Identidade da embarcação, contexto de propriedade ou gestão, bandeira e legitimidade operacional quando o fluxo exigir.'
+        },
+        uk: {
+          'site.pageTitle': 'CrewPortGlobal',
+          'site.metaDescription': 'Цифрова платформа для морських даних екіпажів, документації та matching workflows.',
+          'site.tagline': 'Платформа морської документації та matching workflows',
+          'site.languageLabel': 'Мова',
+          'nav.projectScope': 'Про проєкт',
+          'nav.howItWorks': 'Як це працює',
+          'nav.forShipowners': 'Для судновласників',
+          'nav.forSeafarers': 'Для моряків',
+          'nav.noRecruitmentFees': 'Без рекрутингових зборів',
+          'nav.privacy': 'Конфіденційність',
+          'nav.seafarerAgreement': 'Угода моряка',
+          'nav.terms': 'Умови',
+          'nav.shipownerAgreement': 'Угода судновласника',
+          'nav.matchingPolicy': 'Політика matching',
+          'nav.verificationPolicy': 'Політика verification',
+          'nav.complaints': 'Скарги',
+          'home.stage': 'Етап 1',
+          'home.title': 'Морські кадрові процеси з комплаєнсом в основі.',
+          'home.lead': 'CrewPortGlobal розвивається як цифрова платформа для морських даних екіпажів, документів і matching workflows для судновласників, операторів і моряків. Публічна документація публікується у Markdown як канонічний формат, а onboarding моряка починається через окремий acceptance-first route.',
+          'home.startOnboarding': 'Розпочати onboarding моряка',
+          'home.trustNote': 'CrewPortGlobal не стягує з моряків рекрутингових або placement fees.',
+          'home.shipownersTitle': 'Структурований intake і перевірені shortlists',
+          'home.shipownersBody': 'Збирайте crew requests, оцінюйте readiness кандидатів і переходьте до shortlist preparation через документовані compliance checkpoints.',
+          'home.seafarersTitle': 'Професійний профіль і готовність документів',
+          'home.seafarersBody': 'Почніть з onboarding acceptance, підготуйте основні морські документи й залишайтеся всередині no-fee access model.',
+          'home.governanceLabel': 'Управління',
+          'home.governanceTitle': 'AI assistance з human review',
+          'home.governanceBody': 'Автоматизація може допомагати intake та matching support, але фінальне подання кандидата вимагає human review.',
+          'home.verificationLabel': 'Verification',
+          'home.verificationTitle': 'Перевірка з обох боків кадрового процесу',
+          'home.verificationBody': 'Перевірки identity, business і vessel розглядаються як єдина verification surface, а не як роз'єднані trust notes.',
+          'home.verificationSeafarersType': 'Моряки',
+          'home.verificationSeafarersTitle': 'Identity моряка та професійна готовність',
+          'home.verificationSeafarersBody': 'Identity, сертифікати, повнота документів і професійна readiness перевіряються до серйозної matching activity.',
+          'home.verificationBusinessType': 'Бізнес',
+          'home.verificationBusinessTitle': 'KYB бізнес-клієнта',
+          'home.verificationBusinessBody': 'Перевірка legal entity, authority представника, санкційного контексту та legitimacy onboarding для business clients.',
+          'home.verificationVesselsType': 'Судна',
+          'home.verificationVesselsTitle': 'Перевірка судна',
+          'home.verificationVesselsBody': 'Перевіряються identity судна, ownership або management context, flag і operational legitimacy там, де цього вимагає workflow.'
+        },
+        ar: {
+          'site.pageTitle': 'CrewPortGlobal',
+          'site.metaDescription': 'منصة رقمية لبيانات الطواقم البحرية والوثائق وعمليات المطابقة.',
+          'site.tagline': 'منصة للوثائق البحرية وعمليات المطابقة',
+          'site.languageLabel': 'اللغة',
+          'nav.projectScope': 'نطاق المشروع',
+          'nav.howItWorks': 'كيف يعمل',
+          'nav.forShipowners': 'لمُلّاك السفن',
+          'nav.forSeafarers': 'للبحارة',
+          'nav.noRecruitmentFees': 'من دون رسوم توظيف',
+          'nav.privacy': 'الخصوصية',
+          'nav.seafarerAgreement': 'اتفاقية البحار',
+          'nav.terms': 'الشروط',
+          'nav.shipownerAgreement': 'اتفاقية مالك السفينة',
+          'nav.matchingPolicy': 'سياسة المطابقة',
+          'nav.verificationPolicy': 'سياسة التحقق',
+          'nav.complaints': 'الشكاوى',
+          'home.stage': 'المرحلة 1',
+          'home.title': 'مسارات عمل الأطقم البحرية مع عمود فقري قائم على الامتثال.',
+          'home.lead': 'يتم تطوير CrewPortGlobal كمنصة رقمية لبيانات الطواقم البحرية والوثائق وعمليات المطابقة لمُلّاك السفن والمشغلين والبحارة. تُنشر الوثائق العامة بصيغة Markdown كصيغة أساسية، بينما يبدأ onboarding البحار عبر مسار قبول مخصص.',
+          'home.startOnboarding': 'ابدأ onboarding البحار',
+          'home.trustNote': 'لا تفرض CrewPortGlobal على البحارة أي رسوم توظيف أو تشغيل.',
+          'home.shipownersTitle': 'استقبال منظم وقوائم مختصرة موثقة',
+          'home.shipownersBody': 'اجمع طلبات الطواقم وراجع جاهزية المرشحين وتقدّم نحو إعداد القائمة المختصرة عبر نقاط تحقق موثقة للامتثال.',
+          'home.seafarersTitle': 'الملف المهني وجاهزية الوثائق',
+          'home.seafarersBody': 'ابدأ بقبول onboarding، وجهّز الوثائق البحرية الأساسية، وابق ضمن نموذج خالٍ من الرسوم.',
+          'home.governanceLabel': 'الحوكمة',
+          'home.governanceTitle': 'مساعدة الذكاء الاصطناعي مع مراجعة بشرية',
+          'home.governanceBody': 'قد تساعد الأتمتة في الاستقبال ودعم المطابقة، لكن تقديم المرشح النهائي يتطلب مراجعة بشرية.',
+          'home.verificationLabel': 'التحقق',
+          'home.verificationTitle': 'التحقق على جانبي مسار الطاقم',
+          'home.verificationBody': 'يتم التعامل مع فحوصات الهوية والأعمال والسفن كسطح تشغيلي واحد للتحقق.',
+          'home.verificationSeafarersType': 'البحارة',
+          'home.verificationSeafarersTitle': 'هوية البحار وجاهزيته المهنية',
+          'home.verificationSeafarersBody': 'الهوية والشهادات واكتمال الوثائق والجاهزية المهنية قبل أي نشاط مطابقة جدي.',
+          'home.verificationBusinessType': 'الأعمال',
+          'home.verificationBusinessTitle': 'KYB لعميل الأعمال',
+          'home.verificationBusinessBody': 'التحقق من الكيان القانوني وسلطة الممثل والسياق الخاص بالعقوبات وشرعية onboarding للعملاء التجاريين.',
+          'home.verificationVesselsType': 'السفن',
+          'home.verificationVesselsTitle': 'التحقق من السفينة',
+          'home.verificationVesselsBody': 'هوية السفينة وسياق الملكية أو الإدارة والعلم والشرعية التشغيلية عندما يتطلب مسار العمل ذلك.'
+        },
+        fil: {
+          'site.pageTitle': 'CrewPortGlobal',
+          'site.metaDescription': 'Digital na plataporma para sa maritime crew data, dokumentasyon at matching workflows.',
+          'site.tagline': 'Plataporma para sa maritime documentation at matching',
+          'site.languageLabel': 'Wika',
+          'nav.projectScope': 'Saklaw ng proyekto',
+          'nav.howItWorks': 'Paano ito gumagana',
+          'nav.forShipowners': 'Para sa mga shipowner',
+          'nav.forSeafarers': 'Para sa mga seafarer',
+          'nav.noRecruitmentFees': 'Walang recruitment fees',
+          'nav.privacy': 'Privacy',
+          'nav.seafarerAgreement': 'Kasunduan ng seafarer',
+          'nav.terms': 'Mga tuntunin',
+          'nav.shipownerAgreement': 'Kasunduan ng shipowner',
+          'nav.matchingPolicy': 'Patakaran sa matching',
+          'nav.verificationPolicy': 'Patakaran sa verification',
+          'nav.complaints': 'Mga reklamo',
+          'home.stage': 'Yugto 1',
+          'home.title': 'Mga workflow ng maritime crew na may compliance-first spine.',
+          'home.lead': 'Ang CrewPortGlobal ay binubuo bilang digital platform para sa maritime crew data, dokumento at matching workflows para sa mga shipowner, operator at seafarer. Ang public client documentation ay inilalathala sa Markdown bilang canonical format, habang ang onboarding ng seafarer ay nagsisimula sa isang hiwalay na acceptance-first route.',
+          'home.startOnboarding': 'Simulan ang seafarer onboarding',
+          'home.trustNote': 'Hindi naniningil ang CrewPortGlobal sa mga seafarer ng recruitment o placement fees.',
+          'home.shipownersTitle': 'Structured intake at verified shortlists',
+          'home.shipownersBody': 'Mangolekta ng crew requests, suriin ang candidate readiness at umusad sa shortlist preparation gamit ang documented compliance checkpoints.',
+          'home.seafarersTitle': 'Professional profile at document readiness',
+          'home.seafarersBody': 'Magsimula sa onboarding acceptance, ihanda ang pangunahing maritime documents at manatili sa no-fee access model.',
+          'home.governanceLabel': 'Pamamahala',
+          'home.governanceTitle': 'AI assistance na may human review',
+          'home.governanceBody': 'Makakatulong ang automation sa intake at matching support, ngunit nangangailangan ng human review ang final candidate submission.',
+          'home.verificationLabel': 'Verification',
+          'home.verificationTitle': 'Verified sa magkabilang panig ng crew workflow',
+          'home.verificationBody': 'Ang identity, business at vessel checks ay tinatrato bilang iisang operational verification surface.',
+          'home.verificationSeafarersType': 'Seafarers',
+          'home.verificationSeafarersTitle': 'Seafarer identity at professional readiness',
+          'home.verificationSeafarersBody': 'Identity, certificates, document completeness at professional readiness bago ang seryosong matching activity.',
+          'home.verificationBusinessType': 'Business',
+          'home.verificationBusinessTitle': 'Business client KYB',
+          'home.verificationBusinessBody': 'Verification ng legal entity, representative authority, sanctions context at onboarding legitimacy para sa business clients.',
+          'home.verificationVesselsType': 'Vessels',
+          'home.verificationVesselsTitle': 'Vessel verification',
+          'home.verificationVesselsBody': 'Vessel identity, ownership o management context, flag at operational legitimacy kapag kailangan ng workflow.'
+        },
+        hi: {
+          'site.pageTitle': 'CrewPortGlobal',
+          'site.metaDescription': 'समुद्री crew data, documentation और matching workflows के लिए डिजिटल प्लेटफ़ॉर्म।',
+          'site.tagline': 'समुद्री documentation और matching platform',
+          'site.languageLabel': 'भाषा',
+          'nav.projectScope': 'प्रोजेक्ट दायरा',
+          'nav.howItWorks': 'यह कैसे काम करता है',
+          'nav.forShipowners': 'जहाज मालिकों के लिए',
+          'nav.forSeafarers': 'सीफैरर्स के लिए',
+          'nav.noRecruitmentFees': 'कोई भर्ती शुल्क नहीं',
+          'nav.privacy': 'गोपनीयता',
+          'nav.seafarerAgreement': 'सीफैरर एग्रीमेंट',
+          'nav.terms': 'नियम',
+          'nav.shipownerAgreement': 'शिपओनर एग्रीमेंट',
+          'nav.matchingPolicy': 'Matching नीति',
+          'nav.verificationPolicy': 'Verification नीति',
+          'nav.complaints': 'शिकायतें',
+          'home.stage': 'चरण 1',
+          'home.title': 'Compliance-first आधार के साथ maritime crew workflows।',
+          'home.lead': 'CrewPortGlobal को shipowner, operator और seafarer के लिए maritime crew data, documents और matching workflows की डिजिटल platform के रूप में विकसित किया जा रहा है। Public client documentation Markdown में canonical format के रूप में प्रकाशित की जाती है, जबकि seafarer onboarding एक dedicated acceptance-first route से शुरू होता है।',
+          'home.startOnboarding': 'Seafarer onboarding शुरू करें',
+          'home.trustNote': 'CrewPortGlobal seafarers से recruitment या placement fees नहीं लेता।',
+          'home.shipownersTitle': 'Structured intake और verified shortlists',
+          'home.shipownersBody': 'Crew requests इकट्ठा करें, candidate readiness की समीक्षा करें और documented compliance checkpoints के साथ shortlist preparation की ओर बढ़ें।',
+          'home.seafarersTitle': 'Professional profile और document readiness',
+          'home.seafarersBody': 'Onboarding acceptance से शुरू करें, मुख्य maritime documents तैयार करें और no-fee access model में रहें।',
+          'home.governanceLabel': 'Governance',
+          'home.governanceTitle': 'Human review के साथ AI assistance',
+          'home.governanceBody': 'Automation intake और matching support में मदद कर सकती है, लेकिन final candidate submission के लिए human review आवश्यक है।',
+          'home.verificationLabel': 'Verification',
+          'home.verificationTitle': 'Crew workflow के दोनों पक्षों पर verification',
+          'home.verificationBody': 'Identity, business और vessel checks को एक unified operational verification surface के रूप में माना जाता है।',
+          'home.verificationSeafarersType': 'Seafarers',
+          'home.verificationSeafarersTitle': 'Seafarer identity और professional readiness',
+          'home.verificationSeafarersBody': 'Identity, certificates, document completeness और professional readiness, serious matching activity से पहले।',
+          'home.verificationBusinessType': 'Business',
+          'home.verificationBusinessTitle': 'Business client KYB',
+          'home.verificationBusinessBody': 'Legal entity, representative authority, sanctions context और business clients के onboarding legitimacy की verification।',
+          'home.verificationVesselsType': 'Vessels',
+          'home.verificationVesselsTitle': 'Vessel verification',
+          'home.verificationVesselsBody': 'जहाँ workflow आवश्यक हो, वहाँ vessel identity, ownership या management context, flag और operational legitimacy।'
+        },
+        id: {
+          'site.pageTitle': 'CrewPortGlobal',
+          'site.metaDescription': 'Platform digital untuk data kru maritim, dokumentasi, dan matching workflows.',
+          'site.tagline': 'Platform dokumentasi maritim dan matching',
+          'site.languageLabel': 'Bahasa',
+          'nav.projectScope': 'Cakupan proyek',
+          'nav.howItWorks': 'Cara kerja',
+          'nav.forShipowners': 'Untuk pemilik kapal',
+          'nav.forSeafarers': 'Untuk pelaut',
+          'nav.noRecruitmentFees': 'Tanpa biaya rekrutmen',
+          'nav.privacy': 'Privasi',
+          'nav.seafarerAgreement': 'Perjanjian pelaut',
+          'nav.terms': 'Ketentuan',
+          'nav.shipownerAgreement': 'Perjanjian pemilik kapal',
+          'nav.matchingPolicy': 'Kebijakan matching',
+          'nav.verificationPolicy': 'Kebijakan verifikasi',
+          'nav.complaints': 'Keluhan',
+          'home.stage': 'Tahap 1',
+          'home.title': 'Alur kerja kru maritim dengan tulang punggung compliance-first.',
+          'home.lead': 'CrewPortGlobal sedang dikembangkan sebagai platform digital untuk data kru maritim, dokumen, dan matching workflows bagi pemilik kapal, operator, dan pelaut. Dokumentasi publik diterbitkan dalam Markdown sebagai format kanonis, sementara onboarding pelaut dimulai melalui acceptance-first route khusus.',
+          'home.startOnboarding': 'Mulai onboarding pelaut',
+          'home.trustNote': 'CrewPortGlobal tidak membebankan recruitment atau placement fees kepada pelaut.',
+          'home.shipownersTitle': 'Intake terstruktur dan shortlist terverifikasi',
+          'home.shipownersBody': 'Kumpulkan permintaan kru, tinjau kesiapan kandidat, dan bergerak menuju persiapan shortlist dengan checkpoint compliance yang terdokumentasi.',
+          'home.seafarersTitle': 'Profil profesional dan kesiapan dokumen',
+          'home.seafarersBody': 'Mulai dengan acceptance onboarding, siapkan dokumen maritim inti, dan tetap berada dalam model akses tanpa biaya.',
+          'home.governanceLabel': 'Governance',
+          'home.governanceTitle': 'Bantuan AI dengan human review',
+          'home.governanceBody': 'Otomasi dapat membantu intake dan matching support, tetapi pengajuan kandidat akhir tetap memerlukan human review.',
+          'home.verificationLabel': 'Verifikasi',
+          'home.verificationTitle': 'Terverifikasi di kedua sisi alur kerja kru',
+          'home.verificationBody': 'Pemeriksaan identity, business, dan vessel diperlakukan sebagai satu verification surface operasional.',
+          'home.verificationSeafarersType': 'Pelaut',
+          'home.verificationSeafarersTitle': 'Identity pelaut dan kesiapan profesional',
+          'home.verificationSeafarersBody': 'Identity, sertifikat, kelengkapan dokumen, dan kesiapan profesional sebelum aktivitas matching yang serius.',
+          'home.verificationBusinessType': 'Bisnis',
+          'home.verificationBusinessTitle': 'KYB klien bisnis',
+          'home.verificationBusinessBody': 'Verifikasi legal entity, authority perwakilan, konteks sanksi, dan legitimasi onboarding untuk klien bisnis.',
+          'home.verificationVesselsType': 'Kapal',
+          'home.verificationVesselsTitle': 'Verifikasi kapal',
+          'home.verificationVesselsBody': 'Identity kapal, konteks kepemilikan atau pengelolaan, bendera, dan legitimasi operasional ketika diperlukan workflow.'
+        },
+        es: {
+          'site.pageTitle': 'CrewPortGlobal',
+          'site.metaDescription': 'Plataforma digital para datos de tripulación marítima, documentación y matching workflows.',
+          'site.tagline': 'Plataforma de documentación marítima y matching',
+          'site.languageLabel': 'Idioma',
+          'nav.projectScope': 'Alcance del proyecto',
+          'nav.howItWorks': 'Cómo funciona',
+          'nav.forShipowners': 'Para armadores',
+          'nav.forSeafarers': 'Para marinos',
+          'nav.noRecruitmentFees': 'Sin tarifas de reclutamiento',
+          'nav.privacy': 'Privacidad',
+          'nav.seafarerAgreement': 'Acuerdo del marino',
+          'nav.terms': 'Términos',
+          'nav.shipownerAgreement': 'Acuerdo del armador',
+          'nav.matchingPolicy': 'Política de matching',
+          'nav.verificationPolicy': 'Política de verificación',
+          'nav.complaints': 'Quejas',
+          'home.stage': 'Etapa 1',
+          'home.title': 'Flujos de tripulación marítima con una columna vertebral de cumplimiento.',
+          'home.lead': 'CrewPortGlobal se está desarrollando como una plataforma digital para datos de tripulación marítima, documentos y matching workflows para armadores, operadores y marinos. La documentación pública se publica en Markdown como formato canónico, mientras que el onboarding del marino comienza por una ruta dedicada de aceptación.',
+          'home.startOnboarding': 'Iniciar onboarding del marino',
+          'home.trustNote': 'CrewPortGlobal no cobra a los marinos tarifas de reclutamiento o colocación.',
+          'home.shipownersTitle': 'Intake estructurado y shortlists verificados',
+          'home.shipownersBody': 'Recopile solicitudes de tripulación, revise la preparación de los candidatos y avance hacia la preparación de shortlist con checkpoints documentados de cumplimiento.',
+          'home.seafarersTitle': 'Perfil profesional y preparación documental',
+          'home.seafarersBody': 'Comience con la aceptación de onboarding, prepare los documentos marítimos principales y manténgase dentro de un modelo sin tarifas.',
+          'home.governanceLabel': 'Gobernanza',
+          'home.governanceTitle': 'Asistencia de IA con revisión humana',
+          'home.governanceBody': 'La automatización puede ayudar en intake y matching support, pero la presentación final del candidato requiere revisión humana.',
+          'home.verificationLabel': 'Verificación',
+          'home.verificationTitle': 'Verificado en ambos lados del flujo de tripulación',
+          'home.verificationBody': 'Las verificaciones de identity, business y vessel se tratan como una sola verification surface operativa.',
+          'home.verificationSeafarersType': 'Marinos',
+          'home.verificationSeafarersTitle': 'Identity del marino y preparación profesional',
+          'home.verificationSeafarersBody': 'Identity, certificados, integridad documental y preparación profesional antes de una actividad seria de matching.',
+          'home.verificationBusinessType': 'Negocio',
+          'home.verificationBusinessTitle': 'KYB del cliente empresarial',
+          'home.verificationBusinessBody': 'Verificación de legal entity, authority del representante, contexto sancionatorio y legitimidad de onboarding para clientes empresariales.',
+          'home.verificationVesselsType': 'Buques',
+          'home.verificationVesselsTitle': 'Verificación del buque',
+          'home.verificationVesselsBody': 'Identity del buque, contexto de ownership o management, bandera y legitimidad operativa cuando el workflow lo requiera.'
+        },
+        fr: {
+          'site.pageTitle': 'CrewPortGlobal',
+          'site.metaDescription': 'Plateforme numérique pour les données d’équipage maritime, la documentation et les matching workflows.',
+          'site.tagline': 'Plateforme de documentation maritime et de matching',
+          'site.languageLabel': 'Langue',
+          'nav.projectScope': 'Périmètre du projet',
+          'nav.howItWorks': 'Fonctionnement',
+          'nav.forShipowners': 'Pour les armateurs',
+          'nav.forSeafarers': 'Pour les marins',
+          'nav.noRecruitmentFees': 'Sans frais de recrutement',
+          'nav.privacy': 'Confidentialité',
+          'nav.seafarerAgreement': 'Accord du marin',
+          'nav.terms': 'Conditions',
+          'nav.shipownerAgreement': 'Accord de l’armateur',
+          'nav.matchingPolicy': 'Politique de matching',
+          'nav.verificationPolicy': 'Politique de vérification',
+          'nav.complaints': 'Réclamations',
+          'home.stage': 'Étape 1',
+          'home.title': 'Des workflows d’équipage maritime avec une ossature orientée conformité.',
+          'home.lead': 'CrewPortGlobal est en cours de développement comme plateforme numérique pour les données d’équipage maritime, les documents et les matching workflows destinés aux armateurs, opérateurs et marins. La documentation publique est publiée en Markdown comme format canonique, tandis que l’onboarding du marin commence par une route dédiée d’acceptation.',
+          'home.startOnboarding': 'Commencer l’onboarding du marin',
+          'home.trustNote': 'CrewPortGlobal ne facture pas aux marins de frais de recrutement ou de placement.',
+          'home.shipownersTitle': 'Intake structuré et shortlists vérifiés',
+          'home.shipownersBody': 'Collectez les demandes d’équipage, examinez la préparation des candidats et avancez vers la préparation des shortlists grâce à des checkpoints de conformité documentés.',
+          'home.seafarersTitle': 'Profil professionnel et préparation documentaire',
+          'home.seafarersBody': 'Commencez par l’acceptation d’onboarding, préparez les documents maritimes essentiels et restez dans un modèle sans frais.',
+          'home.governanceLabel': 'Gouvernance',
+          'home.governanceTitle': 'Assistance IA avec revue humaine',
+          'home.governanceBody': 'L’automatisation peut aider l’intake et le matching support, mais la soumission finale du candidat exige une revue humaine.',
+          'home.verificationLabel': 'Vérification',
+          'home.verificationTitle': 'Vérifié des deux côtés du workflow équipage',
+          'home.verificationBody': 'Les vérifications d’identity, business et vessel sont traitées comme une seule verification surface opérationnelle.',
+          'home.verificationSeafarersType': 'Marins',
+          'home.verificationSeafarersTitle': 'Identity du marin et préparation professionnelle',
+          'home.verificationSeafarersBody': 'Identity, certificats, complétude documentaire et préparation professionnelle avant toute activité sérieuse de matching.',
+          'home.verificationBusinessType': 'Entreprise',
+          'home.verificationBusinessTitle': 'KYB du client entreprise',
+          'home.verificationBusinessBody': 'Vérification de la legal entity, de l’authority du représentant, du contexte de sanctions et de la légitimité d’onboarding pour les clients entreprise.',
+          'home.verificationVesselsType': 'Navires',
+          'home.verificationVesselsTitle': 'Vérification du navire',
+          'home.verificationVesselsBody': 'Identity du navire, contexte de ownership ou management, pavillon et légitimité opérationnelle lorsque le workflow l’exige.'
+        },
+        tr: {
+          'site.pageTitle': 'CrewPortGlobal',
+          'site.metaDescription': 'Denizcilik crew data, dokümantasyon ve matching workflows için dijital platform.',
+          'site.tagline': 'Denizcilik dokümantasyon ve matching platformu',
+          'site.languageLabel': 'Dil',
+          'nav.projectScope': 'Proje kapsamı',
+          'nav.howItWorks': 'Nasıl çalışır',
+          'nav.forShipowners': 'Armatörler için',
+          'nav.forSeafarers': 'Denizciler için',
+          'nav.noRecruitmentFees': 'İşe alım ücreti yok',
+          'nav.privacy': 'Gizlilik',
+          'nav.seafarerAgreement': 'Denizci sözleşmesi',
+          'nav.terms': 'Şartlar',
+          'nav.shipownerAgreement': 'Armatör sözleşmesi',
+          'nav.matchingPolicy': 'Matching politikası',
+          'nav.verificationPolicy': 'Verification politikası',
+          'nav.complaints': 'Şikayetler',
+          'home.stage': 'Aşama 1',
+          'home.title': 'Compliance-first omurgalı denizcilik crew workflows.',
+          'home.lead': 'CrewPortGlobal, armatörler, operatörler ve denizciler için denizcilik crew data, dokümanlar ve matching workflows sağlayan dijital bir platform olarak geliştirilmektedir. Public client documentation Markdown içinde canonical format olarak yayınlanır; seafarer onboarding ise özel bir acceptance-first route ile başlar.',
+          'home.startOnboarding': 'Seafarer onboarding başlat',
+          'home.trustNote': 'CrewPortGlobal, denizcilerden recruitment veya placement fees almaz.',
+          'home.shipownersTitle': 'Yapılandırılmış intake ve doğrulanmış shortlists',
+          'home.shipownersBody': 'Crew requests toplayın, candidate readiness durumunu inceleyin ve documented compliance checkpoints ile shortlist preparation aşamasına ilerleyin.',
+          'home.seafarersTitle': 'Profesyonel profil ve document readiness',
+          'home.seafarersBody': 'Onboarding acceptance ile başlayın, temel maritime documents hazırlayın ve no-fee access model içinde kalın.',
+          'home.governanceLabel': 'Yönetişim',
+          'home.governanceTitle': 'Human review ile AI assistance',
+          'home.governanceBody': 'Otomasyon intake ve matching support alanlarında yardımcı olabilir, ancak final candidate submission human review gerektirir.',
+          'home.verificationLabel': 'Verification',
+          'home.verificationTitle': 'Crew workflow’un iki tarafında doğrulama',
+          'home.verificationBody': 'Identity, business ve vessel kontrolleri tek bir operational verification surface olarak ele alınır.',
+          'home.verificationSeafarersType': 'Denizciler',
+          'home.verificationSeafarersTitle': 'Seafarer identity ve profesyonel readiness',
+          'home.verificationSeafarersBody': 'Identity, sertifikalar, document completeness ve professional readiness, ciddi matching activity öncesinde kontrol edilir.',
+          'home.verificationBusinessType': 'İşletme',
+          'home.verificationBusinessTitle': 'Business client KYB',
+          'home.verificationBusinessBody': 'Legal entity, representative authority, sanctions context ve business clients için onboarding legitimacy doğrulaması.',
+          'home.verificationVesselsType': 'Gemiler',
+          'home.verificationVesselsTitle': 'Vessel verification',
+          'home.verificationVesselsBody': 'Workflow gerektirdiğinde vessel identity, ownership veya management context, bayrak ve operational legitimacy kontrol edilir.'
+        },
+        el: {
+          'site.pageTitle': 'CrewPortGlobal',
+          'site.metaDescription': 'Ψηφιακή πλατφόρμα για maritime crew data, τεκμηρίωση και matching workflows.',
+          'site.tagline': 'Πλατφόρμα ναυτικής τεκμηρίωσης και matching',
+          'site.languageLabel': 'Γλώσσα',
+          'nav.projectScope': 'Πεδίο έργου',
+          'nav.howItWorks': 'Πώς λειτουργεί',
+          'nav.forShipowners': 'Για πλοιοκτήτες',
+          'nav.forSeafarers': 'Για ναυτικούς',
+          'nav.noRecruitmentFees': 'Χωρίς τέλη πρόσληψης',
+          'nav.privacy': 'Απόρρητο',
+          'nav.seafarerAgreement': 'Συμφωνία ναυτικού',
+          'nav.terms': 'Όροι',
+          'nav.shipownerAgreement': 'Συμφωνία πλοιοκτήτη',
+          'nav.matchingPolicy': 'Πολιτική matching',
+          'nav.verificationPolicy': 'Πολιτική verification',
+          'nav.complaints': 'Παράπονα',
+          'home.stage': 'Στάδιο 1',
+          'home.title': 'Ναυτιλιακά crew workflows με κορμό προσανατολισμένο στη συμμόρφωση.',
+          'home.lead': 'Το CrewPortGlobal αναπτύσσεται ως ψηφιακή πλατφόρμα για maritime crew data, έγγραφα και matching workflows για πλοιοκτήτες, operators και ναυτικούς. Η δημόσια τεκμηρίωση δημοσιεύεται σε Markdown ως canonical format, ενώ το seafarer onboarding ξεκινά μέσα από ένα dedicated acceptance-first route.',
+          'home.startOnboarding': 'Έναρξη seafarer onboarding',
+          'home.trustNote': 'Το CrewPortGlobal δεν χρεώνει τους ναυτικούς με recruitment ή placement fees.',
+          'home.shipownersTitle': 'Δομημένο intake και verified shortlists',
+          'home.shipownersBody': 'Συλλέξτε crew requests, εξετάστε candidate readiness και προχωρήστε προς shortlist preparation με documented compliance checkpoints.',
+          'home.seafarersTitle': 'Επαγγελματικό προφίλ και document readiness',
+          'home.seafarersBody': 'Ξεκινήστε με onboarding acceptance, προετοιμάστε τα βασικά maritime documents και μείνετε μέσα σε no-fee access model.',
+          'home.governanceLabel': 'Διακυβέρνηση',
+          'home.governanceTitle': 'AI assistance με human review',
+          'home.governanceBody': 'Η αυτοματοποίηση μπορεί να βοηθά στο intake και στο matching support, αλλά η τελική υποβολή υποψηφίου απαιτεί human review.',
+          'home.verificationLabel': 'Verification',
+          'home.verificationTitle': 'Επαλήθευση και στις δύο πλευρές του crew workflow',
+          'home.verificationBody': 'Οι έλεγχοι identity, business και vessel αντιμετωπίζονται ως μία ενιαία operational verification surface.',
+          'home.verificationSeafarersType': 'Ναυτικοί',
+          'home.verificationSeafarersTitle': 'Seafarer identity και επαγγελματική readiness',
+          'home.verificationSeafarersBody': 'Identity, πιστοποιητικά, πληρότητα εγγράφων και professional readiness πριν από σοβαρή matching activity.',
+          'home.verificationBusinessType': 'Επιχείρηση',
+          'home.verificationBusinessTitle': 'KYB πελάτη επιχείρησης',
+          'home.verificationBusinessBody': 'Verification of legal entity, representative authority, sanctions context και onboarding legitimacy για business clients.',
+          'home.verificationVesselsType': 'Σκάφη',
+          'home.verificationVesselsTitle': 'Vessel verification',
+          'home.verificationVesselsBody': 'Vessel identity, ownership ή management context, σημαία και operational legitimacy όπου το workflow το απαιτεί.'
+        }
       };
 
-      function resolveLanguage(code) {
-        return LANGUAGES[code] || LANGUAGES.en;
+      function getLanguageOption(code) {
+        return LANGUAGES.find((language) => language.code === code) || LANGUAGES[0];
       }
 
-      let stored = 'en';
-
-      try {
-        stored = window.localStorage.getItem(STORAGE_KEY) || 'en';
-      } catch (error) {
-        stored = 'en';
+      function translate(language, key) {
+        return (TRANSLATIONS[language] && TRANSLATIONS[language][key]) || TRANSLATIONS.en[key] || key;
       }
 
-      const current = resolveLanguage(stored);
-      const flag = document.getElementById('current-language-flag');
-      const label = document.getElementById('current-language-label');
-      const link = document.getElementById('current-language-link');
-
-      document.documentElement.lang = current.code;
-      document.documentElement.dir = current.code === 'ar' ? 'rtl' : 'ltr';
-
-      if (flag) {
-        flag.textContent = current.flag;
+      function getStoredLanguage() {
+        try {
+          const stored = window.localStorage.getItem(STORAGE_KEY);
+          return getLanguageOption(stored || DEFAULT_LANGUAGE).code;
+        } catch (error) {
+          return DEFAULT_LANGUAGE;
+        }
       }
 
-      if (label) {
-        label.textContent = current.native;
+      function setStoredLanguage(code) {
+        try {
+          window.localStorage.setItem(STORAGE_KEY, code);
+        } catch (error) {
+          return;
+        }
       }
 
-      if (link) {
-        link.setAttribute('aria-label', 'Open language selection page. Current language: ' + current.english + '.');
+      function updateLanguageToggle(language) {
+        const option = getLanguageOption(language);
+        const flag = document.getElementById('current-language-flag');
+        const label = document.getElementById('current-language-label');
+        const toggle = document.getElementById('current-language-toggle');
+
+        if (flag) {
+          flag.textContent = option.flag;
+        }
+
+        if (label) {
+          label.textContent = option.native;
+        }
+
+        if (toggle) {
+          toggle.setAttribute('aria-label', option.english + ' language selector');
+        }
       }
+
+      function setLanguageMenuOpen(isOpen) {
+        const selector = document.getElementById('language-selector');
+        const toggle = document.getElementById('current-language-toggle');
+        const menu = document.getElementById('header-language-menu');
+
+        if (!selector || !toggle || !menu) {
+          return;
+        }
+
+        selector.classList.toggle('is-open', isOpen);
+        toggle.setAttribute('aria-expanded', String(isOpen));
+        menu.hidden = !isOpen;
+      }
+
+      function renderHeaderLanguageOptions(language) {
+        const container = document.getElementById('header-language-options');
+        if (!container) {
+          return;
+        }
+
+        container.innerHTML = '';
+
+        LANGUAGES.forEach((option) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = option.code === language ? 'language-option is-current' : 'language-option';
+          button.setAttribute('role', 'option');
+          button.setAttribute('aria-selected', String(option.code === language));
+
+          const flag = document.createElement('span');
+          flag.className = 'language-option__flag';
+          flag.setAttribute('aria-hidden', 'true');
+          flag.textContent = option.flag;
+
+          const label = document.createElement('span');
+          label.className = 'language-option__label';
+          label.textContent = option.native;
+
+          button.append(flag, label);
+          button.addEventListener('click', () => {
+            setStoredLanguage(option.code);
+            applyLanguage(option.code);
+            setLanguageMenuOpen(false);
+          });
+
+          container.appendChild(button);
+        });
+      }
+
+      function applyLanguage(language) {
+        const resolved = getLanguageOption(language).code;
+        document.documentElement.lang = resolved;
+        document.documentElement.dir = RTL_LANGUAGES.has(resolved) ? 'rtl' : 'ltr';
+
+        document.querySelectorAll('[data-i18n]').forEach((element) => {
+          element.textContent = translate(resolved, element.dataset.i18n);
+        });
+
+        document.title = translate(resolved, 'site.pageTitle');
+
+        const metaDescription = document.getElementById('page-description');
+        if (metaDescription) {
+          metaDescription.setAttribute('content', translate(resolved, 'site.metaDescription'));
+        }
+
+        updateLanguageToggle(resolved);
+        renderHeaderLanguageOptions(resolved);
+      }
+
+      function wireLanguageMenu() {
+        const selector = document.getElementById('language-selector');
+        const toggle = document.getElementById('current-language-toggle');
+
+        if (!selector || !toggle) {
+          return;
+        }
+
+        toggle.addEventListener('click', () => {
+          const shouldOpen = toggle.getAttribute('aria-expanded') !== 'true';
+          setLanguageMenuOpen(shouldOpen);
+        });
+
+        document.addEventListener('click', (event) => {
+          if (!selector.contains(event.target)) {
+            setLanguageMenuOpen(false);
+          }
+        });
+
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') {
+            setLanguageMenuOpen(false);
+            toggle.focus();
+          }
+        });
+      }
+
+      wireLanguageMenu();
+      applyLanguage(getStoredLanguage());
+      setLanguageMenuOpen(false);
     })();
   </script>
 </body>
