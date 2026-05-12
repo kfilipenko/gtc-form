@@ -63,8 +63,10 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 ## Onboarding
 
 - Public seafarer acceptance flow lives at public/onboarding/seafarer-registration/index.html.
-- The page currently stores acceptance data locally in the browser and does not mutate shared auth state.
+- The page now reuses the shared public language runtime and respects the global crewportglobal.language state.
+- The page stores the acceptance draft locally in the browser and does not mutate shared auth state.
 - Required no-fee, data-accuracy and Trust Center acknowledgements are captured as real checkbox controls before later identity workstreams are introduced.
+- The current frontend-only route ends at pending_human_review as a local UI state and keeps backend, database writes, auth, payments and OpenClaw configuration out of scope.
 
 ## Isolated database planning
 

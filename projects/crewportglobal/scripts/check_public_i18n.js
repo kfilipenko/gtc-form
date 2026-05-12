@@ -8,7 +8,6 @@ const repoRoot = path.resolve(__dirname, '..', '..', '..');
 const publicRoot = path.join(repoRoot, 'projects', 'crewportglobal', 'public');
 const i18nRoot = path.join(repoRoot, 'projects', 'crewportglobal', 'i18n');
 const sharedRuntimePath = path.join(publicRoot, 'assets', 'crewportglobal-public-i18n.js');
-const homepagePath = path.join(publicRoot, 'index.html');
 
 function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
@@ -91,6 +90,16 @@ function evaluateObjectLiteral(literal) {
   return vm.runInNewContext(`(${literal})`, {}, { timeout: 1000 });
 }
 
+function mergeTranslations(target, source) {
+  for (const [language, entries] of Object.entries(source)) {
+    if (!entries || typeof entries !== 'object' || Array.isArray(entries)) {
+      continue;
+    }
+    target[language] = target[language] || {};
+    Object.assign(target[language], entries);
+  }
+}
+
 function collectHtmlFiles(rootDir) {
   const htmlFiles = [];
   const queue = [rootDir];
@@ -114,7 +123,7 @@ function collectHtmlFiles(rootDir) {
 
 function collectI18nKeys(htmlText) {
   const keys = new Set();
-  const regex = /data-i18n="([^"]+)"/g;
+  const regex = /data-i18n(?:-[a-z-]+)?="([^"]+)"/g;
   let match;
   while ((match = regex.exec(htmlText)) !== null) {
     keys.add(match[1]);
@@ -127,11 +136,25 @@ function toRelative(filePath) {
 }
 
 const sharedRuntime = readText(sharedRuntimePath);
-const homepageSource = readText(homepagePath);
-
 const chromeTranslations = evaluateObjectLiteral(extractObjectLiteral(sharedRuntime, 'const CHROME_TRANSLATIONS ='));
-const pageTranslations = evaluateObjectLiteral(extractObjectLiteral(homepageSource, 'window.CREWPORTGLOBAL_PAGE_TRANSLATIONS ='));
 const jsonCatalogs = loadJsonCatalogs(i18nRoot);
+const htmlFiles = collectHtmlFiles(publicRoot);
+const pageTranslations = {};
+const htmlSources = new Map();
+
+for (const filePath of htmlFiles) {
+  const htmlText = readText(filePath);
+  htmlSources.set(filePath, htmlText);
+
+  if (!htmlText.includes('window.CREWPORTGLOBAL_PAGE_TRANSLATIONS =')) {
+    continue;
+  }
+
+  mergeTranslations(
+    pageTranslations,
+    evaluateObjectLiteral(extractObjectLiteral(htmlText, 'window.CREWPORTGLOBAL_PAGE_TRANSLATIONS =')),
+  );
+}
 
 const englishCanonical = new Map();
 
@@ -147,12 +170,11 @@ for (const [key, value] of Object.entries(jsonCatalogs.en || {})) {
   englishCanonical.set(key, value);
 }
 
-const htmlFiles = collectHtmlFiles(publicRoot);
 const missingEnglish = [];
 const usage = new Map();
 
 for (const filePath of htmlFiles) {
-  const htmlText = readText(filePath);
+  const htmlText = htmlSources.get(filePath) || '';
   for (const key of collectI18nKeys(htmlText)) {
     if (!usage.has(key)) {
       usage.set(key, []);

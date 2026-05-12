@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CrewPortGlobal | Seafarer Onboarding Acceptance</title>
-  <meta name="description" content="Record CrewPortGlobal seafarer onboarding acceptance under an explicit no-fee and document-consent flow.">
+  <meta id="page-description" name="description" content="Record CrewPortGlobal seafarer onboarding acceptance under an explicit no-fee and document-consent flow.">
   <link rel="canonical" href="https://crewportglobal.com/onboarding/seafarer-registration/">
   <link rel="stylesheet" href="../../assets/crewportglobal-docs.css">
   <style>
@@ -29,7 +29,8 @@
     .field,
     .info-list,
     .checklist,
-    .support-list {
+    .support-list,
+    .check-copy {
       display: grid;
       gap: 10px;
     }
@@ -60,7 +61,8 @@
     .field-hint,
     .status-message,
     .support-list,
-    .info-list {
+    .info-list,
+    .state-note {
       color: var(--muted-on-dark);
       line-height: 1.6;
     }
@@ -98,6 +100,10 @@
       margin-top: 4px;
     }
 
+    .check-copy strong {
+      font-size: 16px;
+    }
+
     .status-message {
       min-height: 24px;
       font-weight: 500;
@@ -117,7 +123,8 @@
 
     .support-card h2,
     .flow-form h2,
-    .hero-facts h2 {
+    .hero-facts h2,
+    .route-summary h2 {
       margin: 0;
       font-size: 28px;
       letter-spacing: -0.03em;
@@ -146,10 +153,65 @@
       margin-bottom: 6px;
     }
 
+    .route-summary {
+      display: grid;
+      gap: 16px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .route-summary > p,
+    .route-summary h2 {
+      margin: 0;
+    }
+
+    .state-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .state-card {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .state-card strong,
+    .state-card span,
+    .state-card p {
+      display: block;
+    }
+
+    .state-value {
+      margin-top: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--paper-strong);
+    }
+
+    .state-card.is-complete {
+      border-color: rgba(127, 231, 187, 0.36);
+      background: rgba(127, 231, 187, 0.08);
+    }
+
+    .state-card.is-active {
+      border-color: rgba(86, 210, 226, 0.34);
+      background: rgba(86, 210, 226, 0.07);
+    }
+
+    .state-card.is-pending {
+      border-color: rgba(255, 139, 61, 0.28);
+    }
+
     @media (max-width: 980px) {
       .flow-grid,
       .hero-fact-grid,
-      .field-grid {
+      .field-grid,
+      .state-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -162,50 +224,62 @@
         <span class="brand-mark">CPG</span>
         <span class="brand-copy">
           <strong>CrewPortGlobal</strong>
-          <span>Maritime documentation and matching platform</span>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
         </span>
       </a>
-      <a class="home-link" href="https://crewportglobal.com/">Overview</a>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
     </header>
 
     <nav class="site-nav" aria-label="Onboarding navigation">
-      <a class="nav-link" href="https://crewportglobal.com/for-seafarers/">For Seafarers</a>
-      <a class="nav-link" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/">Seafarer Agreement</a>
-      <a class="nav-link" href="https://crewportglobal.com/legal/no-recruitment-fees/">No Recruitment Fees</a>
-      <a class="nav-link" href="https://crewportglobal.com/legal/privacy/">Privacy</a>
-      <a class="nav-link" href="https://crewportglobal.com/legal/complaints/">Complaints</a>
+      <a class="nav-link" href="https://crewportglobal.com/for-seafarers/" data-i18n="nav.forSeafarers">For Seafarers</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/" data-i18n="nav.seafarerAgreement">Seafarer Agreement</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/no-recruitment-fees/" data-i18n="nav.noRecruitmentFees">No Recruitment Fees</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/privacy/" data-i18n="nav.privacy">Privacy</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/complaints/" data-i18n="nav.complaints">Complaints</a>
     </nav>
 
     <main class="doc-main">
       <section class="doc-hero card">
         <div>
-          <p class="eyebrow">Onboarding</p>
-          <h1>Seafarer onboarding acceptance with explicit controls.</h1>
-          <p class="lead">Record your no-fee and consent acknowledgements directly on the page while CrewPortGlobal keeps authentication as a separate later-stage workstream.</p>
-          <p class="trust-note">CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.</p>
+          <p class="eyebrow" data-i18n="reg.eyebrow">Onboarding</p>
+          <h1 data-i18n="reg.title">Seafarer onboarding acceptance with explicit controls.</h1>
+          <p class="lead" data-i18n="reg.lead">Record your no-fee and consent acknowledgements directly on the page while CrewPortGlobal keeps authentication as a separate later-stage workstream.</p>
+          <p class="trust-note" data-i18n="reg.trustNote">CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.</p>
         </div>
         <div class="hero-facts">
           <div>
-            <span class="meta-label">Primary focus</span>
-            <strong>Accepted onboarding before shared auth</strong>
+            <span class="meta-label" data-i18n="reg.primaryFocusLabel">Primary focus</span>
+            <strong data-i18n="reg.primaryFocusValue">Acceptance-first route to pending human review</strong>
           </div>
           <div class="hero-fact-grid">
             <div class="hero-fact">
-              <strong>No-fee baseline</strong>
-              <span>You do not pay to create a profile or enter the matching flow.</span>
+              <strong data-i18n="reg.factNoFeeTitle">No-fee baseline</strong>
+              <span data-i18n="reg.factNoFeeBody">You do not pay to create a profile or enter the matching flow.</span>
             </div>
             <div class="hero-fact">
-              <strong>Project-local onboarding</strong>
-              <span>Your acceptance draft is kept locally in this browser until a dedicated CrewPortGlobal identity flow is designed.</span>
+              <strong data-i18n="reg.factLocalTitle">Project-local onboarding</strong>
+              <span data-i18n="reg.factLocalBody">Your acceptance draft is kept locally in this browser until a dedicated CrewPortGlobal identity flow is designed.</span>
             </div>
             <div class="hero-fact">
-              <strong>Verification policy published</strong>
-              <span>The trust baseline is documented now, while account authentication remains intentionally deferred.</span>
+              <strong data-i18n="reg.factReviewTitle">Human-review handoff</strong>
+              <span data-i18n="reg.factReviewBody">This slice ends at pending human review and does not create shared authentication or account activation.</span>
             </div>
           </div>
           <div class="hero-actions">
-            <a class="button primary" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/">Review agreement</a>
-            <a class="button secondary" href="https://crewportglobal.com/legal/privacy/">Review privacy</a>
+            <a class="button primary" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/" data-i18n="reg.reviewAgreement">Review agreement</a>
+            <a class="button secondary" href="https://crewportglobal.com/legal/privacy/" data-i18n="reg.reviewPrivacy">Review privacy</a>
           </div>
         </div>
       </section>
@@ -213,45 +287,70 @@
       <section class="flow-grid">
         <article class="card flow-stack">
           <div>
-            <p class="eyebrow">Registration flow</p>
-            <h2>Save your onboarding acceptance draft</h2>
-            <p class="lead">The form below records your contact details and required acknowledgements locally in this browser. Shared authentication is not part of the Stage 1 public workflow.</p>
+            <p class="eyebrow" data-i18n="reg.formEyebrow">Registration flow</p>
+            <h2 data-i18n="reg.formTitle">Save your onboarding acceptance draft</h2>
+            <p class="lead" data-i18n="reg.formLead">The form below records your contact details and required acknowledgements locally in this browser. Shared authentication is not part of the Stage 1 public workflow.</p>
           </div>
+
+          <section class="route-summary" aria-live="polite">
+            <p class="eyebrow" data-i18n="reg.routeEyebrow">Route state</p>
+            <h2 data-i18n="reg.routeTitle">Acceptance-first progress</h2>
+            <p class="state-note" data-i18n="reg.routeLead">The UI keeps no-fee acknowledgement and consent dependency visible before the route can end in pending human review.</p>
+            <div class="state-grid">
+              <article id="draft-state-card" class="state-card is-pending">
+                <span class="meta-label" data-i18n="reg.routeDraftLabel">Draft intake</span>
+                <strong id="draft-state-value" class="state-value">Not started</strong>
+              </article>
+              <article id="no-fee-state-card" class="state-card is-pending">
+                <span class="meta-label" data-i18n="reg.routeNoFeeLabel">No-fee acknowledgement</span>
+                <strong id="no-fee-state-value" class="state-value">Pending</strong>
+              </article>
+              <article id="consent-state-card" class="state-card is-pending">
+                <span class="meta-label" data-i18n="reg.routeConsentLabel">Consent dependency</span>
+                <strong id="consent-state-value" class="state-value">Pending</strong>
+              </article>
+              <article id="route-final-card" class="state-card is-pending">
+                <span class="meta-label" data-i18n="reg.routeFinalLabel">Final route state</span>
+                <strong id="route-final-value" class="state-value">Not started</strong>
+              </article>
+            </div>
+            <p id="routeStateHint" class="state-note"></p>
+          </section>
 
           <form id="registrationForm" class="flow-form" novalidate>
             <div class="field-grid">
               <div class="field full">
-                <label for="fullName">Full name</label>
-                <input id="fullName" name="fullName" type="text" autocomplete="name" placeholder="As shown in your maritime documents">
-                <div class="field-hint">Stored locally in this browser to prefill later CrewPortGlobal onboarding steps.</div>
+                <label for="fullName" data-i18n="reg.nameLabel">Full name</label>
+                <input id="fullName" name="fullName" type="text" autocomplete="name" data-i18n-placeholder="reg.namePlaceholder" placeholder="As shown in your maritime documents">
+                <div class="field-hint" data-i18n="reg.nameHint">Stored locally in this browser to prefill later CrewPortGlobal onboarding steps.</div>
               </div>
 
               <div class="field full">
-                <label for="email">Email address</label>
-                <input id="email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="captain@example.com">
-                <div class="field-hint">Used as a contact reference for the acceptance draft only. No shared account is created on this page.</div>
+                <label for="email" data-i18n="reg.emailLabel">Email address</label>
+                <input id="email" name="email" type="email" autocomplete="email" inputmode="email" required data-i18n-placeholder="reg.emailPlaceholder" placeholder="captain@example.com">
+                <div class="field-hint" data-i18n="reg.emailHint">Used as a contact reference for the acceptance draft only. No shared account is created on this page.</div>
               </div>
             </div>
 
             <div class="flow-stack">
               <div>
-                <p class="eyebrow">Required acknowledgements</p>
+                <p class="eyebrow" data-i18n="reg.ackEyebrow">Required acknowledgements</p>
                 <div class="checklist">
                   <label class="check-item">
                     <input type="checkbox" name="ack_no_fee" required>
-                    <span><strong>No recruitment fees.</strong> I understand that CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.</span>
+                    <span class="check-copy"><strong data-i18n="reg.ackNoFeeTitle">No recruitment fees.</strong><span data-i18n="reg.ackNoFeeBody">I understand that CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.</span></span>
                   </label>
                   <label class="check-item">
                     <input type="checkbox" name="ack_optional_services" required>
-                    <span><strong>Optional services are separate.</strong> I understand that optional paid services, if ever offered, are not required for job access.</span>
+                    <span class="check-copy"><strong data-i18n="reg.ackOptionalTitle">Optional services are separate.</strong><span data-i18n="reg.ackOptionalBody">I understand that optional paid services, if ever offered, are not required for job access.</span></span>
                   </label>
                   <label class="check-item">
                     <input type="checkbox" name="ack_accuracy" required>
-                    <span><strong>Accuracy of data.</strong> I confirm that the information and documents I submit are accurate and belong to me.</span>
+                    <span class="check-copy"><strong data-i18n="reg.ackAccuracyTitle">Accuracy of data.</strong><span data-i18n="reg.ackAccuracyBody">I confirm that the information and documents I submit are accurate and belong to me.</span></span>
                   </label>
                   <label class="check-item">
                     <input type="checkbox" name="ack_privacy" required>
-                    <span><strong>Trust Center acceptance.</strong> I agree to the Seafarer Candidate Agreement, Privacy Policy and Complaint Handling Procedure.</span>
+                    <span class="check-copy"><strong data-i18n="reg.ackPrivacyTitle">Trust Center acceptance.</strong><span data-i18n="reg.ackPrivacyBody">I agree to the Seafarer Candidate Agreement, Privacy Policy and Complaint Handling Procedure.</span></span>
                   </label>
                 </div>
               </div>
@@ -259,8 +358,8 @@
               <p id="statusMessage" class="status-message" aria-live="polite"></p>
 
               <div class="actions-row">
-                <button id="submitButton" class="button primary" type="submit">Save acceptance draft</button>
-                <a class="button secondary" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/">Review legal baseline</a>
+                <button id="submitButton" class="button primary" type="submit" data-i18n="reg.submit">Save acceptance draft</button>
+                <a class="button secondary" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/" data-i18n="reg.reviewLegalBaseline">Review legal baseline</a>
               </div>
             </div>
           </form>
@@ -268,23 +367,29 @@
 
         <aside class="flow-stack">
           <section class="card support-card">
-            <p class="eyebrow">What happens next</p>
-            <h2>After submit</h2>
+            <p class="eyebrow" data-i18n="reg.nextEyebrow">What happens next</p>
+            <h2 data-i18n="reg.nextTitle">After submit</h2>
             <ul class="info-list">
-              <li>Your acceptance draft is saved locally in this browser.</li>
-              <li>You can review the legal and verification documents before any dedicated identity flow is introduced.</li>
-              <li>CrewPortGlobal authentication and workspace access will be added later as a separate project stage.</li>
+              <li data-i18n="reg.nextItem1">Your acceptance draft is saved locally in this browser.</li>
+              <li data-i18n="reg.nextItem2">You can review the legal and verification documents before any dedicated identity flow is introduced.</li>
+              <li data-i18n="reg.nextItem3">CrewPortGlobal authentication and workspace access will be added later as a separate project stage.</li>
             </ul>
           </section>
 
           <section class="card support-card">
-            <p class="eyebrow">Need help?</p>
-            <h2>Support and trust links</h2>
+            <p class="eyebrow" data-i18n="reg.helpEyebrow">Need help?</p>
+            <h2 data-i18n="reg.helpTitle">Support and trust links</h2>
             <ul class="support-list">
-              <li><a href="https://crewportglobal.com/legal/no-recruitment-fees/">No Recruitment Fees Policy</a></li>
-              <li><a href="https://crewportglobal.com/legal/privacy/">Privacy Policy</a></li>
-              <li><a href="https://crewportglobal.com/legal/complaints/">Complaint Handling Procedure</a></li>
+              <li><a href="https://crewportglobal.com/legal/no-recruitment-fees/" data-i18n="reg.supportNoFees">No Recruitment Fees Policy</a></li>
+              <li><a href="https://crewportglobal.com/legal/privacy/" data-i18n="reg.supportPrivacy">Privacy Policy</a></li>
+              <li><a href="https://crewportglobal.com/legal/complaints/" data-i18n="reg.supportComplaints">Complaint Handling Procedure</a></li>
             </ul>
+          </section>
+
+          <section class="card support-card">
+            <p class="eyebrow" data-i18n="reg.reviewBoundaryEyebrow">Review boundary</p>
+            <h2 data-i18n="reg.reviewBoundaryTitle">Human review remains required</h2>
+            <p class="state-note" data-i18n="reg.reviewBoundaryBody">Seafarer-facing acceptance copy remains under human-review control and may fall back to English until reviewed translations are approved.</p>
           </section>
         </aside>
       </section>
@@ -292,57 +397,313 @@
   </div>
 
   <script>
-    function setStatus(message, kind) {
-      const statusNode = document.getElementById('statusMessage');
-      statusNode.textContent = message;
-      statusNode.className = 'status-message' + (kind ? ' is-' + kind : '');
-    }
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'site.pageTitle': 'CrewPortGlobal | Seafarer Onboarding Acceptance',
+        'site.metaDescription': 'Record CrewPortGlobal seafarer onboarding acceptance under an explicit no-fee and document-consent flow.',
+        'reg.eyebrow': 'Onboarding',
+        'reg.title': 'Seafarer onboarding acceptance with explicit controls.',
+        'reg.lead': 'Record your no-fee and consent acknowledgements directly on the page while CrewPortGlobal keeps authentication as a separate later-stage workstream.',
+        'reg.trustNote': 'CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.',
+        'reg.primaryFocusLabel': 'Primary focus',
+        'reg.primaryFocusValue': 'Acceptance-first route to pending human review',
+        'reg.factNoFeeTitle': 'No-fee baseline',
+        'reg.factNoFeeBody': 'You do not pay to create a profile or enter the matching flow.',
+        'reg.factLocalTitle': 'Project-local onboarding',
+        'reg.factLocalBody': 'Your acceptance draft is kept locally in this browser until a dedicated CrewPortGlobal identity flow is designed.',
+        'reg.factReviewTitle': 'Human-review handoff',
+        'reg.factReviewBody': 'This slice ends at pending human review and does not create shared authentication or account activation.',
+        'reg.reviewAgreement': 'Review agreement',
+        'reg.reviewPrivacy': 'Review privacy',
+        'reg.formEyebrow': 'Registration flow',
+        'reg.formTitle': 'Save your onboarding acceptance draft',
+        'reg.formLead': 'The form below records your contact details and required acknowledgements locally in this browser. Shared authentication is not part of the Stage 1 public workflow.',
+        'reg.routeEyebrow': 'Route state',
+        'reg.routeTitle': 'Acceptance-first progress',
+        'reg.routeLead': 'The UI keeps no-fee acknowledgement and consent dependency visible before the route can end in pending human review.',
+        'reg.routeDraftLabel': 'Draft intake',
+        'reg.routeNoFeeLabel': 'No-fee acknowledgement',
+        'reg.routeConsentLabel': 'Consent dependency',
+        'reg.routeFinalLabel': 'Final route state',
+        'reg.nameLabel': 'Full name',
+        'reg.namePlaceholder': 'As shown in your maritime documents',
+        'reg.nameHint': 'Stored locally in this browser to prefill later CrewPortGlobal onboarding steps.',
+        'reg.emailLabel': 'Email address',
+        'reg.emailPlaceholder': 'captain@example.com',
+        'reg.emailHint': 'Used as a contact reference for the acceptance draft only. No shared account is created on this page.',
+        'reg.ackEyebrow': 'Required acknowledgements',
+        'reg.ackNoFeeTitle': 'No recruitment fees.',
+        'reg.ackNoFeeBody': 'I understand that CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.',
+        'reg.ackOptionalTitle': 'Optional services are separate.',
+        'reg.ackOptionalBody': 'I understand that optional paid services, if ever offered, are not required for job access.',
+        'reg.ackAccuracyTitle': 'Accuracy of data.',
+        'reg.ackAccuracyBody': 'I confirm that the information and documents I submit are accurate and belong to me.',
+        'reg.ackPrivacyTitle': 'Trust Center acceptance.',
+        'reg.ackPrivacyBody': 'I agree to the Seafarer Candidate Agreement, Privacy Policy and Complaint Handling Procedure.',
+        'reg.submit': 'Save acceptance draft',
+        'reg.submitSaving': 'Saving draft...',
+        'reg.reviewLegalBaseline': 'Review legal baseline',
+        'reg.nextEyebrow': 'What happens next',
+        'reg.nextTitle': 'After submit',
+        'reg.nextItem1': 'Your acceptance draft is saved locally in this browser.',
+        'reg.nextItem2': 'You can review the legal and verification documents before any dedicated identity flow is introduced.',
+        'reg.nextItem3': 'CrewPortGlobal authentication and workspace access will be added later as a separate project stage.',
+        'reg.helpEyebrow': 'Need help?',
+        'reg.helpTitle': 'Support and trust links',
+        'reg.supportNoFees': 'No Recruitment Fees Policy',
+        'reg.supportPrivacy': 'Privacy Policy',
+        'reg.supportComplaints': 'Complaint Handling Procedure',
+        'reg.reviewBoundaryEyebrow': 'Review boundary',
+        'reg.reviewBoundaryTitle': 'Human review remains required',
+        'reg.reviewBoundaryBody': 'Seafarer-facing acceptance copy remains under human-review control and may fall back to English until reviewed translations are approved.',
+        'reg.stateDraftNotStarted': 'Not started',
+        'reg.stateDraftStarted': 'Started',
+        'reg.statePending': 'Pending',
+        'reg.stateAcknowledged': 'Acknowledged',
+        'reg.stateSatisfied': 'Satisfied',
+        'reg.routeNotStarted': 'Not started',
+        'reg.routePendingConsent': 'Pending consent',
+        'reg.routePendingHumanReview': 'Pending human review',
+        'reg.routeStateHintNotStarted': 'The route remains at not_started until the draft intake begins in this browser.',
+        'reg.routeStateHintPendingConsent': 'Required no-fee and consent acknowledgements must be satisfied before the draft can be handed off to pending human review.',
+        'reg.routeStateHintPendingHumanReview': 'This acceptance-first slice ends at pending_human_review and keeps backend, auth and database writes out of scope.',
+        'reg.errorEmailRequired': 'Email is required.',
+        'reg.errorAcknowledgementsRequired': 'All required acknowledgements must be accepted before registration.',
+        'reg.successSaved': 'Acceptance draft saved in this browser with final UI state pending human review. Shared authentication will be introduced later as a separate CrewPortGlobal stage.',
+        'reg.errorSaveFailed': 'Saving the acceptance draft failed.'
+      }
+    };
+  </script>
+  <script src="../../assets/crewportglobal-public-i18n.js"></script>
+  <script>
+    (function () {
+      const STORAGE_KEY = 'crewportglobal_seafarer_acceptance';
+      const EMAIL_STORAGE_KEY = 'email';
+      const FULL_NAME_STORAGE_KEY = 'crewportglobal_full_name';
+      const REQUIRED_ACKNOWLEDGEMENTS = ['ack_no_fee', 'ack_optional_services', 'ack_accuracy', 'ack_privacy'];
+      const PAGE_TRANSLATIONS = window.CREWPORTGLOBAL_PAGE_TRANSLATIONS || {};
 
-    document.getElementById('registrationForm').addEventListener('submit', async (event) => {
-      event.preventDefault();
-      setStatus('', '');
-
+      const form = document.getElementById('registrationForm');
       const submitButton = document.getElementById('submitButton');
-      const fullName = document.getElementById('fullName').value.trim();
-      const email = document.getElementById('email').value.trim().toLowerCase();
-      const requiredChecks = Array.from(document.querySelectorAll('.check-item input[required]'));
+      const statusNode = document.getElementById('statusMessage');
+      const fullNameField = document.getElementById('fullName');
+      const emailField = document.getElementById('email');
 
-      if (!email) {
-        setStatus('Email is required.', 'error');
-        return;
-      }
-      if (requiredChecks.some((node) => !node.checked)) {
-        setStatus('All required acknowledgements must be accepted before registration.', 'error');
-        return;
+      let statusModel = { key: '', kind: '', suffix: '' };
+      let isSaving = false;
+
+      function getLanguage() {
+        return document.documentElement.lang || 'en';
       }
 
-      submitButton.disabled = true;
-      const originalLabel = submitButton.textContent;
-      submitButton.textContent = 'Saving draft...';
+      function translateKey(key) {
+        const language = getLanguage();
+        return (PAGE_TRANSLATIONS[language] && PAGE_TRANSLATIONS[language][key])
+          || (PAGE_TRANSLATIONS.en && PAGE_TRANSLATIONS.en[key])
+          || key;
+      }
 
-      try {
+      function getRequiredChecks() {
+        return Array.from(form.querySelectorAll('.check-item input[required]'));
+      }
+
+      function getAcknowledgements() {
+        return getRequiredChecks()
+          .filter((node) => node.checked)
+          .map((node) => node.name)
+          .sort();
+      }
+
+      function getSnapshot() {
+        return {
+          fullName: fullNameField.value.trim(),
+          email: emailField.value.trim().toLowerCase(),
+          acknowledgements: getAcknowledgements(),
+        };
+      }
+
+      function arraysEqual(left, right) {
+        if (left.length !== right.length) {
+          return false;
+        }
+
+        return left.every((value, index) => value === right[index]);
+      }
+
+      function readSavedDraft() {
         try {
-          localStorage.setItem('email', email);
-          if (fullName) {
-            localStorage.setItem('crewportglobal_full_name', fullName);
-          }
-          localStorage.setItem('crewportglobal_seafarer_acceptance', JSON.stringify({
-            acceptedAt: new Date().toISOString(),
-            email,
-            fullName,
-            acknowledgements: requiredChecks.map((node) => node.name)
-          }));
-        } catch (error) {}
-
-        setStatus('Acceptance draft saved in this browser. Shared authentication will be introduced later as a separate CrewPortGlobal stage.', 'success');
-        submitButton.disabled = false;
-        submitButton.textContent = originalLabel;
-      } catch (error) {
-        setStatus('Saving the acceptance draft failed: ' + error.message, 'error');
-        submitButton.disabled = false;
-        submitButton.textContent = originalLabel;
+          return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+        } catch (error) {
+          return null;
+        }
       }
-    });
+
+      function isSavedDraftCurrent(savedDraft, snapshot) {
+        if (!savedDraft || savedDraft.routeState !== 'pending_human_review') {
+          return false;
+        }
+
+        return (savedDraft.fullName || '') === snapshot.fullName
+          && (savedDraft.email || '') === snapshot.email
+          && arraysEqual((savedDraft.acknowledgements || []).slice().sort(), snapshot.acknowledgements);
+      }
+
+      function determineRouteState(snapshot) {
+        const savedDraft = readSavedDraft();
+        const hasStarted = Boolean(snapshot.fullName || snapshot.email || snapshot.acknowledgements.length > 0);
+
+        if (isSavedDraftCurrent(savedDraft, snapshot)) {
+          return 'pending_human_review';
+        }
+
+        if (!hasStarted) {
+          return 'not_started';
+        }
+
+        return 'pending_consent';
+      }
+
+      function setCardState(nodeId, stateClass) {
+        const node = document.getElementById(nodeId);
+        node.classList.remove('is-active', 'is-complete', 'is-pending');
+        node.classList.add(stateClass);
+      }
+
+      function renderSubmitButton() {
+        submitButton.textContent = translateKey(isSaving ? 'reg.submitSaving' : 'reg.submit');
+      }
+
+      function renderStatus() {
+        const suffix = statusModel.suffix ? ` ${statusModel.suffix}` : '';
+        statusNode.textContent = statusModel.key ? `${translateKey(statusModel.key)}${suffix}` : '';
+        statusNode.className = 'status-message' + (statusModel.kind ? ` is-${statusModel.kind}` : '');
+      }
+
+      function setStatus(key, kind, suffix) {
+        statusModel = { key, kind, suffix: suffix || '' };
+        renderStatus();
+      }
+
+      function updateStateView() {
+        const snapshot = getSnapshot();
+        const routeState = determineRouteState(snapshot);
+        const noFeeAccepted = snapshot.acknowledgements.includes('ack_no_fee') && snapshot.acknowledgements.includes('ack_optional_services');
+        const consentSatisfied = REQUIRED_ACKNOWLEDGEMENTS.every((key) => snapshot.acknowledgements.includes(key));
+        const draftStarted = Boolean(snapshot.fullName || snapshot.email || snapshot.acknowledgements.length > 0);
+
+        document.getElementById('draft-state-value').textContent = translateKey(draftStarted ? 'reg.stateDraftStarted' : 'reg.stateDraftNotStarted');
+        document.getElementById('no-fee-state-value').textContent = translateKey(noFeeAccepted ? 'reg.stateAcknowledged' : 'reg.statePending');
+        document.getElementById('consent-state-value').textContent = translateKey(consentSatisfied ? 'reg.stateSatisfied' : 'reg.statePending');
+
+        if (routeState === 'pending_human_review') {
+          document.getElementById('route-final-value').textContent = translateKey('reg.routePendingHumanReview');
+          document.getElementById('routeStateHint').textContent = translateKey('reg.routeStateHintPendingHumanReview');
+          setCardState('route-final-card', 'is-complete');
+        } else if (routeState === 'pending_consent') {
+          document.getElementById('route-final-value').textContent = translateKey('reg.routePendingConsent');
+          document.getElementById('routeStateHint').textContent = translateKey('reg.routeStateHintPendingConsent');
+          setCardState('route-final-card', 'is-active');
+        } else {
+          document.getElementById('route-final-value').textContent = translateKey('reg.routeNotStarted');
+          document.getElementById('routeStateHint').textContent = translateKey('reg.routeStateHintNotStarted');
+          setCardState('route-final-card', 'is-pending');
+        }
+
+        setCardState('draft-state-card', draftStarted ? 'is-active' : 'is-pending');
+        setCardState('no-fee-state-card', noFeeAccepted ? 'is-complete' : 'is-pending');
+        setCardState('consent-state-card', consentSatisfied ? 'is-complete' : 'is-pending');
+      }
+
+      function restoreDraft() {
+        const savedDraft = readSavedDraft();
+        const savedName = localStorage.getItem(FULL_NAME_STORAGE_KEY) || (savedDraft && savedDraft.fullName) || '';
+        const savedEmail = localStorage.getItem(EMAIL_STORAGE_KEY) || (savedDraft && savedDraft.email) || '';
+        const savedAcknowledgements = (savedDraft && savedDraft.acknowledgements) || [];
+
+        fullNameField.value = savedName;
+        emailField.value = savedEmail;
+
+        getRequiredChecks().forEach((node) => {
+          node.checked = savedAcknowledgements.includes(node.name);
+        });
+      }
+
+      function persistAcceptance(routeState) {
+        const snapshot = getSnapshot();
+
+        localStorage.setItem(EMAIL_STORAGE_KEY, snapshot.email);
+        if (snapshot.fullName) {
+          localStorage.setItem(FULL_NAME_STORAGE_KEY, snapshot.fullName);
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          acceptedAt: new Date().toISOString(),
+          email: snapshot.email,
+          fullName: snapshot.fullName,
+          acknowledgements: snapshot.acknowledgements,
+          routeState,
+        }));
+      }
+
+      function syncDynamicUi() {
+        renderSubmitButton();
+        renderStatus();
+        updateStateView();
+      }
+
+      function handleFormInteraction() {
+        if (statusModel.kind === 'success') {
+          setStatus('', '', '');
+        } else {
+          updateStateView();
+        }
+      }
+
+      restoreDraft();
+      syncDynamicUi();
+
+      form.addEventListener('input', handleFormInteraction);
+      form.addEventListener('change', handleFormInteraction);
+
+      window.addEventListener('crewportglobal:languagechange', () => {
+        syncDynamicUi();
+      });
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        setStatus('', '', '');
+
+        const snapshot = getSnapshot();
+        const acknowledgementsSatisfied = REQUIRED_ACKNOWLEDGEMENTS.every((key) => snapshot.acknowledgements.includes(key));
+
+        if (!snapshot.email) {
+          setStatus('reg.errorEmailRequired', 'error');
+          updateStateView();
+          return;
+        }
+
+        if (!acknowledgementsSatisfied) {
+          setStatus('reg.errorAcknowledgementsRequired', 'error');
+          updateStateView();
+          return;
+        }
+
+        isSaving = true;
+        submitButton.disabled = true;
+        renderSubmitButton();
+
+        try {
+          persistAcceptance('pending_human_review');
+          setStatus('reg.successSaved', 'success');
+        } catch (error) {
+          setStatus('reg.errorSaveFailed', 'error', error && error.message ? error.message : '');
+        } finally {
+          isSaving = false;
+          submitButton.disabled = false;
+          syncDynamicUi();
+        }
+      });
+    })();
   </script>
 </body>
 </html>

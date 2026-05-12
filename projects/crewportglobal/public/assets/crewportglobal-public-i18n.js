@@ -221,6 +221,20 @@
     });
   }
 
+  function applyAttributeTranslations(language) {
+    document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
+      element.setAttribute('placeholder', translate(language, element.dataset.i18nPlaceholder));
+    });
+
+    document.querySelectorAll('[data-i18n-title]').forEach((element) => {
+      element.setAttribute('title', translate(language, element.dataset.i18nTitle));
+    });
+
+    document.querySelectorAll('[data-i18n-aria-label]').forEach((element) => {
+      element.setAttribute('aria-label', translate(language, element.dataset.i18nAriaLabel));
+    });
+  }
+
   function applyPageMetadata(language) {
     const pageTitle = getTranslation(language, 'site.pageTitle');
     const pageDescription = getTranslation(language, 'site.metaDescription');
@@ -243,7 +257,11 @@
     updateLanguageToggle(resolved);
     renderHeaderLanguageOptions(resolved);
     applyChromeTranslations(resolved);
+    applyAttributeTranslations(resolved);
     applyPageMetadata(resolved);
+    window.dispatchEvent(new CustomEvent('crewportglobal:languagechange', {
+      detail: { language: resolved }
+    }));
   }
 
   function wireLanguageMenu() {

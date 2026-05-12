@@ -105,3 +105,38 @@ test('fallback language page remains accessible', async ({ page }) => {
   await page.goto('/language.html');
   await expect(page.locator('h1')).toContainText('Choose the display language');
 });
+
+test('onboarding page respects global language state and saves pending human review locally', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('crewportglobal.language', 'ru');
+    window.localStorage.removeItem('crewportglobal_seafarer_acceptance');
+    window.localStorage.removeItem('crewportglobal_full_name');
+    window.localStorage.removeItem('email');
+  });
+
+  await page.goto('/onboarding/seafarer-registration/index.html');
+
+  await expect(page.locator('#current-language-label')).toHaveText('Русский');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
+  await expect(page.locator('.site-nav')).toContainText('Для моряков');
+  await expect(page.locator('#route-final-value')).toHaveText('Not started');
+
+  await page.locator('#fullName').fill('Ivan Petrov');
+  await page.locator('#email').fill('ivan@example.com');
+  await page.locator('input[name="ack_no_fee"]').check();
+  await page.locator('input[name="ack_optional_services"]').check();
+  await page.locator('input[name="ack_accuracy"]').check();
+  await page.locator('input[name="ack_privacy"]').check();
+
+  await expect(page.locator('#consent-state-value')).toHaveText('Satisfied');
+  await expect(page.locator('#route-final-value')).toHaveText('Pending consent');
+
+  await page.locator('#submitButton').click();
+
+  await expect(page.locator('#route-final-value')).toHaveText('Pending human review');
+  await expect(page.locator('#statusMessage')).toContainText('pending human review');
+  await expect.poll(() => page.evaluate(() => {
+    const payload = JSON.parse(window.localStorage.getItem('crewportglobal_seafarer_acceptance') || '{}');
+    return payload.routeState;
+  })).toBe('pending_human_review');
+});
