@@ -1,21 +1,14 @@
--Crew--
+---
 category: Procedure
 nav_label: Complaints
 summary: Public complaint intake, expected evidence, priority handling and temporary contact channels.
 ---
-
 # CrewPortGlobal — Complaint Handling Procedure
 
 CrewPortGlobal takes complaints seriously and aims to provide a clear, fair and documented review process.
 
 ## You may submit a complaint about
 
-- recruitment or placement fee requests;
-- misleading or fraudulent job information;
-- document misuse or profile issues;
-- privacy or data protection concerns;
-- partner misconduct;
-- platform, billing or AI-related errors.
 
 ## Recommended complaint information
 

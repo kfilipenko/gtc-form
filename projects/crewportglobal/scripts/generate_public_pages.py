@@ -4,8 +4,17 @@ from pathlib import Path
 from typing import Final
 import re
 
-import markdown
-import yaml
+try:
+    import markdown
+    import yaml
+except ModuleNotFoundError as exc:
+    missing_module = exc.name or "required module"
+    raise SystemExit(
+        "Missing Python dependency: "
+        f"{missing_module}. Use the CrewPortGlobal generator wrapper "
+        "projects/crewportglobal/scripts/run_public_generator.sh or activate a virtualenv and install "
+        "projects/crewportglobal/requirements.txt before rebuilding public pages."
+    ) from exc
 
 
 SITE_ORIGIN: Final = "https://crewportglobal.com"

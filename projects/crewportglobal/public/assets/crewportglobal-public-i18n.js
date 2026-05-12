@@ -19,6 +19,8 @@
     { code: 'el', flag: '🇬🇷', english: 'Greek', native: 'Ελληνικά' }
   ];
 
+  const PAGE_TRANSLATIONS = window.CREWPORTGLOBAL_PAGE_TRANSLATIONS || {};
+
   const CHROME_TRANSLATIONS = {
     en: {
       'site.tagline': 'Maritime documentation and matching platform',
@@ -80,8 +82,15 @@
     return LANGUAGES.find((language) => language.code === code) || LANGUAGES[0];
   }
 
+  function getTranslation(language, key) {
+    return (PAGE_TRANSLATIONS[language] && PAGE_TRANSLATIONS[language][key])
+      || (CHROME_TRANSLATIONS[language] && CHROME_TRANSLATIONS[language][key])
+      || (PAGE_TRANSLATIONS.en && PAGE_TRANSLATIONS.en[key])
+      || (CHROME_TRANSLATIONS.en && CHROME_TRANSLATIONS.en[key]);
+  }
+
   function translate(language, key) {
-    return (CHROME_TRANSLATIONS[language] && CHROME_TRANSLATIONS[language][key]) || CHROME_TRANSLATIONS.en[key] || key;
+    return getTranslation(language, key) || key;
   }
 
   function getStoredLanguage() {
@@ -243,6 +252,20 @@
     });
   }
 
+  function applyPageMetadata(language) {
+    const pageTitle = getTranslation(language, 'site.pageTitle');
+    const pageDescription = getTranslation(language, 'site.metaDescription');
+    const metaDescription = document.getElementById('page-description');
+
+    if (pageTitle) {
+      document.title = pageTitle;
+    }
+
+    if (metaDescription && pageDescription) {
+      metaDescription.setAttribute('content', pageDescription);
+    }
+  }
+
   function applyGoogleTranslation(language, allowReload) {
     if (document.body.dataset.enablePublicTranslate !== 'true') {
       return Promise.resolve();
@@ -278,6 +301,7 @@
     updateLanguageToggle(resolved);
     renderHeaderLanguageOptions(resolved);
     applyChromeTranslations(resolved);
+    applyPageMetadata(resolved);
     return applyGoogleTranslation(resolved, allowReload);
   }
 
