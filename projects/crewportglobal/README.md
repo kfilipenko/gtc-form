@@ -49,6 +49,15 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - The current operational report is documented in docs/crewportglobal/61_translation_pipeline_implementation_report.md.
 - If the translation methodology changes, update both documents and the documentation register in the same slice.
 
+## Build-time draft translation skeleton
+
+- Seed build-time catalogs now live in projects/crewportglobal/i18n/.
+- projects/crewportglobal/i18n/en.json is the pilot canonical source for automatic draft-translation generation in the new build-time skeleton.
+- projects/crewportglobal/i18n/ru.json, pt.json and uk.json are seed target-language draft catalogs.
+- Example automation entrypoint: python projects/crewportglobal/scripts/update_translations.example.py --targets ru pt uk
+- The public website still consumes the shared browser runtime in public/assets/crewportglobal-public-i18n.js and page-local dictionaries in public/index.html; automatic emission from JSON catalogs into publish-time dictionaries remains a future integration step.
+- The validator now reads JSON catalogs from projects/crewportglobal/i18n/ when present in addition to the existing publish-time dictionaries.
+
 ## Onboarding
 
 - Public seafarer acceptance flow lives at public/onboarding/seafarer-registration/index.html.

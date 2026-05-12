@@ -6,11 +6,38 @@ const vm = require('vm');
 
 const repoRoot = path.resolve(__dirname, '..', '..', '..');
 const publicRoot = path.join(repoRoot, 'projects', 'crewportglobal', 'public');
+const i18nRoot = path.join(repoRoot, 'projects', 'crewportglobal', 'i18n');
 const sharedRuntimePath = path.join(publicRoot, 'assets', 'crewportglobal-public-i18n.js');
 const homepagePath = path.join(publicRoot, 'index.html');
 
 function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
+}
+
+function loadJsonCatalogs(rootDir) {
+  const catalogs = {};
+
+  if (!fs.existsSync(rootDir)) {
+    return catalogs;
+  }
+
+  for (const entry of fs.readdirSync(rootDir, { withFileTypes: true })) {
+    if (!entry.isFile() || !entry.name.endsWith('.json')) {
+      continue;
+    }
+
+    const fullPath = path.join(rootDir, entry.name);
+    const payload = JSON.parse(readText(fullPath));
+
+    if (!payload || Array.isArray(payload) || typeof payload !== 'object') {
+      throw new Error(`Invalid JSON catalog format: ${toRelative(fullPath)}`);
+    }
+
+    const code = path.basename(entry.name, '.json');
+    catalogs[code] = payload;
+  }
+
+  return catalogs;
 }
 
 function extractObjectLiteral(source, marker) {
@@ -104,6 +131,7 @@ const homepageSource = readText(homepagePath);
 
 const chromeTranslations = evaluateObjectLiteral(extractObjectLiteral(sharedRuntime, 'const CHROME_TRANSLATIONS ='));
 const pageTranslations = evaluateObjectLiteral(extractObjectLiteral(homepageSource, 'window.CREWPORTGLOBAL_PAGE_TRANSLATIONS ='));
+const jsonCatalogs = loadJsonCatalogs(i18nRoot);
 
 const englishCanonical = new Map();
 
@@ -112,6 +140,10 @@ for (const [key, value] of Object.entries(chromeTranslations.en || {})) {
 }
 
 for (const [key, value] of Object.entries(pageTranslations.en || {})) {
+  englishCanonical.set(key, value);
+}
+
+for (const [key, value] of Object.entries(jsonCatalogs.en || {})) {
   englishCanonical.set(key, value);
 }
 
@@ -135,6 +167,7 @@ for (const filePath of htmlFiles) {
 const languageCodes = new Set([
   ...Object.keys(chromeTranslations),
   ...Object.keys(pageTranslations),
+  ...Object.keys(jsonCatalogs),
 ]);
 languageCodes.delete('en');
 
@@ -144,7 +177,8 @@ for (const code of [...languageCodes].sort()) {
   const missingKeys = [];
   for (const key of usage.keys()) {
     const hasTranslation = (pageTranslations[code] && Object.prototype.hasOwnProperty.call(pageTranslations[code], key))
-      || (chromeTranslations[code] && Object.prototype.hasOwnProperty.call(chromeTranslations[code], key));
+      || (chromeTranslations[code] && Object.prototype.hasOwnProperty.call(chromeTranslations[code], key))
+      || (jsonCatalogs[code] && Object.prototype.hasOwnProperty.call(jsonCatalogs[code], key));
     if (!hasTranslation && englishCanonical.has(key)) {
       missingKeys.push(key);
     }
@@ -161,6 +195,11 @@ const reviewRequired = [
 ];
 
 console.log(`Checked ${htmlFiles.length} public HTML files and ${usage.size} unique i18n keys.`);
+
+const jsonCatalogCodes = Object.keys(jsonCatalogs).sort();
+if (jsonCatalogCodes.length > 0) {
+  console.log(`Loaded ${jsonCatalogCodes.length} build-time JSON catalog(s): ${jsonCatalogCodes.join(', ')}`);
+}
 
 if (missingEnglish.length > 0) {
   console.error('Missing English canonical translations:');

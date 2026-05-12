@@ -133,6 +133,7 @@ docs/crewportglobal/
   59_cpg_i1_language_selection_page_record.md
   60_translation_pipeline_rule.md
   61_translation_pipeline_implementation_report.md
+  62_build_time_translation_pipeline_plan.md
 ```
 
 ## 4. Priority order for drafting
@@ -218,6 +219,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.40 | 2026-05-12 | GTC IT / AI Assistant | Added document 62 for the approved build-time translation pipeline plan and skeleton, and aligned the methodology set with the new i18n catalog seed path under projects/crewportglobal/i18n/ |
 | 0.39 | 2026-05-12 | GTC IT / AI Assistant | Added document 61 as the operational implementation report for the current translation methodology and updated document 60 to act as the canonical website text-translation methodology record with mandatory synchronized updates on methodology changes |
 | 0.38 | 2026-05-12 | GTC IT / AI Assistant | Added document 60 to formalize the translation pipeline rule: English canonical source, shared runtime reuse, English fallback for missing non-English keys, rebuild through the public generator wrapper, and mandatory human review for legal, consent, no-fee and seafarer-facing publication text |
 | 0.37 | 2026-05-12 | GTC IT / AI Assistant | Updated document 59 to record the same-page header language accordion or dropdown as the primary selector flow, with browser-local dictionary switching and language.html retained only as fallback or reference |

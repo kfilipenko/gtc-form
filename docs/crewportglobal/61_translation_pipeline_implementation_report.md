@@ -23,6 +23,7 @@ The current website text-translation methodology is:
 4. Generated public pages are rebuilt from canonical Markdown through projects/crewportglobal/scripts/generate_public_pages.py and projects/crewportglobal/scripts/run_public_generator.sh.
 5. Missing non-English UI translations fall back to English.
 6. Legal, consent, no-fee and seafarer-facing text may use machine translation only as draft input and require human review before publication.
+7. An approved build-time draft translation skeleton now exists in projects/crewportglobal/i18n/ for seeded languages en, ru, pt and uk.
 
 ## 3. Implemented controls
 
@@ -32,6 +33,7 @@ The following controls are now in place:
 2. Reproducible rebuild wrapper for generated public pages.
 3. Public i18n coverage validator: node projects/crewportglobal/scripts/check_public_i18n.js.
 4. Focused browser regression for homepage, generated pages and fallback behavior.
+5. Seed build-time JSON catalogs and an example automation script for draft translation generation.
 
 ## 4. Validation results
 
@@ -49,6 +51,7 @@ Observed current-state result:
 3. Homepage and generated public pages share one runtime path.
 4. Live homepage keeps selector state in crewportglobal.language.
 5. Representative generated legal pages continue to translate through the shared runtime path.
+6. The validator now reads build-time JSON catalogs when they are present.
 
 ## 5. Publication and review boundary
 
@@ -85,4 +88,5 @@ This methodology slice did not require changes to:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.2 | 2026-05-12 | GTC IT / AI Assistant | Recorded the approved build-time translation skeleton under projects/crewportglobal/i18n and the validator extension that reads JSON catalogs when present |
 | 0.1 | 2026-05-12 | GTC IT / AI Assistant | Initial implementation report for the current public translation methodology, validation flow and maintenance rule |

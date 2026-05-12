@@ -24,6 +24,7 @@ The related operational report in docs/crewportglobal/61_translation_pipeline_im
 - English is the canonical source language for public UI and public document content.
 - Shared UI chrome translations are maintained in projects/crewportglobal/public/assets/crewportglobal-public-i18n.js.
 - Homepage-specific UI translations are maintained in projects/crewportglobal/public/index.html via window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.
+- The approved build-time draft translation skeleton is seeded in projects/crewportglobal/i18n/en.json and companion language JSON catalogs.
 - Generated public document HTML is rebuilt from canonical Markdown through projects/crewportglobal/scripts/generate_public_pages.py and projects/crewportglobal/scripts/run_public_generator.sh.
 
 ## 3. Text categories
@@ -69,12 +70,14 @@ Rule:
 - The shared runtime in projects/crewportglobal/public/assets/crewportglobal-public-i18n.js is the canonical browser-side translation runtime.
 - Homepage logic must reuse the shared runtime instead of maintaining a second selector or translation engine.
 - Missing non-English translations must fall back to the English canonical value rather than exposing raw key names.
-- External translation services may only be used as draft assistance and must not require frontend API keys.
+- External translation services may only be used as build-time draft assistance and must not require frontend API keys.
+- Browser-side code must consume prebuilt dictionaries only and must not call translation providers directly.
 
 ## 5. Rebuild rule
 
 After any canonical Markdown change or shared public translation change:
 
+1. Refresh build-time draft catalogs when the approved source strings change.
 1. Rebuild generated public pages with ./projects/crewportglobal/scripts/run_public_generator.sh.
 2. Validate i18n coverage with node projects/crewportglobal/scripts/check_public_i18n.js.
 3. Run focused regression checks for homepage and representative generated public pages.
@@ -96,6 +99,7 @@ The repository must enforce these minimum checks:
 
 - every referenced data-i18n key has an English canonical value;
 - homepage and generated public pages keep working with the shared runtime;
+- build-time JSON catalogs are read by validation when present;
 - missing non-English values fall back to English;
 - generated pages remain rebuildable through the standard wrapper script.
 
@@ -122,5 +126,6 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.3 | 2026-05-12 | GTC IT / AI Assistant | Added the approved build-time draft translation skeleton path under projects/crewportglobal/i18n, clarified that providers are build-time only, and extended validation expectations to include JSON catalogs when present |
 | 0.2 | 2026-05-12 | GTC IT / AI Assistant | Elevated this document to canonical methodology status, added the mandatory synchronized-update rule for methodology changes, and linked the implementation report as the companion operational record |
 | 0.1 | 2026-05-12 | GTC IT / AI Assistant | Initial translation pipeline rule covering English canonical source, shared runtime reuse, fallback behavior, rebuild workflow and human-review boundaries |
