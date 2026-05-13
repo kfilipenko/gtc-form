@@ -103,3 +103,42 @@ test('create profile prefill falls back to local draft when draft_id is missing'
   await expect(page.locator('#create-salary')).toHaveValue('5000.00');
   await expect(page.locator('#create-vessel-types')).toHaveValue('LNG, Tanker');
 });
+
+test('create profile shows needs correction status and latest correction note for existing draft', async ({ page, request }) => {
+  const unique = Date.now();
+  const email = `ui.correction.${unique}@example.com`;
+
+  const createResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Ivan Petrov',
+      rank: 'Third Officer',
+      department: 'deck',
+      availability_status: 'available_later',
+      availability_date: '2026-11-20',
+      contact_phone: '+971500001111',
+    },
+  });
+  expect(createResponse.ok()).toBeTruthy();
+  const created = (await createResponse.json()) as { draft_id: string };
+
+  const note = 'Missing certificate details and availability date.';
+  const correctionResponse = await request.patch(`/api/v1/operator/review-queue/${created.draft_id}/status`, {
+    data: {
+      decision: 'needs_correction',
+      note,
+    },
+  });
+  expect(correctionResponse.ok()).toBeTruthy();
+
+  await page.goto(`/create-profile/?draft_id=${created.draft_id}`);
+
+  await expect(page.locator('#create-review-status')).toContainText('Needs correction');
+  await expect(page.locator('#create-correction-note')).toContainText(note);
+
+  await expect(page.locator('#create-full-name')).toHaveValue('Ivan Petrov');
+  await expect(page.locator('#create-email')).toHaveValue(email);
+  await expect(page.locator('#create-rank')).toHaveValue('Third Officer');
+  await expect(page.locator('#create-department')).toHaveValue('deck');
+});

@@ -223,6 +223,8 @@
               <a class="button secondary" href="https://crewportglobal.com/onboarding/seafarer-registration/" data-i18n="create.form.nextCta">Continue to onboarding checklist</a>
             </div>
             <p id="create-status" class="status-note" data-i18n="create.form.status">This form saves your seafarer draft in backend and keeps your draft ID for the next steps.</p>
+            <p id="create-review-status" class="status-note" data-i18n="create.reviewStatus.currentUnknown">Review status: Not available yet.</p>
+            <p id="create-correction-note" class="status-note" hidden></p>
           </form>
         </article>
         <aside class="card status-card">
@@ -316,6 +318,13 @@
         'create.form.prefilled': 'Draft loaded. Form fields were prefilled from saved profile.',
         'create.form.prefilledLocal': 'Local draft loaded. Form fields were prefilled from your latest saved profile.',
         'create.form.loadError': 'Could not load draft details. You can continue editing and save again.',
+        'create.reviewStatus.current': 'Review status: {status}',
+        'create.reviewStatus.currentUnknown': 'Review status: Not available yet.',
+        'create.reviewStatus.submitted_for_human_review': 'Submitted for review',
+        'create.reviewStatus.in_review': 'Under review',
+        'create.reviewStatus.rejected': 'Needs correction',
+        'create.reviewStatus.approved': 'Reviewed',
+        'create.reviewStatus.correction': 'Correction requested: {note}',
         'create.side.review.title': 'Review status',
         'create.side.review.copy': 'Completed profiles are submitted for human review before wider candidate presentation. This page does not imply automatic approval or employment.',
         'create.side.fees.title': 'No recruitment fee',
@@ -382,6 +391,13 @@
         'create.form.prefilled': 'Черновик загружен. Поля формы заполнены из сохраненного профиля.',
         'create.form.prefilledLocal': 'Локальный черновик загружен. Поля формы заполнены из последнего сохраненного профиля.',
         'create.form.loadError': 'Не удалось загрузить детали черновика. Вы можете продолжить редактирование и сохранить снова.',
+        'create.reviewStatus.current': 'Статус проверки: {status}',
+        'create.reviewStatus.currentUnknown': 'Статус проверки: пока недоступен.',
+        'create.reviewStatus.submitted_for_human_review': 'Отправлено на проверку',
+        'create.reviewStatus.in_review': 'На проверке',
+        'create.reviewStatus.rejected': 'Нужна доработка',
+        'create.reviewStatus.approved': 'Проверено',
+        'create.reviewStatus.correction': 'Требуется исправление: {note}',
         'create.side.review.title': 'Статус проверки',
         'create.side.review.copy': 'Завершённые профили отправляются на ручную проверку до более широкого представления кандидата. Эта страница не обещает автоматическое одобрение или трудоустройство.',
         'create.side.fees.title': 'Без рекрутинговых сборов',
@@ -423,6 +439,8 @@
       const contactPhone = document.getElementById('create-phone');
       const salary = document.getElementById('create-salary');
       const vesselTypes = document.getElementById('create-vessel-types');
+      const reviewStatusLine = document.getElementById('create-review-status');
+      const correctionNoteLine = document.getElementById('create-correction-note');
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -432,6 +450,11 @@
       function t(key) {
         const lang = getLanguage();
         return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang][key] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key] || key;
+      }
+
+      function tFormat(key, values) {
+        const raw = t(key);
+        return Object.entries(values || {}).reduce((acc, entry) => acc.replace(`{${entry[0]}}`, String(entry[1])), raw);
       }
 
       function getDraftIdFromUrl() {
@@ -504,6 +527,52 @@
         vesselTypes.value = parsePreferredVesselTypes(profile.preferred_vessel_types);
       }
 
+      function mapReviewStatusLabel(reviewStatus) {
+        const normalized = typeof reviewStatus === 'string' ? reviewStatus.trim() : '';
+        const supported = [
+          'submitted_for_human_review',
+          'in_review',
+          'rejected',
+          'approved',
+        ];
+        if (!supported.includes(normalized)) {
+          return null;
+        }
+        return t(`create.reviewStatus.${normalized}`);
+      }
+
+      function renderReviewStatus(profile, operatorReview) {
+        const reviewStatus = profile && typeof profile.review_status === 'string'
+          ? profile.review_status.trim()
+          : '';
+        const statusLabel = mapReviewStatusLabel(reviewStatus);
+
+        reviewStatusLine.textContent = statusLabel
+          ? tFormat('create.reviewStatus.current', { status: statusLabel })
+          : t('create.reviewStatus.currentUnknown');
+
+        const decision = operatorReview && typeof operatorReview.decision === 'string'
+          ? operatorReview.decision.trim()
+          : '';
+        const newStatus = operatorReview && typeof operatorReview.new_status === 'string'
+          ? operatorReview.new_status.trim()
+          : '';
+        const reviewNote = operatorReview && typeof operatorReview.review_note === 'string'
+          ? operatorReview.review_note.trim()
+          : '';
+        const correctionVisible = reviewStatus === 'rejected'
+          && reviewNote !== ''
+          && (decision === 'needs_correction' || newStatus === 'rejected');
+
+        if (correctionVisible) {
+          correctionNoteLine.hidden = false;
+          correctionNoteLine.textContent = tFormat('create.reviewStatus.correction', { note: reviewNote });
+        } else {
+          correctionNoteLine.hidden = true;
+          correctionNoteLine.textContent = '';
+        }
+      }
+
       async function prefillFromDraftIfPresent() {
         const draftId = getDraftIdFromUrl();
         if (!draftId) {
@@ -516,6 +585,12 @@
 
           if (localProfile && typeof localProfile === 'object') {
             fillSeafarerProfile(localProfile);
+            const localOperatorReview = storedDraft
+              && storedDraft.lastResponse
+              && storedDraft.lastResponse.payload
+              ? storedDraft.lastResponse.payload.operator_review
+              : null;
+            renderReviewStatus(localProfile, localOperatorReview || null);
             status.textContent = t('create.form.prefilledLocal');
             return;
           }
@@ -527,8 +602,12 @@
               const fallbackProfile = fallbackResponse && fallbackResponse.payload
                 ? fallbackResponse.payload.seafarer_profile
                 : null;
+              const fallbackOperatorReview = fallbackResponse && fallbackResponse.payload
+                ? fallbackResponse.payload.operator_review
+                : null;
               if (fallbackProfile && typeof fallbackProfile === 'object') {
                 fillSeafarerProfile(fallbackProfile);
+                renderReviewStatus(fallbackProfile, fallbackOperatorReview || null);
                 status.textContent = t('create.form.prefilledLocal');
               }
             } catch (error) {
@@ -543,7 +622,9 @@
         try {
           const response = await window.CPGDrafts.getDraft(draftId);
           const profile = response && response.payload ? response.payload.seafarer_profile : null;
+          const operatorReview = response && response.payload ? response.payload.operator_review : null;
           fillSeafarerProfile(profile || {});
+          renderReviewStatus(profile || {}, operatorReview || null);
           status.textContent = t('create.form.prefilled');
         } catch (error) {
           status.textContent = t('create.form.loadError');
@@ -555,6 +636,13 @@
       if (stored.email) {
         email.value = stored.email;
       }
+      const localInitialProfile = stored && stored.lastResponse && stored.lastResponse.payload
+        ? stored.lastResponse.payload.seafarer_profile
+        : null;
+      const localInitialReview = stored && stored.lastResponse && stored.lastResponse.payload
+        ? stored.lastResponse.payload.operator_review
+        : null;
+      renderReviewStatus(localInitialProfile || {}, localInitialReview || null);
 
       prefillFromDraftIfPresent();
 
@@ -597,6 +685,9 @@
           });
 
           status.textContent = t('create.form.saved');
+          const responseProfile = response && response.payload ? response.payload.seafarer_profile : null;
+          const responseOperatorReview = response && response.payload ? response.payload.operator_review : null;
+          renderReviewStatus(responseProfile || {}, responseOperatorReview || null);
           window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
           window.history.replaceState(null, '', `?draft_id=${encodeURIComponent(response.draft_id)}`);
         } catch (error) {
