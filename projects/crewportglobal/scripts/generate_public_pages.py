@@ -22,6 +22,7 @@ PROJECT_ROOT: Final = Path(__file__).resolve().parent.parent
 PUBLIC_ROOT: Final = PROJECT_ROOT / "public"
 CSS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-docs.css"
 I18N_JS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-public-i18n.js"
+FAVICON_LINKS: Final = """  <link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/favicon-32x32.png\">\n  <link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/favicon-16x16.png\">\n  <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/apple-touch-icon.png\">\n  <link rel=\"shortcut icon\" href=\"/favicon.ico\">"""
 
 NAV_TRANSLATION_KEYS: Final = {
     "about": "nav.projectScope",
@@ -312,6 +313,7 @@ def render_page(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
   <title>{title_suffix}</title>
     <meta name="description" content="{intro}">
   <link rel="canonical" href="{slug_to_clean_url(doc['slug'])}">
+{FAVICON_LINKS}
   <link rel="stylesheet" href="{stylesheet_href}">
     <script src="{script_href}" defer></script>
 </head>
