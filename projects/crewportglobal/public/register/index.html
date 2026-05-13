@@ -159,7 +159,7 @@
         <article class="card register-card">
           <p class="eyebrow" data-i18n="register.hero.eyebrow">Login / Register</p>
           <h1 data-i18n="register.hero.title">Choose your role and continue to the right workflow.</h1>
-          <p class="lead-copy" data-i18n="register.hero.copy">Select the right path for seafarers, employers and crewing managers, save your draft locally and continue to the next page.</p>
+          <p class="lead-copy" data-i18n="register.hero.copy">Select the right path, submit your contact details, create a backend draft and continue into the correct workflow.</p>
           <section class="role-grid" id="role-grid">
             <button class="role-card is-selected" type="button" data-role="seafarer">
               <strong data-i18n="register.role.seafarer.title">Seafarer</strong>
@@ -170,11 +170,19 @@
               </ul>
             </button>
             <button class="role-card" type="button" data-role="employer">
-              <strong data-i18n="register.role.employer.title">Employer / Shipowner</strong>
+              <strong data-i18n="register.role.employer.title">Employer</strong>
               <ul class="option-list">
                 <li data-i18n="register.role.employer.item1">Register company</li>
                 <li data-i18n="register.role.employer.item2">Post vacancy</li>
                 <li data-i18n="register.role.employer.item3">Review prepared profiles later</li>
+              </ul>
+            </button>
+            <button class="role-card" type="button" data-role="shipowner">
+              <strong data-i18n="register.role.shipowner.title">Shipowner</strong>
+              <ul class="option-list">
+                <li data-i18n="register.role.shipowner.item1">Register shipowner company</li>
+                <li data-i18n="register.role.shipowner.item2">Add vessel and vacancy context</li>
+                <li data-i18n="register.role.shipowner.item3">Continue to employer workflow</li>
               </ul>
             </button>
             <button class="role-card" type="button" data-role="crewing-manager">
@@ -193,12 +201,8 @@
               <input id="email" type="email" placeholder="name@company.com or seafarer email" data-i18n-placeholder="register.form.email.placeholder" required>
             </label>
             <label class="field-card">
-              <strong data-i18n="register.form.password">Password</strong>
-              <input id="password" type="password" placeholder="Create a password for this preview" data-i18n-placeholder="register.form.password.placeholder" required>
-            </label>
-            <label class="field-card full">
-              <strong data-i18n="register.form.method">Current access method</strong>
-              <input type="text" placeholder="Email and password in the current preview" data-i18n-placeholder="register.form.method.placeholder" readonly>
+              <strong data-i18n="register.form.fullName">Full name / contact name</strong>
+              <input id="full-name" type="text" placeholder="Alex Marinov" data-i18n-placeholder="register.form.fullName.placeholder" required>
             </label>
             <div class="field-card full">
               <strong data-i18n="register.form.consent.title">Terms and consent</strong>
@@ -226,7 +230,7 @@
         <aside class="card side-card">
           <div class="status-box">
             <strong data-i18n="register.side.preview.title">Current preview</strong>
-            <p data-i18n="register.side.preview.copy">This page already stores registration drafts in the backend while shared login sessions remain outside this stage.</p>
+            <p data-i18n="register.side.preview.copy">This page creates registration drafts in backend and routes users into the correct role workflow. Shared login sessions remain outside this stage.</p>
           </div>
           <div class="status-box">
             <strong data-i18n="register.side.purpose.title">What this page is for</strong>
@@ -241,64 +245,68 @@
       en: {
         'register.hero.eyebrow': 'Login / Register',
         'register.hero.title': 'Choose your role and continue to the right workflow.',
-        'register.hero.copy': 'Select the right path for seafarers, employers and crewing managers, save your draft locally and continue to the next page.',
+        'register.hero.copy': 'Select the right path, submit your contact details, create a backend draft and continue into the correct workflow.',
         'register.role.seafarer.title': 'Seafarer',
         'register.role.seafarer.item1': 'Create online CV',
         'register.role.seafarer.item2': 'Add document metadata',
         'register.role.seafarer.item3': 'Prepare for human review',
-        'register.role.employer.title': 'Employer / Shipowner',
+        'register.role.employer.title': 'Employer',
         'register.role.employer.item1': 'Register company',
         'register.role.employer.item2': 'Post vacancy',
         'register.role.employer.item3': 'Review prepared profiles later',
+        'register.role.shipowner.title': 'Shipowner',
+        'register.role.shipowner.item1': 'Register shipowner company',
+        'register.role.shipowner.item2': 'Add vessel and vacancy context',
+        'register.role.shipowner.item3': 'Continue to employer workflow',
         'register.role.manager.title': 'Crewing Manager',
         'register.role.manager.item1': 'Coordinate vacancy intake',
         'register.role.manager.item2': 'Manage employer-side workflow',
         'register.role.manager.item3': 'Work inside the reviewed process',
         'register.form.email': 'Email',
         'register.form.email.placeholder': 'name@company.com or seafarer email',
-        'register.form.password': 'Password',
-        'register.form.password.placeholder': 'Create a password for this preview',
-        'register.form.method': 'Current access method',
-        'register.form.method.placeholder': 'Email and password in the current preview',
+        'register.form.fullName': 'Full name / contact name',
+        'register.form.fullName.placeholder': 'Alex Marinov',
         'register.form.consent.title': 'Terms and consent',
         'register.form.consent.item1': 'I accept the terms, privacy and no-fee access rules shown on the public site.',
         'register.form.consent.item2': 'I understand that approval, verification and employment are not automatic outcomes.',
         'register.form.howItWorks': 'How It Works',
         'register.form.status': 'This form creates or updates your registration draft in the backend and forwards you to the next page.',
         'register.side.preview.title': 'Current preview',
-        'register.side.preview.copy': 'This page already stores registration drafts in the backend while shared login sessions remain outside this stage.',
+        'register.side.preview.copy': 'This page creates registration drafts in backend and routes users into the correct role workflow. Shared login sessions remain outside this stage.',
         'register.side.purpose.title': 'What this page is for',
         'register.side.purpose.copy': 'It makes role choice and consent clear early so seafarers and employers can move into the right workflow quickly.'
       },
       ru: {
         'register.hero.eyebrow': 'Вход / Регистрация',
         'register.hero.title': 'Выберите роль и перейдите в нужный сценарий.',
-        'register.hero.copy': 'Выберите правильный путь для моряка, работодателя или crewing manager, сохраните черновик локально и перейдите к следующей странице.',
+        'register.hero.copy': 'Выберите правильный путь, укажите контактные данные, создайте backend-черновик и перейдите в соответствующий workflow.',
         'register.role.seafarer.title': 'Моряк',
         'register.role.seafarer.item1': 'Создать онлайн-CV',
         'register.role.seafarer.item2': 'Добавить метаданные документов',
         'register.role.seafarer.item3': 'Подготовить к ручной проверке',
-        'register.role.employer.title': 'Работодатель / Судовладелец',
+        'register.role.employer.title': 'Работодатель',
         'register.role.employer.item1': 'Зарегистрировать компанию',
         'register.role.employer.item2': 'Подготовить вакансию',
         'register.role.employer.item3': 'Позже просматривать подготовленные профили',
+        'register.role.shipowner.title': 'Судовладелец',
+        'register.role.shipowner.item1': 'Зарегистрировать компанию судовладельца',
+        'register.role.shipowner.item2': 'Добавить контекст судна и вакансии',
+        'register.role.shipowner.item3': 'Перейти в workflow работодателя',
         'register.role.manager.title': 'Crewing Manager',
         'register.role.manager.item1': 'Координировать приём вакансий',
         'register.role.manager.item2': 'Вести процесс со стороны работодателя',
         'register.role.manager.item3': 'Работать внутри проверяемого процесса',
         'register.form.email': 'Email',
         'register.form.email.placeholder': 'name@company.com или email моряка',
-        'register.form.password': 'Пароль',
-        'register.form.password.placeholder': 'Создайте пароль для этого превью',
-        'register.form.method': 'Текущий способ доступа',
-        'register.form.method.placeholder': 'Email и пароль в текущем превью',
+        'register.form.fullName': 'Полное имя / контактное лицо',
+        'register.form.fullName.placeholder': 'Алекс Маринов',
         'register.form.consent.title': 'Условия и согласие',
         'register.form.consent.item1': 'Я принимаю условия, политику конфиденциальности и правило доступа без сборов, указанные на сайте.',
         'register.form.consent.item2': 'Я понимаю, что одобрение, проверка и трудоустройство не происходят автоматически.',
         'register.form.howItWorks': 'Как это работает',
         'register.form.status': 'Эта форма создаёт или обновляет черновик регистрации в backend и переводит вас на следующую страницу.',
         'register.side.preview.title': 'Текущее превью',
-        'register.side.preview.copy': 'Эта страница уже сохраняет черновики регистрации в backend, при этом общие login-сессии остаются вне текущего этапа.',
+        'register.side.preview.copy': 'Эта страница создаёт черновики регистрации в backend и направляет пользователя в нужный workflow по роли. Общие login-сессии остаются вне текущего этапа.',
         'register.side.purpose.title': 'Для чего эта страница',
         'register.side.purpose.copy': 'Она делает выбор роли и согласия понятными с самого начала, чтобы моряки и работодатели быстрее попадали в нужный сценарий.'
       }
@@ -318,8 +326,9 @@
         en: {
           seafarer: 'Continue as Seafarer',
           employer: 'Continue as Employer',
+          shipowner: 'Continue as Shipowner',
           'crewing-manager': 'Continue as Crewing Manager',
-          validation: 'Complete email, password and both consent checks before continuing.',
+          validation: 'Complete email, full name and both consent checks before continuing.',
           statusSubmitting: 'Saving registration draft...',
           statusSaved: 'Draft saved. Moving to the next page...',
           statusFailed: 'Draft could not be saved right now. Please try again.',
@@ -329,8 +338,9 @@
         ru: {
           seafarer: 'Продолжить как моряк',
           employer: 'Продолжить как работодатель',
+          shipowner: 'Продолжить как судовладелец',
           'crewing-manager': 'Продолжить как crewing manager',
-          validation: 'Заполните email, пароль и отметьте оба согласия перед продолжением.',
+          validation: 'Заполните email, полное имя и отметьте оба согласия перед продолжением.',
           statusSubmitting: 'Сохраняем черновик регистрации...',
           statusSaved: 'Черновик сохранён. Переходим к следующей странице...',
           statusFailed: 'Не удалось сохранить черновик. Попробуйте ещё раз.',
@@ -372,12 +382,12 @@
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
         const email = document.getElementById('email');
-        const password = document.getElementById('password');
+        const fullName = document.getElementById('full-name');
         const terms = document.getElementById('terms');
         const consent = document.getElementById('consent');
         const language = resolveLanguage();
 
-        if (!email.value.trim() || !password.value.trim() || !terms.checked || !consent.checked) {
+        if (!email.value.trim() || !fullName.value.trim() || !terms.checked || !consent.checked) {
           status.textContent = roleLabels[language].validation;
           status.dataset.messageOverride = 'true';
           return;
@@ -393,7 +403,8 @@
 
           const response = await window.CPGDrafts.createDraft({
             role: selectedRole,
-            email: email.value.trim()
+            email: email.value.trim(),
+            full_name: fullName.value.trim()
           });
 
           status.textContent = roleLabels[language].statusSaved;

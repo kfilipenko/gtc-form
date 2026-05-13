@@ -146,6 +146,8 @@ test('register page updates the primary CTA label for the selected role', async 
   await expect(page.locator('#continue-button')).toHaveText('Continue as Seafarer');
   await page.locator('[data-role="employer"]').click();
   await expect(page.locator('#continue-button')).toHaveText('Continue as Employer');
+  await page.locator('[data-role="shipowner"]').click();
+  await expect(page.locator('#continue-button')).toHaveText('Continue as Shipowner');
   await page.locator('[data-role="crewing-manager"]').click();
   await expect(page.locator('#continue-button')).toHaveText('Continue as Crewing Manager');
 });
