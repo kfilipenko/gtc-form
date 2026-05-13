@@ -237,32 +237,32 @@ function upsert_company_context(string $userId, string $role, array $body): arra
     if ($existingCompany !== null) {
         $companyId = (string) $existingCompany['company_id'];
         api_query(
-            'UPDATE crewportglobal.employer_companies
+            "UPDATE crewportglobal.employer_companies
              SET company_name = $2,
                  registration_number = COALESCE($3, registration_number),
                  country_code = COALESCE($4, country_code),
-                 company_type = CASE WHEN $5 = ''shipowner'' THEN ''shipowner''
-                                     WHEN $5 = ''crewing_manager'' THEN ''crewing_manager''
-                                     ELSE ''employer'' END,
+                 company_type = CASE WHEN $5 = 'shipowner' THEN 'shipowner'
+                                     WHEN $5 = 'crewing_manager' THEN 'crewing_manager'
+                                     ELSE 'employer' END,
                  updated_at = now()
-             WHERE company_id = $1',
+             WHERE company_id = $1",
             [$companyId, $companyName, $registrationNumber, $countryCode, $role]
         );
     } else {
         $insertResult = api_query(
-            'INSERT INTO crewportglobal.employer_companies (
+            "INSERT INTO crewportglobal.employer_companies (
                company_name, registration_number, country_code, company_type, verification_status, created_by_user_id
              ) VALUES (
                $1,
                $2,
                $3,
-               CASE WHEN $4 = ''shipowner'' THEN ''shipowner''
-                    WHEN $4 = ''crewing_manager'' THEN ''crewing_manager''
-                    ELSE ''employer'' END,
+               CASE WHEN $4 = 'shipowner' THEN 'shipowner'
+                    WHEN $4 = 'crewing_manager' THEN 'crewing_manager'
+                    ELSE 'employer' END,
                $5,
                $6
              )
-             RETURNING company_id',
+             RETURNING company_id",
             [$companyName, $registrationNumber, $countryCode, $role, 'unverified', $userId]
         );
         $insertRow = pg_fetch_assoc($insertResult);
@@ -292,6 +292,15 @@ function upsert_company_context(string $userId, string $role, array $body): arra
         $imo = isset($vesselBody['imo_number']) && is_string($vesselBody['imo_number'])
             ? trim($vesselBody['imo_number'])
             : null;
+        if ($imo !== null) {
+            // Accept both "IMO1234567" and "1234567" input forms.
+            $imo = strtoupper($imo);
+            $imo = preg_replace('/^IMO\s*/', '', $imo);
+            $imo = preg_replace('/\D+/', '', $imo ?? '');
+            if (!preg_match('/^\d{7}$/', $imo ?? '')) {
+                $imo = null;
+            }
+        }
 
         if ($vesselName !== null && $vesselName !== '') {
             $vesselInsert = api_query(
@@ -305,7 +314,7 @@ function upsert_company_context(string $userId, string $role, array $body): arra
                    vessel_type = EXCLUDED.vessel_type,
                    updated_at = now()
                  RETURNING vessel_id',
-                [$companyId, $vesselName, $vesselType, $imo !== '' ? $imo : null]
+                [$companyId, $vesselName, $vesselType, $imo]
             );
             $vesselRow = pg_fetch_assoc($vesselInsert);
             if (is_array($vesselRow)) {
