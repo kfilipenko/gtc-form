@@ -181,6 +181,50 @@ test('employer flow creates and updates company draft context', async ({ request
   expect(patchedCompany.role_in_company).toBe('owner');
 });
 
+test('operator review queue returns submitted seafarer and company drafts', async ({ request }) => {
+  const unique = Date.now();
+
+  const seafarerCreate = await request.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email: `api.queue.seafarer.${unique}@example.com`,
+      full_name: 'Queue Seafarer',
+      availability_status: 'available_now',
+    },
+  });
+  expect(seafarerCreate.status()).toBe(201);
+
+  const companyCreate = await request.post('/registration/drafts', {
+    data: {
+      role: 'employer',
+      email: `api.queue.employer.${unique}@example.com`,
+      full_name: 'Queue Employer',
+      company_name: 'Queue Marine LLC',
+      country_code: 'AE',
+    },
+  });
+  expect(companyCreate.status()).toBe(201);
+
+  const queueResponse = await request.get('/operator/review-queue');
+  expect(queueResponse.status()).toBe(200);
+
+  const queueBody = (await queueResponse.json()) as {
+    ok: boolean;
+    count: number;
+    queue: Array<Record<string, unknown>>;
+  };
+
+  expect(queueBody.ok).toBe(true);
+  expect(Array.isArray(queueBody.queue)).toBe(true);
+  expect(queueBody.count).toBeGreaterThan(0);
+
+  const hasSeafarer = queueBody.queue.some((item) => item.queue_type === 'seafarer_profile' && item.role === 'seafarer');
+  const hasCompany = queueBody.queue.some((item) => item.queue_type === 'company_verification' && item.role === 'employer');
+
+  expect(hasSeafarer).toBe(true);
+  expect(hasCompany).toBe(true);
+});
+
 test('invalid payloads are rejected with 4xx', async ({ request }) => {
   const noJson = await request.post('/registration/drafts', {
     headers: { 'Content-Type': 'text/plain' },

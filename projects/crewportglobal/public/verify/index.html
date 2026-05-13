@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Operator review queue</title>
+  <meta name="description" content="CrewPortGlobal operator queue for reviewing submitted registration drafts.">
+  <link rel="canonical" href="https://crewportglobal.com/verify/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../assets/crewportglobal-docs.css">
+  <style>
+    .queue-card { padding: 28px; }
+    .status-note { color: var(--muted-on-dark); }
+    .queue-table-wrap { overflow-x: auto; margin-top: 18px; }
+    .queue-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    .queue-table th, .queue-table td { border-bottom: 1px solid var(--line); padding: 10px 8px; text-align: left; color: var(--muted-on-dark); }
+    .queue-table th { color: var(--text-on-dark); font-weight: 600; }
+    .queue-type { font-size: 12px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; display: inline-block; }
+  </style>
+</head>
+<body class="doc-body">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="site-nav" aria-label="Verify navigation">
+      <a class="nav-link" href="https://crewportglobal.com/" data-i18n="nav.home">Home</a>
+      <a class="nav-link" href="https://crewportglobal.com/register/" data-i18n="nav.loginRegister">Login / Register</a>
+      <a class="nav-link is-active" href="https://crewportglobal.com/verify/" data-i18n="verify.nav.queue">Operator Queue</a>
+    </nav>
+
+    <main class="doc-main">
+      <section class="card queue-card">
+        <p class="eyebrow" data-i18n="verify.eyebrow">Operator review</p>
+        <h1 data-i18n="verify.title">Submitted Draft Queue</h1>
+        <p class="status-note" id="queue-status" data-i18n="verify.loading">Loading operator queue...</p>
+
+        <div class="queue-table-wrap">
+          <table class="queue-table" aria-label="Operator review queue table">
+            <thead>
+              <tr>
+                <th data-i18n="verify.col.type">Type</th>
+                <th data-i18n="verify.col.role">Role</th>
+                <th data-i18n="verify.col.email">Email</th>
+                <th data-i18n="verify.col.name">Name</th>
+                <th data-i18n="verify.col.status">Status</th>
+                <th data-i18n="verify.col.summary">Summary</th>
+                <th data-i18n="verify.col.updated">Updated</th>
+              </tr>
+            </thead>
+            <tbody id="queue-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'verify.nav.queue': 'Operator Queue',
+        'verify.eyebrow': 'Operator review',
+        'verify.title': 'Submitted Draft Queue',
+        'verify.loading': 'Loading operator queue...',
+        'verify.loaded': 'Queue loaded: {count} items',
+        'verify.empty': 'Queue is empty. No submitted drafts yet.',
+        'verify.error': 'Could not load queue. Please try again.',
+        'verify.col.type': 'Type',
+        'verify.col.role': 'Role',
+        'verify.col.email': 'Email',
+        'verify.col.name': 'Name',
+        'verify.col.status': 'Status',
+        'verify.col.summary': 'Summary',
+        'verify.col.updated': 'Updated'
+      },
+      ru: {
+        'verify.nav.queue': 'Очередь оператора',
+        'verify.eyebrow': 'Проверка оператором',
+        'verify.title': 'Очередь отправленных черновиков',
+        'verify.loading': 'Загружаем очередь оператора...',
+        'verify.loaded': 'Очередь загружена: {count} записей',
+        'verify.empty': 'Очередь пуста. Отправленных черновиков пока нет.',
+        'verify.error': 'Не удалось загрузить очередь. Попробуйте еще раз.',
+        'verify.col.type': 'Тип',
+        'verify.col.role': 'Роль',
+        'verify.col.email': 'Email',
+        'verify.col.name': 'Имя',
+        'verify.col.status': 'Статус',
+        'verify.col.summary': 'Сводка',
+        'verify.col.updated': 'Обновлен'
+      }
+    };
+  </script>
+  <script src="../assets/crewportglobal-public-i18n.js" defer></script>
+  <script>
+    (function () {
+      const status = document.getElementById('queue-status');
+      const body = document.getElementById('queue-body');
+
+      function getLanguage() {
+        const lang = document.documentElement.lang || 'en';
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang] ? lang : 'en';
+      }
+
+      function t(key, values) {
+        const lang = getLanguage();
+        const raw = window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang][key] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key] || key;
+        if (!values) {
+          return raw;
+        }
+        return Object.entries(values).reduce((acc, entry) => acc.replace(`{${entry[0]}}`, String(entry[1])), raw);
+      }
+
+      function summaryText(item) {
+        if (!item || typeof item !== 'object' || !item.summary || typeof item.summary !== 'object') {
+          return '-';
+        }
+        const chunks = [];
+        Object.keys(item.summary).forEach((key) => {
+          const value = item.summary[key];
+          if (value !== null && value !== undefined && String(value).trim() !== '') {
+            chunks.push(`${key}: ${value}`);
+          }
+        });
+        return chunks.length ? chunks.join(' | ') : '-';
+      }
+
+      function renderQueue(items) {
+        body.innerHTML = '';
+        if (!Array.isArray(items) || items.length === 0) {
+          status.textContent = t('verify.empty');
+          return;
+        }
+
+        items.forEach((item) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><span class="queue-type">${item.queue_type || '-'}</span></td>
+            <td>${item.role || '-'}</td>
+            <td>${item.email || '-'}</td>
+            <td>${item.full_name || '-'}</td>
+            <td>${item.status || '-'}</td>
+            <td>${summaryText(item)}</td>
+            <td>${item.updated_at || '-'}</td>
+          `;
+          body.appendChild(tr);
+        });
+
+        status.textContent = t('verify.loaded', { count: items.length });
+      }
+
+      async function loadQueue() {
+        status.textContent = t('verify.loading');
+        try {
+          const response = await fetch('/api/v1/operator/review-queue');
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || !payload || payload.ok !== true) {
+            throw new Error('queue_load_failed');
+          }
+          renderQueue(payload.queue || []);
+        } catch (error) {
+          status.textContent = t('verify.error');
+          console.error(error);
+        }
+      }
+
+      window.addEventListener('crewportglobal:languagechange', () => {
+        loadQueue();
+      });
+
+      loadQueue();
+    })();
+  </script>
+</body>
+</html>

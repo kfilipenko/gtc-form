@@ -566,6 +566,122 @@ function handle_patch_draft(string $draftId): void {
     }
 }
 
+function read_operator_review_queue(): array {
+    $items = [];
+
+    $seafarerResult = api_query(
+        "SELECT
+            sp.seafarer_profile_id AS queue_item_id,
+            sp.user_id AS draft_id,
+            u.email,
+            u.display_name,
+            sp.review_status AS queue_status,
+            sp.primary_rank,
+            sp.department,
+            sp.availability_status,
+            sp.availability_date,
+            sp.created_at,
+            sp.updated_at
+         FROM crewportglobal.seafarer_profiles sp
+         JOIN crewportglobal.users u ON u.user_id = sp.user_id
+         WHERE sp.review_status IN ('submitted_for_human_review', 'in_review')
+         ORDER BY sp.updated_at DESC, sp.created_at DESC
+         LIMIT 200"
+    );
+
+    while (($row = pg_fetch_assoc($seafarerResult)) !== false) {
+        $items[] = [
+            'queue_item_id' => $row['queue_item_id'],
+            'queue_type' => 'seafarer_profile',
+            'draft_id' => $row['draft_id'],
+            'role' => 'seafarer',
+            'email' => $row['email'],
+            'full_name' => $row['display_name'] ?? $row['email'],
+            'status' => $row['queue_status'],
+            'created_at' => $row['created_at'],
+            'updated_at' => $row['updated_at'],
+            'summary' => [
+                'primary_rank' => $row['primary_rank'],
+                'department' => $row['department'],
+                'availability_status' => $row['availability_status'],
+                'availability_date' => $row['availability_date'],
+            ],
+        ];
+    }
+
+    $companyResult = api_query(
+        "SELECT
+            ec.company_id AS queue_item_id,
+            cu.user_id AS draft_id,
+            COALESCE(ur.role, 'employer') AS role,
+            u.email,
+            u.display_name,
+            ec.verification_status AS queue_status,
+            ec.company_name,
+            ec.company_type,
+            ec.country_code,
+            cu.role_in_company,
+            ec.created_at,
+            ec.updated_at
+         FROM crewportglobal.employer_companies ec
+         JOIN LATERAL (
+             SELECT cu.user_id, cu.role_in_company
+             FROM crewportglobal.company_users cu
+             WHERE cu.company_id = ec.company_id
+             ORDER BY cu.is_primary_contact DESC, cu.created_at ASC
+             LIMIT 1
+         ) cu ON TRUE
+         JOIN crewportglobal.users u ON u.user_id = cu.user_id
+         LEFT JOIN LATERAL (
+             SELECT role
+             FROM crewportglobal.user_roles ur
+             WHERE ur.user_id = u.user_id
+             ORDER BY ur.created_at ASC
+             LIMIT 1
+         ) ur ON TRUE
+         WHERE ec.verification_status IN ('unverified', 'submitted')
+         ORDER BY ec.updated_at DESC, ec.created_at DESC
+         LIMIT 200"
+    );
+
+    while (($row = pg_fetch_assoc($companyResult)) !== false) {
+        $items[] = [
+            'queue_item_id' => $row['queue_item_id'],
+            'queue_type' => 'company_verification',
+            'draft_id' => $row['draft_id'],
+            'role' => $row['role'],
+            'email' => $row['email'],
+            'full_name' => $row['display_name'] ?? $row['email'],
+            'status' => $row['queue_status'],
+            'created_at' => $row['created_at'],
+            'updated_at' => $row['updated_at'],
+            'summary' => [
+                'company_name' => $row['company_name'],
+                'company_type' => $row['company_type'],
+                'country_code' => $row['country_code'],
+                'role_in_company' => $row['role_in_company'],
+            ],
+        ];
+    }
+
+    usort(
+        $items,
+        static fn(array $a, array $b): int => strcmp((string) ($b['updated_at'] ?? ''), (string) ($a['updated_at'] ?? ''))
+    );
+
+    return $items;
+}
+
+function handle_get_operator_review_queue(): void {
+    $queue = read_operator_review_queue();
+    api_json(200, [
+        'ok' => true,
+        'queue' => $queue,
+        'count' => count($queue),
+        'generated_at' => gmdate('c'),
+    ]);
+}
+
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = request_path();
 
@@ -583,6 +699,10 @@ if (preg_match('#^/registration/drafts/([^/]+)$#', $path, $matches) === 1) {
     }
     header('Allow: GET, PATCH');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET, PATCH');
+}
+
+if ($method === 'GET' && $path === '/operator/review-queue') {
+    handle_get_operator_review_queue();
 }
 
 if ($path === '/health' || $path === '/healthz') {
