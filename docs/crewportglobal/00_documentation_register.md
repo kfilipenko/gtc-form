@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.42
+- Version: 0.43
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -146,6 +146,7 @@ docs/crewportglobal/
   62_build_time_translation_pipeline_plan.md
   63_cpg_i1_013_favicon_publication_record.md
   64_product_site_structure_and_functional_requirements.md
+  65_cpg_ops_012_operator_workflow_state_implementation_report.md
 ```
 
 ### 3.3 Product governance control
@@ -254,6 +255,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.43 | 2026-05-13 | GTC IT / AI Assistant | Added document 65 as the CPG-OPS-012 implementation and verification report (operator workflow-state actions and audit trail with full API/UI test evidence) |
 | 0.42 | 2026-05-13 | GTC IT / AI Assistant | Added document 64 as the controlling product site-structure and functional-requirements baseline, aligned public path model to action-first flows, and recorded fixed service-first implementation order that must not replace issue #8 |
 | 0.41 | 2026-05-13 | GTC IT / AI Assistant | Added document 63 as the team-facing favicon publication record covering source asset, generated favicon outputs, live deploy tree sync and validation expectations |
 | 0.40 | 2026-05-12 | GTC IT / AI Assistant | Added document 62 for the approved build-time translation pipeline plan and skeleton, and aligned the methodology set with the new i18n catalog seed path under projects/crewportglobal/i18n/ |
