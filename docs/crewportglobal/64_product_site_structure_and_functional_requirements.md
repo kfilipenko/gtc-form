@@ -246,4 +246,15 @@ Execution order for this stage is fixed:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.2 | 2026-05-13 | GTC IT / AI Assistant | Added execution-status snapshot confirming step 3 implementation (Register/Create Profile/Post Vacancy forms connected to draft API) with browser-to-DB e2e verification |
 | 0.1 | 2026-05-13 | GTC IT / AI Assistant | Initial controlling product logic baseline for practical maritime platform structure, functional intent, DB-table binding and fixed service-first execution order |
+
+## 10. Current execution status snapshot
+
+Status at 2026-05-13 after verification:
+
+1. Step 1 completed: database foundation implemented.
+2. Step 2 completed: backend API for draft registration implemented.
+3. Step 3 completed: Register, Create Profile and Post Vacancy forms connected to backend draft endpoints.
+4. Step 3 verification completed: browser e2e submission confirmed DB writes in users, user_roles, seafarer_profiles, employer_companies, vessels and registration_audit_events.
+5. Remaining steps continue in the fixed order defined in section 6.

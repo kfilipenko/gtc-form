@@ -218,7 +218,7 @@
                 <button id="continue-button" class="button primary" type="submit">Continue as Seafarer</button>
                 <a class="button secondary" href="https://crewportglobal.com/how-it-works/" data-i18n="register.form.howItWorks">How It Works</a>
               </div>
-              <p id="register-status" class="status-note" data-i18n="register.form.status">This preview stores your selected role locally and forwards you to the next page. It does not create a live account yet.</p>
+              <p id="register-status" class="status-note" data-i18n="register.form.status">This form creates or updates your registration draft in the backend and forwards you to the next page.</p>
             </div>
           </form>
         </article>
@@ -226,7 +226,7 @@
         <aside class="card side-card">
           <div class="status-box">
             <strong data-i18n="register.side.preview.title">Current preview</strong>
-            <p data-i18n="register.side.preview.copy">Shared authentication, live sessions and backend registration are not available on this page yet.</p>
+            <p data-i18n="register.side.preview.copy">This page already stores registration drafts in the backend while shared login sessions remain outside this stage.</p>
           </div>
           <div class="status-box">
             <strong data-i18n="register.side.purpose.title">What this page is for</strong>
@@ -264,9 +264,9 @@
         'register.form.consent.item1': 'I accept the terms, privacy and no-fee access rules shown on the public site.',
         'register.form.consent.item2': 'I understand that approval, verification and employment are not automatic outcomes.',
         'register.form.howItWorks': 'How It Works',
-        'register.form.status': 'This preview stores your selected role locally and forwards you to the next page. It does not create a live account yet.',
+        'register.form.status': 'This form creates or updates your registration draft in the backend and forwards you to the next page.',
         'register.side.preview.title': 'Current preview',
-        'register.side.preview.copy': 'Shared authentication, live sessions and backend registration are not available on this page yet.',
+        'register.side.preview.copy': 'This page already stores registration drafts in the backend while shared login sessions remain outside this stage.',
         'register.side.purpose.title': 'What this page is for',
         'register.side.purpose.copy': 'It makes role choice and consent clear early so seafarers and employers can move into the right workflow quickly.'
       },
@@ -296,14 +296,15 @@
         'register.form.consent.item1': 'Я принимаю условия, политику конфиденциальности и правило доступа без сборов, указанные на сайте.',
         'register.form.consent.item2': 'Я понимаю, что одобрение, проверка и трудоустройство не происходят автоматически.',
         'register.form.howItWorks': 'Как это работает',
-        'register.form.status': 'Это превью сохраняет выбранную роль локально и переводит вас на следующую страницу. Живой аккаунт пока не создаётся.',
+        'register.form.status': 'Эта форма создаёт или обновляет черновик регистрации в backend и переводит вас на следующую страницу.',
         'register.side.preview.title': 'Текущее превью',
-        'register.side.preview.copy': 'Общая аутентификация, живые сессии и серверная регистрация на этой странице пока недоступны.',
+        'register.side.preview.copy': 'Эта страница уже сохраняет черновики регистрации в backend, при этом общие login-сессии остаются вне текущего этапа.',
         'register.side.purpose.title': 'Для чего эта страница',
         'register.side.purpose.copy': 'Она делает выбор роли и согласия понятными с самого начала, чтобы моряки и работодатели быстрее попадали в нужный сценарий.'
       }
     };
   </script>
+  <script src="../assets/crewportglobal-registration-drafts.js"></script>
   <script src="../assets/crewportglobal-public-i18n.js" defer></script>
   <script>
     (function () {
@@ -319,16 +320,22 @@
           employer: 'Continue as Employer',
           'crewing-manager': 'Continue as Crewing Manager',
           validation: 'Complete email, password and both consent checks before continuing.',
+          statusSubmitting: 'Saving registration draft...',
+          statusSaved: 'Draft saved. Moving to the next page...',
+          statusFailed: 'Draft could not be saved right now. Please try again.',
           storageError: 'Role selection could not be stored locally, but you can still continue.',
-          status: 'This preview stores your selected role locally and forwards you to the next page. It does not create a live account yet.'
+          status: 'This form creates or updates your registration draft in the backend and forwards you to the next page.'
         },
         ru: {
           seafarer: 'Продолжить как моряк',
           employer: 'Продолжить как работодатель',
           'crewing-manager': 'Продолжить как crewing manager',
           validation: 'Заполните email, пароль и отметьте оба согласия перед продолжением.',
+          statusSubmitting: 'Сохраняем черновик регистрации...',
+          statusSaved: 'Черновик сохранён. Переходим к следующей странице...',
+          statusFailed: 'Не удалось сохранить черновик. Попробуйте ещё раз.',
           storageError: 'Выбор роли не удалось сохранить локально, но вы всё равно можете продолжить.',
-          status: 'Это превью сохраняет выбранную роль локально и переводит вас на следующую страницу. Живой аккаунт пока не создаётся.'
+          status: 'Эта форма создаёт или обновляет черновик регистрации в backend и переводит вас на следующую страницу.'
         }
       };
 
@@ -362,7 +369,7 @@
 
       updateContinueButton();
 
-      form.addEventListener('submit', (event) => {
+      form.addEventListener('submit', async (event) => {
         event.preventDefault();
         const email = document.getElementById('email');
         const password = document.getElementById('password');
@@ -376,18 +383,32 @@
           return;
         }
 
+        status.textContent = roleLabels[language].statusSubmitting;
+        status.dataset.messageOverride = 'true';
+        continueButton.disabled = true;
+
         try {
           window.localStorage.setItem('crewportglobal.registration.role', selectedRole);
           window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
-        } catch (error) {
-          status.textContent = roleLabels[language].storageError;
-          status.dataset.messageOverride = 'true';
-        }
 
-        const nextPath = selectedRole === 'seafarer'
-          ? 'https://crewportglobal.com/create-profile/'
-          : 'https://crewportglobal.com/post-vacancy/';
-        window.location.href = nextPath;
+          const response = await window.CPGDrafts.createDraft({
+            role: selectedRole,
+            email: email.value.trim()
+          });
+
+          status.textContent = roleLabels[language].statusSaved;
+          const draftId = encodeURIComponent(response.draft_id);
+
+          const nextPath = selectedRole === 'seafarer'
+            ? `/create-profile/?draft_id=${draftId}`
+            : `/post-vacancy/?draft_id=${draftId}`;
+          window.location.href = new URL(nextPath, window.location.origin).toString();
+        } catch (error) {
+          status.textContent = roleLabels[language].statusFailed;
+          status.dataset.messageOverride = 'true';
+          continueButton.disabled = false;
+          console.error(error);
+        }
       });
     })();
   </script>

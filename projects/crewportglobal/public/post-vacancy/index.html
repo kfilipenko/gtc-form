@@ -64,9 +64,46 @@
       gap: 12px;
     }
 
+    .vacancy-form {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field-card {
+      display: grid;
+      gap: 8px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .field-card.full {
+      grid-column: 1 / -1;
+    }
+
+    .field-card input,
+    .field-card select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-on-dark);
+      font: inherit;
+    }
+
     @media (max-width: 980px) {
       .flow-grid,
-      .step-grid {
+      .step-grid,
+      .field-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -119,6 +156,51 @@
             <a class="button primary" href="https://crewportglobal.com/register/" data-i18n="post.hero.primaryCta">Choose Role / Register</a>
             <a class="button secondary" href="https://crewportglobal.com/vacancies/" data-i18n="post.hero.secondaryCta">Open Vacancy Board</a>
           </div>
+
+          <form id="post-vacancy-form" class="vacancy-form" novalidate>
+            <div class="field-grid">
+              <label class="field-card">
+                <strong data-i18n="post.form.email">Work email</strong>
+                <input id="post-email" type="email" data-i18n-placeholder="post.form.email.placeholder" placeholder="manager@company.com" required>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.role">Employer role</strong>
+                <select id="post-role">
+                  <option value="employer" data-i18n="post.form.role.employer">Employer</option>
+                  <option value="shipowner" data-i18n="post.form.role.shipowner">Shipowner</option>
+                  <option value="crewing_manager" data-i18n="post.form.role.manager">Crewing Manager</option>
+                </select>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.company">Company name</strong>
+                <input id="post-company" type="text" data-i18n-placeholder="post.form.company.placeholder" placeholder="Blue Horizon Shipping" required>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.country">Country code</strong>
+                <input id="post-country" type="text" maxlength="2" data-i18n-placeholder="post.form.country.placeholder" placeholder="SG">
+              </label>
+              <label class="field-card full">
+                <strong data-i18n="post.form.regNumber">Registration number</strong>
+                <input id="post-registration-number" type="text" data-i18n-placeholder="post.form.regNumber.placeholder" placeholder="SG-REG-9001">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.vesselName">Vessel name</strong>
+                <input id="post-vessel-name" type="text" data-i18n-placeholder="post.form.vesselName.placeholder" placeholder="MV Aurora">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.vesselType">Vessel type</strong>
+                <input id="post-vessel-type" type="text" data-i18n-placeholder="post.form.vesselType.placeholder" placeholder="Bulk Carrier">
+              </label>
+              <label class="field-card full">
+                <strong data-i18n="post.form.imo">IMO number</strong>
+                <input id="post-imo" type="text" data-i18n-placeholder="post.form.imo.placeholder" placeholder="IMO9001234">
+              </label>
+            </div>
+            <div class="inline-actions">
+              <button id="post-submit" class="button primary" type="submit" data-i18n="post.form.submit">Save Employer/Vessel Draft</button>
+            </div>
+            <p id="post-status" class="status-note" data-i18n="post.form.status">This form saves employer, company and vessel draft context in backend.</p>
+          </form>
         </article>
         <aside class="card status-card">
           <div class="status-box">
@@ -171,6 +253,30 @@
         'post.hero.copy': 'Add company profile, vessel, rank, salary, joining date, contract duration and key requirements before public publication.',
         'post.hero.primaryCta': 'Choose Role / Register',
         'post.hero.secondaryCta': 'Open Vacancy Board',
+        'post.form.email': 'Work email',
+        'post.form.email.placeholder': 'manager@company.com',
+        'post.form.role': 'Employer role',
+        'post.form.role.employer': 'Employer',
+        'post.form.role.shipowner': 'Shipowner',
+        'post.form.role.manager': 'Crewing Manager',
+        'post.form.company': 'Company name',
+        'post.form.company.placeholder': 'Blue Horizon Shipping',
+        'post.form.country': 'Country code',
+        'post.form.country.placeholder': 'SG',
+        'post.form.regNumber': 'Registration number',
+        'post.form.regNumber.placeholder': 'SG-REG-9001',
+        'post.form.vesselName': 'Vessel name',
+        'post.form.vesselName.placeholder': 'MV Aurora',
+        'post.form.vesselType': 'Vessel type',
+        'post.form.vesselType.placeholder': 'Bulk Carrier',
+        'post.form.imo': 'IMO number',
+        'post.form.imo.placeholder': 'IMO9001234',
+        'post.form.submit': 'Save Employer/Vessel Draft',
+        'post.form.status': 'This form saves employer, company and vessel draft context in backend.',
+        'post.form.validation': 'Work email and company name are required.',
+        'post.form.saving': 'Saving employer draft...',
+        'post.form.saved': 'Employer draft saved successfully.',
+        'post.form.error': 'Could not save employer draft. Please try again.',
         'post.side.process.title': 'Candidate review',
         'post.side.process.copy': 'CrewPortGlobal does not imply automatic shortlist delivery or uncontrolled direct outreach. Candidate presentation remains human-guided.',
         'post.side.verification.title': 'Employer verification',
@@ -197,6 +303,30 @@
         'post.hero.copy': 'Добавьте профиль компании, судно, должность, зарплату, дату посадки, длительность контракта и ключевые требования до публичной публикации.',
         'post.hero.primaryCta': 'Выбрать роль / зарегистрироваться',
         'post.hero.secondaryCta': 'Открыть доску вакансий',
+        'post.form.email': 'Рабочий email',
+        'post.form.email.placeholder': 'manager@company.com',
+        'post.form.role': 'Роль работодателя',
+        'post.form.role.employer': 'Работодатель',
+        'post.form.role.shipowner': 'Судовладелец',
+        'post.form.role.manager': 'Crewing Manager',
+        'post.form.company': 'Название компании',
+        'post.form.company.placeholder': 'Blue Horizon Shipping',
+        'post.form.country': 'Код страны',
+        'post.form.country.placeholder': 'SG',
+        'post.form.regNumber': 'Регистрационный номер',
+        'post.form.regNumber.placeholder': 'SG-REG-9001',
+        'post.form.vesselName': 'Название судна',
+        'post.form.vesselName.placeholder': 'MV Aurora',
+        'post.form.vesselType': 'Тип судна',
+        'post.form.vesselType.placeholder': 'Bulk Carrier',
+        'post.form.imo': 'Номер IMO',
+        'post.form.imo.placeholder': 'IMO9001234',
+        'post.form.submit': 'Сохранить черновик работодателя/судна',
+        'post.form.status': 'Эта форма сохраняет черновик работодателя, компании и судна в backend.',
+        'post.form.validation': 'Укажите рабочий email и название компании.',
+        'post.form.saving': 'Сохраняем черновик работодателя...',
+        'post.form.saved': 'Черновик работодателя успешно сохранён.',
+        'post.form.error': 'Не удалось сохранить черновик работодателя. Попробуйте ещё раз.',
         'post.side.process.title': 'Рассмотрение кандидатов',
         'post.side.process.copy': 'CrewPortGlobal не обещает автоматическую выдачу шорт-листа или неконтролируемые прямые контакты. Представление кандидатов остаётся процессом с участием человека.',
         'post.side.verification.title': 'Проверка работодателя',
@@ -219,6 +349,90 @@
       }
     };
   </script>
+  <script src="../assets/crewportglobal-registration-drafts.js"></script>
   <script src="../assets/crewportglobal-public-i18n.js" defer></script>
+  <script>
+    (function () {
+      const form = document.getElementById('post-vacancy-form');
+      const status = document.getElementById('post-status');
+      const submit = document.getElementById('post-submit');
+      const email = document.getElementById('post-email');
+      const role = document.getElementById('post-role');
+      const company = document.getElementById('post-company');
+      const country = document.getElementById('post-country');
+      const registrationNumber = document.getElementById('post-registration-number');
+      const vesselName = document.getElementById('post-vessel-name');
+      const vesselType = document.getElementById('post-vessel-type');
+      const imo = document.getElementById('post-imo');
+
+      function getLanguage() {
+        const lang = document.documentElement.lang || 'en';
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang] ? lang : 'en';
+      }
+
+      function t(key) {
+        const lang = getLanguage();
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang][key] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key] || key;
+      }
+
+      function getDraftIdFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return (params.get('draft_id') || '').trim();
+      }
+
+      const stored = window.CPGDrafts.getStoredDraft();
+      if (stored.email) {
+        email.value = stored.email;
+      }
+      if (stored.role === 'shipowner' || stored.role === 'crewing-manager') {
+        role.value = stored.role === 'crewing-manager' ? 'crewing_manager' : stored.role;
+      }
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (!email.value.trim() || !company.value.trim()) {
+          status.textContent = t('post.form.validation');
+          return;
+        }
+
+        submit.disabled = true;
+        status.textContent = t('post.form.saving');
+
+        try {
+          const payload = {
+            role: role.value,
+            email: email.value.trim(),
+            company_name: company.value.trim(),
+            country_code: country.value.trim().toUpperCase(),
+            registration_number: registrationNumber.value.trim(),
+            vessel: {
+              vessel_name: vesselName.value.trim(),
+              vessel_type: vesselType.value.trim(),
+              imo_number: imo.value.trim()
+            }
+          };
+
+          if (!payload.vessel.vessel_name) {
+            delete payload.vessel;
+          }
+
+          const response = await window.CPGDrafts.createOrUpdateDraft(payload, {
+            draftId: getDraftIdFromUrl()
+          });
+
+          status.textContent = t('post.form.saved');
+          window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
+          window.localStorage.setItem('crewportglobal.registration.role', role.value === 'crewing_manager' ? 'crewing-manager' : role.value);
+          window.history.replaceState(null, '', `?draft_id=${encodeURIComponent(response.draft_id)}`);
+        } catch (error) {
+          status.textContent = t('post.form.error');
+          console.error(error);
+        } finally {
+          submit.disabled = false;
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

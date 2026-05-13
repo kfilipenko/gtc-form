@@ -77,7 +77,7 @@ function api_db(): PgSql\Connection {
         return $conn;
     }
 
-    $host = getenv('PGHOST') ?: 'localhost';
+    $host = getenv('PGHOST') ?: '127.0.0.1';
     $port = getenv('PGPORT') ?: '5432';
     $dbName = getenv('PGDATABASE') ?: 'gtc_db';
     $user = getenv('PGUSER') ?: 'gtc_user';

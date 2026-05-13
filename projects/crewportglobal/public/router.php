@@ -3,6 +3,11 @@
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/';
 $publicRoot = __DIR__;
 
+if (str_starts_with($requestUri, '/api/v1')) {
+    require __DIR__ . '/../app/backend/api/public/index.php';
+    return true;
+}
+
 $targetPath = realpath($publicRoot . $requestUri);
 if ($targetPath !== false && str_starts_with($targetPath, $publicRoot) && is_file($targetPath)) {
     return false;

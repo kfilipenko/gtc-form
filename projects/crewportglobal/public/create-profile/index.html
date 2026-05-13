@@ -64,9 +64,46 @@
       gap: 12px;
     }
 
+    .profile-form {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field-card {
+      display: grid;
+      gap: 8px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .field-card.full {
+      grid-column: 1 / -1;
+    }
+
+    .field-card input,
+    .field-card select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-on-dark);
+      font: inherit;
+    }
+
     @media (max-width: 980px) {
       .profile-grid,
-      .step-grid {
+      .step-grid,
+      .field-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -119,6 +156,36 @@
             <a class="button primary" href="https://crewportglobal.com/onboarding/seafarer-registration/" data-i18n="create.hero.primaryCta">Start Seafarer Onboarding</a>
             <a class="button secondary" href="https://crewportglobal.com/register/" data-i18n="create.hero.secondaryCta">Choose Role / Register</a>
           </div>
+
+          <form id="create-profile-form" class="profile-form" novalidate>
+            <div class="field-grid">
+              <label class="field-card full">
+                <strong data-i18n="create.form.fullName">Full name</strong>
+                <input id="create-full-name" type="text" data-i18n-placeholder="create.form.fullName.placeholder" placeholder="First and last name" required>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="create.form.email">Email</strong>
+                <input id="create-email" type="email" data-i18n-placeholder="create.form.email.placeholder" placeholder="seafarer@example.com" required>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="create.form.country">Country code</strong>
+                <input id="create-country" type="text" maxlength="2" data-i18n-placeholder="create.form.country.placeholder" placeholder="AE">
+              </label>
+              <label class="field-card full">
+                <strong data-i18n="create.form.availability">Availability</strong>
+                <select id="create-availability">
+                  <option value="unknown" data-i18n="create.form.availability.unknown">Unknown</option>
+                  <option value="available_now" data-i18n="create.form.availability.now">Available now</option>
+                  <option value="available_later" data-i18n="create.form.availability.later">Available later</option>
+                </select>
+              </label>
+            </div>
+            <div class="inline-actions">
+              <button id="create-submit" class="button primary" type="submit" data-i18n="create.form.submit">Save Seafarer Draft</button>
+              <a class="button secondary" href="https://crewportglobal.com/onboarding/seafarer-registration/" data-i18n="create.form.nextCta">Continue to onboarding checklist</a>
+            </div>
+            <p id="create-status" class="status-note" data-i18n="create.form.status">This form saves your seafarer draft in backend and keeps your draft ID for the next steps.</p>
+          </form>
         </article>
         <aside class="card status-card">
           <div class="status-box">
@@ -171,6 +238,23 @@
         'create.hero.copy': 'Add CV basics, rank, certificates, availability, contact details and document metadata in one place.',
         'create.hero.primaryCta': 'Start Seafarer Onboarding',
         'create.hero.secondaryCta': 'Choose Role / Register',
+        'create.form.fullName': 'Full name',
+        'create.form.fullName.placeholder': 'First and last name',
+        'create.form.email': 'Email',
+        'create.form.email.placeholder': 'seafarer@example.com',
+        'create.form.country': 'Country code',
+        'create.form.country.placeholder': 'AE',
+        'create.form.availability': 'Availability',
+        'create.form.availability.unknown': 'Unknown',
+        'create.form.availability.now': 'Available now',
+        'create.form.availability.later': 'Available later',
+        'create.form.submit': 'Save Seafarer Draft',
+        'create.form.nextCta': 'Continue to onboarding checklist',
+        'create.form.status': 'This form saves your seafarer draft in backend and keeps your draft ID for the next steps.',
+        'create.form.validation': 'Full name and email are required.',
+        'create.form.saving': 'Saving seafarer draft...',
+        'create.form.saved': 'Seafarer draft saved successfully.',
+        'create.form.error': 'Could not save the draft. Please try again.',
         'create.side.review.title': 'Review status',
         'create.side.review.copy': 'Completed profiles are submitted for human review before wider candidate presentation. This page does not imply automatic approval or employment.',
         'create.side.fees.title': 'No recruitment fee',
@@ -197,6 +281,23 @@
         'create.hero.copy': 'Добавьте базовое CV, должность, сертификаты, доступность, контакты и метаданные документов в одном месте.',
         'create.hero.primaryCta': 'Начать онбординг моряка',
         'create.hero.secondaryCta': 'Выбрать роль / зарегистрироваться',
+        'create.form.fullName': 'Полное имя',
+        'create.form.fullName.placeholder': 'Имя и фамилия',
+        'create.form.email': 'Email',
+        'create.form.email.placeholder': 'seafarer@example.com',
+        'create.form.country': 'Код страны',
+        'create.form.country.placeholder': 'AE',
+        'create.form.availability': 'Доступность',
+        'create.form.availability.unknown': 'Не указано',
+        'create.form.availability.now': 'Доступен сейчас',
+        'create.form.availability.later': 'Доступен позже',
+        'create.form.submit': 'Сохранить черновик моряка',
+        'create.form.nextCta': 'Перейти к чек-листу онбординга',
+        'create.form.status': 'Эта форма сохраняет черновик моряка в backend и сохраняет draft ID для следующих шагов.',
+        'create.form.validation': 'Укажите полное имя и email.',
+        'create.form.saving': 'Сохраняем черновик моряка...',
+        'create.form.saved': 'Черновик моряка успешно сохранён.',
+        'create.form.error': 'Не удалось сохранить черновик. Попробуйте ещё раз.',
         'create.side.review.title': 'Статус проверки',
         'create.side.review.copy': 'Завершённые профили отправляются на ручную проверку до более широкого представления кандидата. Эта страница не обещает автоматическое одобрение или трудоустройство.',
         'create.side.fees.title': 'Без рекрутинговых сборов',
@@ -219,6 +320,71 @@
       }
     };
   </script>
+  <script src="../assets/crewportglobal-registration-drafts.js"></script>
   <script src="../assets/crewportglobal-public-i18n.js" defer></script>
+  <script>
+    (function () {
+      const form = document.getElementById('create-profile-form');
+      const status = document.getElementById('create-status');
+      const submit = document.getElementById('create-submit');
+      const fullName = document.getElementById('create-full-name');
+      const email = document.getElementById('create-email');
+      const country = document.getElementById('create-country');
+      const availability = document.getElementById('create-availability');
+
+      function getLanguage() {
+        const lang = document.documentElement.lang || 'en';
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang] ? lang : 'en';
+      }
+
+      function t(key) {
+        const lang = getLanguage();
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang][key] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key] || key;
+      }
+
+      function getDraftIdFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return (params.get('draft_id') || '').trim();
+      }
+
+      const stored = window.CPGDrafts.getStoredDraft();
+      if (stored.email) {
+        email.value = stored.email;
+      }
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (!fullName.value.trim() || !email.value.trim()) {
+          status.textContent = t('create.form.validation');
+          return;
+        }
+
+        submit.disabled = true;
+        status.textContent = t('create.form.saving');
+
+        try {
+          const response = await window.CPGDrafts.createOrUpdateDraft({
+            role: 'seafarer',
+            email: email.value.trim(),
+            full_name: fullName.value.trim(),
+            country_code: country.value.trim().toUpperCase(),
+            availability_status: availability.value
+          }, {
+            draftId: getDraftIdFromUrl()
+          });
+
+          status.textContent = t('create.form.saved');
+          window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
+          window.history.replaceState(null, '', `?draft_id=${encodeURIComponent(response.draft_id)}`);
+        } catch (error) {
+          status.textContent = t('create.form.error');
+          console.error(error);
+        } finally {
+          submit.disabled = false;
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
