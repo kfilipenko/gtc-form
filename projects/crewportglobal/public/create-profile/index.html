@@ -314,6 +314,7 @@
         'create.form.error': 'Could not save the draft. Please try again.',
         'create.form.loadingDraft': 'Loading existing draft...',
         'create.form.prefilled': 'Draft loaded. Form fields were prefilled from saved profile.',
+        'create.form.prefilledLocal': 'Local draft loaded. Form fields were prefilled from your latest saved profile.',
         'create.form.loadError': 'Could not load draft details. You can continue editing and save again.',
         'create.side.review.title': 'Review status',
         'create.side.review.copy': 'Completed profiles are submitted for human review before wider candidate presentation. This page does not imply automatic approval or employment.',
@@ -379,6 +380,7 @@
         'create.form.error': 'Не удалось сохранить черновик. Попробуйте ещё раз.',
         'create.form.loadingDraft': 'Загружаем существующий черновик...',
         'create.form.prefilled': 'Черновик загружен. Поля формы заполнены из сохраненного профиля.',
+        'create.form.prefilledLocal': 'Локальный черновик загружен. Поля формы заполнены из последнего сохраненного профиля.',
         'create.form.loadError': 'Не удалось загрузить детали черновика. Вы можете продолжить редактирование и сохранить снова.',
         'create.side.review.title': 'Статус проверки',
         'create.side.review.copy': 'Завершённые профили отправляются на ручную проверку до более широкого представления кандидата. Эта страница не обещает автоматическое одобрение или трудоустройство.',
@@ -505,6 +507,35 @@
       async function prefillFromDraftIfPresent() {
         const draftId = getDraftIdFromUrl();
         if (!draftId) {
+          const storedDraft = window.CPGDrafts.getStoredDraft();
+          const localProfile = storedDraft
+            && storedDraft.lastResponse
+            && storedDraft.lastResponse.payload
+            ? storedDraft.lastResponse.payload.seafarer_profile
+            : null;
+
+          if (localProfile && typeof localProfile === 'object') {
+            fillSeafarerProfile(localProfile);
+            status.textContent = t('create.form.prefilledLocal');
+            return;
+          }
+
+          if (storedDraft && typeof storedDraft.draftId === 'string' && storedDraft.draftId.trim()) {
+            status.textContent = t('create.form.loadingDraft');
+            try {
+              const fallbackResponse = await window.CPGDrafts.getDraft(storedDraft.draftId.trim());
+              const fallbackProfile = fallbackResponse && fallbackResponse.payload
+                ? fallbackResponse.payload.seafarer_profile
+                : null;
+              if (fallbackProfile && typeof fallbackProfile === 'object') {
+                fillSeafarerProfile(fallbackProfile);
+                status.textContent = t('create.form.prefilledLocal');
+              }
+            } catch (error) {
+              status.textContent = t('create.form.loadError');
+              console.error(error);
+            }
+          }
           return;
         }
 
