@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { execSync } from 'node:child_process';
 
 type DraftResponse = {
   ok: boolean;
@@ -8,6 +9,45 @@ type DraftResponse = {
   status: string;
   payload: Record<string, unknown>;
 };
+
+function readLatestOperatorAuditForDraft(draftId: string): {
+  source: string;
+  decision: string;
+  previousStatus: string;
+  newStatus: string;
+  queueType: string;
+  role: string;
+} {
+  const safeDraftId = draftId.replace(/'/g, "''");
+  const sql = [
+    "SELECT source,",
+    "       event_payload->>'decision',",
+    "       event_payload->>'previous_status',",
+    "       event_payload->>'new_status',",
+    "       event_payload->>'queue_type',",
+    "       event_payload->>'role'",
+    "FROM crewportglobal.registration_audit_events",
+    "WHERE event_type = 'operator_review_decision_recorded'",
+    `  AND user_id = '${safeDraftId}'::uuid`,
+    'ORDER BY created_at DESC',
+    'LIMIT 1;',
+  ].join(' ');
+
+  const output = execSync(
+    `PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -qAt -F '|' -c \"${sql}\"`,
+    { encoding: 'utf8' }
+  ).trim();
+
+  const [source, decision, previousStatus, newStatus, queueType, role] = output.split('|');
+  return {
+    source: source || '',
+    decision: decision || '',
+    previousStatus: previousStatus || '',
+    newStatus: newStatus || '',
+    queueType: queueType || '',
+    role: role || '',
+  };
+}
 
 test('health endpoint returns service status', async ({ request }) => {
   const response = await request.get('/health');
@@ -252,6 +292,14 @@ test('operator decision endpoint updates draft review status', async ({ request 
   expect(decisionBody.ok).toBe(true);
   expect(decisionBody.draft_id).toBe(created.draft_id);
   expect(decisionBody.new_status).toBe('approved');
+
+  const audit = readLatestOperatorAuditForDraft(created.draft_id);
+  expect(audit.source).toBe('operator_review_queue');
+  expect(audit.decision).toBe('reviewed');
+  expect(audit.previousStatus).toBe('submitted_for_human_review');
+  expect(audit.newStatus).toBe('approved');
+  expect(audit.queueType).toBe('seafarer_profile');
+  expect(audit.role).toBe('seafarer');
 
   const getResponse = await request.get(`/registration/drafts/${created.draft_id}`);
   expect(getResponse.status()).toBe(200);
