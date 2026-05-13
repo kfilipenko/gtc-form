@@ -67,6 +67,7 @@ test('shipowner flow normalizes IMO and updates vessel context', async ({ reques
   const createResponse = await request.post('/registration/drafts', {
     data: {
       role: 'shipowner',
+      role_in_company: 'owner',
       email,
       company_name: 'API Blue Horizon',
       country_code: 'SG',
@@ -87,11 +88,13 @@ test('shipowner flow normalizes IMO and updates vessel context', async ({ reques
   const company = created.payload.company as Record<string, unknown>;
   const vessel = created.payload.vessel as Record<string, unknown>;
   expect(company.company_type).toBe('shipowner');
+  expect(company.role_in_company).toBe('owner');
   expect(vessel.imo_number).toBe('9001234');
 
   const patchResponse = await request.patch(`/registration/drafts/${created.draft_id}`, {
     data: {
       company_name: 'API Blue Horizon Group',
+      role_in_company: 'recruiter',
       vessel: {
         vessel_name: 'MV Test Aurora II',
         vessel_type: 'Bulk Carrier',
@@ -105,6 +108,7 @@ test('shipowner flow normalizes IMO and updates vessel context', async ({ reques
   const patchedCompany = patched.payload.company as Record<string, unknown>;
   const patchedVessel = patched.payload.vessel as Record<string, unknown>;
   expect(patchedCompany.company_name).toBe('API Blue Horizon Group');
+  expect(patchedCompany.role_in_company).toBe('recruiter');
   expect(patchedVessel.vessel_name).toBe('MV Test Aurora II');
   expect(patchedVessel.imo_number).toBe('9001234');
 });
@@ -116,6 +120,7 @@ test('employer flow creates and updates company draft context', async ({ request
   const createResponse = await request.post('/registration/drafts', {
     data: {
       role: 'employer',
+      role_in_company: 'manager',
       email,
       company_name: 'Atlas Marine Crewing',
       country_code: 'AE',
@@ -130,10 +135,12 @@ test('employer flow creates and updates company draft context', async ({ request
   const createdCompany = created.payload.company as Record<string, unknown>;
   expect(createdCompany.company_name).toBe('Atlas Marine Crewing');
   expect(createdCompany.company_type).toBe('employer');
+  expect(createdCompany.role_in_company).toBe('manager');
 
   const patchResponse = await request.patch(`/registration/drafts/${created.draft_id}`, {
     data: {
       company_name: 'Atlas Marine Crewing LLC',
+      role_in_company: 'owner',
     },
   });
   expect(patchResponse.status()).toBe(200);
@@ -142,6 +149,7 @@ test('employer flow creates and updates company draft context', async ({ request
   const patchedCompany = patched.payload.company as Record<string, unknown>;
   expect(patchedCompany.company_name).toBe('Atlas Marine Crewing LLC');
   expect(patchedCompany.company_type).toBe('employer');
+  expect(patchedCompany.role_in_company).toBe('owner');
 });
 
 test('invalid payloads are rejected with 4xx', async ({ request }) => {

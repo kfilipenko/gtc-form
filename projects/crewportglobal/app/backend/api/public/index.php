@@ -29,7 +29,8 @@ function read_role_for_user(string $userId): ?string {
 
 function read_primary_company_for_user(string $userId): ?array {
     $result = api_query(
-        'SELECT ec.company_id, ec.company_name, ec.registration_number, ec.country_code, ec.company_type, ec.verification_status
+        'SELECT ec.company_id, ec.company_name, ec.registration_number, ec.country_code, ec.company_type, ec.verification_status,
+                cu.role_in_company, cu.is_primary_contact
          FROM crewportglobal.company_users cu
          JOIN crewportglobal.employer_companies ec ON ec.company_id = cu.company_id
          WHERE cu.user_id = $1
@@ -40,6 +41,16 @@ function read_primary_company_for_user(string $userId): ?array {
 
     $row = pg_fetch_assoc($result);
     return is_array($row) ? $row : null;
+}
+
+function normalize_role_in_company(mixed $value): string {
+    if (!is_string($value)) {
+        return 'manager';
+    }
+
+    $normalized = trim(strtolower($value));
+    $allowed = ['owner', 'manager', 'recruiter', 'viewer'];
+    return in_array($normalized, $allowed, true) ? $normalized : 'manager';
 }
 
 function read_latest_vessel_for_company(string $companyId): ?array {
@@ -231,6 +242,8 @@ function upsert_company_context(string $userId, string $role, array $body): arra
         $registrationNumber = null;
     }
 
+    $roleInCompany = normalize_role_in_company($body['role_in_company'] ?? null);
+
     $existingCompany = read_primary_company_for_user($userId);
     $companyId = null;
 
@@ -247,6 +260,13 @@ function upsert_company_context(string $userId, string $role, array $body): arra
                  updated_at = now()
              WHERE company_id = $1",
             [$companyId, $companyName, $registrationNumber, $countryCode, $role]
+        );
+
+        api_query(
+            'UPDATE crewportglobal.company_users
+             SET role_in_company = $3
+             WHERE company_id = $1 AND user_id = $2',
+            [$companyId, $userId, $roleInCompany]
         );
     } else {
         $insertResult = api_query(
@@ -276,7 +296,7 @@ function upsert_company_context(string $userId, string $role, array $body): arra
              VALUES ($1, $2, $3, TRUE)
              ON CONFLICT (company_id, user_id)
              DO UPDATE SET role_in_company = EXCLUDED.role_in_company',
-            [$companyId, $userId, 'manager']
+            [$companyId, $userId, $roleInCompany]
         );
     }
 

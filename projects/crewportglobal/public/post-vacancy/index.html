@@ -164,11 +164,24 @@
                 <input id="post-email" type="email" data-i18n-placeholder="post.form.email.placeholder" placeholder="manager@company.com" required>
               </label>
               <label class="field-card">
+                <strong data-i18n="post.form.fullName">Primary contact name</strong>
+                <input id="post-full-name" type="text" data-i18n-placeholder="post.form.fullName.placeholder" placeholder="Operations Manager">
+              </label>
+              <label class="field-card">
                 <strong data-i18n="post.form.role">Employer role</strong>
                 <select id="post-role">
                   <option value="employer" data-i18n="post.form.role.employer">Employer</option>
                   <option value="shipowner" data-i18n="post.form.role.shipowner">Shipowner</option>
                   <option value="crewing_manager" data-i18n="post.form.role.manager">Crewing Manager</option>
+                </select>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.companyRole">Role in company</strong>
+                <select id="post-role-in-company">
+                  <option value="manager" data-i18n="post.form.companyRole.manager">Manager</option>
+                  <option value="owner" data-i18n="post.form.companyRole.owner">Owner</option>
+                  <option value="recruiter" data-i18n="post.form.companyRole.recruiter">Recruiter</option>
+                  <option value="viewer" data-i18n="post.form.companyRole.viewer">Viewer</option>
                 </select>
               </label>
               <label class="field-card">
@@ -200,6 +213,7 @@
               <button id="post-submit" class="button primary" type="submit" data-i18n="post.form.submit">Save Employer/Vessel Draft</button>
             </div>
             <p id="post-status" class="status-note" data-i18n="post.form.status">This form saves employer, company and vessel draft context in backend.</p>
+            <p id="post-status-detail" class="status-note"></p>
           </form>
         </article>
         <aside class="card status-card">
@@ -255,10 +269,17 @@
         'post.hero.secondaryCta': 'Open Vacancy Board',
         'post.form.email': 'Work email',
         'post.form.email.placeholder': 'manager@company.com',
+        'post.form.fullName': 'Primary contact name',
+        'post.form.fullName.placeholder': 'Operations Manager',
         'post.form.role': 'Employer role',
         'post.form.role.employer': 'Employer',
         'post.form.role.shipowner': 'Shipowner',
         'post.form.role.manager': 'Crewing Manager',
+        'post.form.companyRole': 'Role in company',
+        'post.form.companyRole.owner': 'Owner',
+        'post.form.companyRole.manager': 'Manager',
+        'post.form.companyRole.recruiter': 'Recruiter',
+        'post.form.companyRole.viewer': 'Viewer',
         'post.form.company': 'Company name',
         'post.form.company.placeholder': 'Blue Horizon Shipping',
         'post.form.country': 'Country code',
@@ -277,6 +298,7 @@
         'post.form.saving': 'Saving employer draft...',
         'post.form.saved': 'Employer draft saved successfully.',
         'post.form.error': 'Could not save employer draft. Please try again.',
+        'post.form.savedDetail': 'Draft ID: {draftId} | Company type: {companyType} | Verification: {verificationStatus} | Contact role: {roleInCompany}',
         'post.side.process.title': 'Candidate review',
         'post.side.process.copy': 'CrewPortGlobal does not imply automatic shortlist delivery or uncontrolled direct outreach. Candidate presentation remains human-guided.',
         'post.side.verification.title': 'Employer verification',
@@ -305,10 +327,17 @@
         'post.hero.secondaryCta': 'Открыть доску вакансий',
         'post.form.email': 'Рабочий email',
         'post.form.email.placeholder': 'manager@company.com',
+        'post.form.fullName': 'Имя основного контакта',
+        'post.form.fullName.placeholder': 'Operations Manager',
         'post.form.role': 'Роль работодателя',
         'post.form.role.employer': 'Работодатель',
         'post.form.role.shipowner': 'Судовладелец',
         'post.form.role.manager': 'Crewing Manager',
+        'post.form.companyRole': 'Роль в компании',
+        'post.form.companyRole.owner': 'Владелец',
+        'post.form.companyRole.manager': 'Менеджер',
+        'post.form.companyRole.recruiter': 'Рекрутер',
+        'post.form.companyRole.viewer': 'Наблюдатель',
         'post.form.company': 'Название компании',
         'post.form.company.placeholder': 'Blue Horizon Shipping',
         'post.form.country': 'Код страны',
@@ -327,6 +356,7 @@
         'post.form.saving': 'Сохраняем черновик работодателя...',
         'post.form.saved': 'Черновик работодателя успешно сохранён.',
         'post.form.error': 'Не удалось сохранить черновик работодателя. Попробуйте ещё раз.',
+        'post.form.savedDetail': 'Draft ID: {draftId} | Тип компании: {companyType} | Верификация: {verificationStatus} | Роль контакта: {roleInCompany}',
         'post.side.process.title': 'Рассмотрение кандидатов',
         'post.side.process.copy': 'CrewPortGlobal не обещает автоматическую выдачу шорт-листа или неконтролируемые прямые контакты. Представление кандидатов остаётся процессом с участием человека.',
         'post.side.verification.title': 'Проверка работодателя',
@@ -355,9 +385,12 @@
     (function () {
       const form = document.getElementById('post-vacancy-form');
       const status = document.getElementById('post-status');
+      const statusDetail = document.getElementById('post-status-detail');
       const submit = document.getElementById('post-submit');
       const email = document.getElementById('post-email');
+      const fullName = document.getElementById('post-full-name');
       const role = document.getElementById('post-role');
+      const roleInCompany = document.getElementById('post-role-in-company');
       const company = document.getElementById('post-company');
       const country = document.getElementById('post-country');
       const registrationNumber = document.getElementById('post-registration-number');
@@ -373,6 +406,12 @@
       function t(key) {
         const lang = getLanguage();
         return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang][key] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key] || key;
+      }
+
+      function tp(key, values) {
+        return Object.entries(values).reduce((result, [token, value]) => {
+          return result.replace(`{${token}}`, String(value));
+        }, t(key));
       }
 
       function getDraftIdFromUrl() {
@@ -398,11 +437,14 @@
 
         submit.disabled = true;
         status.textContent = t('post.form.saving');
+        statusDetail.textContent = '';
 
         try {
           const payload = {
             role: role.value,
             email: email.value.trim(),
+            full_name: fullName.value.trim(),
+            role_in_company: roleInCompany.value,
             company_name: company.value.trim(),
             country_code: country.value.trim().toUpperCase(),
             registration_number: registrationNumber.value.trim(),
@@ -422,11 +464,19 @@
           });
 
           status.textContent = t('post.form.saved');
+          const companyPayload = response && response.payload && response.payload.company ? response.payload.company : {};
+          statusDetail.textContent = tp('post.form.savedDetail', {
+            draftId: response.draft_id || '-',
+            companyType: companyPayload.company_type || '-',
+            verificationStatus: companyPayload.verification_status || '-',
+            roleInCompany: companyPayload.role_in_company || roleInCompany.value,
+          });
           window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
           window.localStorage.setItem('crewportglobal.registration.role', role.value === 'crewing_manager' ? 'crewing-manager' : role.value);
           window.history.replaceState(null, '', `?draft_id=${encodeURIComponent(response.draft_id)}`);
         } catch (error) {
           status.textContent = t('post.form.error');
+          statusDetail.textContent = '';
           console.error(error);
         } finally {
           submit.disabled = false;
