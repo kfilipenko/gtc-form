@@ -16,7 +16,17 @@ export default defineConfig({
     trace: 'retain-on-failure'
   },
   webServer: {
-    command: 'php -S 127.0.0.1:38123 -t ./projects/crewportglobal/public ./projects/crewportglobal/public/router.php',
+    command: [
+      'bash -lc',
+      '"',
+      'cd /var/www/gtc-form',
+      '&& PGHOST=${PGHOST:-127.0.0.1} PGUSER=${PGUSER:-gtc_user} PGPASSWORD=${PGPASSWORD:-gtc_pass} PGDATABASE=${PGDATABASE:-gtc_db}',
+      'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/001_create_registration_foundation.sql',
+      '&& PGHOST=${PGHOST:-127.0.0.1} PGUSER=${PGUSER:-gtc_user} PGPASSWORD=${PGPASSWORD:-gtc_pass} PGDATABASE=${PGDATABASE:-gtc_db}',
+      'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/002_extend_seafarer_profiles_practical_fields.sql',
+      '&& php -S 127.0.0.1:38123 -t ./projects/crewportglobal/public ./projects/crewportglobal/public/router.php',
+      '"',
+    ].join(' '),
     url: 'http://127.0.0.1:38123/index.html',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

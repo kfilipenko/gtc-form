@@ -312,6 +312,9 @@
         'create.form.saving': 'Saving seafarer draft...',
         'create.form.saved': 'Seafarer draft saved successfully.',
         'create.form.error': 'Could not save the draft. Please try again.',
+        'create.form.loadingDraft': 'Loading existing draft...',
+        'create.form.prefilled': 'Draft loaded. Form fields were prefilled from saved profile.',
+        'create.form.loadError': 'Could not load draft details. You can continue editing and save again.',
         'create.side.review.title': 'Review status',
         'create.side.review.copy': 'Completed profiles are submitted for human review before wider candidate presentation. This page does not imply automatic approval or employment.',
         'create.side.fees.title': 'No recruitment fee',
@@ -374,6 +377,9 @@
         'create.form.saving': 'Сохраняем черновик моряка...',
         'create.form.saved': 'Черновик моряка успешно сохранён.',
         'create.form.error': 'Не удалось сохранить черновик. Попробуйте ещё раз.',
+        'create.form.loadingDraft': 'Загружаем существующий черновик...',
+        'create.form.prefilled': 'Черновик загружен. Поля формы заполнены из сохраненного профиля.',
+        'create.form.loadError': 'Не удалось загрузить детали черновика. Вы можете продолжить редактирование и сохранить снова.',
         'create.side.review.title': 'Статус проверки',
         'create.side.review.copy': 'Завершённые профили отправляются на ручную проверку до более широкого представления кандидата. Эта страница не обещает автоматическое одобрение или трудоустройство.',
         'create.side.fees.title': 'Без рекрутинговых сборов',
@@ -431,10 +437,95 @@
         return (params.get('draft_id') || '').trim();
       }
 
+      function parsePreferredVesselTypes(rawValue) {
+        if (Array.isArray(rawValue)) {
+          return rawValue.filter((item) => typeof item === 'string').join(', ');
+        }
+
+        if (typeof rawValue === 'string' && rawValue.trim()) {
+          try {
+            const parsed = JSON.parse(rawValue);
+            if (Array.isArray(parsed)) {
+              return parsed.filter((item) => typeof item === 'string').join(', ');
+            }
+          } catch (error) {
+            return rawValue;
+          }
+        }
+
+        return '';
+      }
+
+      function fillSeafarerProfile(profile) {
+        if (!profile || typeof profile !== 'object') {
+          return;
+        }
+
+        if (typeof profile.first_name === 'string' && profile.first_name.trim()) {
+          fullName.value = profile.first_name;
+        }
+        if (typeof profile.contact_email === 'string' && profile.contact_email.trim()) {
+          email.value = profile.contact_email;
+        }
+        if (typeof profile.country_code === 'string' && profile.country_code.trim()) {
+          country.value = profile.country_code;
+        }
+        if (typeof profile.primary_rank === 'string') {
+          rank.value = profile.primary_rank;
+        }
+        if (typeof profile.department === 'string') {
+          const option = Array.from(department.options).find((item) => item.value === profile.department);
+          department.value = option ? profile.department : '';
+        }
+        if (typeof profile.nationality_code === 'string') {
+          nationality.value = profile.nationality_code;
+        }
+        if (typeof profile.residence_country_code === 'string') {
+          residence.value = profile.residence_country_code;
+        }
+        if (typeof profile.availability_status === 'string') {
+          const availabilityOption = Array.from(availability.options).find((item) => item.value === profile.availability_status);
+          availability.value = availabilityOption ? profile.availability_status : 'unknown';
+        }
+        if (typeof profile.availability_date === 'string') {
+          availabilityDate.value = profile.availability_date;
+        }
+        if (profile.salary_expectation_usd !== null && profile.salary_expectation_usd !== undefined) {
+          const salaryText = String(profile.salary_expectation_usd).trim();
+          if (salaryText) {
+            salary.value = salaryText;
+          }
+        }
+        if (typeof profile.contact_phone === 'string') {
+          contactPhone.value = profile.contact_phone;
+        }
+        vesselTypes.value = parsePreferredVesselTypes(profile.preferred_vessel_types);
+      }
+
+      async function prefillFromDraftIfPresent() {
+        const draftId = getDraftIdFromUrl();
+        if (!draftId) {
+          return;
+        }
+
+        status.textContent = t('create.form.loadingDraft');
+        try {
+          const response = await window.CPGDrafts.getDraft(draftId);
+          const profile = response && response.payload ? response.payload.seafarer_profile : null;
+          fillSeafarerProfile(profile || {});
+          status.textContent = t('create.form.prefilled');
+        } catch (error) {
+          status.textContent = t('create.form.loadError');
+          console.error(error);
+        }
+      }
+
       const stored = window.CPGDrafts.getStoredDraft();
       if (stored.email) {
         email.value = stored.email;
       }
+
+      prefillFromDraftIfPresent();
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();

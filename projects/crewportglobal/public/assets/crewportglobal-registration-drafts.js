@@ -78,13 +78,18 @@
   }
 
   async function requestJson(path, method, payload) {
-    const response = await fetch(`${getApiBase()}${path}`, {
+    const options = {
       method,
       headers: {
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
+      }
+    };
+
+    if (payload !== undefined) {
+      options.body = JSON.stringify(payload);
+    }
+
+    const response = await fetch(`${getApiBase()}${path}`, options);
 
     const body = await response.json().catch(() => ({}));
     if (!response.ok) {
@@ -117,6 +122,12 @@
     return response;
   }
 
+  async function getDraft(draftId) {
+    const response = await requestJson(`/registration/drafts/${draftId}`, 'GET');
+    persistDraft(response);
+    return response;
+  }
+
   async function createOrUpdateDraft(payload, options) {
     const opts = options || {};
     const explicitDraftId = typeof opts.draftId === 'string' ? opts.draftId.trim() : '';
@@ -142,6 +153,7 @@
     getStoredDraft,
     createDraft,
     patchDraft,
+    getDraft,
     createOrUpdateDraft
   };
 })();
