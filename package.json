@@ -1,6 +1,7 @@
 {
   "scripts": {
     "test:chat": "playwright test",
+    "test:cpg-api": "playwright test -c playwright.crewportglobal.api.config.ts",
     "check:rules-links": "python3 scripts/check_rules_phrase_links.py",
     "check:cpg-i18n": "node projects/crewportglobal/scripts/check_public_i18n.js"
   },

@@ -35,6 +35,17 @@ Then call endpoints under:
 - http://127.0.0.1:8091/api/v1/registration/drafts
 - http://127.0.0.1:8091/api/v1/registration/drafts/{draft_id}
 
+## Integration tests
+
+Run the API-focused Playwright suite from repository root:
+
+```bash
+npm run test:cpg-api
+```
+
+This suite starts the API web server, applies the registration foundation migration,
+and verifies health/create/get/patch plus validation error cases.
+
 ## Out of scope here
 
 - password hashing
