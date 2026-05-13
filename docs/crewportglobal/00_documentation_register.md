@@ -134,6 +134,7 @@ docs/crewportglobal/
   60_translation_pipeline_rule.md
   61_translation_pipeline_implementation_report.md
   62_build_time_translation_pipeline_plan.md
+  63_cpg_i1_013_favicon_publication_record.md
 ```
 
 ## 4. Priority order for drafting
@@ -219,6 +220,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.41 | 2026-05-13 | GTC IT / AI Assistant | Added document 63 as the team-facing favicon publication record covering source asset, generated favicon outputs, live deploy tree sync and validation expectations |
 | 0.40 | 2026-05-12 | GTC IT / AI Assistant | Added document 62 for the approved build-time translation pipeline plan and skeleton, and aligned the methodology set with the new i18n catalog seed path under projects/crewportglobal/i18n/ |
 | 0.39 | 2026-05-12 | GTC IT / AI Assistant | Added document 61 as the operational implementation report for the current translation methodology and updated document 60 to act as the canonical website text-translation methodology record with mandatory synchronized updates on methodology changes |
 | 0.38 | 2026-05-12 | GTC IT / AI Assistant | Added document 60 to formalize the translation pipeline rule: English canonical source, shared runtime reuse, English fallback for missing non-English keys, rebuild through the public generator wrapper, and mandatory human review for legal, consent, no-fee and seafarer-facing publication text |

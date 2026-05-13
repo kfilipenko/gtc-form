@@ -40,6 +40,15 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - The wrapper prefers an already activated virtualenv, then falls back to ../.venv or .venv if present, and stops with a clear error if Markdown or PyYAML are unavailable.
 - If a canonical public Markdown file does not start with valid YAML frontmatter, the generator will fail fast instead of silently emitting partial HTML.
 
+## Favicon publication
+
+- Source brand image currently lives at projects/crewportglobal/public/assets/Favicon.png.
+- Generated favicon outputs are published in projects/crewportglobal/public/ as favicon-16x16.png, favicon-32x32.png, apple-touch-icon.png and favicon.ico.
+- Standalone pages wire favicon links directly, while generated document pages inherit favicon links through projects/crewportglobal/scripts/generate_public_pages.py.
+- The current live domain is served from /var/www/crewportglobal.com, so favicon publication is not complete until the generated favicon files and updated HTML are synced into that live root when it is maintained separately from the project source tree.
+- Minimal live validation is: curl -I https://crewportglobal.com/favicon.ico and checking that the live homepage head contains favicon references.
+- The operational record for this workflow is docs/crewportglobal/63_cpg_i1_013_favicon_publication_record.md.
+
 ## Translation pipeline rule
 
 - Every new visible UI text must use an i18n key with an English canonical value.
