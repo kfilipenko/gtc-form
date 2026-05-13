@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Login and register</title>
+  <meta name="description" content="Static role-selection and consent gate for future CrewPortGlobal authentication and registration flows.">
+  <link rel="canonical" href="https://crewportglobal.com/register/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../assets/crewportglobal-docs.css">
+  <style>
+    .register-grid,
+    .role-grid,
+    .field-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .register-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.7fr);
+      align-items: start;
+    }
+
+    .register-card,
+    .side-card,
+    .role-card,
+    .field-card {
+      padding: 28px;
+    }
+
+    .role-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .role-card,
+    .field-card,
+    .status-box {
+      display: grid;
+      gap: 12px;
+      padding: 20px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .role-card.is-selected {
+      border-color: rgba(86, 210, 226, 0.38);
+      background: rgba(86, 210, 226, 0.08);
+    }
+
+    .field-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .field-card.full {
+      grid-column: 1 / -1;
+    }
+
+    .field-card input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-on-dark);
+      font: inherit;
+    }
+
+    .field-card input::placeholder {
+      color: var(--muted-on-dark);
+    }
+
+    .option-list {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+      color: var(--muted-on-dark);
+      line-height: 1.5;
+    }
+
+    .consent-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .consent-item {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 12px;
+      color: var(--muted-on-dark);
+      line-height: 1.5;
+    }
+
+    .inline-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .status-box,
+    .lead-copy,
+    .status-note {
+      color: var(--muted-on-dark);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 980px) {
+      .register-grid,
+      .role-grid,
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="doc-body">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="site-nav" aria-label="Register navigation">
+      <a class="nav-link" href="https://crewportglobal.com/" data-i18n="nav.home">Home</a>
+      <a class="nav-link" href="https://crewportglobal.com/vacancies/" data-i18n="nav.vacancies">Vacancies</a>
+      <a class="nav-link" href="https://crewportglobal.com/for-seafarers/" data-i18n="nav.forSeafarers">For Seafarers</a>
+      <a class="nav-link" href="https://crewportglobal.com/for-shipowners/" data-i18n="nav.forShipowners">For Employers</a>
+      <a class="nav-link" href="https://crewportglobal.com/create-profile/" data-i18n="nav.createProfile">Create Profile</a>
+      <a class="nav-link" href="https://crewportglobal.com/post-vacancy/" data-i18n="nav.postVacancy">Post Vacancy</a>
+      <a class="nav-link" href="https://crewportglobal.com/how-it-works/" data-i18n="nav.howItWorks">How It Works</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/verification-policy/" data-i18n="nav.trustSafety">Trust &amp; Safety</a>
+      <a class="nav-link is-active" href="https://crewportglobal.com/register/" data-i18n="nav.loginRegister">Login / Register</a>
+    </nav>
+
+    <main class="doc-main">
+      <section class="register-grid">
+        <article class="card register-card">
+          <p class="eyebrow">Login / Register</p>
+          <h1>Choose your role and continue to the right workflow.</h1>
+          <p class="lead-copy">This page defines the public registration structure: role selection, email or password fields, benefit overview and consent gates. Shared authentication remains a later approved implementation slice.</p>
+          <section class="role-grid" id="role-grid">
+            <button class="role-card is-selected" type="button" data-role="seafarer">
+              <strong>Seafarer</strong>
+              <ul class="option-list">
+                <li>Create online CV</li>
+                <li>Add document metadata</li>
+                <li>Prepare for human review</li>
+              </ul>
+            </button>
+            <button class="role-card" type="button" data-role="employer">
+              <strong>Employer / Shipowner</strong>
+              <ul class="option-list">
+                <li>Register company</li>
+                <li>Post vacancy</li>
+                <li>Review prepared profiles later</li>
+              </ul>
+            </button>
+            <button class="role-card" type="button" data-role="crewing-manager">
+              <strong>Crewing Manager</strong>
+              <ul class="option-list">
+                <li>Coordinate vacancy intake</li>
+                <li>Manage employer-side workflow</li>
+                <li>Stay inside controlled process</li>
+              </ul>
+            </button>
+          </section>
+
+          <form id="register-form" class="field-grid">
+            <label class="field-card">
+              <strong>Email</strong>
+              <input id="email" type="email" placeholder="name@company.com or seafarer email" required>
+            </label>
+            <label class="field-card">
+              <strong>Password</strong>
+              <input id="password" type="password" placeholder="Create password for approved auth method" required>
+            </label>
+            <label class="field-card full">
+              <strong>Approved auth method</strong>
+              <input type="text" placeholder="Email/password in this static slice; wider auth approval comes later" readonly>
+            </label>
+            <div class="field-card full">
+              <strong>Terms and consent gate</strong>
+              <div class="consent-list">
+                <label class="consent-item">
+                  <input id="terms" type="checkbox" required>
+                  <span>I accept the terms, privacy and no-fee access rules shown on the public site.</span>
+                </label>
+                <label class="consent-item">
+                  <input id="consent" type="checkbox" required>
+                  <span>I understand that approval, verification and employment are not automatic outcomes.</span>
+                </label>
+              </div>
+            </div>
+            <div class="field-card full">
+              <div class="inline-actions">
+                <button id="continue-button" class="button primary" type="submit">Continue to next step</button>
+                <a class="button secondary" href="https://crewportglobal.com/how-it-works/">How It Works</a>
+              </div>
+              <p id="register-status" class="status-note">This page stores only a local role-selection draft and forwards you to the next static step. It does not create a live account yet.</p>
+            </div>
+          </form>
+        </article>
+
+        <aside class="card side-card">
+          <div class="status-box">
+            <strong>What remains placeholder</strong>
+            <p>Shared authentication, live session creation, real account login and backend registration are not implemented in this slice.</p>
+          </div>
+          <div class="status-box">
+            <strong>What this page is for</strong>
+            <p>It makes role intent and consent visible early so the site feels like a real entry point for seafarers and employers instead of only a declaration library.</p>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </div>
+  <script src="../assets/crewportglobal-public-i18n.js" defer></script>
+  <script>
+    (function () {
+      const roleButtons = Array.from(document.querySelectorAll('[data-role]'));
+      const form = document.getElementById('register-form');
+      const status = document.getElementById('register-status');
+      let selectedRole = 'seafarer';
+
+      roleButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          selectedRole = button.dataset.role;
+          roleButtons.forEach((item) => item.classList.toggle('is-selected', item === button));
+        });
+      });
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const terms = document.getElementById('terms');
+        const consent = document.getElementById('consent');
+
+        if (!email.value.trim() || !password.value.trim() || !terms.checked || !consent.checked) {
+          status.textContent = 'Complete email, password and both consent checks before continuing.';
+          return;
+        }
+
+        try {
+          window.localStorage.setItem('crewportglobal.registration.role', selectedRole);
+          window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
+        } catch (error) {
+          status.textContent = 'Role intent could not be stored locally, but you can still continue.';
+        }
+
+        const nextPath = selectedRole === 'seafarer'
+          ? 'https://crewportglobal.com/create-profile/'
+          : 'https://crewportglobal.com/post-vacancy/';
+        window.location.href = nextPath;
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -16,7 +16,7 @@ test('first visit uses supported browser language and updates html metadata', as
   await page.goto('/index.html');
 
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
-  await expect(page.locator('.landing-title')).toContainText('Морские кадровые процессы');
+  await expect(page.locator('.landing-title')).toContainText('Создайте профиль моряка');
   await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
   await expect(page.locator('html')).toHaveAttribute('translate', 'yes');
   await expect.poll(() => page.evaluate(() => window.localStorage.getItem('crewportglobal.language'))).toBe('ru');
@@ -45,7 +45,7 @@ test('first visit falls back to English when browser language is unsupported', a
 test('same-page selector translates the homepage and persists after reload', async ({ page }) => {
   await page.goto('/index.html');
 
-  await expect(page.locator('.landing-title')).toContainText('Maritime crew workflows');
+  await expect(page.locator('.landing-title')).toContainText('Create a seafarer profile');
   await expect(page.locator('#current-language-label')).toHaveText('English');
 
   await page.locator('#current-language-toggle').click();
@@ -53,19 +53,16 @@ test('same-page selector translates the homepage and persists after reload', asy
 
   await expect(page).toHaveURL(/\/index\.html/);
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
-  await expect(page.locator('.landing-title')).toContainText('Морские кадровые процессы');
-  await expect(page.locator('.site-nav')).toContainText('Для судовладельцев');
-  await expect(page.locator('.hero-panel')).toContainText('Профессиональный профиль и готовность документов');
-  await expect(page.locator('.docs')).toContainText('Публичные документы');
-  await expect(page.locator('.doc-list')).toContainText('Для судовладельцев');
-  await expect(page.locator('.doc-list')).toContainText('Обработка жалоб');
+  await expect(page.locator('.landing-title')).toContainText('Создайте профиль моряка');
+  await expect(page.locator('.site-nav')).toContainText('Для работодателей');
+  await expect(page.locator('.site-nav')).toContainText('Создать профиль');
   await expect.poll(() => page.evaluate(() => window.localStorage.getItem('crewportglobal.language'))).toBe('ru');
 
   await page.reload();
 
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
-  await expect(page.locator('.landing-title')).toContainText('Морские кадровые процессы');
-  await expect(page.locator('.docs')).toContainText('Публичные документы');
+  await expect(page.locator('.landing-title')).toContainText('Создайте профиль моряка');
+  await expect(page.locator('.site-nav')).toContainText('Для работодателей');
 });
 
 test('same-page selector works on generated public pages and persists after reload', async ({ page }) => {
@@ -78,7 +75,7 @@ test('same-page selector works on generated public pages and persists after relo
   await page.locator('.language-option').filter({ hasText: 'Русский' }).click();
 
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
-  await expect(page.locator('.site-nav')).toContainText('Жалобы');
+  await expect(page.locator('.site-nav')).toContainText('Для работодателей');
   await expect(page.locator('.hero-actions')).toContainText('Назад на главную');
   await expect(page.locator('.sidebar-panel')).toContainText('Публичная библиотека');
   await expect.poll(() => page.evaluate(() => window.localStorage.getItem('crewportglobal.language'))).toBe('ru');
@@ -86,7 +83,7 @@ test('same-page selector works on generated public pages and persists after relo
   await page.reload();
 
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
-  await expect(page.locator('.site-nav')).toContainText('Жалобы');
+  await expect(page.locator('.site-nav')).toContainText('Для работодателей');
 });
 
 test('homepage falls back to English for missing non-English page translations', async ({ page }) => {
@@ -96,9 +93,9 @@ test('homepage falls back to English for missing non-English page translations',
   await page.locator('.language-option').filter({ hasText: 'Português' }).click();
 
   await expect(page.locator('#current-language-label')).toHaveText('Português');
-  await expect(page.locator('.site-nav')).toContainText('Para armadores');
-  await expect(page.locator('.docs .docs-head h2')).toHaveText('Initial client-facing Markdown package');
-  await expect(page.locator('.doc-list')).toContainText('Complaint Handling');
+  await expect(page.locator('.site-nav')).toContainText('Para empregadores');
+  await expect(page.locator('.landing-title')).toContainText('Create a seafarer profile');
+  await expect(page.locator('.vacancy-board')).toContainText('Latest vacancies');
 });
 
 test('fallback language page remains accessible', async ({ page }) => {

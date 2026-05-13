@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Vacancy board structure</title>
+  <meta name="description" content="Static vacancy board structure for CrewPortGlobal with filters and placeholder vacancy cards until approved live data exists.">
+  <link rel="canonical" href="https://crewportglobal.com/vacancies/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../assets/crewportglobal-docs.css">
+  <style>
+    .page-grid,
+    .filter-grid,
+    .vacancy-grid,
+    .detail-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .page-grid {
+      grid-template-columns: minmax(0, 0.9fr) minmax(300px, 0.55fr);
+      align-items: start;
+    }
+
+    .hero-card,
+    .filter-card,
+    .vacancy-card,
+    .side-card {
+      padding: 28px;
+    }
+
+    .filter-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .filter-field,
+    .vacancy-card,
+    .side-note {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+    }
+
+    .filter-field select,
+    .filter-field input {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-on-dark);
+      font: inherit;
+    }
+
+    .filter-field input::placeholder {
+      color: var(--muted-on-dark);
+    }
+
+    .detail-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .detail-grid span,
+    .lead-copy,
+    .side-note,
+    .field-note,
+    .status-pill {
+      color: var(--muted-on-dark);
+      line-height: 1.6;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      min-height: 34px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 139, 61, 0.28);
+      background: rgba(255, 139, 61, 0.08);
+    }
+
+    .inline-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    @media (max-width: 980px) {
+      .page-grid,
+      .filter-grid,
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="doc-body">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="site-nav" aria-label="Vacancy page navigation">
+      <a class="nav-link" href="https://crewportglobal.com/" data-i18n="nav.home">Home</a>
+      <a class="nav-link is-active" href="https://crewportglobal.com/vacancies/" data-i18n="nav.vacancies">Vacancies</a>
+      <a class="nav-link" href="https://crewportglobal.com/for-seafarers/" data-i18n="nav.forSeafarers">For Seafarers</a>
+      <a class="nav-link" href="https://crewportglobal.com/for-shipowners/" data-i18n="nav.forShipowners">For Employers</a>
+      <a class="nav-link" href="https://crewportglobal.com/create-profile/" data-i18n="nav.createProfile">Create Profile</a>
+      <a class="nav-link" href="https://crewportglobal.com/post-vacancy/" data-i18n="nav.postVacancy">Post Vacancy</a>
+      <a class="nav-link" href="https://crewportglobal.com/how-it-works/" data-i18n="nav.howItWorks">How It Works</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/verification-policy/" data-i18n="nav.trustSafety">Trust &amp; Safety</a>
+      <a class="nav-link" href="https://crewportglobal.com/register/" data-i18n="nav.loginRegister">Login / Register</a>
+    </nav>
+
+    <main class="doc-main">
+      <section class="page-grid">
+        <article class="card hero-card">
+          <p class="eyebrow">Vacancy board</p>
+          <h1>Vacancy search structure for future public maritime jobs.</h1>
+          <p class="lead-copy">This page shows how CrewPortGlobal can present vacancies when approved public data exists. It does not claim that live vacancies are already available.</p>
+          <div class="inline-actions">
+            <a class="button primary" href="https://crewportglobal.com/post-vacancy/">Post Vacancy</a>
+            <a class="button secondary" href="https://crewportglobal.com/create-profile/">Create Seafarer Profile</a>
+          </div>
+        </article>
+        <aside class="card side-card">
+          <div class="side-note">
+            <strong>Current status</strong>
+            <p>No live vacancies are published in this slice. The list below is a static publication structure for review.</p>
+          </div>
+          <div class="side-note">
+            <strong>Boundary</strong>
+            <p>The site does not imply automatic employment, automatic approval or live verified vacancy publication without approved data.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="card filter-card" id="vacancy-filters">
+        <p class="eyebrow">Filters</p>
+        <h2>Vacancy filters expected for practical search.</h2>
+        <div class="filter-grid">
+          <label class="filter-field">
+            <strong>Position</strong>
+            <select>
+              <option>Any position</option>
+              <option>Deck officer</option>
+              <option>Engine officer</option>
+              <option>Rating</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <strong>Vessel type</strong>
+            <select>
+              <option>Any vessel type</option>
+              <option>Bulk carrier</option>
+              <option>Tanker</option>
+              <option>Offshore</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <strong>Salary</strong>
+            <select>
+              <option>Any salary band</option>
+              <option>Published on request</option>
+              <option>Officer range</option>
+              <option>Crew range</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <strong>Join date</strong>
+            <input type="text" placeholder="Month or embarkation window">
+          </label>
+          <label class="filter-field">
+            <strong>Duration</strong>
+            <select>
+              <option>Any duration</option>
+              <option>Short contract</option>
+              <option>Standard contract</option>
+              <option>Relief assignment</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <strong>Employer country</strong>
+            <input type="text" placeholder="Country or region">
+          </label>
+        </div>
+        <p class="field-note">These filters are static in the current slice and exist to validate the future UX shape, not to claim live search functionality.</p>
+      </section>
+
+      <section class="vacancy-grid">
+        <article class="card vacancy-card">
+          <p class="eyebrow">Vacancy card</p>
+          <h2>Awaiting approved vacancy publication</h2>
+          <div class="detail-grid">
+            <span><strong>Position:</strong> Pending employer submission</span>
+            <span><strong>Vessel type:</strong> Pending vessel context</span>
+            <span><strong>Salary:</strong> To be published after approval</span>
+            <span><strong>Join date:</strong> Pending publication</span>
+            <span><strong>Duration:</strong> Pending publication</span>
+            <span><strong>Employer country:</strong> Pending company context</span>
+            <span><strong>Employer:</strong> Pending verified company display</span>
+            <span><strong>Status:</strong> Not yet published</span>
+          </div>
+          <span class="status-pill">Not yet published</span>
+          <div class="inline-actions">
+            <a class="button secondary" href="https://crewportglobal.com/post-vacancy/">View Details</a>
+          </div>
+        </article>
+        <article class="card vacancy-card">
+          <p class="eyebrow">Vacancy card</p>
+          <h2>Employer-reviewed vacancy structure only</h2>
+          <div class="detail-grid">
+            <span><strong>Position:</strong> To be confirmed</span>
+            <span><strong>Vessel type:</strong> To be confirmed</span>
+            <span><strong>Salary:</strong> Published band later</span>
+            <span><strong>Join date:</strong> Published window later</span>
+            <span><strong>Duration:</strong> Contract term later</span>
+            <span><strong>Employer country:</strong> To be confirmed</span>
+            <span><strong>Employer:</strong> Verified display later</span>
+            <span><strong>Status:</strong> Waiting for live data approval</span>
+          </div>
+          <span class="status-pill">Waiting for approval</span>
+          <div class="inline-actions">
+            <a class="button secondary" href="https://crewportglobal.com/legal/verification-policy/">View Details</a>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+  <script src="../assets/crewportglobal-public-i18n.js" defer></script>
+</body>
+</html>

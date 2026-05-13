@@ -23,6 +23,17 @@ PUBLIC_ROOT: Final = PROJECT_ROOT / "public"
 CSS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-docs.css"
 I18N_JS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-public-i18n.js"
 FAVICON_LINKS: Final = """  <link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/favicon-32x32.png\">\n  <link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/favicon-16x16.png\">\n  <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/apple-touch-icon.png\">\n  <link rel=\"shortcut icon\" href=\"/favicon.ico\">"""
+SITE_NAV_ITEMS: Final = [
+    ("/", "nav.home", "Home"),
+    ("/vacancies/", "nav.vacancies", "Vacancies"),
+    ("/for-seafarers/", "nav.forSeafarers", "For Seafarers"),
+    ("/for-shipowners/", "nav.forShipowners", "For Employers"),
+    ("/create-profile/", "nav.createProfile", "Create Profile"),
+    ("/post-vacancy/", "nav.postVacancy", "Post Vacancy"),
+    ("/how-it-works/", "nav.howItWorks", "How It Works"),
+    ("/legal/verification-policy/", "nav.trustSafety", "Trust & Safety"),
+    ("/register/", "nav.loginRegister", "Login / Register"),
+]
 
 NAV_TRANSLATION_KEYS: Final = {
     "about": "nav.projectScope",
@@ -182,11 +193,11 @@ def load_docs() -> list[dict[str, object]]:
 
 def render_nav(docs: list[dict[str, object]], current_slug: str) -> str:
     items = []
-    for doc in docs:
-        class_name = "nav-link is-active" if doc["slug"] == current_slug else "nav-link"
-        translation_key = NAV_TRANSLATION_KEYS[doc["slug"]]
+    current_href = f"/{current_slug}/"
+    for href, translation_key, fallback_label in SITE_NAV_ITEMS:
+        class_name = "nav-link is-active" if href == current_href else "nav-link"
         items.append(
-            f'<a class="{class_name}" href="{slug_to_clean_url(doc["slug"])}" data-i18n="{translation_key}">{doc["nav_label"]}</a>'
+            f'<a class="{class_name}" href="{SITE_ORIGIN}{href}" data-i18n="{translation_key}">{fallback_label}</a>'
         )
     return "\n".join(items)
 

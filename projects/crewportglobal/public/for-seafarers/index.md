@@ -1,24 +1,29 @@
 ---
 category: Audience
 nav_label: For Seafarers
-summary: Profile, documents, complaint handling and no-fee access expectations for seafarers.
+summary: Create your maritime profile, keep document metadata ready and move toward human-reviewed vacancy consideration without recruitment fees.
 trust_note: CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.
-primary_focus: Start with onboarding acceptance
+primary_focus: Build profile readiness before later vacancy alerts
 hero_ctas:
+  - label: Create Seafarer Profile
+    href: https://crewportglobal.com/create-profile/
+    style: primary
   - label: Start Seafarer Onboarding
     href: https://crewportglobal.com/onboarding/seafarer-registration/
-    style: primary
-  - label: Review Verification Policy
+    style: secondary
+  - label: Review Trust & Safety
     href: https://crewportglobal.com/legal/verification-policy/
     style: secondary
 summary_cards:
-  - title: Acceptance-first onboarding
-    text: Seafarers can start through an explicit acceptance page before later identity integration and workspace access are introduced.
-  - title: Document readiness
-    text: CrewPortGlobal is designed to help candidates keep core maritime documents organized and reviewable.
-  - title: No-fee access rule
-    text: Profile visibility, matching consideration and onboarding acceptance are not conditioned on recruitment or placement fees.
+  - title: Create online CV
+    text: Start with role, availability, contact email and core professional profile details instead of a declaration-heavy landing flow.
+  - title: Add document metadata
+    text: Record certificate and document readiness details before wider document upload and verification layers are approved.
+  - title: Track completeness for review
+    text: The first public readiness goal remains pending_human_review rather than automatic approval or employment.
 related_links:
+  - label: Create Seafarer Profile
+    href: https://crewportglobal.com/create-profile/
   - label: Seafarer Onboarding Acceptance
     href: https://crewportglobal.com/onboarding/seafarer-registration/
   - label: Verification Policy
@@ -29,28 +34,31 @@ related_links:
 
 # CrewPortGlobal — For Seafarers
 
-CrewPortGlobal is being prepared as a digital platform where seafarers can build professional profiles, submit key documents and participate in structured matching workflows.
+CrewPortGlobal is being prepared as a practical maritime jobs entry point where seafarers can build profiles, keep document metadata ready and prepare for future vacancy consideration through a controlled workflow.
 
-## What the platform is designed to support
+## What seafarers can do first
 
-- profile creation and maintenance;
-- document collection and readiness review;
-- structured visibility for relevant opportunities;
-- complaint and correction workflows;
-- transparent operating rules.
+1. Create an online CV with role, availability and contact basics.
+2. Add document metadata and core readiness notes.
+3. Track profile completeness before wider account workflows are approved.
+4. Prepare the profile for human review as the first operational handoff.
 
 ## Core trust statement
 
 CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.
 
-## What seafarers can expect
+## What comes next in the current UX model
 
-1. A profile-oriented onboarding flow that starts from the public acceptance page.
-2. A place to keep core maritime information current.
-3. Human-reviewed handling for sensitive complaints and serious issues.
-4. A documented complaint channel for fee, privacy, document or platform concerns.
+1. Start from Create Profile or the public onboarding acceptance route.
+2. Keep core maritime information current before any broader vacancy-alert layer exists.
+3. Stay inside a controlled process that ends at pending_human_review where relevant.
+4. Use the complaint and trust documents when a fee, privacy or workflow concern appears.
 
-Seafarers can start from the public onboarding route at https://crewportglobal.com/onboarding/seafarer-registration/.
+## Vacancy alerts and matching status
+
+Vacancy alerts, broader shortlist participation and later communication layers remain future-scoped.
+
+This public slice does not claim live vacancy alerts, automatic matching or guaranteed employment.
 
 ## Important limitation
 

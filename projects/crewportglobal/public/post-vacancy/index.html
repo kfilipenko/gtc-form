@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Post vacancy</title>
+  <meta name="description" content="Static employer entry page for vacancy intake, employer verification and future shortlist workflows.">
+  <link rel="canonical" href="https://crewportglobal.com/post-vacancy/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../assets/crewportglobal-docs.css">
+  <style>
+    .flow-grid,
+    .step-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .flow-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.6fr);
+      align-items: start;
+    }
+
+    .hero-card,
+    .step-card,
+    .status-card {
+      padding: 28px;
+    }
+
+    .step-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .step-card,
+    .status-box {
+      display: grid;
+      gap: 12px;
+      padding: 20px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .lead-copy,
+    .status-box,
+    .step-card p,
+    .step-card li {
+      color: var(--muted-on-dark);
+      line-height: 1.6;
+    }
+
+    .step-card ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .inline-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    @media (max-width: 980px) {
+      .flow-grid,
+      .step-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="doc-body">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="site-nav" aria-label="Post vacancy navigation">
+      <a class="nav-link" href="https://crewportglobal.com/" data-i18n="nav.home">Home</a>
+      <a class="nav-link" href="https://crewportglobal.com/vacancies/" data-i18n="nav.vacancies">Vacancies</a>
+      <a class="nav-link" href="https://crewportglobal.com/for-seafarers/" data-i18n="nav.forSeafarers">For Seafarers</a>
+      <a class="nav-link" href="https://crewportglobal.com/for-shipowners/" data-i18n="nav.forShipowners">For Employers</a>
+      <a class="nav-link" href="https://crewportglobal.com/create-profile/" data-i18n="nav.createProfile">Create Profile</a>
+      <a class="nav-link is-active" href="https://crewportglobal.com/post-vacancy/" data-i18n="nav.postVacancy">Post Vacancy</a>
+      <a class="nav-link" href="https://crewportglobal.com/how-it-works/" data-i18n="nav.howItWorks">How It Works</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/verification-policy/" data-i18n="nav.trustSafety">Trust &amp; Safety</a>
+      <a class="nav-link" href="https://crewportglobal.com/register/" data-i18n="nav.loginRegister">Login / Register</a>
+    </nav>
+
+    <main class="doc-main">
+      <section class="flow-grid">
+        <article class="card hero-card">
+          <p class="eyebrow">Post vacancy</p>
+          <h1>Prepare employer intake before live vacancy publication.</h1>
+          <p class="lead-copy">This page gives employers and crewing managers a direct path to register company intent, structure vacancy requirements and prepare for reviewed profile access.</p>
+          <div class="inline-actions">
+            <a class="button primary" href="https://crewportglobal.com/register/">Register Employer</a>
+            <a class="button secondary" href="https://crewportglobal.com/vacancies/">Open Vacancy Board</a>
+          </div>
+        </article>
+        <aside class="card status-card">
+          <div class="status-box">
+            <strong>Controlled process</strong>
+            <p>Controlled communication and shortlist management are future layers. This page does not imply uncontrolled direct outreach or automatic candidate delivery.</p>
+          </div>
+          <div class="status-box">
+            <strong>Employer verification</strong>
+            <p>Company verification remains visible as a prerequisite before wider operational access or stronger public trust claims.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="step-grid">
+        <article class="card step-card">
+          <p class="eyebrow">Step 1</p>
+          <h2>Register company</h2>
+          <ul>
+            <li>Employer, shipowner or crewing manager role</li>
+            <li>Company identity and operating context</li>
+            <li>Responsible contact details</li>
+          </ul>
+        </article>
+        <article class="card step-card">
+          <p class="eyebrow">Step 2</p>
+          <h2>Post vacancy</h2>
+          <ul>
+            <li>Position and vessel type</li>
+            <li>Salary band, join date and duration</li>
+            <li>Employer country and operating notes</li>
+          </ul>
+        </article>
+        <article class="card step-card">
+          <p class="eyebrow">Step 3</p>
+          <h2>Review profiles later</h2>
+          <ul>
+            <li>Prepared seafarer profiles only</li>
+            <li>Shortlist management later</li>
+            <li>Human-reviewed workflow only</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+  </div>
+  <script src="../assets/crewportglobal-public-i18n.js" defer></script>
+</body>
+</html>

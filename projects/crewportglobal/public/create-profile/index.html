@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Create seafarer profile</title>
+  <meta name="description" content="Static entry page for seafarers to create a profile, add document metadata and prepare for human review.">
+  <link rel="canonical" href="https://crewportglobal.com/create-profile/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../assets/crewportglobal-docs.css">
+  <style>
+    .profile-grid,
+    .step-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .profile-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.6fr);
+      align-items: start;
+    }
+
+    .hero-card,
+    .step-card,
+    .status-card {
+      padding: 28px;
+    }
+
+    .step-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .step-card,
+    .status-box {
+      display: grid;
+      gap: 12px;
+      padding: 20px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .lead-copy,
+    .status-box,
+    .step-card p,
+    .step-card li {
+      color: var(--muted-on-dark);
+      line-height: 1.6;
+    }
+
+    .step-card ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .inline-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    @media (max-width: 980px) {
+      .profile-grid,
+      .step-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="doc-body">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="site-nav" aria-label="Create profile navigation">
+      <a class="nav-link" href="https://crewportglobal.com/" data-i18n="nav.home">Home</a>
+      <a class="nav-link" href="https://crewportglobal.com/vacancies/" data-i18n="nav.vacancies">Vacancies</a>
+      <a class="nav-link" href="https://crewportglobal.com/for-seafarers/" data-i18n="nav.forSeafarers">For Seafarers</a>
+      <a class="nav-link" href="https://crewportglobal.com/for-shipowners/" data-i18n="nav.forShipowners">For Employers</a>
+      <a class="nav-link is-active" href="https://crewportglobal.com/create-profile/" data-i18n="nav.createProfile">Create Profile</a>
+      <a class="nav-link" href="https://crewportglobal.com/post-vacancy/" data-i18n="nav.postVacancy">Post Vacancy</a>
+      <a class="nav-link" href="https://crewportglobal.com/how-it-works/" data-i18n="nav.howItWorks">How It Works</a>
+      <a class="nav-link" href="https://crewportglobal.com/legal/verification-policy/" data-i18n="nav.trustSafety">Trust &amp; Safety</a>
+      <a class="nav-link" href="https://crewportglobal.com/register/" data-i18n="nav.loginRegister">Login / Register</a>
+    </nav>
+
+    <main class="doc-main">
+      <section class="profile-grid">
+        <article class="card hero-card">
+          <p class="eyebrow">Create profile</p>
+          <h1>Build a seafarer profile that is ready for human review.</h1>
+          <p class="lead-copy">This page turns the public seafarer path into a useful first action: create profile basics, add document metadata, track completeness and stay inside the no-fee rule.</p>
+          <div class="inline-actions">
+            <a class="button primary" href="https://crewportglobal.com/onboarding/seafarer-registration/">Start Seafarer Onboarding</a>
+            <a class="button secondary" href="https://crewportglobal.com/register/">Open Login / Register</a>
+          </div>
+        </article>
+        <aside class="card status-card">
+          <div class="status-box">
+            <strong>Current terminal state</strong>
+            <p>The first implementation terminal state remains pending_human_review where relevant. This page does not imply automatic approval or employment.</p>
+          </div>
+          <div class="status-box">
+            <strong>No recruitment fee</strong>
+            <p>CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees to enter the profile workflow.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="step-grid">
+        <article class="card step-card">
+          <p class="eyebrow">Step 1</p>
+          <h2>Create online CV</h2>
+          <ul>
+            <li>Role and rank basics</li>
+            <li>Contact email</li>
+            <li>Availability window</li>
+          </ul>
+        </article>
+        <article class="card step-card">
+          <p class="eyebrow">Step 2</p>
+          <h2>Add document metadata</h2>
+          <ul>
+            <li>Certificate readiness notes</li>
+            <li>Document completeness tracking</li>
+            <li>Preparation for later verified review</li>
+          </ul>
+        </article>
+        <article class="card step-card">
+          <p class="eyebrow">Step 3</p>
+          <h2>Prepare for review</h2>
+          <ul>
+            <li>Track completeness status</li>
+            <li>Keep acknowledgements explicit</li>
+            <li>Reach pending_human_review</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+  </div>
+  <script src="../assets/crewportglobal-public-i18n.js" defer></script>
+</body>
+</html>
