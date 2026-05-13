@@ -133,7 +133,14 @@ function build_draft_response(string $userId): array {
     ];
 }
 
-function write_audit_event(string $eventType, string $userId, ?string $companyId, ?string $vesselId, array $eventPayload): void {
+function write_audit_event(
+    string $eventType,
+    string $userId,
+    ?string $companyId,
+    ?string $vesselId,
+    array $eventPayload,
+    string $source = 'registration_api'
+): void {
     $json = json_encode($eventPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     if ($json === false) {
         $json = '{}';
@@ -146,7 +153,7 @@ function write_audit_event(string $eventType, string $userId, ?string $companyId
         'INSERT INTO crewportglobal.registration_audit_events (
             event_type, user_id, company_id, vessel_id, actor_user_id, source, event_payload, ip_address, user_agent
          ) VALUES ($1, $2, $3, $4, $2, $5, $6::jsonb, $7::inet, $8)',
-        [$eventType, $userId, $companyId, $vesselId, 'registration_api', $json, $ipAddress, $userAgent]
+        [$eventType, $userId, $companyId, $vesselId, $source, $json, $ipAddress, $userAgent]
     );
 }
 
@@ -728,7 +735,7 @@ function apply_operator_review_decision(string $draftId, string $decision): arra
             'previous_status' => $previousStatus,
             'new_status' => $newStatus,
             'role' => $role,
-        ]);
+        ], 'operator_review_queue');
 
         return [
             'queue_type' => 'seafarer_profile',
@@ -775,7 +782,7 @@ function apply_operator_review_decision(string $draftId, string $decision): arra
         'previous_status' => $previousStatus,
         'new_status' => $newStatus,
         'role' => $role,
-    ]);
+    ], 'operator_review_queue');
 
     return [
         'queue_type' => 'company_verification',
