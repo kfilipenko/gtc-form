@@ -354,7 +354,7 @@
             </div>
             <div class="hero-fact">
               <strong data-i18n="reg.factLocalTitle">Project-local onboarding</strong>
-              <span data-i18n="reg.factLocalBody">Your acceptance draft is kept locally in this browser until a dedicated CrewPortGlobal identity flow is designed.</span>
+              <span data-i18n="reg.factLocalBody">Your acceptance draft is saved to backend and mirrored locally in this browser for continuity between onboarding steps.</span>
             </div>
             <div class="hero-fact">
               <strong data-i18n="reg.factReviewTitle">Human-review handoff</strong>
@@ -373,7 +373,7 @@
           <div>
             <p class="eyebrow" data-i18n="reg.formEyebrow">Registration flow</p>
             <h2 data-i18n="reg.formTitle">Save your onboarding acceptance draft</h2>
-            <p class="lead" data-i18n="reg.formLead">The form below records your contact details and required acknowledgements locally in this browser. Shared authentication is not part of the Stage 1 public workflow.</p>
+            <p class="lead" data-i18n="reg.formLead">The form below saves your contact details and required acknowledgements to backend draft endpoints and mirrors the state locally in this browser.</p>
           </div>
 
           <section class="route-summary" aria-live="polite">
@@ -533,14 +533,14 @@
         'reg.factNoFeeTitle': 'No-fee baseline',
         'reg.factNoFeeBody': 'You do not pay to create a profile or enter the matching flow.',
         'reg.factLocalTitle': 'Project-local onboarding',
-        'reg.factLocalBody': 'Your acceptance draft is kept locally in this browser until a dedicated CrewPortGlobal identity flow is designed.',
+        'reg.factLocalBody': 'Your acceptance draft is saved to backend and mirrored locally in this browser for continuity between onboarding steps.',
         'reg.factReviewTitle': 'Human-review handoff',
         'reg.factReviewBody': 'This slice ends at pending human review and does not create shared authentication or account activation.',
         'reg.reviewAgreement': 'Review agreement',
         'reg.reviewPrivacy': 'Review privacy',
         'reg.formEyebrow': 'Registration flow',
         'reg.formTitle': 'Save your onboarding acceptance draft',
-        'reg.formLead': 'The form below records your contact details and required acknowledgements locally in this browser. Shared authentication is not part of the Stage 1 public workflow.',
+        'reg.formLead': 'The form below saves your contact details and required acknowledgements to backend draft endpoints and mirrors the state locally in this browser.',
         'reg.routeEyebrow': 'Route state',
         'reg.routeTitle': 'Acceptance-first progress',
         'reg.routeLead': 'The UI keeps no-fee acknowledgement and consent dependency visible before the route can end in pending human review.',
@@ -609,7 +609,7 @@
         'reg.routeStateHintNotStarted': 'The route remains at not_started until the draft intake begins in this browser.',
         'reg.routeStateHintIncomplete': 'The route is incomplete. Finish the required inputs and acknowledgements before the page can move toward pending human review.',
         'reg.routeStateHintPendingConsent': 'Required no-fee and consent acknowledgements must be satisfied before the draft can be handed off to pending human review.',
-        'reg.routeStateHintPendingHumanReview': 'This acceptance-first flow ends with submitted for human review and keeps backend, auth and database writes out of scope.',
+        'reg.routeStateHintPendingHumanReview': 'This acceptance-first flow ends with submitted for human review after backend draft save and local continuity update.',
         'reg.completeValuePattern': '{complete} / {total} complete',
         'reg.completeHintIncomplete': 'The page cannot continue yet because one or more required items are still missing.',
         'reg.completeHintReady': 'All required items are complete. Saving the draft can now move the page to pending human review.',
@@ -625,11 +625,12 @@
         'reg.errorCompletenessRequired': 'Complete all required items before saving the draft.',
         'reg.errorEmailRequired': 'Email is required.',
         'reg.errorAcknowledgementsRequired': 'All required acknowledgements must be accepted before registration.',
-        'reg.successSaved': 'Acceptance draft saved in this browser with final UI state pending human review. Shared authentication will be introduced later as a separate CrewPortGlobal stage.',
+        'reg.successSaved': 'Acceptance draft saved to backend with final UI state pending human review and local continuity preserved for the next steps.',
         'reg.errorSaveFailed': 'Saving the acceptance draft failed.'
       }
     };
   </script>
+  <script src="../../assets/crewportglobal-registration-drafts.js"></script>
   <script src="../../assets/crewportglobal-public-i18n.js"></script>
   <script>
     (function () {
@@ -650,6 +651,21 @@
 
       let statusModel = { key: '', kind: '', suffix: '' };
       let isSaving = false;
+
+      function getDraftIdFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return (params.get('draft_id') || '').trim();
+      }
+
+      function mapAvailabilityToApi(value) {
+        if (value === 'available_now') {
+          return 'available_now';
+        }
+        if (value === 'within_30_days' || value === 'planning_ahead') {
+          return 'available_later';
+        }
+        return 'unknown';
+      }
 
       function getLanguage() {
         return document.documentElement.lang || 'en';
@@ -887,7 +903,7 @@
         syncDynamicUi();
       });
 
-      form.addEventListener('submit', (event) => {
+      form.addEventListener('submit', async (event) => {
         event.preventDefault();
         setStatus('', '', '');
 
@@ -910,7 +926,17 @@
         renderSubmitButton();
 
         try {
+          const response = await window.CPGDrafts.createOrUpdateDraft({
+            role: 'seafarer',
+            email: snapshot.email,
+            full_name: snapshot.fullName,
+            availability_status: mapAvailabilityToApi(snapshot.availability),
+          }, {
+            draftId: getDraftIdFromUrl(),
+          });
+
           persistAcceptance('pending_human_review');
+          window.history.replaceState(null, '', `?draft_id=${encodeURIComponent(response.draft_id)}`);
           setStatus('reg.successSaved', 'success');
         } catch (error) {
           setStatus('reg.errorSaveFailed', 'error', error && error.message ? error.message : '');
