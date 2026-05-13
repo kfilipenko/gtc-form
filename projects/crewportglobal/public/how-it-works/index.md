@@ -12,15 +12,15 @@ CrewPortGlobal is being prepared as a practical maritime jobs and crew workflow 
 
 1. Create a profile and start from the onboarding acceptance route.
 2. Add document metadata, contact email and availability.
-3. Track completeness and prepare the profile for pending_human_review.
-4. Move toward future vacancy alerts only after later approved workflow layers exist.
+3. Track completeness and submit the profile for human review.
+4. Stay ready for public vacancies as they become available.
 
 ## For employers
 
 1. Register company intent and employer context.
 2. Post vacancy requirements for rank, vessel type, salary, join date and duration.
-3. Review prepared seafarer profiles after human review gates.
-4. Add shortlist management and controlled communication only in future approved slices.
+3. Review prepared seafarer profiles after human review.
+4. Keep communication controlled and based on reviewed information.
 
 ## Governance
 

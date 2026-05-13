@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CrewPortGlobal | Login and register</title>
-  <meta name="description" content="Static role-selection and consent gate for future CrewPortGlobal authentication and registration flows.">
+  <meta name="description" content="CrewPortGlobal role selection and consent page for seafarers, employers and crewing managers.">
   <link rel="canonical" href="https://crewportglobal.com/register/">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -157,99 +157,210 @@
     <main class="doc-main">
       <section class="register-grid">
         <article class="card register-card">
-          <p class="eyebrow">Login / Register</p>
-          <h1>Choose your role and continue to the right workflow.</h1>
-          <p class="lead-copy">This page defines the public registration structure: role selection, email or password fields, benefit overview and consent gates. Shared authentication remains a later approved implementation slice.</p>
+          <p class="eyebrow" data-i18n="register.hero.eyebrow">Login / Register</p>
+          <h1 data-i18n="register.hero.title">Choose your role and continue to the right workflow.</h1>
+          <p class="lead-copy" data-i18n="register.hero.copy">Select the right path for seafarers, employers and crewing managers, save your draft locally and continue to the next page.</p>
           <section class="role-grid" id="role-grid">
             <button class="role-card is-selected" type="button" data-role="seafarer">
-              <strong>Seafarer</strong>
+              <strong data-i18n="register.role.seafarer.title">Seafarer</strong>
               <ul class="option-list">
-                <li>Create online CV</li>
-                <li>Add document metadata</li>
-                <li>Prepare for human review</li>
+                <li data-i18n="register.role.seafarer.item1">Create online CV</li>
+                <li data-i18n="register.role.seafarer.item2">Add document metadata</li>
+                <li data-i18n="register.role.seafarer.item3">Prepare for human review</li>
               </ul>
             </button>
             <button class="role-card" type="button" data-role="employer">
-              <strong>Employer / Shipowner</strong>
+              <strong data-i18n="register.role.employer.title">Employer / Shipowner</strong>
               <ul class="option-list">
-                <li>Register company</li>
-                <li>Post vacancy</li>
-                <li>Review prepared profiles later</li>
+                <li data-i18n="register.role.employer.item1">Register company</li>
+                <li data-i18n="register.role.employer.item2">Post vacancy</li>
+                <li data-i18n="register.role.employer.item3">Review prepared profiles later</li>
               </ul>
             </button>
             <button class="role-card" type="button" data-role="crewing-manager">
-              <strong>Crewing Manager</strong>
+              <strong data-i18n="register.role.manager.title">Crewing Manager</strong>
               <ul class="option-list">
-                <li>Coordinate vacancy intake</li>
-                <li>Manage employer-side workflow</li>
-                <li>Stay inside controlled process</li>
+                <li data-i18n="register.role.manager.item1">Coordinate vacancy intake</li>
+                <li data-i18n="register.role.manager.item2">Manage employer-side workflow</li>
+                <li data-i18n="register.role.manager.item3">Work inside the reviewed process</li>
               </ul>
             </button>
           </section>
 
           <form id="register-form" class="field-grid">
             <label class="field-card">
-              <strong>Email</strong>
-              <input id="email" type="email" placeholder="name@company.com or seafarer email" required>
+              <strong data-i18n="register.form.email">Email</strong>
+              <input id="email" type="email" placeholder="name@company.com or seafarer email" data-i18n-placeholder="register.form.email.placeholder" required>
             </label>
             <label class="field-card">
-              <strong>Password</strong>
-              <input id="password" type="password" placeholder="Create password for approved auth method" required>
+              <strong data-i18n="register.form.password">Password</strong>
+              <input id="password" type="password" placeholder="Create a password for this preview" data-i18n-placeholder="register.form.password.placeholder" required>
             </label>
             <label class="field-card full">
-              <strong>Approved auth method</strong>
-              <input type="text" placeholder="Email/password in this static slice; wider auth approval comes later" readonly>
+              <strong data-i18n="register.form.method">Current access method</strong>
+              <input type="text" placeholder="Email and password in the current preview" data-i18n-placeholder="register.form.method.placeholder" readonly>
             </label>
             <div class="field-card full">
-              <strong>Terms and consent gate</strong>
+              <strong data-i18n="register.form.consent.title">Terms and consent</strong>
               <div class="consent-list">
                 <label class="consent-item">
                   <input id="terms" type="checkbox" required>
-                  <span>I accept the terms, privacy and no-fee access rules shown on the public site.</span>
+                  <span data-i18n="register.form.consent.item1">I accept the terms, privacy and no-fee access rules shown on the public site.</span>
                 </label>
                 <label class="consent-item">
                   <input id="consent" type="checkbox" required>
-                  <span>I understand that approval, verification and employment are not automatic outcomes.</span>
+                  <span data-i18n="register.form.consent.item2">I understand that approval, verification and employment are not automatic outcomes.</span>
                 </label>
               </div>
             </div>
             <div class="field-card full">
               <div class="inline-actions">
-                <button id="continue-button" class="button primary" type="submit">Continue to next step</button>
-                <a class="button secondary" href="https://crewportglobal.com/how-it-works/">How It Works</a>
+                <button id="continue-button" class="button primary" type="submit">Continue as Seafarer</button>
+                <a class="button secondary" href="https://crewportglobal.com/how-it-works/" data-i18n="register.form.howItWorks">How It Works</a>
               </div>
-              <p id="register-status" class="status-note">This page stores only a local role-selection draft and forwards you to the next static step. It does not create a live account yet.</p>
+              <p id="register-status" class="status-note" data-i18n="register.form.status">This preview stores your selected role locally and forwards you to the next page. It does not create a live account yet.</p>
             </div>
           </form>
         </article>
 
         <aside class="card side-card">
           <div class="status-box">
-            <strong>What remains placeholder</strong>
-            <p>Shared authentication, live session creation, real account login and backend registration are not implemented in this slice.</p>
+            <strong data-i18n="register.side.preview.title">Current preview</strong>
+            <p data-i18n="register.side.preview.copy">Shared authentication, live sessions and backend registration are not available on this page yet.</p>
           </div>
           <div class="status-box">
-            <strong>What this page is for</strong>
-            <p>It makes role intent and consent visible early so the site feels like a real entry point for seafarers and employers instead of only a declaration library.</p>
+            <strong data-i18n="register.side.purpose.title">What this page is for</strong>
+            <p data-i18n="register.side.purpose.copy">It makes role choice and consent clear early so seafarers and employers can move into the right workflow quickly.</p>
           </div>
         </aside>
       </section>
     </main>
   </div>
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'register.hero.eyebrow': 'Login / Register',
+        'register.hero.title': 'Choose your role and continue to the right workflow.',
+        'register.hero.copy': 'Select the right path for seafarers, employers and crewing managers, save your draft locally and continue to the next page.',
+        'register.role.seafarer.title': 'Seafarer',
+        'register.role.seafarer.item1': 'Create online CV',
+        'register.role.seafarer.item2': 'Add document metadata',
+        'register.role.seafarer.item3': 'Prepare for human review',
+        'register.role.employer.title': 'Employer / Shipowner',
+        'register.role.employer.item1': 'Register company',
+        'register.role.employer.item2': 'Post vacancy',
+        'register.role.employer.item3': 'Review prepared profiles later',
+        'register.role.manager.title': 'Crewing Manager',
+        'register.role.manager.item1': 'Coordinate vacancy intake',
+        'register.role.manager.item2': 'Manage employer-side workflow',
+        'register.role.manager.item3': 'Work inside the reviewed process',
+        'register.form.email': 'Email',
+        'register.form.email.placeholder': 'name@company.com or seafarer email',
+        'register.form.password': 'Password',
+        'register.form.password.placeholder': 'Create a password for this preview',
+        'register.form.method': 'Current access method',
+        'register.form.method.placeholder': 'Email and password in the current preview',
+        'register.form.consent.title': 'Terms and consent',
+        'register.form.consent.item1': 'I accept the terms, privacy and no-fee access rules shown on the public site.',
+        'register.form.consent.item2': 'I understand that approval, verification and employment are not automatic outcomes.',
+        'register.form.howItWorks': 'How It Works',
+        'register.form.status': 'This preview stores your selected role locally and forwards you to the next page. It does not create a live account yet.',
+        'register.side.preview.title': 'Current preview',
+        'register.side.preview.copy': 'Shared authentication, live sessions and backend registration are not available on this page yet.',
+        'register.side.purpose.title': 'What this page is for',
+        'register.side.purpose.copy': 'It makes role choice and consent clear early so seafarers and employers can move into the right workflow quickly.'
+      },
+      ru: {
+        'register.hero.eyebrow': 'Вход / Регистрация',
+        'register.hero.title': 'Выберите роль и перейдите в нужный сценарий.',
+        'register.hero.copy': 'Выберите правильный путь для моряка, работодателя или crewing manager, сохраните черновик локально и перейдите к следующей странице.',
+        'register.role.seafarer.title': 'Моряк',
+        'register.role.seafarer.item1': 'Создать онлайн-CV',
+        'register.role.seafarer.item2': 'Добавить метаданные документов',
+        'register.role.seafarer.item3': 'Подготовить к ручной проверке',
+        'register.role.employer.title': 'Работодатель / Судовладелец',
+        'register.role.employer.item1': 'Зарегистрировать компанию',
+        'register.role.employer.item2': 'Подготовить вакансию',
+        'register.role.employer.item3': 'Позже просматривать подготовленные профили',
+        'register.role.manager.title': 'Crewing Manager',
+        'register.role.manager.item1': 'Координировать приём вакансий',
+        'register.role.manager.item2': 'Вести процесс со стороны работодателя',
+        'register.role.manager.item3': 'Работать внутри проверяемого процесса',
+        'register.form.email': 'Email',
+        'register.form.email.placeholder': 'name@company.com или email моряка',
+        'register.form.password': 'Пароль',
+        'register.form.password.placeholder': 'Создайте пароль для этого превью',
+        'register.form.method': 'Текущий способ доступа',
+        'register.form.method.placeholder': 'Email и пароль в текущем превью',
+        'register.form.consent.title': 'Условия и согласие',
+        'register.form.consent.item1': 'Я принимаю условия, политику конфиденциальности и правило доступа без сборов, указанные на сайте.',
+        'register.form.consent.item2': 'Я понимаю, что одобрение, проверка и трудоустройство не происходят автоматически.',
+        'register.form.howItWorks': 'Как это работает',
+        'register.form.status': 'Это превью сохраняет выбранную роль локально и переводит вас на следующую страницу. Живой аккаунт пока не создаётся.',
+        'register.side.preview.title': 'Текущее превью',
+        'register.side.preview.copy': 'Общая аутентификация, живые сессии и серверная регистрация на этой странице пока недоступны.',
+        'register.side.purpose.title': 'Для чего эта страница',
+        'register.side.purpose.copy': 'Она делает выбор роли и согласия понятными с самого начала, чтобы моряки и работодатели быстрее попадали в нужный сценарий.'
+      }
+    };
+  </script>
   <script src="../assets/crewportglobal-public-i18n.js" defer></script>
   <script>
     (function () {
       const roleButtons = Array.from(document.querySelectorAll('[data-role]'));
       const form = document.getElementById('register-form');
       const status = document.getElementById('register-status');
+      const continueButton = document.getElementById('continue-button');
       let selectedRole = 'seafarer';
+
+      const roleLabels = {
+        en: {
+          seafarer: 'Continue as Seafarer',
+          employer: 'Continue as Employer',
+          'crewing-manager': 'Continue as Crewing Manager',
+          validation: 'Complete email, password and both consent checks before continuing.',
+          storageError: 'Role selection could not be stored locally, but you can still continue.',
+          status: 'This preview stores your selected role locally and forwards you to the next page. It does not create a live account yet.'
+        },
+        ru: {
+          seafarer: 'Продолжить как моряк',
+          employer: 'Продолжить как работодатель',
+          'crewing-manager': 'Продолжить как crewing manager',
+          validation: 'Заполните email, пароль и отметьте оба согласия перед продолжением.',
+          storageError: 'Выбор роли не удалось сохранить локально, но вы всё равно можете продолжить.',
+          status: 'Это превью сохраняет выбранную роль локально и переводит вас на следующую страницу. Живой аккаунт пока не создаётся.'
+        }
+      };
+
+      function resolveLanguage() {
+        const language = document.documentElement.lang || 'en';
+        return roleLabels[language] ? language : 'en';
+      }
+
+      function updateContinueButton() {
+        const language = resolveLanguage();
+        continueButton.textContent = roleLabels[language][selectedRole];
+
+        if (!status.dataset.messageOverride) {
+          status.textContent = roleLabels[language].status;
+        }
+      }
 
       roleButtons.forEach((button) => {
         button.addEventListener('click', () => {
           selectedRole = button.dataset.role;
           roleButtons.forEach((item) => item.classList.toggle('is-selected', item === button));
+          status.dataset.messageOverride = '';
+          updateContinueButton();
         });
       });
+
+      window.addEventListener('crewportglobal:languagechange', () => {
+        status.dataset.messageOverride = '';
+        updateContinueButton();
+      });
+
+      updateContinueButton();
 
       form.addEventListener('submit', (event) => {
         event.preventDefault();
@@ -257,9 +368,11 @@
         const password = document.getElementById('password');
         const terms = document.getElementById('terms');
         const consent = document.getElementById('consent');
+        const language = resolveLanguage();
 
         if (!email.value.trim() || !password.value.trim() || !terms.checked || !consent.checked) {
-          status.textContent = 'Complete email, password and both consent checks before continuing.';
+          status.textContent = roleLabels[language].validation;
+          status.dataset.messageOverride = 'true';
           return;
         }
 
@@ -267,7 +380,8 @@
           window.localStorage.setItem('crewportglobal.registration.role', selectedRole);
           window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
         } catch (error) {
-          status.textContent = 'Role intent could not be stored locally, but you can still continue.';
+          status.textContent = roleLabels[language].storageError;
+          status.dataset.messageOverride = 'true';
         }
 
         const nextPath = selectedRole === 'seafarer'

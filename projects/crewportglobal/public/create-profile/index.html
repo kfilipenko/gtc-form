@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CrewPortGlobal | Create seafarer profile</title>
-  <meta name="description" content="Static entry page for seafarers to create a profile, add document metadata and prepare for human review.">
+  <meta name="description" content="CrewPortGlobal seafarer entry page for CV basics, certificates, availability, contact details and document metadata.">
   <link rel="canonical" href="https://crewportglobal.com/create-profile/">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -112,57 +112,113 @@
     <main class="doc-main">
       <section class="profile-grid">
         <article class="card hero-card">
-          <p class="eyebrow">Create profile</p>
-          <h1>Build a seafarer profile that is ready for human review.</h1>
-          <p class="lead-copy">This page turns the public seafarer path into a useful first action: create profile basics, add document metadata, track completeness and stay inside the no-fee rule.</p>
+          <p class="eyebrow" data-i18n="create.hero.eyebrow">Create profile</p>
+          <h1 data-i18n="create.hero.title">Start your seafarer profile.</h1>
+          <p class="lead-copy" data-i18n="create.hero.copy">Add CV basics, rank, certificates, availability, contact details and document metadata in one place.</p>
           <div class="inline-actions">
-            <a class="button primary" href="https://crewportglobal.com/onboarding/seafarer-registration/">Start Seafarer Onboarding</a>
-            <a class="button secondary" href="https://crewportglobal.com/register/">Open Login / Register</a>
+            <a class="button primary" href="https://crewportglobal.com/onboarding/seafarer-registration/" data-i18n="create.hero.primaryCta">Start Seafarer Onboarding</a>
+            <a class="button secondary" href="https://crewportglobal.com/register/" data-i18n="create.hero.secondaryCta">Choose Role / Register</a>
           </div>
         </article>
         <aside class="card status-card">
           <div class="status-box">
-            <strong>Current terminal state</strong>
-            <p>The first implementation terminal state remains pending_human_review where relevant. This page does not imply automatic approval or employment.</p>
+            <strong data-i18n="create.side.review.title">Review status</strong>
+            <p data-i18n="create.side.review.copy">Completed profiles are submitted for human review before wider candidate presentation. This page does not imply automatic approval or employment.</p>
           </div>
           <div class="status-box">
-            <strong>No recruitment fee</strong>
-            <p>CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees to enter the profile workflow.</p>
+            <strong data-i18n="create.side.fees.title">No recruitment fee</strong>
+            <p data-i18n="create.side.fees.copy">CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees to enter the profile workflow.</p>
           </div>
         </aside>
       </section>
 
       <section class="step-grid">
         <article class="card step-card">
-          <p class="eyebrow">Step 1</p>
-          <h2>Create online CV</h2>
+          <p class="eyebrow" data-i18n="create.step1.eyebrow">Step 1</p>
+          <h2 data-i18n="create.step1.title">Build your CV basics</h2>
           <ul>
-            <li>Role and rank basics</li>
-            <li>Contact email</li>
-            <li>Availability window</li>
+            <li data-i18n="create.step1.item1">Role and rank basics</li>
+            <li data-i18n="create.step1.item2">Contact details</li>
+            <li data-i18n="create.step1.item3">Availability window</li>
           </ul>
         </article>
         <article class="card step-card">
-          <p class="eyebrow">Step 2</p>
-          <h2>Add document metadata</h2>
+          <p class="eyebrow" data-i18n="create.step2.eyebrow">Step 2</p>
+          <h2 data-i18n="create.step2.title">Add certificates and document details</h2>
           <ul>
-            <li>Certificate readiness notes</li>
-            <li>Document completeness tracking</li>
-            <li>Preparation for later verified review</li>
+            <li data-i18n="create.step2.item1">Certificate readiness notes</li>
+            <li data-i18n="create.step2.item2">Passport, visa and document metadata</li>
+            <li data-i18n="create.step2.item3">Document completeness tracking</li>
           </ul>
         </article>
         <article class="card step-card">
-          <p class="eyebrow">Step 3</p>
-          <h2>Prepare for review</h2>
+          <p class="eyebrow" data-i18n="create.step3.eyebrow">Step 3</p>
+          <h2 data-i18n="create.step3.title">Submit for review</h2>
           <ul>
-            <li>Track completeness status</li>
-            <li>Keep acknowledgements explicit</li>
-            <li>Reach pending_human_review</li>
+            <li data-i18n="create.step3.item1">Track completeness status</li>
+            <li data-i18n="create.step3.item2">Keep acknowledgements explicit</li>
+            <li data-i18n="create.step3.item3">Submitted for human review</li>
           </ul>
         </article>
       </section>
     </main>
   </div>
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'create.hero.eyebrow': 'Create profile',
+        'create.hero.title': 'Start your seafarer profile.',
+        'create.hero.copy': 'Add CV basics, rank, certificates, availability, contact details and document metadata in one place.',
+        'create.hero.primaryCta': 'Start Seafarer Onboarding',
+        'create.hero.secondaryCta': 'Choose Role / Register',
+        'create.side.review.title': 'Review status',
+        'create.side.review.copy': 'Completed profiles are submitted for human review before wider candidate presentation. This page does not imply automatic approval or employment.',
+        'create.side.fees.title': 'No recruitment fee',
+        'create.side.fees.copy': 'CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees to enter the profile workflow.',
+        'create.step1.eyebrow': 'Step 1',
+        'create.step1.title': 'Build your CV basics',
+        'create.step1.item1': 'Role and rank basics',
+        'create.step1.item2': 'Contact details',
+        'create.step1.item3': 'Availability window',
+        'create.step2.eyebrow': 'Step 2',
+        'create.step2.title': 'Add certificates and document details',
+        'create.step2.item1': 'Certificate readiness notes',
+        'create.step2.item2': 'Passport, visa and document metadata',
+        'create.step2.item3': 'Document completeness tracking',
+        'create.step3.eyebrow': 'Step 3',
+        'create.step3.title': 'Submit for review',
+        'create.step3.item1': 'Track completeness status',
+        'create.step3.item2': 'Keep acknowledgements explicit',
+        'create.step3.item3': 'Submitted for human review'
+      },
+      ru: {
+        'create.hero.eyebrow': 'Создать профиль',
+        'create.hero.title': 'Начните профиль моряка.',
+        'create.hero.copy': 'Добавьте базовое CV, должность, сертификаты, доступность, контакты и метаданные документов в одном месте.',
+        'create.hero.primaryCta': 'Начать онбординг моряка',
+        'create.hero.secondaryCta': 'Выбрать роль / зарегистрироваться',
+        'create.side.review.title': 'Статус проверки',
+        'create.side.review.copy': 'Завершённые профили отправляются на ручную проверку до более широкого представления кандидата. Эта страница не обещает автоматическое одобрение или трудоустройство.',
+        'create.side.fees.title': 'Без рекрутинговых сборов',
+        'create.side.fees.copy': 'CrewPortGlobal не взимает с моряков сборы за рекрутинг, трудоустройство или доступ к профилю.',
+        'create.step1.eyebrow': 'Шаг 1',
+        'create.step1.title': 'Соберите основу CV',
+        'create.step1.item1': 'База по должности и рангу',
+        'create.step1.item2': 'Контактные данные',
+        'create.step1.item3': 'Окно доступности',
+        'create.step2.eyebrow': 'Шаг 2',
+        'create.step2.title': 'Добавьте сертификаты и данные документов',
+        'create.step2.item1': 'Заметки о готовности сертификатов',
+        'create.step2.item2': 'Паспорт, виза и метаданные документов',
+        'create.step2.item3': 'Отслеживание полноты документов',
+        'create.step3.eyebrow': 'Шаг 3',
+        'create.step3.title': 'Отправьте на проверку',
+        'create.step3.item1': 'Следите за полнотой профиля',
+        'create.step3.item2': 'Явно подтверждайте согласия',
+        'create.step3.item3': 'Отправлено на ручную проверку'
+      }
+    };
+  </script>
   <script src="../assets/crewportglobal-public-i18n.js" defer></script>
 </body>
 </html>

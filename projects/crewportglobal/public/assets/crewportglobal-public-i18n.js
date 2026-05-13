@@ -22,7 +22,7 @@
 
   const CHROME_TRANSLATIONS = {
     en: {
-      'site.tagline': 'Maritime documentation and matching platform',
+      'site.tagline': 'Maritime jobs and crew platform',
       'site.languageLabel': 'Language',
       'nav.home': 'Home',
       'nav.vacancies': 'Vacancies',
@@ -54,7 +54,7 @@
       'doc.acknowledgementTitle': 'Candidate confirmations for registration'
     },
     ru: {
-      'site.tagline': 'Платформа морской документации и matching workflows',
+      'site.tagline': 'Морская платформа вакансий и экипажей',
       'site.languageLabel': 'Язык',
       'nav.home': 'Главная',
       'nav.vacancies': 'Вакансии',
@@ -71,22 +71,22 @@
       'nav.seafarerAgreement': 'Соглашение моряка',
       'nav.terms': 'Условия',
       'nav.shipownerAgreement': 'Соглашение судовладельца',
-      'nav.matchingPolicy': 'Политика matching',
-      'nav.verificationPolicy': 'Политика verification',
+      'nav.matchingPolicy': 'Политика подбора',
+      'nav.verificationPolicy': 'Политика проверки',
       'nav.complaints': 'Жалобы',
       'doc.primaryFocus': 'Основной фокус',
       'doc.backToHome': 'Назад на главную',
-      'doc.canonicalMarkdown': 'Canonical Markdown',
+      'doc.canonicalMarkdown': 'Исходный Markdown',
       'doc.publicationSet': 'Пакет публикации',
       'doc.clientFacingLibrary': 'Публичная библиотека',
-      'doc.libraryBody': 'Все публичные документы CrewPortGlobal используют одну и ту же навигацию, routing model и visual treatment.',
-      'doc.relatedEyebrow': 'Связанные Trust Center материалы',
+      'doc.libraryBody': 'Все публичные документы CrewPortGlobal используют единую навигацию, структуру маршрутов и визуальный стиль.',
+      'doc.relatedEyebrow': 'Связанные материалы центра доверия',
       'doc.relatedTitle': 'Следующие документы для просмотра',
-      'doc.acknowledgementEyebrow': 'Onboarding acknowledgement',
+      'doc.acknowledgementEyebrow': 'Подтверждение онбординга',
       'doc.acknowledgementTitle': 'Подтверждения кандидата для регистрации'
     },
     pt: {
-      'site.tagline': 'Plataforma de documentação marítima e matching',
+      'site.tagline': 'Plataforma marítima de empregos e tripulação',
       'site.languageLabel': 'Idioma',
       'nav.home': 'Início',
       'nav.vacancies': 'Vagas',

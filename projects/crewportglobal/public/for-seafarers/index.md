@@ -1,31 +1,31 @@
 ---
 category: Audience
 nav_label: For Seafarers
-summary: Create your maritime profile, keep document metadata ready and move toward human-reviewed vacancy consideration without recruitment fees.
+summary: Present your maritime experience clearly, keep documents organised and stay ready for reviewed vacancies without recruitment fees.
 trust_note: CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.
-primary_focus: Build profile readiness before later vacancy alerts
+primary_focus: Benefits of using CrewPortGlobal as a seafarer
 hero_ctas:
   - label: Create Seafarer Profile
     href: https://crewportglobal.com/create-profile/
     style: primary
-  - label: Start Seafarer Onboarding
-    href: https://crewportglobal.com/onboarding/seafarer-registration/
+  - label: Browse Vacancies
+    href: https://crewportglobal.com/vacancies/
     style: secondary
   - label: Review Trust & Safety
     href: https://crewportglobal.com/legal/verification-policy/
     style: secondary
 summary_cards:
-  - title: Create online CV
-    text: Start with role, availability, contact email and core professional profile details instead of a declaration-heavy landing flow.
-  - title: Add document metadata
-    text: Record certificate and document readiness details before wider document upload and verification layers are approved.
-  - title: Track completeness for review
-    text: The first public readiness goal remains pending_human_review rather than automatic approval or employment.
+  - title: Present your experience clearly
+    text: Keep rank, sea service, availability and contact details ready in a profile that employers can review quickly.
+  - title: Keep documents organised
+    text: Record certificates, passport data and document metadata in one place before applying.
+  - title: Stay inside fair rules
+    text: Profiles are submitted for human review before wider candidate presentation, and no recruitment fees are charged to seafarers.
 related_links:
   - label: Create Seafarer Profile
     href: https://crewportglobal.com/create-profile/
-  - label: Seafarer Onboarding Acceptance
-    href: https://crewportglobal.com/onboarding/seafarer-registration/
+  - label: Browse Vacancies
+    href: https://crewportglobal.com/vacancies/
   - label: Verification Policy
     href: https://crewportglobal.com/legal/verification-policy/
   - label: Seafarer Candidate Agreement
@@ -34,31 +34,33 @@ related_links:
 
 # CrewPortGlobal — For Seafarers
 
-CrewPortGlobal is being prepared as a practical maritime jobs entry point where seafarers can build profiles, keep document metadata ready and prepare for future vacancy consideration through a controlled workflow.
+CrewPortGlobal gives seafarers a clearer starting point for maritime jobs: present your profile well, keep documents ready and be prepared when reviewed public vacancies appear.
 
-## What seafarers can do first
+## Why seafarers use it
 
-1. Create an online CV with role, availability and contact basics.
-2. Add document metadata and core readiness notes.
-3. Track profile completeness before wider account workflows are approved.
-4. Prepare the profile for human review as the first operational handoff.
+1. Show rank, sea service, availability and contact details in one place.
+2. Keep certificate, passport and document details organised before applying.
+3. Make it easier for employers to review a complete profile instead of scattered notes.
+4. Reach a user-facing status of submitted for human review before wider candidate presentation.
 
 ## Core trust statement
 
 CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.
 
-## What comes next in the current UX model
+## What stays clear for seafarers
 
-1. Start from Create Profile or the public onboarding acceptance route.
-2. Keep core maritime information current before any broader vacancy-alert layer exists.
-3. Stay inside a controlled process that ends at pending_human_review where relevant.
-4. Use the complaint and trust documents when a fee, privacy or workflow concern appears.
+1. Public vacancies appear only when real reviewed data is available.
+2. Approval, verification and employment are not automatic outcomes.
+3. Human review happens before serious candidate presentation.
+4. Trust, privacy and complaint routes stay visible when a fee or workflow concern appears.
 
-## Vacancy alerts and matching status
+## What the current preview already helps with
 
-Vacancy alerts, broader shortlist participation and later communication layers remain future-scoped.
+1. It gives you a clear path to create a profile and prepare documents.
+2. It explains the rules before you share sensitive information.
+3. It keeps the no-fee promise visible from the first public step.
 
-This public slice does not claim live vacancy alerts, automatic matching or guaranteed employment.
+The current preview does not claim guaranteed employment or automatic matching.
 
 ## Important limitation
 

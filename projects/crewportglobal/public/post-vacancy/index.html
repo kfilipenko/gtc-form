@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CrewPortGlobal | Post vacancy</title>
-  <meta name="description" content="Static employer entry page for vacancy intake, employer verification and future shortlist workflows.">
+  <meta name="description" content="CrewPortGlobal employer entry page for company details, vacancy requests and human-reviewed candidate presentation.">
   <link rel="canonical" href="https://crewportglobal.com/post-vacancy/">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -112,57 +112,113 @@
     <main class="doc-main">
       <section class="flow-grid">
         <article class="card hero-card">
-          <p class="eyebrow">Post vacancy</p>
-          <h1>Prepare employer intake before live vacancy publication.</h1>
-          <p class="lead-copy">This page gives employers and crewing managers a direct path to register company intent, structure vacancy requirements and prepare for reviewed profile access.</p>
+          <p class="eyebrow" data-i18n="post.hero.eyebrow">Post vacancy</p>
+          <h1 data-i18n="post.hero.title">Start an employer vacancy request.</h1>
+          <p class="lead-copy" data-i18n="post.hero.copy">Add company profile, vessel, rank, salary, joining date, contract duration and key requirements before public publication.</p>
           <div class="inline-actions">
-            <a class="button primary" href="https://crewportglobal.com/register/">Register Employer</a>
-            <a class="button secondary" href="https://crewportglobal.com/vacancies/">Open Vacancy Board</a>
+            <a class="button primary" href="https://crewportglobal.com/register/" data-i18n="post.hero.primaryCta">Choose Role / Register</a>
+            <a class="button secondary" href="https://crewportglobal.com/vacancies/" data-i18n="post.hero.secondaryCta">Open Vacancy Board</a>
           </div>
         </article>
         <aside class="card status-card">
           <div class="status-box">
-            <strong>Controlled process</strong>
-            <p>Controlled communication and shortlist management are future layers. This page does not imply uncontrolled direct outreach or automatic candidate delivery.</p>
+            <strong data-i18n="post.side.process.title">Candidate review</strong>
+            <p data-i18n="post.side.process.copy">CrewPortGlobal does not imply automatic shortlist delivery or uncontrolled direct outreach. Candidate presentation remains human-guided.</p>
           </div>
           <div class="status-box">
-            <strong>Employer verification</strong>
-            <p>Company verification remains visible as a prerequisite before wider operational access or stronger public trust claims.</p>
+            <strong data-i18n="post.side.verification.title">Employer verification</strong>
+            <p data-i18n="post.side.verification.copy">Company details are reviewed before wider access or live vacancy publication.</p>
           </div>
         </aside>
       </section>
 
       <section class="step-grid">
         <article class="card step-card">
-          <p class="eyebrow">Step 1</p>
-          <h2>Register company</h2>
+          <p class="eyebrow" data-i18n="post.step1.eyebrow">Step 1</p>
+          <h2 data-i18n="post.step1.title">Set up company profile</h2>
           <ul>
-            <li>Employer, shipowner or crewing manager role</li>
-            <li>Company identity and operating context</li>
-            <li>Responsible contact details</li>
+            <li data-i18n="post.step1.item1">Employer, shipowner or crewing manager role</li>
+            <li data-i18n="post.step1.item2">Company identity and operating context</li>
+            <li data-i18n="post.step1.item3">Responsible contact details</li>
           </ul>
         </article>
         <article class="card step-card">
-          <p class="eyebrow">Step 2</p>
-          <h2>Post vacancy</h2>
+          <p class="eyebrow" data-i18n="post.step2.eyebrow">Step 2</p>
+          <h2 data-i18n="post.step2.title">Add vacancy details</h2>
           <ul>
-            <li>Position and vessel type</li>
-            <li>Salary band, join date and duration</li>
-            <li>Employer country and operating notes</li>
+            <li data-i18n="post.step2.item1">Position, rank and vessel type</li>
+            <li data-i18n="post.step2.item2">Salary band, joining date and duration</li>
+            <li data-i18n="post.step2.item3">Requirements, employer country and operating notes</li>
           </ul>
         </article>
         <article class="card step-card">
-          <p class="eyebrow">Step 3</p>
-          <h2>Review profiles later</h2>
+          <p class="eyebrow" data-i18n="post.step3.eyebrow">Step 3</p>
+          <h2 data-i18n="post.step3.title">Review candidates through human review</h2>
           <ul>
-            <li>Prepared seafarer profiles only</li>
-            <li>Shortlist management later</li>
-            <li>Human-reviewed workflow only</li>
+            <li data-i18n="post.step3.item1">Prepared seafarer profiles only</li>
+            <li data-i18n="post.step3.item2">Human-reviewed candidate presentation</li>
+            <li data-i18n="post.step3.item3">No automatic shortlist or hiring claim</li>
           </ul>
         </article>
       </section>
     </main>
   </div>
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'post.hero.eyebrow': 'Post vacancy',
+        'post.hero.title': 'Start an employer vacancy request.',
+        'post.hero.copy': 'Add company profile, vessel, rank, salary, joining date, contract duration and key requirements before public publication.',
+        'post.hero.primaryCta': 'Choose Role / Register',
+        'post.hero.secondaryCta': 'Open Vacancy Board',
+        'post.side.process.title': 'Candidate review',
+        'post.side.process.copy': 'CrewPortGlobal does not imply automatic shortlist delivery or uncontrolled direct outreach. Candidate presentation remains human-guided.',
+        'post.side.verification.title': 'Employer verification',
+        'post.side.verification.copy': 'Company details are reviewed before wider access or live vacancy publication.',
+        'post.step1.eyebrow': 'Step 1',
+        'post.step1.title': 'Set up company profile',
+        'post.step1.item1': 'Employer, shipowner or crewing manager role',
+        'post.step1.item2': 'Company identity and operating context',
+        'post.step1.item3': 'Responsible contact details',
+        'post.step2.eyebrow': 'Step 2',
+        'post.step2.title': 'Add vacancy details',
+        'post.step2.item1': 'Position, rank and vessel type',
+        'post.step2.item2': 'Salary band, joining date and duration',
+        'post.step2.item3': 'Requirements, employer country and operating notes',
+        'post.step3.eyebrow': 'Step 3',
+        'post.step3.title': 'Review candidates through human review',
+        'post.step3.item1': 'Prepared seafarer profiles only',
+        'post.step3.item2': 'Human-reviewed candidate presentation',
+        'post.step3.item3': 'No automatic shortlist or hiring claim'
+      },
+      ru: {
+        'post.hero.eyebrow': 'Разместить вакансию',
+        'post.hero.title': 'Начните запрос работодателя на вакансию.',
+        'post.hero.copy': 'Добавьте профиль компании, судно, должность, зарплату, дату посадки, длительность контракта и ключевые требования до публичной публикации.',
+        'post.hero.primaryCta': 'Выбрать роль / зарегистрироваться',
+        'post.hero.secondaryCta': 'Открыть доску вакансий',
+        'post.side.process.title': 'Рассмотрение кандидатов',
+        'post.side.process.copy': 'CrewPortGlobal не обещает автоматическую выдачу шорт-листа или неконтролируемые прямые контакты. Представление кандидатов остаётся процессом с участием человека.',
+        'post.side.verification.title': 'Проверка работодателя',
+        'post.side.verification.copy': 'Данные компании проверяются до более широкого доступа или живой публикации вакансии.',
+        'post.step1.eyebrow': 'Шаг 1',
+        'post.step1.title': 'Настройте профиль компании',
+        'post.step1.item1': 'Роль работодателя, судовладельца или crewing manager',
+        'post.step1.item2': 'Идентичность компании и операционный контекст',
+        'post.step1.item3': 'Контакты ответственного лица',
+        'post.step2.eyebrow': 'Шаг 2',
+        'post.step2.title': 'Добавьте детали вакансии',
+        'post.step2.item1': 'Должность, ранг и тип судна',
+        'post.step2.item2': 'Диапазон зарплаты, дата посадки и длительность',
+        'post.step2.item3': 'Требования, страна работодателя и рабочие примечания',
+        'post.step3.eyebrow': 'Шаг 3',
+        'post.step3.title': 'Рассматривайте кандидатов через ручную проверку',
+        'post.step3.item1': 'Только подготовленные профили моряков',
+        'post.step3.item2': 'Представление кандидатов после ручной проверки',
+        'post.step3.item3': 'Без обещаний автоматического шорт-листа или найма'
+      }
+    };
+  </script>
   <script src="../assets/crewportglobal-public-i18n.js" defer></script>
 </body>
 </html>

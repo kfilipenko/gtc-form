@@ -1,26 +1,31 @@
 ---
 category: Audience
 nav_label: For Employers
-summary: Register company intent, prepare vacancy intake and move toward human-reviewed shortlist workflows for maritime hiring.
-trust_note: Employer access remains inside verification, controlled communication and human-reviewed candidate handling rules.
-primary_focus: Start with vacancy intake and employer verification readiness
+summary: Present your company clearly, prepare vacancy requests and review candidate profiles through a controlled maritime hiring workflow.
+trust_note: Employer access depends on company verification, clear vacancy information and human-reviewed candidate handling.
+primary_focus: Benefits of using CrewPortGlobal for maritime hiring
 hero_ctas:
-  - label: Post Vacancy
+  - label: Prepare Vacancy Request
     href: https://crewportglobal.com/post-vacancy/
     style: primary
+  - label: Browse Vacancies
+    href: https://crewportglobal.com/vacancies/
+    style: secondary
   - label: Review Trust & Safety
     href: https://crewportglobal.com/legal/verification-policy/
     style: secondary
 summary_cards:
-  - title: Register company
-    text: Start with employer identity, operating context and vacancy intent instead of a declaration-only first touchpoint.
-  - title: Post vacancy
-    text: Prepare rank, vessel type, salary, join date and duration inputs in a structured vacancy workflow.
-  - title: Review prepared profiles later
-    text: Candidate review, shortlist management and controlled communication remain future layers after current approval boundaries.
+  - title: Present your company clearly
+    text: Show company identity, operating context and responsible contacts in a format built for maritime hiring.
+  - title: Prepare structured vacancy requests
+    text: Add rank, vessel type, salary, joining date, contract duration and requirements in a consistent format.
+  - title: Review candidates through trust rules
+    text: Candidate presentation is human-reviewed, and public vacancies appear only when real reviewed data is ready.
 related_links:
-  - label: Post Vacancy
+  - label: Prepare Vacancy Request
     href: https://crewportglobal.com/post-vacancy/
+  - label: Browse Vacancies
+    href: https://crewportglobal.com/vacancies/
   - label: How It Works
     href: https://crewportglobal.com/how-it-works/
   - label: Verification Policy
@@ -29,16 +34,14 @@ related_links:
 
 # CrewPortGlobal — For Employers
 
-CrewPortGlobal is being prepared as a practical maritime hiring platform entry point for shipowners, vessel operators, ship managers and crewing managers.
+CrewPortGlobal gives shipowners, vessel operators, ship managers and crewing managers a clearer entry point for maritime hiring.
 
-## What employers can do first
+## Why companies use it
 
-1. Register company intent and employer context.
-2. Post vacancy requirements by rank, vessel type, salary band, join date and duration.
-3. Prepare to review seafarer profiles after human review gates.
-4. Keep shortlist management as a later approved workflow layer.
-5. Use controlled communication rather than uncontrolled direct candidate contact.
-6. Respect employer verification before wider operational access.
+1. Present company identity, operating context and vacancy intent clearly.
+2. Prepare vacancy requests with rank, vessel, salary, joining date, duration and requirements.
+3. Review prepared seafarer profiles after human review.
+4. Keep communication professional and controlled around verified information.
 
 ## Stage 1 service position
 
@@ -46,12 +49,12 @@ At Stage 1, CrewPortGlobal operates as a technology and workflow platform.
 
 The platform is not presented as a licensed manning agency unless required approvals are confirmed or the relevant workflow is provided through licensed partners.
 
-## What employers can expect next
+## What stays clear for employers
 
-1. A vacancy workflow that shows useful actions before long declarations.
-2. Human-reviewed profile handling before serious shortlist decisions.
-3. Clear separation between workflow support and the employer's own employment obligations.
-4. No claim of automatic matching, automatic approval or automatic hiring.
+1. Live vacancies appear only when real reviewed data is ready.
+2. Candidate presentation is human-reviewed before serious shortlist decisions.
+3. Workflow support does not replace the employer's own hiring obligations.
+4. There is no claim of automatic matching, automatic approval or automatic hiring.
 
 ## Important business rule
 
