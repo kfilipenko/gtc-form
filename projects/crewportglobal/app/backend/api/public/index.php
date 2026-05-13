@@ -66,6 +66,26 @@ function read_latest_vessel_for_company(string $companyId): ?array {
     return is_array($row) ? $row : null;
 }
 
+function read_latest_operator_review_event(string $userId): ?array {
+    $result = api_query(
+        "SELECT event_payload->>'decision' AS decision,
+                event_payload->>'previous_status' AS previous_status,
+                event_payload->>'new_status' AS new_status,
+                event_payload->>'queue_type' AS queue_type,
+                event_payload->>'role' AS role,
+                event_payload->>'review_note' AS review_note,
+                created_at
+         FROM crewportglobal.registration_audit_events
+         WHERE event_type = 'operator_review_decision_recorded'
+           AND user_id = $1
+         ORDER BY created_at DESC
+         LIMIT 1",
+        [$userId]
+    );
+    $row = pg_fetch_assoc($result);
+    return is_array($row) ? $row : null;
+}
+
 function build_draft_response(string $userId): array {
     $userResult = api_query(
         'SELECT user_id, email, registration_status, created_at, updated_at
@@ -117,6 +137,11 @@ function build_draft_response(string $userId): array {
                 $payload['vessel'] = $vessel;
             }
         }
+    }
+
+    $latestReviewEvent = read_latest_operator_review_event($userId);
+    if ($latestReviewEvent !== null) {
+        $payload['operator_review'] = $latestReviewEvent;
     }
 
     return [
@@ -698,7 +723,23 @@ function normalize_operator_decision(mixed $value): ?string {
     return in_array($decision, ['start_review', 'needs_correction', 'reviewed'], true) ? $decision : null;
 }
 
-function apply_operator_review_decision(string $draftId, string $decision): array {
+function normalize_operator_review_note(mixed $value): ?string {
+    if ($value === null) {
+        return null;
+    }
+    if (!is_string($value)) {
+        api_error(400, 'invalid_review_note', 'note must be a string');
+    }
+
+    $note = trim($value);
+    if (strlen($note) > 1000) {
+        api_error(400, 'invalid_review_note', 'note must be at most 1000 characters');
+    }
+
+    return $note === '' ? null : $note;
+}
+
+function apply_operator_review_decision(string $draftId, string $decision, ?string $reviewNote): array {
     $role = read_role_for_user($draftId);
     if ($role === null) {
         api_error(404, 'draft_not_found', 'Registration draft not found');
@@ -735,6 +776,7 @@ function apply_operator_review_decision(string $draftId, string $decision): arra
             'previous_status' => $previousStatus,
             'new_status' => $newStatus,
             'role' => $role,
+            'review_note' => $reviewNote,
         ], 'operator_review_queue');
 
         return [
@@ -743,6 +785,7 @@ function apply_operator_review_decision(string $draftId, string $decision): arra
             'previous_status' => $previousStatus,
             'new_status' => $newStatus,
             'company_id' => null,
+            'review_note' => $reviewNote,
         ];
     }
 
@@ -782,6 +825,7 @@ function apply_operator_review_decision(string $draftId, string $decision): arra
         'previous_status' => $previousStatus,
         'new_status' => $newStatus,
         'role' => $role,
+        'review_note' => $reviewNote,
     ], 'operator_review_queue');
 
     return [
@@ -790,6 +834,7 @@ function apply_operator_review_decision(string $draftId, string $decision): arra
         'previous_status' => $previousStatus,
         'new_status' => $newStatus,
         'company_id' => $companyId,
+        'review_note' => $reviewNote,
     ];
 }
 
@@ -804,10 +849,14 @@ function handle_patch_operator_review_queue_status(string $draftId): void {
     if ($decision === null) {
         api_error(400, 'invalid_decision', 'decision must be one of start_review, needs_correction, reviewed');
     }
+    $reviewNote = normalize_operator_review_note($body['note'] ?? null);
+    if ($decision === 'needs_correction' && $reviewNote === null) {
+        api_error(400, 'review_note_required', 'note is required for needs_correction');
+    }
 
     api_tx_begin();
     try {
-        $result = apply_operator_review_decision($uuid, $decision);
+        $result = apply_operator_review_decision($uuid, $decision, $reviewNote);
         api_tx_commit();
 
         api_json(200, [
@@ -819,6 +868,7 @@ function handle_patch_operator_review_queue_status(string $draftId): void {
             'previous_status' => $result['previous_status'],
             'new_status' => $result['new_status'],
             'company_id' => $result['company_id'],
+            'review_note' => $result['review_note'],
             'updated_at' => gmdate('c'),
         ]);
     } catch (Throwable $error) {

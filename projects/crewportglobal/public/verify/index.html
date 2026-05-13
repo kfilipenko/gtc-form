@@ -61,6 +61,37 @@
       font-size: 13px;
       line-height: 1.5;
     }
+    .review-note-block {
+      margin-bottom: 14px;
+      display: grid;
+      gap: 8px;
+    }
+    .review-note-label {
+      color: var(--text-on-dark);
+      font-size: 13px;
+    }
+    .review-note-textarea {
+      width: 100%;
+      min-height: 88px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-on-dark);
+      font: inherit;
+      resize: vertical;
+    }
+    .review-note-feedback {
+      margin: 0;
+      color: #f4b942;
+      font-size: 13px;
+    }
+    .latest-note {
+      margin: 0;
+      color: var(--muted-on-dark);
+      font-size: 13px;
+      line-height: 1.5;
+    }
     @media (max-width: 980px) {
       .queue-controls {
         grid-template-columns: 1fr;
@@ -165,6 +196,12 @@
 
         <section class="details-card">
           <h2 class="details-title" data-i18n="verify.details.title">Draft details</h2>
+          <div class="review-note-block">
+            <label class="review-note-label" for="review-note" data-i18n="verify.note.label">Review note (optional)</label>
+            <textarea id="review-note" class="review-note-textarea" maxlength="1000" placeholder="Add note for review action. Required for Needs correction."></textarea>
+            <p id="review-note-feedback" class="review-note-feedback"></p>
+            <p id="latest-review-note" class="latest-note" data-i18n="verify.note.latest.empty">Latest review note: -</p>
+          </div>
           <pre id="details-json" class="details-json" data-i18n="verify.details.empty">Select a queue item to load full draft details.</pre>
         </section>
       </section>
@@ -207,6 +244,12 @@
         'verify.action.saving': 'Applying operator decision...',
         'verify.action.saved': 'Decision saved: {decision}',
         'verify.action.error': 'Could not apply operator decision.',
+        'verify.action.noteRequired': 'Needs correction requires a review note.',
+        'verify.note.label': 'Review note (optional)',
+        'verify.note.placeholder': 'Add note for review action. Required for Needs correction.',
+        'verify.note.saved': 'Review note saved: {note}',
+        'verify.note.latest': 'Latest review note: {note}',
+        'verify.note.latest.empty': 'Latest review note: -',
         'verify.details.title': 'Draft details',
         'verify.details.empty': 'Select a queue item to load full draft details.',
         'verify.details.loading': 'Loading draft details...',
@@ -246,6 +289,12 @@
         'verify.action.saving': 'Применяем решение оператора...',
         'verify.action.saved': 'Решение сохранено: {decision}',
         'verify.action.error': 'Не удалось применить решение оператора.',
+        'verify.action.noteRequired': 'Для статуса "Нужна доработка" требуется комментарий.',
+        'verify.note.label': 'Комментарий проверки (необязательно)',
+        'verify.note.placeholder': 'Добавьте комментарий к решению. Для "Нужна доработка" комментарий обязателен.',
+        'verify.note.saved': 'Комментарий сохранен: {note}',
+        'verify.note.latest': 'Последний комментарий проверки: {note}',
+        'verify.note.latest.empty': 'Последний комментарий проверки: -',
         'verify.details.title': 'Детали черновика',
         'verify.details.empty': 'Выберите элемент очереди, чтобы загрузить полные детали черновика.',
         'verify.details.loading': 'Загружаем детали черновика...',
@@ -259,11 +308,15 @@
       const status = document.getElementById('queue-status');
       const body = document.getElementById('queue-body');
       const detailsJson = document.getElementById('details-json');
+      const reviewNoteInput = document.getElementById('review-note');
+      const reviewNoteFeedback = document.getElementById('review-note-feedback');
+      const latestReviewNote = document.getElementById('latest-review-note');
       const filterType = document.getElementById('filter-type');
       const filterRole = document.getElementById('filter-role');
       const filterStatus = document.getElementById('filter-status');
       const sortOrder = document.getElementById('sort-order');
       let queueItems = [];
+      let currentLatestNote = '';
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -307,6 +360,33 @@
         return pick(right, 'updated_at').localeCompare(pick(left, 'updated_at'));
       }
 
+      function clearNoteFeedback() {
+        reviewNoteFeedback.textContent = '';
+      }
+
+      function setLatestReviewNote(note) {
+        const normalized = typeof note === 'string' ? note.trim() : '';
+        currentLatestNote = normalized;
+        latestReviewNote.textContent = normalized
+          ? t('verify.note.latest', { note: normalized })
+          : t('verify.note.latest.empty');
+      }
+
+      function extractLatestNote(payload) {
+        if (!payload || typeof payload !== 'object') {
+          return '';
+        }
+        const rootPayload = payload.payload;
+        if (!rootPayload || typeof rootPayload !== 'object') {
+          return '';
+        }
+        const operatorReview = rootPayload.operator_review;
+        if (!operatorReview || typeof operatorReview !== 'object') {
+          return '';
+        }
+        return typeof operatorReview.review_note === 'string' ? operatorReview.review_note : '';
+      }
+
       function filteredQueue() {
         const typeValue = filterType.value;
         const roleValue = filterRole.value;
@@ -333,8 +413,10 @@
             throw new Error('draft_details_load_failed');
           }
           detailsJson.textContent = JSON.stringify(payload, null, 2);
+          setLatestReviewNote(extractLatestNote(payload));
         } catch (error) {
           detailsJson.textContent = t('verify.details.error');
+          setLatestReviewNote('');
           console.error(error);
         }
       }
@@ -344,14 +426,25 @@
           return;
         }
 
+        clearNoteFeedback();
+        const note = (reviewNoteInput.value || '').trim();
+        if (decision === 'needs_correction' && !note) {
+          reviewNoteFeedback.textContent = t('verify.action.noteRequired');
+          return;
+        }
+
         status.textContent = t('verify.action.saving');
         try {
+          const requestBody = { decision };
+          if (note) {
+            requestBody.note = note;
+          }
           const response = await fetch(`/api/v1/operator/review-queue/${encodeURIComponent(draftId)}/status`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ decision }),
+            body: JSON.stringify(requestBody),
           });
           const payload = await response.json().catch(() => ({}));
           if (!response.ok || !payload || payload.ok !== true) {
@@ -359,8 +452,16 @@
           }
 
           status.textContent = t('verify.action.saved', { decision: payload.new_status || decision });
+          if (typeof payload.review_note === 'string' && payload.review_note.trim() !== '') {
+            reviewNoteFeedback.textContent = t('verify.note.saved', { note: payload.review_note.trim() });
+            setLatestReviewNote(payload.review_note.trim());
+          } else {
+            reviewNoteFeedback.textContent = '';
+            setLatestReviewNote('');
+          }
           await loadQueue();
           await loadDraftDetails(draftId);
+          status.textContent = t('verify.action.saved', { decision: payload.new_status || decision });
         } catch (error) {
           status.textContent = t('verify.action.error');
           console.error(error);
@@ -439,6 +540,7 @@
 
       window.addEventListener('crewportglobal:languagechange', () => {
         renderQueue();
+        setLatestReviewNote(currentLatestNote);
       });
 
       loadQueue();

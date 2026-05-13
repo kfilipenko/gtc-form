@@ -29,6 +29,13 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#details-json')).toContainText(seafarerEmail);
   await expect(page.locator('#details-json')).toContainText('seafarer_profile');
 
-  await queueRow.locator('.queue-decision[data-decision="start_review"]').click();
-  await expect(page.locator('#queue-body tr', { hasText: seafarerEmail }).first()).toContainText('in_review');
+  await page.locator('#review-note').fill('');
+  await queueRow.locator('.queue-decision[data-decision="needs_correction"]').click();
+  await expect(page.locator('#review-note-feedback')).toContainText('requires a review note');
+
+  const note = 'Missing certificate details and availability date.';
+  await page.locator('#review-note').fill(note);
+  await queueRow.locator('.queue-decision[data-decision="needs_correction"]').click();
+  await expect(page.locator('#queue-status')).toContainText('rejected');
+  await expect(page.locator('#latest-review-note')).toContainText(note);
 });

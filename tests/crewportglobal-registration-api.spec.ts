@@ -17,6 +17,7 @@ function readLatestOperatorAuditForDraft(draftId: string): {
   newStatus: string;
   queueType: string;
   role: string;
+  reviewNote: string;
 } {
   const safeDraftId = draftId.replace(/'/g, "''");
   const sql = [
@@ -25,7 +26,8 @@ function readLatestOperatorAuditForDraft(draftId: string): {
     "       event_payload->>'previous_status',",
     "       event_payload->>'new_status',",
     "       event_payload->>'queue_type',",
-    "       event_payload->>'role'",
+    "       event_payload->>'role',",
+    "       event_payload->>'review_note'",
     "FROM crewportglobal.registration_audit_events",
     "WHERE event_type = 'operator_review_decision_recorded'",
     `  AND user_id = '${safeDraftId}'::uuid`,
@@ -38,7 +40,7 @@ function readLatestOperatorAuditForDraft(draftId: string): {
     { encoding: 'utf8' }
   ).trim();
 
-  const [source, decision, previousStatus, newStatus, queueType, role] = output.split('|');
+  const [source, decision, previousStatus, newStatus, queueType, role, reviewNote] = output.split('|');
   return {
     source: source || '',
     decision: decision || '',
@@ -46,6 +48,7 @@ function readLatestOperatorAuditForDraft(draftId: string): {
     newStatus: newStatus || '',
     queueType: queueType || '',
     role: role || '',
+    reviewNote: reviewNote || '',
   };
 }
 
@@ -300,6 +303,7 @@ test('operator decision endpoint updates draft review status', async ({ request 
   expect(audit.newStatus).toBe('approved');
   expect(audit.queueType).toBe('seafarer_profile');
   expect(audit.role).toBe('seafarer');
+  expect(audit.reviewNote).toBe('');
 
   const getResponse = await request.get(`/registration/drafts/${created.draft_id}`);
   expect(getResponse.status()).toBe(200);
@@ -314,6 +318,58 @@ test('operator decision endpoint updates draft review status', async ({ request 
   };
   const stillInQueue = queueBody.queue.some((item) => item.draft_id === created.draft_id);
   expect(stillInQueue).toBe(false);
+});
+
+test('operator decision note validation and persistence works', async ({ request }) => {
+  const unique = Date.now();
+  const email = `api.operator.note.${unique}@example.com`;
+
+  const createResponse = await request.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Operator Note Seafarer',
+      availability_status: 'available_now',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = (await createResponse.json()) as DraftResponse;
+
+  const needsCorrectionWithoutNote = await request.patch(`/operator/review-queue/${created.draft_id}/status`, {
+    data: {
+      decision: 'needs_correction',
+    },
+  });
+  expect(needsCorrectionWithoutNote.status()).toBe(400);
+
+  const startReviewWithoutNote = await request.patch(`/operator/review-queue/${created.draft_id}/status`, {
+    data: {
+      decision: 'start_review',
+    },
+  });
+  expect(startReviewWithoutNote.status()).toBe(200);
+
+  const note = 'Missing certificate details and availability date.';
+  const needsCorrectionWithNote = await request.patch(`/operator/review-queue/${created.draft_id}/status`, {
+    data: {
+      decision: 'needs_correction',
+      note,
+    },
+  });
+  expect(needsCorrectionWithNote.status()).toBe(200);
+  const correctionBody = (await needsCorrectionWithNote.json()) as Record<string, unknown>;
+  expect(correctionBody.ok).toBe(true);
+  expect(correctionBody.new_status).toBe('rejected');
+  expect(correctionBody.review_note).toBe(note);
+
+  const audit = readLatestOperatorAuditForDraft(created.draft_id);
+  expect(audit.source).toBe('operator_review_queue');
+  expect(audit.decision).toBe('needs_correction');
+  expect(audit.previousStatus).toBe('in_review');
+  expect(audit.newStatus).toBe('rejected');
+  expect(audit.queueType).toBe('seafarer_profile');
+  expect(audit.role).toBe('seafarer');
+  expect(audit.reviewNote).toBe(note);
 });
 
 test('invalid payloads are rejected with 4xx', async ({ request }) => {
