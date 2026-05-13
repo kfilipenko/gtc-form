@@ -171,6 +171,28 @@
                 <strong data-i18n="create.form.country">Country code</strong>
                 <input id="create-country" type="text" maxlength="2" data-i18n-placeholder="create.form.country.placeholder" placeholder="AE">
               </label>
+              <label class="field-card">
+                <strong data-i18n="create.form.rank">Rank</strong>
+                <input id="create-rank" type="text" data-i18n-placeholder="create.form.rank.placeholder" placeholder="Chief Officer">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="create.form.department">Department</strong>
+                <select id="create-department">
+                  <option value="" data-i18n="create.form.department.placeholder">Select department</option>
+                  <option value="deck" data-i18n="create.form.department.deck">Deck</option>
+                  <option value="engine" data-i18n="create.form.department.engine">Engine</option>
+                  <option value="catering" data-i18n="create.form.department.catering">Catering</option>
+                  <option value="other" data-i18n="create.form.department.other">Other</option>
+                </select>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="create.form.nationality">Nationality (country code)</strong>
+                <input id="create-nationality" type="text" maxlength="2" data-i18n-placeholder="create.form.nationality.placeholder" placeholder="PH">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="create.form.residence">Residence country code</strong>
+                <input id="create-residence" type="text" maxlength="2" data-i18n-placeholder="create.form.residence.placeholder" placeholder="AE">
+              </label>
               <label class="field-card full">
                 <strong data-i18n="create.form.availability">Availability</strong>
                 <select id="create-availability">
@@ -178,6 +200,22 @@
                   <option value="available_now" data-i18n="create.form.availability.now">Available now</option>
                   <option value="available_later" data-i18n="create.form.availability.later">Available later</option>
                 </select>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="create.form.availabilityDate">Availability date</strong>
+                <input id="create-availability-date" type="date">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="create.form.phone">Contact phone</strong>
+                <input id="create-phone" type="tel" data-i18n-placeholder="create.form.phone.placeholder" placeholder="+971501234567">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="create.form.salary">Salary expectation (USD)</strong>
+                <input id="create-salary" type="number" min="0" step="0.01" data-i18n-placeholder="create.form.salary.placeholder" placeholder="4500">
+              </label>
+              <label class="field-card full">
+                <strong data-i18n="create.form.vesselTypes">Preferred vessel types</strong>
+                <input id="create-vessel-types" type="text" data-i18n-placeholder="create.form.vesselTypes.placeholder" placeholder="Bulk Carrier, Container, LNG">
               </label>
             </div>
             <div class="inline-actions">
@@ -244,10 +282,29 @@
         'create.form.email.placeholder': 'seafarer@example.com',
         'create.form.country': 'Country code',
         'create.form.country.placeholder': 'AE',
+        'create.form.rank': 'Rank',
+        'create.form.rank.placeholder': 'Chief Officer',
+        'create.form.department': 'Department',
+        'create.form.department.placeholder': 'Select department',
+        'create.form.department.deck': 'Deck',
+        'create.form.department.engine': 'Engine',
+        'create.form.department.catering': 'Catering',
+        'create.form.department.other': 'Other',
+        'create.form.nationality': 'Nationality (country code)',
+        'create.form.nationality.placeholder': 'PH',
+        'create.form.residence': 'Residence country code',
+        'create.form.residence.placeholder': 'AE',
         'create.form.availability': 'Availability',
         'create.form.availability.unknown': 'Unknown',
         'create.form.availability.now': 'Available now',
         'create.form.availability.later': 'Available later',
+        'create.form.availabilityDate': 'Availability date',
+        'create.form.phone': 'Contact phone',
+        'create.form.phone.placeholder': '+971501234567',
+        'create.form.salary': 'Salary expectation (USD)',
+        'create.form.salary.placeholder': '4500',
+        'create.form.vesselTypes': 'Preferred vessel types',
+        'create.form.vesselTypes.placeholder': 'Bulk Carrier, Container, LNG',
         'create.form.submit': 'Save Seafarer Draft',
         'create.form.nextCta': 'Continue to onboarding checklist',
         'create.form.status': 'This form saves your seafarer draft in backend and keeps your draft ID for the next steps.',
@@ -287,10 +344,29 @@
         'create.form.email.placeholder': 'seafarer@example.com',
         'create.form.country': 'Код страны',
         'create.form.country.placeholder': 'AE',
+        'create.form.rank': 'Ранг',
+        'create.form.rank.placeholder': 'Старший помощник капитана',
+        'create.form.department': 'Департамент',
+        'create.form.department.placeholder': 'Выберите департамент',
+        'create.form.department.deck': 'Палуба',
+        'create.form.department.engine': 'Машина',
+        'create.form.department.catering': 'Камбуз',
+        'create.form.department.other': 'Другое',
+        'create.form.nationality': 'Гражданство (код страны)',
+        'create.form.nationality.placeholder': 'PH',
+        'create.form.residence': 'Страна проживания (код)',
+        'create.form.residence.placeholder': 'AE',
         'create.form.availability': 'Доступность',
         'create.form.availability.unknown': 'Не указано',
         'create.form.availability.now': 'Доступен сейчас',
         'create.form.availability.later': 'Доступен позже',
+        'create.form.availabilityDate': 'Дата доступности',
+        'create.form.phone': 'Контактный телефон',
+        'create.form.phone.placeholder': '+971501234567',
+        'create.form.salary': 'Ожидание по зарплате (USD)',
+        'create.form.salary.placeholder': '4500',
+        'create.form.vesselTypes': 'Предпочтительные типы судов',
+        'create.form.vesselTypes.placeholder': 'Балкер, Контейнеровоз, LNG',
         'create.form.submit': 'Сохранить черновик моряка',
         'create.form.nextCta': 'Перейти к чек-листу онбординга',
         'create.form.status': 'Эта форма сохраняет черновик моряка в backend и сохраняет draft ID для следующих шагов.',
@@ -330,7 +406,15 @@
       const fullName = document.getElementById('create-full-name');
       const email = document.getElementById('create-email');
       const country = document.getElementById('create-country');
+      const rank = document.getElementById('create-rank');
+      const department = document.getElementById('create-department');
+      const nationality = document.getElementById('create-nationality');
+      const residence = document.getElementById('create-residence');
       const availability = document.getElementById('create-availability');
+      const availabilityDate = document.getElementById('create-availability-date');
+      const contactPhone = document.getElementById('create-phone');
+      const salary = document.getElementById('create-salary');
+      const vesselTypes = document.getElementById('create-vessel-types');
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -364,12 +448,28 @@
         status.textContent = t('create.form.saving');
 
         try {
+          const preferredVesselTypes = vesselTypes.value
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean);
+
+          const salaryValue = salary.value.trim();
+          const salaryNumber = salaryValue ? Number(salaryValue) : null;
+
           const response = await window.CPGDrafts.createOrUpdateDraft({
             role: 'seafarer',
             email: email.value.trim(),
             full_name: fullName.value.trim(),
+            rank: rank.value.trim(),
+            department: department.value,
             country_code: country.value.trim().toUpperCase(),
-            availability_status: availability.value
+            nationality_code: nationality.value.trim().toUpperCase(),
+            residence_country_code: residence.value.trim().toUpperCase(),
+            availability_status: availability.value,
+            availability_date: availabilityDate.value || null,
+            preferred_vessel_types: preferredVesselTypes,
+            salary_expectation_usd: Number.isFinite(salaryNumber) ? salaryNumber : null,
+            contact_phone: contactPhone.value.trim()
           }, {
             draftId: getDraftIdFromUrl()
           });

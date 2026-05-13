@@ -27,7 +27,16 @@ test('seafarer draft create, get and patch flow works', async ({ request }) => {
       role: 'seafarer',
       email,
       full_name: 'API Test Seafarer',
+      rank: 'Second Officer',
+      department: 'deck',
       country_code: 'AE',
+      nationality_code: 'PH',
+      residence_country_code: 'AE',
+      availability_status: 'available_later',
+      availability_date: '2026-07-10',
+      preferred_vessel_types: ['Bulk Carrier', 'Container'],
+      salary_expectation_usd: 4200,
+      contact_phone: '+971500000001',
     },
   });
   expect(createResponse.status()).toBe(201);
@@ -44,10 +53,23 @@ test('seafarer draft create, get and patch flow works', async ({ request }) => {
   const fetched = (await getResponse.json()) as DraftResponse;
   expect(fetched.ok).toBe(true);
   expect(fetched.draft_id).toBe(created.draft_id);
+  const fetchedSeafarerProfile = fetched.payload.seafarer_profile as Record<string, unknown>;
+  expect(fetchedSeafarerProfile.primary_rank).toBe('Second Officer');
+  expect(fetchedSeafarerProfile.department).toBe('deck');
+  expect(fetchedSeafarerProfile.nationality_code).toBe('PH');
+  expect(fetchedSeafarerProfile.residence_country_code).toBe('AE');
+  expect(fetchedSeafarerProfile.availability_date).toBe('2026-07-10');
+  expect(fetchedSeafarerProfile.salary_expectation_usd).toBe('4200.00');
+  expect(fetchedSeafarerProfile.contact_phone).toBe('+971500000001');
 
   const patchResponse = await request.patch(`/registration/drafts/${created.draft_id}`, {
     data: {
       availability_status: 'available_now',
+      rank: 'Chief Officer',
+      department: 'deck',
+      preferred_vessel_types: ['LNG'],
+      salary_expectation_usd: 5100,
+      contact_phone: '+971500000999',
     },
   });
   expect(patchResponse.status()).toBe(200);
@@ -58,6 +80,13 @@ test('seafarer draft create, get and patch flow works', async ({ request }) => {
 
   const seafarerProfile = patched.payload.seafarer_profile as Record<string, unknown>;
   expect(seafarerProfile.availability_status).toBe('available_now');
+  expect(seafarerProfile.primary_rank).toBe('Chief Officer');
+  expect(seafarerProfile.department).toBe('deck');
+  expect(seafarerProfile.salary_expectation_usd).toBe('5100.00');
+  expect(seafarerProfile.contact_phone).toBe('+971500000999');
+  expect(seafarerProfile.availability_date).toBe('2026-07-10');
+  expect(typeof seafarerProfile.preferred_vessel_types).toBe('string');
+  expect(seafarerProfile.preferred_vessel_types).toBe('["LNG"]');
 });
 
 test('shipowner flow normalizes IMO and updates vessel context', async ({ request }) => {

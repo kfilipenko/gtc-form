@@ -87,7 +87,21 @@ function build_draft_response(string $userId): array {
 
     if ($role === 'seafarer') {
         $profileResult = api_query(
-            'SELECT first_name, last_name, primary_rank, availability_status, country_code, contact_email, review_status, document_metadata
+            'SELECT first_name,
+                    last_name,
+                    primary_rank,
+                    department,
+                    availability_status,
+                    availability_date,
+                    country_code,
+                    nationality_code,
+                    residence_country_code,
+                    preferred_vessel_types,
+                    salary_expectation_usd,
+                    contact_phone,
+                    contact_email,
+                    review_status,
+                    document_metadata
              FROM crewportglobal.seafarer_profiles
              WHERE user_id = $1',
             [$userId]
@@ -190,11 +204,12 @@ function upsert_seafarer_profile(string $userId, array $body, string $email): vo
         $firstName = null;
     }
 
-    $availability = isset($body['availability_status']) && is_string($body['availability_status'])
-        ? trim($body['availability_status'])
-        : 'unknown';
-    if (!in_array($availability, ['unknown', 'available_now', 'available_later'], true)) {
-        $availability = 'unknown';
+    $availability = null;
+    if (isset($body['availability_status']) && is_string($body['availability_status'])) {
+        $availability = trim($body['availability_status']);
+        if (!in_array($availability, ['unknown', 'available_now', 'available_later'], true)) {
+            $availability = null;
+        }
     }
 
     $countryCode = isset($body['country_code']) && is_string($body['country_code'])
@@ -204,19 +219,136 @@ function upsert_seafarer_profile(string $userId, array $body, string $email): vo
         $countryCode = null;
     }
 
+    $rank = isset($body['rank']) && is_string($body['rank']) ? trim($body['rank']) : null;
+    if ($rank === '') {
+        $rank = null;
+    }
+
+    $department = isset($body['department']) && is_string($body['department']) ? trim($body['department']) : null;
+    if ($department === '') {
+        $department = null;
+    }
+
+    $nationalityCode = isset($body['nationality_code']) && is_string($body['nationality_code'])
+        ? strtoupper(trim($body['nationality_code']))
+        : null;
+    if ($nationalityCode !== null && !preg_match('/^[A-Z]{2}$/', $nationalityCode)) {
+        $nationalityCode = null;
+    }
+
+    $residenceCountryCode = isset($body['residence_country_code']) && is_string($body['residence_country_code'])
+        ? strtoupper(trim($body['residence_country_code']))
+        : null;
+    if ($residenceCountryCode !== null && !preg_match('/^[A-Z]{2}$/', $residenceCountryCode)) {
+        $residenceCountryCode = null;
+    }
+
+    $availabilityDate = isset($body['availability_date']) && is_string($body['availability_date'])
+        ? trim($body['availability_date'])
+        : null;
+    if ($availabilityDate !== null && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $availabilityDate)) {
+        $availabilityDate = null;
+    }
+
+    $salaryExpectationUsd = null;
+    if (isset($body['salary_expectation_usd'])) {
+        if (is_numeric($body['salary_expectation_usd'])) {
+            $salaryExpectationUsd = (float) $body['salary_expectation_usd'];
+            if ($salaryExpectationUsd < 0) {
+                $salaryExpectationUsd = null;
+            }
+        }
+    }
+
+    $contactPhone = isset($body['contact_phone']) && is_string($body['contact_phone']) ? trim($body['contact_phone']) : null;
+    if ($contactPhone === '') {
+        $contactPhone = null;
+    }
+
+    $preferredVesselTypes = [];
+    if (isset($body['preferred_vessel_types']) && is_array($body['preferred_vessel_types'])) {
+        foreach ($body['preferred_vessel_types'] as $item) {
+            if (is_string($item)) {
+                $clean = trim($item);
+                if ($clean !== '') {
+                    $preferredVesselTypes[] = $clean;
+                }
+            }
+        }
+    }
+    $preferredVesselTypes = array_values(array_unique($preferredVesselTypes));
+    $preferredVesselTypesJson = json_encode($preferredVesselTypes, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($preferredVesselTypesJson === false) {
+        $preferredVesselTypesJson = '[]';
+    }
+
     api_query(
         'INSERT INTO crewportglobal.seafarer_profiles (
-           user_id, first_name, availability_status, country_code, contact_email, review_status
-         ) VALUES ($1, $2, $3, $4, $5, $6)
+           user_id,
+           first_name,
+           primary_rank,
+           department,
+           availability_status,
+           country_code,
+           nationality_code,
+           residence_country_code,
+           availability_date,
+           preferred_vessel_types,
+           salary_expectation_usd,
+           contact_phone,
+           contact_email,
+           review_status
+         ) VALUES (
+           $1,
+           $2,
+           $3,
+           $4,
+           COALESCE($5, \'unknown\'),
+           $6,
+           $7,
+           $8,
+           $9::date,
+           $10::jsonb,
+           $11,
+           $12,
+           $13,
+           $14
+         )
          ON CONFLICT (user_id)
          DO UPDATE SET
            first_name = COALESCE(EXCLUDED.first_name, crewportglobal.seafarer_profiles.first_name),
-           availability_status = EXCLUDED.availability_status,
+           primary_rank = COALESCE(EXCLUDED.primary_rank, crewportglobal.seafarer_profiles.primary_rank),
+           department = COALESCE(EXCLUDED.department, crewportglobal.seafarer_profiles.department),
+           availability_status = COALESCE($5, crewportglobal.seafarer_profiles.availability_status),
            country_code = COALESCE(EXCLUDED.country_code, crewportglobal.seafarer_profiles.country_code),
+           nationality_code = COALESCE(EXCLUDED.nationality_code, crewportglobal.seafarer_profiles.nationality_code),
+           residence_country_code = COALESCE(EXCLUDED.residence_country_code, crewportglobal.seafarer_profiles.residence_country_code),
+           availability_date = COALESCE(EXCLUDED.availability_date, crewportglobal.seafarer_profiles.availability_date),
+           preferred_vessel_types = CASE
+               WHEN jsonb_array_length(EXCLUDED.preferred_vessel_types) = 0 THEN crewportglobal.seafarer_profiles.preferred_vessel_types
+               ELSE EXCLUDED.preferred_vessel_types
+           END,
+           salary_expectation_usd = COALESCE(EXCLUDED.salary_expectation_usd, crewportglobal.seafarer_profiles.salary_expectation_usd),
+           contact_phone = COALESCE(EXCLUDED.contact_phone, crewportglobal.seafarer_profiles.contact_phone),
            contact_email = COALESCE(EXCLUDED.contact_email, crewportglobal.seafarer_profiles.contact_email),
            review_status = EXCLUDED.review_status,
            updated_at = now()',
-        [$userId, $firstName, $availability, $countryCode, $email, 'submitted_for_human_review']
+        [
+            $userId,
+            $firstName,
+            $rank,
+            $department,
+            $availability,
+            $countryCode,
+            $nationalityCode,
+            $residenceCountryCode,
+            $availabilityDate,
+            $preferredVesselTypesJson,
+            $salaryExpectationUsd,
+            $contactPhone,
+            $email,
+            'submitted_for_human_review',
+        ]
     );
 }
 
