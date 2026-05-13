@@ -24,7 +24,11 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#queue-body')).toContainText(seafarerEmail);
 
   await page.locator('#filter-role').selectOption('seafarer');
-  await page.locator('.queue-open').first().click();
+  const queueRow = page.locator('#queue-body tr', { hasText: seafarerEmail }).first();
+  await queueRow.locator('.queue-open').click();
   await expect(page.locator('#details-json')).toContainText(seafarerEmail);
   await expect(page.locator('#details-json')).toContainText('seafarer_profile');
+
+  await queueRow.locator('.queue-decision[data-decision="start_review"]').click();
+  await expect(page.locator('#queue-body tr', { hasText: seafarerEmail }).first()).toContainText('in_review');
 });

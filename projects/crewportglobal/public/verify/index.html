@@ -201,6 +201,12 @@
         'verify.col.updated': 'Updated',
         'verify.col.actions': 'Actions',
         'verify.action.open': 'Open draft',
+        'verify.action.startReview': 'Start review',
+        'verify.action.needsCorrection': 'Mark needs correction',
+        'verify.action.reviewed': 'Mark reviewed',
+        'verify.action.saving': 'Applying operator decision...',
+        'verify.action.saved': 'Decision saved: {decision}',
+        'verify.action.error': 'Could not apply operator decision.',
         'verify.details.title': 'Draft details',
         'verify.details.empty': 'Select a queue item to load full draft details.',
         'verify.details.loading': 'Loading draft details...',
@@ -234,6 +240,12 @@
         'verify.col.updated': 'Обновлен',
         'verify.col.actions': 'Действия',
         'verify.action.open': 'Открыть черновик',
+        'verify.action.startReview': 'Начать проверку',
+        'verify.action.needsCorrection': 'Отметить: нужна доработка',
+        'verify.action.reviewed': 'Отметить: проверено',
+        'verify.action.saving': 'Применяем решение оператора...',
+        'verify.action.saved': 'Решение сохранено: {decision}',
+        'verify.action.error': 'Не удалось применить решение оператора.',
         'verify.details.title': 'Детали черновика',
         'verify.details.empty': 'Выберите элемент очереди, чтобы загрузить полные детали черновика.',
         'verify.details.loading': 'Загружаем детали черновика...',
@@ -327,6 +339,34 @@
         }
       }
 
+      async function applyDecision(draftId, decision) {
+        if (!draftId || !decision) {
+          return;
+        }
+
+        status.textContent = t('verify.action.saving');
+        try {
+          const response = await fetch(`/api/v1/operator/review-queue/${encodeURIComponent(draftId)}/status`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ decision }),
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || !payload || payload.ok !== true) {
+            throw new Error('operator_decision_failed');
+          }
+
+          status.textContent = t('verify.action.saved', { decision: payload.new_status || decision });
+          await loadQueue();
+          await loadDraftDetails(draftId);
+        } catch (error) {
+          status.textContent = t('verify.action.error');
+          console.error(error);
+        }
+      }
+
       function renderQueue() {
         const items = filteredQueue();
         body.innerHTML = '';
@@ -345,7 +385,14 @@
             <td>${item.status || '-'}</td>
             <td>${summaryText(item)}</td>
             <td>${item.updated_at || '-'}</td>
-            <td><button type="button" class="button secondary queue-open" data-draft-id="${item.draft_id || ''}">${t('verify.action.open')}</button></td>
+            <td>
+              <div class="inline-actions">
+                <button type="button" class="button secondary queue-open" data-draft-id="${item.draft_id || ''}">${t('verify.action.open')}</button>
+                <button type="button" class="button secondary queue-decision" data-draft-id="${item.draft_id || ''}" data-decision="start_review">${t('verify.action.startReview')}</button>
+                <button type="button" class="button secondary queue-decision" data-draft-id="${item.draft_id || ''}" data-decision="needs_correction">${t('verify.action.needsCorrection')}</button>
+                <button type="button" class="button secondary queue-decision" data-draft-id="${item.draft_id || ''}" data-decision="reviewed">${t('verify.action.reviewed')}</button>
+              </div>
+            </td>
           `;
           body.appendChild(tr);
         });
@@ -355,6 +402,15 @@
         body.querySelectorAll('.queue-open').forEach((button) => {
           button.addEventListener('click', () => {
             loadDraftDetails(button.getAttribute('data-draft-id') || '');
+          });
+        });
+
+        body.querySelectorAll('.queue-decision').forEach((button) => {
+          button.addEventListener('click', () => {
+            applyDecision(
+              button.getAttribute('data-draft-id') || '',
+              button.getAttribute('data-decision') || ''
+            );
           });
         });
       }

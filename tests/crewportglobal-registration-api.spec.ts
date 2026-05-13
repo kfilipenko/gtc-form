@@ -225,6 +225,49 @@ test('operator review queue returns submitted seafarer and company drafts', asyn
   expect(hasCompany).toBe(true);
 });
 
+test('operator decision endpoint updates draft review status', async ({ request }) => {
+  const unique = Date.now();
+  const email = `api.operator.decision.${unique}@example.com`;
+
+  const createResponse = await request.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Operator Decision Seafarer',
+      availability_status: 'available_now',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+
+  const created = (await createResponse.json()) as DraftResponse;
+
+  const decisionResponse = await request.patch(`/operator/review-queue/${created.draft_id}/status`, {
+    data: {
+      decision: 'reviewed',
+    },
+  });
+  expect(decisionResponse.status()).toBe(200);
+
+  const decisionBody = (await decisionResponse.json()) as Record<string, unknown>;
+  expect(decisionBody.ok).toBe(true);
+  expect(decisionBody.draft_id).toBe(created.draft_id);
+  expect(decisionBody.new_status).toBe('approved');
+
+  const getResponse = await request.get(`/registration/drafts/${created.draft_id}`);
+  expect(getResponse.status()).toBe(200);
+  const fetched = (await getResponse.json()) as DraftResponse;
+  const seafarerProfile = fetched.payload.seafarer_profile as Record<string, unknown>;
+  expect(seafarerProfile.review_status).toBe('approved');
+
+  const queueResponse = await request.get('/operator/review-queue');
+  expect(queueResponse.status()).toBe(200);
+  const queueBody = (await queueResponse.json()) as {
+    queue: Array<Record<string, unknown>>;
+  };
+  const stillInQueue = queueBody.queue.some((item) => item.draft_id === created.draft_id);
+  expect(stillInQueue).toBe(false);
+});
+
 test('invalid payloads are rejected with 4xx', async ({ request }) => {
   const noJson = await request.post('/registration/drafts', {
     headers: { 'Content-Type': 'text/plain' },

@@ -682,6 +682,144 @@ function handle_get_operator_review_queue(): void {
     ]);
 }
 
+function normalize_operator_decision(mixed $value): ?string {
+    if (!is_string($value)) {
+        return null;
+    }
+
+    $decision = trim(strtolower($value));
+    return in_array($decision, ['start_review', 'needs_correction', 'reviewed'], true) ? $decision : null;
+}
+
+function apply_operator_review_decision(string $draftId, string $decision): array {
+    $role = read_role_for_user($draftId);
+    if ($role === null) {
+        api_error(404, 'draft_not_found', 'Registration draft not found');
+    }
+
+    if ($role === 'seafarer') {
+        $statusMap = [
+            'start_review' => 'in_review',
+            'needs_correction' => 'rejected',
+            'reviewed' => 'approved',
+        ];
+        $newStatus = $statusMap[$decision];
+
+        $currentResult = api_query(
+            'SELECT review_status FROM crewportglobal.seafarer_profiles WHERE user_id = $1',
+            [$draftId]
+        );
+        $currentRow = pg_fetch_assoc($currentResult);
+        if (!is_array($currentRow)) {
+            api_error(404, 'review_item_not_found', 'Seafarer review item not found');
+        }
+        $previousStatus = (string) $currentRow['review_status'];
+
+        api_query(
+            'UPDATE crewportglobal.seafarer_profiles
+             SET review_status = $2, updated_at = now()
+             WHERE user_id = $1',
+            [$draftId, $newStatus]
+        );
+
+        write_audit_event('operator_review_decision_recorded', $draftId, null, null, [
+            'decision' => $decision,
+            'queue_type' => 'seafarer_profile',
+            'previous_status' => $previousStatus,
+            'new_status' => $newStatus,
+            'role' => $role,
+        ]);
+
+        return [
+            'queue_type' => 'seafarer_profile',
+            'role' => $role,
+            'previous_status' => $previousStatus,
+            'new_status' => $newStatus,
+            'company_id' => null,
+        ];
+    }
+
+    $company = read_primary_company_for_user($draftId);
+    if ($company === null || !isset($company['company_id'])) {
+        api_error(404, 'review_item_not_found', 'Company review item not found');
+    }
+
+    $companyId = (string) $company['company_id'];
+    $statusMap = [
+        'start_review' => 'submitted',
+        'needs_correction' => 'rejected',
+        'reviewed' => 'verified',
+    ];
+    $newStatus = $statusMap[$decision];
+
+    $currentResult = api_query(
+        'SELECT verification_status FROM crewportglobal.employer_companies WHERE company_id = $1',
+        [$companyId]
+    );
+    $currentRow = pg_fetch_assoc($currentResult);
+    if (!is_array($currentRow)) {
+        api_error(404, 'review_item_not_found', 'Company review item not found');
+    }
+    $previousStatus = (string) $currentRow['verification_status'];
+
+    api_query(
+        'UPDATE crewportglobal.employer_companies
+         SET verification_status = $2, updated_at = now()
+         WHERE company_id = $1',
+        [$companyId, $newStatus]
+    );
+
+    write_audit_event('operator_review_decision_recorded', $draftId, $companyId, null, [
+        'decision' => $decision,
+        'queue_type' => 'company_verification',
+        'previous_status' => $previousStatus,
+        'new_status' => $newStatus,
+        'role' => $role,
+    ]);
+
+    return [
+        'queue_type' => 'company_verification',
+        'role' => $role,
+        'previous_status' => $previousStatus,
+        'new_status' => $newStatus,
+        'company_id' => $companyId,
+    ];
+}
+
+function handle_patch_operator_review_queue_status(string $draftId): void {
+    $uuid = api_normalize_uuid($draftId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
+    }
+
+    $body = api_decode_json_body();
+    $decision = normalize_operator_decision($body['decision'] ?? $body['action'] ?? $body['status'] ?? null);
+    if ($decision === null) {
+        api_error(400, 'invalid_decision', 'decision must be one of start_review, needs_correction, reviewed');
+    }
+
+    api_tx_begin();
+    try {
+        $result = apply_operator_review_decision($uuid, $decision);
+        api_tx_commit();
+
+        api_json(200, [
+            'ok' => true,
+            'draft_id' => $uuid,
+            'decision' => $decision,
+            'queue_type' => $result['queue_type'],
+            'role' => $result['role'],
+            'previous_status' => $result['previous_status'],
+            'new_status' => $result['new_status'],
+            'company_id' => $result['company_id'],
+            'updated_at' => gmdate('c'),
+        ]);
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'operator_review_update_failed', $error->getMessage());
+    }
+}
+
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = request_path();
 
@@ -703,6 +841,14 @@ if (preg_match('#^/registration/drafts/([^/]+)$#', $path, $matches) === 1) {
 
 if ($method === 'GET' && $path === '/operator/review-queue') {
     handle_get_operator_review_queue();
+}
+
+if (preg_match('#^/operator/review-queue/([^/]+)/status$#', $path, $matches) === 1) {
+    if ($method === 'PATCH') {
+        handle_patch_operator_review_queue_status($matches[1]);
+    }
+    header('Allow: PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
 }
 
 if ($path === '/health' || $path === '/healthz') {
