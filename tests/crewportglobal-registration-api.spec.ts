@@ -109,6 +109,41 @@ test('shipowner flow normalizes IMO and updates vessel context', async ({ reques
   expect(patchedVessel.imo_number).toBe('9001234');
 });
 
+test('employer flow creates and updates company draft context', async ({ request }) => {
+  const unique = Date.now();
+  const email = `api.employer.${unique}@example.com`;
+
+  const createResponse = await request.post('/registration/drafts', {
+    data: {
+      role: 'employer',
+      email,
+      company_name: 'Atlas Marine Crewing',
+      country_code: 'AE',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+
+  const created = (await createResponse.json()) as DraftResponse;
+  expect(created.ok).toBe(true);
+  expect(created.role).toBe('employer');
+
+  const createdCompany = created.payload.company as Record<string, unknown>;
+  expect(createdCompany.company_name).toBe('Atlas Marine Crewing');
+  expect(createdCompany.company_type).toBe('employer');
+
+  const patchResponse = await request.patch(`/registration/drafts/${created.draft_id}`, {
+    data: {
+      company_name: 'Atlas Marine Crewing LLC',
+    },
+  });
+  expect(patchResponse.status()).toBe(200);
+
+  const patched = (await patchResponse.json()) as DraftResponse;
+  const patchedCompany = patched.payload.company as Record<string, unknown>;
+  expect(patchedCompany.company_name).toBe('Atlas Marine Crewing LLC');
+  expect(patchedCompany.company_type).toBe('employer');
+});
+
 test('invalid payloads are rejected with 4xx', async ({ request }) => {
   const noJson = await request.post('/registration/drafts', {
     headers: { 'Content-Type': 'text/plain' },

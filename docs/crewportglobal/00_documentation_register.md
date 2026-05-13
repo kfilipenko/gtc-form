@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.1 draft
+- Version: 0.42
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -48,14 +48,24 @@ Main revenue is B2B: shipowners, vessel operators, ship managers, crew managers 
 
 ### 3.1 Public website structure
 
-Recommended public paths:
+Service-first public paths (action-first journey):
 
 ```text
 /
-/about/
-/how-it-works/
-/for-shipowners/
+/vacancies/
+/vacancies/{vacancy-slug}/
+/create-profile/
+/profile/
 /for-seafarers/
+/for-employers/
+/register/
+/register/employer/
+/register/vessel/
+/employers/
+/login/
+/trust-safety/
+/contact/
+/how-it-works/
 /legal/terms/
 /legal/privacy/
 /legal/no-recruitment-fees/
@@ -135,7 +145,31 @@ docs/crewportglobal/
   61_translation_pipeline_implementation_report.md
   62_build_time_translation_pipeline_plan.md
   63_cpg_i1_013_favicon_publication_record.md
+  64_product_site_structure_and_functional_requirements.md
 ```
+
+### 3.3 Product governance control
+
+Document 64 is the controlling product-logic baseline for site structure and functional requirements.
+
+Mandatory control statement:
+
+1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
+2. Action-first user routes take priority over declaration-first page expansion.
+3. This governance task must not stop or replace issue #8 implementation priority.
+
+Fixed implementation order for the active stage:
+
+1. database foundation for users, seafarers, employers and vessels;
+2. backend API for draft registration creation;
+3. connect Register/Create Profile/Post Vacancy forms to backend;
+4. save seafarer profile drafts;
+5. save employer/company drafts;
+6. save vessel drafts;
+7. create operator review queue;
+8. show real vacancy records only after real data model and workflow are approved;
+9. improve public UI after functional paths work;
+10. publish updated documentation after implementation results are verified.
 
 ## 4. Priority order for drafting
 
@@ -220,6 +254,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.42 | 2026-05-13 | GTC IT / AI Assistant | Added document 64 as the controlling product site-structure and functional-requirements baseline, aligned public path model to action-first flows, and recorded fixed service-first implementation order that must not replace issue #8 |
 | 0.41 | 2026-05-13 | GTC IT / AI Assistant | Added document 63 as the team-facing favicon publication record covering source asset, generated favicon outputs, live deploy tree sync and validation expectations |
 | 0.40 | 2026-05-12 | GTC IT / AI Assistant | Added document 62 for the approved build-time translation pipeline plan and skeleton, and aligned the methodology set with the new i18n catalog seed path under projects/crewportglobal/i18n/ |
 | 0.39 | 2026-05-12 | GTC IT / AI Assistant | Added document 61 as the operational implementation report for the current translation methodology and updated document 60 to act as the canonical website text-translation methodology record with mandatory synchronized updates on methodology changes |
