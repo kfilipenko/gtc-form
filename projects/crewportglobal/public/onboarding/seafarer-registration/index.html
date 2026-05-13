@@ -54,6 +54,16 @@
       font: inherit;
     }
 
+    .field select {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-on-dark);
+      font: inherit;
+    }
+
     .field input::placeholder {
       color: var(--muted-on-dark);
     }
@@ -98,6 +108,13 @@
 
     .check-item input {
       margin-top: 4px;
+    }
+
+    .role-toggle {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.04);
     }
 
     .check-copy strong {
@@ -397,15 +414,36 @@
           <form id="registrationForm" class="flow-form" novalidate>
             <div class="field-grid">
               <div class="field full">
+                <div class="role-toggle">
+                  <label class="check-item">
+                    <input id="roleSeafarer" name="role_seafarer" type="checkbox">
+                    <span class="check-copy"><strong data-i18n="reg.roleTitle">Seafarer role confirmation.</strong><span data-i18n="reg.roleBody">I confirm that I am registering in the seafarer route and not as a shipowner or business client.</span></span>
+                  </label>
+                </div>
+                <div class="field-hint" data-i18n="reg.roleHint">This completeness slice is limited to the seafarer route only.</div>
+              </div>
+
+              <div class="field full">
                 <label for="fullName" data-i18n="reg.nameLabel">Full name</label>
                 <input id="fullName" name="fullName" type="text" autocomplete="name" data-i18n-placeholder="reg.namePlaceholder" placeholder="As shown in your maritime documents">
-                <div class="field-hint" data-i18n="reg.nameHint">Stored locally in this browser to prefill later CrewPortGlobal onboarding steps.</div>
+                <div class="field-hint" data-i18n="reg.nameHint">Stored locally in this browser to prefill later CrewPortGlobal onboarding steps as the basic profile draft.</div>
               </div>
 
               <div class="field full">
                 <label for="email" data-i18n="reg.emailLabel">Email address</label>
                 <input id="email" name="email" type="email" autocomplete="email" inputmode="email" required data-i18n-placeholder="reg.emailPlaceholder" placeholder="captain@example.com">
                 <div class="field-hint" data-i18n="reg.emailHint">Used as a contact reference for the acceptance draft only. No shared account is created on this page.</div>
+              </div>
+
+              <div class="field full">
+                <label for="availability" data-i18n="reg.availabilityLabel">Availability</label>
+                <select id="availability" name="availability">
+                  <option value="" data-i18n="reg.availabilityPlaceholder">Select availability</option>
+                  <option value="available_now" data-i18n="reg.availabilityNow">Available now</option>
+                  <option value="within_30_days" data-i18n="reg.availabilityThirty">Available within 30 days</option>
+                  <option value="planning_ahead" data-i18n="reg.availabilityAhead">Planning ahead</option>
+                </select>
+                <div class="field-hint" data-i18n="reg.availabilityHint">Availability is required for the completeness check, but remains frontend-only in this slice.</div>
               </div>
             </div>
 
@@ -418,11 +456,11 @@
                     <span class="check-copy"><strong data-i18n="reg.ackNoFeeTitle">No recruitment fees.</strong><span data-i18n="reg.ackNoFeeBody">I understand that CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.</span></span>
                   </label>
                   <label class="check-item">
-                    <input type="checkbox" name="ack_optional_services" required>
+                    <input type="checkbox" name="ack_optional_services">
                     <span class="check-copy"><strong data-i18n="reg.ackOptionalTitle">Optional services are separate.</strong><span data-i18n="reg.ackOptionalBody">I understand that optional paid services, if ever offered, are not required for job access.</span></span>
                   </label>
                   <label class="check-item">
-                    <input type="checkbox" name="ack_accuracy" required>
+                    <input type="checkbox" name="ack_accuracy">
                     <span class="check-copy"><strong data-i18n="reg.ackAccuracyTitle">Accuracy of data.</strong><span data-i18n="reg.ackAccuracyBody">I confirm that the information and documents I submit are accurate and belong to me.</span></span>
                   </label>
                   <label class="check-item">
@@ -507,12 +545,21 @@
         'reg.routeNoFeeLabel': 'No-fee acknowledgement',
         'reg.routeConsentLabel': 'Consent dependency',
         'reg.routeFinalLabel': 'Final route state',
+        'reg.roleTitle': 'Seafarer role confirmation.',
+        'reg.roleBody': 'I confirm that I am registering in the seafarer route and not as a shipowner or business client.',
+        'reg.roleHint': 'This completeness slice is limited to the seafarer route only.',
         'reg.nameLabel': 'Full name',
         'reg.namePlaceholder': 'As shown in your maritime documents',
-        'reg.nameHint': 'Stored locally in this browser to prefill later CrewPortGlobal onboarding steps.',
+        'reg.nameHint': 'Stored locally in this browser to prefill later CrewPortGlobal onboarding steps as the basic profile draft.',
         'reg.emailLabel': 'Email address',
         'reg.emailPlaceholder': 'captain@example.com',
         'reg.emailHint': 'Used as a contact reference for the acceptance draft only. No shared account is created on this page.',
+        'reg.availabilityLabel': 'Availability',
+        'reg.availabilityPlaceholder': 'Select availability',
+        'reg.availabilityNow': 'Available now',
+        'reg.availabilityThirty': 'Available within 30 days',
+        'reg.availabilityAhead': 'Planning ahead',
+        'reg.availabilityHint': 'Availability is required for the completeness check, but remains frontend-only in this slice.',
         'reg.ackEyebrow': 'Required acknowledgements',
         'reg.ackNoFeeTitle': 'No recruitment fees.',
         'reg.ackNoFeeBody': 'I understand that CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.',
@@ -544,8 +591,9 @@
         'reg.stateAcknowledged': 'Acknowledged',
         'reg.stateSatisfied': 'Satisfied',
         'reg.stateIncomplete': 'Incomplete',
-        'reg.stateNotReady': 'Not ready',
-        'reg.stateReady': 'Ready',
+        'reg.stateRequired': 'Required',
+        'reg.stateNotReady': 'Not ready yet',
+        'reg.stateReady': 'Ready for human review',
         'reg.routeNotStarted': 'Not started',
         'reg.routeIncomplete': 'Incomplete',
         'reg.routePendingConsent': 'Pending consent',
@@ -557,15 +605,16 @@
         'reg.completeValuePattern': '{complete} / {total} complete',
         'reg.completeHintIncomplete': 'The page cannot continue yet because one or more required items are still missing.',
         'reg.completeHintReady': 'All required items are complete. Saving the draft can now move the page to pending human review.',
-        'reg.completeItemEmail': 'Email address is provided',
+        'reg.completeItemRole': 'Seafarer role is confirmed',
+        'reg.completeItemProfile': 'Basic profile draft is present',
+        'reg.completeItemEmail': 'Contact email is present',
+        'reg.completeItemAvailability': 'Availability is present',
         'reg.completeItemNoFee': 'No recruitment fee acknowledgement is accepted',
-        'reg.completeItemOptional': 'Optional services acknowledgement is accepted',
-        'reg.completeItemAccuracy': 'Data accuracy acknowledgement is accepted',
         'reg.completeItemPrivacy': 'Trust Center acceptance is confirmed',
-        'reg.completeItemName': 'Full name is provided as a recommended field',
         'reg.completeItemDone': 'Complete',
         'reg.completeItemMissing': 'Missing',
-        'reg.completeItemRecommended': 'Recommended',
+        'reg.completeItemRequired': 'Required',
+        'reg.errorCompletenessRequired': 'Complete all required items before saving the draft.',
         'reg.errorEmailRequired': 'Email is required.',
         'reg.errorAcknowledgementsRequired': 'All required acknowledgements must be accepted before registration.',
         'reg.successSaved': 'Acceptance draft saved in this browser with final UI state pending human review. Shared authentication will be introduced later as a separate CrewPortGlobal stage.',
@@ -585,8 +634,10 @@
       const form = document.getElementById('registrationForm');
       const submitButton = document.getElementById('submitButton');
       const statusNode = document.getElementById('statusMessage');
+      const roleSeafarerField = document.getElementById('roleSeafarer');
       const fullNameField = document.getElementById('fullName');
       const emailField = document.getElementById('email');
+      const availabilityField = document.getElementById('availability');
       const completenessList = document.getElementById('completeness-list');
 
       let statusModel = { key: '', kind: '', suffix: '' };
@@ -613,8 +664,12 @@
         return Array.from(form.querySelectorAll('.check-item input[required]'));
       }
 
+      function getAllChecks() {
+        return Array.from(form.querySelectorAll('.check-item input[type="checkbox"]'));
+      }
+
       function getAcknowledgements() {
-        return getRequiredChecks()
+        return getAllChecks()
           .filter((node) => node.checked)
           .map((node) => node.name)
           .sort();
@@ -622,8 +677,10 @@
 
       function getSnapshot() {
         return {
+          roleConfirmed: roleSeafarerField.checked,
           fullName: fullNameField.value.trim(),
           email: emailField.value.trim().toLowerCase(),
+          availability: availabilityField.value,
           acknowledgements: getAcknowledgements(),
         };
       }
@@ -651,14 +708,16 @@
 
         return (savedDraft.fullName || '') === snapshot.fullName
           && (savedDraft.email || '') === snapshot.email
+          && Boolean(savedDraft.roleConfirmed) === snapshot.roleConfirmed
+          && (savedDraft.availability || '') === snapshot.availability
           && arraysEqual((savedDraft.acknowledgements || []).slice().sort(), snapshot.acknowledgements);
       }
 
       function determineRouteState(snapshot) {
         const savedDraft = readSavedDraft();
-        const hasStarted = Boolean(snapshot.fullName || snapshot.email || snapshot.acknowledgements.length > 0);
-        const allAcknowledged = REQUIRED_ACKNOWLEDGEMENTS.every((key) => snapshot.acknowledgements.includes(key));
-        const isComplete = Boolean(snapshot.email) && allAcknowledged;
+        const hasStarted = Boolean(snapshot.roleConfirmed || snapshot.fullName || snapshot.email || snapshot.availability || snapshot.acknowledgements.length > 0);
+        const requiredConsentSatisfied = ['ack_no_fee', 'ack_privacy'].every((key) => snapshot.acknowledgements.includes(key));
+        const isComplete = snapshot.roleConfirmed && Boolean(snapshot.fullName) && Boolean(snapshot.email) && Boolean(snapshot.availability) && requiredConsentSatisfied;
 
         if (isSavedDraftCurrent(savedDraft, snapshot)) {
           return 'pending_human_review';
@@ -699,16 +758,16 @@
       function updateStateView() {
         const snapshot = getSnapshot();
         const routeState = determineRouteState(snapshot);
-        const noFeeAccepted = snapshot.acknowledgements.includes('ack_no_fee') && snapshot.acknowledgements.includes('ack_optional_services');
-        const consentSatisfied = REQUIRED_ACKNOWLEDGEMENTS.every((key) => snapshot.acknowledgements.includes(key));
-        const draftStarted = Boolean(snapshot.fullName || snapshot.email || snapshot.acknowledgements.length > 0);
+        const noFeeAccepted = snapshot.acknowledgements.includes('ack_no_fee');
+        const consentSatisfied = snapshot.acknowledgements.includes('ack_privacy');
+        const draftStarted = Boolean(snapshot.roleConfirmed || snapshot.fullName || snapshot.email || snapshot.availability || snapshot.acknowledgements.length > 0);
         const completenessItems = [
+          { key: 'reg.completeItemRole', complete: snapshot.roleConfirmed, required: true },
+          { key: 'reg.completeItemProfile', complete: Boolean(snapshot.fullName), required: true },
           { key: 'reg.completeItemEmail', complete: Boolean(snapshot.email), required: true },
+          { key: 'reg.completeItemAvailability', complete: Boolean(snapshot.availability), required: true },
           { key: 'reg.completeItemNoFee', complete: snapshot.acknowledgements.includes('ack_no_fee'), required: true },
-          { key: 'reg.completeItemOptional', complete: snapshot.acknowledgements.includes('ack_optional_services'), required: true },
-          { key: 'reg.completeItemAccuracy', complete: snapshot.acknowledgements.includes('ack_accuracy'), required: true },
           { key: 'reg.completeItemPrivacy', complete: snapshot.acknowledgements.includes('ack_privacy'), required: true },
-          { key: 'reg.completeItemName', complete: Boolean(snapshot.fullName), required: false },
         ];
         const requiredTotal = completenessItems.filter((item) => item.required).length;
         const requiredComplete = completenessItems.filter((item) => item.required && item.complete).length;
@@ -727,12 +786,8 @@
         completenessItems.forEach((item) => {
           const entry = document.createElement('li');
           entry.className = item.complete ? 'is-complete' : '';
-          const statusKey = item.complete
-            ? 'reg.completeItemDone'
-            : item.required
-              ? 'reg.completeItemMissing'
-              : 'reg.completeItemRecommended';
-          entry.textContent = `${translateKey(item.key)}: ${translateKey(statusKey)}`;
+          const statusKey = item.complete ? 'reg.completeItemDone' : 'reg.completeItemMissing';
+          entry.textContent = `${translateKey(item.key)}: ${translateKey('reg.completeItemRequired')} • ${translateKey(statusKey)}`;
           completenessList.appendChild(entry);
         });
 
@@ -766,14 +821,17 @@
 
       function restoreDraft() {
         const savedDraft = readSavedDraft();
+        roleSeafarerField.checked = Boolean(savedDraft && savedDraft.roleConfirmed);
         const savedName = localStorage.getItem(FULL_NAME_STORAGE_KEY) || (savedDraft && savedDraft.fullName) || '';
         const savedEmail = localStorage.getItem(EMAIL_STORAGE_KEY) || (savedDraft && savedDraft.email) || '';
+        const savedAvailability = (savedDraft && savedDraft.availability) || '';
         const savedAcknowledgements = (savedDraft && savedDraft.acknowledgements) || [];
 
         fullNameField.value = savedName;
         emailField.value = savedEmail;
+        availabilityField.value = savedAvailability;
 
-        getRequiredChecks().forEach((node) => {
+        getAllChecks().forEach((node) => {
           node.checked = savedAcknowledgements.includes(node.name);
         });
       }
@@ -788,8 +846,10 @@
 
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           acceptedAt: new Date().toISOString(),
+          roleConfirmed: snapshot.roleConfirmed,
           email: snapshot.email,
           fullName: snapshot.fullName,
+          availability: snapshot.availability,
           acknowledgements: snapshot.acknowledgements,
           routeState,
         }));
@@ -824,16 +884,15 @@
         setStatus('', '', '');
 
         const snapshot = getSnapshot();
-        const acknowledgementsSatisfied = REQUIRED_ACKNOWLEDGEMENTS.every((key) => snapshot.acknowledgements.includes(key));
+        const completenessReady = snapshot.roleConfirmed
+          && Boolean(snapshot.fullName)
+          && Boolean(snapshot.email)
+          && Boolean(snapshot.availability)
+          && snapshot.acknowledgements.includes('ack_no_fee')
+          && snapshot.acknowledgements.includes('ack_privacy');
 
-        if (!snapshot.email) {
-          setStatus('reg.errorEmailRequired', 'error');
-          updateStateView();
-          return;
-        }
-
-        if (!acknowledgementsSatisfied) {
-          setStatus('reg.errorAcknowledgementsRequired', 'error');
+        if (!completenessReady) {
+          setStatus('reg.errorCompletenessRequired', 'error');
           updateStateView();
           return;
         }
