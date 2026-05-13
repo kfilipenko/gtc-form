@@ -1,32 +1,28 @@
-# Backend Skeleton Placeholder
+# Backend Implementation Workspace
 
 ## Purpose
 
-This directory reserves the future backend-side shell boundary for the CrewPortGlobal application skeleton.
+This directory is the implementation workspace for CrewPortGlobal backend tasks.
 
-At this stage it is a planning placeholder only.
+## Responsibility Boundary
 
-## Planned Responsibility Boundary
+The backend boundary includes implementation artifacts for approved backend steps, including:
 
-The backend boundary is expected to represent only future internal application-side shell support concerns such as:
-
-1. internal shell-facing service contracts
-2. shell state support boundaries
-3. non-public orchestration touchpoints that remain separate from the frontend shell
+1. database migrations and related operational backend notes
+2. backend API implementation in approved steps
+3. backend-side orchestration that remains separate from frontend-only assets
 
 ## Not Approved Here
 
-This directory must not contain:
+Until explicitly approved in task scope, this directory must not contain:
 
-1. backend implementation code
-2. server runtime files
-3. API implementation
-4. DB access code
-5. auth changes
-6. Stripe changes
-7. SQL or migrations
-8. deployment config
+1. auth/session implementation outside the current approved task
+2. Stripe implementation
+3. nginx or deployment runtime changes
+4. OpenClaw integration changes
 
-## Control Statement
+## Current Step
 
-Backend skeleton placeholder is prepared for project-owner review only. Implementation execution remains not approved.
+Current approved implementation step:
+
+1. CPG-BE-001: registration database foundation in app/backend/db

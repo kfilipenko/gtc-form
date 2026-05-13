@@ -1,0 +1,154 @@
+openapi: 3.0.3
+info:
+  title: CrewPortGlobal Registration Draft API
+  version: 0.1.0-draft
+  description: |
+    CPG-BE-002 endpoint contract scaffold.
+    This contract defines request/response shapes for registration draft creation
+    and retrieval without prescribing storage or auth implementation.
+servers:
+  - url: /api/v1
+paths:
+  /registration/drafts:
+    post:
+      summary: Create registration draft
+      operationId: createRegistrationDraft
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDraftRequest'
+      responses:
+        '201':
+          description: Draft created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationDraftResponse'
+        '400':
+          description: Invalid request payload
+        '409':
+          description: Duplicate draft conflict
+  /registration/drafts/{draft_id}:
+    get:
+      summary: Get registration draft
+      operationId: getRegistrationDraft
+      parameters:
+        - $ref: '#/components/parameters/DraftId'
+      responses:
+        '200':
+          description: Draft payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationDraftResponse'
+        '404':
+          description: Draft not found
+    patch:
+      summary: Update registration draft
+      operationId: updateRegistrationDraft
+      parameters:
+        - $ref: '#/components/parameters/DraftId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDraftRequest'
+      responses:
+        '200':
+          description: Draft updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationDraftResponse'
+        '400':
+          description: Invalid request payload
+        '404':
+          description: Draft not found
+components:
+  parameters:
+    DraftId:
+      name: draft_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    CreateDraftRequest:
+      type: object
+      required:
+        - role
+        - email
+      properties:
+        role:
+          type: string
+          enum: [seafarer, employer, shipowner, crewing_manager]
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        company_name:
+          type: string
+        country_code:
+          type: string
+          minLength: 2
+          maxLength: 2
+    UpdateDraftRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+        availability_status:
+          type: string
+          enum: [unknown, available_now, available_later]
+        company_name:
+          type: string
+        country_code:
+          type: string
+          minLength: 2
+          maxLength: 2
+        vessel:
+          $ref: '#/components/schemas/VesselDraft'
+    VesselDraft:
+      type: object
+      properties:
+        vessel_name:
+          type: string
+        vessel_type:
+          type: string
+        imo_number:
+          type: string
+    RegistrationDraftResponse:
+      type: object
+      required:
+        - draft_id
+        - role
+        - email
+        - status
+        - created_at
+        - updated_at
+      properties:
+        draft_id:
+          type: string
+          format: uuid
+        role:
+          type: string
+        email:
+          type: string
+          format: email
+        status:
+          type: string
+          enum: [draft, submitted_for_human_review]
+        payload:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
