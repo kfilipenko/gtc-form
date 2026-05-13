@@ -1,0 +1,432 @@
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/../lib/bootstrap.php';
+
+const REG_DRAFT_STATUSES = ['draft', 'submitted_for_human_review'];
+
+function request_path(): string {
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    foreach (['/api/v1', '/app/backend/api/public'] as $prefix) {
+        if (str_starts_with($path, $prefix)) {
+            $trimmed = substr($path, strlen($prefix));
+            return $trimmed === '' ? '/' : $trimmed;
+        }
+    }
+
+    return $path;
+}
+
+function read_role_for_user(string $userId): ?string {
+    $result = api_query(
+        'SELECT role FROM crewportglobal.user_roles WHERE user_id = $1 ORDER BY created_at ASC LIMIT 1',
+        [$userId]
+    );
+    $row = pg_fetch_assoc($result);
+    return is_array($row) ? (string) $row['role'] : null;
+}
+
+function read_primary_company_for_user(string $userId): ?array {
+    $result = api_query(
+        'SELECT ec.company_id, ec.company_name, ec.registration_number, ec.country_code, ec.company_type, ec.verification_status
+         FROM crewportglobal.company_users cu
+         JOIN crewportglobal.employer_companies ec ON ec.company_id = cu.company_id
+         WHERE cu.user_id = $1
+         ORDER BY cu.is_primary_contact DESC, cu.created_at ASC
+         LIMIT 1',
+        [$userId]
+    );
+
+    $row = pg_fetch_assoc($result);
+    return is_array($row) ? $row : null;
+}
+
+function read_latest_vessel_for_company(string $companyId): ?array {
+    $result = api_query(
+        'SELECT vessel_id, vessel_name, vessel_type, imo_number, flag_country_code
+         FROM crewportglobal.vessels
+         WHERE company_id = $1
+         ORDER BY updated_at DESC, created_at DESC
+         LIMIT 1',
+        [$companyId]
+    );
+    $row = pg_fetch_assoc($result);
+    return is_array($row) ? $row : null;
+}
+
+function build_draft_response(string $userId): array {
+    $userResult = api_query(
+        'SELECT user_id, email, registration_status, created_at, updated_at
+         FROM crewportglobal.users
+         WHERE user_id = $1',
+        [$userId]
+    );
+    $userRow = pg_fetch_assoc($userResult);
+    if (!is_array($userRow)) {
+        api_error(404, 'draft_not_found', 'Registration draft not found');
+    }
+
+    $role = read_role_for_user($userId);
+    if ($role === null) {
+        api_error(500, 'role_missing', 'User role mapping is missing');
+    }
+
+    $payload = [];
+
+    if ($role === 'seafarer') {
+        $profileResult = api_query(
+            'SELECT first_name, last_name, primary_rank, availability_status, country_code, contact_email, review_status, document_metadata
+             FROM crewportglobal.seafarer_profiles
+             WHERE user_id = $1',
+            [$userId]
+        );
+        $profile = pg_fetch_assoc($profileResult) ?: [];
+        $payload['seafarer_profile'] = $profile;
+    } else {
+        $company = read_primary_company_for_user($userId);
+        if ($company !== null) {
+            $payload['company'] = $company;
+            $vessel = read_latest_vessel_for_company((string) $company['company_id']);
+            if ($vessel !== null) {
+                $payload['vessel'] = $vessel;
+            }
+        }
+    }
+
+    return [
+        'ok' => true,
+        'draft_id' => $userRow['user_id'],
+        'role' => $role,
+        'email' => $userRow['email'],
+        'status' => in_array($userRow['registration_status'], REG_DRAFT_STATUSES, true)
+            ? $userRow['registration_status']
+            : 'draft',
+        'payload' => $payload,
+        'created_at' => $userRow['created_at'],
+        'updated_at' => $userRow['updated_at'],
+    ];
+}
+
+function write_audit_event(string $eventType, string $userId, ?string $companyId, ?string $vesselId, array $eventPayload): void {
+    $json = json_encode($eventPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($json === false) {
+        $json = '{}';
+    }
+
+    $ipAddress = $_SERVER['REMOTE_ADDR'] ?? null;
+    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
+
+    api_query(
+        'INSERT INTO crewportglobal.registration_audit_events (
+            event_type, user_id, company_id, vessel_id, actor_user_id, source, event_payload, ip_address, user_agent
+         ) VALUES ($1, $2, $3, $4, $2, $5, $6::jsonb, $7::inet, $8)',
+        [$eventType, $userId, $companyId, $vesselId, 'registration_api', $json, $ipAddress, $userAgent]
+    );
+}
+
+function upsert_user_and_role(array $body): array {
+    $role = api_normalize_role($body['role'] ?? null);
+    if ($role === null) {
+        api_error(400, 'invalid_role', 'role must be one of seafarer, employer, shipowner, crewing_manager');
+    }
+
+    $email = api_normalize_email($body['email'] ?? null);
+    if ($email === null) {
+        api_error(400, 'invalid_email', 'email is required and must be valid');
+    }
+
+    $displayName = isset($body['full_name']) && is_string($body['full_name'])
+        ? trim($body['full_name'])
+        : null;
+    if ($displayName === '') {
+        $displayName = null;
+    }
+
+    $userResult = api_query(
+        'INSERT INTO crewportglobal.users (email, display_name, registration_status)
+         VALUES ($1, $2, $3)
+         ON CONFLICT ((lower(email)))
+         DO UPDATE SET
+           display_name = COALESCE(EXCLUDED.display_name, crewportglobal.users.display_name),
+           registration_status = $3,
+           updated_at = now()
+         RETURNING user_id',
+        [$email, $displayName, 'draft']
+    );
+
+    $userRow = pg_fetch_assoc($userResult);
+    if (!is_array($userRow)) {
+        api_error(500, 'user_upsert_failed', 'Unable to create or update user');
+    }
+
+    $userId = (string) $userRow['user_id'];
+
+    api_query(
+        'INSERT INTO crewportglobal.user_roles (user_id, role, source)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (user_id, role)
+         DO NOTHING',
+        [$userId, $role, 'registration_api']
+    );
+
+    return [$userId, $role, $email];
+}
+
+function upsert_seafarer_profile(string $userId, array $body, string $email): void {
+    $firstName = isset($body['full_name']) && is_string($body['full_name']) ? trim($body['full_name']) : null;
+    if ($firstName === '') {
+        $firstName = null;
+    }
+
+    $availability = isset($body['availability_status']) && is_string($body['availability_status'])
+        ? trim($body['availability_status'])
+        : 'unknown';
+    if (!in_array($availability, ['unknown', 'available_now', 'available_later'], true)) {
+        $availability = 'unknown';
+    }
+
+    $countryCode = isset($body['country_code']) && is_string($body['country_code'])
+        ? strtoupper(trim($body['country_code']))
+        : null;
+    if ($countryCode !== null && !preg_match('/^[A-Z]{2}$/', $countryCode)) {
+        $countryCode = null;
+    }
+
+    api_query(
+        'INSERT INTO crewportglobal.seafarer_profiles (
+           user_id, first_name, availability_status, country_code, contact_email, review_status
+         ) VALUES ($1, $2, $3, $4, $5, $6)
+         ON CONFLICT (user_id)
+         DO UPDATE SET
+           first_name = COALESCE(EXCLUDED.first_name, crewportglobal.seafarer_profiles.first_name),
+           availability_status = EXCLUDED.availability_status,
+           country_code = COALESCE(EXCLUDED.country_code, crewportglobal.seafarer_profiles.country_code),
+           contact_email = COALESCE(EXCLUDED.contact_email, crewportglobal.seafarer_profiles.contact_email),
+           review_status = EXCLUDED.review_status,
+           updated_at = now()',
+        [$userId, $firstName, $availability, $countryCode, $email, 'submitted_for_human_review']
+    );
+}
+
+function upsert_company_context(string $userId, string $role, array $body): array {
+    $companyName = isset($body['company_name']) && is_string($body['company_name'])
+        ? trim($body['company_name'])
+        : null;
+    if ($companyName === null || $companyName === '') {
+        $companyName = 'Registration Draft Company';
+    }
+
+    $countryCode = isset($body['country_code']) && is_string($body['country_code'])
+        ? strtoupper(trim($body['country_code']))
+        : null;
+    if ($countryCode !== null && !preg_match('/^[A-Z]{2}$/', $countryCode)) {
+        $countryCode = null;
+    }
+
+    $registrationNumber = isset($body['registration_number']) && is_string($body['registration_number'])
+        ? trim($body['registration_number'])
+        : null;
+    if ($registrationNumber === '') {
+        $registrationNumber = null;
+    }
+
+    $existingCompany = read_primary_company_for_user($userId);
+    $companyId = null;
+
+    if ($existingCompany !== null) {
+        $companyId = (string) $existingCompany['company_id'];
+        api_query(
+            'UPDATE crewportglobal.employer_companies
+             SET company_name = $2,
+                 registration_number = COALESCE($3, registration_number),
+                 country_code = COALESCE($4, country_code),
+                 company_type = CASE WHEN $5 = ''shipowner'' THEN ''shipowner''
+                                     WHEN $5 = ''crewing_manager'' THEN ''crewing_manager''
+                                     ELSE ''employer'' END,
+                 updated_at = now()
+             WHERE company_id = $1',
+            [$companyId, $companyName, $registrationNumber, $countryCode, $role]
+        );
+    } else {
+        $insertResult = api_query(
+            'INSERT INTO crewportglobal.employer_companies (
+               company_name, registration_number, country_code, company_type, verification_status, created_by_user_id
+             ) VALUES (
+               $1,
+               $2,
+               $3,
+               CASE WHEN $4 = ''shipowner'' THEN ''shipowner''
+                    WHEN $4 = ''crewing_manager'' THEN ''crewing_manager''
+                    ELSE ''employer'' END,
+               $5,
+               $6
+             )
+             RETURNING company_id',
+            [$companyName, $registrationNumber, $countryCode, $role, 'unverified', $userId]
+        );
+        $insertRow = pg_fetch_assoc($insertResult);
+        if (!is_array($insertRow)) {
+            api_error(500, 'company_upsert_failed', 'Unable to create company draft context');
+        }
+        $companyId = (string) $insertRow['company_id'];
+
+        api_query(
+            'INSERT INTO crewportglobal.company_users (company_id, user_id, role_in_company, is_primary_contact)
+             VALUES ($1, $2, $3, TRUE)
+             ON CONFLICT (company_id, user_id)
+             DO UPDATE SET role_in_company = EXCLUDED.role_in_company',
+            [$companyId, $userId, 'manager']
+        );
+    }
+
+    $vesselBody = $body['vessel'] ?? null;
+    $vesselId = null;
+    if (is_array($vesselBody)) {
+        $vesselName = isset($vesselBody['vessel_name']) && is_string($vesselBody['vessel_name'])
+            ? trim($vesselBody['vessel_name'])
+            : null;
+        $vesselType = isset($vesselBody['vessel_type']) && is_string($vesselBody['vessel_type'])
+            ? trim($vesselBody['vessel_type'])
+            : null;
+        $imo = isset($vesselBody['imo_number']) && is_string($vesselBody['imo_number'])
+            ? trim($vesselBody['imo_number'])
+            : null;
+
+        if ($vesselName !== null && $vesselName !== '') {
+            $vesselInsert = api_query(
+                'INSERT INTO crewportglobal.vessels (company_id, vessel_name, vessel_type, imo_number)
+                 VALUES ($1, $2, $3, $4)
+                 ON CONFLICT (imo_number)
+                 WHERE imo_number IS NOT NULL
+                 DO UPDATE SET
+                   company_id = EXCLUDED.company_id,
+                   vessel_name = EXCLUDED.vessel_name,
+                   vessel_type = EXCLUDED.vessel_type,
+                   updated_at = now()
+                 RETURNING vessel_id',
+                [$companyId, $vesselName, $vesselType, $imo !== '' ? $imo : null]
+            );
+            $vesselRow = pg_fetch_assoc($vesselInsert);
+            if (is_array($vesselRow)) {
+                $vesselId = (string) $vesselRow['vessel_id'];
+            }
+        }
+    }
+
+    return [$companyId, $vesselId];
+}
+
+function handle_create_draft(): void {
+    $body = api_decode_json_body();
+    api_tx_begin();
+
+    try {
+        [$userId, $role, $email] = upsert_user_and_role($body);
+
+        $companyId = null;
+        $vesselId = null;
+
+        if ($role === 'seafarer') {
+            upsert_seafarer_profile($userId, $body, $email);
+        } else {
+            [$companyId, $vesselId] = upsert_company_context($userId, $role, $body);
+        }
+
+        write_audit_event('registration_draft_created', $userId, $companyId, $vesselId, [
+            'role' => $role,
+            'email' => $email,
+        ]);
+
+        api_tx_commit();
+        api_json(201, build_draft_response($userId));
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'draft_create_failed', $error->getMessage());
+    }
+}
+
+function handle_get_draft(string $draftId): void {
+    $uuid = api_normalize_uuid($draftId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
+    }
+
+    api_json(200, build_draft_response($uuid));
+}
+
+function handle_patch_draft(string $draftId): void {
+    $uuid = api_normalize_uuid($draftId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
+    }
+
+    $body = api_decode_json_body();
+
+    $role = read_role_for_user($uuid);
+    if ($role === null) {
+        api_error(404, 'draft_not_found', 'Registration draft not found');
+    }
+
+    api_tx_begin();
+    try {
+        if (isset($body['email'])) {
+            $email = api_normalize_email($body['email']);
+            if ($email === null) {
+                api_error(400, 'invalid_email', 'email must be valid');
+            }
+            api_query(
+                'UPDATE crewportglobal.users
+                 SET email = $2, updated_at = now()
+                 WHERE user_id = $1',
+                [$uuid, $email]
+            );
+        }
+
+        if ($role === 'seafarer') {
+            $email = isset($body['email']) ? api_normalize_email($body['email']) : null;
+            if ($email === null) {
+                $current = api_query('SELECT email FROM crewportglobal.users WHERE user_id = $1', [$uuid]);
+                $row = pg_fetch_assoc($current);
+                $email = is_array($row) ? (string) $row['email'] : '';
+            }
+            upsert_seafarer_profile($uuid, $body, $email);
+            write_audit_event('registration_draft_updated', $uuid, null, null, ['role' => $role]);
+        } else {
+            [$companyId, $vesselId] = upsert_company_context($uuid, $role, $body);
+            write_audit_event('registration_draft_updated', $uuid, $companyId, $vesselId, ['role' => $role]);
+        }
+
+        api_tx_commit();
+        api_json(200, build_draft_response($uuid));
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'draft_update_failed', $error->getMessage());
+    }
+}
+
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+$path = request_path();
+
+if ($method === 'POST' && $path === '/registration/drafts') {
+    handle_create_draft();
+}
+
+if (preg_match('#^/registration/drafts/([^/]+)$#', $path, $matches) === 1) {
+    $draftId = $matches[1];
+    if ($method === 'GET') {
+        handle_get_draft($draftId);
+    }
+    if ($method === 'PATCH') {
+        handle_patch_draft($draftId);
+    }
+    header('Allow: GET, PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET, PATCH');
+}
+
+if ($path === '/health' || $path === '/healthz') {
+    api_json(200, ['ok' => true, 'service' => 'crewportglobal-registration-api']);
+}
+
+header('Allow: POST, GET, PATCH');
+api_error(404, 'not_found', 'Endpoint not found');
