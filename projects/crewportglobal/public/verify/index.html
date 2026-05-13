@@ -92,6 +92,35 @@
       font-size: 13px;
       line-height: 1.5;
     }
+    .history-panel {
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .history-title {
+      margin: 0 0 8px;
+      color: var(--text-on-dark);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .history-empty {
+      margin: 0;
+      color: var(--muted-on-dark);
+      font-size: 13px;
+    }
+    .history-list {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 6px;
+      color: var(--muted-on-dark);
+      font-size: 13px;
+    }
+    .history-item-note {
+      color: var(--text-on-dark);
+    }
     @media (max-width: 980px) {
       .queue-controls {
         grid-template-columns: 1fr;
@@ -201,6 +230,11 @@
             <textarea id="review-note" class="review-note-textarea" maxlength="1000" placeholder="Add note for review action. Required for Needs correction."></textarea>
             <p id="review-note-feedback" class="review-note-feedback"></p>
             <p id="latest-review-note" class="latest-note" data-i18n="verify.note.latest.empty">Latest review note: -</p>
+            <div class="history-panel">
+              <p class="history-title" data-i18n="verify.history.title">Review history</p>
+              <p id="review-history-empty" class="history-empty" data-i18n="verify.history.empty">No operator review history yet.</p>
+              <ol id="review-history-list" class="history-list" hidden></ol>
+            </div>
           </div>
           <pre id="details-json" class="details-json" data-i18n="verify.details.empty">Select a queue item to load full draft details.</pre>
         </section>
@@ -250,6 +284,10 @@
         'verify.note.saved': 'Review note saved: {note}',
         'verify.note.latest': 'Latest review note: {note}',
         'verify.note.latest.empty': 'Latest review note: -',
+        'verify.history.title': 'Review history',
+        'verify.history.empty': 'No operator review history yet.',
+        'verify.history.item': '{created_at} | {decision} | {previous_status} -> {new_status} | {queue_type} | {role} | {source}',
+        'verify.history.note': 'Note: {note}',
         'verify.details.title': 'Draft details',
         'verify.details.empty': 'Select a queue item to load full draft details.',
         'verify.details.loading': 'Loading draft details...',
@@ -295,6 +333,10 @@
         'verify.note.saved': 'Комментарий сохранен: {note}',
         'verify.note.latest': 'Последний комментарий проверки: {note}',
         'verify.note.latest.empty': 'Последний комментарий проверки: -',
+        'verify.history.title': 'История проверки',
+        'verify.history.empty': 'История проверки оператором пока пуста.',
+        'verify.history.item': '{created_at} | {decision} | {previous_status} -> {new_status} | {queue_type} | {role} | {source}',
+        'verify.history.note': 'Комментарий: {note}',
         'verify.details.title': 'Детали черновика',
         'verify.details.empty': 'Выберите элемент очереди, чтобы загрузить полные детали черновика.',
         'verify.details.loading': 'Загружаем детали черновика...',
@@ -311,12 +353,15 @@
       const reviewNoteInput = document.getElementById('review-note');
       const reviewNoteFeedback = document.getElementById('review-note-feedback');
       const latestReviewNote = document.getElementById('latest-review-note');
+      const reviewHistoryEmpty = document.getElementById('review-history-empty');
+      const reviewHistoryList = document.getElementById('review-history-list');
       const filterType = document.getElementById('filter-type');
       const filterRole = document.getElementById('filter-role');
       const filterStatus = document.getElementById('filter-status');
       const sortOrder = document.getElementById('sort-order');
       let queueItems = [];
       let currentLatestNote = '';
+      let currentReviewHistory = [];
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -387,6 +432,56 @@
         return typeof operatorReview.review_note === 'string' ? operatorReview.review_note : '';
       }
 
+      function extractReviewHistory(payload) {
+        if (!payload || typeof payload !== 'object') {
+          return [];
+        }
+        const rootPayload = payload.payload;
+        if (!rootPayload || typeof rootPayload !== 'object') {
+          return [];
+        }
+        const history = rootPayload.operator_review_history;
+        return Array.isArray(history) ? history : [];
+      }
+
+      function renderReviewHistory(items) {
+        currentReviewHistory = Array.isArray(items) ? items : [];
+        reviewHistoryList.innerHTML = '';
+
+        if (currentReviewHistory.length === 0) {
+          reviewHistoryList.hidden = true;
+          reviewHistoryEmpty.hidden = false;
+          reviewHistoryEmpty.textContent = t('verify.history.empty');
+          return;
+        }
+
+        reviewHistoryEmpty.hidden = true;
+        reviewHistoryList.hidden = false;
+
+        currentReviewHistory.forEach((item) => {
+          const li = document.createElement('li');
+          const line = t('verify.history.item', {
+            created_at: item.created_at || '-',
+            decision: item.decision || '-',
+            previous_status: item.previous_status || '-',
+            new_status: item.new_status || '-',
+            queue_type: item.queue_type || '-',
+            role: item.role || '-',
+            source: item.source || '-',
+          });
+
+          const note = typeof item.review_note === 'string' ? item.review_note.trim() : '';
+          li.textContent = line;
+          if (note) {
+            const noteDiv = document.createElement('div');
+            noteDiv.className = 'history-item-note';
+            noteDiv.textContent = t('verify.history.note', { note });
+            li.appendChild(noteDiv);
+          }
+          reviewHistoryList.appendChild(li);
+        });
+      }
+
       function filteredQueue() {
         const typeValue = filterType.value;
         const roleValue = filterRole.value;
@@ -414,9 +509,11 @@
           }
           detailsJson.textContent = JSON.stringify(payload, null, 2);
           setLatestReviewNote(extractLatestNote(payload));
+          renderReviewHistory(extractReviewHistory(payload));
         } catch (error) {
           detailsJson.textContent = t('verify.details.error');
           setLatestReviewNote('');
+          renderReviewHistory([]);
           console.error(error);
         }
       }
@@ -541,6 +638,7 @@
       window.addEventListener('crewportglobal:languagechange', () => {
         renderQueue();
         setLatestReviewNote(currentLatestNote);
+        renderReviewHistory(currentReviewHistory);
       });
 
       loadQueue();

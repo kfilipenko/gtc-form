@@ -38,4 +38,6 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await queueRow.locator('.queue-decision[data-decision="needs_correction"]').click();
   await expect(page.locator('#queue-status')).toContainText('rejected');
   await expect(page.locator('#latest-review-note')).toContainText(note);
+  await expect(page.locator('#review-history-list')).toContainText('needs_correction');
+  await expect(page.locator('#review-history-list')).toContainText(note);
 });

@@ -86,6 +86,41 @@ function read_latest_operator_review_event(string $userId): ?array {
     return is_array($row) ? $row : null;
 }
 
+function read_operator_review_history(string $userId): array {
+    $result = api_query(
+        "SELECT created_at,
+                source,
+                event_payload->>'decision' AS decision,
+                event_payload->>'previous_status' AS previous_status,
+                event_payload->>'new_status' AS new_status,
+                event_payload->>'queue_type' AS queue_type,
+                event_payload->>'role' AS role,
+                event_payload->>'review_note' AS review_note
+         FROM crewportglobal.registration_audit_events
+         WHERE event_type = 'operator_review_decision_recorded'
+           AND user_id = $1
+         ORDER BY created_at DESC
+         LIMIT 20",
+        [$userId]
+    );
+
+    $items = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $items[] = [
+            'created_at' => $row['created_at'] ?? null,
+            'source' => $row['source'] ?? null,
+            'decision' => $row['decision'] ?? null,
+            'previous_status' => $row['previous_status'] ?? null,
+            'new_status' => $row['new_status'] ?? null,
+            'queue_type' => $row['queue_type'] ?? null,
+            'role' => $row['role'] ?? null,
+            'review_note' => $row['review_note'] ?? null,
+        ];
+    }
+
+    return $items;
+}
+
 function build_draft_response(string $userId): array {
     $userResult = api_query(
         'SELECT user_id, email, registration_status, created_at, updated_at
@@ -143,6 +178,7 @@ function build_draft_response(string $userId): array {
     if ($latestReviewEvent !== null) {
         $payload['operator_review'] = $latestReviewEvent;
     }
+    $payload['operator_review_history'] = read_operator_review_history($userId);
 
     return [
         'ok' => true,

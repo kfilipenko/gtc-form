@@ -370,6 +370,16 @@ test('operator decision note validation and persistence works', async ({ request
   expect(audit.queueType).toBe('seafarer_profile');
   expect(audit.role).toBe('seafarer');
   expect(audit.reviewNote).toBe(note);
+
+  const draftResponse = await request.get(`/registration/drafts/${created.draft_id}`);
+  expect(draftResponse.status()).toBe(200);
+  const draftBody = (await draftResponse.json()) as DraftResponse;
+  const history = (draftBody.payload.operator_review_history as Array<Record<string, unknown>>) || [];
+  expect(Array.isArray(history)).toBe(true);
+  expect(history.length).toBeGreaterThanOrEqual(2);
+  expect(history[0].decision).toBe('needs_correction');
+  expect(history[0].review_note).toBe(note);
+  expect(history[1].decision).toBe('start_review');
 });
 
 test('invalid payloads are rejected with 4xx', async ({ request }) => {
