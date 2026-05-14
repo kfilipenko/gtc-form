@@ -125,3 +125,7 @@ Recommended next slices:
 1. add employer notes input for candidate follow-up context;
 2. add seafarer application withdrawal or "not available" action;
 3. add account-based employer sessions to replace draft-id workspace access.
+
+Follow-up status:
+
+1. employer notes input is implemented in document 80.

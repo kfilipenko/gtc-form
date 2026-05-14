@@ -210,16 +210,22 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await expect(page.locator('#post-status')).toContainText('Candidate status updated.');
   await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Contacted');
 
+  const followupNote = 'Available for interview on 2027-05-10 at 10:00 UTC.';
+  await candidateCard.locator('.candidate-note-input').fill(followupNote);
   await candidateCard.getByRole('button', { name: 'Request interview' }).click();
   await expect(page.locator('#post-status')).toContainText('Candidate status updated.');
   await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Interview requested');
+  await expect(candidateCard.locator('.candidate-note-input')).toHaveValue(followupNote);
 
   await page.reload();
   await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Interview requested');
+  await expect(candidateCard.locator('.candidate-note-input')).toHaveValue(followupNote);
 
+  await candidateCard.locator('.candidate-note-input').fill('Not suitable for this rotation after salary review.');
   await candidateCard.getByRole('button', { name: 'Not suitable' }).click();
   await expect(page.locator('#post-status')).toContainText('Candidate status updated.');
   await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Not suitable');
+  await expect(candidateCard.locator('.candidate-note-input')).toHaveValue('Not suitable for this rotation after salary review.');
 
   const hasOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   expect(hasOverflow).toBe(false);

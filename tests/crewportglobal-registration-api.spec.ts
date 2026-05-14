@@ -511,6 +511,7 @@ test('employer vacancy request flows through review to public vacancy board', as
   const presentedCandidate = presentedCandidates.find((item) => item.vacancy_application_id === applicationId);
   expect(presentedCandidate).toBeTruthy();
   expect(presentedCandidate?.employer_shortlist_status).toBe('interview_requested');
+  expect(presentedCandidate?.employer_action_note).toBe('Interview proposed by employer.');
 
   const mismatchedEmailResponse = await request.post(`/vacancies/${vacancy.vacancy_request_id}/applications`, {
     data: {

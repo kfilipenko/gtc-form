@@ -232,6 +232,28 @@
       font-size: 14px;
     }
 
+    .candidate-card__followup {
+      display: grid;
+      gap: 6px;
+    }
+
+    .candidate-card__followup strong {
+      color: var(--text-on-dark);
+      font-size: 13px;
+    }
+
+    .candidate-card__followup textarea {
+      width: 100%;
+      min-height: 82px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-on-dark);
+      font: inherit;
+      resize: vertical;
+    }
+
     .candidate-card__actions {
       display: flex;
       flex-wrap: wrap;
@@ -560,6 +582,8 @@
         'post.pipeline.status': 'Status',
         'post.pipeline.shortlist': 'Employer status',
         'post.pipeline.employerNote': 'Employer note',
+        'post.pipeline.followupNote': 'Follow-up note',
+        'post.pipeline.followupNote.placeholder': 'Add interview window, contact result or rejection reason',
         'post.pipeline.action.contacted': 'Mark contacted',
         'post.pipeline.action.interview': 'Request interview',
         'post.pipeline.action.notSuitable': 'Not suitable',
@@ -676,6 +700,8 @@
         'post.pipeline.status': 'Статус',
         'post.pipeline.shortlist': 'Статус работодателя',
         'post.pipeline.employerNote': 'Заметка работодателя',
+        'post.pipeline.followupNote': 'Заметка по кандидату',
+        'post.pipeline.followupNote.placeholder': 'Добавьте окно интервью, результат контакта или причину отказа',
         'post.pipeline.action.contacted': 'Отмечен контакт',
         'post.pipeline.action.interview': 'Запросить интервью',
         'post.pipeline.action.notSuitable': 'Не подходит',
@@ -839,6 +865,25 @@
         return button;
       }
 
+      function createCandidateFollowup(applicationId, noteValue) {
+        const label = document.createElement('label');
+        label.className = 'candidate-card__followup';
+
+        const title = document.createElement('strong');
+        title.textContent = t('post.pipeline.followupNote');
+        label.appendChild(title);
+
+        const textarea = document.createElement('textarea');
+        textarea.className = 'candidate-note-input';
+        textarea.dataset.applicationId = applicationId;
+        textarea.maxLength = 1200;
+        textarea.placeholder = t('post.pipeline.followupNote.placeholder');
+        textarea.value = typeof noteValue === 'string' ? noteValue : '';
+        label.appendChild(textarea);
+
+        return label;
+      }
+
       function renderPresentedCandidates(response) {
         const payload = response && response.payload && typeof response.payload === 'object' ? response.payload : {};
         const candidates = Array.isArray(payload.presented_candidates) ? payload.presented_candidates : [];
@@ -878,17 +923,11 @@
             card.appendChild(note);
           }
 
-          if (candidate.employer_action_note) {
-            const employerNote = document.createElement('p');
-            employerNote.className = 'candidate-card__note';
-            employerNote.textContent = `${t('post.pipeline.employerNote')}: ${candidate.employer_action_note}`;
-            card.appendChild(employerNote);
-          }
-
           if (candidate.vacancy_application_id) {
             const currentShortlistStatus = typeof candidate.employer_shortlist_status === 'string' && candidate.employer_shortlist_status.trim()
               ? candidate.employer_shortlist_status.trim()
               : 'presented';
+            card.appendChild(createCandidateFollowup(candidate.vacancy_application_id, candidate.employer_action_note));
             const actions = document.createElement('div');
             actions.className = 'candidate-card__actions';
             actions.appendChild(createCandidateAction(candidate.vacancy_application_id, 'contacted', 'post.pipeline.action.contacted', currentShortlistStatus === 'contacted'));
@@ -901,6 +940,12 @@
         });
       }
 
+      function candidateNoteFor(applicationId) {
+        const input = Array.from(candidateList.querySelectorAll('.candidate-note-input'))
+          .find((item) => item instanceof HTMLTextAreaElement && item.dataset.applicationId === applicationId);
+        return input instanceof HTMLTextAreaElement ? input.value.trim() : '';
+      }
+
       function currentDraftId() {
         return currentWorkspaceResponse && currentWorkspaceResponse.draft_id
           ? currentWorkspaceResponse.draft_id
@@ -911,9 +956,12 @@
         candidateList.querySelectorAll('.candidate-action').forEach((button) => {
           button.disabled = disabled;
         });
+        candidateList.querySelectorAll('.candidate-note-input').forEach((input) => {
+          input.disabled = disabled;
+        });
       }
 
-      async function updateCandidateShortlist(applicationId, shortlistStatus) {
+      async function updateCandidateShortlist(applicationId, shortlistStatus, employerNote) {
         const draftId = currentDraftId();
         if (!draftId) {
           status.textContent = t('post.pipeline.action.error');
@@ -932,7 +980,8 @@
             },
             body: JSON.stringify({
               employer_draft_id: draftId,
-              shortlist_status: shortlistStatus
+              shortlist_status: shortlistStatus,
+              note: employerNote
             })
           });
 
@@ -1143,7 +1192,7 @@
           return;
         }
 
-        updateCandidateShortlist(applicationId, shortlistStatus);
+        updateCandidateShortlist(applicationId, shortlistStatus, candidateNoteFor(applicationId));
       });
 
       window.addEventListener('crewportglobal:languagechange', () => {
