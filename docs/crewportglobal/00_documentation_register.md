@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.47
+- Version: 0.48
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -151,6 +151,7 @@ docs/crewportglobal/
   67_cpg_ops_014_operator_review_history_panel_report.md
   68_cpg_user_015_create_profile_review_status_and_correction_reason_report.md
   69_international_maritime_application_goal_and_task_backlog.md
+  70_context_handoff_and_next_work_plan_2026_05_14.md
 ```
 
 ### 3.3 Product governance control
@@ -158,6 +159,8 @@ docs/crewportglobal/
 Document 64 is the controlling product-logic baseline for site structure and functional requirements.
 
 Document 69 is the active product-goal and task-backlog baseline for converting CrewPortGlobal from a documentation-heavy public site into an international maritime jobs and crew application.
+
+Document 70 is the current Codex / VS Code handoff note for continuing work safely after context grows too large.
 
 Mandatory control statement:
 
