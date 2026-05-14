@@ -106,10 +106,60 @@
       resize: vertical;
     }
 
+    .workspace-status-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .workspace-status-card {
+      display: grid;
+      gap: 6px;
+      min-height: 86px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0, 102, 128, 0.12);
+    }
+
+    .workspace-status-card span {
+      color: var(--muted-on-dark);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .workspace-status-card strong {
+      color: var(--text-on-dark);
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .workspace-next-action {
+      grid-column: 1 / -1;
+      display: grid;
+      gap: 6px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .workspace-next-action span {
+      color: var(--muted-on-dark);
+      font-size: 12px;
+    }
+
+    .workspace-next-action strong {
+      color: var(--text-on-dark);
+      line-height: 1.5;
+    }
+
     @media (max-width: 980px) {
       .flow-grid,
       .step-grid,
-      .field-grid {
+      .field-grid,
+      .workspace-status-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -256,6 +306,28 @@
             </div>
             <p id="post-status" class="status-note" data-i18n="post.form.status">This form saves employer, company, vessel and vacancy request context in backend.</p>
             <p id="post-status-detail" class="status-note"></p>
+            <div class="workspace-status-grid" aria-label="Employer workspace status">
+              <div class="workspace-status-card">
+                <span data-i18n="post.workspace.company">Company verification</span>
+                <strong id="post-company-status" data-i18n="post.workspace.empty">Not saved yet</strong>
+              </div>
+              <div class="workspace-status-card">
+                <span data-i18n="post.workspace.vacancy">Vacancy request</span>
+                <strong id="post-vacancy-status" data-i18n="post.workspace.empty">Not saved yet</strong>
+              </div>
+              <div class="workspace-status-card">
+                <span data-i18n="post.workspace.publication">Public vacancy board</span>
+                <strong id="post-publication-status" data-i18n="post.workspace.notPublic">Not public</strong>
+              </div>
+              <div class="workspace-status-card">
+                <span data-i18n="post.workspace.draft">Draft reference</span>
+                <strong id="post-draft-reference">-</strong>
+              </div>
+              <div class="workspace-next-action">
+                <span data-i18n="post.workspace.next">Next step</span>
+                <strong id="post-next-action" data-i18n="post.workspace.next.initial">Save company and vacancy details to submit them for human review.</strong>
+              </div>
+            </div>
           </form>
         </article>
         <aside class="card status-card app-panel">
@@ -358,7 +430,24 @@
         'post.form.saving': 'Saving vacancy request...',
         'post.form.saved': 'Vacancy request saved successfully.',
         'post.form.error': 'Could not save vacancy request. Please try again.',
+        'post.form.prefilling': 'Loading saved employer workspace...',
+        'post.form.prefilled': 'Saved employer workspace loaded.',
+        'post.form.prefillError': 'Could not load saved employer workspace. You can continue with a new request.',
         'post.form.savedDetail': 'Draft ID: {draftId} | Company type: {companyType} | Verification: {verificationStatus} | Contact role: {roleInCompany} | Vacancy: {vacancyStatus}',
+        'post.workspace.company': 'Company verification',
+        'post.workspace.vacancy': 'Vacancy request',
+        'post.workspace.publication': 'Public vacancy board',
+        'post.workspace.draft': 'Draft reference',
+        'post.workspace.next': 'Next step',
+        'post.workspace.empty': 'Not saved yet',
+        'post.workspace.notPublic': 'Not public',
+        'post.workspace.public': 'Published',
+        'post.workspace.next.initial': 'Save company and vacancy details to submit them for human review.',
+        'post.workspace.next.company': 'Company verification is waiting for operator review.',
+        'post.workspace.next.vacancy': 'Vacancy request is waiting for operator review.',
+        'post.workspace.next.published': 'Vacancy is reviewed and visible on the public board.',
+        'post.workspace.next.correction': 'Operator requested correction. Update the details and save again.',
+        'post.workspace.next.complete': 'Company and vacancy are saved. Operator review controls public publication.',
         'post.side.process.title': 'Candidate review',
         'post.side.process.copy': 'CrewPortGlobal does not imply automatic shortlist delivery or uncontrolled direct outreach. Candidate presentation remains human-guided.',
         'post.side.verification.title': 'Employer verification',
@@ -434,7 +523,24 @@
         'post.form.saving': 'Сохраняем заявку на вакансию...',
         'post.form.saved': 'Заявка на вакансию успешно сохранена.',
         'post.form.error': 'Не удалось сохранить заявку на вакансию. Попробуйте ещё раз.',
+        'post.form.prefilling': 'Загружаем сохраненное рабочее пространство работодателя...',
+        'post.form.prefilled': 'Сохраненное рабочее пространство работодателя загружено.',
+        'post.form.prefillError': 'Не удалось загрузить сохраненное рабочее пространство. Можно продолжить с новой заявкой.',
         'post.form.savedDetail': 'Draft ID: {draftId} | Тип компании: {companyType} | Верификация: {verificationStatus} | Роль контакта: {roleInCompany} | Вакансия: {vacancyStatus}',
+        'post.workspace.company': 'Проверка компании',
+        'post.workspace.vacancy': 'Заявка на вакансию',
+        'post.workspace.publication': 'Публичная доска вакансий',
+        'post.workspace.draft': 'Ссылка на черновик',
+        'post.workspace.next': 'Следующий шаг',
+        'post.workspace.empty': 'Еще не сохранено',
+        'post.workspace.notPublic': 'Не опубликовано',
+        'post.workspace.public': 'Опубликовано',
+        'post.workspace.next.initial': 'Сохраните данные компании и вакансии, чтобы отправить их на ручную проверку.',
+        'post.workspace.next.company': 'Проверка компании ожидает решения оператора.',
+        'post.workspace.next.vacancy': 'Заявка на вакансию ожидает решения оператора.',
+        'post.workspace.next.published': 'Вакансия проверена и видна на публичной доске.',
+        'post.workspace.next.correction': 'Оператор запросил исправления. Обновите данные и сохраните снова.',
+        'post.workspace.next.complete': 'Компания и вакансия сохранены. Публикация зависит от проверки оператором.',
         'post.side.process.title': 'Рассмотрение кандидатов',
         'post.side.process.copy': 'CrewPortGlobal не обещает автоматическую выдачу шорт-листа или неконтролируемые прямые контакты. Представление кандидатов остаётся процессом с участием человека.',
         'post.side.verification.title': 'Проверка работодателя',
@@ -482,6 +588,12 @@
       const salaryMin = document.getElementById('post-salary-min');
       const salaryMax = document.getElementById('post-salary-max');
       const requirements = document.getElementById('post-requirements');
+      const companyStatus = document.getElementById('post-company-status');
+      const vacancyStatus = document.getElementById('post-vacancy-status');
+      const publicationStatus = document.getElementById('post-publication-status');
+      const draftReference = document.getElementById('post-draft-reference');
+      const nextAction = document.getElementById('post-next-action');
+      let currentWorkspaceResponse = null;
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -504,11 +616,122 @@
         return (params.get('draft_id') || '').trim();
       }
 
+      function setValue(input, value) {
+        if (!input || value === null || value === undefined) {
+          return;
+        }
+        input.value = String(value);
+      }
+
+      function setSelectValue(input, value) {
+        if (!input || value === null || value === undefined) {
+          return;
+        }
+        const normalized = String(value);
+        if (Array.from(input.options).some((option) => option.value === normalized)) {
+          input.value = normalized;
+        }
+      }
+
+      function valueOrDash(value) {
+        return value === null || value === undefined || String(value).trim() === '' ? '-' : String(value);
+      }
+
+      function nextActionKey(companyPayload, vacancyPayload, operatorReview) {
+        const companyReview = valueOrDash(companyPayload.verification_status);
+        const vacancyReview = valueOrDash(vacancyPayload.publication_status);
+        const latestDecision = operatorReview && typeof operatorReview.decision === 'string'
+          ? operatorReview.decision
+          : '';
+
+        if (latestDecision === 'needs_correction' || companyReview === 'rejected' || vacancyReview === 'rejected') {
+          return 'post.workspace.next.correction';
+        }
+        if (companyReview === 'verified' && vacancyReview === 'published') {
+          return 'post.workspace.next.published';
+        }
+        if (companyReview === 'unverified' || companyReview === 'submitted') {
+          return 'post.workspace.next.company';
+        }
+        if (vacancyReview === 'submitted_for_human_review' || vacancyReview === 'in_review') {
+          return 'post.workspace.next.vacancy';
+        }
+        if (companyPayload.company_id || vacancyPayload.vacancy_request_id) {
+          return 'post.workspace.next.complete';
+        }
+        return 'post.workspace.next.initial';
+      }
+
+      function renderWorkspaceStatus(response) {
+        currentWorkspaceResponse = response || null;
+        const payload = response && response.payload && typeof response.payload === 'object' ? response.payload : {};
+        const companyPayload = payload.company && typeof payload.company === 'object' ? payload.company : {};
+        const vacancyPayload = payload.vacancy_request && typeof payload.vacancy_request === 'object' ? payload.vacancy_request : {};
+        const operatorReview = payload.operator_review && typeof payload.operator_review === 'object' ? payload.operator_review : null;
+        const isPublished = companyPayload.verification_status === 'verified' && vacancyPayload.publication_status === 'published';
+
+        companyStatus.textContent = companyPayload.verification_status || t('post.workspace.empty');
+        vacancyStatus.textContent = vacancyPayload.publication_status || t('post.workspace.empty');
+        publicationStatus.textContent = isPublished ? t('post.workspace.public') : t('post.workspace.notPublic');
+        draftReference.textContent = response && response.draft_id ? response.draft_id : '-';
+        nextAction.textContent = t(nextActionKey(companyPayload, vacancyPayload, operatorReview));
+      }
+
+      function prefillFromDraft(response) {
+        if (!response || typeof response !== 'object') {
+          return;
+        }
+
+        const payload = response.payload && typeof response.payload === 'object' ? response.payload : {};
+        const companyPayload = payload.company && typeof payload.company === 'object' ? payload.company : {};
+        const vesselPayload = payload.vessel && typeof payload.vessel === 'object' ? payload.vessel : {};
+        const vacancyPayload = payload.vacancy_request && typeof payload.vacancy_request === 'object' ? payload.vacancy_request : {};
+        const roleValue = response.role === 'crewing_manager' ? 'crewing_manager' : response.role;
+
+        setValue(email, response.email);
+        setSelectValue(role, roleValue);
+        setValue(company, companyPayload.company_name);
+        setValue(country, companyPayload.country_code);
+        setValue(registrationNumber, companyPayload.registration_number);
+        setSelectValue(roleInCompany, companyPayload.role_in_company);
+        setValue(vesselName, vesselPayload.vessel_name);
+        setValue(vesselType, vacancyPayload.vessel_type || vesselPayload.vessel_type);
+        setValue(imo, vesselPayload.imo_number);
+        setValue(vacancyTitle, vacancyPayload.vacancy_title || vacancyPayload.rank);
+        setSelectValue(department, vacancyPayload.department);
+        setValue(joinDate, vacancyPayload.join_date);
+        setValue(duration, vacancyPayload.contract_duration);
+        setValue(salaryMin, vacancyPayload.salary_min_usd);
+        setValue(salaryMax, vacancyPayload.salary_max_usd);
+        setValue(requirements, vacancyPayload.requirements);
+        renderWorkspaceStatus(response);
+      }
+
+      async function loadExistingDraft() {
+        const draftId = getDraftIdFromUrl();
+        if (!draftId) {
+          if (stored.lastResponse && stored.role && stored.role !== 'seafarer') {
+            prefillFromDraft(stored.lastResponse);
+          }
+          return;
+        }
+
+        status.textContent = t('post.form.prefilling');
+        try {
+          const response = await window.CPGDrafts.getDraft(draftId);
+          prefillFromDraft(response);
+          status.textContent = t('post.form.prefilled');
+        } catch (error) {
+          status.textContent = t('post.form.prefillError');
+          console.error(error);
+        }
+      }
+
       const stored = window.CPGDrafts.getStoredDraft();
-      if (stored.email) {
+      if (stored.email && stored.role && stored.role !== 'seafarer') {
         email.value = stored.email;
       }
-      if (stored.role === 'shipowner' || stored.role === 'crewing-manager') {
+      if (stored.role === 'shipowner' || stored.role === 'crewing-manager' || stored.role === 'employer') {
         role.value = stored.role === 'crewing-manager' ? 'crewing_manager' : stored.role;
       }
 
@@ -574,6 +797,7 @@
           status.textContent = t('post.form.saved');
           const companyPayload = response && response.payload && response.payload.company ? response.payload.company : {};
           const vacancyResponse = response && response.payload && response.payload.vacancy_request ? response.payload.vacancy_request : {};
+          renderWorkspaceStatus(response);
           statusDetail.textContent = tp('post.form.savedDetail', {
             draftId: response.draft_id || '-',
             companyType: companyPayload.company_type || '-',
@@ -592,6 +816,13 @@
           submit.disabled = false;
         }
       });
+
+      window.addEventListener('crewportglobal:languagechange', () => {
+        renderWorkspaceStatus(currentWorkspaceResponse);
+      });
+
+      renderWorkspaceStatus(null);
+      loadExistingDraft();
     })();
   </script>
 </body>

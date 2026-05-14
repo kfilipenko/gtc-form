@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.51
+- Version: 0.52
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -155,6 +155,7 @@ docs/crewportglobal/
   71_cpg_user_016_seafarer_cv_workspace_and_document_metadata_report.md
   72_cpg_ops_015_operator_structured_detail_view_report.md
   73_cpg_ops_016_operator_access_token_boundary_report.md
+  74_cpg_emp_006_employer_vacancy_workspace_status_report.md
 ```
 
 ### 3.3 Product governance control
@@ -170,6 +171,8 @@ Document 71 records the seafarer CV workspace and document metadata implementati
 Document 72 records the operator structured detail view implementation for `/verify/`.
 
 Document 73 records the temporary operator access token boundary for `/verify/` and operator review API routes.
+
+Document 74 records the employer vacancy workspace status implementation for `/post-vacancy/`.
 
 Mandatory control statement:
 
@@ -273,6 +276,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.52 | 2026-05-14 | GTC IT / AI Assistant | Added document 74 as CPG-EMP-006 implementation report for employer vacancy workspace status, draft prefill and reviewed publication state on /post-vacancy/ |
 | 0.51 | 2026-05-14 | GTC IT / AI Assistant | Added document 73 as CPG-OPS-016 implementation report for the temporary operator access token boundary on /verify/ and operator review API routes |
 | 0.50 | 2026-05-14 | GTC IT / AI Assistant | Added document 72 as CPG-OPS-015 implementation report for structured operator detail sections on /verify/ |
 | 0.49 | 2026-05-14 | GTC IT / AI Assistant | Added document 71 as CPG-USER-016 implementation report for the seafarer CV workspace, document readiness metadata persistence and verification evidence |
