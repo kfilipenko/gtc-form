@@ -131,6 +131,14 @@ test('seafarer draft create, get and patch flow works', async ({ request }) => {
       preferred_vessel_types: ['Bulk Carrier', 'Container'],
       salary_expectation_usd: 4200,
       contact_phone: '+971500000001',
+      document_metadata: {
+        certificate_status: 'ready',
+        stcw_status: 'collecting',
+        passport_expiry: '2028-07-10',
+        medical_expiry: '2027-01-15',
+        visa_status: 'required',
+        notes: 'Schengen visa appointment booked.',
+      },
     },
   });
   expect(createResponse.status()).toBe(201);
@@ -155,6 +163,13 @@ test('seafarer draft create, get and patch flow works', async ({ request }) => {
   expect(fetchedSeafarerProfile.availability_date).toBe('2026-07-10');
   expect(fetchedSeafarerProfile.salary_expectation_usd).toBe('4200.00');
   expect(fetchedSeafarerProfile.contact_phone).toBe('+971500000001');
+  expect(typeof fetchedSeafarerProfile.document_metadata).toBe('string');
+  const fetchedDocumentMetadata = JSON.parse(fetchedSeafarerProfile.document_metadata as string) as Record<string, unknown>;
+  expect(fetchedDocumentMetadata.certificate_status).toBe('ready');
+  expect(fetchedDocumentMetadata.stcw_status).toBe('collecting');
+  expect(fetchedDocumentMetadata.passport_expiry).toBe('2028-07-10');
+  expect(fetchedDocumentMetadata.medical_expiry).toBe('2027-01-15');
+  expect(fetchedDocumentMetadata.visa_status).toBe('required');
 
   const patchResponse = await request.patch(`/registration/drafts/${created.draft_id}`, {
     data: {
@@ -181,6 +196,9 @@ test('seafarer draft create, get and patch flow works', async ({ request }) => {
   expect(seafarerProfile.availability_date).toBe('2026-07-10');
   expect(typeof seafarerProfile.preferred_vessel_types).toBe('string');
   expect(seafarerProfile.preferred_vessel_types).toBe('["LNG"]');
+  const patchedDocumentMetadata = JSON.parse(seafarerProfile.document_metadata as string) as Record<string, unknown>;
+  expect(patchedDocumentMetadata.certificate_status).toBe('ready');
+  expect(patchedDocumentMetadata.passport_expiry).toBe('2028-07-10');
 });
 
 test('shipowner flow normalizes IMO and updates vessel context', async ({ request }) => {

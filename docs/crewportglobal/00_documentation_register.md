@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.48
+- Version: 0.49
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -152,6 +152,7 @@ docs/crewportglobal/
   68_cpg_user_015_create_profile_review_status_and_correction_reason_report.md
   69_international_maritime_application_goal_and_task_backlog.md
   70_context_handoff_and_next_work_plan_2026_05_14.md
+  71_cpg_user_016_seafarer_cv_workspace_and_document_metadata_report.md
 ```
 
 ### 3.3 Product governance control
@@ -161,6 +162,8 @@ Document 64 is the controlling product-logic baseline for site structure and fun
 Document 69 is the active product-goal and task-backlog baseline for converting CrewPortGlobal from a documentation-heavy public site into an international maritime jobs and crew application.
 
 Document 70 is the current Codex / VS Code handoff note for continuing work safely after context grows too large.
+
+Document 71 records the seafarer CV workspace and document metadata implementation slice.
 
 Mandatory control statement:
 
@@ -264,6 +267,8 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.49 | 2026-05-14 | GTC IT / AI Assistant | Added document 71 as CPG-USER-016 implementation report for the seafarer CV workspace, document readiness metadata persistence and verification evidence |
+| 0.48 | 2026-05-14 | GTC IT / AI Assistant | Added document 70 as the Codex / VS Code context handoff and next-work continuation note |
 | 0.47 | 2026-05-13 | GTC IT / AI Assistant | Added document 69 as the active product goal and task backlog for the international maritime application build-out |
 | 0.46 | 2026-05-13 | GTC IT / AI Assistant | Added document 68 as CPG-USER-015 implementation report for candidate-facing create-profile review status labels and conditional correction reason display with EN/RU texts and prefill regression coverage |
 | 0.45 | 2026-05-13 | GTC IT / AI Assistant | Added document 67 as CPG-OPS-014 implementation report covering backend operator_review_history payload (last 20 audit events), /verify history panel rendering and API/UI validation evidence |

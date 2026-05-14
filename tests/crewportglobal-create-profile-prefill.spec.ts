@@ -21,6 +21,12 @@ test('create profile prefill from draft_id preserves patch flow', async ({ page 
   await page.locator('#create-phone').fill('+971501112233');
   await page.locator('#create-salary').fill('4600');
   await page.locator('#create-vessel-types').fill('Bulk Carrier, Container');
+  await page.locator('#create-certificate-status').selectOption('ready');
+  await page.locator('#create-stcw-status').selectOption('collecting');
+  await page.locator('#create-passport-expiry').fill('2028-08-15');
+  await page.locator('#create-medical-expiry').fill('2026-12-20');
+  await page.locator('#create-visa-status').selectOption('required');
+  await page.locator('#create-document-notes').fill('Schengen visa appointment booked.');
 
   await page.locator('#create-submit').click();
 
@@ -53,6 +59,12 @@ test('create profile prefill from draft_id preserves patch flow', async ({ page 
   await expect(page.locator('#create-phone')).toHaveValue('+971501112233');
   await expect(page.locator('#create-salary')).toHaveValue('4600.00');
   await expect(page.locator('#create-vessel-types')).toHaveValue('Bulk Carrier, Container');
+  await expect(page.locator('#create-certificate-status')).toHaveValue('ready');
+  await expect(page.locator('#create-stcw-status')).toHaveValue('collecting');
+  await expect(page.locator('#create-passport-expiry')).toHaveValue('2028-08-15');
+  await expect(page.locator('#create-medical-expiry')).toHaveValue('2026-12-20');
+  await expect(page.locator('#create-visa-status')).toHaveValue('required');
+  await expect(page.locator('#create-document-notes')).toHaveValue('Schengen visa appointment booked.');
 
   await page.locator('#create-rank').fill('Chief Officer');
   await page.locator('#create-submit').click();
@@ -84,6 +96,12 @@ test('create profile prefill falls back to local draft when draft_id is missing'
   await page.locator('#create-phone').fill('+971500009999');
   await page.locator('#create-salary').fill('5000');
   await page.locator('#create-vessel-types').fill('LNG, Tanker');
+  await page.locator('#create-certificate-status').selectOption('ready');
+  await page.locator('#create-stcw-status').selectOption('ready');
+  await page.locator('#create-passport-expiry').fill('2029-01-10');
+  await page.locator('#create-medical-expiry').fill('2027-02-05');
+  await page.locator('#create-visa-status').selectOption('not_required');
+  await page.locator('#create-document-notes').fill('All metadata ready for review.');
 
   await page.locator('#create-submit').click();
   await expect(page.locator('#create-status')).toContainText('saved');
@@ -102,6 +120,12 @@ test('create profile prefill falls back to local draft when draft_id is missing'
   await expect(page.locator('#create-phone')).toHaveValue('+971500009999');
   await expect(page.locator('#create-salary')).toHaveValue('5000.00');
   await expect(page.locator('#create-vessel-types')).toHaveValue('LNG, Tanker');
+  await expect(page.locator('#create-certificate-status')).toHaveValue('ready');
+  await expect(page.locator('#create-stcw-status')).toHaveValue('ready');
+  await expect(page.locator('#create-passport-expiry')).toHaveValue('2029-01-10');
+  await expect(page.locator('#create-medical-expiry')).toHaveValue('2027-02-05');
+  await expect(page.locator('#create-visa-status')).toHaveValue('not_required');
+  await expect(page.locator('#create-document-notes')).toHaveValue('All metadata ready for review.');
 });
 
 test('create profile shows needs correction status and latest correction note for existing draft', async ({ page, request }) => {

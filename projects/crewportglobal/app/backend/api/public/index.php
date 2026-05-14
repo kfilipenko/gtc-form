@@ -134,6 +134,65 @@ function normalize_date_value(mixed $value): ?string {
     return preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) ? $date : null;
 }
 
+function normalize_allowed_document_value(mixed $value, array $allowed): ?string {
+    if (!is_string($value)) {
+        return null;
+    }
+
+    $normalized = trim(strtolower($value));
+    return in_array($normalized, $allowed, true) ? $normalized : null;
+}
+
+function normalize_seafarer_document_metadata(array $body): ?string {
+    $rawMetadata = $body['document_metadata'] ?? null;
+    if (!is_array($rawMetadata)) {
+        return null;
+    }
+
+    $metadata = [];
+    $certificateStatus = normalize_allowed_document_value(
+        $rawMetadata['certificate_status'] ?? null,
+        ['unknown', 'collecting', 'ready', 'needs_update']
+    );
+    $stcwStatus = normalize_allowed_document_value(
+        $rawMetadata['stcw_status'] ?? null,
+        ['unknown', 'collecting', 'ready', 'needs_update']
+    );
+    $visaStatus = normalize_allowed_document_value(
+        $rawMetadata['visa_status'] ?? null,
+        ['unknown', 'not_required', 'required', 'ready']
+    );
+    $passportExpiry = normalize_date_value($rawMetadata['passport_expiry'] ?? null);
+    $medicalExpiry = normalize_date_value($rawMetadata['medical_expiry'] ?? null);
+    $notes = normalize_optional_text($rawMetadata['notes'] ?? null, 1200);
+
+    if ($certificateStatus !== null) {
+        $metadata['certificate_status'] = $certificateStatus;
+    }
+    if ($stcwStatus !== null) {
+        $metadata['stcw_status'] = $stcwStatus;
+    }
+    if ($passportExpiry !== null) {
+        $metadata['passport_expiry'] = $passportExpiry;
+    }
+    if ($medicalExpiry !== null) {
+        $metadata['medical_expiry'] = $medicalExpiry;
+    }
+    if ($visaStatus !== null) {
+        $metadata['visa_status'] = $visaStatus;
+    }
+    if ($notes !== null) {
+        $metadata['notes'] = $notes;
+    }
+
+    if ($metadata === []) {
+        return null;
+    }
+
+    $json = json_encode($metadata, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    return $json === false ? null : $json;
+}
+
 function normalize_department_value(mixed $value): ?string {
     if (!is_string($value)) {
         return null;
@@ -718,6 +777,8 @@ function upsert_seafarer_profile(string $userId, array $body, string $email): vo
         $preferredVesselTypesJson = '[]';
     }
 
+    $documentMetadataJson = normalize_seafarer_document_metadata($body);
+
     api_query(
         'INSERT INTO crewportglobal.seafarer_profiles (
            user_id,
@@ -733,6 +794,7 @@ function upsert_seafarer_profile(string $userId, array $body, string $email): vo
            salary_expectation_usd,
            contact_phone,
            contact_email,
+           document_metadata,
            review_status
          ) VALUES (
            $1,
@@ -748,7 +810,8 @@ function upsert_seafarer_profile(string $userId, array $body, string $email): vo
            $11,
            $12,
            $13,
-           $14
+           COALESCE($14::jsonb, \'{}\'::jsonb),
+           $15
          )
          ON CONFLICT (user_id)
          DO UPDATE SET
@@ -767,6 +830,7 @@ function upsert_seafarer_profile(string $userId, array $body, string $email): vo
            salary_expectation_usd = COALESCE(EXCLUDED.salary_expectation_usd, crewportglobal.seafarer_profiles.salary_expectation_usd),
            contact_phone = COALESCE(EXCLUDED.contact_phone, crewportglobal.seafarer_profiles.contact_phone),
            contact_email = COALESCE(EXCLUDED.contact_email, crewportglobal.seafarer_profiles.contact_email),
+           document_metadata = COALESCE($14::jsonb, crewportglobal.seafarer_profiles.document_metadata),
            review_status = EXCLUDED.review_status,
            updated_at = now()',
         [
@@ -783,6 +847,7 @@ function upsert_seafarer_profile(string $userId, array $body, string $email): vo
             $salaryExpectationUsd,
             $contactPhone,
             $email,
+            $documentMetadataJson,
             'submitted_for_human_review',
         ]
     );

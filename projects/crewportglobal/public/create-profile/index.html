@@ -11,78 +11,212 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="stylesheet" href="../assets/crewportglobal-docs.css">
+  <link rel="stylesheet" href="../assets/crewportglobal-app.css">
   <style>
-    .profile-grid,
-    .step-grid {
+    .profile-page {
+      display: grid;
+      gap: 14px;
+    }
+
+    .profile-hero,
+    .profile-workspace,
+    .field-grid,
+    .step-grid,
+    .readiness-grid,
+    .summary-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .profile-hero {
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.42fr);
+      align-items: stretch;
+    }
+
+    .profile-hero-card,
+    .profile-status-panel,
+    .profile-sidebar,
+    .profile-form,
+    .step-card {
+      padding: 22px;
+    }
+
+    .profile-hero-card,
+    .profile-status-panel,
+    .profile-sidebar,
+    .profile-form,
+    .step-card {
+      align-content: start;
+    }
+
+    .profile-hero-card {
       display: grid;
       gap: 18px;
     }
 
-    .profile-grid {
-      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.6fr);
-      align-items: start;
-    }
-
-    .hero-card,
-    .step-card,
-    .status-card {
-      padding: 28px;
-    }
-
-    .step-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .step-card,
-    .status-box {
-      display: grid;
-      gap: 12px;
-      padding: 20px;
-      border-radius: 20px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.04);
+    .profile-title {
+      margin: 0;
+      max-width: 18ch;
+      color: var(--app-ink);
+      font-size: clamp(36px, 5vw, 58px);
+      line-height: 1.02;
+      letter-spacing: 0;
     }
 
     .lead-copy,
-    .status-box,
+    .status-note,
+    .profile-status-panel p,
+    .profile-sidebar p,
     .step-card p,
-    .step-card li {
-      color: var(--muted-on-dark);
+    .step-card li,
+    .field-note {
+      color: var(--app-muted);
       line-height: 1.6;
     }
 
-    .step-card ul {
-      margin: 0;
-      padding-left: 18px;
+    .inline-actions,
+    .section-actions,
+    .section-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .readiness-grid,
+    .summary-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .readiness-card,
+    .summary-card {
+      display: grid;
+      gap: 6px;
+      min-height: 84px;
+      padding: 14px;
+      border: 1px solid var(--app-line);
+      background: var(--app-surface-2);
+      border-radius: 8px;
+    }
+
+    .readiness-card strong,
+    .summary-card strong {
+      color: var(--app-ink);
+      font-size: clamp(20px, 2vw, 28px);
+      line-height: 1;
+    }
+
+    .readiness-card span,
+    .summary-card span {
+      color: var(--app-muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .profile-status-panel {
+      display: grid;
+      gap: 14px;
+    }
+
+    .status-row {
+      display: grid;
+      gap: 8px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--app-line);
+    }
+
+    .status-row:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .profile-workspace {
+      grid-template-columns: minmax(230px, 0.28fr) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .profile-sidebar {
+      position: sticky;
+      top: 14px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .section-tabs {
       display: grid;
       gap: 8px;
     }
 
-    .inline-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
+    .section-tab {
+      justify-content: flex-start;
+      width: 100%;
+      border-color: var(--app-line);
+      background: #fff;
+      color: var(--app-ocean-dark);
+    }
+
+    .section-tab.is-current {
+      border-color: var(--app-ocean);
+      background: #eaf5f6;
+      color: var(--app-ocean-dark);
+    }
+
+    .missing-list {
+      display: grid;
+      gap: 7px;
+      margin: 0;
+      padding-left: 18px;
+      color: var(--app-muted);
+      line-height: 1.5;
     }
 
     .profile-form {
       display: grid;
-      gap: 18px;
-      margin-top: 18px;
+      gap: 22px;
+    }
+
+    .form-section {
+      display: grid;
+      gap: 14px;
+      padding-top: 4px;
+    }
+
+    .form-section + .form-section {
+      padding-top: 22px;
+      border-top: 1px solid var(--app-line);
+    }
+
+    .section-heading {
+      display: grid;
+      gap: 6px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      color: var(--app-ink);
+      font-size: 24px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .section-heading p {
+      margin: 0;
     }
 
     .field-grid {
-      display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
     }
 
     .field-card {
       display: grid;
       gap: 8px;
-      padding: 16px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.04);
+      padding: 0;
+      border: 0;
+      background: transparent;
     }
 
     .field-card.full {
@@ -90,25 +224,94 @@
     }
 
     .field-card input,
-    .field-card select {
+    .field-card select,
+    .field-card textarea {
       width: 100%;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-on-dark);
+      min-height: 44px;
+      padding: 11px 12px;
+      border: 1px solid var(--app-line);
+      background: #fff;
+      color: var(--app-ink);
+      border-radius: 8px;
       font: inherit;
     }
 
-    @media (max-width: 980px) {
-      .profile-grid,
+    .field-card textarea {
+      min-height: 104px;
+      resize: vertical;
+    }
+
+    .field-card strong {
+      color: var(--app-ink);
+      font-size: 13px;
+    }
+
+    .form-footer {
+      display: grid;
+      gap: 10px;
+      padding-top: 18px;
+      border-top: 1px solid var(--app-line);
+    }
+
+    .step-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .step-card {
+      display: grid;
+      gap: 10px;
+    }
+
+    .step-card ul {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    @media (max-width: 1040px) {
+      .profile-hero,
+      .profile-workspace,
       .step-grid,
-      .field-grid {
+      .readiness-grid {
         grid-template-columns: 1fr;
+      }
+
+      .profile-sidebar {
+        position: static;
+      }
+
+      .section-tabs {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .profile-hero-card,
+      .profile-status-panel,
+      .profile-sidebar,
+      .profile-form,
+      .step-card {
+        padding: 16px;
+      }
+
+      .field-grid,
+      .summary-grid,
+      .section-tabs {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-title {
+        max-width: none;
+        font-size: 34px;
+      }
+
+      .inline-actions .button,
+      .section-actions .button {
+        width: 100%;
       }
     }
   </style>
-  <link rel="stylesheet" href="../assets/crewportglobal-app.css">
 </head>
 <body class="doc-body cpg-app-page">
   <div class="site-shell">
@@ -147,30 +350,88 @@
       <a class="nav-link" href="https://crewportglobal.com/register/" data-i18n="nav.loginRegister">Login / Register</a>
     </nav>
 
-    <main class="doc-main">
-      <section class="profile-grid app-market-grid">
-        <article class="card hero-card app-panel">
-          <p class="eyebrow" data-i18n="create.hero.eyebrow">Create profile</p>
-          <h1 data-i18n="create.hero.title">Start your seafarer profile.</h1>
-          <p class="lead-copy" data-i18n="create.hero.copy">Add CV basics, rank, certificates, availability, contact details and document metadata in one place.</p>
+    <main class="doc-main profile-page">
+      <section class="profile-hero">
+        <article class="card profile-hero-card">
+          <p class="eyebrow" data-i18n="create.hero.eyebrow">Seafarer workspace</p>
+          <h1 class="profile-title" data-i18n="create.hero.title">Build a ready-to-review maritime CV.</h1>
+          <p class="lead-copy" data-i18n="create.hero.copy">Keep rank, availability, vessel preferences and document readiness in one practical profile before you apply to reviewed vacancies.</p>
           <div class="inline-actions">
-            <a class="button primary" href="https://crewportglobal.com/onboarding/seafarer-registration/" data-i18n="create.hero.primaryCta">Start Seafarer Onboarding</a>
-            <a class="button secondary" href="https://crewportglobal.com/register/" data-i18n="create.hero.secondaryCta">Choose Role / Register</a>
+            <a class="button primary" href="#create-profile-form" data-i18n="create.hero.primaryCta">Open CV workspace</a>
+            <a class="button secondary" href="https://crewportglobal.com/vacancies/" data-i18n="create.hero.secondaryCta">View Vacancies</a>
           </div>
+          <div class="readiness-grid" aria-label="Profile readiness summary">
+            <div class="readiness-card">
+              <strong id="create-progress-value">0%</strong>
+              <span data-i18n="create.progress.profile">Profile readiness</span>
+            </div>
+            <div class="readiness-card">
+              <strong id="create-summary-rank">-</strong>
+              <span data-i18n="create.progress.rank">Rank</span>
+            </div>
+            <div class="readiness-card">
+              <strong id="create-summary-availability">-</strong>
+              <span data-i18n="create.progress.availability">Availability</span>
+            </div>
+            <div class="readiness-card">
+              <strong id="create-summary-documents">-</strong>
+              <span data-i18n="create.progress.documents">Documents</span>
+            </div>
+          </div>
+        </article>
+        <aside class="card profile-status-panel">
+          <div class="status-row">
+            <strong data-i18n="create.side.review.title">Review status</strong>
+            <p id="create-review-status" class="status-note" data-i18n="create.reviewStatus.currentUnknown">Review status: Not available yet.</p>
+            <p id="create-correction-note" class="status-note" hidden></p>
+          </div>
+          <div class="status-row">
+            <strong data-i18n="create.side.fees.title">No recruitment fee</strong>
+            <p data-i18n="create.side.fees.copy">CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees to enter the profile workflow.</p>
+          </div>
+          <div class="status-row">
+            <strong data-i18n="create.side.privacy.title">Private until reviewed</strong>
+            <p data-i18n="create.side.privacy.copy">Your draft remains an intake profile. Public presentation or employer sharing requires the controlled review workflow.</p>
+          </div>
+        </aside>
+      </section>
 
-          <form id="create-profile-form" class="profile-form" novalidate>
+      <section class="profile-workspace" aria-label="Seafarer profile workspace">
+        <aside class="card profile-sidebar">
+          <div>
+            <p class="eyebrow" data-i18n="create.workspace.eyebrow">Workspace</p>
+            <p id="create-progress-copy" class="status-note" data-i18n="create.progress.copyEmpty">Add the required fields to prepare your profile for review.</p>
+          </div>
+          <nav class="section-tabs" aria-label="Profile sections">
+            <button class="button secondary section-tab is-current" type="button" data-section-target="profile-section-cv" data-i18n="create.tab.cv">CV basics</button>
+            <button class="button secondary section-tab" type="button" data-section-target="profile-section-documents" data-i18n="create.tab.documents">Documents</button>
+            <button class="button secondary section-tab" type="button" data-section-target="profile-section-review" data-i18n="create.tab.review">Review</button>
+          </nav>
+          <div>
+            <strong data-i18n="create.progress.missingTitle">Missing for review</strong>
+            <ul id="create-missing-list" class="missing-list"></ul>
+          </div>
+        </aside>
+
+        <form id="create-profile-form" class="card profile-form" novalidate>
+          <section id="profile-section-cv" class="form-section">
+            <div class="section-heading">
+              <p class="eyebrow" data-i18n="create.section.cv.eyebrow">CV basics</p>
+              <h2 data-i18n="create.section.cv.title">Identity, rank and availability</h2>
+              <p class="field-note" data-i18n="create.section.cv.copy">These fields make the profile searchable and useful for employer-side review.</p>
+            </div>
             <div class="field-grid">
               <label class="field-card full">
                 <strong data-i18n="create.form.fullName">Full name</strong>
-                <input id="create-full-name" type="text" data-i18n-placeholder="create.form.fullName.placeholder" placeholder="First and last name" required>
+                <input id="create-full-name" type="text" autocomplete="name" data-i18n-placeholder="create.form.fullName.placeholder" placeholder="First and last name" required>
               </label>
               <label class="field-card">
                 <strong data-i18n="create.form.email">Email</strong>
-                <input id="create-email" type="email" data-i18n-placeholder="create.form.email.placeholder" placeholder="seafarer@example.com" required>
+                <input id="create-email" type="email" autocomplete="email" data-i18n-placeholder="create.form.email.placeholder" placeholder="seafarer@example.com" required>
               </label>
               <label class="field-card">
-                <strong data-i18n="create.form.country">Country code</strong>
-                <input id="create-country" type="text" maxlength="2" data-i18n-placeholder="create.form.country.placeholder" placeholder="AE">
+                <strong data-i18n="create.form.phone">Contact phone</strong>
+                <input id="create-phone" type="tel" autocomplete="tel" data-i18n-placeholder="create.form.phone.placeholder" placeholder="+971501234567">
               </label>
               <label class="field-card">
                 <strong data-i18n="create.form.rank">Rank</strong>
@@ -187,14 +448,6 @@
                 </select>
               </label>
               <label class="field-card">
-                <strong data-i18n="create.form.nationality">Nationality (country code)</strong>
-                <input id="create-nationality" type="text" maxlength="2" data-i18n-placeholder="create.form.nationality.placeholder" placeholder="PH">
-              </label>
-              <label class="field-card">
-                <strong data-i18n="create.form.residence">Residence country code</strong>
-                <input id="create-residence" type="text" maxlength="2" data-i18n-placeholder="create.form.residence.placeholder" placeholder="AE">
-              </label>
-              <label class="field-card full">
                 <strong data-i18n="create.form.availability">Availability</strong>
                 <select id="create-availability">
                   <option value="unknown" data-i18n="create.form.availability.unknown">Unknown</option>
@@ -207,8 +460,16 @@
                 <input id="create-availability-date" type="date">
               </label>
               <label class="field-card">
-                <strong data-i18n="create.form.phone">Contact phone</strong>
-                <input id="create-phone" type="tel" data-i18n-placeholder="create.form.phone.placeholder" placeholder="+971501234567">
+                <strong data-i18n="create.form.nationality">Nationality (country code)</strong>
+                <input id="create-nationality" type="text" maxlength="2" autocomplete="country" data-i18n-placeholder="create.form.nationality.placeholder" placeholder="PH">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="create.form.residence">Residence country code</strong>
+                <input id="create-residence" type="text" maxlength="2" data-i18n-placeholder="create.form.residence.placeholder" placeholder="AE">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="create.form.country">Current country code</strong>
+                <input id="create-country" type="text" maxlength="2" data-i18n-placeholder="create.form.country.placeholder" placeholder="AE">
               </label>
               <label class="field-card">
                 <strong data-i18n="create.form.salary">Salary expectation (USD)</strong>
@@ -219,53 +480,119 @@
                 <input id="create-vessel-types" type="text" data-i18n-placeholder="create.form.vesselTypes.placeholder" placeholder="Bulk Carrier, Container, LNG">
               </label>
             </div>
-            <div class="inline-actions">
+          </section>
+
+          <section id="profile-section-documents" class="form-section">
+            <div class="section-heading">
+              <p class="eyebrow" data-i18n="create.section.documents.eyebrow">Document readiness</p>
+              <h2 data-i18n="create.section.documents.title">Certificates, passport, medical and visas</h2>
+              <p class="field-note" data-i18n="create.section.documents.copy">Save document metadata for manual review without uploading private files in this slice.</p>
+            </div>
+            <div class="field-grid">
+              <label class="field-card">
+                <strong data-i18n="create.form.certificateStatus">COC / endorsements</strong>
+                <select id="create-certificate-status">
+                  <option value="unknown" data-i18n="create.documentStatus.unknown">Unknown</option>
+                  <option value="collecting" data-i18n="create.documentStatus.collecting">Collecting</option>
+                  <option value="ready" data-i18n="create.documentStatus.ready">Ready</option>
+                  <option value="needs_update" data-i18n="create.documentStatus.needsUpdate">Needs update</option>
+                </select>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="create.form.stcwStatus">STCW / training records</strong>
+                <select id="create-stcw-status">
+                  <option value="unknown" data-i18n="create.documentStatus.unknown">Unknown</option>
+                  <option value="collecting" data-i18n="create.documentStatus.collecting">Collecting</option>
+                  <option value="ready" data-i18n="create.documentStatus.ready">Ready</option>
+                  <option value="needs_update" data-i18n="create.documentStatus.needsUpdate">Needs update</option>
+                </select>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="create.form.passportExpiry">Passport expiry</strong>
+                <input id="create-passport-expiry" type="date">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="create.form.medicalExpiry">Medical expiry</strong>
+                <input id="create-medical-expiry" type="date">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="create.form.visaStatus">Visa readiness</strong>
+                <select id="create-visa-status">
+                  <option value="unknown" data-i18n="create.visaStatus.unknown">Unknown</option>
+                  <option value="not_required" data-i18n="create.visaStatus.notRequired">Not required yet</option>
+                  <option value="required" data-i18n="create.visaStatus.required">Required</option>
+                  <option value="ready" data-i18n="create.visaStatus.ready">Ready</option>
+                </select>
+              </label>
+              <label class="field-card full">
+                <strong data-i18n="create.form.documentNotes">Document notes</strong>
+                <textarea id="create-document-notes" maxlength="1200" data-i18n-placeholder="create.form.documentNotes.placeholder" placeholder="COC valid until 2028, Schengen visa in progress, medical renewal booked"></textarea>
+              </label>
+            </div>
+          </section>
+
+          <section id="profile-section-review" class="form-section">
+            <div class="section-heading">
+              <p class="eyebrow" data-i18n="create.section.review.eyebrow">Review package</p>
+              <h2 data-i18n="create.section.review.title">Save draft for human review</h2>
+              <p class="field-note" data-i18n="create.section.review.copy">The profile is saved to backend as a draft and submitted to the controlled operator queue.</p>
+            </div>
+            <div class="summary-grid">
+              <div class="summary-card">
+                <strong id="create-review-rank">-</strong>
+                <span data-i18n="create.reviewSummary.rank">Rank and department</span>
+              </div>
+              <div class="summary-card">
+                <strong id="create-review-contact">-</strong>
+                <span data-i18n="create.reviewSummary.contact">Contact readiness</span>
+              </div>
+              <div class="summary-card">
+                <strong id="create-review-documents">-</strong>
+                <span data-i18n="create.reviewSummary.documents">Document readiness</span>
+              </div>
+              <div class="summary-card">
+                <strong id="create-review-status-chip">-</strong>
+                <span data-i18n="create.reviewSummary.status">Review state</span>
+              </div>
+            </div>
+          </section>
+
+          <div class="form-footer">
+            <div class="section-actions">
               <button id="create-submit" class="button primary" type="submit" data-i18n="create.form.submit">Save Seafarer Draft</button>
-              <a class="button secondary" href="https://crewportglobal.com/onboarding/seafarer-registration/" data-i18n="create.form.nextCta">Continue to onboarding checklist</a>
+              <a class="button secondary" href="https://crewportglobal.com/onboarding/seafarer-registration/" data-i18n="create.form.nextCta">Open onboarding checklist</a>
             </div>
             <p id="create-status" class="status-note" data-i18n="create.form.status">This form saves your seafarer draft in backend and keeps your draft ID for the next steps.</p>
-            <p id="create-review-status" class="status-note" data-i18n="create.reviewStatus.currentUnknown">Review status: Not available yet.</p>
-            <p id="create-correction-note" class="status-note" hidden></p>
-          </form>
-        </article>
-        <aside class="card status-card app-panel">
-          <div class="status-box">
-            <strong data-i18n="create.side.review.title">Review status</strong>
-            <p data-i18n="create.side.review.copy">Completed profiles are submitted for human review before wider candidate presentation. This page does not imply automatic approval or employment.</p>
           </div>
-          <div class="status-box">
-            <strong data-i18n="create.side.fees.title">No recruitment fee</strong>
-            <p data-i18n="create.side.fees.copy">CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees to enter the profile workflow.</p>
-          </div>
-        </aside>
+        </form>
       </section>
 
-      <section class="step-grid app-pipeline-grid">
+      <section class="step-grid">
         <article class="card step-card">
           <p class="eyebrow" data-i18n="create.step1.eyebrow">Step 1</p>
-          <h2 data-i18n="create.step1.title">Build your CV basics</h2>
+          <h2 data-i18n="create.step1.title">Build CV basics</h2>
           <ul>
-            <li data-i18n="create.step1.item1">Role and rank basics</li>
+            <li data-i18n="create.step1.item1">Rank, department and availability</li>
             <li data-i18n="create.step1.item2">Contact details</li>
-            <li data-i18n="create.step1.item3">Availability window</li>
+            <li data-i18n="create.step1.item3">Preferred vessel context</li>
           </ul>
         </article>
         <article class="card step-card">
           <p class="eyebrow" data-i18n="create.step2.eyebrow">Step 2</p>
-          <h2 data-i18n="create.step2.title">Add certificates and document details</h2>
+          <h2 data-i18n="create.step2.title">Track documents</h2>
           <ul>
-            <li data-i18n="create.step2.item1">Certificate readiness notes</li>
-            <li data-i18n="create.step2.item2">Passport, visa and document metadata</li>
-            <li data-i18n="create.step2.item3">Document completeness tracking</li>
+            <li data-i18n="create.step2.item1">COC, endorsements and STCW readiness</li>
+            <li data-i18n="create.step2.item2">Passport, visa and medical expiry metadata</li>
+            <li data-i18n="create.step2.item3">Notes for manual review</li>
           </ul>
         </article>
         <article class="card step-card">
           <p class="eyebrow" data-i18n="create.step3.eyebrow">Step 3</p>
           <h2 data-i18n="create.step3.title">Submit for review</h2>
           <ul>
-            <li data-i18n="create.step3.item1">Track completeness status</li>
-            <li data-i18n="create.step3.item2">Keep acknowledgements explicit</li>
-            <li data-i18n="create.step3.item3">Submitted for human review</li>
+            <li data-i18n="create.step3.item1">Profile completeness is visible before saving</li>
+            <li data-i18n="create.step3.item2">Review status remains explicit</li>
+            <li data-i18n="create.step3.item3">No automatic employment promise</li>
           </ul>
         </article>
       </section>
@@ -274,16 +601,43 @@
   <script>
     window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
       en: {
-        'create.hero.eyebrow': 'Create profile',
-        'create.hero.title': 'Start your seafarer profile.',
-        'create.hero.copy': 'Add CV basics, rank, certificates, availability, contact details and document metadata in one place.',
-        'create.hero.primaryCta': 'Start Seafarer Onboarding',
-        'create.hero.secondaryCta': 'Choose Role / Register',
+        'create.hero.eyebrow': 'Seafarer workspace',
+        'create.hero.title': 'Build a ready-to-review maritime CV.',
+        'create.hero.copy': 'Keep rank, availability, vessel preferences and document readiness in one practical profile before you apply to reviewed vacancies.',
+        'create.hero.primaryCta': 'Open CV workspace',
+        'create.hero.secondaryCta': 'View Vacancies',
+        'create.workspace.eyebrow': 'Workspace',
+        'create.tab.cv': 'CV basics',
+        'create.tab.documents': 'Documents',
+        'create.tab.review': 'Review',
+        'create.section.cv.eyebrow': 'CV basics',
+        'create.section.cv.title': 'Identity, rank and availability',
+        'create.section.cv.copy': 'These fields make the profile searchable and useful for employer-side review.',
+        'create.section.documents.eyebrow': 'Document readiness',
+        'create.section.documents.title': 'Certificates, passport, medical and visas',
+        'create.section.documents.copy': 'Save document metadata for manual review without uploading private files in this slice.',
+        'create.section.review.eyebrow': 'Review package',
+        'create.section.review.title': 'Save draft for human review',
+        'create.section.review.copy': 'The profile is saved to backend as a draft and submitted to the controlled operator queue.',
+        'create.progress.profile': 'Profile readiness',
+        'create.progress.rank': 'Rank',
+        'create.progress.availability': 'Availability',
+        'create.progress.documents': 'Documents',
+        'create.progress.missingTitle': 'Missing for review',
+        'create.progress.copyEmpty': 'Add the required fields to prepare your profile for review.',
+        'create.progress.copyReady': 'Profile has the required review basics.',
+        'create.progress.copyPartial': '{count} item(s) still need attention.',
+        'create.progress.noMissing': 'Ready for review basics',
+        'create.progress.notSet': 'Not set',
+        'create.progress.ready': 'Ready',
+        'create.progress.partial': 'Partial',
+        'create.progress.contactReady': 'Ready',
+        'create.progress.contactMissing': 'Missing',
         'create.form.fullName': 'Full name',
         'create.form.fullName.placeholder': 'First and last name',
         'create.form.email': 'Email',
         'create.form.email.placeholder': 'seafarer@example.com',
-        'create.form.country': 'Country code',
+        'create.form.country': 'Current country code',
         'create.form.country.placeholder': 'AE',
         'create.form.rank': 'Rank',
         'create.form.rank.placeholder': 'Chief Officer',
@@ -308,8 +662,23 @@
         'create.form.salary.placeholder': '4500',
         'create.form.vesselTypes': 'Preferred vessel types',
         'create.form.vesselTypes.placeholder': 'Bulk Carrier, Container, LNG',
+        'create.form.certificateStatus': 'COC / endorsements',
+        'create.form.stcwStatus': 'STCW / training records',
+        'create.form.passportExpiry': 'Passport expiry',
+        'create.form.medicalExpiry': 'Medical expiry',
+        'create.form.visaStatus': 'Visa readiness',
+        'create.form.documentNotes': 'Document notes',
+        'create.form.documentNotes.placeholder': 'COC valid until 2028, Schengen visa in progress, medical renewal booked',
+        'create.documentStatus.unknown': 'Unknown',
+        'create.documentStatus.collecting': 'Collecting',
+        'create.documentStatus.ready': 'Ready',
+        'create.documentStatus.needsUpdate': 'Needs update',
+        'create.visaStatus.unknown': 'Unknown',
+        'create.visaStatus.notRequired': 'Not required yet',
+        'create.visaStatus.required': 'Required',
+        'create.visaStatus.ready': 'Ready',
         'create.form.submit': 'Save Seafarer Draft',
-        'create.form.nextCta': 'Continue to onboarding checklist',
+        'create.form.nextCta': 'Open onboarding checklist',
         'create.form.status': 'This form saves your seafarer draft in backend and keeps your draft ID for the next steps.',
         'create.form.validation': 'Full name and email are required.',
         'create.form.saving': 'Saving seafarer draft...',
@@ -326,37 +695,78 @@
         'create.reviewStatus.rejected': 'Needs correction',
         'create.reviewStatus.approved': 'Reviewed',
         'create.reviewStatus.correction': 'Correction requested: {note}',
+        'create.reviewSummary.rank': 'Rank and department',
+        'create.reviewSummary.contact': 'Contact readiness',
+        'create.reviewSummary.documents': 'Document readiness',
+        'create.reviewSummary.status': 'Review state',
+        'create.missing.fullName': 'Full name',
+        'create.missing.email': 'Email',
+        'create.missing.rank': 'Rank',
+        'create.missing.department': 'Department',
+        'create.missing.availability': 'Availability',
+        'create.missing.phone': 'Contact phone',
+        'create.missing.certificateStatus': 'COC / endorsements status',
+        'create.missing.passportExpiry': 'Passport expiry',
+        'create.missing.medicalExpiry': 'Medical expiry',
         'create.side.review.title': 'Review status',
-        'create.side.review.copy': 'Completed profiles are submitted for human review before wider candidate presentation. This page does not imply automatic approval or employment.',
         'create.side.fees.title': 'No recruitment fee',
         'create.side.fees.copy': 'CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees to enter the profile workflow.',
+        'create.side.privacy.title': 'Private until reviewed',
+        'create.side.privacy.copy': 'Your draft remains an intake profile. Public presentation or employer sharing requires the controlled review workflow.',
         'create.step1.eyebrow': 'Step 1',
-        'create.step1.title': 'Build your CV basics',
-        'create.step1.item1': 'Role and rank basics',
+        'create.step1.title': 'Build CV basics',
+        'create.step1.item1': 'Rank, department and availability',
         'create.step1.item2': 'Contact details',
-        'create.step1.item3': 'Availability window',
+        'create.step1.item3': 'Preferred vessel context',
         'create.step2.eyebrow': 'Step 2',
-        'create.step2.title': 'Add certificates and document details',
-        'create.step2.item1': 'Certificate readiness notes',
-        'create.step2.item2': 'Passport, visa and document metadata',
-        'create.step2.item3': 'Document completeness tracking',
+        'create.step2.title': 'Track documents',
+        'create.step2.item1': 'COC, endorsements and STCW readiness',
+        'create.step2.item2': 'Passport, visa and medical expiry metadata',
+        'create.step2.item3': 'Notes for manual review',
         'create.step3.eyebrow': 'Step 3',
         'create.step3.title': 'Submit for review',
-        'create.step3.item1': 'Track completeness status',
-        'create.step3.item2': 'Keep acknowledgements explicit',
-        'create.step3.item3': 'Submitted for human review'
+        'create.step3.item1': 'Profile completeness is visible before saving',
+        'create.step3.item2': 'Review status remains explicit',
+        'create.step3.item3': 'No automatic employment promise'
       },
       ru: {
-        'create.hero.eyebrow': 'Создать профиль',
-        'create.hero.title': 'Начните профиль моряка.',
-        'create.hero.copy': 'Добавьте базовое CV, должность, сертификаты, доступность, контакты и метаданные документов в одном месте.',
-        'create.hero.primaryCta': 'Начать онбординг моряка',
-        'create.hero.secondaryCta': 'Выбрать роль / зарегистрироваться',
+        'create.hero.eyebrow': 'Рабочее место моряка',
+        'create.hero.title': 'Соберите морское CV для проверки.',
+        'create.hero.copy': 'Держите должность, доступность, типы судов и готовность документов в одном практичном профиле перед откликом на проверенные вакансии.',
+        'create.hero.primaryCta': 'Открыть CV workspace',
+        'create.hero.secondaryCta': 'Смотреть вакансии',
+        'create.workspace.eyebrow': 'Workspace',
+        'create.tab.cv': 'Основа CV',
+        'create.tab.documents': 'Документы',
+        'create.tab.review': 'Проверка',
+        'create.section.cv.eyebrow': 'Основа CV',
+        'create.section.cv.title': 'Личность, ранг и доступность',
+        'create.section.cv.copy': 'Эти поля делают профиль пригодным для поиска и проверки работодателем.',
+        'create.section.documents.eyebrow': 'Готовность документов',
+        'create.section.documents.title': 'Сертификаты, паспорт, медицина и визы',
+        'create.section.documents.copy': 'Сохраняйте метаданные документов для ручной проверки без загрузки приватных файлов на этом этапе.',
+        'create.section.review.eyebrow': 'Пакет проверки',
+        'create.section.review.title': 'Сохраните черновик для ручной проверки',
+        'create.section.review.copy': 'Профиль сохраняется в backend как черновик и попадает в контролируемую очередь оператора.',
+        'create.progress.profile': 'Готовность профиля',
+        'create.progress.rank': 'Ранг',
+        'create.progress.availability': 'Доступность',
+        'create.progress.documents': 'Документы',
+        'create.progress.missingTitle': 'Не хватает для проверки',
+        'create.progress.copyEmpty': 'Заполните обязательные поля, чтобы подготовить профиль к проверке.',
+        'create.progress.copyReady': 'В профиле есть базовые данные для проверки.',
+        'create.progress.copyPartial': 'Требуют внимания: {count}.',
+        'create.progress.noMissing': 'База готова к проверке',
+        'create.progress.notSet': 'Не указано',
+        'create.progress.ready': 'Готово',
+        'create.progress.partial': 'Частично',
+        'create.progress.contactReady': 'Готово',
+        'create.progress.contactMissing': 'Нет',
         'create.form.fullName': 'Полное имя',
         'create.form.fullName.placeholder': 'Имя и фамилия',
         'create.form.email': 'Email',
         'create.form.email.placeholder': 'seafarer@example.com',
-        'create.form.country': 'Код страны',
+        'create.form.country': 'Текущая страна (код)',
         'create.form.country.placeholder': 'AE',
         'create.form.rank': 'Ранг',
         'create.form.rank.placeholder': 'Старший помощник капитана',
@@ -381,8 +791,23 @@
         'create.form.salary.placeholder': '4500',
         'create.form.vesselTypes': 'Предпочтительные типы судов',
         'create.form.vesselTypes.placeholder': 'Балкер, Контейнеровоз, LNG',
+        'create.form.certificateStatus': 'COC / endorsements',
+        'create.form.stcwStatus': 'STCW / тренинги',
+        'create.form.passportExpiry': 'Срок паспорта',
+        'create.form.medicalExpiry': 'Срок мед. справки',
+        'create.form.visaStatus': 'Готовность визы',
+        'create.form.documentNotes': 'Заметки по документам',
+        'create.form.documentNotes.placeholder': 'COC действителен до 2028, Schengen visa в процессе, медицина забронирована',
+        'create.documentStatus.unknown': 'Не указано',
+        'create.documentStatus.collecting': 'Собирается',
+        'create.documentStatus.ready': 'Готово',
+        'create.documentStatus.needsUpdate': 'Нужно обновить',
+        'create.visaStatus.unknown': 'Не указано',
+        'create.visaStatus.notRequired': 'Пока не требуется',
+        'create.visaStatus.required': 'Требуется',
+        'create.visaStatus.ready': 'Готово',
         'create.form.submit': 'Сохранить черновик моряка',
-        'create.form.nextCta': 'Перейти к чек-листу онбординга',
+        'create.form.nextCta': 'Открыть чек-лист онбординга',
         'create.form.status': 'Эта форма сохраняет черновик моряка в backend и сохраняет draft ID для следующих шагов.',
         'create.form.validation': 'Укажите полное имя и email.',
         'create.form.saving': 'Сохраняем черновик моряка...',
@@ -399,25 +824,39 @@
         'create.reviewStatus.rejected': 'Нужна доработка',
         'create.reviewStatus.approved': 'Проверено',
         'create.reviewStatus.correction': 'Требуется исправление: {note}',
+        'create.reviewSummary.rank': 'Ранг и департамент',
+        'create.reviewSummary.contact': 'Контакты',
+        'create.reviewSummary.documents': 'Готовность документов',
+        'create.reviewSummary.status': 'Состояние проверки',
+        'create.missing.fullName': 'Полное имя',
+        'create.missing.email': 'Email',
+        'create.missing.rank': 'Ранг',
+        'create.missing.department': 'Департамент',
+        'create.missing.availability': 'Доступность',
+        'create.missing.phone': 'Контактный телефон',
+        'create.missing.certificateStatus': 'Статус COC / endorsements',
+        'create.missing.passportExpiry': 'Срок паспорта',
+        'create.missing.medicalExpiry': 'Срок мед. справки',
         'create.side.review.title': 'Статус проверки',
-        'create.side.review.copy': 'Завершённые профили отправляются на ручную проверку до более широкого представления кандидата. Эта страница не обещает автоматическое одобрение или трудоустройство.',
         'create.side.fees.title': 'Без рекрутинговых сборов',
         'create.side.fees.copy': 'CrewPortGlobal не взимает с моряков сборы за рекрутинг, трудоустройство или доступ к профилю.',
+        'create.side.privacy.title': 'Приватно до проверки',
+        'create.side.privacy.copy': 'Черновик остается входящим профилем. Публичное представление или передача работодателю требуют контролируемой проверки.',
         'create.step1.eyebrow': 'Шаг 1',
         'create.step1.title': 'Соберите основу CV',
-        'create.step1.item1': 'База по должности и рангу',
+        'create.step1.item1': 'Ранг, департамент и доступность',
         'create.step1.item2': 'Контактные данные',
-        'create.step1.item3': 'Окно доступности',
+        'create.step1.item3': 'Предпочтительные типы судов',
         'create.step2.eyebrow': 'Шаг 2',
-        'create.step2.title': 'Добавьте сертификаты и данные документов',
-        'create.step2.item1': 'Заметки о готовности сертификатов',
-        'create.step2.item2': 'Паспорт, виза и метаданные документов',
-        'create.step2.item3': 'Отслеживание полноты документов',
+        'create.step2.title': 'Отслеживайте документы',
+        'create.step2.item1': 'Готовность COC, endorsements и STCW',
+        'create.step2.item2': 'Метаданные паспорта, визы и мед. справки',
+        'create.step2.item3': 'Заметки для ручной проверки',
         'create.step3.eyebrow': 'Шаг 3',
         'create.step3.title': 'Отправьте на проверку',
-        'create.step3.item1': 'Следите за полнотой профиля',
-        'create.step3.item2': 'Явно подтверждайте согласия',
-        'create.step3.item3': 'Отправлено на ручную проверку'
+        'create.step3.item1': 'Полнота профиля видна до сохранения',
+        'create.step3.item2': 'Статус проверки остается явным',
+        'create.step3.item3': 'Без обещания автоматического трудоустройства'
       }
     };
   </script>
@@ -440,8 +879,25 @@
       const contactPhone = document.getElementById('create-phone');
       const salary = document.getElementById('create-salary');
       const vesselTypes = document.getElementById('create-vessel-types');
+      const certificateStatus = document.getElementById('create-certificate-status');
+      const stcwStatus = document.getElementById('create-stcw-status');
+      const passportExpiry = document.getElementById('create-passport-expiry');
+      const medicalExpiry = document.getElementById('create-medical-expiry');
+      const visaStatus = document.getElementById('create-visa-status');
+      const documentNotes = document.getElementById('create-document-notes');
       const reviewStatusLine = document.getElementById('create-review-status');
       const correctionNoteLine = document.getElementById('create-correction-note');
+      const progressValue = document.getElementById('create-progress-value');
+      const progressCopy = document.getElementById('create-progress-copy');
+      const summaryRank = document.getElementById('create-summary-rank');
+      const summaryAvailability = document.getElementById('create-summary-availability');
+      const summaryDocuments = document.getElementById('create-summary-documents');
+      const missingList = document.getElementById('create-missing-list');
+      const reviewRank = document.getElementById('create-review-rank');
+      const reviewContact = document.getElementById('create-review-contact');
+      const reviewDocuments = document.getElementById('create-review-documents');
+      const reviewStatusChip = document.getElementById('create-review-status-chip');
+      let latestReviewStatusLabel = '';
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -480,6 +936,114 @@
         }
 
         return '';
+      }
+
+      function parseDocumentMetadata(rawValue) {
+        if (!rawValue) {
+          return {};
+        }
+
+        if (typeof rawValue === 'object' && !Array.isArray(rawValue)) {
+          return rawValue;
+        }
+
+        if (typeof rawValue === 'string' && rawValue.trim()) {
+          try {
+            const parsed = JSON.parse(rawValue);
+            return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+          } catch (error) {
+            return {};
+          }
+        }
+
+        return {};
+      }
+
+      function setSelectValue(select, value, fallback) {
+        const normalized = typeof value === 'string' ? value.trim() : '';
+        const option = Array.from(select.options).find((item) => item.value === normalized);
+        select.value = option ? normalized : fallback;
+      }
+
+      function labelForSelect(select) {
+        const selected = select.options[select.selectedIndex];
+        return selected ? selected.textContent.trim() : t('create.progress.notSet');
+      }
+
+      function getDocumentReadinessLabel() {
+        const readyValues = [
+          certificateStatus.value === 'ready',
+          stcwStatus.value === 'ready',
+          Boolean(passportExpiry.value),
+          Boolean(medicalExpiry.value),
+          visaStatus.value === 'ready' || visaStatus.value === 'not_required',
+        ].filter(Boolean).length;
+
+        if (readyValues >= 4) {
+          return t('create.progress.ready');
+        }
+        if (readyValues > 0) {
+          return t('create.progress.partial');
+        }
+        return t('create.progress.notSet');
+      }
+
+      function buildCompletenessChecks() {
+        return [
+          { key: 'fullName', complete: Boolean(fullName.value.trim()) },
+          { key: 'email', complete: Boolean(email.value.trim()) },
+          { key: 'rank', complete: Boolean(rank.value.trim()) },
+          { key: 'department', complete: Boolean(department.value) },
+          { key: 'availability', complete: availability.value !== 'unknown' },
+          { key: 'phone', complete: Boolean(contactPhone.value.trim()) },
+          { key: 'certificateStatus', complete: certificateStatus.value === 'ready' },
+          { key: 'passportExpiry', complete: Boolean(passportExpiry.value) },
+          { key: 'medicalExpiry', complete: Boolean(medicalExpiry.value) },
+        ];
+      }
+
+      function renderWorkspace() {
+        const checks = buildCompletenessChecks();
+        const completeCount = checks.filter((item) => item.complete).length;
+        const missing = checks.filter((item) => !item.complete);
+        const percent = Math.round((completeCount / checks.length) * 100);
+        const rankLabel = rank.value.trim() || t('create.progress.notSet');
+        const availabilityLabel = availability.value === 'unknown'
+          ? t('create.progress.notSet')
+          : labelForSelect(availability);
+        const documentLabel = getDocumentReadinessLabel();
+        const contactLabel = email.value.trim() && contactPhone.value.trim()
+          ? t('create.progress.contactReady')
+          : t('create.progress.contactMissing');
+
+        progressValue.textContent = `${percent}%`;
+        summaryRank.textContent = rankLabel;
+        summaryAvailability.textContent = availabilityLabel;
+        summaryDocuments.textContent = documentLabel;
+        reviewRank.textContent = rank.value.trim() && department.value
+          ? `${rank.value.trim()} / ${labelForSelect(department)}`
+          : rankLabel;
+        reviewContact.textContent = contactLabel;
+        reviewDocuments.textContent = documentLabel;
+        reviewStatusChip.textContent = latestReviewStatusLabel || t('create.progress.notSet');
+
+        progressCopy.textContent = missing.length === 0
+          ? t('create.progress.copyReady')
+          : tFormat('create.progress.copyPartial', { count: missing.length });
+
+        missingList.innerHTML = '';
+        if (missing.length === 0) {
+          const item = document.createElement('li');
+          item.textContent = t('create.progress.noMissing');
+          missingList.appendChild(item);
+          return;
+        }
+
+        missing.forEach((entry) => {
+          const item = document.createElement('li');
+          item.textContent = t(`create.missing.${entry.key}`);
+          missingList.appendChild(item);
+        });
       }
 
       function fillSeafarerProfile(profile) {
@@ -526,6 +1090,22 @@
           contactPhone.value = profile.contact_phone;
         }
         vesselTypes.value = parsePreferredVesselTypes(profile.preferred_vessel_types);
+
+        const documentMetadata = parseDocumentMetadata(profile.document_metadata);
+        setSelectValue(certificateStatus, documentMetadata.certificate_status, 'unknown');
+        setSelectValue(stcwStatus, documentMetadata.stcw_status, 'unknown');
+        if (typeof documentMetadata.passport_expiry === 'string') {
+          passportExpiry.value = documentMetadata.passport_expiry;
+        }
+        if (typeof documentMetadata.medical_expiry === 'string') {
+          medicalExpiry.value = documentMetadata.medical_expiry;
+        }
+        setSelectValue(visaStatus, documentMetadata.visa_status, 'unknown');
+        if (typeof documentMetadata.notes === 'string') {
+          documentNotes.value = documentMetadata.notes;
+        }
+
+        renderWorkspace();
       }
 
       function mapReviewStatusLabel(reviewStatus) {
@@ -547,6 +1127,7 @@
           ? profile.review_status.trim()
           : '';
         const statusLabel = mapReviewStatusLabel(reviewStatus);
+        latestReviewStatusLabel = statusLabel || '';
 
         reviewStatusLine.textContent = statusLabel
           ? tFormat('create.reviewStatus.current', { status: statusLabel })
@@ -572,6 +1153,8 @@
           correctionNoteLine.hidden = true;
           correctionNoteLine.textContent = '';
         }
+
+        renderWorkspace();
       }
 
       async function prefillFromDraftIfPresent() {
@@ -680,7 +1263,15 @@
             availability_date: availabilityDate.value || null,
             preferred_vessel_types: preferredVesselTypes,
             salary_expectation_usd: Number.isFinite(salaryNumber) ? salaryNumber : null,
-            contact_phone: contactPhone.value.trim()
+            contact_phone: contactPhone.value.trim(),
+            document_metadata: {
+              certificate_status: certificateStatus.value,
+              stcw_status: stcwStatus.value,
+              passport_expiry: passportExpiry.value || null,
+              medical_expiry: medicalExpiry.value || null,
+              visa_status: visaStatus.value,
+              notes: documentNotes.value.trim()
+            }
           }, {
             draftId: getDraftIdFromUrl()
           });
@@ -698,6 +1289,28 @@
           submit.disabled = false;
         }
       });
+
+      document.querySelectorAll('.section-tab').forEach((button) => {
+        button.addEventListener('click', () => {
+          const targetId = button.getAttribute('data-section-target') || '';
+          const target = document.getElementById(targetId);
+          if (!target) {
+            return;
+          }
+
+          document.querySelectorAll('.section-tab').forEach((item) => item.classList.remove('is-current'));
+          button.classList.add('is-current');
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+
+      form.querySelectorAll('input, select, textarea').forEach((input) => {
+        input.addEventListener('input', renderWorkspace);
+        input.addEventListener('change', renderWorkspace);
+      });
+
+      window.addEventListener('crewportglobal:languagechange', renderWorkspace);
+      renderWorkspace();
     })();
   </script>
 </body>
