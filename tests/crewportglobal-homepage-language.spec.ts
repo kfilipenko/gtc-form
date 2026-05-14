@@ -132,9 +132,9 @@ test('homepage and vacancies CTAs match their destinations', async ({ page }) =>
 
   await page.goto('/vacancies/index.html');
 
-  await expect(page.locator('.vacancy-card').first()).toContainText('No public vacancies are available yet');
-  await expect(page.locator('.vacancy-card').first()).toContainText('Create a seafarer profile to be ready to apply');
-  await expect(page.getByRole('link', { name: 'Search Vacancies' })).toHaveAttribute('href', '#vacancy-empty-state');
+  await expect(page.locator('#vacancy-empty-state')).toContainText('No public vacancies are available yet');
+  await expect(page.locator('#vacancy-empty-state')).toContainText('Create a seafarer profile to be ready to apply');
+  await expect(page.getByRole('link', { name: 'Search Vacancies' })).toHaveAttribute('href', '#vacancy-results');
   await expect(page.getByRole('link', { name: 'Prepare Vacancy Request' }).first()).toHaveAttribute('href', 'https://crewportglobal.com/post-vacancy/');
   await expect(page.getByRole('link', { name: 'Create Seafarer Profile' }).first()).toHaveAttribute('href', 'https://crewportglobal.com/create-profile/');
   await expect(page.locator('body')).not.toContainText('View Details');

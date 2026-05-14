@@ -813,6 +813,9 @@
         meta.className = 'vacancy-meta';
         addMeta(meta, t('vacancies.live.company'), vacancy.company_name);
         addMeta(meta, t('vacancies.live.vessel'), vacancy.vessel_name || vacancy.vessel_type);
+        if (hasText(vacancy.vessel_name) && hasText(vacancy.vessel_type)) {
+          addMeta(meta, t('vacancies.filters.vessel'), vacancy.vessel_type);
+        }
         addMeta(meta, t('vacancies.live.joinDate'), vacancy.join_date);
         addMeta(meta, t('vacancies.live.duration'), vacancy.contract_duration);
         addMeta(meta, t('vacancies.live.salary'), salaryText(vacancy));
