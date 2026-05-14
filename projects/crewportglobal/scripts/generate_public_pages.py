@@ -23,16 +23,19 @@ PUBLIC_ROOT: Final = PROJECT_ROOT / "public"
 CSS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-docs.css"
 I18N_JS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-public-i18n.js"
 FAVICON_LINKS: Final = """  <link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/favicon-32x32.png\">\n  <link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/favicon-16x16.png\">\n  <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/apple-touch-icon.png\">\n  <link rel=\"shortcut icon\" href=\"/favicon.ico\">"""
-SITE_NAV_ITEMS: Final = [
+APPLICATION_NAV_ITEMS: Final = [
     ("/", "nav.home", "Home"),
     ("/vacancies/", "nav.vacancies", "Vacancies"),
-    ("/for-seafarers/", "nav.forSeafarers", "For Seafarers"),
-    ("/for-shipowners/", "nav.forShipowners", "For Employers"),
     ("/create-profile/", "nav.createProfile", "Create Profile"),
     ("/post-vacancy/", "nav.postVacancy", "Post Vacancy"),
+    ("/register/", "nav.loginRegister", "Login / Register"),
+]
+
+DOCUMENT_NAV_ITEMS: Final = [
+    ("/for-seafarers/", "nav.forSeafarers", "For Seafarers"),
+    ("/for-shipowners/", "nav.forShipowners", "For Employers"),
     ("/how-it-works/", "nav.howItWorks", "How It Works"),
     ("/legal/verification-policy/", "nav.trustSafety", "Trust & Safety"),
-    ("/register/", "nav.loginRegister", "Login / Register"),
 ]
 
 NAV_TRANSLATION_KEYS: Final = {
@@ -191,14 +194,42 @@ def load_docs() -> list[dict[str, object]]:
     return [load_doc(slug) for slug in DOC_ORDER]
 
 
-def render_nav(docs: list[dict[str, object]], current_slug: str) -> str:
+def render_nav_link(
+    href: str,
+    translation_key: str,
+    fallback_label: str,
+    current_href: str = "",
+) -> str:
+    class_name = "nav-link is-active" if href == current_href else "nav-link"
+    return f'<a class="{class_name}" href="{SITE_ORIGIN}{href}" data-i18n="{translation_key}">{fallback_label}</a>'
+
+
+def render_application_dropdown() -> str:
     items = []
+    for href, translation_key, fallback_label in APPLICATION_NAV_ITEMS:
+        items.append(render_nav_link(href, translation_key, fallback_label))
+    return "\n".join(
+        [
+            '<details class="nav-menu nav-menu--application">',
+            '  <summary class="nav-menu__summary">',
+            '    <span data-i18n="nav.application">Application</span>',
+            '    <span class="nav-menu__chevron" aria-hidden="true">▾</span>',
+            "  </summary>",
+            '  <div class="nav-menu__panel" data-i18n-aria-label="nav.applicationMenu">',
+            *[f"    {item}" for item in items],
+            "  </div>",
+            "</details>",
+        ]
+    )
+
+
+def render_nav(docs: list[dict[str, object]], current_slug: str) -> str:
+    del docs
+    items = [render_application_dropdown()]
     current_href = f"/{current_slug}/"
-    for href, translation_key, fallback_label in SITE_NAV_ITEMS:
-        class_name = "nav-link is-active" if href == current_href else "nav-link"
-        items.append(
-            f'<a class="{class_name}" href="{SITE_ORIGIN}{href}" data-i18n="{translation_key}">{fallback_label}</a>'
-        )
+    items.append('<span class="nav-section-label" data-i18n="nav.documents">Documents</span>')
+    for href, translation_key, fallback_label in DOCUMENT_NAV_ITEMS:
+        items.append(render_nav_link(href, translation_key, fallback_label, current_href))
     return "\n".join(items)
 
 
@@ -353,7 +384,7 @@ def render_page(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
             </div>
     </header>
 
-    <nav class="site-nav" aria-label="Document navigation">
+    <nav class="site-nav site-nav--documents" aria-label="Document navigation" data-i18n-aria-label="nav.documentsMenu">
       {render_nav(docs, doc['slug'])}
     </nav>
 

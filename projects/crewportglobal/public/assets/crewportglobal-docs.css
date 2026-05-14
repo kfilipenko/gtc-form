@@ -216,6 +216,7 @@ a {
 
 .home-link,
 .nav-link,
+.nav-menu__summary,
 .button,
 .library-link {
   text-decoration: none;
@@ -235,14 +236,20 @@ a {
   flex-wrap: wrap;
 }
 
-.nav-link {
+.nav-link,
+.nav-menu__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 12px 14px;
   color: var(--muted-on-dark);
   border: 1px solid transparent;
 }
 
 .nav-link.is-active,
+.nav-menu[open] > .nav-menu__summary,
 .nav-link:hover,
+.nav-menu__summary:hover,
 .home-link:hover,
 .button:hover,
 .library-link:hover {
@@ -252,6 +259,75 @@ a {
 .nav-link.is-active {
   color: #06111b;
   background: var(--teal);
+}
+
+.nav-menu {
+  position: relative;
+}
+
+.nav-menu__summary {
+  border-radius: 24px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.nav-menu__summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-menu__chevron {
+  color: currentColor;
+  font-size: 12px;
+  line-height: 1;
+  transition: transform 180ms ease;
+}
+
+.nav-menu[open] > .nav-menu__summary .nav-menu__chevron {
+  transform: rotate(180deg);
+}
+
+.nav-menu[open] > .nav-menu__summary,
+.nav-menu__summary:hover,
+.nav-menu__summary:focus-visible {
+  color: #06111b;
+  background: var(--teal);
+  outline: none;
+}
+
+.nav-menu__panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 45;
+  display: grid;
+  gap: 8px;
+  width: min(286px, calc(100vw - 48px));
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(22, 40, 61, 0.96);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.28);
+}
+
+.site-nav--documents .nav-menu__panel {
+  right: auto;
+  left: 0;
+}
+
+.nav-menu__panel .nav-link {
+  width: 100%;
+}
+
+.nav-section-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 12px 6px 12px 14px;
+  color: var(--muted-on-dark);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .doc-main {
@@ -578,6 +654,21 @@ a {
   .site-header,
   .site-nav {
     border-radius: 20px;
+  }
+
+  .nav-menu {
+    width: 100%;
+  }
+
+  .nav-menu__summary,
+  .nav-menu__panel .nav-link {
+    width: 100%;
+  }
+
+  .nav-menu__panel {
+    position: static;
+    width: 100%;
+    margin-top: 8px;
   }
 
   .card {

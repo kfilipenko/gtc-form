@@ -1,5 +1,9 @@
 {
+  "nav.application": "Застосунок",
+  "nav.applicationMenu": "Меню застосунку",
   "nav.complaints": "Скарги",
+  "nav.documents": "Документи",
+  "nav.documentsMenu": "Меню документів",
   "nav.forSeafarers": "Для моряків",
   "nav.forShipowners": "Для судновласників",
   "nav.howItWorks": "Як це працює",

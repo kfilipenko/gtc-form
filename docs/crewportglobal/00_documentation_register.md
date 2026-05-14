@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.60
+- Version: 0.61
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -164,6 +164,7 @@ docs/crewportglobal/
   80_cpg_team_portal_roles_and_operations.md
   81_cpg_emp_009_employer_candidate_followup_note_report.md
   82_cpg_user_018_seafarer_application_withdrawal_report.md
+  83_cpg_mkt_004_application_documents_navigation_report.md
 ```
 
 ### 3.3 Product governance control
@@ -197,6 +198,8 @@ Document 80 records the CrewPortGlobal team portal roles and operations model, i
 Document 81 records employer follow-up notes for operator-presented candidates in `/post-vacancy/`.
 
 Document 82 records seafarer-side vacancy application withdrawal and not-available actions in `/create-profile/`.
+
+Document 83 records the frontend-only navigation separation between functional application pages and documentary pages, including the future rule that application pages use an Application menu with a Documents dropdown and documentary pages use a Documents menu with an Application dropdown.
 
 Mandatory control statement:
 
@@ -300,6 +303,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.61 | 2026-05-14 | GTC IT / AI Assistant | Added document 83 as CPG-MKT-004 implementation report and future-change rule for separating CrewPortGlobal application navigation from documentary navigation |
 | 0.60 | 2026-05-14 | GTC IT / AI Assistant | Added document 82 as CPG-USER-018 implementation report for seafarer-side vacancy application withdrawal and not-available actions in /create-profile/ |
 | 0.59 | 2026-05-14 | GTC IT / AI Assistant | Added document 81 as CPG-EMP-009 implementation report for employer follow-up notes on presented candidates in /post-vacancy/ and preserved document 80 for the team portal roles governance baseline |
 | 0.58 | 2026-05-14 | GTC IT / AI Assistant | Added document 80 as CPG-TEAM-001 team portal roles and operations model covering role separation, operator duties, human-review checkpoints, audit expectations and no-fee seafarer control |

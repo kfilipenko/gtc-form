@@ -67,7 +67,9 @@ test('same-page selector translates the homepage and persists after reload', asy
   await expect(page).toHaveURL(/\/index\.html/);
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
   await expect(page.locator('.landing-title')).toContainText('Создайте профиль моряка или подготовьте запрос на вакансию');
-  await expect(page.locator('.site-nav')).toContainText('Для работодателей');
+  await expect(page.locator('.site-nav')).toContainText('Документы');
+  await page.locator('.nav-menu--documents > summary').click();
+  await expect(page.locator('.nav-menu--documents')).toContainText('Для работодателей');
   await expect(page.locator('.site-nav')).toContainText('Создать профиль');
   await expect(page.locator('.landing-lead')).toContainText('CrewPortGlobal помогает морякам показать CV');
   await expect.poll(() => page.evaluate(() => window.localStorage.getItem('crewportglobal.language'))).toBe('ru');
@@ -76,7 +78,8 @@ test('same-page selector translates the homepage and persists after reload', asy
 
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
   await expect(page.locator('.landing-title')).toContainText('Создайте профиль моряка или подготовьте запрос на вакансию');
-  await expect(page.locator('.site-nav')).toContainText('Для работодателей');
+  await page.locator('.nav-menu--documents > summary').click();
+  await expect(page.locator('.nav-menu--documents')).toContainText('Для работодателей');
   await expect(page.locator('.landing-lead')).toContainText('CrewPortGlobal помогает морякам показать CV');
 });
 
@@ -108,7 +111,8 @@ test('homepage falls back to English for missing non-English page translations',
   await page.locator('.language-option').filter({ hasText: 'Português' }).click();
 
   await expect(page.locator('#current-language-label')).toHaveText('Português');
-  await expect(page.locator('.site-nav')).toContainText('Para empregadores');
+  await page.locator('.nav-menu--documents > summary').click();
+  await expect(page.locator('.nav-menu--documents')).toContainText('Para empregadores');
   await expect(page.locator('.landing-title')).toContainText('Create your seafarer profile');
   await expect(page.locator('.vacancy-board')).toContainText('Current public vacancy board');
 });
@@ -169,7 +173,8 @@ test('onboarding page shows completeness feedback and saves pending human review
 
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
   await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
-  await expect(page.locator('.site-nav')).toContainText('Для моряков');
+  await page.locator('.nav-menu--documents > summary').click();
+  await expect(page.locator('.nav-menu--documents')).toContainText('Для моряков');
   await expect(page.locator('#route-final-value')).toHaveText('Not started');
   await expect(page.locator('#completeness-required-value')).toHaveText('0 / 6 complete');
   await expect(page.locator('#completeness-ready-value')).toHaveText('Not ready yet');

@@ -26,6 +26,7 @@ body.doc-body.cpg-app-page {
 
 .cpg-app-page .site-header,
 .cpg-app-page .site-nav,
+.cpg-app-page .nav-menu__panel,
 .cpg-app-page .card {
   border: 1px solid var(--app-line);
   background: var(--app-surface);
@@ -37,6 +38,8 @@ body.doc-body.cpg-app-page {
 .cpg-app-page .site-nav,
 .cpg-app-page .card,
 .cpg-app-page .nav-link,
+.cpg-app-page .nav-menu__summary,
+.cpg-app-page .nav-menu__panel,
 .cpg-app-page .button,
 .cpg-app-page .language-toggle,
 .cpg-app-page .language-menu,
@@ -71,6 +74,8 @@ body.doc-body.cpg-app-page {
 
 .cpg-app-page .brand-copy span,
 .cpg-app-page .nav-link,
+.cpg-app-page .nav-menu__summary,
+.cpg-app-page .nav-section-label,
 .cpg-app-page .app-copy,
 .cpg-app-page .app-muted,
 .cpg-app-page .app-panel p,
@@ -105,14 +110,27 @@ body.doc-body.cpg-app-page {
   padding: 10px 12px;
 }
 
-.cpg-app-page .nav-link.is-active {
+.cpg-app-page .nav-link.is-active,
+.cpg-app-page .nav-menu[open] > .nav-menu__summary {
   color: #fff;
   background: var(--app-ocean);
 }
 
-.cpg-app-page .nav-link:hover {
+.cpg-app-page .nav-link:hover,
+.cpg-app-page .nav-menu__summary:hover,
+.cpg-app-page .nav-menu__summary:focus-visible {
   color: var(--app-ocean-dark);
   background: var(--app-surface-2);
+}
+
+.cpg-app-page .nav-menu[open] > .nav-menu__summary {
+  color: #fff;
+  background: var(--app-ocean);
+}
+
+.cpg-app-page .nav-menu__panel {
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow);
 }
 
 .cpg-app-page .language-toggle {

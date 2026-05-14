@@ -1,5 +1,9 @@
 {
+  "nav.application": "Aplicacao",
+  "nav.applicationMenu": "Menu da aplicacao",
   "nav.complaints": "Reclamacoes",
+  "nav.documents": "Documentos",
+  "nav.documentsMenu": "Menu de documentos",
   "nav.forSeafarers": "Para maritimos",
   "nav.forShipowners": "Para armadores",
   "nav.howItWorks": "Como funciona",
