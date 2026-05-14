@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.56
+- Version: 0.57
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -160,6 +160,7 @@ docs/crewportglobal/
   76_cpg_ops_017_vacancy_application_operator_review_report.md
   77_cpg_emp_007_employer_presented_candidate_pipeline_report.md
   78_cpg_user_017_seafarer_application_history_report.md
+  79_cpg_emp_008_employer_shortlist_actions_report.md
 ```
 
 ### 3.3 Product governance control
@@ -185,6 +186,8 @@ Document 76 records operator review visibility and decisions for seafarer vacanc
 Document 77 records employer-side visibility for operator-presented vacancy candidates in `/post-vacancy/`.
 
 Document 78 records seafarer-side vacancy application history visibility in `/create-profile/`.
+
+Document 79 records employer shortlist actions for operator-presented candidates in `/post-vacancy/`.
 
 Mandatory control statement:
 
@@ -288,6 +291,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.57 | 2026-05-14 | GTC IT / AI Assistant | Added document 79 as CPG-EMP-008 implementation report for employer shortlist actions on operator-presented candidates in /post-vacancy/ |
 | 0.56 | 2026-05-14 | GTC IT / AI Assistant | Added document 78 as CPG-USER-017 implementation report for seafarer-side vacancy application history on /create-profile/ |
 | 0.55 | 2026-05-14 | GTC IT / AI Assistant | Added document 77 as CPG-EMP-007 implementation report for employer-side presented candidate visibility on /post-vacancy/ |
 | 0.54 | 2026-05-14 | GTC IT / AI Assistant | Added document 76 as CPG-OPS-017 implementation report for vacancy application visibility and decisions in the protected operator queue |

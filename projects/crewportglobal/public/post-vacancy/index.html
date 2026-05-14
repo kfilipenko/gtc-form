@@ -232,6 +232,20 @@
       font-size: 14px;
     }
 
+    .candidate-card__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .candidate-card__actions .button {
+      min-height: 36px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
     @media (max-width: 980px) {
       .flow-grid,
       .step-grid,
@@ -544,6 +558,18 @@
         'post.pipeline.documents': 'Documents',
         'post.pipeline.note': 'Candidate note',
         'post.pipeline.status': 'Status',
+        'post.pipeline.shortlist': 'Employer status',
+        'post.pipeline.employerNote': 'Employer note',
+        'post.pipeline.action.contacted': 'Mark contacted',
+        'post.pipeline.action.interview': 'Request interview',
+        'post.pipeline.action.notSuitable': 'Not suitable',
+        'post.pipeline.action.saving': 'Updating candidate status...',
+        'post.pipeline.action.saved': 'Candidate status updated.',
+        'post.pipeline.action.error': 'Could not update candidate status. Please try again.',
+        'post.shortlist.presented': 'Presented',
+        'post.shortlist.contacted': 'Contacted',
+        'post.shortlist.interview_requested': 'Interview requested',
+        'post.shortlist.not_suitable': 'Not suitable',
         'post.side.process.title': 'Candidate review',
         'post.side.process.copy': 'CrewPortGlobal does not imply automatic shortlist delivery or uncontrolled direct outreach. Candidate presentation remains human-guided.',
         'post.side.verification.title': 'Employer verification',
@@ -648,6 +674,18 @@
         'post.pipeline.documents': 'Документы',
         'post.pipeline.note': 'Заметка кандидата',
         'post.pipeline.status': 'Статус',
+        'post.pipeline.shortlist': 'Статус работодателя',
+        'post.pipeline.employerNote': 'Заметка работодателя',
+        'post.pipeline.action.contacted': 'Отмечен контакт',
+        'post.pipeline.action.interview': 'Запросить интервью',
+        'post.pipeline.action.notSuitable': 'Не подходит',
+        'post.pipeline.action.saving': 'Обновляем статус кандидата...',
+        'post.pipeline.action.saved': 'Статус кандидата обновлён.',
+        'post.pipeline.action.error': 'Не удалось обновить статус кандидата. Попробуйте ещё раз.',
+        'post.shortlist.presented': 'Представлен',
+        'post.shortlist.contacted': 'Контакт установлен',
+        'post.shortlist.interview_requested': 'Интервью запрошено',
+        'post.shortlist.not_suitable': 'Не подходит',
         'post.side.process.title': 'Рассмотрение кандидатов',
         'post.side.process.copy': 'CrewPortGlobal не обещает автоматическую выдачу шорт-листа или неконтролируемые прямые контакты. Представление кандидатов остаётся процессом с участием человека.',
         'post.side.verification.title': 'Проверка работодателя',
@@ -781,6 +819,26 @@
         return parts.join(' / ');
       }
 
+      function employerShortlistLabel(statusValue) {
+        const normalized = typeof statusValue === 'string' && statusValue.trim()
+          ? statusValue.trim()
+          : 'presented';
+        const key = `post.shortlist.${normalized}`;
+        const translated = t(key);
+        return translated === key ? valueOrDash(normalized) : translated;
+      }
+
+      function createCandidateAction(applicationId, action, labelKey, isCurrent) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'button secondary candidate-action';
+        button.dataset.applicationId = applicationId;
+        button.dataset.shortlistStatus = action;
+        button.textContent = t(labelKey);
+        button.disabled = isCurrent;
+        return button;
+      }
+
       function renderPresentedCandidates(response) {
         const payload = response && response.payload && typeof response.payload === 'object' ? response.payload : {};
         const candidates = Array.isArray(payload.presented_candidates) ? payload.presented_candidates : [];
@@ -810,6 +868,7 @@
           addCandidateMeta(meta, 'post.pipeline.email', candidate.contact_email || candidate.seafarer_email);
           addCandidateMeta(meta, 'post.pipeline.documents', documentSummary(candidate));
           addCandidateMeta(meta, 'post.pipeline.status', candidate.application_status);
+          addCandidateMeta(meta, 'post.pipeline.shortlist', employerShortlistLabel(candidate.employer_shortlist_status));
           card.appendChild(meta);
 
           if (candidate.candidate_note) {
@@ -819,8 +878,76 @@
             card.appendChild(note);
           }
 
+          if (candidate.employer_action_note) {
+            const employerNote = document.createElement('p');
+            employerNote.className = 'candidate-card__note';
+            employerNote.textContent = `${t('post.pipeline.employerNote')}: ${candidate.employer_action_note}`;
+            card.appendChild(employerNote);
+          }
+
+          if (candidate.vacancy_application_id) {
+            const currentShortlistStatus = typeof candidate.employer_shortlist_status === 'string' && candidate.employer_shortlist_status.trim()
+              ? candidate.employer_shortlist_status.trim()
+              : 'presented';
+            const actions = document.createElement('div');
+            actions.className = 'candidate-card__actions';
+            actions.appendChild(createCandidateAction(candidate.vacancy_application_id, 'contacted', 'post.pipeline.action.contacted', currentShortlistStatus === 'contacted'));
+            actions.appendChild(createCandidateAction(candidate.vacancy_application_id, 'interview_requested', 'post.pipeline.action.interview', currentShortlistStatus === 'interview_requested'));
+            actions.appendChild(createCandidateAction(candidate.vacancy_application_id, 'not_suitable', 'post.pipeline.action.notSuitable', currentShortlistStatus === 'not_suitable'));
+            card.appendChild(actions);
+          }
+
           candidateList.appendChild(card);
         });
+      }
+
+      function currentDraftId() {
+        return currentWorkspaceResponse && currentWorkspaceResponse.draft_id
+          ? currentWorkspaceResponse.draft_id
+          : getDraftIdFromUrl();
+      }
+
+      function setCandidateActionsDisabled(disabled) {
+        candidateList.querySelectorAll('.candidate-action').forEach((button) => {
+          button.disabled = disabled;
+        });
+      }
+
+      async function updateCandidateShortlist(applicationId, shortlistStatus) {
+        const draftId = currentDraftId();
+        if (!draftId) {
+          status.textContent = t('post.pipeline.action.error');
+          return;
+        }
+
+        setCandidateActionsDisabled(true);
+        status.textContent = t('post.pipeline.action.saving');
+        statusDetail.textContent = '';
+
+        try {
+          const response = await fetch(`/api/v1/employer/vacancy-applications/${encodeURIComponent(applicationId)}/shortlist`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              employer_draft_id: draftId,
+              shortlist_status: shortlistStatus
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`Candidate action failed with status ${response.status}`);
+          }
+
+          const refreshed = await window.CPGDrafts.getDraft(draftId);
+          renderWorkspaceStatus(refreshed);
+          status.textContent = t('post.pipeline.action.saved');
+        } catch (error) {
+          status.textContent = t('post.pipeline.action.error');
+          console.error(error);
+          setCandidateActionsDisabled(false);
+        }
       }
 
       function nextActionKey(companyPayload, vacancyPayload, operatorReview) {
@@ -1002,6 +1129,21 @@
         } finally {
           submit.disabled = false;
         }
+      });
+
+      candidateList.addEventListener('click', (event) => {
+        const target = event.target instanceof Element ? event.target.closest('.candidate-action') : null;
+        if (!target) {
+          return;
+        }
+
+        const applicationId = target.getAttribute('data-application-id') || '';
+        const shortlistStatus = target.getAttribute('data-shortlist-status') || '';
+        if (!applicationId || !shortlistStatus) {
+          return;
+        }
+
+        updateCandidateShortlist(applicationId, shortlistStatus);
       });
 
       window.addEventListener('crewportglobal:languagechange', () => {

@@ -203,6 +203,23 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await expect(page.locator('#post-candidate-list')).toContainText(seafarerEmail);
   await expect(page.locator('#post-candidate-list')).toContainText('ready / ready / 2027-06-15 / 2029-02-02');
   await expect(page.locator('#post-candidate-list')).toContainText(candidateNote);
+  const candidateCard = page.locator('.candidate-card', { hasText: 'Presented Candidate' }).first();
+  await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Presented');
+
+  await candidateCard.getByRole('button', { name: 'Mark contacted' }).click();
+  await expect(page.locator('#post-status')).toContainText('Candidate status updated.');
+  await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Contacted');
+
+  await candidateCard.getByRole('button', { name: 'Request interview' }).click();
+  await expect(page.locator('#post-status')).toContainText('Candidate status updated.');
+  await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Interview requested');
+
+  await page.reload();
+  await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Interview requested');
+
+  await candidateCard.getByRole('button', { name: 'Not suitable' }).click();
+  await expect(page.locator('#post-status')).toContainText('Candidate status updated.');
+  await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Not suitable');
 
   const hasOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   expect(hasOverflow).toBe(false);

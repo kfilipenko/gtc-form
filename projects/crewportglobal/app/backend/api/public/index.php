@@ -771,6 +771,9 @@ function read_presented_candidates_for_employer(string $companyId, ?string $vaca
             va.contact_email,
             va.candidate_note,
             va.application_status,
+            va.employer_shortlist_status,
+            va.employer_action_note,
+            va.employer_action_at,
             va.created_at,
             va.updated_at,
             su.user_id AS seafarer_user_id,
@@ -808,6 +811,9 @@ function read_presented_candidates_for_employer(string $companyId, ?string $vaca
             'candidate_note' => $row['candidate_note'],
             'created_at' => $row['created_at'],
             'updated_at' => $row['updated_at'],
+            'employer_shortlist_status' => $row['employer_shortlist_status'],
+            'employer_action_note' => $row['employer_action_note'],
+            'employer_action_at' => $row['employer_action_at'],
             'seafarer_user_id' => $row['seafarer_user_id'],
             'display_name' => $row['display_name'],
             'seafarer_email' => $row['seafarer_email'],
@@ -1884,6 +1890,131 @@ function handle_get_operator_vacancy_application_detail(string $applicationId): 
     api_json(200, $detail);
 }
 
+function normalize_employer_shortlist_status(mixed $value): ?string {
+    if (!is_string($value)) {
+        return null;
+    }
+
+    $status = trim(strtolower($value));
+    $aliases = [
+        'mark_contacted' => 'contacted',
+        'contacted' => 'contacted',
+        'request_interview' => 'interview_requested',
+        'interview_requested' => 'interview_requested',
+        'not_suitable' => 'not_suitable',
+        'reset' => 'presented',
+        'presented' => 'presented',
+    ];
+
+    return $aliases[$status] ?? null;
+}
+
+function handle_patch_employer_vacancy_application_shortlist(string $applicationId): void {
+    $uuid = api_normalize_uuid($applicationId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_vacancy_application_id', 'vacancy_application_id must be a valid UUID');
+    }
+
+    $body = api_decode_json_body();
+    $employerDraftId = api_normalize_uuid($body['employer_draft_id'] ?? $body['draft_id'] ?? null);
+    if ($employerDraftId === null) {
+        api_error(400, 'invalid_employer_draft_id', 'employer_draft_id must be a valid UUID');
+    }
+
+    $shortlistStatus = normalize_employer_shortlist_status($body['shortlist_status'] ?? $body['action'] ?? $body['status'] ?? null);
+    if ($shortlistStatus === null) {
+        api_error(400, 'invalid_shortlist_status', 'shortlist_status must be one of presented, contacted, interview_requested, not_suitable');
+    }
+
+    $role = read_role_for_user($employerDraftId);
+    if ($role === null || $role === 'seafarer') {
+        api_error(404, 'employer_draft_not_found', 'Employer draft not found');
+    }
+
+    $company = read_primary_company_for_user($employerDraftId);
+    if ($company === null || !isset($company['company_id'])) {
+        api_error(404, 'employer_company_not_found', 'Employer company not found');
+    }
+    $companyId = (string) $company['company_id'];
+    $note = normalize_optional_text($body['note'] ?? $body['employer_note'] ?? null, 1200);
+
+    api_tx_begin();
+    try {
+        $currentResult = api_query(
+            "SELECT
+                va.vacancy_application_id,
+                va.vacancy_request_id,
+                va.seafarer_user_id,
+                va.application_status,
+                va.employer_shortlist_status,
+                vr.company_id,
+                vr.vessel_id
+             FROM crewportglobal.vacancy_applications va
+             JOIN crewportglobal.vacancy_requests vr ON vr.vacancy_request_id = va.vacancy_request_id
+             WHERE va.vacancy_application_id = $1
+             LIMIT 1",
+            [$uuid]
+        );
+        $currentRow = pg_fetch_assoc($currentResult);
+        if (!is_array($currentRow) || (string) $currentRow['company_id'] !== $companyId) {
+            api_tx_rollback();
+            api_error(404, 'employer_application_not_found', 'Presented vacancy application not found for this employer');
+        }
+
+        if (($currentRow['application_status'] ?? '') !== 'presented') {
+            api_tx_rollback();
+            api_error(400, 'candidate_not_presented', 'Only operator-presented vacancy applications can be updated by employer');
+        }
+
+        $previousStatus = (string) $currentRow['employer_shortlist_status'];
+        $updateResult = api_query(
+            'UPDATE crewportglobal.vacancy_applications
+             SET employer_shortlist_status = $2,
+                 employer_action_note = $3,
+                 employer_action_at = now(),
+                 updated_at = now()
+             WHERE vacancy_application_id = $1
+             RETURNING employer_shortlist_status, employer_action_note, employer_action_at, updated_at',
+            [$uuid, $shortlistStatus, $note]
+        );
+        $updateRow = pg_fetch_assoc($updateResult);
+        if (!is_array($updateRow)) {
+            api_tx_rollback();
+            api_error(500, 'employer_shortlist_update_failed', 'Unable to update employer shortlist status');
+        }
+
+        $vesselId = isset($currentRow['vessel_id']) ? (string) $currentRow['vessel_id'] : null;
+        if ($vesselId === '') {
+            $vesselId = null;
+        }
+
+        write_audit_event('employer_shortlist_action_recorded', $employerDraftId, $companyId, $vesselId, [
+            'previous_status' => $previousStatus,
+            'new_status' => $shortlistStatus,
+            'employer_note' => $note,
+            'vacancy_request_id' => $currentRow['vacancy_request_id'],
+            'vacancy_application_id' => $uuid,
+            'seafarer_user_id' => $currentRow['seafarer_user_id'],
+        ], 'employer_candidate_pipeline');
+
+        api_tx_commit();
+
+        api_json(200, [
+            'ok' => true,
+            'vacancy_application_id' => $uuid,
+            'vacancy_request_id' => $currentRow['vacancy_request_id'],
+            'previous_status' => $previousStatus,
+            'employer_shortlist_status' => $updateRow['employer_shortlist_status'],
+            'employer_action_note' => $updateRow['employer_action_note'],
+            'employer_action_at' => $updateRow['employer_action_at'],
+            'updated_at' => $updateRow['updated_at'],
+        ]);
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'employer_shortlist_update_failed', $error->getMessage());
+    }
+}
+
 function apply_operator_review_decision(string $draftId, string $decision, ?string $reviewNote, ?string $queueType = null): array {
     if ($queueType === 'vacancy_application') {
         $statusMap = [
@@ -2218,6 +2349,14 @@ if (preg_match('#^/vacancies/([^/]+)/applications$#', $path, $matches) === 1) {
     }
     header('Allow: POST');
     api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if (preg_match('#^/employer/vacancy-applications/([^/]+)/shortlist$#', $path, $matches) === 1) {
+    if ($method === 'PATCH') {
+        handle_patch_employer_vacancy_application_shortlist($matches[1]);
+    }
+    header('Allow: PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
 }
 
 if (preg_match('#^/operator/review-queue/([^/]+)/status$#', $path, $matches) === 1) {

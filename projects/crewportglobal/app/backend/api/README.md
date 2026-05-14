@@ -6,7 +6,7 @@ This directory contains the first implementation slice for registration draft en
 
 - CPG-BE-002: registration draft API endpoints
 
-The current implementation provides runtime handlers and DB writes for draft create/get/update, operator review decisions, reviewed vacancy listing/detail, vacancy applications, vacancy application review, seafarer-side application history, employer-side visibility for operator-presented candidates and a basic token boundary for operator-only routes.
+The current implementation provides runtime handlers and DB writes for draft create/get/update, operator review decisions, reviewed vacancy listing/detail, vacancy applications, vacancy application review, seafarer-side application history, employer-side visibility for operator-presented candidates, employer shortlist actions and a basic token boundary for operator-only routes.
 
 ## Planned endpoints
 
@@ -19,6 +19,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - GET /api/v1/vacancies
 - GET /api/v1/vacancies/{vacancy_request_id}
 - POST /api/v1/vacancies/{vacancy_request_id}/applications
+- PATCH /api/v1/employer/vacancy-applications/{vacancy_application_id}/shortlist
 - GET /api/v1/health
 
 ## Current status
@@ -32,6 +33,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - vacancy application review logic: operator queue includes submitted vacancy applications and can move them through `in_review`, `presented` or `rejected`
 - seafarer application history logic: seafarer draft responses include the user's own `vacancy_applications` with vacancy, company and review status context
 - employer candidate pipeline logic: employer draft responses include only `presented_candidates` that belong to the employer company and the current vacancy workspace
+- employer shortlist action logic: employers can mark an operator-presented candidate as `contacted`, `interview_requested`, `not_suitable` or back to `presented` through the draft-scoped employer workspace
 - operator access boundary: `GET /api/v1/operator/review-queue` and `PATCH /api/v1/operator/review-queue/{draft_id}/status` require `X-CPG-Operator-Token` or `Authorization: Bearer ...`
 - full login/session logic: not implemented
 
@@ -68,6 +70,7 @@ Then call endpoints under:
 - http://127.0.0.1:8091/api/v1/operator/review-queue/vacancy-applications/{vacancy_application_id}
 - http://127.0.0.1:8091/api/v1/vacancies
 - http://127.0.0.1:8091/api/v1/vacancies/{vacancy_request_id}
+- http://127.0.0.1:8091/api/v1/employer/vacancy-applications/{vacancy_application_id}/shortlist
 
 ## Integration tests
 

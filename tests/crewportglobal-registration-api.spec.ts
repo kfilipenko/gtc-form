@@ -492,6 +492,26 @@ test('employer vacancy request flows through review to public vacancy board', as
   const applicationReviewedBody = (await applicationReviewed.json()) as Record<string, unknown>;
   expect(applicationReviewedBody.new_status).toBe('presented');
 
+  const employerShortlist = await request.patch(`/employer/vacancy-applications/${applicationId}/shortlist`, {
+    data: {
+      employer_draft_id: created.draft_id,
+      shortlist_status: 'interview_requested',
+      note: 'Interview proposed by employer.',
+    },
+  });
+  expect(employerShortlist.status()).toBe(200);
+  const employerShortlistBody = (await employerShortlist.json()) as Record<string, unknown>;
+  expect(employerShortlistBody.employer_shortlist_status).toBe('interview_requested');
+  expect(employerShortlistBody.employer_action_note).toBe('Interview proposed by employer.');
+
+  const employerDraftAfterShortlist = await request.get(`/registration/drafts/${created.draft_id}`);
+  expect(employerDraftAfterShortlist.status()).toBe(200);
+  const employerDraftBody = (await employerDraftAfterShortlist.json()) as DraftResponse;
+  const presentedCandidates = employerDraftBody.payload.presented_candidates as Array<Record<string, unknown>>;
+  const presentedCandidate = presentedCandidates.find((item) => item.vacancy_application_id === applicationId);
+  expect(presentedCandidate).toBeTruthy();
+  expect(presentedCandidate?.employer_shortlist_status).toBe('interview_requested');
+
   const mismatchedEmailResponse = await request.post(`/vacancies/${vacancy.vacancy_request_id}/applications`, {
     data: {
       seafarer_draft_id: seafarer.draft_id,

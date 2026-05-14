@@ -9,6 +9,7 @@ Current step:
 - CPG-BE-001: registration database foundation
 - CPG-MKT-002: reviewed vacancy request foundation
 - CPG-MKT-003: reviewed vacancy application foundation
+- CPG-EMP-008: employer shortlist action fields for presented applications
 
 ## Migration Files
 
@@ -16,6 +17,7 @@ Current step:
 - migrations/002_extend_seafarer_profiles_practical_fields.sql
 - migrations/003_create_vacancy_requests.sql
 - migrations/004_create_vacancy_applications.sql
+- migrations/005_extend_vacancy_applications_employer_shortlist.sql
 
 ## Objects Created by 001
 
@@ -48,6 +50,7 @@ PGUSER=<user> PGPASSWORD=<password> PGDATABASE=<db> psql -v ON_ERROR_STOP=1 -f p
 PGUSER=<user> PGPASSWORD=<password> PGDATABASE=<db> psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/002_extend_seafarer_profiles_practical_fields.sql
 PGUSER=<user> PGPASSWORD=<password> PGDATABASE=<db> psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/003_create_vacancy_requests.sql
 PGUSER=<user> PGPASSWORD=<password> PGDATABASE=<db> psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/004_create_vacancy_applications.sql
+PGUSER=<user> PGPASSWORD=<password> PGDATABASE=<db> psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/005_extend_vacancy_applications_employer_shortlist.sql
 ```
 
 ## Idempotency
