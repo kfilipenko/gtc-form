@@ -1,0 +1,15 @@
+{"version":8,"type":"context-options","origin":"library","browserName":"","options":{},"platform":"linux","wallTime":1778733133543,"monotonicTime":2207.899,"sdkLanguage":"javascript","contextId":"request-context@27c5a9415b2ae4534af156d56fe0faad","title":"crewportglobal-operator-queue.spec.ts:3 › operator queue page renders submitted drafts from API"}
+{"type":"before","callId":"call@13","startTime":2213.765,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/v1/registration/drafts","method":"POST","jsonData":"{\"role\":\"seafarer\",\"email\":\"ui.queue.seafarer.1778733133545@example.com\",\"full_name\":\"Operator Queue Seafarer\",\"availability_status\":\"available_now\"}","timeout":0},"stepId":"pw:api@39","beforeSnapshot":"before@call@13"}
+{"type":"log","callId":"call@13","time":2221.554,"message":"→ POST http://127.0.0.1:38123/api/v1/registration/drafts"}
+{"type":"log","callId":"call@13","time":2221.615,"message":"  user-agent: Playwright/1.56.1 (x64; ubuntu 22.04) node/22.16"}
+{"type":"log","callId":"call@13","time":2221.633,"message":"  accept: */*"}
+{"type":"log","callId":"call@13","time":2221.652,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@13","time":2221.679,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@13","time":2221.694,"message":"  content-length: 149"}
+{"type":"log","callId":"call@13","time":2265.451,"message":"← 201 Created"}
+{"type":"log","callId":"call@13","time":2265.498,"message":"  host: 127.0.0.1:38123"}
+{"type":"log","callId":"call@13","time":2265.514,"message":"  date: Thu, 14 May 2026 04:32:13 GMT"}
+{"type":"log","callId":"call@13","time":2265.541,"message":"  connection: close"}
+{"type":"log","callId":"call@13","time":2265.56,"message":"  x-powered-by: PHP/8.1.2-1ubuntu2.23"}
+{"type":"log","callId":"call@13","time":2265.571,"message":"  content-type: application/json; charset=utf-8"}
+{"type":"after","callId":"call@13","endTime":2268.363,"result":{"response":{"url":"http://127.0.0.1:38123/api/v1/registration/drafts","status":201,"statusText":"Created","headers":[{"name":"Host","value":"127.0.0.1:38123"},{"name":"Date","value":"Thu, 14 May 2026 04:32:13 GMT"},{"name":"Connection","value":"close"},{"name":"X-Powered-By","value":"PHP/8.1.2-1ubuntu2.23"},{"name":"Content-Type","value":"application/json; charset=utf-8"}],"fetchUid":"36fc2af6f1f84a56f6d86511160597ee"}},"afterSnapshot":"after@call@13"}
