@@ -112,6 +112,24 @@ test('health endpoint returns service status', async ({ request }) => {
   expect(body.service).toBe('crewportglobal-registration-api');
 });
 
+test('operator review endpoints require access token', async ({ request }) => {
+  const noTokenResponse = await request.get('/operator/review-queue', {
+    headers: {
+      'X-CPG-Operator-Token': '',
+    },
+  });
+  expect(noTokenResponse.status()).toBe(401);
+  const noTokenBody = await noTokenResponse.json();
+  expect(noTokenBody.error).toBe('operator_access_required');
+
+  const wrongTokenResponse = await request.get('/operator/review-queue', {
+    headers: {
+      'X-CPG-Operator-Token': 'wrong-token',
+    },
+  });
+  expect(wrongTokenResponse.status()).toBe(401);
+});
+
 test('seafarer draft create, get and patch flow works', async ({ request }) => {
   const unique = Date.now();
   const email = `api.seafarer.${unique}@example.com`;

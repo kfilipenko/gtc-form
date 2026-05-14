@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.49
+- Version: 0.51
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -153,6 +153,8 @@ docs/crewportglobal/
   69_international_maritime_application_goal_and_task_backlog.md
   70_context_handoff_and_next_work_plan_2026_05_14.md
   71_cpg_user_016_seafarer_cv_workspace_and_document_metadata_report.md
+  72_cpg_ops_015_operator_structured_detail_view_report.md
+  73_cpg_ops_016_operator_access_token_boundary_report.md
 ```
 
 ### 3.3 Product governance control
@@ -164,6 +166,10 @@ Document 69 is the active product-goal and task-backlog baseline for converting 
 Document 70 is the current Codex / VS Code handoff note for continuing work safely after context grows too large.
 
 Document 71 records the seafarer CV workspace and document metadata implementation slice.
+
+Document 72 records the operator structured detail view implementation for `/verify/`.
+
+Document 73 records the temporary operator access token boundary for `/verify/` and operator review API routes.
 
 Mandatory control statement:
 
@@ -267,6 +273,8 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.51 | 2026-05-14 | GTC IT / AI Assistant | Added document 73 as CPG-OPS-016 implementation report for the temporary operator access token boundary on /verify/ and operator review API routes |
+| 0.50 | 2026-05-14 | GTC IT / AI Assistant | Added document 72 as CPG-OPS-015 implementation report for structured operator detail sections on /verify/ |
 | 0.49 | 2026-05-14 | GTC IT / AI Assistant | Added document 71 as CPG-USER-016 implementation report for the seafarer CV workspace, document readiness metadata persistence and verification evidence |
 | 0.48 | 2026-05-14 | GTC IT / AI Assistant | Added document 70 as the Codex / VS Code context handoff and next-work continuation note |
 | 0.47 | 2026-05-13 | GTC IT / AI Assistant | Added document 69 as the active product goal and task backlog for the international maritime application build-out |

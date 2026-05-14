@@ -1,4 +1,31 @@
 import { expect, test } from '@playwright/test';
+import { execSync } from 'node:child_process';
+
+function cleanupCreateProfileUiTestData(): void {
+  const sql = `
+WITH ui_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'ui.prefill.%@example.com'
+     OR email LIKE 'ui.localprefill.%@example.com'
+     OR email LIKE 'ui.correction.%@example.com'
+)
+UPDATE crewportglobal.seafarer_profiles sp
+SET review_status = 'rejected', updated_at = now()
+FROM ui_users uu
+WHERE sp.user_id = uu.user_id
+  AND sp.review_status IN ('submitted_for_human_review', 'in_review', 'approved');
+`;
+
+  execSync(
+    'PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -v ON_ERROR_STOP=1 -q',
+    { input: sql, encoding: 'utf8' }
+  );
+}
+
+test.afterEach(() => {
+  cleanupCreateProfileUiTestData();
+});
 
 test('create profile prefill from draft_id preserves patch flow', async ({ page }) => {
   await page.goto('/create-profile/');

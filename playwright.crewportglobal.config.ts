@@ -1,5 +1,10 @@
 import { defineConfig } from '@playwright/test';
 
+const operatorAccessToken =
+  process.env.CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN ||
+  process.env.CPG_OPERATOR_ACCESS_TOKEN ||
+  'crewportglobal-local-operator';
+
 export default defineConfig({
   testDir: './tests',
   timeout: 60_000,
@@ -12,6 +17,9 @@ export default defineConfig({
     headless: true,
     viewport: { width: 1440, height: 900 },
     ignoreHTTPSErrors: true,
+    extraHTTPHeaders: {
+      'X-CPG-Operator-Token': operatorAccessToken,
+    },
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure'
   },
@@ -26,6 +34,7 @@ export default defineConfig({
       'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/002_extend_seafarer_profiles_practical_fields.sql',
       '&& PGHOST=${PGHOST:-127.0.0.1} PGUSER=${PGUSER:-gtc_user} PGPASSWORD=${PGPASSWORD:-gtc_pass} PGDATABASE=${PGDATABASE:-gtc_db}',
       'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/003_create_vacancy_requests.sql',
+      '&& export CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN="${CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN:-${CPG_OPERATOR_ACCESS_TOKEN:-crewportglobal-local-operator}}"',
       '&& php -S 127.0.0.1:38123 -t ./projects/crewportglobal/public ./projects/crewportglobal/public/router.php',
       '"',
     ].join(' '),

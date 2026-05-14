@@ -18,6 +18,55 @@ function request_path(): string {
     return $path;
 }
 
+function request_header_value(string $name): ?string {
+    $serverKey = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
+    $value = $_SERVER[$serverKey] ?? null;
+    if (!is_string($value)) {
+        return null;
+    }
+
+    $trimmed = trim($value);
+    return $trimmed === '' ? null : $trimmed;
+}
+
+function operator_access_token(): ?string {
+    foreach (['CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN', 'CPG_OPERATOR_ACCESS_TOKEN'] as $envName) {
+        $value = getenv($envName);
+        if (is_string($value) && trim($value) !== '') {
+            return trim($value);
+        }
+    }
+
+    return null;
+}
+
+function request_operator_token(): ?string {
+    $headerToken = request_header_value('X-CPG-Operator-Token');
+    if ($headerToken !== null) {
+        return $headerToken;
+    }
+
+    $authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+    if (is_string($authorization) && preg_match('/^Bearer\s+(.+)$/i', trim($authorization), $matches) === 1) {
+        $token = trim($matches[1]);
+        return $token === '' ? null : $token;
+    }
+
+    return null;
+}
+
+function require_operator_access(): void {
+    $expected = operator_access_token();
+    if ($expected === null) {
+        api_error(403, 'operator_access_not_configured', 'Operator access token is not configured');
+    }
+
+    $provided = request_operator_token();
+    if ($provided === null || !hash_equals($expected, $provided)) {
+        api_error(401, 'operator_access_required', 'Operator access token is required');
+    }
+}
+
 function read_role_for_user(string $userId): ?string {
     $result = api_query(
         'SELECT role FROM crewportglobal.user_roles WHERE user_id = $1 ORDER BY created_at ASC LIMIT 1',
@@ -1532,6 +1581,7 @@ if (preg_match('#^/registration/drafts/([^/]+)$#', $path, $matches) === 1) {
 }
 
 if ($method === 'GET' && $path === '/operator/review-queue') {
+    require_operator_access();
     handle_get_operator_review_queue();
 }
 
@@ -1541,6 +1591,7 @@ if ($method === 'GET' && $path === '/vacancies') {
 
 if (preg_match('#^/operator/review-queue/([^/]+)/status$#', $path, $matches) === 1) {
     if ($method === 'PATCH') {
+        require_operator_access();
         handle_patch_operator_review_queue_status($matches[1]);
     }
     header('Allow: PATCH');

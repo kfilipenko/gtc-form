@@ -2,6 +2,10 @@ import { defineConfig } from '@playwright/test';
 
 const host = '127.0.0.1';
 const port = 38124;
+const operatorAccessToken =
+  process.env.CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN ||
+  process.env.CPG_OPERATOR_ACCESS_TOKEN ||
+  'crewportglobal-local-operator';
 
 export default defineConfig({
   testDir: './tests',
@@ -15,6 +19,9 @@ export default defineConfig({
     baseURL: `http://${host}:${port}/api/v1`,
     headless: true,
     ignoreHTTPSErrors: true,
+    extraHTTPHeaders: {
+      'X-CPG-Operator-Token': operatorAccessToken,
+    },
     trace: 'retain-on-failure',
   },
   webServer: {
@@ -29,6 +36,7 @@ export default defineConfig({
       '&& PGHOST=${PGHOST:-127.0.0.1} PGUSER=${PGUSER:-gtc_user} PGPASSWORD=${PGPASSWORD:-gtc_pass} PGDATABASE=${PGDATABASE:-gtc_db}',
       'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/003_create_vacancy_requests.sql',
       '&& cd projects/crewportglobal/app/backend/api/public',
+      '&& export CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN="${CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN:-${CPG_OPERATOR_ACCESS_TOKEN:-crewportglobal-local-operator}}"',
       `&& php -S ${host}:${port} router.php`,
       '"',
     ].join(' '),

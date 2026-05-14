@@ -42,6 +42,41 @@
     .queue-table th, .queue-table td { border-bottom: 1px solid var(--line); padding: 10px 8px; text-align: left; color: var(--muted-on-dark); }
     .queue-table th { color: var(--text-on-dark); font-weight: 600; }
     .queue-type { font-size: 12px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; display: inline-block; }
+    .operator-access {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: end;
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(0, 102, 128, 0.12);
+    }
+    .operator-access[hidden] { display: none; }
+    .operator-access__field {
+      display: grid;
+      gap: 6px;
+    }
+    .operator-access__field label {
+      color: var(--text-on-dark);
+      font-weight: 700;
+    }
+    .operator-access__field input {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text-on-dark);
+      font: inherit;
+    }
+    .operator-access__feedback {
+      grid-column: 1 / -1;
+      margin: 0;
+      color: var(--muted-on-dark);
+      min-height: 20px;
+    }
     .details-card {
       margin-top: 18px;
       border: 1px solid var(--line);
@@ -53,8 +88,73 @@
       margin: 0 0 8px;
       color: var(--text-on-dark);
     }
-    .details-json {
+    .details-sections {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .details-empty {
       margin: 0;
+      color: var(--muted-on-dark);
+      line-height: 1.6;
+    }
+    .detail-section {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .detail-section h3 {
+      margin: 0;
+      color: var(--text-on-dark);
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .detail-field {
+      display: grid;
+      gap: 4px;
+      min-height: 66px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .detail-label {
+      color: var(--muted-on-dark);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .detail-value {
+      color: var(--text-on-dark);
+      font-weight: 700;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+    .detail-value.muted {
+      color: var(--muted-on-dark);
+      font-weight: 500;
+    }
+    .raw-details {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .raw-details summary {
+      cursor: pointer;
+      color: var(--text-on-dark);
+      font-weight: 700;
+    }
+    .details-json {
+      margin: 12px 0 0;
       color: var(--muted-on-dark);
       white-space: pre-wrap;
       word-break: break-word;
@@ -125,6 +225,12 @@
       .queue-controls {
         grid-template-columns: 1fr;
       }
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+      .operator-access {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
   <link rel="stylesheet" href="../assets/crewportglobal-app.css">
@@ -165,6 +271,15 @@
         <p class="eyebrow" data-i18n="verify.eyebrow">Operator review</p>
         <h1 data-i18n="verify.title">Submitted Draft Queue</h1>
         <p class="status-note" id="queue-status" data-i18n="verify.loading">Loading operator queue...</p>
+
+        <form id="operator-access" class="operator-access" hidden>
+          <div class="operator-access__field">
+            <label for="operator-token" data-i18n="verify.access.label">Operator access token</label>
+            <input id="operator-token" type="password" autocomplete="off" placeholder="Access token" data-i18n-placeholder="verify.access.placeholder">
+          </div>
+          <button id="operator-unlock" class="button primary" type="submit" data-i18n="verify.access.button">Unlock queue</button>
+          <p id="operator-access-feedback" class="operator-access__feedback" data-i18n="verify.access.denied">Operator access required.</p>
+        </form>
 
         <div class="queue-controls">
           <div class="queue-control">
@@ -229,6 +344,9 @@
 
         <section class="details-card">
           <h2 class="details-title" data-i18n="verify.details.title">Draft details</h2>
+          <div id="details-sections" class="details-sections">
+            <p class="details-empty" data-i18n="verify.details.empty">Select a queue item to load full draft details.</p>
+          </div>
           <div class="review-note-block">
             <label class="review-note-label" for="review-note" data-i18n="verify.note.label">Review note (optional)</label>
             <textarea id="review-note" class="review-note-textarea" maxlength="1000" placeholder="Add note for review action. Required for Needs correction."></textarea>
@@ -240,7 +358,10 @@
               <ol id="review-history-list" class="history-list" hidden></ol>
             </div>
           </div>
-          <pre id="details-json" class="details-json" data-i18n="verify.details.empty">Select a queue item to load full draft details.</pre>
+          <details class="raw-details">
+            <summary data-i18n="verify.details.raw">Raw API payload</summary>
+            <pre id="details-json" class="details-json" data-i18n="verify.details.empty">Select a queue item to load full draft details.</pre>
+          </details>
         </section>
       </section>
     </main>
@@ -256,6 +377,12 @@
         'verify.loaded': 'Queue loaded: {count} items (showing {shown})',
         'verify.empty': 'Queue is empty. No submitted drafts yet.',
         'verify.error': 'Could not load queue. Please try again.',
+        'verify.access.label': 'Operator access token',
+        'verify.access.placeholder': 'Access token',
+        'verify.access.button': 'Unlock queue',
+        'verify.access.required': 'Enter the operator access token.',
+        'verify.access.denied': 'Operator access required.',
+        'verify.access.ready': 'Operator access confirmed.',
         'verify.filter.type': 'Type',
         'verify.filter.role': 'Role',
         'verify.filter.status': 'Status',
@@ -296,7 +423,53 @@
         'verify.details.title': 'Draft details',
         'verify.details.empty': 'Select a queue item to load full draft details.',
         'verify.details.loading': 'Loading draft details...',
-        'verify.details.error': 'Could not load draft details.'
+        'verify.details.error': 'Could not load draft details.',
+        'verify.details.raw': 'Raw API payload',
+        'verify.section.registration': 'Registration',
+        'verify.section.seafarer': 'Seafarer profile',
+        'verify.section.documents': 'Document readiness',
+        'verify.section.company': 'Company',
+        'verify.section.vessel': 'Vessel',
+        'verify.section.vacancy': 'Vacancy request',
+        'verify.field.draftId': 'Draft ID',
+        'verify.field.role': 'Role',
+        'verify.field.email': 'Email',
+        'verify.field.status': 'Status',
+        'verify.field.created': 'Created',
+        'verify.field.updated': 'Updated',
+        'verify.field.fullName': 'Full name',
+        'verify.field.rank': 'Rank',
+        'verify.field.department': 'Department',
+        'verify.field.availability': 'Availability',
+        'verify.field.availabilityDate': 'Availability date',
+        'verify.field.country': 'Country',
+        'verify.field.nationality': 'Nationality',
+        'verify.field.residence': 'Residence',
+        'verify.field.phone': 'Phone',
+        'verify.field.salary': 'Salary expectation',
+        'verify.field.vesselTypes': 'Preferred vessel types',
+        'verify.field.reviewStatus': 'Review status',
+        'verify.field.certificateStatus': 'COC / endorsements',
+        'verify.field.stcwStatus': 'STCW / training',
+        'verify.field.passportExpiry': 'Passport expiry',
+        'verify.field.medicalExpiry': 'Medical expiry',
+        'verify.field.visaStatus': 'Visa readiness',
+        'verify.field.documentNotes': 'Document notes',
+        'verify.field.companyName': 'Company name',
+        'verify.field.companyType': 'Company type',
+        'verify.field.registrationNumber': 'Registration number',
+        'verify.field.verificationStatus': 'Verification status',
+        'verify.field.roleInCompany': 'Role in company',
+        'verify.field.vesselName': 'Vessel name',
+        'verify.field.vesselType': 'Vessel type',
+        'verify.field.imo': 'IMO number',
+        'verify.field.flag': 'Flag',
+        'verify.field.vacancyTitle': 'Vacancy title',
+        'verify.field.joinDate': 'Joining date',
+        'verify.field.contractDuration': 'Contract duration',
+        'verify.field.salaryRange': 'Salary range',
+        'verify.field.requirements': 'Requirements',
+        'verify.value.empty': '-'
       },
       ru: {
         'verify.nav.queue': 'Очередь оператора',
@@ -306,6 +479,12 @@
         'verify.loaded': 'Очередь загружена: {count} записей (показано {shown})',
         'verify.empty': 'Очередь пуста. Отправленных черновиков пока нет.',
         'verify.error': 'Не удалось загрузить очередь. Попробуйте еще раз.',
+        'verify.access.label': 'Токен доступа оператора',
+        'verify.access.placeholder': 'Токен доступа',
+        'verify.access.button': 'Открыть очередь',
+        'verify.access.required': 'Введите токен доступа оператора.',
+        'verify.access.denied': 'Требуется доступ оператора.',
+        'verify.access.ready': 'Доступ оператора подтвержден.',
         'verify.filter.type': 'Тип',
         'verify.filter.role': 'Роль',
         'verify.filter.status': 'Статус',
@@ -346,7 +525,53 @@
         'verify.details.title': 'Детали черновика',
         'verify.details.empty': 'Выберите элемент очереди, чтобы загрузить полные детали черновика.',
         'verify.details.loading': 'Загружаем детали черновика...',
-        'verify.details.error': 'Не удалось загрузить детали черновика.'
+        'verify.details.error': 'Не удалось загрузить детали черновика.',
+        'verify.details.raw': 'Сырой API payload',
+        'verify.section.registration': 'Регистрация',
+        'verify.section.seafarer': 'Профиль моряка',
+        'verify.section.documents': 'Готовность документов',
+        'verify.section.company': 'Компания',
+        'verify.section.vessel': 'Судно',
+        'verify.section.vacancy': 'Заявка на вакансию',
+        'verify.field.draftId': 'Draft ID',
+        'verify.field.role': 'Роль',
+        'verify.field.email': 'Email',
+        'verify.field.status': 'Статус',
+        'verify.field.created': 'Создан',
+        'verify.field.updated': 'Обновлен',
+        'verify.field.fullName': 'Полное имя',
+        'verify.field.rank': 'Ранг',
+        'verify.field.department': 'Департамент',
+        'verify.field.availability': 'Доступность',
+        'verify.field.availabilityDate': 'Дата доступности',
+        'verify.field.country': 'Страна',
+        'verify.field.nationality': 'Гражданство',
+        'verify.field.residence': 'Проживание',
+        'verify.field.phone': 'Телефон',
+        'verify.field.salary': 'Ожидание по зарплате',
+        'verify.field.vesselTypes': 'Типы судов',
+        'verify.field.reviewStatus': 'Статус проверки',
+        'verify.field.certificateStatus': 'COC / endorsements',
+        'verify.field.stcwStatus': 'STCW / тренинги',
+        'verify.field.passportExpiry': 'Срок паспорта',
+        'verify.field.medicalExpiry': 'Срок мед. справки',
+        'verify.field.visaStatus': 'Готовность визы',
+        'verify.field.documentNotes': 'Заметки по документам',
+        'verify.field.companyName': 'Название компании',
+        'verify.field.companyType': 'Тип компании',
+        'verify.field.registrationNumber': 'Регистрационный номер',
+        'verify.field.verificationStatus': 'Статус проверки',
+        'verify.field.roleInCompany': 'Роль в компании',
+        'verify.field.vesselName': 'Название судна',
+        'verify.field.vesselType': 'Тип судна',
+        'verify.field.imo': 'IMO номер',
+        'verify.field.flag': 'Флаг',
+        'verify.field.vacancyTitle': 'Название вакансии',
+        'verify.field.joinDate': 'Дата посадки',
+        'verify.field.contractDuration': 'Длительность контракта',
+        'verify.field.salaryRange': 'Диапазон зарплаты',
+        'verify.field.requirements': 'Требования',
+        'verify.value.empty': '-'
       }
     };
   </script>
@@ -355,6 +580,7 @@
     (function () {
       const status = document.getElementById('queue-status');
       const body = document.getElementById('queue-body');
+      const detailsSections = document.getElementById('details-sections');
       const detailsJson = document.getElementById('details-json');
       const reviewNoteInput = document.getElementById('review-note');
       const reviewNoteFeedback = document.getElementById('review-note-feedback');
@@ -365,9 +591,14 @@
       const filterRole = document.getElementById('filter-role');
       const filterStatus = document.getElementById('filter-status');
       const sortOrder = document.getElementById('sort-order');
+      const operatorAccessForm = document.getElementById('operator-access');
+      const operatorTokenInput = document.getElementById('operator-token');
+      const operatorAccessFeedback = document.getElementById('operator-access-feedback');
+      const OPERATOR_TOKEN_STORAGE_KEY = 'crewportglobal.operatorAccessToken';
       let queueItems = [];
       let currentLatestNote = '';
       let currentReviewHistory = [];
+      let currentDraftPayload = null;
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -381,6 +612,72 @@
           return raw;
         }
         return Object.entries(values).reduce((acc, entry) => acc.replace(`{${entry[0]}}`, String(entry[1])), raw);
+      }
+
+      function getStoredOperatorToken() {
+        try {
+          const token = window.sessionStorage.getItem(OPERATOR_TOKEN_STORAGE_KEY) || '';
+          return token.trim();
+        } catch (error) {
+          return '';
+        }
+      }
+
+      function setStoredOperatorToken(token) {
+        try {
+          window.sessionStorage.setItem(OPERATOR_TOKEN_STORAGE_KEY, token);
+        } catch (error) {
+          return;
+        }
+      }
+
+      function showAccessPanel(messageKey) {
+        operatorAccessForm.hidden = false;
+        operatorAccessFeedback.textContent = t(messageKey || 'verify.access.denied');
+      }
+
+      function hideAccessPanel() {
+        operatorAccessForm.hidden = true;
+        operatorAccessFeedback.textContent = '';
+      }
+
+      function isOperatorAccessFailure(response) {
+        return response && (response.status === 401 || response.status === 403);
+      }
+
+      function operatorHeaders(extraHeaders) {
+        const headers = Object.assign({}, extraHeaders || {});
+        const token = getStoredOperatorToken();
+        if (token) {
+          headers['X-CPG-Operator-Token'] = token;
+        }
+        return headers;
+      }
+
+      function queueDisplayValue(value) {
+        return value === null || value === undefined || String(value).trim() === '' ? '-' : String(value);
+      }
+
+      function appendTextCell(row, value) {
+        const cell = document.createElement('td');
+        cell.textContent = queueDisplayValue(value);
+        row.appendChild(cell);
+        return cell;
+      }
+
+      function createQueueButton(className, textKey, draftId, decision, queueType) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `button secondary ${className}`;
+        button.dataset.draftId = draftId || '';
+        if (decision) {
+          button.dataset.decision = decision;
+        }
+        if (queueType) {
+          button.dataset.queueType = queueType;
+        }
+        button.textContent = t(textKey);
+        return button;
       }
 
       function summaryText(item) {
@@ -413,6 +710,192 @@
 
       function clearNoteFeedback() {
         reviewNoteFeedback.textContent = '';
+      }
+
+      function emptyValue() {
+        return t('verify.value.empty');
+      }
+
+      function normalizeDisplayValue(value) {
+        if (value === null || value === undefined || String(value).trim() === '') {
+          return emptyValue();
+        }
+        if (Array.isArray(value)) {
+          return value.length ? value.join(', ') : emptyValue();
+        }
+        return String(value);
+      }
+
+      function parseJsonish(value, fallback) {
+        if (Array.isArray(value) || (value && typeof value === 'object')) {
+          return value;
+        }
+        if (typeof value !== 'string' || !value.trim()) {
+          return fallback;
+        }
+        try {
+          return JSON.parse(value);
+        } catch (error) {
+          return fallback;
+        }
+      }
+
+      function createDetailField(labelKey, value, options) {
+        const opts = options || {};
+        const field = document.createElement('div');
+        field.className = 'detail-field';
+
+        const label = document.createElement('span');
+        label.className = 'detail-label';
+        label.textContent = t(labelKey);
+
+        const content = document.createElement('span');
+        const normalized = normalizeDisplayValue(value);
+        content.className = normalized === emptyValue() || opts.muted ? 'detail-value muted' : 'detail-value';
+        content.textContent = normalized;
+
+        field.append(label, content);
+        return field;
+      }
+
+      function createDetailSection(titleKey, fields) {
+        const meaningfulFields = fields.filter(Boolean);
+        if (meaningfulFields.length === 0) {
+          return null;
+        }
+
+        const section = document.createElement('section');
+        section.className = 'detail-section';
+
+        const title = document.createElement('h3');
+        title.textContent = t(titleKey);
+
+        const grid = document.createElement('div');
+        grid.className = 'detail-grid';
+        meaningfulFields.forEach((field) => grid.appendChild(field));
+
+        section.append(title, grid);
+        return section;
+      }
+
+      function formatSalaryRange(vacancy) {
+        if (!vacancy || typeof vacancy !== 'object') {
+          return '';
+        }
+        const currency = vacancy.currency || 'USD';
+        const min = vacancy.salary_min_usd;
+        const max = vacancy.salary_max_usd;
+        const text = vacancy.salary_text;
+        if (text) {
+          return text;
+        }
+        if (min && max) {
+          return `${currency} ${min} - ${max}`;
+        }
+        if (min) {
+          return `${currency} ${min}+`;
+        }
+        if (max) {
+          return `${currency} up to ${max}`;
+        }
+        return '';
+      }
+
+      function renderDraftDetails(payload) {
+        detailsSections.innerHTML = '';
+        if (!payload || typeof payload !== 'object') {
+          const empty = document.createElement('p');
+          empty.className = 'details-empty';
+          empty.textContent = t('verify.details.empty');
+          detailsSections.appendChild(empty);
+          return;
+        }
+
+        const rootPayload = payload.payload && typeof payload.payload === 'object' ? payload.payload : {};
+        const seafarer = rootPayload.seafarer_profile && typeof rootPayload.seafarer_profile === 'object'
+          ? rootPayload.seafarer_profile
+          : null;
+        const company = rootPayload.company && typeof rootPayload.company === 'object' ? rootPayload.company : null;
+        const vessel = rootPayload.vessel && typeof rootPayload.vessel === 'object' ? rootPayload.vessel : null;
+        const vacancy = rootPayload.vacancy_request && typeof rootPayload.vacancy_request === 'object'
+          ? rootPayload.vacancy_request
+          : null;
+        const documentMetadata = seafarer ? parseJsonish(seafarer.document_metadata, {}) : {};
+        const preferredVessels = seafarer ? parseJsonish(seafarer.preferred_vessel_types, []) : [];
+
+        const sections = [
+          createDetailSection('verify.section.registration', [
+            createDetailField('verify.field.draftId', payload.draft_id),
+            createDetailField('verify.field.role', payload.role),
+            createDetailField('verify.field.email', payload.email),
+            createDetailField('verify.field.status', payload.status),
+            createDetailField('verify.field.created', payload.created_at),
+            createDetailField('verify.field.updated', payload.updated_at),
+          ]),
+        ];
+
+        if (seafarer) {
+          sections.push(
+            createDetailSection('verify.section.seafarer', [
+              createDetailField('verify.field.fullName', seafarer.first_name || seafarer.last_name),
+              createDetailField('verify.field.rank', seafarer.primary_rank),
+              createDetailField('verify.field.department', seafarer.department),
+              createDetailField('verify.field.availability', seafarer.availability_status),
+              createDetailField('verify.field.availabilityDate', seafarer.availability_date),
+              createDetailField('verify.field.country', seafarer.country_code),
+              createDetailField('verify.field.nationality', seafarer.nationality_code),
+              createDetailField('verify.field.residence', seafarer.residence_country_code),
+              createDetailField('verify.field.phone', seafarer.contact_phone),
+              createDetailField('verify.field.salary', seafarer.salary_expectation_usd),
+              createDetailField('verify.field.vesselTypes', preferredVessels),
+              createDetailField('verify.field.reviewStatus', seafarer.review_status),
+            ]),
+            createDetailSection('verify.section.documents', [
+              createDetailField('verify.field.certificateStatus', documentMetadata.certificate_status),
+              createDetailField('verify.field.stcwStatus', documentMetadata.stcw_status),
+              createDetailField('verify.field.passportExpiry', documentMetadata.passport_expiry),
+              createDetailField('verify.field.medicalExpiry', documentMetadata.medical_expiry),
+              createDetailField('verify.field.visaStatus', documentMetadata.visa_status),
+              createDetailField('verify.field.documentNotes', documentMetadata.notes),
+            ])
+          );
+        }
+
+        if (company) {
+          sections.push(createDetailSection('verify.section.company', [
+            createDetailField('verify.field.companyName', company.company_name),
+            createDetailField('verify.field.companyType', company.company_type),
+            createDetailField('verify.field.registrationNumber', company.registration_number),
+            createDetailField('verify.field.country', company.country_code),
+            createDetailField('verify.field.verificationStatus', company.verification_status),
+            createDetailField('verify.field.roleInCompany', company.role_in_company),
+          ]));
+        }
+
+        if (vessel) {
+          sections.push(createDetailSection('verify.section.vessel', [
+            createDetailField('verify.field.vesselName', vessel.vessel_name),
+            createDetailField('verify.field.vesselType', vessel.vessel_type),
+            createDetailField('verify.field.imo', vessel.imo_number),
+            createDetailField('verify.field.flag', vessel.flag_country_code),
+          ]));
+        }
+
+        if (vacancy) {
+          sections.push(createDetailSection('verify.section.vacancy', [
+            createDetailField('verify.field.vacancyTitle', vacancy.vacancy_title),
+            createDetailField('verify.field.rank', vacancy.rank),
+            createDetailField('verify.field.department', vacancy.department),
+            createDetailField('verify.field.vesselType', vacancy.vessel_type),
+            createDetailField('verify.field.joinDate', vacancy.join_date),
+            createDetailField('verify.field.contractDuration', vacancy.contract_duration),
+            createDetailField('verify.field.salaryRange', formatSalaryRange(vacancy)),
+            createDetailField('verify.field.status', vacancy.publication_status),
+            createDetailField('verify.field.requirements', vacancy.requirements),
+          ]));
+        }
+
+        sections.filter(Boolean).forEach((section) => detailsSections.appendChild(section));
       }
 
       function setLatestReviewNote(note) {
@@ -507,6 +990,11 @@
         }
 
         detailsJson.textContent = t('verify.details.loading');
+        detailsSections.innerHTML = '';
+        const loading = document.createElement('p');
+        loading.className = 'details-empty';
+        loading.textContent = t('verify.details.loading');
+        detailsSections.appendChild(loading);
         try {
           const response = await fetch(`/api/v1/registration/drafts/${encodeURIComponent(draftId)}`);
           const payload = await response.json().catch(() => ({}));
@@ -514,10 +1002,18 @@
             throw new Error('draft_details_load_failed');
           }
           detailsJson.textContent = JSON.stringify(payload, null, 2);
+          currentDraftPayload = payload;
+          renderDraftDetails(payload);
           setLatestReviewNote(extractLatestNote(payload));
           renderReviewHistory(extractReviewHistory(payload));
         } catch (error) {
           detailsJson.textContent = t('verify.details.error');
+          currentDraftPayload = null;
+          detailsSections.innerHTML = '';
+          const errorLine = document.createElement('p');
+          errorLine.className = 'details-empty';
+          errorLine.textContent = t('verify.details.error');
+          detailsSections.appendChild(errorLine);
           setLatestReviewNote('');
           renderReviewHistory([]);
           console.error(error);
@@ -547,16 +1043,22 @@
           }
           const response = await fetch(`/api/v1/operator/review-queue/${encodeURIComponent(draftId)}/status`, {
             method: 'PATCH',
-            headers: {
+            headers: operatorHeaders({
               'Content-Type': 'application/json',
-            },
+            }),
             body: JSON.stringify(requestBody),
           });
           const payload = await response.json().catch(() => ({}));
+          if (isOperatorAccessFailure(response)) {
+            showAccessPanel('verify.access.denied');
+            status.textContent = t('verify.access.denied');
+            return;
+          }
           if (!response.ok || !payload || payload.ok !== true) {
             throw new Error('operator_decision_failed');
           }
 
+          hideAccessPanel();
           status.textContent = t('verify.action.saved', { decision: payload.new_status || decision });
           if (typeof payload.review_note === 'string' && payload.review_note.trim() !== '') {
             reviewNoteFeedback.textContent = t('verify.note.saved', { note: payload.review_note.trim() });
@@ -584,23 +1086,31 @@
 
         items.forEach((item) => {
           const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td><span class="queue-type">${item.queue_type || '-'}</span></td>
-            <td>${item.role || '-'}</td>
-            <td>${item.email || '-'}</td>
-            <td>${item.full_name || '-'}</td>
-            <td>${item.status || '-'}</td>
-            <td>${summaryText(item)}</td>
-            <td>${item.updated_at || '-'}</td>
-            <td>
-              <div class="inline-actions">
-                <button type="button" class="button secondary queue-open" data-draft-id="${item.draft_id || ''}">${t('verify.action.open')}</button>
-                <button type="button" class="button secondary queue-decision" data-draft-id="${item.draft_id || ''}" data-queue-type="${item.queue_type || ''}" data-decision="start_review">${t('verify.action.startReview')}</button>
-                <button type="button" class="button secondary queue-decision" data-draft-id="${item.draft_id || ''}" data-queue-type="${item.queue_type || ''}" data-decision="needs_correction">${t('verify.action.needsCorrection')}</button>
-                <button type="button" class="button secondary queue-decision" data-draft-id="${item.draft_id || ''}" data-queue-type="${item.queue_type || ''}" data-decision="reviewed">${t('verify.action.reviewed')}</button>
-              </div>
-            </td>
-          `;
+          const queueTypeCell = document.createElement('td');
+          const queueType = document.createElement('span');
+          queueType.className = 'queue-type';
+          queueType.textContent = queueDisplayValue(item.queue_type);
+          queueTypeCell.appendChild(queueType);
+          tr.appendChild(queueTypeCell);
+
+          appendTextCell(tr, item.role);
+          appendTextCell(tr, item.email);
+          appendTextCell(tr, item.full_name);
+          appendTextCell(tr, item.status);
+          appendTextCell(tr, summaryText(item));
+          appendTextCell(tr, item.updated_at);
+
+          const actionCell = document.createElement('td');
+          const actionWrap = document.createElement('div');
+          actionWrap.className = 'inline-actions';
+          actionWrap.append(
+            createQueueButton('queue-open', 'verify.action.open', item.draft_id),
+            createQueueButton('queue-decision', 'verify.action.startReview', item.draft_id, 'start_review', item.queue_type),
+            createQueueButton('queue-decision', 'verify.action.needsCorrection', item.draft_id, 'needs_correction', item.queue_type),
+            createQueueButton('queue-decision', 'verify.action.reviewed', item.draft_id, 'reviewed', item.queue_type)
+          );
+          actionCell.appendChild(actionWrap);
+          tr.appendChild(actionCell);
           body.appendChild(tr);
         });
 
@@ -626,11 +1136,21 @@
       async function loadQueue() {
         status.textContent = t('verify.loading');
         try {
-          const response = await fetch('/api/v1/operator/review-queue');
+          const response = await fetch('/api/v1/operator/review-queue', {
+            headers: operatorHeaders(),
+          });
           const payload = await response.json().catch(() => ({}));
+          if (isOperatorAccessFailure(response)) {
+            queueItems = [];
+            body.innerHTML = '';
+            showAccessPanel('verify.access.denied');
+            status.textContent = t('verify.access.denied');
+            return;
+          }
           if (!response.ok || !payload || payload.ok !== true) {
             throw new Error('queue_load_failed');
           }
+          hideAccessPanel();
           queueItems = Array.isArray(payload.queue) ? payload.queue : [];
           renderQueue();
         } catch (error) {
@@ -645,13 +1165,38 @@
         });
       });
 
+      operatorAccessForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const token = (operatorTokenInput.value || '').trim();
+        if (!token) {
+          showAccessPanel('verify.access.required');
+          operatorTokenInput.focus();
+          return;
+        }
+
+        setStoredOperatorToken(token);
+        operatorAccessFeedback.textContent = t('verify.access.ready');
+        loadQueue();
+      });
+
       window.addEventListener('crewportglobal:languagechange', () => {
+        if (!operatorAccessForm.hidden) {
+          operatorAccessFeedback.textContent = t('verify.access.denied');
+          status.textContent = t('verify.access.denied');
+          return;
+        }
         renderQueue();
+        renderDraftDetails(currentDraftPayload);
         setLatestReviewNote(currentLatestNote);
         renderReviewHistory(currentReviewHistory);
       });
 
-      loadQueue();
+      if (getStoredOperatorToken()) {
+        loadQueue();
+      } else {
+        showAccessPanel('verify.access.denied');
+        status.textContent = t('verify.access.denied');
+      }
     })();
   </script>
 </body>

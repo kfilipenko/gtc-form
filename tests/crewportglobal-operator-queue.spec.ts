@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test';
 
+const operatorAccessToken =
+  process.env.CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN ||
+  process.env.CPG_OPERATOR_ACCESS_TOKEN ||
+  'crewportglobal-local-operator';
+
 test('operator queue page renders submitted drafts from API', async ({ page, request }) => {
   const unique = Date.now();
   const seafarerEmail = `ui.queue.seafarer.${unique}@example.com`;
@@ -9,11 +14,24 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
       role: 'seafarer',
       email: seafarerEmail,
       full_name: 'Operator Queue Seafarer',
+      rank: 'Second Officer',
+      department: 'deck',
       availability_status: 'available_now',
+      document_metadata: {
+        certificate_status: 'ready',
+        stcw_status: 'collecting',
+        passport_expiry: '2028-02-20',
+        medical_expiry: '2027-03-15',
+        visa_status: 'required',
+        notes: 'Visa appointment scheduled.',
+      },
     },
   });
   expect(createResponse.ok()).toBeTruthy();
 
+  await page.addInitScript((token) => {
+    window.sessionStorage.setItem('crewportglobal.operatorAccessToken', token);
+  }, operatorAccessToken);
   await page.goto('/verify/');
 
   await expect(page.locator('#queue-status')).toContainText('Queue loaded');
@@ -26,6 +44,13 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await page.locator('#filter-role').selectOption('seafarer');
   const queueRow = page.locator('#queue-body tr', { hasText: seafarerEmail }).first();
   await queueRow.locator('.queue-open').click();
+  await expect(page.locator('#details-sections')).toContainText('Registration');
+  await expect(page.locator('#details-sections')).toContainText('Seafarer profile');
+  await expect(page.locator('#details-sections')).toContainText('Document readiness');
+  await expect(page.locator('#details-sections')).toContainText(seafarerEmail);
+  await expect(page.locator('#details-sections')).toContainText('Second Officer');
+  await expect(page.locator('#details-sections')).toContainText('2028-02-20');
+  await expect(page.locator('#details-sections')).toContainText('Visa appointment scheduled.');
   await expect(page.locator('#details-json')).toContainText(seafarerEmail);
   await expect(page.locator('#details-json')).toContainText('seafarer_profile');
 

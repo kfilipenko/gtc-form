@@ -24,6 +24,19 @@ do
 done
 
 if [[ "${CPG_SYNC_NGINX:-1}" == "1" ]]; then
+  OPERATOR_ACCESS_SNIPPET="${CPG_OPERATOR_ACCESS_SNIPPET:-/etc/nginx/snippets/crewportglobal-operator-access.conf}"
+  if [[ ! -f "$OPERATOR_ACCESS_SNIPPET" ]]; then
+    operator_token="${CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN:-${CPG_OPERATOR_ACCESS_TOKEN:-}}"
+    if [[ -z "$operator_token" ]]; then
+      operator_token="$(openssl rand -hex 32)"
+    fi
+    tmp_snippet="$(mktemp)"
+    printf 'fastcgi_param CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN "%s";\n' "$operator_token" > "$tmp_snippet"
+    sudo install -m 0640 -o root -g www-data "$tmp_snippet" "$OPERATOR_ACCESS_SNIPPET"
+    rm -f "$tmp_snippet"
+    echo "Created CrewPortGlobal operator access snippet: $OPERATOR_ACCESS_SNIPPET"
+  fi
+
   sudo cp projects/crewportglobal/deploy/nginx/crewportglobal.com.conf "$NGINX_SITE"
   sudo nginx -t
   sudo systemctl reload nginx

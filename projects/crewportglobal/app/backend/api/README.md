@@ -6,7 +6,7 @@ This directory contains the first implementation slice for registration draft en
 
 - CPG-BE-002: registration draft API endpoints
 
-The current implementation provides runtime handlers and DB writes for draft create/get/update, operator review decisions and reviewed vacancy listing.
+The current implementation provides runtime handlers and DB writes for draft create/get/update, operator review decisions, reviewed vacancy listing and a basic token boundary for operator-only routes.
 
 ## Planned endpoints
 
@@ -25,7 +25,26 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - runtime router/handlers: implemented in public/index.php
 - persistence logic: minimal DB writes implemented for draft flow
 - vacancy publication logic: public vacancies are returned only when the vacancy is published and the employer company is verified
-- auth/session logic: not implemented
+- operator access boundary: `GET /api/v1/operator/review-queue` and `PATCH /api/v1/operator/review-queue/{draft_id}/status` require `X-CPG-Operator-Token` or `Authorization: Bearer ...`
+- full login/session logic: not implemented
+
+## Operator access token
+
+Set one of these environment variables in the API runtime:
+
+```bash
+CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN=replace-with-secret
+# or
+CPG_OPERATOR_ACCESS_TOKEN=replace-with-secret
+```
+
+For nginx/FPM publication, the deploy config reads the token from:
+
+```text
+/etc/nginx/snippets/crewportglobal-operator-access.conf
+```
+
+The publish script creates that local snippet if it is missing. The secret is not stored in the repository.
 
 ## Local run example
 
