@@ -173,6 +173,7 @@
               <option value="all" data-i18n="verify.filter.all">All</option>
               <option value="seafarer_profile" data-i18n="verify.filter.seafarerType">Seafarer profile</option>
               <option value="company_verification" data-i18n="verify.filter.companyType">Company verification</option>
+              <option value="vacancy_request" data-i18n="verify.filter.vacancyType">Vacancy request</option>
             </select>
           </div>
           <div class="queue-control">
@@ -193,6 +194,8 @@
               <option value="in_review">in_review</option>
               <option value="unverified">unverified</option>
               <option value="submitted">submitted</option>
+              <option value="published">published</option>
+              <option value="rejected">rejected</option>
             </select>
           </div>
           <div class="queue-control">
@@ -260,6 +263,7 @@
         'verify.filter.all': 'All',
         'verify.filter.seafarerType': 'Seafarer profile',
         'verify.filter.companyType': 'Company verification',
+        'verify.filter.vacancyType': 'Vacancy request',
         'verify.sort.updatedDesc': 'Updated desc',
         'verify.sort.updatedAsc': 'Updated asc',
         'verify.sort.createdDesc': 'Created desc',
@@ -309,6 +313,7 @@
         'verify.filter.all': 'Все',
         'verify.filter.seafarerType': 'Профиль моряка',
         'verify.filter.companyType': 'Проверка компании',
+        'verify.filter.vacancyType': 'Заявка на вакансию',
         'verify.sort.updatedDesc': 'Сначала новые (updated)',
         'verify.sort.updatedAsc': 'Сначала старые (updated)',
         'verify.sort.createdDesc': 'Сначала новые (created)',
@@ -519,7 +524,7 @@
         }
       }
 
-      async function applyDecision(draftId, decision) {
+      async function applyDecision(draftId, decision, queueType) {
         if (!draftId || !decision) {
           return;
         }
@@ -534,6 +539,9 @@
         status.textContent = t('verify.action.saving');
         try {
           const requestBody = { decision };
+          if (queueType) {
+            requestBody.queue_type = queueType;
+          }
           if (note) {
             requestBody.note = note;
           }
@@ -587,9 +595,9 @@
             <td>
               <div class="inline-actions">
                 <button type="button" class="button secondary queue-open" data-draft-id="${item.draft_id || ''}">${t('verify.action.open')}</button>
-                <button type="button" class="button secondary queue-decision" data-draft-id="${item.draft_id || ''}" data-decision="start_review">${t('verify.action.startReview')}</button>
-                <button type="button" class="button secondary queue-decision" data-draft-id="${item.draft_id || ''}" data-decision="needs_correction">${t('verify.action.needsCorrection')}</button>
-                <button type="button" class="button secondary queue-decision" data-draft-id="${item.draft_id || ''}" data-decision="reviewed">${t('verify.action.reviewed')}</button>
+                <button type="button" class="button secondary queue-decision" data-draft-id="${item.draft_id || ''}" data-queue-type="${item.queue_type || ''}" data-decision="start_review">${t('verify.action.startReview')}</button>
+                <button type="button" class="button secondary queue-decision" data-draft-id="${item.draft_id || ''}" data-queue-type="${item.queue_type || ''}" data-decision="needs_correction">${t('verify.action.needsCorrection')}</button>
+                <button type="button" class="button secondary queue-decision" data-draft-id="${item.draft_id || ''}" data-queue-type="${item.queue_type || ''}" data-decision="reviewed">${t('verify.action.reviewed')}</button>
               </div>
             </td>
           `;
@@ -608,7 +616,8 @@
           button.addEventListener('click', () => {
             applyDecision(
               button.getAttribute('data-draft-id') || '',
-              button.getAttribute('data-decision') || ''
+              button.getAttribute('data-decision') || '',
+              button.getAttribute('data-queue-type') || ''
             );
           });
         });

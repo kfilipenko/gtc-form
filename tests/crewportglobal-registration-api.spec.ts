@@ -224,6 +224,97 @@ test('employer flow creates and updates company draft context', async ({ request
   expect(patchedCompany.role_in_company).toBe('owner');
 });
 
+test('employer vacancy request flows through review to public vacancy board', async ({ request }) => {
+  const unique = Date.now();
+  const email = `api.vacancy.${unique}@example.com`;
+
+  const createResponse = await request.post('/registration/drafts', {
+    data: {
+      role: 'employer',
+      role_in_company: 'recruiter',
+      email,
+      full_name: 'Vacancy API Employer',
+      company_name: 'Verified Vacancy Marine',
+      country_code: 'AE',
+      registration_number: `AE-VAC-${unique}`,
+      vessel: {
+        vessel_name: 'MV Published Star',
+        vessel_type: 'Bulk Carrier',
+        imo_number: 'IMO9101234',
+      },
+      vacancy: {
+        vacancy_title: 'Chief Officer',
+        rank: 'Chief Officer',
+        department: 'deck',
+        vessel_type: 'Bulk Carrier',
+        join_date: '2026-08-15',
+        contract_duration: '4 months +/- 1',
+        salary_min_usd: 6500,
+        salary_max_usd: 7200,
+        currency: 'USD',
+        employer_country_code: 'AE',
+        requirements: 'COC, bulk carrier experience and valid medical certificate.',
+      },
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+
+  const created = (await createResponse.json()) as DraftResponse;
+  expect(created.ok).toBe(true);
+  expect(created.role).toBe('employer');
+  const vacancy = created.payload.vacancy_request as Record<string, unknown>;
+  expect(vacancy.vacancy_title).toBe('Chief Officer');
+  expect(vacancy.department).toBe('deck');
+  expect(vacancy.publication_status).toBe('submitted_for_human_review');
+
+  const queueResponse = await request.get('/operator/review-queue');
+  expect(queueResponse.status()).toBe(200);
+  const queueBody = (await queueResponse.json()) as {
+    queue: Array<Record<string, unknown>>;
+  };
+  const vacancyQueueItem = queueBody.queue.find((item) => {
+    return item.draft_id === created.draft_id && item.queue_type === 'vacancy_request';
+  });
+  expect(vacancyQueueItem).toBeTruthy();
+
+  const companyDecision = await request.patch(`/operator/review-queue/${created.draft_id}/status`, {
+    data: {
+      decision: 'reviewed',
+      queue_type: 'company_verification',
+    },
+  });
+  expect(companyDecision.status()).toBe(200);
+  const companyDecisionBody = (await companyDecision.json()) as Record<string, unknown>;
+  expect(companyDecisionBody.new_status).toBe('verified');
+
+  const vacancyDecision = await request.patch(`/operator/review-queue/${created.draft_id}/status`, {
+    data: {
+      decision: 'reviewed',
+      queue_type: 'vacancy_request',
+    },
+  });
+  expect(vacancyDecision.status()).toBe(200);
+  const vacancyDecisionBody = (await vacancyDecision.json()) as Record<string, unknown>;
+  expect(vacancyDecisionBody.new_status).toBe('published');
+  expect(vacancyDecisionBody.vacancy_request_id).toBe(vacancy.vacancy_request_id);
+
+  const publicVacanciesResponse = await request.get('/vacancies');
+  expect(publicVacanciesResponse.status()).toBe(200);
+  const publicVacanciesBody = (await publicVacanciesResponse.json()) as {
+    ok: boolean;
+    vacancies: Array<Record<string, unknown>>;
+  };
+  expect(publicVacanciesBody.ok).toBe(true);
+  const publicVacancy = publicVacanciesBody.vacancies.find((item) => {
+    return item.vacancy_request_id === vacancy.vacancy_request_id;
+  });
+  expect(publicVacancy).toBeTruthy();
+  expect(publicVacancy?.company_name).toBe('Verified Vacancy Marine');
+  expect(publicVacancy?.vessel_type).toBe('Bulk Carrier');
+  expect(publicVacancy?.salary_min_usd).toBe('6500.00');
+  expect(publicVacancy?.salary_max_usd).toBe('7200.00');
+});
+
 test('operator review queue returns submitted seafarer and company drafts', async ({ request }) => {
   const unique = Date.now();
 

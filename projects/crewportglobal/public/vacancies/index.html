@@ -186,6 +186,61 @@
       align-items: start;
     }
 
+    .live-card {
+      display: grid;
+      gap: 18px;
+      border-color: rgba(86, 210, 226, 0.22);
+      background:
+        linear-gradient(180deg, rgba(86, 210, 226, 0.1), rgba(255, 255, 255, 0.03)),
+        rgba(255, 255, 255, 0.03);
+    }
+
+    .live-vacancy-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .live-vacancy-item {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .live-vacancy-item h3 {
+      margin: 0;
+      color: var(--text-on-dark);
+      font-size: 22px;
+      letter-spacing: -0.02em;
+    }
+
+    .vacancy-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .vacancy-meta span,
+    .vacancy-requirements {
+      color: var(--muted-on-dark);
+      line-height: 1.55;
+    }
+
+    .vacancy-meta span {
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.05);
+      font-size: 13px;
+    }
+
+    .vacancy-requirements {
+      margin: 0;
+      font-size: 15px;
+    }
+
     .empty-card {
       gap: 18px;
       background:
@@ -371,56 +426,62 @@
         <div class="filter-grid app-search-grid">
           <label class="filter-field">
             <strong data-i18n="vacancies.filters.position">Position</strong>
-            <select>
-              <option data-i18n="vacancies.filters.position.option1">Any position</option>
-              <option data-i18n="vacancies.filters.position.option2">Deck officer</option>
-              <option data-i18n="vacancies.filters.position.option3">Engine officer</option>
-              <option data-i18n="vacancies.filters.position.option4">Rating</option>
+            <select id="vacancy-filter-position">
+              <option value="all" data-i18n="vacancies.filters.position.option1">Any position</option>
+              <option value="deck" data-i18n="vacancies.filters.position.option2">Deck officer</option>
+              <option value="engine" data-i18n="vacancies.filters.position.option3">Engine officer</option>
+              <option value="rating" data-i18n="vacancies.filters.position.option4">Rating</option>
             </select>
           </label>
           <label class="filter-field">
             <strong data-i18n="vacancies.filters.vessel">Vessel type</strong>
-            <select>
-              <option data-i18n="vacancies.filters.vessel.option1">Any vessel type</option>
-              <option data-i18n="vacancies.filters.vessel.option2">Bulk carrier</option>
-              <option data-i18n="vacancies.filters.vessel.option3">Tanker</option>
-              <option data-i18n="vacancies.filters.vessel.option4">Offshore</option>
+            <select id="vacancy-filter-vessel">
+              <option value="all" data-i18n="vacancies.filters.vessel.option1">Any vessel type</option>
+              <option value="bulk" data-i18n="vacancies.filters.vessel.option2">Bulk carrier</option>
+              <option value="tanker" data-i18n="vacancies.filters.vessel.option3">Tanker</option>
+              <option value="offshore" data-i18n="vacancies.filters.vessel.option4">Offshore</option>
             </select>
           </label>
           <label class="filter-field">
             <strong data-i18n="vacancies.filters.salary">Salary</strong>
-            <select>
-              <option data-i18n="vacancies.filters.salary.option1">Any salary band</option>
-              <option data-i18n="vacancies.filters.salary.option2">Published on request</option>
-              <option data-i18n="vacancies.filters.salary.option3">Officer range</option>
-              <option data-i18n="vacancies.filters.salary.option4">Crew range</option>
+            <select id="vacancy-filter-salary">
+              <option value="all" data-i18n="vacancies.filters.salary.option1">Any salary band</option>
+              <option value="request" data-i18n="vacancies.filters.salary.option2">Published on request</option>
+              <option value="officer" data-i18n="vacancies.filters.salary.option3">Officer range</option>
+              <option value="crew" data-i18n="vacancies.filters.salary.option4">Crew range</option>
             </select>
           </label>
           <label class="filter-field">
             <strong data-i18n="vacancies.filters.joinDate">Join date</strong>
-            <input type="text" placeholder="Month or embarkation window" data-i18n-placeholder="vacancies.filters.joinDate.placeholder">
+            <input id="vacancy-filter-join" type="text" placeholder="Month or embarkation window" data-i18n-placeholder="vacancies.filters.joinDate.placeholder">
           </label>
           <label class="filter-field">
             <strong data-i18n="vacancies.filters.duration">Duration</strong>
-            <select>
-              <option data-i18n="vacancies.filters.duration.option1">Any duration</option>
-              <option data-i18n="vacancies.filters.duration.option2">Short contract</option>
-              <option data-i18n="vacancies.filters.duration.option3">Standard contract</option>
-              <option data-i18n="vacancies.filters.duration.option4">Relief assignment</option>
+            <select id="vacancy-filter-duration">
+              <option value="all" data-i18n="vacancies.filters.duration.option1">Any duration</option>
+              <option value="short" data-i18n="vacancies.filters.duration.option2">Short contract</option>
+              <option value="standard" data-i18n="vacancies.filters.duration.option3">Standard contract</option>
+              <option value="relief" data-i18n="vacancies.filters.duration.option4">Relief assignment</option>
             </select>
           </label>
           <label class="filter-field">
             <strong data-i18n="vacancies.filters.country">Employer country</strong>
-            <input type="text" placeholder="Country or region" data-i18n-placeholder="vacancies.filters.country.placeholder">
+            <input id="vacancy-filter-country" type="text" placeholder="Country or region" data-i18n-placeholder="vacancies.filters.country.placeholder">
           </label>
         </div>
         <div class="filter-actions">
           <p class="field-note" data-i18n="vacancies.filters.copy">These filters help you prepare for vacancy search. The action below opens the current public availability block.</p>
-          <a class="button primary" href="#vacancy-empty-state" data-i18n="vacancies.filters.cta">Search Vacancies</a>
+          <a id="vacancy-filter-apply" class="button primary" href="#vacancy-results" data-i18n="vacancies.filters.cta">Search Vacancies</a>
         </div>
       </section>
 
-      <section class="vacancy-grid app-market-grid">
+      <section class="vacancy-grid app-market-grid" id="vacancy-results">
+        <article class="card vacancy-card live-card" id="vacancy-live-state" hidden>
+          <p class="eyebrow" data-i18n="vacancies.live.eyebrow">Reviewed vacancies</p>
+          <h2 id="vacancy-live-title" data-i18n="vacancies.live.title">Published maritime vacancies</h2>
+          <p id="vacancy-live-status" class="lead-copy" data-i18n="vacancies.live.loading">Loading reviewed vacancies...</p>
+          <div id="vacancy-live-list" class="live-vacancy-list"></div>
+        </article>
         <article class="card vacancy-card empty-card app-empty" id="vacancy-empty-state">
           <p class="eyebrow" data-i18n="vacancies.empty.eyebrow">Current public availability</p>
           <h2 data-i18n="vacancies.empty.title">No public vacancies are available yet</h2>
@@ -497,6 +558,20 @@
         'vacancies.filters.country.placeholder': 'Country or region',
         'vacancies.filters.copy': 'These filters help you prepare for vacancy search. The action below opens the current public availability block.',
         'vacancies.filters.cta': 'Search Vacancies',
+        'vacancies.live.eyebrow': 'Reviewed vacancies',
+        'vacancies.live.title': 'Published maritime vacancies',
+        'vacancies.live.loading': 'Loading reviewed vacancies...',
+        'vacancies.live.count': '{count} reviewed vacancies available',
+        'vacancies.live.emptyFiltered': 'No reviewed vacancies match the current filters.',
+        'vacancies.live.error': 'Could not load reviewed vacancies.',
+        'vacancies.live.company': 'Company',
+        'vacancies.live.vessel': 'Vessel',
+        'vacancies.live.joinDate': 'Join',
+        'vacancies.live.duration': 'Duration',
+        'vacancies.live.salary': 'Salary',
+        'vacancies.live.salaryRequest': 'Salary on request',
+        'vacancies.live.country': 'Country',
+        'vacancies.live.requirements': 'Requirements',
         'vacancies.empty.eyebrow': 'Current public availability',
         'vacancies.empty.title': 'No public vacancies are available yet',
         'vacancies.empty.copy': 'Create a seafarer profile to be ready to apply, or prepare a vacancy request if you represent an employer.',
@@ -556,6 +631,20 @@
         'vacancies.filters.country.placeholder': 'Страна или регион',
         'vacancies.filters.copy': 'Эти фильтры помогают подготовиться к поиску вакансий. Кнопка ниже открывает блок с текущей публичной доступностью.',
         'vacancies.filters.cta': 'Показать доступные вакансии',
+        'vacancies.live.eyebrow': 'Проверенные вакансии',
+        'vacancies.live.title': 'Опубликованные морские вакансии',
+        'vacancies.live.loading': 'Загружаем проверенные вакансии...',
+        'vacancies.live.count': 'Доступно проверенных вакансий: {count}',
+        'vacancies.live.emptyFiltered': 'По текущим фильтрам проверенных вакансий нет.',
+        'vacancies.live.error': 'Не удалось загрузить проверенные вакансии.',
+        'vacancies.live.company': 'Компания',
+        'vacancies.live.vessel': 'Судно',
+        'vacancies.live.joinDate': 'Посадка',
+        'vacancies.live.duration': 'Длительность',
+        'vacancies.live.salary': 'Зарплата',
+        'vacancies.live.salaryRequest': 'Зарплата по запросу',
+        'vacancies.live.country': 'Страна',
+        'vacancies.live.requirements': 'Требования',
         'vacancies.empty.eyebrow': 'Текущая публичная доступность',
         'vacancies.empty.title': 'Публичных вакансий пока нет',
         'vacancies.empty.copy': 'Создайте профиль моряка, чтобы быть готовым к отклику, или подготовьте запрос на вакансию, если вы представляете работодателя.',
@@ -579,5 +668,227 @@
     };
   </script>
   <script src="../assets/crewportglobal-public-i18n.js" defer></script>
+  <script>
+    (function () {
+      const liveState = document.getElementById('vacancy-live-state');
+      const emptyState = document.getElementById('vacancy-empty-state');
+      const liveStatus = document.getElementById('vacancy-live-status');
+      const liveList = document.getElementById('vacancy-live-list');
+      const filterPosition = document.getElementById('vacancy-filter-position');
+      const filterVessel = document.getElementById('vacancy-filter-vessel');
+      const filterSalary = document.getElementById('vacancy-filter-salary');
+      const filterJoin = document.getElementById('vacancy-filter-join');
+      const filterDuration = document.getElementById('vacancy-filter-duration');
+      const filterCountry = document.getElementById('vacancy-filter-country');
+      const filterApply = document.getElementById('vacancy-filter-apply');
+      let vacancies = [];
+      let loadFailed = false;
+
+      function getLanguage() {
+        const lang = document.documentElement.lang || 'en';
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang] ? lang : 'en';
+      }
+
+      function t(key, values) {
+        const lang = getLanguage();
+        const raw = window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang][key] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key] || key;
+        if (!values) {
+          return raw;
+        }
+        return Object.entries(values).reduce((result, entry) => result.replace(`{${entry[0]}}`, String(entry[1])), raw);
+      }
+
+      function hasText(value) {
+        return typeof value === 'string' && value.trim() !== '';
+      }
+
+      function normalize(value) {
+        return String(value || '').trim().toLowerCase();
+      }
+
+      function salaryText(vacancy) {
+        if (hasText(vacancy.salary_text)) {
+          return vacancy.salary_text;
+        }
+        const currency = vacancy.currency || 'USD';
+        if (hasText(vacancy.salary_min_usd) && hasText(vacancy.salary_max_usd)) {
+          return `${currency} ${vacancy.salary_min_usd} - ${vacancy.salary_max_usd}`;
+        }
+        if (hasText(vacancy.salary_min_usd)) {
+          return `${currency} ${vacancy.salary_min_usd}+`;
+        }
+        if (hasText(vacancy.salary_max_usd)) {
+          return `${currency} up to ${vacancy.salary_max_usd}`;
+        }
+        return t('vacancies.live.salaryRequest');
+      }
+
+      function matchesSelect(value, fields) {
+        if (value === 'all') {
+          return true;
+        }
+        const haystack = fields.map(normalize).join(' ');
+        if (value === 'rating') {
+          return ['rating', 'able seaman', 'ab', 'oiler', 'motorman', 'cook'].some((word) => haystack.includes(word));
+        }
+        return haystack.includes(value);
+      }
+
+      function matchesDuration(value, duration) {
+        if (value === 'all') {
+          return true;
+        }
+        const text = normalize(duration);
+        if (value === 'short') {
+          return text.includes('1') || text.includes('2') || text.includes('3') || text.includes('short');
+        }
+        if (value === 'standard') {
+          return text.includes('4') || text.includes('5') || text.includes('6') || text.includes('standard');
+        }
+        if (value === 'relief') {
+          return text.includes('relief') || text.includes('replacement');
+        }
+        return true;
+      }
+
+      function matchesSalary(value, vacancy) {
+        if (value === 'all') {
+          return true;
+        }
+        const min = Number(vacancy.salary_min_usd || 0);
+        const max = Number(vacancy.salary_max_usd || 0);
+        if (value === 'request') {
+          return !min && !max;
+        }
+        if (value === 'officer') {
+          return max >= 4000 || min >= 4000;
+        }
+        if (value === 'crew') {
+          return (max > 0 && max < 4000) || normalize(vacancy.rank).includes('rating');
+        }
+        return true;
+      }
+
+      function filteredVacancies() {
+        const joinNeedle = normalize(filterJoin.value);
+        const countryNeedle = normalize(filterCountry.value);
+
+        return vacancies.filter((vacancy) => {
+          const positionOk = matchesSelect(filterPosition.value, [
+            vacancy.rank,
+            vacancy.vacancy_title,
+            vacancy.department
+          ]);
+          const vesselOk = matchesSelect(filterVessel.value, [vacancy.vessel_type, vacancy.vessel_name]);
+          const salaryOk = matchesSalary(filterSalary.value, vacancy);
+          const durationOk = matchesDuration(filterDuration.value, vacancy.contract_duration);
+          const joinOk = !joinNeedle || normalize(vacancy.join_date).includes(joinNeedle);
+          const countryOk = !countryNeedle || [
+            vacancy.employer_country_code,
+            vacancy.company_name,
+            vacancy.company_type
+          ].map(normalize).join(' ').includes(countryNeedle);
+          return positionOk && vesselOk && salaryOk && durationOk && joinOk && countryOk;
+        });
+      }
+
+      function addMeta(row, label, value) {
+        if (!hasText(value)) {
+          return;
+        }
+        const span = document.createElement('span');
+        span.textContent = `${label}: ${value}`;
+        row.appendChild(span);
+      }
+
+      function renderVacancyCard(vacancy) {
+        const item = document.createElement('article');
+        item.className = 'live-vacancy-item';
+
+        const title = document.createElement('h3');
+        title.textContent = vacancy.vacancy_title || vacancy.rank || 'Maritime vacancy';
+        item.appendChild(title);
+
+        const meta = document.createElement('div');
+        meta.className = 'vacancy-meta';
+        addMeta(meta, t('vacancies.live.company'), vacancy.company_name);
+        addMeta(meta, t('vacancies.live.vessel'), vacancy.vessel_name || vacancy.vessel_type);
+        addMeta(meta, t('vacancies.live.joinDate'), vacancy.join_date);
+        addMeta(meta, t('vacancies.live.duration'), vacancy.contract_duration);
+        addMeta(meta, t('vacancies.live.salary'), salaryText(vacancy));
+        addMeta(meta, t('vacancies.live.country'), vacancy.employer_country_code);
+        item.appendChild(meta);
+
+        if (hasText(vacancy.requirements)) {
+          const requirements = document.createElement('p');
+          requirements.className = 'vacancy-requirements';
+          requirements.textContent = `${t('vacancies.live.requirements')}: ${vacancy.requirements}`;
+          item.appendChild(requirements);
+        }
+
+        return item;
+      }
+
+      function renderVacancies() {
+        liveList.innerHTML = '';
+
+        if (loadFailed) {
+          liveState.hidden = false;
+          emptyState.hidden = false;
+          liveStatus.textContent = t('vacancies.live.error');
+          return;
+        }
+
+        if (vacancies.length === 0) {
+          liveState.hidden = true;
+          emptyState.hidden = false;
+          return;
+        }
+
+        const filtered = filteredVacancies();
+        liveState.hidden = false;
+        emptyState.hidden = true;
+        liveStatus.textContent = filtered.length > 0
+          ? t('vacancies.live.count', { count: filtered.length })
+          : t('vacancies.live.emptyFiltered');
+
+        filtered.forEach((vacancy) => {
+          liveList.appendChild(renderVacancyCard(vacancy));
+        });
+      }
+
+      async function loadVacancies() {
+        liveState.hidden = false;
+        liveStatus.textContent = t('vacancies.live.loading');
+        try {
+          const response = await fetch('/api/v1/vacancies');
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || !payload || payload.ok !== true) {
+            throw new Error('vacancies_load_failed');
+          }
+          vacancies = Array.isArray(payload.vacancies) ? payload.vacancies : [];
+          loadFailed = false;
+          renderVacancies();
+        } catch (error) {
+          vacancies = [];
+          loadFailed = true;
+          renderVacancies();
+          console.error(error);
+        }
+      }
+
+      [filterPosition, filterVessel, filterSalary, filterJoin, filterDuration, filterCountry].forEach((control) => {
+        control.addEventListener('change', renderVacancies);
+        control.addEventListener('input', renderVacancies);
+      });
+
+      filterApply.addEventListener('click', () => {
+        renderVacancies();
+      });
+
+      window.addEventListener('crewportglobal:languagechange', renderVacancies);
+      loadVacancies();
+    })();
+  </script>
 </body>
 </html>

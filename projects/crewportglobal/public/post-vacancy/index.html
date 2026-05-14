@@ -215,11 +215,46 @@
                 <strong data-i18n="post.form.imo">IMO number</strong>
                 <input id="post-imo" type="text" data-i18n-placeholder="post.form.imo.placeholder" placeholder="IMO9001234">
               </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.vacancyTitle">Vacancy title / rank</strong>
+                <input id="post-vacancy-title" type="text" data-i18n-placeholder="post.form.vacancyTitle.placeholder" placeholder="Chief Officer">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.department">Department</strong>
+                <select id="post-department">
+                  <option value="" data-i18n="post.form.department.any">Select department</option>
+                  <option value="deck" data-i18n="post.form.department.deck">Deck</option>
+                  <option value="engine" data-i18n="post.form.department.engine">Engine</option>
+                  <option value="catering" data-i18n="post.form.department.catering">Catering</option>
+                  <option value="hotel" data-i18n="post.form.department.hotel">Hotel</option>
+                  <option value="other" data-i18n="post.form.department.other">Other</option>
+                </select>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.joinDate">Joining date</strong>
+                <input id="post-join-date" type="date">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.duration">Contract duration</strong>
+                <input id="post-duration" type="text" data-i18n-placeholder="post.form.duration.placeholder" placeholder="4 months +/- 1">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.salaryMin">Salary min USD</strong>
+                <input id="post-salary-min" type="number" min="0" step="100" data-i18n-placeholder="post.form.salaryMin.placeholder" placeholder="6500">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.salaryMax">Salary max USD</strong>
+                <input id="post-salary-max" type="number" min="0" step="100" data-i18n-placeholder="post.form.salaryMax.placeholder" placeholder="7200">
+              </label>
+              <label class="field-card full">
+                <strong data-i18n="post.form.requirements">Key requirements</strong>
+                <textarea id="post-requirements" maxlength="4000" data-i18n-placeholder="post.form.requirements.placeholder" placeholder="COC, tanker endorsement, Schengen readiness, mixed crew experience"></textarea>
+              </label>
             </div>
             <div class="inline-actions">
-              <button id="post-submit" class="button primary" type="submit" data-i18n="post.form.submit">Save Employer/Vessel Draft</button>
+              <button id="post-submit" class="button primary" type="submit" data-i18n="post.form.submit">Save Vacancy Request</button>
             </div>
-            <p id="post-status" class="status-note" data-i18n="post.form.status">This form saves employer, company and vessel draft context in backend.</p>
+            <p id="post-status" class="status-note" data-i18n="post.form.status">This form saves employer, company, vessel and vacancy request context in backend.</p>
             <p id="post-status-detail" class="status-note"></p>
           </form>
         </article>
@@ -299,13 +334,31 @@
         'post.form.vesselType.placeholder': 'Bulk Carrier',
         'post.form.imo': 'IMO number',
         'post.form.imo.placeholder': 'IMO9001234',
-        'post.form.submit': 'Save Employer/Vessel Draft',
-        'post.form.status': 'This form saves employer, company and vessel draft context in backend.',
+        'post.form.vacancyTitle': 'Vacancy title / rank',
+        'post.form.vacancyTitle.placeholder': 'Chief Officer',
+        'post.form.department': 'Department',
+        'post.form.department.any': 'Select department',
+        'post.form.department.deck': 'Deck',
+        'post.form.department.engine': 'Engine',
+        'post.form.department.catering': 'Catering',
+        'post.form.department.hotel': 'Hotel',
+        'post.form.department.other': 'Other',
+        'post.form.joinDate': 'Joining date',
+        'post.form.duration': 'Contract duration',
+        'post.form.duration.placeholder': '4 months +/- 1',
+        'post.form.salaryMin': 'Salary min USD',
+        'post.form.salaryMin.placeholder': '6500',
+        'post.form.salaryMax': 'Salary max USD',
+        'post.form.salaryMax.placeholder': '7200',
+        'post.form.requirements': 'Key requirements',
+        'post.form.requirements.placeholder': 'COC, tanker endorsement, Schengen readiness, mixed crew experience',
+        'post.form.submit': 'Save Vacancy Request',
+        'post.form.status': 'This form saves employer, company, vessel and vacancy request context in backend.',
         'post.form.validation': 'Work email and company name are required.',
-        'post.form.saving': 'Saving employer draft...',
-        'post.form.saved': 'Employer draft saved successfully.',
-        'post.form.error': 'Could not save employer draft. Please try again.',
-        'post.form.savedDetail': 'Draft ID: {draftId} | Company type: {companyType} | Verification: {verificationStatus} | Contact role: {roleInCompany}',
+        'post.form.saving': 'Saving vacancy request...',
+        'post.form.saved': 'Vacancy request saved successfully.',
+        'post.form.error': 'Could not save vacancy request. Please try again.',
+        'post.form.savedDetail': 'Draft ID: {draftId} | Company type: {companyType} | Verification: {verificationStatus} | Contact role: {roleInCompany} | Vacancy: {vacancyStatus}',
         'post.side.process.title': 'Candidate review',
         'post.side.process.copy': 'CrewPortGlobal does not imply automatic shortlist delivery or uncontrolled direct outreach. Candidate presentation remains human-guided.',
         'post.side.verification.title': 'Employer verification',
@@ -357,13 +410,31 @@
         'post.form.vesselType.placeholder': 'Bulk Carrier',
         'post.form.imo': 'Номер IMO',
         'post.form.imo.placeholder': 'IMO9001234',
-        'post.form.submit': 'Сохранить черновик работодателя/судна',
-        'post.form.status': 'Эта форма сохраняет черновик работодателя, компании и судна в backend.',
+        'post.form.vacancyTitle': 'Вакансия / должность',
+        'post.form.vacancyTitle.placeholder': 'Chief Officer',
+        'post.form.department': 'Департамент',
+        'post.form.department.any': 'Выберите департамент',
+        'post.form.department.deck': 'Палуба',
+        'post.form.department.engine': 'Машина',
+        'post.form.department.catering': 'Камбуз',
+        'post.form.department.hotel': 'Отель',
+        'post.form.department.other': 'Другое',
+        'post.form.joinDate': 'Дата посадки',
+        'post.form.duration': 'Длительность контракта',
+        'post.form.duration.placeholder': '4 месяца +/- 1',
+        'post.form.salaryMin': 'Зарплата от, USD',
+        'post.form.salaryMin.placeholder': '6500',
+        'post.form.salaryMax': 'Зарплата до, USD',
+        'post.form.salaryMax.placeholder': '7200',
+        'post.form.requirements': 'Ключевые требования',
+        'post.form.requirements.placeholder': 'COC, tanker endorsement, готовность к Schengen, опыт mixed crew',
+        'post.form.submit': 'Сохранить заявку на вакансию',
+        'post.form.status': 'Эта форма сохраняет работодателя, компанию, судно и заявку на вакансию в backend.',
         'post.form.validation': 'Укажите рабочий email и название компании.',
-        'post.form.saving': 'Сохраняем черновик работодателя...',
-        'post.form.saved': 'Черновик работодателя успешно сохранён.',
-        'post.form.error': 'Не удалось сохранить черновик работодателя. Попробуйте ещё раз.',
-        'post.form.savedDetail': 'Draft ID: {draftId} | Тип компании: {companyType} | Верификация: {verificationStatus} | Роль контакта: {roleInCompany}',
+        'post.form.saving': 'Сохраняем заявку на вакансию...',
+        'post.form.saved': 'Заявка на вакансию успешно сохранена.',
+        'post.form.error': 'Не удалось сохранить заявку на вакансию. Попробуйте ещё раз.',
+        'post.form.savedDetail': 'Draft ID: {draftId} | Тип компании: {companyType} | Верификация: {verificationStatus} | Роль контакта: {roleInCompany} | Вакансия: {vacancyStatus}',
         'post.side.process.title': 'Рассмотрение кандидатов',
         'post.side.process.copy': 'CrewPortGlobal не обещает автоматическую выдачу шорт-листа или неконтролируемые прямые контакты. Представление кандидатов остаётся процессом с участием человека.',
         'post.side.verification.title': 'Проверка работодателя',
@@ -404,6 +475,13 @@
       const vesselName = document.getElementById('post-vessel-name');
       const vesselType = document.getElementById('post-vessel-type');
       const imo = document.getElementById('post-imo');
+      const vacancyTitle = document.getElementById('post-vacancy-title');
+      const department = document.getElementById('post-department');
+      const joinDate = document.getElementById('post-join-date');
+      const duration = document.getElementById('post-duration');
+      const salaryMin = document.getElementById('post-salary-min');
+      const salaryMax = document.getElementById('post-salary-max');
+      const requirements = document.getElementById('post-requirements');
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -466,17 +544,42 @@
             delete payload.vessel;
           }
 
+          const vacancyPayload = {
+            vacancy_title: vacancyTitle.value.trim(),
+            rank: vacancyTitle.value.trim(),
+            department: department.value,
+            vessel_type: vesselType.value.trim(),
+            join_date: joinDate.value,
+            contract_duration: duration.value.trim(),
+            salary_min_usd: salaryMin.value,
+            salary_max_usd: salaryMax.value,
+            currency: 'USD',
+            employer_country_code: country.value.trim().toUpperCase(),
+            requirements: requirements.value.trim()
+          };
+          const hasVacancyData = Object.keys(vacancyPayload).some((key) => {
+            if (key === 'currency' || key === 'employer_country_code' || key === 'vessel_type') {
+              return false;
+            }
+            return String(vacancyPayload[key] || '').trim() !== '';
+          });
+          if (hasVacancyData) {
+            payload.vacancy = vacancyPayload;
+          }
+
           const response = await window.CPGDrafts.createOrUpdateDraft(payload, {
             draftId: getDraftIdFromUrl()
           });
 
           status.textContent = t('post.form.saved');
           const companyPayload = response && response.payload && response.payload.company ? response.payload.company : {};
+          const vacancyResponse = response && response.payload && response.payload.vacancy_request ? response.payload.vacancy_request : {};
           statusDetail.textContent = tp('post.form.savedDetail', {
             draftId: response.draft_id || '-',
             companyType: companyPayload.company_type || '-',
             verificationStatus: companyPayload.verification_status || '-',
             roleInCompany: companyPayload.role_in_company || roleInCompany.value,
+            vacancyStatus: vacancyResponse.publication_status || '-'
           });
           window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
           window.localStorage.setItem('crewportglobal.registration.role', role.value === 'crewing_manager' ? 'crewing-manager' : role.value);
