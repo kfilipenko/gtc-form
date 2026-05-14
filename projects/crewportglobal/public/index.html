@@ -139,6 +139,67 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
+    .live-dashboard {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(16, 118, 135, 0.18);
+      background: rgba(16, 118, 135, 0.06);
+    }
+
+    .live-dashboard span {
+      display: grid;
+      gap: 4px;
+      color: var(--muted-on-dark);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .live-dashboard strong {
+      color: var(--paper-strong);
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .live-vacancy-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .live-vacancy-card {
+      display: grid;
+      gap: 10px;
+      padding: 20px;
+      border-radius: 20px;
+      border: 1px solid rgba(16, 118, 135, 0.2);
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    .live-vacancy-card h3 {
+      margin: 0;
+      color: var(--paper-strong);
+      font-size: 22px;
+      letter-spacing: -0.02em;
+    }
+
+    .live-vacancy-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted-on-dark);
+      font-size: 14px;
+    }
+
+    .live-vacancy-meta span {
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
     .vacancy-card {
       display: grid;
       gap: 16px;
@@ -189,6 +250,7 @@
       .value-grid,
       .trust-grid,
       .cta-grid,
+      .live-dashboard,
       .vacancy-meta {
         grid-template-columns: 1fr;
       }
@@ -246,7 +308,7 @@
           </div>
           <div class="app-stats-grid">
             <div class="app-stat">
-              <strong data-i18n="home.stat.vacancies.value">Reviewed</strong>
+              <strong id="home-live-vacancy-count" data-i18n="home.stat.vacancies.value">0</strong>
               <span data-i18n="home.stat.vacancies.label">vacancies only</span>
             </div>
             <div class="app-stat">
@@ -261,6 +323,20 @@
               <strong data-i18n="home.stat.review.value">Human</strong>
               <span data-i18n="home.stat.review.label">review gate</span>
             </div>
+          </div>
+          <div class="live-dashboard" aria-live="polite">
+            <span>
+              <strong id="home-api-status" data-i18n="home.live.api.loading">Checking</strong>
+              <span data-i18n="home.live.api.label">API status</span>
+            </span>
+            <span>
+              <strong id="home-board-status" data-i18n="home.live.board.loading">Loading</strong>
+              <span data-i18n="home.live.board.label">Vacancy board</span>
+            </span>
+            <span>
+              <strong data-i18n="home.live.review.value">Human review</strong>
+              <span data-i18n="home.live.review.label">Publication gate</span>
+            </span>
           </div>
           <p class="trust-note app-chip good" data-i18n="home.hero.trust">CrewPortGlobal does not charge seafarers recruitment or placement fees. Profiles and vacancy requests are reviewed by people before wider publication or candidate presentation.</p>
         </article>
@@ -335,7 +411,8 @@
       <section class="card vacancy-board section-card">
         <p class="eyebrow" data-i18n="home.board.eyebrow">Latest vacancies</p>
         <h2 class="section-title" data-i18n="home.board.title">Current public vacancy board</h2>
-        <p class="section-copy" data-i18n="home.board.copy">No public vacancies are available yet. Employers can prepare a vacancy request while live publication remains limited to real reviewed data.</p>
+        <p id="home-board-copy" class="section-copy" data-i18n="home.board.copy">No public vacancies are available yet. Employers can prepare a vacancy request while live publication remains limited to real reviewed data.</p>
+        <div id="home-live-vacancies" class="live-vacancy-list" hidden></div>
         <div class="vacancy-grid">
           <article class="vacancy-card">
             <div>
@@ -468,14 +545,31 @@
         'home.hero.primaryCta': 'Create Seafarer Profile',
         'home.hero.secondaryCta': 'Prepare Vacancy Request',
         'home.hero.trust': 'CrewPortGlobal does not charge seafarers recruitment or placement fees. Profiles and vacancy requests are reviewed by people before wider publication or candidate presentation.',
-        'home.stat.vacancies.value': 'Reviewed',
-        'home.stat.vacancies.label': 'vacancies only',
+        'home.stat.vacancies.value': '0',
+        'home.stat.vacancies.label': 'reviewed public vacancies',
         'home.stat.cv.value': 'Private',
         'home.stat.cv.label': 'CV visibility',
         'home.stat.fees.value': '0',
         'home.stat.fees.label': 'seafarer recruitment fees',
         'home.stat.review.value': 'Human',
         'home.stat.review.label': 'review gate',
+        'home.live.api.loading': 'Checking',
+        'home.live.api.online': 'Online',
+        'home.live.api.offline': 'Offline',
+        'home.live.api.label': 'API status',
+        'home.live.board.loading': 'Loading',
+        'home.live.board.empty': 'No public listings',
+        'home.live.board.available': '{count} published',
+        'home.live.board.label': 'Vacancy board',
+        'home.live.review.value': 'Human review',
+        'home.live.review.label': 'Publication gate',
+        'home.live.salary': 'Salary',
+        'home.live.salaryRequest': 'On request',
+        'home.live.company': 'Company',
+        'home.live.vessel': 'Vessel',
+        'home.live.join': 'Join',
+        'home.live.country': 'Country',
+        'home.board.copyAvailable': 'Reviewed public vacancies are available now. Open the board for the full list and filters.',
         'home.seafarers.eyebrow': 'For seafarers',
         'home.seafarers.title': 'Build your maritime CV and document profile',
         'home.seafarers.copy': 'Add rank, certificates, availability, contact details and document metadata in one place before you apply.',
@@ -578,14 +672,31 @@
         'home.hero.primaryCta': 'Создать профиль моряка',
         'home.hero.secondaryCta': 'Подготовить запрос на вакансию',
         'home.hero.trust': 'CrewPortGlobal не взимает с моряков сборы за трудоустройство или размещение. Профили и запросы на вакансии проходят ручную проверку до более широкой публикации или представления кандидата.',
-        'home.stat.vacancies.value': 'Проверенные',
-        'home.stat.vacancies.label': 'вакансии только после ревью',
+        'home.stat.vacancies.value': '0',
+        'home.stat.vacancies.label': 'проверенных публичных вакансий',
         'home.stat.cv.value': 'Приватно',
         'home.stat.cv.label': 'видимость CV',
         'home.stat.fees.value': '0',
         'home.stat.fees.label': 'рекрутинговых сборов с моряка',
         'home.stat.review.value': 'Ручная',
         'home.stat.review.label': 'проверка',
+        'home.live.api.loading': 'Проверяем',
+        'home.live.api.online': 'Онлайн',
+        'home.live.api.offline': 'Нет связи',
+        'home.live.api.label': 'Статус API',
+        'home.live.board.loading': 'Загрузка',
+        'home.live.board.empty': 'Публикаций нет',
+        'home.live.board.available': 'Опубликовано: {count}',
+        'home.live.board.label': 'Доска вакансий',
+        'home.live.review.value': 'Ручная проверка',
+        'home.live.review.label': 'Допуск к публикации',
+        'home.live.salary': 'Зарплата',
+        'home.live.salaryRequest': 'По запросу',
+        'home.live.company': 'Компания',
+        'home.live.vessel': 'Судно',
+        'home.live.join': 'Посадка',
+        'home.live.country': 'Страна',
+        'home.board.copyAvailable': 'Проверенные публичные вакансии уже доступны. Откройте доску для полного списка и фильтров.',
         'home.seafarers.eyebrow': 'Для моряков',
         'home.seafarers.title': 'Соберите морское CV и профиль документов',
         'home.seafarers.copy': 'Добавьте должность, сертификаты, доступность, контакты и метаданные документов в одном месте до отклика.',
@@ -684,5 +795,138 @@
     };
   </script>
   <script src="assets/crewportglobal-public-i18n.js" defer></script>
+  <script>
+    (function () {
+      const vacancyCount = document.getElementById('home-live-vacancy-count');
+      const apiStatus = document.getElementById('home-api-status');
+      const boardStatus = document.getElementById('home-board-status');
+      const boardCopy = document.getElementById('home-board-copy');
+      const liveVacancies = document.getElementById('home-live-vacancies');
+      let latestVacancies = [];
+      let latestLoadState = 'loading';
+
+      function getLanguage() {
+        const lang = document.documentElement.lang || 'en';
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang] ? lang : 'en';
+      }
+
+      function t(key, values) {
+        const lang = getLanguage();
+        const raw = window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang][key] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key] || key;
+        if (!values) {
+          return raw;
+        }
+        return Object.entries(values).reduce((result, entry) => result.replace(`{${entry[0]}}`, String(entry[1])), raw);
+      }
+
+      function hasText(value) {
+        return typeof value === 'string' && value.trim() !== '';
+      }
+
+      function salaryText(vacancy) {
+        if (hasText(vacancy.salary_text)) {
+          return vacancy.salary_text;
+        }
+        const currency = vacancy.currency || 'USD';
+        if (hasText(vacancy.salary_min_usd) && hasText(vacancy.salary_max_usd)) {
+          return `${currency} ${vacancy.salary_min_usd} - ${vacancy.salary_max_usd}`;
+        }
+        if (hasText(vacancy.salary_min_usd)) {
+          return `${currency} ${vacancy.salary_min_usd}+`;
+        }
+        if (hasText(vacancy.salary_max_usd)) {
+          return `${currency} ${vacancy.salary_max_usd}`;
+        }
+        return t('home.live.salaryRequest');
+      }
+
+      function addMeta(row, label, value) {
+        if (!hasText(value)) {
+          return;
+        }
+        const item = document.createElement('span');
+        item.textContent = `${label}: ${value}`;
+        row.appendChild(item);
+      }
+
+      function renderVacancy(vacancy) {
+        const article = document.createElement('article');
+        article.className = 'live-vacancy-card';
+
+        const title = document.createElement('h3');
+        title.textContent = vacancy.vacancy_title || vacancy.rank || 'Maritime vacancy';
+        article.appendChild(title);
+
+        const meta = document.createElement('div');
+        meta.className = 'live-vacancy-meta';
+        addMeta(meta, t('home.live.company'), vacancy.company_name);
+        addMeta(meta, t('home.live.vessel'), vacancy.vessel_name || vacancy.vessel_type);
+        addMeta(meta, t('home.live.join'), vacancy.join_date);
+        addMeta(meta, t('home.live.salary'), salaryText(vacancy));
+        addMeta(meta, t('home.live.country'), vacancy.employer_country_code);
+        article.appendChild(meta);
+
+        return article;
+      }
+
+      function renderLiveState() {
+        const count = latestVacancies.length;
+        vacancyCount.textContent = String(count);
+
+        if (latestLoadState === 'error') {
+          apiStatus.textContent = t('home.live.api.offline');
+          boardStatus.textContent = t('home.live.board.empty');
+          liveVacancies.hidden = true;
+          liveVacancies.innerHTML = '';
+          return;
+        }
+
+        apiStatus.textContent = latestLoadState === 'loaded'
+          ? t('home.live.api.online')
+          : t('home.live.api.loading');
+        boardStatus.textContent = count > 0
+          ? t('home.live.board.available', { count })
+          : t('home.live.board.empty');
+        boardCopy.textContent = count > 0
+          ? t('home.board.copyAvailable')
+          : t('home.board.copy');
+
+        liveVacancies.innerHTML = '';
+        if (count === 0) {
+          liveVacancies.hidden = true;
+          return;
+        }
+
+        latestVacancies.slice(0, 3).forEach((vacancy) => {
+          liveVacancies.appendChild(renderVacancy(vacancy));
+        });
+        liveVacancies.hidden = false;
+      }
+
+      async function loadLiveVacancies() {
+        latestLoadState = 'loading';
+        renderLiveState();
+
+        try {
+          const response = await fetch('/api/v1/vacancies');
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || !payload || payload.ok !== true) {
+            throw new Error('home_vacancies_load_failed');
+          }
+          latestVacancies = Array.isArray(payload.vacancies) ? payload.vacancies : [];
+          latestLoadState = 'loaded';
+        } catch (error) {
+          latestVacancies = [];
+          latestLoadState = 'error';
+          console.error(error);
+        }
+
+        renderLiveState();
+      }
+
+      window.addEventListener('crewportglobal:languagechange', renderLiveState);
+      loadLiveVacancies();
+    })();
+  </script>
 </body>
 </html>
