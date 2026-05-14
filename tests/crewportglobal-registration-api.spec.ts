@@ -452,6 +452,46 @@ test('employer vacancy request flows through review to public vacancy board', as
   expect(applicationBody.ok).toBe(true);
   expect(applicationBody.application.application_status).toBe('submitted_for_human_review');
 
+  const applicationId = applicationBody.application.vacancy_application_id as string;
+  const applicationQueueResponse = await request.get('/operator/review-queue');
+  expect(applicationQueueResponse.status()).toBe(200);
+  const applicationQueueBody = (await applicationQueueResponse.json()) as {
+    queue: Array<Record<string, unknown>>;
+  };
+  const applicationQueueItem = applicationQueueBody.queue.find((item) => {
+    return item.queue_type === 'vacancy_application' && item.queue_item_id === applicationId;
+  });
+  expect(applicationQueueItem).toBeTruthy();
+  expect(applicationQueueItem?.status).toBe('submitted_for_human_review');
+
+  const applicationDetailResponse = await request.get(`/operator/review-queue/vacancy-applications/${applicationId}`);
+  expect(applicationDetailResponse.status()).toBe(200);
+  const applicationDetail = (await applicationDetailResponse.json()) as Record<string, unknown>;
+  expect(applicationDetail.queue_type).toBe('vacancy_application');
+  expect((applicationDetail.application as Record<string, unknown>).candidate_note).toBe('Available now with documents ready for review.');
+
+  const applicationStartReview = await request.patch(`/operator/review-queue/${applicationId}/status`, {
+    data: {
+      decision: 'start_review',
+      queue_type: 'vacancy_application',
+    },
+  });
+  expect(applicationStartReview.status()).toBe(200);
+  const applicationStartReviewBody = (await applicationStartReview.json()) as Record<string, unknown>;
+  expect(applicationStartReviewBody.new_status).toBe('in_review');
+  expect(applicationStartReviewBody.vacancy_application_id).toBe(applicationId);
+
+  const applicationReviewed = await request.patch(`/operator/review-queue/${applicationId}/status`, {
+    data: {
+      decision: 'reviewed',
+      queue_type: 'vacancy_application',
+      note: 'Candidate can be presented to employer.',
+    },
+  });
+  expect(applicationReviewed.status()).toBe(200);
+  const applicationReviewedBody = (await applicationReviewed.json()) as Record<string, unknown>;
+  expect(applicationReviewedBody.new_status).toBe('presented');
+
   const mismatchedEmailResponse = await request.post(`/vacancies/${vacancy.vacancy_request_id}/applications`, {
     data: {
       seafarer_draft_id: seafarer.draft_id,

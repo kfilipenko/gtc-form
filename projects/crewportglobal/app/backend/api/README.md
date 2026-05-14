@@ -6,7 +6,7 @@ This directory contains the first implementation slice for registration draft en
 
 - CPG-BE-002: registration draft API endpoints
 
-The current implementation provides runtime handlers and DB writes for draft create/get/update, operator review decisions, reviewed vacancy listing/detail, vacancy applications and a basic token boundary for operator-only routes.
+The current implementation provides runtime handlers and DB writes for draft create/get/update, operator review decisions, reviewed vacancy listing/detail, vacancy applications, vacancy application review and a basic token boundary for operator-only routes.
 
 ## Planned endpoints
 
@@ -14,6 +14,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - GET /api/v1/registration/drafts/{draft_id}
 - PATCH /api/v1/registration/drafts/{draft_id}
 - GET /api/v1/operator/review-queue
+- GET /api/v1/operator/review-queue/vacancy-applications/{vacancy_application_id}
 - PATCH /api/v1/operator/review-queue/{draft_id}/status
 - GET /api/v1/vacancies
 - GET /api/v1/vacancies/{vacancy_request_id}
@@ -28,6 +29,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - persistence logic: minimal DB writes implemented for draft flow
 - vacancy publication logic: public vacancies are returned only when the vacancy is published and the employer company is verified
 - vacancy application logic: seafarers can submit an application only against a reviewed public vacancy, and applications are stored for human review
+- vacancy application review logic: operator queue includes submitted vacancy applications and can move them through `in_review`, `presented` or `rejected`
 - operator access boundary: `GET /api/v1/operator/review-queue` and `PATCH /api/v1/operator/review-queue/{draft_id}/status` require `X-CPG-Operator-Token` or `Authorization: Bearer ...`
 - full login/session logic: not implemented
 
@@ -61,6 +63,7 @@ Then call endpoints under:
 - http://127.0.0.1:8091/api/v1/registration/drafts
 - http://127.0.0.1:8091/api/v1/registration/drafts/{draft_id}
 - http://127.0.0.1:8091/api/v1/operator/review-queue
+- http://127.0.0.1:8091/api/v1/operator/review-queue/vacancy-applications/{vacancy_application_id}
 - http://127.0.0.1:8091/api/v1/vacancies
 - http://127.0.0.1:8091/api/v1/vacancies/{vacancy_request_id}
 
@@ -73,7 +76,7 @@ npm run test:cpg-api
 ```
 
 This suite starts the API web server, applies the registration and marketplace migrations,
-and verifies health/create/get/patch, operator decisions, reviewed vacancy publication, vacancy application flow and validation error cases.
+and verifies health/create/get/patch, operator decisions, reviewed vacancy publication, vacancy application flow, vacancy application operator review and validation error cases.
 
 ## Out of scope here
 

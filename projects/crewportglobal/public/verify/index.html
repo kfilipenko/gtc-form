@@ -289,6 +289,7 @@
               <option value="seafarer_profile" data-i18n="verify.filter.seafarerType">Seafarer profile</option>
               <option value="company_verification" data-i18n="verify.filter.companyType">Company verification</option>
               <option value="vacancy_request" data-i18n="verify.filter.vacancyType">Vacancy request</option>
+              <option value="vacancy_application" data-i18n="verify.filter.applicationType">Vacancy application</option>
             </select>
           </div>
           <div class="queue-control">
@@ -310,6 +311,7 @@
               <option value="unverified">unverified</option>
               <option value="submitted">submitted</option>
               <option value="published">published</option>
+              <option value="presented">presented</option>
               <option value="rejected">rejected</option>
             </select>
           </div>
@@ -343,7 +345,7 @@
         </div>
 
         <section class="details-card">
-          <h2 class="details-title" data-i18n="verify.details.title">Draft details</h2>
+          <h2 class="details-title" data-i18n="verify.details.title">Review item details</h2>
           <div id="details-sections" class="details-sections">
             <p class="details-empty" data-i18n="verify.details.empty">Select a queue item to load full draft details.</p>
           </div>
@@ -391,6 +393,7 @@
         'verify.filter.seafarerType': 'Seafarer profile',
         'verify.filter.companyType': 'Company verification',
         'verify.filter.vacancyType': 'Vacancy request',
+        'verify.filter.applicationType': 'Vacancy application',
         'verify.sort.updatedDesc': 'Updated desc',
         'verify.sort.updatedAsc': 'Updated asc',
         'verify.sort.createdDesc': 'Created desc',
@@ -403,7 +406,7 @@
         'verify.col.summary': 'Summary',
         'verify.col.updated': 'Updated',
         'verify.col.actions': 'Actions',
-        'verify.action.open': 'Open draft',
+        'verify.action.open': 'Open item',
         'verify.action.startReview': 'Start review',
         'verify.action.needsCorrection': 'Needs correction',
         'verify.action.reviewed': 'Mark reviewed',
@@ -420,7 +423,7 @@
         'verify.history.empty': 'No operator review history yet.',
         'verify.history.item': '{created_at} | {decision} | {previous_status} -> {new_status} | {queue_type} | {role} | {source}',
         'verify.history.note': 'Note: {note}',
-        'verify.details.title': 'Draft details',
+        'verify.details.title': 'Review item details',
         'verify.details.empty': 'Select a queue item to load full draft details.',
         'verify.details.loading': 'Loading draft details...',
         'verify.details.error': 'Could not load draft details.',
@@ -431,6 +434,7 @@
         'verify.section.company': 'Company',
         'verify.section.vessel': 'Vessel',
         'verify.section.vacancy': 'Vacancy request',
+        'verify.section.application': 'Vacancy application',
         'verify.field.draftId': 'Draft ID',
         'verify.field.role': 'Role',
         'verify.field.email': 'Email',
@@ -469,6 +473,11 @@
         'verify.field.contractDuration': 'Contract duration',
         'verify.field.salaryRange': 'Salary range',
         'verify.field.requirements': 'Requirements',
+        'verify.field.applicationId': 'Application ID',
+        'verify.field.applicationStatus': 'Application status',
+        'verify.field.contactEmail': 'Contact email',
+        'verify.field.candidateNote': 'Candidate note',
+        'verify.field.vacancyId': 'Vacancy ID',
         'verify.value.empty': '-'
       },
       ru: {
@@ -493,6 +502,7 @@
         'verify.filter.seafarerType': 'Профиль моряка',
         'verify.filter.companyType': 'Проверка компании',
         'verify.filter.vacancyType': 'Заявка на вакансию',
+        'verify.filter.applicationType': 'Отклик на вакансию',
         'verify.sort.updatedDesc': 'Сначала новые (updated)',
         'verify.sort.updatedAsc': 'Сначала старые (updated)',
         'verify.sort.createdDesc': 'Сначала новые (created)',
@@ -505,7 +515,7 @@
         'verify.col.summary': 'Сводка',
         'verify.col.updated': 'Обновлен',
         'verify.col.actions': 'Действия',
-        'verify.action.open': 'Открыть черновик',
+        'verify.action.open': 'Открыть запись',
         'verify.action.startReview': 'Начать проверку',
         'verify.action.needsCorrection': 'Нужна доработка',
         'verify.action.reviewed': 'Отметить: проверено',
@@ -522,7 +532,7 @@
         'verify.history.empty': 'История проверки оператором пока пуста.',
         'verify.history.item': '{created_at} | {decision} | {previous_status} -> {new_status} | {queue_type} | {role} | {source}',
         'verify.history.note': 'Комментарий: {note}',
-        'verify.details.title': 'Детали черновика',
+        'verify.details.title': 'Детали записи проверки',
         'verify.details.empty': 'Выберите элемент очереди, чтобы загрузить полные детали черновика.',
         'verify.details.loading': 'Загружаем детали черновика...',
         'verify.details.error': 'Не удалось загрузить детали черновика.',
@@ -533,6 +543,7 @@
         'verify.section.company': 'Компания',
         'verify.section.vessel': 'Судно',
         'verify.section.vacancy': 'Заявка на вакансию',
+        'verify.section.application': 'Отклик на вакансию',
         'verify.field.draftId': 'Draft ID',
         'verify.field.role': 'Роль',
         'verify.field.email': 'Email',
@@ -571,6 +582,11 @@
         'verify.field.contractDuration': 'Длительность контракта',
         'verify.field.salaryRange': 'Диапазон зарплаты',
         'verify.field.requirements': 'Требования',
+        'verify.field.applicationId': 'ID отклика',
+        'verify.field.applicationStatus': 'Статус отклика',
+        'verify.field.contactEmail': 'Контактный email',
+        'verify.field.candidateNote': 'Заметка кандидата',
+        'verify.field.vacancyId': 'ID вакансии',
         'verify.value.empty': '-'
       }
     };
@@ -599,6 +615,7 @@
       let currentLatestNote = '';
       let currentReviewHistory = [];
       let currentDraftPayload = null;
+      let currentDetailType = 'draft';
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -802,6 +819,7 @@
       }
 
       function renderDraftDetails(payload) {
+        currentDetailType = 'draft';
         detailsSections.innerHTML = '';
         if (!payload || typeof payload !== 'object') {
           const empty = document.createElement('p');
@@ -898,6 +916,100 @@
         sections.filter(Boolean).forEach((section) => detailsSections.appendChild(section));
       }
 
+      function renderApplicationDetails(payload) {
+        currentDetailType = 'vacancy_application';
+        detailsSections.innerHTML = '';
+        if (!payload || typeof payload !== 'object') {
+          const empty = document.createElement('p');
+          empty.className = 'details-empty';
+          empty.textContent = t('verify.details.empty');
+          detailsSections.appendChild(empty);
+          return;
+        }
+
+        const application = payload.application && typeof payload.application === 'object' ? payload.application : {};
+        const seafarer = payload.seafarer_profile && typeof payload.seafarer_profile === 'object' ? payload.seafarer_profile : null;
+        const vacancy = payload.vacancy && typeof payload.vacancy === 'object' ? payload.vacancy : null;
+        const company = payload.company && typeof payload.company === 'object' ? payload.company : null;
+        const vessel = payload.vessel && typeof payload.vessel === 'object' ? payload.vessel : null;
+        const documentMetadata = seafarer ? parseJsonish(seafarer.document_metadata, {}) : {};
+
+        const seafarerName = seafarer
+          ? (seafarer.display_name || [seafarer.first_name, seafarer.last_name].filter(Boolean).join(' '))
+          : '';
+
+        const sections = [
+          createDetailSection('verify.section.application', [
+            createDetailField('verify.field.applicationId', application.vacancy_application_id),
+            createDetailField('verify.field.applicationStatus', application.application_status),
+            createDetailField('verify.field.vacancyId', application.vacancy_request_id),
+            createDetailField('verify.field.contactEmail', application.contact_email),
+            createDetailField('verify.field.candidateNote', application.candidate_note),
+            createDetailField('verify.field.created', application.created_at),
+            createDetailField('verify.field.updated', application.updated_at),
+          ]),
+        ];
+
+        if (seafarer) {
+          sections.push(
+            createDetailSection('verify.section.seafarer', [
+              createDetailField('verify.field.draftId', seafarer.user_id),
+              createDetailField('verify.field.fullName', seafarerName),
+              createDetailField('verify.field.email', seafarer.email),
+              createDetailField('verify.field.rank', seafarer.primary_rank),
+              createDetailField('verify.field.department', seafarer.department),
+              createDetailField('verify.field.availability', seafarer.availability_status),
+              createDetailField('verify.field.availabilityDate', seafarer.availability_date),
+              createDetailField('verify.field.country', seafarer.country_code),
+              createDetailField('verify.field.phone', seafarer.contact_phone),
+              createDetailField('verify.field.reviewStatus', seafarer.review_status),
+            ]),
+            createDetailSection('verify.section.documents', [
+              createDetailField('verify.field.certificateStatus', documentMetadata.certificate_status),
+              createDetailField('verify.field.stcwStatus', documentMetadata.stcw_status),
+              createDetailField('verify.field.passportExpiry', documentMetadata.passport_expiry),
+              createDetailField('verify.field.medicalExpiry', documentMetadata.medical_expiry),
+              createDetailField('verify.field.visaStatus', documentMetadata.visa_status),
+              createDetailField('verify.field.documentNotes', documentMetadata.notes),
+            ])
+          );
+        }
+
+        if (vacancy) {
+          sections.push(createDetailSection('verify.section.vacancy', [
+            createDetailField('verify.field.vacancyTitle', vacancy.vacancy_title),
+            createDetailField('verify.field.rank', vacancy.rank),
+            createDetailField('verify.field.department', vacancy.department),
+            createDetailField('verify.field.vesselType', vacancy.vessel_type),
+            createDetailField('verify.field.joinDate', vacancy.join_date),
+            createDetailField('verify.field.contractDuration', vacancy.contract_duration),
+            createDetailField('verify.field.salaryRange', formatSalaryRange(vacancy)),
+            createDetailField('verify.field.status', vacancy.publication_status),
+            createDetailField('verify.field.requirements', vacancy.requirements),
+          ]));
+        }
+
+        if (company) {
+          sections.push(createDetailSection('verify.section.company', [
+            createDetailField('verify.field.companyName', company.company_name),
+            createDetailField('verify.field.companyType', company.company_type),
+            createDetailField('verify.field.country', company.country_code),
+            createDetailField('verify.field.verificationStatus', company.verification_status),
+          ]));
+        }
+
+        if (vessel) {
+          sections.push(createDetailSection('verify.section.vessel', [
+            createDetailField('verify.field.vesselName', vessel.vessel_name),
+            createDetailField('verify.field.vesselType', vessel.vessel_type),
+            createDetailField('verify.field.imo', vessel.imo_number),
+            createDetailField('verify.field.flag', vessel.flag_country_code),
+          ]));
+        }
+
+        sections.filter(Boolean).forEach((section) => detailsSections.appendChild(section));
+      }
+
       function setLatestReviewNote(note) {
         const normalized = typeof note === 'string' ? note.trim() : '';
         currentLatestNote = normalized;
@@ -909,6 +1021,10 @@
       function extractLatestNote(payload) {
         if (!payload || typeof payload !== 'object') {
           return '';
+        }
+        const rootOperatorReview = payload.operator_review;
+        if (rootOperatorReview && typeof rootOperatorReview === 'object') {
+          return typeof rootOperatorReview.review_note === 'string' ? rootOperatorReview.review_note : '';
         }
         const rootPayload = payload.payload;
         if (!rootPayload || typeof rootPayload !== 'object') {
@@ -924,6 +1040,10 @@
       function extractReviewHistory(payload) {
         if (!payload || typeof payload !== 'object') {
           return [];
+        }
+        const rootHistory = payload.operator_review_history;
+        if (Array.isArray(rootHistory)) {
+          return rootHistory;
         }
         const rootPayload = payload.payload;
         if (!rootPayload || typeof rootPayload !== 'object') {
@@ -1020,6 +1140,58 @@
         }
       }
 
+      async function loadApplicationDetails(applicationId) {
+        if (!applicationId) {
+          return;
+        }
+
+        detailsJson.textContent = t('verify.details.loading');
+        detailsSections.innerHTML = '';
+        const loading = document.createElement('p');
+        loading.className = 'details-empty';
+        loading.textContent = t('verify.details.loading');
+        detailsSections.appendChild(loading);
+        try {
+          const response = await fetch(`/api/v1/operator/review-queue/vacancy-applications/${encodeURIComponent(applicationId)}`, {
+            headers: operatorHeaders(),
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (isOperatorAccessFailure(response)) {
+            showAccessPanel('verify.access.denied');
+            detailsJson.textContent = t('verify.access.denied');
+            return;
+          }
+          if (!response.ok || !payload || payload.ok !== true) {
+            throw new Error('application_details_load_failed');
+          }
+          detailsJson.textContent = JSON.stringify(payload, null, 2);
+          currentDraftPayload = payload;
+          renderApplicationDetails(payload);
+          setLatestReviewNote(extractLatestNote(payload));
+          renderReviewHistory(extractReviewHistory(payload));
+        } catch (error) {
+          detailsJson.textContent = t('verify.details.error');
+          currentDraftPayload = null;
+          currentDetailType = 'draft';
+          detailsSections.innerHTML = '';
+          const errorLine = document.createElement('p');
+          errorLine.className = 'details-empty';
+          errorLine.textContent = t('verify.details.error');
+          detailsSections.appendChild(errorLine);
+          setLatestReviewNote('');
+          renderReviewHistory([]);
+          console.error(error);
+        }
+      }
+
+      async function loadQueueItemDetails(itemId, queueType) {
+        if (queueType === 'vacancy_application') {
+          await loadApplicationDetails(itemId);
+          return;
+        }
+        await loadDraftDetails(itemId);
+      }
+
       async function applyDecision(draftId, decision, queueType) {
         if (!draftId || !decision) {
           return;
@@ -1068,7 +1240,7 @@
             setLatestReviewNote('');
           }
           await loadQueue();
-          await loadDraftDetails(draftId);
+          await loadQueueItemDetails(draftId, queueType);
           status.textContent = t('verify.action.saved', { decision: payload.new_status || decision });
         } catch (error) {
           status.textContent = t('verify.action.error');
@@ -1086,6 +1258,7 @@
 
         items.forEach((item) => {
           const tr = document.createElement('tr');
+          const targetId = item.queue_type === 'vacancy_application' ? item.queue_item_id : item.draft_id;
           const queueTypeCell = document.createElement('td');
           const queueType = document.createElement('span');
           queueType.className = 'queue-type';
@@ -1104,10 +1277,10 @@
           const actionWrap = document.createElement('div');
           actionWrap.className = 'inline-actions';
           actionWrap.append(
-            createQueueButton('queue-open', 'verify.action.open', item.draft_id),
-            createQueueButton('queue-decision', 'verify.action.startReview', item.draft_id, 'start_review', item.queue_type),
-            createQueueButton('queue-decision', 'verify.action.needsCorrection', item.draft_id, 'needs_correction', item.queue_type),
-            createQueueButton('queue-decision', 'verify.action.reviewed', item.draft_id, 'reviewed', item.queue_type)
+            createQueueButton('queue-open', 'verify.action.open', targetId, '', item.queue_type),
+            createQueueButton('queue-decision', 'verify.action.startReview', targetId, 'start_review', item.queue_type),
+            createQueueButton('queue-decision', 'verify.action.needsCorrection', targetId, 'needs_correction', item.queue_type),
+            createQueueButton('queue-decision', 'verify.action.reviewed', targetId, 'reviewed', item.queue_type)
           );
           actionCell.appendChild(actionWrap);
           tr.appendChild(actionCell);
@@ -1118,7 +1291,10 @@
 
         body.querySelectorAll('.queue-open').forEach((button) => {
           button.addEventListener('click', () => {
-            loadDraftDetails(button.getAttribute('data-draft-id') || '');
+            loadQueueItemDetails(
+              button.getAttribute('data-draft-id') || '',
+              button.getAttribute('data-queue-type') || ''
+            );
           });
         });
 
@@ -1186,7 +1362,11 @@
           return;
         }
         renderQueue();
-        renderDraftDetails(currentDraftPayload);
+        if (currentDetailType === 'vacancy_application') {
+          renderApplicationDetails(currentDraftPayload);
+        } else {
+          renderDraftDetails(currentDraftPayload);
+        }
         setLatestReviewNote(currentLatestNote);
         renderReviewHistory(currentReviewHistory);
       });

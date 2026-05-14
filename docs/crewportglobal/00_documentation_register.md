@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.53
+- Version: 0.54
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -157,6 +157,7 @@ docs/crewportglobal/
   73_cpg_ops_016_operator_access_token_boundary_report.md
   74_cpg_emp_006_employer_vacancy_workspace_status_report.md
   75_cpg_mkt_003_vacancy_detail_and_apply_flow_report.md
+  76_cpg_ops_017_vacancy_application_operator_review_report.md
 ```
 
 ### 3.3 Product governance control
@@ -176,6 +177,8 @@ Document 73 records the temporary operator access token boundary for `/verify/` 
 Document 74 records the employer vacancy workspace status implementation for `/post-vacancy/`.
 
 Document 75 records the public vacancy detail page and seafarer apply-to-vacancy implementation.
+
+Document 76 records operator review visibility and decisions for seafarer vacancy applications.
 
 Mandatory control statement:
 
@@ -279,6 +282,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.54 | 2026-05-14 | GTC IT / AI Assistant | Added document 76 as CPG-OPS-017 implementation report for vacancy application visibility and decisions in the protected operator queue |
 | 0.53 | 2026-05-14 | GTC IT / AI Assistant | Added document 75 as CPG-MKT-003 implementation report for public vacancy detail and seafarer apply-to-vacancy flow |
 | 0.52 | 2026-05-14 | GTC IT / AI Assistant | Added document 74 as CPG-EMP-006 implementation report for employer vacancy workspace status, draft prefill and reviewed publication state on /post-vacancy/ |
 | 0.51 | 2026-05-14 | GTC IT / AI Assistant | Added document 73 as CPG-OPS-016 implementation report for the temporary operator access token boundary on /verify/ and operator review API routes |
