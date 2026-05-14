@@ -4,7 +4,7 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Date: 2026-05-14
 - Document type: Implementation report
-- Status: Implemented and under final publication verification
+- Status: Implemented, verified and published to the live site
 
 ## 1. Purpose
 
@@ -42,7 +42,7 @@ The implementation keeps these boundaries:
 Backend:
 
 - `projects/crewportglobal/app/backend/api/public/index.php`
-- `projects/crewportglobal/app/backend/api/README.md`
+- `projects/crewportglobal/app/backend/README.md`
 
 Frontend:
 
@@ -73,7 +73,27 @@ git diff --check
 
 Local result:
 
-1. pending final verification.
+1. PHP syntax check passed;
+2. i18n key check passed, with the existing non-English fallback warnings unchanged;
+3. API regression passed: 10 tests;
+4. create-profile browser regression passed: 4 tests;
+5. linked browser workflow regression passed: 8 tests;
+6. whitespace diff check passed.
+
+Live publication checks:
+
+```bash
+./projects/crewportglobal/scripts/publish_live_site.sh
+curl -k -fsS https://crewportglobal.com/api/v1/health
+curl -k -fsS https://crewportglobal.com/create-profile/
+```
+
+Live result:
+
+1. `/api/v1/health` returned `{"ok":true,"service":"crewportglobal-registration-api"}`;
+2. `/create-profile/` contains the seafarer application action code, translated labels and status endpoint;
+3. mobile live smoke at 390 px viewport reported no horizontal overflow;
+4. live browser smoke reported no page errors or console errors.
 
 The regression must cover:
 
