@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.46
+- Version: 0.47
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -150,11 +150,14 @@ docs/crewportglobal/
   66_cpg_ops_013_operator_review_notes_and_correction_reason_report.md
   67_cpg_ops_014_operator_review_history_panel_report.md
   68_cpg_user_015_create_profile_review_status_and_correction_reason_report.md
+  69_international_maritime_application_goal_and_task_backlog.md
 ```
 
 ### 3.3 Product governance control
 
 Document 64 is the controlling product-logic baseline for site structure and functional requirements.
+
+Document 69 is the active product-goal and task-backlog baseline for converting CrewPortGlobal from a documentation-heavy public site into an international maritime jobs and crew application.
 
 Mandatory control statement:
 
@@ -258,6 +261,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.47 | 2026-05-13 | GTC IT / AI Assistant | Added document 69 as the active product goal and task backlog for the international maritime application build-out |
 | 0.46 | 2026-05-13 | GTC IT / AI Assistant | Added document 68 as CPG-USER-015 implementation report for candidate-facing create-profile review status labels and conditional correction reason display with EN/RU texts and prefill regression coverage |
 | 0.45 | 2026-05-13 | GTC IT / AI Assistant | Added document 67 as CPG-OPS-014 implementation report covering backend operator_review_history payload (last 20 audit events), /verify history panel rendering and API/UI validation evidence |
 | 0.44 | 2026-05-13 | GTC IT / AI Assistant | Added document 66 as CPG-OPS-013 implementation report for operator review notes/correction reason, backend note validation, audit payload review_note, /verify note UX and test evidence |

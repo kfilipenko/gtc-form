@@ -194,8 +194,9 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="assets/crewportglobal-app.css">
 </head>
-<body class="doc-body">
+<body class="doc-body cpg-app-page">
   <div class="site-shell">
     <header class="site-header">
       <a class="brand" href="https://crewportglobal.com/">
@@ -233,31 +234,50 @@
     </nav>
 
     <main class="doc-main">
-      <section class="home-grid">
-        <article class="card hero-copy">
-          <p class="eyebrow" data-i18n="home.hero.eyebrow">Maritime hiring platform</p>
+      <section class="home-grid app-hero">
+        <article class="hero-copy app-hero-main">
+          <p class="app-kicker" data-i18n="home.hero.eyebrow">Maritime hiring platform</p>
           <h1 class="landing-title" data-i18n="home.title">Create a seafarer profile or start a vacancy workflow.</h1>
           <p class="landing-lead" data-i18n="home.hero.lead">CrewPortGlobal helps seafarers present their CVs and document readiness while employers prepare verified vacancy requests and review profiles after human review.</p>
-          <div class="actions">
+          <div class="actions app-actions">
             <a class="button primary" href="https://crewportglobal.com/create-profile/" data-i18n="home.hero.primaryCta">Create Seafarer Profile</a>
             <a class="button secondary" href="https://crewportglobal.com/post-vacancy/" data-i18n="home.hero.secondaryCta">Prepare Vacancy Request</a>
             <a class="button secondary" href="https://crewportglobal.com/register/" data-i18n="nav.loginRegister">Login / Register</a>
           </div>
-          <p class="trust-note" data-i18n="home.hero.trust">CrewPortGlobal does not charge seafarers recruitment or placement fees. Profiles and vacancy requests are reviewed by people before wider publication or candidate presentation.</p>
+          <div class="app-stats-grid">
+            <div class="app-stat">
+              <strong data-i18n="home.stat.vacancies.value">Reviewed</strong>
+              <span data-i18n="home.stat.vacancies.label">vacancies only</span>
+            </div>
+            <div class="app-stat">
+              <strong data-i18n="home.stat.cv.value">Private</strong>
+              <span data-i18n="home.stat.cv.label">CV visibility</span>
+            </div>
+            <div class="app-stat">
+              <strong data-i18n="home.stat.fees.value">0</strong>
+              <span data-i18n="home.stat.fees.label">seafarer recruitment fees</span>
+            </div>
+            <div class="app-stat">
+              <strong data-i18n="home.stat.review.value">Human</strong>
+              <span data-i18n="home.stat.review.label">review gate</span>
+            </div>
+          </div>
+          <p class="trust-note app-chip good" data-i18n="home.hero.trust">CrewPortGlobal does not charge seafarers recruitment or placement fees. Profiles and vacancy requests are reviewed by people before wider publication or candidate presentation.</p>
         </article>
 
-        <aside class="card hero-aside">
-          <section>
+        <aside class="hero-aside app-hero-media">
+          <img src="assets/maritime-operations.jpg" alt="Container ship unloading at port">
+          <section class="app-panel">
             <p class="eyebrow" data-i18n="home.seafarers.eyebrow">For seafarers</p>
             <h2 data-i18n="home.seafarers.title">Build your maritime CV and document profile</h2>
             <p data-i18n="home.seafarers.copy">Add rank, certificates, availability, contact details and document metadata in one place before you apply.</p>
           </section>
-          <section>
+          <section class="app-panel">
             <p class="eyebrow" data-i18n="home.employers.eyebrow">For employers</p>
             <h2 data-i18n="home.employers.title">Prepare vacancy requests with clear job details</h2>
             <p data-i18n="home.employers.copy">Define company, vessel, rank, salary, joining date, contract duration and requirements before live publication.</p>
           </section>
-          <section>
+          <section class="app-panel">
             <p class="eyebrow" data-i18n="home.boundary.eyebrow">Trust rules</p>
             <h2 data-i18n="home.boundary.title">Live vacancies appear only when real data is ready</h2>
             <p data-i18n="home.boundary.copy">CrewPortGlobal does not promise automatic employment or automatic approval. Public vacancies appear only when reviewed data is ready for publication.</p>
@@ -265,11 +285,11 @@
         </aside>
       </section>
 
-      <section class="card vacancy-search">
+      <section class="card vacancy-search section-card app-search-card">
         <p class="eyebrow" data-i18n="home.search.eyebrow">Quick vacancy search</p>
         <h2 class="section-title" data-i18n="home.search.title">Start from rank, vessel and timing.</h2>
         <p class="section-copy" data-i18n="home.search.copy">Use position, vessel type and timing to preview how vacancy discovery will work once public vacancies are available.</p>
-        <div class="search-grid" id="vacancy-search-block">
+        <div class="search-grid app-search-grid" id="vacancy-search-block">
           <label class="search-field">
             <strong data-i18n="home.search.position">Position</strong>
             <select>
@@ -312,7 +332,7 @@
         </div>
       </section>
 
-      <section class="card vacancy-board">
+      <section class="card vacancy-board section-card">
         <p class="eyebrow" data-i18n="home.board.eyebrow">Latest vacancies</p>
         <h2 class="section-title" data-i18n="home.board.title">Current public vacancy board</h2>
         <p class="section-copy" data-i18n="home.board.copy">No public vacancies are available yet. Employers can prepare a vacancy request while live publication remains limited to real reviewed data.</p>
@@ -448,6 +468,14 @@
         'home.hero.primaryCta': 'Create Seafarer Profile',
         'home.hero.secondaryCta': 'Prepare Vacancy Request',
         'home.hero.trust': 'CrewPortGlobal does not charge seafarers recruitment or placement fees. Profiles and vacancy requests are reviewed by people before wider publication or candidate presentation.',
+        'home.stat.vacancies.value': 'Reviewed',
+        'home.stat.vacancies.label': 'vacancies only',
+        'home.stat.cv.value': 'Private',
+        'home.stat.cv.label': 'CV visibility',
+        'home.stat.fees.value': '0',
+        'home.stat.fees.label': 'seafarer recruitment fees',
+        'home.stat.review.value': 'Human',
+        'home.stat.review.label': 'review gate',
         'home.seafarers.eyebrow': 'For seafarers',
         'home.seafarers.title': 'Build your maritime CV and document profile',
         'home.seafarers.copy': 'Add rank, certificates, availability, contact details and document metadata in one place before you apply.',
@@ -550,6 +578,14 @@
         'home.hero.primaryCta': 'Создать профиль моряка',
         'home.hero.secondaryCta': 'Подготовить запрос на вакансию',
         'home.hero.trust': 'CrewPortGlobal не взимает с моряков сборы за трудоустройство или размещение. Профили и запросы на вакансии проходят ручную проверку до более широкой публикации или представления кандидата.',
+        'home.stat.vacancies.value': 'Проверенные',
+        'home.stat.vacancies.label': 'вакансии только после ревью',
+        'home.stat.cv.value': 'Приватно',
+        'home.stat.cv.label': 'видимость CV',
+        'home.stat.fees.value': '0',
+        'home.stat.fees.label': 'рекрутинговых сборов с моряка',
+        'home.stat.review.value': 'Ручная',
+        'home.stat.review.label': 'проверка',
         'home.seafarers.eyebrow': 'Для моряков',
         'home.seafarers.title': 'Соберите морское CV и профиль документов',
         'home.seafarers.copy': 'Добавьте должность, сертификаты, доступность, контакты и метаданные документов в одном месте до отклика.',

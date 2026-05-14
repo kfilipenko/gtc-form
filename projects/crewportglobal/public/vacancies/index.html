@@ -302,8 +302,9 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="../assets/crewportglobal-app.css">
 </head>
-<body class="doc-body">
+<body class="doc-body cpg-app-page">
   <div class="site-shell">
     <header class="site-header">
       <a class="brand" href="https://crewportglobal.com/">
@@ -341,8 +342,8 @@
     </nav>
 
     <main class="doc-main">
-      <section class="page-grid">
-        <article class="card hero-card">
+      <section class="page-grid app-market-grid">
+        <article class="card hero-card app-panel">
           <p class="eyebrow" data-i18n="vacancies.hero.eyebrow">Vacancy board</p>
           <h1 class="hero-title" data-i18n="vacancies.hero.title">Browse maritime vacancies by rank, vessel type and joining date.</h1>
           <p class="lead-copy hero-copy" data-i18n="vacancies.hero.copy">No public vacancies are available yet. Seafarers can prepare a profile, and employers can prepare a vacancy request.</p>
@@ -352,7 +353,7 @@
           </div>
           <span class="hero-note" data-i18n="vacancies.hero.note">Public vacancies appear only when reviewed vacancy data is ready.</span>
         </article>
-        <aside class="card side-card">
+        <aside class="card side-card app-panel">
           <div class="side-note">
             <strong data-i18n="vacancies.side.status.title">Current status</strong>
             <p data-i18n="vacancies.side.status.copy">No public vacancies are available yet. Employers can prepare a vacancy request.</p>
@@ -364,10 +365,10 @@
         </aside>
       </section>
 
-      <section class="card filter-card" id="vacancy-filters">
+      <section class="card filter-card section-card app-search-card" id="vacancy-filters">
         <p class="eyebrow" data-i18n="vacancies.filters.eyebrow">Filters</p>
         <h2 data-i18n="vacancies.filters.title">Search by rank, vessel and timing.</h2>
-        <div class="filter-grid">
+        <div class="filter-grid app-search-grid">
           <label class="filter-field">
             <strong data-i18n="vacancies.filters.position">Position</strong>
             <select>
@@ -419,8 +420,8 @@
         </div>
       </section>
 
-      <section class="vacancy-grid">
-        <article class="card vacancy-card empty-card" id="vacancy-empty-state">
+      <section class="vacancy-grid app-market-grid">
+        <article class="card vacancy-card empty-card app-empty" id="vacancy-empty-state">
           <p class="eyebrow" data-i18n="vacancies.empty.eyebrow">Current public availability</p>
           <h2 data-i18n="vacancies.empty.title">No public vacancies are available yet</h2>
           <p class="lead-copy" data-i18n="vacancies.empty.copy">Create a seafarer profile to be ready to apply, or prepare a vacancy request if you represent an employer.</p>

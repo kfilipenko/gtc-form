@@ -87,7 +87,8 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 
 ## Immediate next steps
 
-1. Confirm complaint contact channels and production mailbox ownership.
-2. Review the isolated `crewport` schema and registration-flow planning before any server-side implementation work.
-3. Re-run the document generator after any public Markdown update.
-4. Activate nginx and SSL only after domain and DNS control are confirmed.
+1. Convert the public site into an action-first maritime jobs and crew application, using `docs/crewportglobal/69_international_maritime_application_goal_and_task_backlog.md` as the active product goal.
+2. Keep marketplace data honest: do not publish fake vacancies, fake employer entries or fake vessel records.
+3. Connect live production `/api/v1` routing before relying on public Register/Create Profile/Post Vacancy forms on the live domain.
+4. Rebuild the core routes around practical workflows: vacancy search, seafarer CV workspace, employer vacancy intake, operator review and verified publication.
+5. Re-run the document generator after any public Markdown update.
