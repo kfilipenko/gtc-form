@@ -7,6 +7,20 @@ WITH ui_users AS (
   SELECT user_id
   FROM crewportglobal.users
   WHERE email LIKE 'ui.postvacancy.%@example.com'
+),
+ui_vacancies AS (
+  SELECT vacancy_request_id
+  FROM crewportglobal.vacancy_requests vr
+  JOIN ui_users uu ON uu.user_id = vr.created_by_user_id
+)
+DELETE FROM crewportglobal.vacancy_applications va
+WHERE va.seafarer_user_id IN (SELECT user_id FROM ui_users)
+   OR va.vacancy_request_id IN (SELECT vacancy_request_id FROM ui_vacancies);
+
+WITH ui_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'ui.postvacancy.%@example.com'
 )
 UPDATE crewportglobal.vacancy_requests vr
 SET publication_status = 'closed', updated_at = now()
@@ -29,6 +43,13 @@ SET verification_status = 'rejected', updated_at = now()
 FROM ui_companies uc
 WHERE ec.company_id = uc.company_id
   AND ec.verification_status IN ('unverified', 'submitted', 'verified');
+
+UPDATE crewportglobal.seafarer_profiles sp
+SET review_status = 'rejected', updated_at = now()
+FROM crewportglobal.users u
+WHERE sp.user_id = u.user_id
+  AND u.email LIKE 'ui.postvacancy.%@example.com'
+  AND sp.review_status IN ('submitted_for_human_review', 'in_review', 'approved');
 `;
 
   execSync(
@@ -124,6 +145,64 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await expect(page.locator('#post-vacancy-status')).toHaveText('published');
   await expect(page.locator('#post-publication-status')).toHaveText('Published');
   await expect(page.locator('#post-next-action')).toContainText('visible on the public board');
+  await expect(page.locator('#post-candidate-pipeline-status')).toContainText('No presented candidates yet');
+
+  const draftResponse = await request.get(`/api/v1/registration/drafts/${draftId}`);
+  expect(draftResponse.ok()).toBeTruthy();
+  const draft = await draftResponse.json();
+  const vacancyId = draft.payload.vacancy_request.vacancy_request_id as string;
+
+  const seafarerEmail = `ui.postvacancy.seafarer.${unique}@example.com`;
+  const seafarerCreate = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email: seafarerEmail,
+      full_name: 'Presented Candidate',
+      rank: 'Master',
+      department: 'deck',
+      availability_status: 'available_now',
+      contact_phone: '+971500003333',
+      document_metadata: {
+        certificate_status: 'ready',
+        stcw_status: 'ready',
+        passport_expiry: '2029-02-02',
+        medical_expiry: '2027-06-15',
+        visa_status: 'not_required',
+        notes: 'Documents checked for employer presentation.',
+      },
+    },
+  });
+  expect(seafarerCreate.ok()).toBeTruthy();
+  const seafarer = await seafarerCreate.json();
+
+  const candidateNote = 'Ready for interview and available immediately.';
+  const applicationResponse = await request.post(`/api/v1/vacancies/${vacancyId}/applications`, {
+    data: {
+      seafarer_draft_id: seafarer.draft_id,
+      email: seafarerEmail,
+      note: candidateNote,
+    },
+  });
+  expect(applicationResponse.ok()).toBeTruthy();
+  const application = await applicationResponse.json();
+  const applicationId = application.application.vacancy_application_id as string;
+
+  const applicationDecision = await request.patch(`/api/v1/operator/review-queue/${applicationId}/status`, {
+    data: {
+      decision: 'reviewed',
+      queue_type: 'vacancy_application',
+      note: 'Candidate can be shown in employer pipeline.',
+    },
+  });
+  expect(applicationDecision.ok()).toBeTruthy();
+
+  await page.goto(`/post-vacancy/?draft_id=${draftId}`);
+  await expect(page.locator('#post-candidate-pipeline-status')).toContainText('1 presented candidate');
+  await expect(page.locator('#post-candidate-list')).toContainText('Presented Candidate');
+  await expect(page.locator('#post-candidate-list')).toContainText('Master');
+  await expect(page.locator('#post-candidate-list')).toContainText(seafarerEmail);
+  await expect(page.locator('#post-candidate-list')).toContainText('ready / ready / 2027-06-15 / 2029-02-02');
+  await expect(page.locator('#post-candidate-list')).toContainText(candidateNote);
 
   const hasOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   expect(hasOverflow).toBe(false);

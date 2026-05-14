@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.54
+- Version: 0.55
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -158,6 +158,7 @@ docs/crewportglobal/
   74_cpg_emp_006_employer_vacancy_workspace_status_report.md
   75_cpg_mkt_003_vacancy_detail_and_apply_flow_report.md
   76_cpg_ops_017_vacancy_application_operator_review_report.md
+  77_cpg_emp_007_employer_presented_candidate_pipeline_report.md
 ```
 
 ### 3.3 Product governance control
@@ -179,6 +180,8 @@ Document 74 records the employer vacancy workspace status implementation for `/p
 Document 75 records the public vacancy detail page and seafarer apply-to-vacancy implementation.
 
 Document 76 records operator review visibility and decisions for seafarer vacancy applications.
+
+Document 77 records employer-side visibility for operator-presented vacancy candidates in `/post-vacancy/`.
 
 Mandatory control statement:
 
@@ -282,6 +285,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.55 | 2026-05-14 | GTC IT / AI Assistant | Added document 77 as CPG-EMP-007 implementation report for employer-side presented candidate visibility on /post-vacancy/ |
 | 0.54 | 2026-05-14 | GTC IT / AI Assistant | Added document 76 as CPG-OPS-017 implementation report for vacancy application visibility and decisions in the protected operator queue |
 | 0.53 | 2026-05-14 | GTC IT / AI Assistant | Added document 75 as CPG-MKT-003 implementation report for public vacancy detail and seafarer apply-to-vacancy flow |
 | 0.52 | 2026-05-14 | GTC IT / AI Assistant | Added document 74 as CPG-EMP-006 implementation report for employer vacancy workspace status, draft prefill and reviewed publication state on /post-vacancy/ |

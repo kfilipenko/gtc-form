@@ -763,6 +763,70 @@ function read_operator_review_history(string $userId): array {
     return $items;
 }
 
+function read_presented_candidates_for_employer(string $companyId, ?string $vacancyId = null): array {
+    $result = api_query(
+        "SELECT
+            va.vacancy_application_id,
+            va.vacancy_request_id,
+            va.contact_email,
+            va.candidate_note,
+            va.application_status,
+            va.created_at,
+            va.updated_at,
+            su.user_id AS seafarer_user_id,
+            su.display_name,
+            su.email AS seafarer_email,
+            sp.primary_rank,
+            sp.department,
+            sp.availability_status,
+            sp.availability_date,
+            sp.country_code,
+            sp.contact_phone,
+            sp.document_metadata,
+            vr.vacancy_title,
+            vr.rank AS vacancy_rank,
+            vr.department AS vacancy_department
+         FROM crewportglobal.vacancy_applications va
+         JOIN crewportglobal.vacancy_requests vr ON vr.vacancy_request_id = va.vacancy_request_id
+         JOIN crewportglobal.users su ON su.user_id = va.seafarer_user_id
+         LEFT JOIN crewportglobal.seafarer_profiles sp ON sp.user_id = su.user_id
+         WHERE vr.company_id = $1
+           AND ($2::uuid IS NULL OR va.vacancy_request_id = $2::uuid)
+           AND va.application_status = 'presented'
+         ORDER BY va.updated_at DESC, va.created_at DESC
+         LIMIT 50",
+        [$companyId, $vacancyId]
+    );
+
+    $items = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $items[] = [
+            'vacancy_application_id' => $row['vacancy_application_id'],
+            'vacancy_request_id' => $row['vacancy_request_id'],
+            'application_status' => $row['application_status'],
+            'contact_email' => $row['contact_email'],
+            'candidate_note' => $row['candidate_note'],
+            'created_at' => $row['created_at'],
+            'updated_at' => $row['updated_at'],
+            'seafarer_user_id' => $row['seafarer_user_id'],
+            'display_name' => $row['display_name'],
+            'seafarer_email' => $row['seafarer_email'],
+            'primary_rank' => $row['primary_rank'],
+            'department' => $row['department'],
+            'availability_status' => $row['availability_status'],
+            'availability_date' => $row['availability_date'],
+            'country_code' => $row['country_code'],
+            'contact_phone' => $row['contact_phone'],
+            'document_metadata' => $row['document_metadata'],
+            'vacancy_title' => $row['vacancy_title'],
+            'vacancy_rank' => $row['vacancy_rank'],
+            'vacancy_department' => $row['vacancy_department'],
+        ];
+    }
+
+    return $items;
+}
+
 function build_draft_response(string $userId): array {
     $userResult = api_query(
         'SELECT user_id, email, registration_status, created_at, updated_at
@@ -817,6 +881,10 @@ function build_draft_response(string $userId): array {
             if ($vacancy !== null) {
                 $payload['vacancy_request'] = $vacancy;
             }
+            $payload['presented_candidates'] = read_presented_candidates_for_employer(
+                (string) $company['company_id'],
+                $vacancy !== null && isset($vacancy['vacancy_request_id']) ? (string) $vacancy['vacancy_request_id'] : null
+            );
         }
     }
 
