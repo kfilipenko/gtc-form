@@ -247,12 +247,13 @@ Fixed implementation order for the active stage:
 15. 12_data_retention_and_deletion_policy.md
 16. 13_ai_use_and_human_review_policy.md
 17. 14_partner_code_of_conduct.md
+18. 80_cpg_team_portal_roles_and_operations.md
 
 ### Phase D — Licensing and publication package
 
-18. 15_billing_refund_policy_b2b.md
-19. 19_ra_k_mohre_licensing_request_pack.md
-20. 20_website_start_page_content.md
+19. 15_billing_refund_policy_b2b.md
+20. 19_ra_k_mohre_licensing_request_pack.md
+21. 20_website_start_page_content.md
 
 ## 5. Next drafting sequence
 
