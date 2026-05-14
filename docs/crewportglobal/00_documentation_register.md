@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.58
+- Version: 0.59
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -161,7 +161,8 @@ docs/crewportglobal/
   77_cpg_emp_007_employer_presented_candidate_pipeline_report.md
   78_cpg_user_017_seafarer_application_history_report.md
   79_cpg_emp_008_employer_shortlist_actions_report.md
-  80_cpg_emp_009_employer_candidate_followup_note_report.md
+  80_cpg_team_portal_roles_and_operations.md
+  81_cpg_emp_009_employer_candidate_followup_note_report.md
 ```
 
 ### 3.3 Product governance control
@@ -190,7 +191,9 @@ Document 78 records seafarer-side vacancy application history visibility in `/cr
 
 Document 79 records employer shortlist actions for operator-presented candidates in `/post-vacancy/`.
 
-Document 80 records employer follow-up notes for operator-presented candidates in `/post-vacancy/`.
+Document 80 records the CrewPortGlobal team portal roles and operations model, including internal operator roles, role separation, human-review checkpoints, no-fee seafarer control, employer-side control, audit expectations and future operator portal requirements.
+
+Document 81 records employer follow-up notes for operator-presented candidates in `/post-vacancy/`.
 
 Mandatory control statement:
 
@@ -294,7 +297,8 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
-| 0.58 | 2026-05-14 | GTC IT / AI Assistant | Added document 80 as CPG-EMP-009 implementation report for employer follow-up notes on presented candidates in /post-vacancy/ |
+| 0.59 | 2026-05-14 | GTC IT / AI Assistant | Added document 81 as CPG-EMP-009 implementation report for employer follow-up notes on presented candidates in /post-vacancy/ and preserved document 80 for the team portal roles governance baseline |
+| 0.58 | 2026-05-14 | GTC IT / AI Assistant | Added document 80 as CPG-TEAM-001 team portal roles and operations model covering role separation, operator duties, human-review checkpoints, audit expectations and no-fee seafarer control |
 | 0.57 | 2026-05-14 | GTC IT / AI Assistant | Added document 79 as CPG-EMP-008 implementation report for employer shortlist actions on operator-presented candidates in /post-vacancy/ |
 | 0.56 | 2026-05-14 | GTC IT / AI Assistant | Added document 78 as CPG-USER-017 implementation report for seafarer-side vacancy application history on /create-profile/ |
 | 0.55 | 2026-05-14 | GTC IT / AI Assistant | Added document 77 as CPG-EMP-007 implementation report for employer-side presented candidate visibility on /post-vacancy/ |

@@ -2015,6 +2015,116 @@ function handle_patch_employer_vacancy_application_shortlist(string $application
     }
 }
 
+function normalize_seafarer_application_action(mixed $value): ?string {
+    if (!is_string($value)) {
+        return null;
+    }
+
+    $action = trim(strtolower($value));
+    $aliases = [
+        'withdraw' => 'withdraw',
+        'withdrawn' => 'withdraw',
+        'withdraw_application' => 'withdraw',
+        'not_available' => 'not_available',
+        'mark_not_available' => 'not_available',
+    ];
+
+    return $aliases[$action] ?? null;
+}
+
+function handle_patch_seafarer_vacancy_application_status(string $applicationId): void {
+    $uuid = api_normalize_uuid($applicationId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_vacancy_application_id', 'vacancy_application_id must be a valid UUID');
+    }
+
+    $body = api_decode_json_body();
+    $seafarerDraftId = api_normalize_uuid($body['seafarer_draft_id'] ?? $body['draft_id'] ?? null);
+    if ($seafarerDraftId === null) {
+        api_error(400, 'invalid_seafarer_draft_id', 'seafarer_draft_id must be a valid UUID');
+    }
+
+    $action = normalize_seafarer_application_action($body['action'] ?? $body['status'] ?? null);
+    if ($action === null) {
+        api_error(400, 'invalid_application_action', 'action must be withdraw or not_available');
+    }
+
+    $role = read_role_for_user($seafarerDraftId);
+    if ($role !== 'seafarer') {
+        api_error(404, 'seafarer_draft_not_found', 'Seafarer draft not found');
+    }
+
+    api_tx_begin();
+    try {
+        $currentResult = api_query(
+            "SELECT
+                va.vacancy_application_id,
+                va.vacancy_request_id,
+                va.seafarer_user_id,
+                va.application_status,
+                vr.company_id,
+                vr.vessel_id
+             FROM crewportglobal.vacancy_applications va
+             JOIN crewportglobal.vacancy_requests vr ON vr.vacancy_request_id = va.vacancy_request_id
+             WHERE va.vacancy_application_id = $1
+             LIMIT 1",
+            [$uuid]
+        );
+        $currentRow = pg_fetch_assoc($currentResult);
+        if (!is_array($currentRow) || (string) $currentRow['seafarer_user_id'] !== $seafarerDraftId) {
+            api_tx_rollback();
+            api_error(404, 'seafarer_application_not_found', 'Vacancy application not found for this seafarer');
+        }
+
+        $previousStatus = (string) $currentRow['application_status'];
+        if (in_array($previousStatus, ['rejected', 'withdrawn'], true)) {
+            api_tx_rollback();
+            api_error(400, 'application_not_active', 'Only active vacancy applications can be withdrawn');
+        }
+
+        $updateResult = api_query(
+            "UPDATE crewportglobal.vacancy_applications
+             SET application_status = 'withdrawn', updated_at = now()
+             WHERE vacancy_application_id = $1
+             RETURNING application_status, updated_at",
+            [$uuid]
+        );
+        $updateRow = pg_fetch_assoc($updateResult);
+        if (!is_array($updateRow)) {
+            api_tx_rollback();
+            api_error(500, 'seafarer_application_update_failed', 'Unable to update vacancy application');
+        }
+
+        $vesselId = isset($currentRow['vessel_id']) ? (string) $currentRow['vessel_id'] : null;
+        if ($vesselId === '') {
+            $vesselId = null;
+        }
+
+        write_audit_event('seafarer_vacancy_application_withdrawn', $seafarerDraftId, (string) $currentRow['company_id'], $vesselId, [
+            'action' => $action,
+            'previous_status' => $previousStatus,
+            'new_status' => 'withdrawn',
+            'vacancy_request_id' => $currentRow['vacancy_request_id'],
+            'vacancy_application_id' => $uuid,
+        ], 'seafarer_application_history');
+
+        api_tx_commit();
+
+        api_json(200, [
+            'ok' => true,
+            'vacancy_application_id' => $uuid,
+            'vacancy_request_id' => $currentRow['vacancy_request_id'],
+            'action' => $action,
+            'previous_status' => $previousStatus,
+            'application_status' => $updateRow['application_status'],
+            'updated_at' => $updateRow['updated_at'],
+        ]);
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'seafarer_application_update_failed', $error->getMessage());
+    }
+}
+
 function apply_operator_review_decision(string $draftId, string $decision, ?string $reviewNote, ?string $queueType = null): array {
     if ($queueType === 'vacancy_application') {
         $statusMap = [
@@ -2052,6 +2162,9 @@ function apply_operator_review_decision(string $draftId, string $decision, ?stri
             $vesselId = null;
         }
         $previousStatus = (string) $currentRow['application_status'];
+        if ($previousStatus === 'withdrawn') {
+            api_error(400, 'application_withdrawn', 'Withdrawn vacancy applications cannot be moved by operator review');
+        }
 
         api_query(
             'UPDATE crewportglobal.vacancy_applications
