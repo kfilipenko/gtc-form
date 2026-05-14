@@ -90,7 +90,8 @@
     }
 
     .field-card input,
-    .field-card select {
+    .field-card select,
+    .field-card textarea {
       width: 100%;
       padding: 12px 14px;
       border-radius: 14px;
@@ -98,6 +99,11 @@
       background: rgba(255, 255, 255, 0.08);
       color: var(--text-on-dark);
       font: inherit;
+    }
+
+    .field-card textarea {
+      min-height: 118px;
+      resize: vertical;
     }
 
     @media (max-width: 980px) {
