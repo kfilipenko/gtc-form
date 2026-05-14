@@ -338,6 +338,7 @@ test('create profile shows vacancy application history for existing draft', asyn
   await expect(page.locator('#create-application-list')).toContainText('Under review');
   await expect(page.locator('#create-application-list')).toContainText(note);
   await expect(page.locator('#create-application-list')).toContainText('Open vacancy');
+  await expect(page.locator('#create-application-list')).toContainText('Withdraw application');
 
   const reviewed = await request.patch(`/api/v1/operator/review-queue/${applicationId}/status`, {
     data: {
@@ -350,6 +351,13 @@ test('create profile shows vacancy application history for existing draft', asyn
 
   await page.reload();
   await expect(page.locator('#create-application-list')).toContainText('Presented to employer');
+  await page.getByRole('button', { name: 'Mark not available' }).click();
+  await expect(page.locator('#create-status')).toContainText('Application status updated.');
+  await expect(page.locator('#create-application-list')).toContainText('Withdrawn');
+  await expect(page.getByRole('button', { name: 'Mark not available' })).toHaveCount(0);
+
+  await page.reload();
+  await expect(page.locator('#create-application-list')).toContainText('Withdrawn');
 
   const hasOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   expect(hasOverflow).toBe(false);

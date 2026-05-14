@@ -193,6 +193,13 @@
       line-height: 1.55;
     }
 
+    .application-action {
+      min-height: 36px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
     .profile-status-panel {
       display: grid;
       gap: 14px;
@@ -796,6 +803,11 @@
         'create.applications.updated': 'Updated',
         'create.applications.note': 'Your note',
         'create.applications.view': 'Open vacancy',
+        'create.applications.withdraw': 'Withdraw application',
+        'create.applications.notAvailable': 'Mark not available',
+        'create.applications.actionSaving': 'Updating application status...',
+        'create.applications.actionSaved': 'Application status updated.',
+        'create.applications.actionError': 'Could not update application status. Please try again.',
         'create.applicationStatus.submitted_for_human_review': 'Submitted for review',
         'create.applicationStatus.in_review': 'Under review',
         'create.applicationStatus.presented': 'Presented to employer',
@@ -944,6 +956,11 @@
         'create.applications.updated': 'Обновлено',
         'create.applications.note': 'Ваша заметка',
         'create.applications.view': 'Открыть вакансию',
+        'create.applications.withdraw': 'Отозвать отклик',
+        'create.applications.notAvailable': 'Больше не доступен',
+        'create.applications.actionSaving': 'Обновляем статус отклика...',
+        'create.applications.actionSaved': 'Статус отклика обновлен.',
+        'create.applications.actionError': 'Не удалось обновить статус отклика. Попробуйте еще раз.',
         'create.applicationStatus.submitted_for_human_review': 'Отправлено на проверку',
         'create.applicationStatus.in_review': 'На проверке',
         'create.applicationStatus.presented': 'Представлено работодателю',
@@ -1047,6 +1064,15 @@
         return (params.get('draft_id') || '').trim();
       }
 
+      function currentDraftId() {
+        const fromUrl = getDraftIdFromUrl();
+        if (fromUrl) {
+          return fromUrl;
+        }
+        const storedDraft = window.CPGDrafts.getStoredDraft();
+        return storedDraft && typeof storedDraft.draftId === 'string' ? storedDraft.draftId.trim() : '';
+      }
+
       function parsePreferredVesselTypes(rawValue) {
         if (Array.isArray(rawValue)) {
           return rawValue.filter((item) => typeof item === 'string').join(', ');
@@ -1135,6 +1161,24 @@
         row.appendChild(item);
       }
 
+      function canUpdateApplicationStatus(applicationStatus) {
+        return [
+          'submitted_for_human_review',
+          'in_review',
+          'presented',
+        ].includes(typeof applicationStatus === 'string' ? applicationStatus.trim() : '');
+      }
+
+      function createApplicationAction(applicationId, action, labelKey) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'button secondary application-action';
+        button.dataset.applicationId = applicationId;
+        button.dataset.applicationAction = action;
+        button.textContent = t(labelKey);
+        return button;
+      }
+
       function renderApplicationHistory(applications) {
         latestApplications = Array.isArray(applications) ? applications : [];
         applicationList.innerHTML = '';
@@ -1180,19 +1224,73 @@
             item.appendChild(note);
           }
 
+          const actions = document.createElement('div');
+          actions.className = 'section-actions';
+          let hasActions = false;
+
           if (application.publication_status === 'published' && application.vacancy_request_id) {
-            const actions = document.createElement('div');
-            actions.className = 'section-actions';
             const link = document.createElement('a');
             link.className = 'button secondary';
             link.href = `/vacancies/detail/?vacancy_id=${encodeURIComponent(application.vacancy_request_id)}`;
             link.textContent = t('create.applications.view');
             actions.appendChild(link);
+            hasActions = true;
+          }
+
+          if (application.vacancy_application_id && canUpdateApplicationStatus(application.application_status)) {
+            actions.appendChild(createApplicationAction(application.vacancy_application_id, 'withdraw', 'create.applications.withdraw'));
+            actions.appendChild(createApplicationAction(application.vacancy_application_id, 'not_available', 'create.applications.notAvailable'));
+            hasActions = true;
+          }
+
+          if (hasActions) {
             item.appendChild(actions);
           }
 
           applicationList.appendChild(item);
         });
+      }
+
+      function setApplicationActionsDisabled(disabled) {
+        applicationList.querySelectorAll('.application-action').forEach((button) => {
+          button.disabled = disabled;
+        });
+      }
+
+      async function updateApplicationStatus(applicationId, action) {
+        const draftId = currentDraftId();
+        if (!draftId) {
+          status.textContent = t('create.applications.actionError');
+          return;
+        }
+
+        setApplicationActionsDisabled(true);
+        status.textContent = t('create.applications.actionSaving');
+
+        try {
+          const response = await fetch(`/api/v1/seafarer/vacancy-applications/${encodeURIComponent(applicationId)}/status`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              seafarer_draft_id: draftId,
+              action
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`Application action failed with status ${response.status}`);
+          }
+
+          const refreshed = await window.CPGDrafts.getDraft(draftId);
+          renderApplicationHistoryFromResponse(refreshed);
+          status.textContent = t('create.applications.actionSaved');
+        } catch (error) {
+          status.textContent = t('create.applications.actionError');
+          console.error(error);
+          setApplicationActionsDisabled(false);
+        }
       }
 
       function renderApplicationHistoryFromResponse(response) {
@@ -1543,6 +1641,21 @@
           button.classList.add('is-current');
           target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
+      });
+
+      applicationList.addEventListener('click', (event) => {
+        const target = event.target instanceof Element ? event.target.closest('.application-action') : null;
+        if (!target) {
+          return;
+        }
+
+        const applicationId = target.getAttribute('data-application-id') || '';
+        const action = target.getAttribute('data-application-action') || '';
+        if (!applicationId || !action) {
+          return;
+        }
+
+        updateApplicationStatus(applicationId, action);
       });
 
       form.querySelectorAll('input, select, textarea').forEach((input) => {

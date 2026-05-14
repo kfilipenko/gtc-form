@@ -513,6 +513,39 @@ test('employer vacancy request flows through review to public vacancy board', as
   expect(presentedCandidate?.employer_shortlist_status).toBe('interview_requested');
   expect(presentedCandidate?.employer_action_note).toBe('Interview proposed by employer.');
 
+  const seafarerWithdraw = await request.patch(`/seafarer/vacancy-applications/${applicationId}/status`, {
+    data: {
+      seafarer_draft_id: seafarer.draft_id,
+      action: 'not_available',
+    },
+  });
+  expect(seafarerWithdraw.status()).toBe(200);
+  const seafarerWithdrawBody = (await seafarerWithdraw.json()) as Record<string, unknown>;
+  expect(seafarerWithdrawBody.previous_status).toBe('presented');
+  expect(seafarerWithdrawBody.application_status).toBe('withdrawn');
+  expect(seafarerWithdrawBody.action).toBe('not_available');
+
+  const seafarerDraftAfterWithdraw = await request.get(`/registration/drafts/${seafarer.draft_id}`);
+  expect(seafarerDraftAfterWithdraw.status()).toBe(200);
+  const seafarerDraftBody = (await seafarerDraftAfterWithdraw.json()) as DraftResponse;
+  const seafarerApplications = seafarerDraftBody.payload.vacancy_applications as Array<Record<string, unknown>>;
+  const seafarerApplication = seafarerApplications.find((item) => item.vacancy_application_id === applicationId);
+  expect(seafarerApplication?.application_status).toBe('withdrawn');
+
+  const employerDraftAfterWithdraw = await request.get(`/registration/drafts/${created.draft_id}`);
+  expect(employerDraftAfterWithdraw.status()).toBe(200);
+  const employerDraftAfterWithdrawBody = (await employerDraftAfterWithdraw.json()) as DraftResponse;
+  const candidatesAfterWithdraw = employerDraftAfterWithdrawBody.payload.presented_candidates as Array<Record<string, unknown>>;
+  expect(candidatesAfterWithdraw.find((item) => item.vacancy_application_id === applicationId)).toBeFalsy();
+
+  const withdrawnOperatorMove = await request.patch(`/operator/review-queue/${applicationId}/status`, {
+    data: {
+      decision: 'reviewed',
+      queue_type: 'vacancy_application',
+    },
+  });
+  expect(withdrawnOperatorMove.status()).toBe(400);
+
   const mismatchedEmailResponse = await request.post(`/vacancies/${vacancy.vacancy_request_id}/applications`, {
     data: {
       seafarer_draft_id: seafarer.draft_id,
