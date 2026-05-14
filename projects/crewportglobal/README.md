@@ -37,6 +37,7 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - Install or refresh generator dependencies with: source /var/www/.venv/bin/activate && python -m pip install -r projects/crewportglobal/requirements.txt
 - Rebuild public document HTML with: ./projects/crewportglobal/scripts/run_public_generator.sh
 - Validate public i18n coverage with: node projects/crewportglobal/scripts/check_public_i18n.js
+- Publish the current application pages to the live domain with: ./projects/crewportglobal/scripts/publish_live_site.sh
 - The wrapper prefers an already activated virtualenv, then falls back to ../.venv or .venv if present, and stops with a clear error if Markdown or PyYAML are unavailable.
 - If a canonical public Markdown file does not start with valid YAML frontmatter, the generator will fail fast instead of silently emitting partial HTML.
 

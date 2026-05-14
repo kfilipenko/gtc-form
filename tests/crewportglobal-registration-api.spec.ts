@@ -52,6 +52,57 @@ function readLatestOperatorAuditForDraft(draftId: string): {
   };
 }
 
+function cleanupApiTestData(): void {
+  const sql = `
+WITH api_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'api.%@example.com'
+)
+UPDATE crewportglobal.vacancy_requests vr
+SET publication_status = 'closed', updated_at = now()
+FROM api_users au
+WHERE vr.created_by_user_id = au.user_id
+  AND vr.publication_status IN ('submitted_for_human_review', 'in_review', 'published');
+
+WITH api_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'api.%@example.com'
+)
+UPDATE crewportglobal.seafarer_profiles sp
+SET review_status = 'rejected', updated_at = now()
+FROM api_users au
+WHERE sp.user_id = au.user_id
+  AND sp.review_status IN ('submitted_for_human_review', 'in_review', 'approved');
+
+WITH api_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'api.%@example.com'
+),
+api_companies AS (
+  SELECT DISTINCT cu.company_id
+  FROM crewportglobal.company_users cu
+  JOIN api_users au ON au.user_id = cu.user_id
+)
+UPDATE crewportglobal.employer_companies ec
+SET verification_status = 'rejected', updated_at = now()
+FROM api_companies ac
+WHERE ec.company_id = ac.company_id
+  AND ec.verification_status IN ('unverified', 'submitted', 'verified');
+`;
+
+  execSync(
+    'PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -v ON_ERROR_STOP=1 -q',
+    { input: sql, encoding: 'utf8' }
+  );
+}
+
+test.afterEach(() => {
+  cleanupApiTestData();
+});
+
 test('health endpoint returns service status', async ({ request }) => {
   const response = await request.get('/health');
   expect(response.ok()).toBeTruthy();

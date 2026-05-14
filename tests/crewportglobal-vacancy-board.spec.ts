@@ -1,4 +1,45 @@
 import { expect, test } from '@playwright/test';
+import { execSync } from 'node:child_process';
+
+function cleanupVacancyBoardTestData(): void {
+  const sql = `
+WITH ui_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'ui.vacancy.%@example.com'
+)
+UPDATE crewportglobal.vacancy_requests vr
+SET publication_status = 'closed', updated_at = now()
+FROM ui_users uu
+WHERE vr.created_by_user_id = uu.user_id
+  AND vr.publication_status IN ('submitted_for_human_review', 'in_review', 'published');
+
+WITH ui_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'ui.vacancy.%@example.com'
+),
+ui_companies AS (
+  SELECT DISTINCT cu.company_id
+  FROM crewportglobal.company_users cu
+  JOIN ui_users uu ON uu.user_id = cu.user_id
+)
+UPDATE crewportglobal.employer_companies ec
+SET verification_status = 'rejected', updated_at = now()
+FROM ui_companies uc
+WHERE ec.company_id = uc.company_id
+  AND ec.verification_status IN ('unverified', 'submitted', 'verified');
+`;
+
+  execSync(
+    'PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -v ON_ERROR_STOP=1 -q',
+    { input: sql, encoding: 'utf8' }
+  );
+}
+
+test.afterEach(() => {
+  cleanupVacancyBoardTestData();
+});
 
 test('vacancy board renders reviewed public vacancies from API', async ({ page, request }) => {
   const unique = Date.now();
