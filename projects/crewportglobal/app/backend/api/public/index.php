@@ -466,9 +466,12 @@ function upsert_vacancy_request(string $userId, string $companyId, ?string $vess
     return is_array($row) ? (string) $row['vacancy_request_id'] : null;
 }
 
-function read_public_vacancies(): array {
-    $result = api_query(
-        "SELECT
+function public_vacancy_select_clause(bool $includeInternalIds = false): string {
+    $internalColumns = $includeInternalIds ? ',
+            vr.company_id,
+            vr.vessel_id' : '';
+
+    return "SELECT
             vr.vacancy_request_id,
             vr.vacancy_title,
             vr.rank,
@@ -483,16 +486,48 @@ function read_public_vacancies(): array {
             COALESCE(vr.employer_country_code, ec.country_code) AS employer_country_code,
             vr.requirements,
             vr.publication_status,
+            vr.created_at,
             vr.updated_at,
             ec.company_name,
             ec.company_type,
             ec.verification_status,
             v.vessel_name,
-            v.imo_number
+            v.imo_number{$internalColumns}
          FROM crewportglobal.vacancy_requests vr
          JOIN crewportglobal.employer_companies ec ON ec.company_id = vr.company_id
-         LEFT JOIN crewportglobal.vessels v ON v.vessel_id = vr.vessel_id
-         WHERE vr.publication_status = 'published'
+         LEFT JOIN crewportglobal.vessels v ON v.vessel_id = vr.vessel_id";
+}
+
+function map_public_vacancy_row(array $row): array {
+    return [
+        'vacancy_request_id' => $row['vacancy_request_id'],
+        'vacancy_title' => $row['vacancy_title'],
+        'rank' => $row['rank'],
+        'department' => $row['department'],
+        'vessel_type' => $row['vessel_type'],
+        'join_date' => $row['join_date'],
+        'contract_duration' => $row['contract_duration'],
+        'salary_min_usd' => $row['salary_min_usd'],
+        'salary_max_usd' => $row['salary_max_usd'],
+        'salary_text' => $row['salary_text'],
+        'currency' => $row['currency'],
+        'employer_country_code' => $row['employer_country_code'],
+        'requirements' => $row['requirements'],
+        'publication_status' => $row['publication_status'],
+        'created_at' => $row['created_at'] ?? null,
+        'updated_at' => $row['updated_at'],
+        'company_name' => $row['company_name'],
+        'company_type' => $row['company_type'],
+        'verification_status' => $row['verification_status'],
+        'vessel_name' => $row['vessel_name'],
+        'imo_number' => $row['imo_number'],
+    ];
+}
+
+function read_public_vacancies(): array {
+    $result = api_query(
+        public_vacancy_select_clause() .
+        " WHERE vr.publication_status = 'published'
            AND ec.verification_status = 'verified'
          ORDER BY COALESCE(vr.join_date, CURRENT_DATE + INTERVAL '100 years') ASC,
                   vr.updated_at DESC
@@ -501,31 +536,29 @@ function read_public_vacancies(): array {
 
     $items = [];
     while (($row = pg_fetch_assoc($result)) !== false) {
-        $items[] = [
-            'vacancy_request_id' => $row['vacancy_request_id'],
-            'vacancy_title' => $row['vacancy_title'],
-            'rank' => $row['rank'],
-            'department' => $row['department'],
-            'vessel_type' => $row['vessel_type'],
-            'join_date' => $row['join_date'],
-            'contract_duration' => $row['contract_duration'],
-            'salary_min_usd' => $row['salary_min_usd'],
-            'salary_max_usd' => $row['salary_max_usd'],
-            'salary_text' => $row['salary_text'],
-            'currency' => $row['currency'],
-            'employer_country_code' => $row['employer_country_code'],
-            'requirements' => $row['requirements'],
-            'publication_status' => $row['publication_status'],
-            'updated_at' => $row['updated_at'],
-            'company_name' => $row['company_name'],
-            'company_type' => $row['company_type'],
-            'verification_status' => $row['verification_status'],
-            'vessel_name' => $row['vessel_name'],
-            'imo_number' => $row['imo_number'],
-        ];
+        $items[] = map_public_vacancy_row($row);
     }
 
     return $items;
+}
+
+function read_public_vacancy_row(string $vacancyId, bool $includeInternalIds = false): ?array {
+    $result = api_query(
+        public_vacancy_select_clause($includeInternalIds) .
+        " WHERE vr.vacancy_request_id = $1
+           AND vr.publication_status = 'published'
+           AND ec.verification_status = 'verified'
+         LIMIT 1",
+        [$vacancyId]
+    );
+
+    $row = pg_fetch_assoc($result);
+    return is_array($row) ? $row : null;
+}
+
+function read_public_vacancy(string $vacancyId): ?array {
+    $row = read_public_vacancy_row($vacancyId);
+    return $row === null ? null : map_public_vacancy_row($row);
 }
 
 function handle_get_public_vacancies(): void {
@@ -536,6 +569,143 @@ function handle_get_public_vacancies(): void {
         'count' => count($vacancies),
         'generated_at' => gmdate('c'),
     ]);
+}
+
+function handle_get_public_vacancy(string $vacancyId): void {
+    $uuid = api_normalize_uuid($vacancyId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_vacancy_request_id', 'vacancy_request_id must be a valid UUID');
+    }
+
+    $vacancy = read_public_vacancy($uuid);
+    if ($vacancy === null) {
+        api_error(404, 'vacancy_not_found', 'Reviewed public vacancy not found');
+    }
+
+    api_json(200, [
+        'ok' => true,
+        'vacancy' => $vacancy,
+        'generated_at' => gmdate('c'),
+    ]);
+}
+
+function read_seafarer_application_candidate(string $userId): ?array {
+    $result = api_query(
+        "SELECT
+            u.user_id,
+            u.email,
+            u.display_name,
+            sp.review_status,
+            sp.primary_rank,
+            sp.availability_status
+         FROM crewportglobal.users u
+         JOIN crewportglobal.user_roles ur ON ur.user_id = u.user_id AND ur.role = 'seafarer'
+         JOIN crewportglobal.seafarer_profiles sp ON sp.user_id = u.user_id
+         WHERE u.user_id = $1
+         LIMIT 1",
+        [$userId]
+    );
+
+    $row = pg_fetch_assoc($result);
+    return is_array($row) ? $row : null;
+}
+
+function handle_create_vacancy_application(string $vacancyId): void {
+    $uuid = api_normalize_uuid($vacancyId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_vacancy_request_id', 'vacancy_request_id must be a valid UUID');
+    }
+
+    $body = api_decode_json_body();
+    $seafarerDraftId = api_normalize_uuid($body['seafarer_draft_id'] ?? $body['draft_id'] ?? null);
+    if ($seafarerDraftId === null) {
+        api_error(400, 'invalid_seafarer_draft_id', 'seafarer_draft_id must be a valid UUID');
+    }
+
+    $email = api_normalize_email($body['email'] ?? null);
+    if ($email === null) {
+        api_error(400, 'invalid_email', 'email is required and must be valid');
+    }
+
+    $candidateNote = normalize_optional_text($body['candidate_note'] ?? $body['note'] ?? null, 1200);
+    $vacancyRow = read_public_vacancy_row($uuid, true);
+    if ($vacancyRow === null) {
+        api_error(404, 'vacancy_not_found', 'Reviewed public vacancy not found');
+    }
+
+    $candidate = read_seafarer_application_candidate($seafarerDraftId);
+    if ($candidate === null) {
+        api_error(404, 'seafarer_profile_not_found', 'Seafarer profile not found');
+    }
+
+    if (mb_strtolower((string) $candidate['email']) !== $email) {
+        api_error(400, 'email_does_not_match_profile', 'email must match the seafarer profile email');
+    }
+
+    if (($candidate['review_status'] ?? '') === 'rejected') {
+        api_error(400, 'seafarer_profile_not_ready', 'Rejected seafarer profiles cannot apply to vacancies');
+    }
+
+    api_tx_begin();
+    try {
+        $insertResult = api_query(
+            "INSERT INTO crewportglobal.vacancy_applications (
+                vacancy_request_id,
+                seafarer_user_id,
+                contact_email,
+                candidate_note,
+                application_status
+             ) VALUES ($1, $2, $3, $4, 'submitted_for_human_review')
+             ON CONFLICT (vacancy_request_id, seafarer_user_id)
+             DO UPDATE SET
+               contact_email = EXCLUDED.contact_email,
+               candidate_note = EXCLUDED.candidate_note,
+               application_status = CASE
+                 WHEN crewportglobal.vacancy_applications.application_status IN ('withdrawn', 'rejected')
+                   THEN 'submitted_for_human_review'
+                 ELSE crewportglobal.vacancy_applications.application_status
+               END,
+               updated_at = now()
+             RETURNING vacancy_application_id, application_status, created_at, updated_at",
+            [$uuid, $seafarerDraftId, $email, $candidateNote]
+        );
+        $applicationRow = pg_fetch_assoc($insertResult);
+        if (!is_array($applicationRow)) {
+            api_tx_rollback();
+            api_error(500, 'vacancy_application_failed', 'Unable to create vacancy application');
+        }
+
+        $companyId = isset($vacancyRow['company_id']) ? (string) $vacancyRow['company_id'] : null;
+        $vesselId = isset($vacancyRow['vessel_id']) ? (string) $vacancyRow['vessel_id'] : null;
+        if ($vesselId === '') {
+            $vesselId = null;
+        }
+
+        write_audit_event('vacancy_application_submitted', $seafarerDraftId, $companyId, $vesselId, [
+            'vacancy_request_id' => $uuid,
+            'vacancy_application_id' => $applicationRow['vacancy_application_id'],
+            'application_status' => $applicationRow['application_status'],
+            'candidate_review_status' => $candidate['review_status'],
+            'candidate_rank' => $candidate['primary_rank'],
+        ], 'vacancy_detail_public');
+
+        api_tx_commit();
+
+        api_json(201, [
+            'ok' => true,
+            'vacancy_request_id' => $uuid,
+            'application' => [
+                'vacancy_application_id' => $applicationRow['vacancy_application_id'],
+                'application_status' => $applicationRow['application_status'],
+                'created_at' => $applicationRow['created_at'],
+                'updated_at' => $applicationRow['updated_at'],
+            ],
+            'generated_at' => gmdate('c'),
+        ]);
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'vacancy_application_failed', $error->getMessage());
+    }
 }
 
 function read_latest_operator_review_event(string $userId): ?array {
@@ -1587,6 +1757,22 @@ if ($method === 'GET' && $path === '/operator/review-queue') {
 
 if ($method === 'GET' && $path === '/vacancies') {
     handle_get_public_vacancies();
+}
+
+if (preg_match('#^/vacancies/([^/]+)$#', $path, $matches) === 1) {
+    if ($method === 'GET') {
+        handle_get_public_vacancy($matches[1]);
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if (preg_match('#^/vacancies/([^/]+)/applications$#', $path, $matches) === 1) {
+    if ($method === 'POST') {
+        handle_create_vacancy_application($matches[1]);
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
 }
 
 if (preg_match('#^/operator/review-queue/([^/]+)/status$#', $path, $matches) === 1) {

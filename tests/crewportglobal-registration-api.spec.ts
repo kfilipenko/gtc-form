@@ -58,6 +58,20 @@ WITH api_users AS (
   SELECT user_id
   FROM crewportglobal.users
   WHERE email LIKE 'api.%@example.com'
+),
+api_vacancies AS (
+  SELECT vacancy_request_id
+  FROM crewportglobal.vacancy_requests vr
+  JOIN api_users au ON au.user_id = vr.created_by_user_id
+)
+DELETE FROM crewportglobal.vacancy_applications va
+WHERE va.seafarer_user_id IN (SELECT user_id FROM api_users)
+   OR va.vacancy_request_id IN (SELECT vacancy_request_id FROM api_vacancies);
+
+WITH api_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'api.%@example.com'
 )
 UPDATE crewportglobal.vacancy_requests vr
 SET publication_status = 'closed', updated_at = now()
@@ -400,6 +414,51 @@ test('employer vacancy request flows through review to public vacancy board', as
   expect(publicVacancy?.vessel_type).toBe('Bulk Carrier');
   expect(publicVacancy?.salary_min_usd).toBe('6500.00');
   expect(publicVacancy?.salary_max_usd).toBe('7200.00');
+
+  const publicVacancyDetailResponse = await request.get(`/vacancies/${vacancy.vacancy_request_id}`);
+  expect(publicVacancyDetailResponse.status()).toBe(200);
+  const publicVacancyDetail = (await publicVacancyDetailResponse.json()) as {
+    ok: boolean;
+    vacancy: Record<string, unknown>;
+  };
+  expect(publicVacancyDetail.ok).toBe(true);
+  expect(publicVacancyDetail.vacancy.vacancy_title).toBe('Chief Officer');
+
+  const seafarerCreate = await request.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email: `api.vacancy.application.${unique}@example.com`,
+      full_name: 'Vacancy Application Seafarer',
+      rank: 'Chief Officer',
+      department: 'deck',
+      availability_status: 'available_now',
+    },
+  });
+  expect(seafarerCreate.status()).toBe(201);
+  const seafarer = (await seafarerCreate.json()) as DraftResponse;
+
+  const applicationResponse = await request.post(`/vacancies/${vacancy.vacancy_request_id}/applications`, {
+    data: {
+      seafarer_draft_id: seafarer.draft_id,
+      email: seafarer.email,
+      note: 'Available now with documents ready for review.',
+    },
+  });
+  expect(applicationResponse.status()).toBe(201);
+  const applicationBody = (await applicationResponse.json()) as {
+    ok: boolean;
+    application: Record<string, unknown>;
+  };
+  expect(applicationBody.ok).toBe(true);
+  expect(applicationBody.application.application_status).toBe('submitted_for_human_review');
+
+  const mismatchedEmailResponse = await request.post(`/vacancies/${vacancy.vacancy_request_id}/applications`, {
+    data: {
+      seafarer_draft_id: seafarer.draft_id,
+      email: 'wrong.application@example.com',
+    },
+  });
+  expect(mismatchedEmailResponse.status()).toBe(400);
 });
 
 test('operator review queue returns submitted seafarer and company drafts', async ({ request }) => {

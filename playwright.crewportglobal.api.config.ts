@@ -35,6 +35,8 @@ export default defineConfig({
       'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/002_extend_seafarer_profiles_practical_fields.sql',
       '&& PGHOST=${PGHOST:-127.0.0.1} PGUSER=${PGUSER:-gtc_user} PGPASSWORD=${PGPASSWORD:-gtc_pass} PGDATABASE=${PGDATABASE:-gtc_db}',
       'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/003_create_vacancy_requests.sql',
+      '&& PGHOST=${PGHOST:-127.0.0.1} PGUSER=${PGUSER:-gtc_user} PGPASSWORD=${PGPASSWORD:-gtc_pass} PGDATABASE=${PGDATABASE:-gtc_db}',
+      'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/004_create_vacancy_applications.sql',
       '&& cd projects/crewportglobal/app/backend/api/public',
       '&& export CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN="${CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN:-${CPG_OPERATOR_ACCESS_TOKEN:-crewportglobal-local-operator}}"',
       `&& php -S ${host}:${port} router.php`,

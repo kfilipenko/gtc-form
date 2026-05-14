@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Vacancy details</title>
+  <meta name="description" content="CrewPortGlobal reviewed vacancy detail page with seafarer application action.">
+  <link rel="canonical" href="https://crewportglobal.com/vacancies/detail/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../../assets/crewportglobal-docs.css">
+  <link rel="stylesheet" href="../../assets/crewportglobal-app.css">
+  <style>
+    .detail-page {
+      display: grid;
+      gap: 16px;
+    }
+
+    .detail-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.42fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .detail-main,
+    .apply-panel,
+    .detail-support {
+      display: grid;
+      gap: 18px;
+      padding: 24px;
+    }
+
+    .detail-visual {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      border: 1px solid var(--app-line);
+      border-radius: 8px;
+      background: var(--app-surface-2);
+    }
+
+    .detail-title {
+      margin: 0;
+      max-width: 20ch;
+      color: var(--app-ink);
+      font-size: clamp(34px, 4.4vw, 56px);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .detail-copy,
+    .detail-requirements,
+    .apply-panel p,
+    .field-note,
+    .status-note {
+      color: var(--app-muted);
+      line-height: 1.65;
+    }
+
+    .detail-copy,
+    .detail-requirements,
+    .apply-panel p {
+      margin: 0;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .meta-item {
+      display: grid;
+      gap: 6px;
+      min-height: 78px;
+      padding: 14px;
+      border: 1px solid var(--app-line);
+      border-radius: 8px;
+      background: var(--app-surface-2);
+    }
+
+    .meta-item span {
+      color: var(--app-muted);
+      font-size: 12px;
+      line-height: 1.25;
+      text-transform: uppercase;
+    }
+
+    .meta-item strong {
+      color: var(--app-ink);
+      font-size: 15px;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .requirements-box {
+      display: grid;
+      gap: 8px;
+      padding-top: 16px;
+      border-top: 1px solid var(--app-line);
+    }
+
+    .sidebar-stack,
+    .apply-form {
+      display: grid;
+      gap: 16px;
+    }
+
+    .field-card {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field-card strong {
+      color: var(--app-ink);
+      font-size: 14px;
+    }
+
+    .field-card input,
+    .field-card textarea {
+      width: 100%;
+      min-height: 46px;
+      padding: 12px 13px;
+      border: 1px solid var(--app-line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--app-ink);
+      font: inherit;
+    }
+
+    .field-card textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .detail-status {
+      display: inline-flex;
+      width: fit-content;
+      min-height: 36px;
+      align-items: center;
+      padding: 8px 12px;
+      border: 1px solid var(--app-line);
+      border-radius: 8px;
+      background: var(--app-surface-2);
+      color: var(--app-muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .detail-status.is-success {
+      border-color: rgba(12, 128, 104, 0.28);
+      background: rgba(12, 128, 104, 0.08);
+      color: var(--app-green);
+    }
+
+    .detail-status.is-error {
+      border-color: rgba(199, 67, 42, 0.28);
+      background: rgba(199, 67, 42, 0.08);
+      color: #a73521;
+    }
+
+    .detail-status.is-progress {
+      border-color: rgba(40, 104, 167, 0.28);
+      background: rgba(40, 104, 167, 0.08);
+      color: var(--app-blue);
+    }
+
+    .breadcrumb-link {
+      width: fit-content;
+      color: var(--app-ocean-dark);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .breadcrumb-link:hover {
+      text-decoration: underline;
+    }
+
+    .trust-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding-left: 18px;
+      color: var(--app-muted);
+      line-height: 1.55;
+    }
+
+    .site-nav {
+      margin-top: 16px;
+      padding: 12px;
+      gap: 8px;
+    }
+
+    .nav-link {
+      padding: 11px 13px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .detail-layout,
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-main,
+      .apply-panel,
+      .detail-support {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body class="doc-body cpg-app-page">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="site-nav" aria-label="Vacancy detail navigation">
+      <a class="nav-link" href="/" data-i18n="nav.home">Home</a>
+      <a class="nav-link is-active" href="/vacancies/" data-i18n="nav.vacancies">Vacancies</a>
+      <a class="nav-link" href="/for-seafarers/" data-i18n="nav.forSeafarers">For Seafarers</a>
+      <a class="nav-link" href="/for-shipowners/" data-i18n="nav.forShipowners">For Employers</a>
+      <a class="nav-link" href="/create-profile/" data-i18n="nav.createProfile">Create Profile</a>
+      <a class="nav-link" href="/post-vacancy/" data-i18n="nav.postVacancy">Post Vacancy</a>
+      <a class="nav-link" href="/how-it-works/" data-i18n="nav.howItWorks">How It Works</a>
+      <a class="nav-link" href="/legal/verification-policy/" data-i18n="nav.trustSafety">Trust &amp; Safety</a>
+      <a class="nav-link" href="/register/" data-i18n="nav.loginRegister">Login / Register</a>
+    </nav>
+
+    <main class="detail-page">
+      <section class="detail-layout">
+        <article class="card detail-main">
+          <a class="breadcrumb-link" href="/vacancies/" data-i18n="detail.back">Back to vacancies</a>
+          <p class="eyebrow" data-i18n="detail.eyebrow">Reviewed vacancy</p>
+          <h1 id="detail-title" class="detail-title">Loading vacancy...</h1>
+          <p id="detail-summary" class="detail-copy">We are loading the reviewed vacancy details from CrewPortGlobal.</p>
+          <span id="detail-status" class="detail-status">Loading</span>
+
+          <div class="meta-grid" aria-label="Vacancy facts">
+            <div class="meta-item">
+              <span data-i18n="detail.meta.company">Company</span>
+              <strong id="detail-company">-</strong>
+            </div>
+            <div class="meta-item">
+              <span data-i18n="detail.meta.vessel">Vessel</span>
+              <strong id="detail-vessel">-</strong>
+            </div>
+            <div class="meta-item">
+              <span data-i18n="detail.meta.department">Department</span>
+              <strong id="detail-department">-</strong>
+            </div>
+            <div class="meta-item">
+              <span data-i18n="detail.meta.joinDate">Join date</span>
+              <strong id="detail-join-date">-</strong>
+            </div>
+            <div class="meta-item">
+              <span data-i18n="detail.meta.duration">Duration</span>
+              <strong id="detail-duration">-</strong>
+            </div>
+            <div class="meta-item">
+              <span data-i18n="detail.meta.salary">Salary</span>
+              <strong id="detail-salary">-</strong>
+            </div>
+            <div class="meta-item">
+              <span data-i18n="detail.meta.country">Employer country</span>
+              <strong id="detail-country">-</strong>
+            </div>
+            <div class="meta-item">
+              <span data-i18n="detail.meta.updated">Updated</span>
+              <strong id="detail-updated">-</strong>
+            </div>
+          </div>
+
+          <div class="requirements-box">
+            <strong data-i18n="detail.requirements.title">Requirements</strong>
+            <p id="detail-requirements" class="detail-requirements">Requirements will appear here when they are available.</p>
+          </div>
+        </article>
+
+        <aside class="sidebar-stack">
+          <img class="detail-visual" src="../../assets/maritime-operations.jpg" alt="Container vessel operations in port" loading="lazy">
+
+          <section class="card apply-panel" aria-labelledby="apply-title">
+            <p class="eyebrow" data-i18n="detail.apply.eyebrow">Seafarer action</p>
+            <h2 id="apply-title" data-i18n="detail.apply.title">Apply with your CrewPortGlobal profile</h2>
+            <p data-i18n="detail.apply.copy">Your application is recorded for human review. CrewPortGlobal does not promise automatic employment or automatic employer contact.</p>
+
+            <form id="apply-form" class="apply-form">
+              <label class="field-card">
+                <strong data-i18n="detail.apply.draftId">Profile reference</strong>
+                <input id="apply-draft-id" name="seafarer_draft_id" autocomplete="off" placeholder="Seafarer profile draft ID" data-i18n-placeholder="detail.apply.draftId.placeholder" required>
+                <span class="field-note" data-i18n="detail.apply.draftId.note">Use the profile reference created on the seafarer profile page.</span>
+              </label>
+
+              <label class="field-card">
+                <strong data-i18n="detail.apply.email">Profile email</strong>
+                <input id="apply-email" name="email" type="email" autocomplete="email" placeholder="name@example.com" data-i18n-placeholder="detail.apply.email.placeholder" required>
+              </label>
+
+              <label class="field-card">
+                <strong data-i18n="detail.apply.note">Short note</strong>
+                <textarea id="apply-note" name="note" maxlength="1200" placeholder="Availability, documents or questions for review" data-i18n-placeholder="detail.apply.note.placeholder"></textarea>
+              </label>
+
+              <div class="form-actions">
+                <button id="apply-submit" class="button primary" type="submit" data-i18n="detail.apply.submit">Submit Application</button>
+                <a class="button secondary" href="/create-profile/" data-i18n="detail.apply.createProfile">Create Profile</a>
+              </div>
+              <span id="apply-status" class="detail-status">Waiting for profile data</span>
+            </form>
+          </section>
+
+          <section class="card detail-support">
+            <p class="eyebrow" data-i18n="detail.trust.eyebrow">Trust boundary</p>
+            <h2 data-i18n="detail.trust.title">Reviewed vacancy, reviewed next step.</h2>
+            <ul class="trust-list">
+              <li data-i18n="detail.trust.item1">Only reviewed public vacancies are shown here.</li>
+              <li data-i18n="detail.trust.item2">Applications are stored for manual review.</li>
+              <li data-i18n="detail.trust.item3">No recruitment fees are requested from seafarers.</li>
+            </ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'detail.back': 'Back to vacancies',
+        'detail.eyebrow': 'Reviewed vacancy',
+        'detail.loadingTitle': 'Loading vacancy...',
+        'detail.loadingCopy': 'We are loading the reviewed vacancy details from CrewPortGlobal.',
+        'detail.status.loading': 'Loading',
+        'detail.status.ready': 'Ready to apply',
+        'detail.status.notFound': 'Vacancy unavailable',
+        'detail.meta.company': 'Company',
+        'detail.meta.vessel': 'Vessel',
+        'detail.meta.department': 'Department',
+        'detail.meta.joinDate': 'Join date',
+        'detail.meta.duration': 'Duration',
+        'detail.meta.salary': 'Salary',
+        'detail.meta.country': 'Employer country',
+        'detail.meta.updated': 'Updated',
+        'detail.requirements.title': 'Requirements',
+        'detail.requirements.empty': 'Requirements will appear here when they are available.',
+        'detail.summary': '{company} is looking for {rank}. The vacancy is published after CrewPortGlobal review.',
+        'detail.fallbackTitle': 'Maritime vacancy',
+        'detail.notFoundTitle': 'Vacancy is not available',
+        'detail.notFoundCopy': 'This vacancy is missing, closed or not ready for public display.',
+        'detail.salary.request': 'Salary on request',
+        'detail.value.empty': 'Not specified',
+        'detail.apply.eyebrow': 'Seafarer action',
+        'detail.apply.title': 'Apply with your CrewPortGlobal profile',
+        'detail.apply.copy': 'Your application is recorded for human review. CrewPortGlobal does not promise automatic employment or automatic employer contact.',
+        'detail.apply.draftId': 'Profile reference',
+        'detail.apply.draftId.placeholder': 'Seafarer profile draft ID',
+        'detail.apply.draftId.note': 'Use the profile reference created on the seafarer profile page.',
+        'detail.apply.email': 'Profile email',
+        'detail.apply.email.placeholder': 'name@example.com',
+        'detail.apply.note': 'Short note',
+        'detail.apply.note.placeholder': 'Availability, documents or questions for review',
+        'detail.apply.submit': 'Submit Application',
+        'detail.apply.createProfile': 'Create Profile',
+        'detail.apply.waiting': 'Waiting for profile data',
+        'detail.apply.ready': 'Profile data found. You can submit the application.',
+        'detail.apply.profileRequired': 'Create or load a seafarer profile before applying.',
+        'detail.apply.submitting': 'Submitting application...',
+        'detail.apply.success': 'Application submitted for human review. Reference: {id}',
+        'detail.apply.error': 'Application could not be submitted.',
+        'detail.trust.eyebrow': 'Trust boundary',
+        'detail.trust.title': 'Reviewed vacancy, reviewed next step.',
+        'detail.trust.item1': 'Only reviewed public vacancies are shown here.',
+        'detail.trust.item2': 'Applications are stored for manual review.',
+        'detail.trust.item3': 'No recruitment fees are requested from seafarers.'
+      },
+      ru: {
+        'detail.back': 'Назад к вакансиям',
+        'detail.eyebrow': 'Проверенная вакансия',
+        'detail.loadingTitle': 'Загружаем вакансию...',
+        'detail.loadingCopy': 'Мы загружаем проверенные детали вакансии из CrewPortGlobal.',
+        'detail.status.loading': 'Загрузка',
+        'detail.status.ready': 'Можно откликнуться',
+        'detail.status.notFound': 'Вакансия недоступна',
+        'detail.meta.company': 'Компания',
+        'detail.meta.vessel': 'Судно',
+        'detail.meta.department': 'Департамент',
+        'detail.meta.joinDate': 'Дата посадки',
+        'detail.meta.duration': 'Длительность',
+        'detail.meta.salary': 'Зарплата',
+        'detail.meta.country': 'Страна работодателя',
+        'detail.meta.updated': 'Обновлено',
+        'detail.requirements.title': 'Требования',
+        'detail.requirements.empty': 'Требования появятся здесь, когда они будут доступны.',
+        'detail.summary': '{company} ищет кандидата на позицию {rank}. Вакансия опубликована после проверки CrewPortGlobal.',
+        'detail.fallbackTitle': 'Морская вакансия',
+        'detail.notFoundTitle': 'Вакансия недоступна',
+        'detail.notFoundCopy': 'Эта вакансия отсутствует, закрыта или пока не готова к публичному показу.',
+        'detail.salary.request': 'Зарплата по запросу',
+        'detail.value.empty': 'Не указано',
+        'detail.apply.eyebrow': 'Действие моряка',
+        'detail.apply.title': 'Откликнуться с профилем CrewPortGlobal',
+        'detail.apply.copy': 'Ваш отклик сохраняется для ручной проверки. CrewPortGlobal не обещает автоматическое трудоустройство или автоматический контакт работодателя.',
+        'detail.apply.draftId': 'Ссылка на профиль',
+        'detail.apply.draftId.placeholder': 'ID черновика профиля моряка',
+        'detail.apply.draftId.note': 'Используйте ссылку на профиль, созданную на странице профиля моряка.',
+        'detail.apply.email': 'Email профиля',
+        'detail.apply.email.placeholder': 'name@example.com',
+        'detail.apply.note': 'Короткая заметка',
+        'detail.apply.note.placeholder': 'Готовность, документы или вопросы для проверки',
+        'detail.apply.submit': 'Отправить отклик',
+        'detail.apply.createProfile': 'Создать профиль',
+        'detail.apply.waiting': 'Ожидаем данные профиля',
+        'detail.apply.ready': 'Данные профиля найдены. Можно отправить отклик.',
+        'detail.apply.profileRequired': 'Создайте или загрузите профиль моряка перед откликом.',
+        'detail.apply.submitting': 'Отправляем отклик...',
+        'detail.apply.success': 'Отклик отправлен на ручную проверку. Ссылка: {id}',
+        'detail.apply.error': 'Не удалось отправить отклик.',
+        'detail.trust.eyebrow': 'Граница доверия',
+        'detail.trust.title': 'Проверенная вакансия и проверенный следующий шаг.',
+        'detail.trust.item1': 'Здесь показываются только проверенные публичные вакансии.',
+        'detail.trust.item2': 'Отклики сохраняются для ручной проверки.',
+        'detail.trust.item3': 'С моряков не запрашиваются рекрутинговые сборы.'
+      }
+    };
+  </script>
+  <script src="../../assets/crewportglobal-registration-drafts.js"></script>
+  <script src="../../assets/crewportglobal-public-i18n.js" defer></script>
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const vacancyId = (params.get('vacancy_id') || params.get('id') || '').trim();
+      const titleEl = document.getElementById('detail-title');
+      const summaryEl = document.getElementById('detail-summary');
+      const statusEl = document.getElementById('detail-status');
+      const requirementsEl = document.getElementById('detail-requirements');
+      const applyForm = document.getElementById('apply-form');
+      const draftInput = document.getElementById('apply-draft-id');
+      const emailInput = document.getElementById('apply-email');
+      const noteInput = document.getElementById('apply-note');
+      const applySubmit = document.getElementById('apply-submit');
+      const applyStatus = document.getElementById('apply-status');
+      let currentVacancy = null;
+      let detailState = 'loading';
+
+      function getLanguage() {
+        const lang = document.documentElement.lang || 'en';
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang] ? lang : 'en';
+      }
+
+      function t(key, values) {
+        const lang = getLanguage();
+        const raw = window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang][key] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key] || key;
+        if (!values) {
+          return raw;
+        }
+        return Object.entries(values).reduce((result, entry) => result.replace(`{${entry[0]}}`, String(entry[1])), raw);
+      }
+
+      function hasText(value) {
+        return typeof value === 'string' && value.trim() !== '';
+      }
+
+      function valueOrEmpty(value) {
+        return hasText(value) ? value.trim() : t('detail.value.empty');
+      }
+
+      function setMeta(id, value) {
+        const element = document.getElementById(id);
+        if (element) {
+          element.textContent = valueOrEmpty(value);
+        }
+      }
+
+      function setStatus(element, text, mode) {
+        element.textContent = text;
+        element.className = `detail-status${mode ? ` is-${mode}` : ''}`;
+      }
+
+      function salaryText(vacancy) {
+        if (hasText(vacancy.salary_text)) {
+          return vacancy.salary_text;
+        }
+        const currency = vacancy.currency || 'USD';
+        if (hasText(vacancy.salary_min_usd) && hasText(vacancy.salary_max_usd)) {
+          return `${currency} ${vacancy.salary_min_usd} - ${vacancy.salary_max_usd}`;
+        }
+        if (hasText(vacancy.salary_min_usd)) {
+          return `${currency} ${vacancy.salary_min_usd}+`;
+        }
+        if (hasText(vacancy.salary_max_usd)) {
+          return `${currency} up to ${vacancy.salary_max_usd}`;
+        }
+        return t('detail.salary.request');
+      }
+
+      function renderVacancy() {
+        if (!currentVacancy) {
+          return;
+        }
+
+        detailState = 'ready';
+        const vacancy = currentVacancy;
+        const title = vacancy.vacancy_title || vacancy.rank || t('detail.fallbackTitle');
+        const rank = vacancy.rank || title;
+        const company = vacancy.company_name || t('detail.value.empty');
+        titleEl.textContent = title;
+        document.title = `CrewPortGlobal | ${title}`;
+        summaryEl.textContent = t('detail.summary', { company, rank });
+        setStatus(statusEl, t('detail.status.ready'), 'success');
+
+        setMeta('detail-company', vacancy.company_name);
+        setMeta('detail-vessel', vacancy.vessel_name || vacancy.vessel_type);
+        setMeta('detail-department', vacancy.department);
+        setMeta('detail-join-date', vacancy.join_date);
+        setMeta('detail-duration', vacancy.contract_duration);
+        setMeta('detail-salary', salaryText(vacancy));
+        setMeta('detail-country', vacancy.employer_country_code);
+        setMeta('detail-updated', vacancy.updated_at);
+        requirementsEl.textContent = hasText(vacancy.requirements)
+          ? vacancy.requirements
+          : t('detail.requirements.empty');
+      }
+
+      function renderUnavailableVacancy() {
+        detailState = 'unavailable';
+        titleEl.textContent = t('detail.notFoundTitle');
+        summaryEl.textContent = t('detail.notFoundCopy');
+        requirementsEl.textContent = t('detail.requirements.empty');
+        setStatus(statusEl, t('detail.status.notFound'), 'error');
+      }
+
+      function prefillProfile() {
+        const stored = window.CPGDrafts && typeof window.CPGDrafts.getStoredDraft === 'function'
+          ? window.CPGDrafts.getStoredDraft()
+          : { draftId: '', email: '' };
+
+        if (stored.draftId && !draftInput.value) {
+          draftInput.value = stored.draftId;
+        }
+        if (stored.email && !emailInput.value) {
+          emailInput.value = stored.email;
+        }
+      }
+
+      function updateApplyReadiness() {
+        const ready = hasText(draftInput.value) && hasText(emailInput.value) && currentVacancy !== null;
+        applySubmit.disabled = !ready;
+        if (ready) {
+          setStatus(applyStatus, t('detail.apply.ready'), 'success');
+        } else {
+          setStatus(applyStatus, t('detail.apply.profileRequired'), '');
+        }
+      }
+
+      async function loadVacancy() {
+        if (!vacancyId) {
+          renderUnavailableVacancy();
+          updateApplyReadiness();
+          return;
+        }
+
+        setStatus(statusEl, t('detail.status.loading'), 'progress');
+        try {
+          const response = await fetch(`/api/v1/vacancies/${encodeURIComponent(vacancyId)}`);
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || payload.ok !== true || !payload.vacancy) {
+            throw new Error(payload.message || 'vacancy_not_found');
+          }
+          currentVacancy = payload.vacancy;
+          renderVacancy();
+          updateApplyReadiness();
+        } catch (error) {
+          currentVacancy = null;
+          renderUnavailableVacancy();
+          updateApplyReadiness();
+        }
+      }
+
+      applyForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!currentVacancy || !vacancyId) {
+          return;
+        }
+
+        setStatus(applyStatus, t('detail.apply.submitting'), 'progress');
+        applySubmit.disabled = true;
+        let submissionSucceeded = false;
+
+        try {
+          const response = await fetch(`/api/v1/vacancies/${encodeURIComponent(vacancyId)}/applications`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              seafarer_draft_id: draftInput.value.trim(),
+              email: emailInput.value.trim(),
+              note: noteInput.value.trim()
+            })
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || payload.ok !== true || !payload.application) {
+            throw new Error(payload.message || t('detail.apply.error'));
+          }
+          const reference = String(payload.application.vacancy_application_id || '').slice(0, 8);
+          setStatus(applyStatus, t('detail.apply.success', { id: reference }), 'success');
+          submissionSucceeded = true;
+        } catch (error) {
+          setStatus(applyStatus, error.message || t('detail.apply.error'), 'error');
+        } finally {
+          if (submissionSucceeded) {
+            applySubmit.disabled = false;
+          } else {
+            updateApplyReadiness();
+          }
+        }
+      });
+
+      draftInput.addEventListener('input', updateApplyReadiness);
+      emailInput.addEventListener('input', updateApplyReadiness);
+      window.addEventListener('crewportglobal:languagechange', () => {
+        if (detailState === 'unavailable') {
+          renderUnavailableVacancy();
+        } else {
+          renderVacancy();
+        }
+        updateApplyReadiness();
+      });
+
+      prefillProfile();
+      updateApplyReadiness();
+      loadVacancy();
+    })();
+  </script>
+</body>
+</html>

@@ -298,6 +298,10 @@
       gap: 14px;
     }
 
+    .live-vacancy-actions {
+      margin-top: 2px;
+    }
+
     .inline-actions .button {
       min-height: 50px;
       padding: 13px 20px;
@@ -572,6 +576,7 @@
         'vacancies.live.salaryRequest': 'Salary on request',
         'vacancies.live.country': 'Country',
         'vacancies.live.requirements': 'Requirements',
+        'vacancies.live.open': 'View Details',
         'vacancies.empty.eyebrow': 'Current public availability',
         'vacancies.empty.title': 'No public vacancies are available yet',
         'vacancies.empty.copy': 'Create a seafarer profile to be ready to apply, or prepare a vacancy request if you represent an employer.',
@@ -645,6 +650,7 @@
         'vacancies.live.salaryRequest': 'Зарплата по запросу',
         'vacancies.live.country': 'Страна',
         'vacancies.live.requirements': 'Требования',
+        'vacancies.live.open': 'Открыть детали',
         'vacancies.empty.eyebrow': 'Текущая публичная доступность',
         'vacancies.empty.title': 'Публичных вакансий пока нет',
         'vacancies.empty.copy': 'Создайте профиль моряка, чтобы быть готовым к отклику, или подготовьте запрос на вакансию, если вы представляете работодателя.',
@@ -827,6 +833,17 @@
           requirements.className = 'vacancy-requirements';
           requirements.textContent = `${t('vacancies.live.requirements')}: ${vacancy.requirements}`;
           item.appendChild(requirements);
+        }
+
+        if (hasText(vacancy.vacancy_request_id)) {
+          const actions = document.createElement('div');
+          actions.className = 'inline-actions live-vacancy-actions';
+          const link = document.createElement('a');
+          link.className = 'button secondary';
+          link.href = `/vacancies/detail/?vacancy_id=${encodeURIComponent(vacancy.vacancy_request_id)}`;
+          link.textContent = t('vacancies.live.open');
+          actions.appendChild(link);
+          item.appendChild(actions);
         }
 
         return item;

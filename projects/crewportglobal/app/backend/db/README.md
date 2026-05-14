@@ -8,12 +8,14 @@ Current step:
 
 - CPG-BE-001: registration database foundation
 - CPG-MKT-002: reviewed vacancy request foundation
+- CPG-MKT-003: reviewed vacancy application foundation
 
 ## Migration Files
 
 - migrations/001_create_registration_foundation.sql
 - migrations/002_extend_seafarer_profiles_practical_fields.sql
 - migrations/003_create_vacancy_requests.sql
+- migrations/004_create_vacancy_applications.sql
 
 ## Objects Created by 001
 
@@ -35,6 +37,7 @@ Tables:
 Additional marketplace table:
 
 - crewportglobal.vacancy_requests
+- crewportglobal.vacancy_applications
 
 ## Apply Migration
 
@@ -44,6 +47,7 @@ Example command:
 PGUSER=<user> PGPASSWORD=<password> PGDATABASE=<db> psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/001_create_registration_foundation.sql
 PGUSER=<user> PGPASSWORD=<password> PGDATABASE=<db> psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/002_extend_seafarer_profiles_practical_fields.sql
 PGUSER=<user> PGPASSWORD=<password> PGDATABASE=<db> psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/003_create_vacancy_requests.sql
+PGUSER=<user> PGPASSWORD=<password> PGDATABASE=<db> psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/004_create_vacancy_applications.sql
 ```
 
 ## Idempotency

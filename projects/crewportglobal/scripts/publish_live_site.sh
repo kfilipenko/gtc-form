@@ -14,7 +14,8 @@ rsync -av --exclude='.well-known/' \
 for migration in \
   projects/crewportglobal/app/backend/db/migrations/001_create_registration_foundation.sql \
   projects/crewportglobal/app/backend/db/migrations/002_extend_seafarer_profiles_practical_fields.sql \
-  projects/crewportglobal/app/backend/db/migrations/003_create_vacancy_requests.sql
+  projects/crewportglobal/app/backend/db/migrations/003_create_vacancy_requests.sql \
+  projects/crewportglobal/app/backend/db/migrations/004_create_vacancy_applications.sql
 do
   PGHOST="${PGHOST:-127.0.0.1}" \
   PGUSER="${PGUSER:-gtc_user}" \
