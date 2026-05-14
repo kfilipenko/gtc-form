@@ -9,12 +9,57 @@ WITH ui_users AS (
   WHERE email LIKE 'ui.prefill.%@example.com'
      OR email LIKE 'ui.localprefill.%@example.com'
      OR email LIKE 'ui.correction.%@example.com'
+     OR email LIKE 'ui.apphistory.%@example.com'
+),
+ui_vacancies AS (
+  SELECT vacancy_request_id
+  FROM crewportglobal.vacancy_requests vr
+  JOIN ui_users uu ON uu.user_id = vr.created_by_user_id
+)
+DELETE FROM crewportglobal.vacancy_applications va
+WHERE va.seafarer_user_id IN (SELECT user_id FROM ui_users)
+   OR va.vacancy_request_id IN (SELECT vacancy_request_id FROM ui_vacancies);
+
+WITH ui_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'ui.prefill.%@example.com'
+     OR email LIKE 'ui.localprefill.%@example.com'
+     OR email LIKE 'ui.correction.%@example.com'
+     OR email LIKE 'ui.apphistory.%@example.com'
 )
 UPDATE crewportglobal.seafarer_profiles sp
 SET review_status = 'rejected', updated_at = now()
 FROM ui_users uu
 WHERE sp.user_id = uu.user_id
   AND sp.review_status IN ('submitted_for_human_review', 'in_review', 'approved');
+
+WITH ui_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'ui.apphistory.%@example.com'
+)
+UPDATE crewportglobal.vacancy_requests vr
+SET publication_status = 'closed', updated_at = now()
+FROM ui_users uu
+WHERE vr.created_by_user_id = uu.user_id
+  AND vr.publication_status IN ('submitted_for_human_review', 'in_review', 'published');
+
+WITH ui_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'ui.apphistory.%@example.com'
+),
+ui_companies AS (
+  SELECT DISTINCT cu.company_id
+  FROM crewportglobal.company_users cu
+  JOIN ui_users uu ON uu.user_id = cu.user_id
+)
+UPDATE crewportglobal.employer_companies ec
+SET verification_status = 'rejected', updated_at = now()
+FROM ui_companies uc
+WHERE ec.company_id = uc.company_id
+  AND ec.verification_status IN ('unverified', 'submitted', 'verified');
 `;
 
   execSync(
@@ -192,4 +237,120 @@ test('create profile shows needs correction status and latest correction note fo
   await expect(page.locator('#create-email')).toHaveValue(email);
   await expect(page.locator('#create-rank')).toHaveValue('Third Officer');
   await expect(page.locator('#create-department')).toHaveValue('deck');
+});
+
+test('create profile shows vacancy application history for existing draft', async ({ page, request }) => {
+  const unique = Date.now();
+  const title = `ETO Application History ${unique}`;
+  const employerEmail = `ui.apphistory.employer.${unique}@example.com`;
+  const seafarerEmail = `ui.apphistory.seafarer.${unique}@example.com`;
+  const note = 'Available after current contract, documents ready.';
+
+  const employerCreate = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'employer',
+      role_in_company: 'recruiter',
+      email: employerEmail,
+      full_name: 'Application History Employer',
+      company_name: `History Marine ${unique}`,
+      country_code: 'SG',
+      registration_number: `SG-HISTORY-${unique}`,
+      vessel: {
+        vessel_name: `MV History ${unique}`,
+        vessel_type: 'Container Ship',
+        imo_number: `IMO${9600000 + (unique % 300000)}`,
+      },
+      vacancy: {
+        vacancy_title: title,
+        rank: 'Electrical Technical Officer',
+        department: 'engine',
+        vessel_type: 'Container Ship',
+        join_date: '2026-10-20',
+        contract_duration: '5 months',
+        salary_min_usd: 6400,
+        salary_max_usd: 7200,
+        currency: 'USD',
+        employer_country_code: 'SG',
+        requirements: 'ETO with container vessel experience and valid STCW documents.',
+      },
+    },
+  });
+  expect(employerCreate.ok()).toBeTruthy();
+  const employer = await employerCreate.json();
+  const vacancyId = employer.payload.vacancy_request.vacancy_request_id as string;
+
+  const companyDecision = await request.patch(`/api/v1/operator/review-queue/${employer.draft_id}/status`, {
+    data: {
+      decision: 'reviewed',
+      queue_type: 'company_verification',
+    },
+  });
+  expect(companyDecision.ok()).toBeTruthy();
+
+  const vacancyDecision = await request.patch(`/api/v1/operator/review-queue/${employer.draft_id}/status`, {
+    data: {
+      decision: 'reviewed',
+      queue_type: 'vacancy_request',
+    },
+  });
+  expect(vacancyDecision.ok()).toBeTruthy();
+
+  const seafarerCreate = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email: seafarerEmail,
+      full_name: 'Application History Seafarer',
+      rank: 'Electrical Technical Officer',
+      department: 'engine',
+      availability_status: 'available_later',
+      availability_date: '2026-09-30',
+      contact_phone: '+971500004444',
+    },
+  });
+  expect(seafarerCreate.ok()).toBeTruthy();
+  const seafarer = await seafarerCreate.json();
+
+  const applicationResponse = await request.post(`/api/v1/vacancies/${vacancyId}/applications`, {
+    data: {
+      seafarer_draft_id: seafarer.draft_id,
+      email: seafarerEmail,
+      note,
+    },
+  });
+  expect(applicationResponse.ok()).toBeTruthy();
+  const application = await applicationResponse.json();
+  const applicationId = application.application.vacancy_application_id as string;
+
+  const startReview = await request.patch(`/api/v1/operator/review-queue/${applicationId}/status`, {
+    data: {
+      decision: 'start_review',
+      queue_type: 'vacancy_application',
+      note: 'Application is being checked.',
+    },
+  });
+  expect(startReview.ok()).toBeTruthy();
+
+  await page.goto(`/create-profile/?draft_id=${seafarer.draft_id}`);
+  await expect(page.locator('#create-applications-status')).toContainText('1 vacancy application');
+  await expect(page.locator('#create-application-list')).toContainText(title);
+  await expect(page.locator('#create-application-list')).toContainText(`History Marine ${unique}`);
+  await expect(page.locator('#create-application-list')).toContainText('Electrical Technical Officer');
+  await expect(page.locator('#create-application-list')).toContainText('Under review');
+  await expect(page.locator('#create-application-list')).toContainText(note);
+  await expect(page.locator('#create-application-list')).toContainText('Open vacancy');
+
+  const reviewed = await request.patch(`/api/v1/operator/review-queue/${applicationId}/status`, {
+    data: {
+      decision: 'reviewed',
+      queue_type: 'vacancy_application',
+      note: 'Candidate presented to employer.',
+    },
+  });
+  expect(reviewed.ok()).toBeTruthy();
+
+  await page.reload();
+  await expect(page.locator('#create-application-list')).toContainText('Presented to employer');
+
+  const hasOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+  expect(hasOverflow).toBe(false);
 });

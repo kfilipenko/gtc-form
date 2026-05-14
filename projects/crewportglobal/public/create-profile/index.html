@@ -117,6 +117,82 @@
       line-height: 1.35;
     }
 
+    .application-history {
+      gap: 16px;
+    }
+
+    .application-history__status {
+      color: var(--app-muted);
+      line-height: 1.55;
+    }
+
+    .application-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .application-item {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid var(--app-line);
+      border-radius: 8px;
+      background: var(--app-surface-2);
+    }
+
+    .application-item__head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .application-item h3,
+    .application-item p {
+      margin: 0;
+    }
+
+    .application-item h3 {
+      min-width: 0;
+      color: var(--app-ink);
+      font-size: 18px;
+      line-height: 1.25;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .application-item__status {
+      padding: 5px 8px;
+      border: 1px solid var(--app-line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--app-ocean-dark);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .application-item__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--app-muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .application-item__meta span {
+      padding: 6px 8px;
+      border: 1px solid var(--app-line);
+      border-radius: 999px;
+      background: #fff;
+    }
+
+    .application-item__note {
+      color: var(--app-muted);
+      line-height: 1.55;
+    }
+
     .profile-status-panel {
       display: grid;
       gap: 14px;
@@ -282,7 +358,7 @@
       }
 
       .section-tabs {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
       }
     }
 
@@ -406,6 +482,7 @@
             <button class="button secondary section-tab is-current" type="button" data-section-target="profile-section-cv" data-i18n="create.tab.cv">CV basics</button>
             <button class="button secondary section-tab" type="button" data-section-target="profile-section-documents" data-i18n="create.tab.documents">Documents</button>
             <button class="button secondary section-tab" type="button" data-section-target="profile-section-review" data-i18n="create.tab.review">Review</button>
+            <button class="button secondary section-tab" type="button" data-section-target="profile-section-applications" data-i18n="create.tab.applications">Applications</button>
           </nav>
           <div>
             <strong data-i18n="create.progress.missingTitle">Missing for review</strong>
@@ -557,6 +634,16 @@
             </div>
           </section>
 
+          <section id="profile-section-applications" class="form-section application-history" aria-labelledby="create-application-history-title">
+            <div class="section-heading">
+              <p class="eyebrow" data-i18n="create.section.applications.eyebrow">Application history</p>
+              <h2 id="create-application-history-title" data-i18n="create.section.applications.title">Track vacancy applications</h2>
+              <p class="field-note" data-i18n="create.section.applications.copy">Submitted vacancy applications and operator review status appear here after you apply.</p>
+            </div>
+            <strong id="create-applications-status" class="application-history__status" data-i18n="create.applications.empty">No vacancy applications yet.</strong>
+            <div id="create-application-list" class="application-list"></div>
+          </section>
+
           <div class="form-footer">
             <div class="section-actions">
               <button id="create-submit" class="button primary" type="submit" data-i18n="create.form.submit">Save Seafarer Draft</button>
@@ -610,6 +697,7 @@
         'create.tab.cv': 'CV basics',
         'create.tab.documents': 'Documents',
         'create.tab.review': 'Review',
+        'create.tab.applications': 'Applications',
         'create.section.cv.eyebrow': 'CV basics',
         'create.section.cv.title': 'Identity, rank and availability',
         'create.section.cv.copy': 'These fields make the profile searchable and useful for employer-side review.',
@@ -619,6 +707,9 @@
         'create.section.review.eyebrow': 'Review package',
         'create.section.review.title': 'Save draft for human review',
         'create.section.review.copy': 'The profile is saved to backend as a draft and submitted to the controlled operator queue.',
+        'create.section.applications.eyebrow': 'Application history',
+        'create.section.applications.title': 'Track vacancy applications',
+        'create.section.applications.copy': 'Submitted vacancy applications and operator review status appear here after you apply.',
         'create.progress.profile': 'Profile readiness',
         'create.progress.rank': 'Rank',
         'create.progress.availability': 'Availability',
@@ -695,6 +786,21 @@
         'create.reviewStatus.rejected': 'Needs correction',
         'create.reviewStatus.approved': 'Reviewed',
         'create.reviewStatus.correction': 'Correction requested: {note}',
+        'create.applications.empty': 'No vacancy applications yet.',
+        'create.applications.count': '{count} vacancy application(s)',
+        'create.applications.company': 'Company',
+        'create.applications.rank': 'Rank',
+        'create.applications.vessel': 'Vessel',
+        'create.applications.joinDate': 'Join date',
+        'create.applications.applied': 'Applied',
+        'create.applications.updated': 'Updated',
+        'create.applications.note': 'Your note',
+        'create.applications.view': 'Open vacancy',
+        'create.applicationStatus.submitted_for_human_review': 'Submitted for review',
+        'create.applicationStatus.in_review': 'Under review',
+        'create.applicationStatus.presented': 'Presented to employer',
+        'create.applicationStatus.rejected': 'Not selected',
+        'create.applicationStatus.withdrawn': 'Withdrawn',
         'create.reviewSummary.rank': 'Rank and department',
         'create.reviewSummary.contact': 'Contact readiness',
         'create.reviewSummary.documents': 'Document readiness',
@@ -739,6 +845,7 @@
         'create.tab.cv': 'Основа CV',
         'create.tab.documents': 'Документы',
         'create.tab.review': 'Проверка',
+        'create.tab.applications': 'Отклики',
         'create.section.cv.eyebrow': 'Основа CV',
         'create.section.cv.title': 'Личность, ранг и доступность',
         'create.section.cv.copy': 'Эти поля делают профиль пригодным для поиска и проверки работодателем.',
@@ -748,6 +855,9 @@
         'create.section.review.eyebrow': 'Пакет проверки',
         'create.section.review.title': 'Сохраните черновик для ручной проверки',
         'create.section.review.copy': 'Профиль сохраняется в backend как черновик и попадает в контролируемую очередь оператора.',
+        'create.section.applications.eyebrow': 'История откликов',
+        'create.section.applications.title': 'Отслеживайте отклики на вакансии',
+        'create.section.applications.copy': 'Отправленные отклики и статус проверки оператором появятся здесь после подачи заявки.',
         'create.progress.profile': 'Готовность профиля',
         'create.progress.rank': 'Ранг',
         'create.progress.availability': 'Доступность',
@@ -824,6 +934,21 @@
         'create.reviewStatus.rejected': 'Нужна доработка',
         'create.reviewStatus.approved': 'Проверено',
         'create.reviewStatus.correction': 'Требуется исправление: {note}',
+        'create.applications.empty': 'Пока нет откликов на вакансии.',
+        'create.applications.count': 'Откликов на вакансии: {count}',
+        'create.applications.company': 'Компания',
+        'create.applications.rank': 'Ранг',
+        'create.applications.vessel': 'Судно',
+        'create.applications.joinDate': 'Дата посадки',
+        'create.applications.applied': 'Подано',
+        'create.applications.updated': 'Обновлено',
+        'create.applications.note': 'Ваша заметка',
+        'create.applications.view': 'Открыть вакансию',
+        'create.applicationStatus.submitted_for_human_review': 'Отправлено на проверку',
+        'create.applicationStatus.in_review': 'На проверке',
+        'create.applicationStatus.presented': 'Представлено работодателю',
+        'create.applicationStatus.rejected': 'Не выбрано',
+        'create.applicationStatus.withdrawn': 'Отозвано',
         'create.reviewSummary.rank': 'Ранг и департамент',
         'create.reviewSummary.contact': 'Контакты',
         'create.reviewSummary.documents': 'Готовность документов',
@@ -897,7 +1022,10 @@
       const reviewContact = document.getElementById('create-review-contact');
       const reviewDocuments = document.getElementById('create-review-documents');
       const reviewStatusChip = document.getElementById('create-review-status-chip');
+      const applicationsStatus = document.getElementById('create-applications-status');
+      const applicationList = document.getElementById('create-application-list');
       let latestReviewStatusLabel = '';
+      let latestApplications = [];
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -968,6 +1096,110 @@
       function labelForSelect(select) {
         const selected = select.options[select.selectedIndex];
         return selected ? selected.textContent.trim() : t('create.progress.notSet');
+      }
+
+      function valueOrDash(value) {
+        return value === null || value === undefined || String(value).trim() === ''
+          ? '-'
+          : String(value).trim();
+      }
+
+      function shortDate(value) {
+        if (typeof value !== 'string' || !value.trim()) {
+          return '';
+        }
+        return value.trim().slice(0, 10);
+      }
+
+      function mapApplicationStatusLabel(applicationStatus) {
+        const normalized = typeof applicationStatus === 'string' ? applicationStatus.trim() : '';
+        const supported = [
+          'submitted_for_human_review',
+          'in_review',
+          'presented',
+          'rejected',
+          'withdrawn',
+        ];
+        if (!supported.includes(normalized)) {
+          return valueOrDash(normalized);
+        }
+        return t(`create.applicationStatus.${normalized}`);
+      }
+
+      function addApplicationMeta(row, labelKey, value) {
+        if (value === null || value === undefined || String(value).trim() === '') {
+          return;
+        }
+        const item = document.createElement('span');
+        item.textContent = `${t(labelKey)}: ${value}`;
+        row.appendChild(item);
+      }
+
+      function renderApplicationHistory(applications) {
+        latestApplications = Array.isArray(applications) ? applications : [];
+        applicationList.innerHTML = '';
+
+        if (latestApplications.length === 0) {
+          applicationsStatus.textContent = t('create.applications.empty');
+          return;
+        }
+
+        applicationsStatus.textContent = tFormat('create.applications.count', { count: latestApplications.length });
+
+        latestApplications.forEach((application) => {
+          const item = document.createElement('article');
+          item.className = 'application-item';
+
+          const head = document.createElement('div');
+          head.className = 'application-item__head';
+
+          const title = document.createElement('h3');
+          title.textContent = valueOrDash(application.vacancy_title || application.rank);
+          head.appendChild(title);
+
+          const statusChip = document.createElement('span');
+          statusChip.className = 'application-item__status';
+          statusChip.textContent = mapApplicationStatusLabel(application.application_status);
+          head.appendChild(statusChip);
+          item.appendChild(head);
+
+          const meta = document.createElement('div');
+          meta.className = 'application-item__meta';
+          addApplicationMeta(meta, 'create.applications.company', application.company_name);
+          addApplicationMeta(meta, 'create.applications.rank', application.rank);
+          addApplicationMeta(meta, 'create.applications.vessel', application.vessel_name || application.vessel_type);
+          addApplicationMeta(meta, 'create.applications.joinDate', shortDate(application.join_date));
+          addApplicationMeta(meta, 'create.applications.applied', shortDate(application.created_at));
+          addApplicationMeta(meta, 'create.applications.updated', shortDate(application.updated_at));
+          item.appendChild(meta);
+
+          if (application.candidate_note) {
+            const note = document.createElement('p');
+            note.className = 'application-item__note';
+            note.textContent = `${t('create.applications.note')}: ${application.candidate_note}`;
+            item.appendChild(note);
+          }
+
+          if (application.publication_status === 'published' && application.vacancy_request_id) {
+            const actions = document.createElement('div');
+            actions.className = 'section-actions';
+            const link = document.createElement('a');
+            link.className = 'button secondary';
+            link.href = `/vacancies/detail/?vacancy_id=${encodeURIComponent(application.vacancy_request_id)}`;
+            link.textContent = t('create.applications.view');
+            actions.appendChild(link);
+            item.appendChild(actions);
+          }
+
+          applicationList.appendChild(item);
+        });
+      }
+
+      function renderApplicationHistoryFromResponse(response) {
+        const payload = response && response.payload && typeof response.payload === 'object'
+          ? response.payload
+          : {};
+        renderApplicationHistory(Array.isArray(payload.vacancy_applications) ? payload.vacancy_applications : []);
       }
 
       function getDocumentReadinessLabel() {
@@ -1175,6 +1407,7 @@
               ? storedDraft.lastResponse.payload.operator_review
               : null;
             renderReviewStatus(localProfile, localOperatorReview || null);
+            renderApplicationHistoryFromResponse(storedDraft.lastResponse);
             status.textContent = t('create.form.prefilledLocal');
             return;
           }
@@ -1192,6 +1425,7 @@
               if (fallbackProfile && typeof fallbackProfile === 'object') {
                 fillSeafarerProfile(fallbackProfile);
                 renderReviewStatus(fallbackProfile, fallbackOperatorReview || null);
+                renderApplicationHistoryFromResponse(fallbackResponse);
                 status.textContent = t('create.form.prefilledLocal');
               }
             } catch (error) {
@@ -1209,6 +1443,7 @@
           const operatorReview = response && response.payload ? response.payload.operator_review : null;
           fillSeafarerProfile(profile || {});
           renderReviewStatus(profile || {}, operatorReview || null);
+          renderApplicationHistoryFromResponse(response);
           status.textContent = t('create.form.prefilled');
         } catch (error) {
           status.textContent = t('create.form.loadError');
@@ -1227,6 +1462,11 @@
         ? stored.lastResponse.payload.operator_review
         : null;
       renderReviewStatus(localInitialProfile || {}, localInitialReview || null);
+      if (stored && stored.lastResponse) {
+        renderApplicationHistoryFromResponse(stored.lastResponse);
+      } else {
+        renderApplicationHistory([]);
+      }
 
       prefillFromDraftIfPresent();
 
@@ -1280,6 +1520,7 @@
           const responseProfile = response && response.payload ? response.payload.seafarer_profile : null;
           const responseOperatorReview = response && response.payload ? response.payload.operator_review : null;
           renderReviewStatus(responseProfile || {}, responseOperatorReview || null);
+          renderApplicationHistoryFromResponse(response);
           window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
           window.history.replaceState(null, '', `?draft_id=${encodeURIComponent(response.draft_id)}`);
         } catch (error) {
@@ -1309,7 +1550,10 @@
         input.addEventListener('change', renderWorkspace);
       });
 
-      window.addEventListener('crewportglobal:languagechange', renderWorkspace);
+      window.addEventListener('crewportglobal:languagechange', () => {
+        renderWorkspace();
+        renderApplicationHistory(latestApplications);
+      });
       renderWorkspace();
     })();
   </script>

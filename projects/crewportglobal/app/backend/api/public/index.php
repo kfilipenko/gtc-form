@@ -827,6 +827,72 @@ function read_presented_candidates_for_employer(string $companyId, ?string $vaca
     return $items;
 }
 
+function read_vacancy_applications_for_seafarer(string $userId): array {
+    $result = api_query(
+        "SELECT
+            va.vacancy_application_id,
+            va.vacancy_request_id,
+            va.contact_email,
+            va.candidate_note,
+            va.application_status,
+            va.created_at,
+            va.updated_at,
+            vr.vacancy_title,
+            vr.rank,
+            vr.department,
+            COALESCE(vr.vessel_type, v.vessel_type) AS vessel_type,
+            vr.join_date,
+            vr.contract_duration,
+            vr.salary_min_usd,
+            vr.salary_max_usd,
+            vr.salary_text,
+            vr.currency,
+            vr.publication_status,
+            COALESCE(vr.employer_country_code, ec.country_code) AS employer_country_code,
+            ec.company_name,
+            ec.company_type,
+            v.vessel_name
+         FROM crewportglobal.vacancy_applications va
+         JOIN crewportglobal.vacancy_requests vr ON vr.vacancy_request_id = va.vacancy_request_id
+         JOIN crewportglobal.employer_companies ec ON ec.company_id = vr.company_id
+         LEFT JOIN crewportglobal.vessels v ON v.vessel_id = vr.vessel_id
+         WHERE va.seafarer_user_id = $1
+         ORDER BY va.updated_at DESC, va.created_at DESC
+         LIMIT 50",
+        [$userId]
+    );
+
+    $items = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $items[] = [
+            'vacancy_application_id' => $row['vacancy_application_id'],
+            'vacancy_request_id' => $row['vacancy_request_id'],
+            'contact_email' => $row['contact_email'],
+            'candidate_note' => $row['candidate_note'],
+            'application_status' => $row['application_status'],
+            'created_at' => $row['created_at'],
+            'updated_at' => $row['updated_at'],
+            'vacancy_title' => $row['vacancy_title'],
+            'rank' => $row['rank'],
+            'department' => $row['department'],
+            'vessel_type' => $row['vessel_type'],
+            'join_date' => $row['join_date'],
+            'contract_duration' => $row['contract_duration'],
+            'salary_min_usd' => $row['salary_min_usd'],
+            'salary_max_usd' => $row['salary_max_usd'],
+            'salary_text' => $row['salary_text'],
+            'currency' => $row['currency'],
+            'publication_status' => $row['publication_status'],
+            'employer_country_code' => $row['employer_country_code'],
+            'company_name' => $row['company_name'],
+            'company_type' => $row['company_type'],
+            'vessel_name' => $row['vessel_name'],
+        ];
+    }
+
+    return $items;
+}
+
 function build_draft_response(string $userId): array {
     $userResult = api_query(
         'SELECT user_id, email, registration_status, created_at, updated_at
@@ -869,6 +935,7 @@ function build_draft_response(string $userId): array {
         );
         $profile = pg_fetch_assoc($profileResult) ?: [];
         $payload['seafarer_profile'] = $profile;
+        $payload['vacancy_applications'] = read_vacancy_applications_for_seafarer($userId);
     } else {
         $company = read_primary_company_for_user($userId);
         if ($company !== null) {
