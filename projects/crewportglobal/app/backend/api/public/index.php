@@ -2464,6 +2464,14 @@ if (preg_match('#^/vacancies/([^/]+)/applications$#', $path, $matches) === 1) {
     api_error(405, 'method_not_allowed', 'Allowed methods: POST');
 }
 
+if (preg_match('#^/seafarer/vacancy-applications/([^/]+)/status$#', $path, $matches) === 1) {
+    if ($method === 'PATCH') {
+        handle_patch_seafarer_vacancy_application_status($matches[1]);
+    }
+    header('Allow: PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
+}
+
 if (preg_match('#^/employer/vacancy-applications/([^/]+)/shortlist$#', $path, $matches) === 1) {
     if ($method === 'PATCH') {
         handle_patch_employer_vacancy_application_shortlist($matches[1]);
