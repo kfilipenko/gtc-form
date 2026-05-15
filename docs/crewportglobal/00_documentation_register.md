@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.80
+- Version: 0.81
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -184,6 +184,7 @@ docs/crewportglobal/
   100_cpg_access_013_admin_email_code_email_delivery_contract_report.md
   101_cpg_access_014_admin_email_delivery_adapter_report.md
   102_cpg_access_015_admin_email_delivery_smtp_smoke_test_report.md
+  103_cpg_access_016_project_owner_bootstrap_and_admin_access_activation_report.md
 ```
 
 ### 3.3 Product governance control
@@ -257,6 +258,8 @@ Document 100 records the admin email-code email delivery contract, including dis
 Document 101 records the admin email delivery adapter preparation for the approved CrewPortGlobal sender mailbox, including Timeweb SMTP environment keys, disabled-by-default behavior, configuration validation, safe message construction, no-secret controls and no-real-send verification.
 
 Document 102 records the controlled server-side SMTP smoke-test for admin email-code delivery, including protected `/etc/crewportglobal/admin-access.env` loading, explicit send-ready execution, safe result reporting, no-secret controls and confirmation that public admin routes remain disconnected from runtime email sending.
+
+Document 103 records the controlled GTC1 bootstrap of `kfilipenko@gtchain.io` as the first CrewPortGlobal Project Owner, including backup before migration 006, access-control migration application, `platform_owners -> project_owner` membership, audit event creation, protected admin access runtime flags, email-code delivery to the owner address and `/admin/access/` live entry verification.
 
 Mandatory control statement:
 
@@ -361,6 +364,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.81 | 2026-05-15 | GTC IT / AI Assistant | Added document 103 as CPG-ACCESS-016 implementation report for applying access-control migration 006 after backup, bootstrapping kfilipenko@gtchain.io as first Project Owner, enabling protected admin access email-code runtime and verifying /admin/access/ |
 | 0.80 | 2026-05-15 | GTC IT / AI Assistant | Added document 102 as CPG-ACCESS-015 implementation and smoke-test report for protected-config admin email-code SMTP sending through Timeweb with no secret exposure and no public route activation |
 | 0.79 | 2026-05-15 | GTC IT / AI Assistant | Added document 101 as CPG-ACCESS-014 implementation report for admin email delivery adapter preparation with Timeweb SMTP configuration validation and no real send |
 | 0.78 | 2026-05-15 | GTC IT / AI Assistant | Added document 100 as CPG-ACCESS-013 implementation report for disabled-by-default admin email-code email delivery contract |

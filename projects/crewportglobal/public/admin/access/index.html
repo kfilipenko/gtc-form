@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Admin access</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="canonical" href="https://crewportglobal.com/admin/access/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../../assets/crewportglobal-docs.css">
+  <style>
+    .admin-shell {
+      min-height: 100vh;
+      display: grid;
+      align-items: center;
+      padding: 40px 18px;
+    }
+    .admin-panel {
+      width: min(620px, 100%);
+      margin: 0 auto;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
+    }
+    .admin-brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .admin-mark {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: #0b6f82;
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+    .admin-title {
+      margin: 0;
+      color: var(--text-on-dark);
+      font-size: 24px;
+      line-height: 1.2;
+    }
+    .admin-subtitle {
+      margin: 4px 0 0;
+      color: var(--muted-on-dark);
+      font-size: 13px;
+    }
+    .admin-form {
+      display: grid;
+      gap: 16px;
+    }
+    .admin-field {
+      display: grid;
+      gap: 7px;
+    }
+    .admin-field label {
+      color: var(--text-on-dark);
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .admin-field input {
+      width: 100%;
+      min-height: 46px;
+      padding: 11px 13px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-on-dark);
+      font: inherit;
+    }
+    .admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .admin-button {
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: #4ec7d8;
+      color: #05212a;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .admin-button.secondary {
+      background: transparent;
+      border-color: var(--line);
+      color: var(--text-on-dark);
+    }
+    .admin-button:disabled {
+      cursor: wait;
+      opacity: 0.62;
+    }
+    .admin-status {
+      min-height: 24px;
+      margin: 6px 0 0;
+      color: var(--muted-on-dark);
+      line-height: 1.5;
+    }
+    .admin-status.ok { color: #7ce3b1; }
+    .admin-status.error { color: #ffb0a5; }
+    .admin-result {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      color: var(--muted-on-dark);
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .admin-result[hidden] { display: none; }
+    @media (max-width: 640px) {
+      .admin-panel { padding: 22px; }
+      .admin-actions { display: grid; }
+      .admin-button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="admin-shell">
+    <section class="admin-panel" aria-labelledby="admin-title">
+      <div class="admin-brand">
+        <div class="admin-mark" aria-hidden="true">CPG</div>
+        <div>
+          <h1 class="admin-title" id="admin-title">Admin access</h1>
+          <p class="admin-subtitle">CrewPortGlobal protected console</p>
+        </div>
+      </div>
+
+      <form class="admin-form" id="admin-access-form">
+        <div class="admin-field">
+          <label for="admin-email">Email</label>
+          <input id="admin-email" name="email" type="email" autocomplete="email" value="kfilipenko@gtchain.io" required>
+        </div>
+
+        <div class="admin-actions">
+          <button class="admin-button" type="button" id="request-code">Send code</button>
+          <button class="admin-button secondary" type="button" id="clear-code">Clear</button>
+        </div>
+
+        <div class="admin-field">
+          <label for="admin-code">Code</label>
+          <input id="admin-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+        </div>
+
+        <div class="admin-actions">
+          <button class="admin-button" type="submit" id="verify-code">Verify</button>
+        </div>
+
+        <p class="admin-status" id="admin-status" role="status" aria-live="polite"></p>
+      </form>
+
+      <div class="admin-result" id="admin-result" hidden></div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('admin-access-form');
+    const email = document.getElementById('admin-email');
+    const code = document.getElementById('admin-code');
+    const statusNode = document.getElementById('admin-status');
+    const resultNode = document.getElementById('admin-result');
+    const requestButton = document.getElementById('request-code');
+    const verifyButton = document.getElementById('verify-code');
+    const clearButton = document.getElementById('clear-code');
+
+    function setStatus(message, type = '') {
+      statusNode.textContent = message;
+      statusNode.className = `admin-status ${type}`.trim();
+    }
+
+    function setBusy(isBusy) {
+      requestButton.disabled = isBusy;
+      verifyButton.disabled = isBusy;
+    }
+
+    async function postJson(path, payload) {
+      const response = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const body = await response.json().catch(() => ({}));
+      return { response, body };
+    }
+
+    requestButton.addEventListener('click', async () => {
+      if (!email.reportValidity()) return;
+      setBusy(true);
+      setStatus('Sending code...');
+      resultNode.hidden = true;
+      try {
+        const { response, body } = await postJson('/api/v1/admin/access/email-code/request', {
+          email: email.value,
+        });
+        if (!response.ok || body.ok !== true) {
+          setStatus(body.message || 'Code request failed.', 'error');
+          return;
+        }
+        setStatus('Code sent if the account is eligible.', 'ok');
+        code.focus();
+      } catch (error) {
+        setStatus('Code request failed.', 'error');
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    clearButton.addEventListener('click', () => {
+      code.value = '';
+      resultNode.hidden = true;
+      setStatus('');
+      code.focus();
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!email.reportValidity() || !code.reportValidity()) return;
+      setBusy(true);
+      setStatus('Verifying code...');
+      resultNode.hidden = true;
+      try {
+        const { response, body } = await postJson('/api/v1/admin/access/email-code/verify', {
+          email: email.value,
+          code: code.value,
+        });
+        if (!response.ok || body.ok !== true) {
+          setStatus(body.message || 'Code verification failed.', 'error');
+          return;
+        }
+        setStatus('Admin access verified.', 'ok');
+        resultNode.textContent = `Session expires at ${body.admin_session_expires_at || 'the configured expiry time'}.`;
+        resultNode.hidden = false;
+      } catch (error) {
+        setStatus('Code verification failed.', 'error');
+      } finally {
+        setBusy(false);
+      }
+    });
+  </script>
+</body>
+</html>

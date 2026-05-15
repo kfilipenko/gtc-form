@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../lib/bootstrap.php';
 require_once __DIR__ . '/../lib/access_control.php';
+require_once __DIR__ . '/../lib/admin_access_email_delivery.php';
 require_once __DIR__ . '/../lib/admin_access_flow.php';
+require_once __DIR__ . '/../lib/admin_access_storage_factory.php';
 require_once __DIR__ . '/../lib/identity_context.php';
 
 const REG_DRAFT_STATUSES = ['draft', 'submitted_for_human_review'];
@@ -86,6 +88,10 @@ function admin_access_public_flow_enabled(): bool {
     return admin_access_public_routes_enabled() && cpg_admin_access_flow_enabled();
 }
 
+function admin_access_load_runtime_env(): void {
+    cpg_admin_access_load_protected_env_file();
+}
+
 function admin_access_api_response(array $response): void {
     $status = $response['status'] ?? 500;
     $payload = $response['payload'] ?? [
@@ -97,22 +103,78 @@ function admin_access_api_response(array $response): void {
     api_json(is_int($status) ? $status : 500, is_array($payload) ? $payload : []);
 }
 
+function admin_access_request_metadata(): array {
+    return [
+        'ip_address' => $_SERVER['REMOTE_ADDR'] ?? null,
+        'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
+    ];
+}
+
 function handle_post_admin_access_email_code_request(): void {
+    admin_access_load_runtime_env();
     if (!admin_access_public_flow_enabled()) {
         admin_access_api_response(cpg_admin_access_disabled_response());
     }
 
+    $storageDisabled = cpg_admin_access_storage_factory_disabled_response();
+    if ($storageDisabled !== null) {
+        admin_access_api_response($storageDisabled);
+    }
+
+    $deliveryDisabled = cpg_admin_access_email_delivery_disabled_response();
+    if ($deliveryDisabled !== null) {
+        admin_access_api_response($deliveryDisabled);
+    }
+
     $body = api_decode_json_body();
-    admin_access_api_response(cpg_admin_access_request_code_skeleton($body));
+    $storage = cpg_admin_access_create_storage();
+    $delivery = cpg_admin_access_create_email_delivery();
+    if (!$storage instanceof CpgAdminAccessStorage || !$delivery instanceof CpgAdminAccessEmailDelivery) {
+        admin_access_api_response(cpg_admin_access_response(503, [
+            'ok' => false,
+            'error' => 'admin_access_runtime_not_configured',
+            'message' => 'Admin access runtime is not configured',
+        ]));
+    }
+
+    admin_access_api_response(cpg_admin_access_request_code_with_storage_and_delivery(
+        $body,
+        $storage,
+        $delivery,
+        true,
+        null,
+        admin_access_request_metadata()
+    ));
 }
 
 function handle_post_admin_access_email_code_verify(): void {
+    admin_access_load_runtime_env();
     if (!admin_access_public_flow_enabled()) {
         admin_access_api_response(cpg_admin_access_disabled_response());
     }
 
+    $storageDisabled = cpg_admin_access_storage_factory_disabled_response();
+    if ($storageDisabled !== null) {
+        admin_access_api_response($storageDisabled);
+    }
+
     $body = api_decode_json_body();
-    admin_access_api_response(cpg_admin_access_verify_code_skeleton($body));
+    $storage = cpg_admin_access_create_storage();
+    if (!$storage instanceof CpgAdminAccessStorage) {
+        admin_access_api_response(cpg_admin_access_response(503, [
+            'ok' => false,
+            'error' => 'admin_access_storage_not_configured',
+            'message' => 'Admin access storage is not configured yet',
+        ]));
+    }
+
+    admin_access_api_response(cpg_admin_access_verify_code_with_storage(
+        $body,
+        $storage,
+        true,
+        null,
+        admin_access_request_metadata()
+    ));
 }
 
 function read_role_for_user(string $userId): ?string {

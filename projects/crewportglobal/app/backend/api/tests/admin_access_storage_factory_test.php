@@ -88,12 +88,12 @@ cpg_admin_storage_factory_test_assert(
 $source = file_get_contents(__DIR__ . '/../public/index.php');
 cpg_admin_storage_factory_test_assert(is_string($source), 'public index should be readable');
 cpg_admin_storage_factory_test_assert(
-    !str_contains($source, "require_once __DIR__ . '/../lib/admin_access_storage_factory.php';"),
-    'public route must not include storage factory until runtime activation is approved'
+    str_contains($source, "require_once __DIR__ . '/../lib/admin_access_storage_factory.php';"),
+    'public route should include storage factory after runtime activation approval'
 );
 cpg_admin_storage_factory_test_assert(
-    !str_contains($source, 'cpg_admin_access_create_storage('),
-    'public route must not create storage until runtime activation is approved'
+    str_contains($source, 'cpg_admin_access_create_storage()'),
+    'public route should create storage only after runtime gates'
 );
 
 fwrite(STDOUT, "Admin access storage factory tests passed\n");

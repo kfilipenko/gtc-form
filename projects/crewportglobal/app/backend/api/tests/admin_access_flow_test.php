@@ -81,4 +81,57 @@ cpg_admin_flow_test_assert(
     'admin access verify skeleton should expose storage-not-configured boundary'
 );
 
+$storage = new CpgAdminAccessMemoryStorage([
+    [
+        'user_id' => '11111111-1111-4111-8111-111111111111',
+        'email' => 'owner@example.com',
+        'is_active' => true,
+        'roles' => ['project_owner'],
+        'groups' => ['platform_owners'],
+        'permissions' => ['view_admin_console'],
+    ],
+]);
+$delivery = new CpgAdminAccessCaptureEmailDelivery();
+$requestWithDelivery = cpg_admin_access_request_code_with_storage_and_delivery(
+    ['email' => 'owner@example.com'],
+    $storage,
+    $delivery,
+    true,
+    $fixedNow,
+    ['ip_address' => '127.0.0.1', 'user_agent' => 'flow-test'],
+    static fn (): string => '123456'
+);
+cpg_admin_flow_test_assert(
+    ($requestWithDelivery['status'] ?? null) === 202,
+    'admin access request with storage and delivery should return accepted'
+);
+cpg_admin_flow_test_assert(
+    ($requestWithDelivery['payload']['delivery_status'] ?? null) === 'captured_test_only',
+    'admin access request should call delivery for eligible admin users'
+);
+cpg_admin_flow_test_assert(
+    count($storage->adminEmailCodes()) === 1,
+    'admin access request should store exactly one hash-only code'
+);
+cpg_admin_flow_test_assert(
+    !str_contains(json_encode($requestWithDelivery, JSON_THROW_ON_ERROR), '123456'),
+    'admin access request with delivery must not expose the clear code'
+);
+
+$verifyWithStorage = cpg_admin_access_verify_code_with_storage(
+    ['email' => 'owner@example.com', 'code' => '123456'],
+    $storage,
+    true,
+    $fixedNow,
+    ['ip_address' => '127.0.0.1', 'user_agent' => 'flow-test']
+);
+cpg_admin_flow_test_assert(
+    ($verifyWithStorage['status'] ?? null) === 200,
+    'admin access verify with storage should accept the correct code'
+);
+cpg_admin_flow_test_assert(
+    count($storage->adminSessions()) === 1,
+    'admin access verify should create one admin session'
+);
+
 fwrite(STDOUT, "Admin access flow skeleton tests passed\n");

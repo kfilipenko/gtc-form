@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/admin_access.php';
+require_once __DIR__ . '/admin_access_email_delivery.php';
 require_once __DIR__ . '/admin_access_storage.php';
 
 const CPG_ADMIN_ACCESS_FLOW_ENV = 'CREWPORTGLOBAL_ADMIN_ACCESS_FLOW_ENABLED';
@@ -239,6 +240,94 @@ function cpg_admin_access_request_code_with_storage(
         'delivery_status' => 'not_sent_storage_adapter',
         'storage_status' => 'handled_by_storage_adapter',
         'message' => 'If the account is eligible, an admin access code will be prepared for email delivery.',
+    ]);
+}
+
+function cpg_admin_access_request_code_with_storage_and_delivery(
+    array $body,
+    CpgAdminAccessStorage $storage,
+    CpgAdminAccessEmailDelivery $delivery,
+    ?bool $enabled = null,
+    ?DateTimeImmutable $now = null,
+    array $metadata = [],
+    ?callable $codeGenerator = null
+): array {
+    if (($enabled ?? cpg_admin_access_flow_enabled()) !== true) {
+        return cpg_admin_access_disabled_response();
+    }
+
+    $email = cpg_admin_access_normalize_email($body['email'] ?? null);
+    if ($email === null) {
+        return cpg_admin_access_response(400, [
+            'ok' => false,
+            'error' => 'invalid_admin_email',
+            'message' => 'A valid email is required',
+        ]);
+    }
+
+    $base = $now ?? cpg_admin_now();
+    $maskedEmail = cpg_admin_mask_email($email);
+    $user = $storage->findAdminUserByEmail($email);
+    $canReceiveCode = is_array($user) && cpg_admin_access_user_can_receive_admin_code($user);
+    $userId = is_array($user) ? cpg_admin_access_user_id($user) : null;
+    $deliveryStatus = 'not_sent_not_eligible';
+
+    if ($canReceiveCode) {
+        $code = (string) (($codeGenerator ?? 'cpg_admin_generate_email_code')());
+        $codeHash = cpg_admin_hash_email_code($code);
+        $expiresAt = cpg_admin_email_code_expires_at($base);
+
+        $storage->storeAdminEmailCode([
+            'user_id' => (string) $userId,
+            'code_hash' => $codeHash,
+            'purpose' => CPG_ADMIN_ACCESS_PURPOSE,
+            'expires_at' => $expiresAt,
+            'attempt_count' => 0,
+            'created_at' => cpg_admin_format_time($base),
+            'ip_address' => $metadata['ip_address'] ?? null,
+            'user_agent' => $metadata['user_agent'] ?? null,
+        ]);
+
+        $deliveryResult = $delivery->sendAdminEmailCode(cpg_admin_email_code_message($email, $code, $base));
+        $deliveryStatus = (string) ($deliveryResult['delivery_status'] ?? 'admin_email_delivery_unknown');
+
+        $storage->writeAdminAccessAuditEvent([
+            'actor_user_id' => (string) $userId,
+            'event_type' => 'admin_email_code_requested',
+            'new_value' => [
+                'purpose' => CPG_ADMIN_ACCESS_PURPOSE,
+                'masked_email' => $maskedEmail,
+                'expires_at' => $expiresAt,
+                'delivery_status' => $deliveryStatus,
+            ],
+            'ip_address' => $metadata['ip_address'] ?? null,
+            'user_agent' => $metadata['user_agent'] ?? null,
+            'created_at' => cpg_admin_format_time($base),
+        ]);
+    } else {
+        $storage->writeAdminAccessAuditEvent([
+            'actor_user_id' => $userId,
+            'event_type' => 'admin_email_code_request_rejected',
+            'new_value' => [
+                'purpose' => CPG_ADMIN_ACCESS_PURPOSE,
+                'masked_email' => $maskedEmail,
+            ],
+            'reason' => 'admin_access_not_eligible',
+            'ip_address' => $metadata['ip_address'] ?? null,
+            'user_agent' => $metadata['user_agent'] ?? null,
+            'created_at' => cpg_admin_format_time($base),
+        ]);
+    }
+
+    return cpg_admin_access_response(202, [
+        'ok' => true,
+        'purpose' => CPG_ADMIN_ACCESS_PURPOSE,
+        'masked_email' => $maskedEmail,
+        'expires_in_seconds' => CPG_ADMIN_EMAIL_CODE_TTL_SECONDS,
+        'code_length' => CPG_ADMIN_EMAIL_CODE_LENGTH,
+        'delivery_status' => $canReceiveCode ? $deliveryStatus : 'handled_if_eligible',
+        'storage_status' => $canReceiveCode ? 'stored_hash_only' : 'handled_if_eligible',
+        'message' => 'If the account is eligible, an admin access code has been sent.',
     ]);
 }
 

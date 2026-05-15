@@ -228,12 +228,12 @@ cpg_admin_email_delivery_test_assert(
 $source = file_get_contents(__DIR__ . '/../public/index.php');
 cpg_admin_email_delivery_test_assert(is_string($source), 'public index should be readable');
 cpg_admin_email_delivery_test_assert(
-    !str_contains($source, "require_once __DIR__ . '/../lib/admin_access_email_delivery.php';"),
-    'public route must not include email delivery until runtime activation is approved'
+    str_contains($source, "require_once __DIR__ . '/../lib/admin_access_email_delivery.php';"),
+    'public route should include email delivery after runtime activation approval'
 );
 cpg_admin_email_delivery_test_assert(
-    !str_contains($source, 'cpg_admin_access_create_email_delivery('),
-    'public route must not create email delivery until runtime activation is approved'
+    str_contains($source, 'cpg_admin_access_create_email_delivery()'),
+    'public route should create email delivery only after runtime gates'
 );
 
 $deliverySource = file_get_contents(__DIR__ . '/../lib/admin_access_email_delivery.php');

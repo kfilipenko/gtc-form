@@ -46,9 +46,10 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - admin email-code flow skeleton: `lib/admin_access_flow.php` defines disabled-by-default request/verify skeleton responses and validates the future OpenAPI contract without adding public routes
 - admin email-code storage adapter contract: `lib/admin_access_storage.php` defines the storage boundary and in-memory test adapter for hash-only code storage, attempt counting, single-use verification, admin session creation and audit events without connecting to PostgreSQL
 - admin email-code PostgreSQL adapter design: `lib/admin_access_pg_storage.php` defines a callable-query PostgreSQL adapter and static SQL tests for future `admin_email_codes`, `admin_sessions`, access-audit and admin-user eligibility queries without opening a database connection
-- admin email-code public route wiring: `public/index.php` exposes disabled-by-default POST route stubs for request/verify; by default they return `admin_access_flow_not_enabled` before reading JSON or touching storage
-- admin email-code storage factory contract: `lib/admin_access_storage_factory.php` defines disabled-by-default storage selection and explicit `pgsql` adapter creation through an injected query executor; it is not included by public routes yet
-- admin email-code delivery adapter contract: `lib/admin_access_email_delivery.php` defines disabled-by-default email delivery selection, Timeweb SMTP configuration validation, safe message preparation, a test-only capture adapter and a controlled SMTP send path for approved smoke tests; public routes do not include or call it
+- admin email-code public route wiring: `public/index.php` exposes POST request/verify routes; they load protected runtime config and keep the disabled response before JSON parsing unless explicit server-only flags enable the flow
+- admin email-code storage factory contract: `lib/admin_access_storage_factory.php` defines disabled-by-default storage selection and explicit `pgsql` adapter creation through an injected query executor; public routes call it only after runtime gates pass
+- admin email-code delivery adapter contract: `lib/admin_access_email_delivery.php` defines disabled-by-default email delivery selection, Timeweb SMTP configuration validation, safe message preparation, a test-only capture adapter and a controlled SMTP send path for approved admin access runtime use
+- admin access Project Owner bootstrap: `tools/bootstrap_project_owner.php` records the controlled first-owner bootstrap path for `kfilipenko@gtchain.io`
 - full login/session logic: not implemented
 
 ## Access-control Phase 2 status
@@ -70,19 +71,19 @@ Operator queue responses expose `operator_access` metadata for each queue item. 
 
 `lib/identity_context.php` is a preparation layer for that transition. It distinguishes a shared temporary operator token from a named active user session, and it prevents the temporary token from being treated as a user that can load role permissions.
 
-`lib/admin_access.php` is a preparation layer for document 88 Phase 3. It implements the local security primitives for admin email-code protection, but it is not wired into public routes until the access-control migration and admin session storage are approved for use.
+`lib/admin_access.php` is the local security primitive layer for admin email-code protection: code generation, hashing, verification, expiry and admin-session TTL helpers.
 
-`lib/admin_access_flow.php` describes the future request/verify handler boundary. By default the flow returns `admin_access_flow_not_enabled`; even when enabled in isolated tests, the skeleton does not send email, write code storage or create admin sessions.
+`lib/admin_access_flow.php` describes the request/verify handler boundary. By default the flow returns `admin_access_flow_not_enabled`; after protected runtime flags pass, request stores a hash-only code and sends email, while verify marks the code used and creates an admin-session record.
 
-`lib/admin_access_storage.php` defines the future storage boundary for admin email-code records and admin sessions. The current implementation includes only an in-memory test adapter and storage-backed helper tests; no production database connection, public route or email delivery is enabled by this layer.
+`lib/admin_access_storage.php` defines the storage boundary for admin email-code records and admin sessions. The implementation includes an in-memory test adapter and the interface used by the PostgreSQL adapter.
 
-`lib/admin_access_pg_storage.php` defines the planned PostgreSQL adapter shape using an injected query executor. Its tests validate SQL shape, parameter usage and target tables through a fake executor only; it is not wired into runtime routes and does not call `api_db()` or `psql`.
+`lib/admin_access_pg_storage.php` defines the PostgreSQL adapter using an injected query executor. Runtime routes create it only through the storage factory after protected feature gates pass.
 
-The public admin email-code route stubs are wired only as a disabled boundary. They require both `CREWPORTGLOBAL_ADMIN_ACCESS_PUBLIC_ROUTES_ENABLED` and `CREWPORTGLOBAL_ADMIN_ACCESS_FLOW_ENABLED` before reaching skeleton body parsing; the default response is `admin_access_flow_not_enabled`.
+The public admin email-code routes require both `CREWPORTGLOBAL_ADMIN_ACCESS_PUBLIC_ROUTES_ENABLED` and `CREWPORTGLOBAL_ADMIN_ACCESS_FLOW_ENABLED` before reading JSON. When disabled, the default response is `admin_access_flow_not_enabled`.
 
-`lib/admin_access_storage_factory.php` prepares the future route storage selection contract. Default mode is disabled; `CREWPORTGLOBAL_ADMIN_ACCESS_STORAGE_MODE=pgsql` can create a PostgreSQL adapter, but only through the factory and without querying at construction time. Public routes do not include or call the factory until runtime activation is separately approved.
+`lib/admin_access_storage_factory.php` controls route storage selection. Default mode is disabled; `CREWPORTGLOBAL_ADMIN_ACCESS_STORAGE_MODE=pgsql` creates a PostgreSQL adapter through the factory and without querying at construction time. Public routes call the factory only after route and flow gates pass.
 
-`lib/admin_access_email_delivery.php` prepares the future email delivery boundary. Default mode is disabled; `CREWPORTGLOBAL_ADMIN_ACCESS_EMAIL_ENABLED=true` triggers SMTP configuration validation, but delivery remains not-sent unless `smtp_send_ready` mode and `CREWPORTGLOBAL_ADMIN_ACCESS_SMTP_SEND_ENABLED=true` are explicitly set for a controlled execution. The approved sender mailbox is `not_reply@crewportglobal.com` via `smtp.timeweb.ru:465` with SSL. Public routes do not include or call the delivery factory.
+`lib/admin_access_email_delivery.php` controls email delivery. Default mode is disabled; `CREWPORTGLOBAL_ADMIN_ACCESS_EMAIL_ENABLED=true` triggers SMTP configuration validation, but delivery remains not-sent unless `smtp_send_ready` mode and `CREWPORTGLOBAL_ADMIN_ACCESS_SMTP_SEND_ENABLED=true` are explicitly set in protected server config. The approved sender mailbox is `not_reply@crewportglobal.com` via `smtp.timeweb.ru:465` with SSL.
 
 Admin access SMTP settings are server-only environment variables:
 
@@ -100,6 +101,9 @@ CREWPORTGLOBAL_SMTP_FROM_NAME="CrewPortGlobal Security"
 CREWPORTGLOBAL_ADMIN_ACCESS_EMAIL_ENABLED=false
 CREWPORTGLOBAL_ADMIN_ACCESS_EMAIL_DELIVERY_MODE=disabled
 CREWPORTGLOBAL_ADMIN_ACCESS_SMTP_SEND_ENABLED=false
+CREWPORTGLOBAL_ADMIN_ACCESS_PUBLIC_ROUTES_ENABLED=false
+CREWPORTGLOBAL_ADMIN_ACCESS_FLOW_ENABLED=false
+CREWPORTGLOBAL_ADMIN_ACCESS_STORAGE_MODE=disabled
 ```
 
 The password must not be committed to Git, documentation, tests, comments or source files.
@@ -111,6 +115,12 @@ sudo -n php projects/crewportglobal/app/backend/api/tools/admin_access_email_smo
 ```
 
 The smoke test loads `/etc/crewportglobal/admin-access.env`, generates a one-time code, sends it through the SMTP adapter and prints only a safe result summary. It does not print the code or SMTP password.
+
+Controlled Project Owner bootstrap:
+
+```bash
+php projects/crewportglobal/app/backend/api/tools/bootstrap_project_owner.php --owner-email=kfilipenko@gtchain.io
+```
 
 ## Operator access token
 
@@ -180,9 +190,5 @@ php projects/crewportglobal/app/backend/api/tests/admin_access_public_routes_tes
 
 - account password hashing
 - login sessions
-- public runtime admin email sending
-- active admin email delivery provider wiring
-- admin email-code PostgreSQL storage wiring
-- active admin email-code public route handling
-- public form wiring
+- broader admin console features beyond the first email-code gate
 - deployment/nginx/openclaw/stripe changes

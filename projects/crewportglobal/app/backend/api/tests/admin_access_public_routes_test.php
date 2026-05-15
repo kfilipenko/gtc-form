@@ -24,7 +24,10 @@ cpg_admin_public_routes_test_assert(is_string($source), 'public index should be 
 
 $requiredFragments = [
     "require_once __DIR__ . '/../lib/admin_access_flow.php';",
+    "require_once __DIR__ . '/../lib/admin_access_email_delivery.php';",
+    "require_once __DIR__ . '/../lib/admin_access_storage_factory.php';",
     "const ADMIN_ACCESS_PUBLIC_ROUTES_ENV = 'CREWPORTGLOBAL_ADMIN_ACCESS_PUBLIC_ROUTES_ENABLED';",
+    'function admin_access_load_runtime_env(): void',
     'function admin_access_public_routes_enabled(): bool',
     'function admin_access_public_flow_enabled(): bool',
     'function handle_post_admin_access_email_code_request(): void',
@@ -56,14 +59,27 @@ foreach ([
         $disabledPos !== false && $decodePos !== false && $disabledPos < $decodePos,
         "{$name} handler should return disabled response before reading JSON"
     );
-    cpg_admin_public_routes_test_assert(!str_contains($handlerSource, 'api_query('), "{$name} handler must not query DB");
-    cpg_admin_public_routes_test_assert(!str_contains($handlerSource, 'api_db('), "{$name} handler must not open DB");
-    cpg_admin_public_routes_test_assert(!str_contains($handlerSource, 'CpgAdminAccessPgStorage'), "{$name} handler must not wire PG storage");
+    cpg_admin_public_routes_test_assert(
+        str_contains($handlerSource, 'admin_access_load_runtime_env()'),
+        "{$name} handler should load protected runtime env before checking feature flags"
+    );
+    cpg_admin_public_routes_test_assert(
+        !str_contains(substr($handlerSource, 0, (int) $disabledPos), 'api_decode_json_body()'),
+        "{$name} handler must not read request JSON before the disabled boundary"
+    );
 }
 
 cpg_admin_public_routes_test_assert(
-    !str_contains($source, "require_once __DIR__ . '/../lib/admin_access_pg_storage.php';"),
-    'public index must not include PostgreSQL admin access storage yet'
+    str_contains($requestHandler, 'cpg_admin_access_create_storage()')
+        && str_contains($requestHandler, 'cpg_admin_access_create_email_delivery()')
+        && str_contains($requestHandler, 'cpg_admin_access_request_code_with_storage_and_delivery('),
+    'request handler should wire storage and delivery after runtime gates'
+);
+
+cpg_admin_public_routes_test_assert(
+    str_contains($verifyHandler, 'cpg_admin_access_create_storage()')
+        && str_contains($verifyHandler, 'cpg_admin_access_verify_code_with_storage('),
+    'verify handler should wire storage after runtime gates'
 );
 
 fwrite(STDOUT, "Admin access public route wiring tests passed\n");
