@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.75
+- Version: 0.76
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -179,6 +179,7 @@ docs/crewportglobal/
   95_cpg_access_008_admin_email_code_contract_and_skeleton_report.md
   96_cpg_access_009_admin_email_code_storage_adapter_report.md
   97_cpg_access_010_admin_email_code_pg_adapter_static_query_report.md
+  98_cpg_access_011_disabled_admin_email_code_public_routes_report.md
 ```
 
 ### 3.3 Product governance control
@@ -242,6 +243,8 @@ Document 95 records the admin email-code endpoint contract and disabled-by-defau
 Document 96 records the admin email-code storage adapter contract, including hash-only code storage, attempt counting, single-use verification, admin session record creation and audit event boundaries through an in-memory test adapter only, without wiring PostgreSQL or public admin routes.
 
 Document 97 records the admin email-code PostgreSQL adapter static query design, including the callable-query storage adapter, parameterized SQL for future admin user eligibility, code storage, attempt counting, session creation and audit event writes, with fake-executor tests only and no database connection.
+
+Document 98 records the disabled public route wiring for admin email-code request and verify endpoints, including explicit public route and flow feature flags, default HTTP 503 disabled responses before JSON parsing, method controls and local HTTP smoke verification without database, email or admin-session activation.
 
 Mandatory control statement:
 
@@ -346,6 +349,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.76 | 2026-05-15 | GTC IT / AI Assistant | Added document 98 as CPG-ACCESS-011 implementation report for disabled admin email-code public route wiring behind feature flags |
 | 0.75 | 2026-05-15 | GTC IT / AI Assistant | Added document 97 as CPG-ACCESS-010 implementation report for admin email-code PostgreSQL adapter static query design without database connection |
 | 0.74 | 2026-05-15 | GTC IT / AI Assistant | Added document 96 as CPG-ACCESS-009 implementation report for admin email-code storage adapter contracts and in-memory tests without PostgreSQL wiring |
 | 0.73 | 2026-05-15 | GTC IT / AI Assistant | Added document 95 as CPG-ACCESS-008 implementation report for admin email-code API contracts and disabled runtime skeletons |

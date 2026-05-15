@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../lib/bootstrap.php';
 require_once __DIR__ . '/../lib/access_control.php';
+require_once __DIR__ . '/../lib/admin_access_flow.php';
 require_once __DIR__ . '/../lib/identity_context.php';
 
 const REG_DRAFT_STATUSES = ['draft', 'submitted_for_human_review'];
+const ADMIN_ACCESS_PUBLIC_ROUTES_ENV = 'CREWPORTGLOBAL_ADMIN_ACCESS_PUBLIC_ROUTES_ENABLED';
+const ADMIN_ACCESS_PUBLIC_ROUTES_LEGACY_ENV = 'CPG_ADMIN_ACCESS_PUBLIC_ROUTES_ENABLED';
 
 function request_path(): string {
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
@@ -72,6 +75,44 @@ function require_operator_access(): void {
 function operator_queue_access_contract(string $queueType): ?array {
     $identity = cpg_identity_temporary_operator_token('operator_review_queue');
     return cpg_access_operator_queue_capabilities($queueType, null, true, cpg_identity_permission_mode($identity));
+}
+
+function admin_access_public_routes_enabled(): bool {
+    return cpg_admin_access_bool_env(ADMIN_ACCESS_PUBLIC_ROUTES_ENV)
+        || cpg_admin_access_bool_env(ADMIN_ACCESS_PUBLIC_ROUTES_LEGACY_ENV);
+}
+
+function admin_access_public_flow_enabled(): bool {
+    return admin_access_public_routes_enabled() && cpg_admin_access_flow_enabled();
+}
+
+function admin_access_api_response(array $response): void {
+    $status = $response['status'] ?? 500;
+    $payload = $response['payload'] ?? [
+        'ok' => false,
+        'error' => 'admin_access_response_error',
+        'message' => 'Invalid admin access response',
+    ];
+
+    api_json(is_int($status) ? $status : 500, is_array($payload) ? $payload : []);
+}
+
+function handle_post_admin_access_email_code_request(): void {
+    if (!admin_access_public_flow_enabled()) {
+        admin_access_api_response(cpg_admin_access_disabled_response());
+    }
+
+    $body = api_decode_json_body();
+    admin_access_api_response(cpg_admin_access_request_code_skeleton($body));
+}
+
+function handle_post_admin_access_email_code_verify(): void {
+    if (!admin_access_public_flow_enabled()) {
+        admin_access_api_response(cpg_admin_access_disabled_response());
+    }
+
+    $body = api_decode_json_body();
+    admin_access_api_response(cpg_admin_access_verify_code_skeleton($body));
 }
 
 function read_role_for_user(string $userId): ?string {
@@ -2426,6 +2467,22 @@ function handle_patch_operator_review_queue_status(string $draftId): void {
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = request_path();
+
+if ($path === '/admin/access/email-code/request') {
+    if ($method === 'POST') {
+        handle_post_admin_access_email_code_request();
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if ($path === '/admin/access/email-code/verify') {
+    if ($method === 'POST') {
+        handle_post_admin_access_email_code_verify();
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
 
 if ($method === 'POST' && $path === '/registration/drafts') {
     handle_create_draft();

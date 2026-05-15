@@ -22,8 +22,8 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - PATCH /api/v1/seafarer/vacancy-applications/{vacancy_application_id}/status
 - PATCH /api/v1/employer/vacancy-applications/{vacancy_application_id}/shortlist
 - GET /api/v1/health
-- POST /api/v1/admin/access/email-code/request (contract only, runtime disabled)
-- POST /api/v1/admin/access/email-code/verify (contract only, runtime disabled)
+- POST /api/v1/admin/access/email-code/request (disabled public route, runtime flow off)
+- POST /api/v1/admin/access/email-code/verify (disabled public route, runtime flow off)
 
 ## Current status
 
@@ -46,6 +46,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - admin email-code flow skeleton: `lib/admin_access_flow.php` defines disabled-by-default request/verify skeleton responses and validates the future OpenAPI contract without adding public routes
 - admin email-code storage adapter contract: `lib/admin_access_storage.php` defines the storage boundary and in-memory test adapter for hash-only code storage, attempt counting, single-use verification, admin session creation and audit events without connecting to PostgreSQL
 - admin email-code PostgreSQL adapter design: `lib/admin_access_pg_storage.php` defines a callable-query PostgreSQL adapter and static SQL tests for future `admin_email_codes`, `admin_sessions`, access-audit and admin-user eligibility queries without opening a database connection
+- admin email-code public route wiring: `public/index.php` exposes disabled-by-default POST route stubs for request/verify; by default they return `admin_access_flow_not_enabled` before reading JSON or touching storage
 - full login/session logic: not implemented
 
 ## Access-control Phase 2 status
@@ -74,6 +75,8 @@ Operator queue responses expose `operator_access` metadata for each queue item. 
 `lib/admin_access_storage.php` defines the future storage boundary for admin email-code records and admin sessions. The current implementation includes only an in-memory test adapter and storage-backed helper tests; no production database connection, public route or email delivery is enabled by this layer.
 
 `lib/admin_access_pg_storage.php` defines the planned PostgreSQL adapter shape using an injected query executor. Its tests validate SQL shape, parameter usage and target tables through a fake executor only; it is not wired into runtime routes and does not call `api_db()` or `psql`.
+
+The public admin email-code route stubs are wired only as a disabled boundary. They require both `CREWPORTGLOBAL_ADMIN_ACCESS_PUBLIC_ROUTES_ENABLED` and `CREWPORTGLOBAL_ADMIN_ACCESS_FLOW_ENABLED` before reaching skeleton body parsing; the default response is `admin_access_flow_not_enabled`.
 
 ## Operator access token
 
@@ -134,6 +137,7 @@ php projects/crewportglobal/app/backend/api/tests/admin_access_flow_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_contract_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_storage_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_pg_storage_test.php
+php projects/crewportglobal/app/backend/api/tests/admin_access_public_routes_test.php
 ```
 
 ## Out of scope here
@@ -142,6 +146,6 @@ php projects/crewportglobal/app/backend/api/tests/admin_access_pg_storage_test.p
 - login sessions
 - admin email sending
 - admin email-code PostgreSQL storage wiring
-- admin email-code public route wiring
+- active admin email-code public route handling
 - public form wiring
 - deployment/nginx/openclaw/stripe changes
