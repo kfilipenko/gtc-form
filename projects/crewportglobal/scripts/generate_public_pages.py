@@ -22,6 +22,7 @@ PROJECT_ROOT: Final = Path(__file__).resolve().parent.parent
 PUBLIC_ROOT: Final = PROJECT_ROOT / "public"
 CSS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-docs.css"
 I18N_JS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-public-i18n.js"
+NAVIGATION_JS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-navigation.js"
 FAVICON_LINKS: Final = """  <link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/favicon-32x32.png\">\n  <link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/favicon-16x16.png\">\n  <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/apple-touch-icon.png\">\n  <link rel=\"shortcut icon\" href=\"/favicon.ico\">"""
 APPLICATION_NAV_ITEMS: Final = [
     ("/", "nav.home", "Home"),
@@ -204,15 +205,15 @@ def render_nav_link(
     return f'<a class="{class_name}" href="{SITE_ORIGIN}{href}" data-i18n="{translation_key}">{fallback_label}</a>'
 
 
-def render_application_dropdown() -> str:
+def render_application_pages_dropdown() -> str:
     items = []
     for href, translation_key, fallback_label in APPLICATION_NAV_ITEMS:
         items.append(render_nav_link(href, translation_key, fallback_label))
     return "\n".join(
         [
-            '<details class="nav-menu nav-menu--application">',
+            '<details class="nav-menu nav-menu--application-pages">',
             '  <summary class="nav-menu__summary">',
-            '    <span data-i18n="nav.application">Application</span>',
+            '    <span data-i18n="nav.functionalPages">Functional pages</span>',
             '    <span class="nav-menu__chevron" aria-hidden="true">▾</span>',
             "  </summary>",
             '  <div class="nav-menu__panel" data-i18n-aria-label="nav.applicationMenu">',
@@ -225,7 +226,10 @@ def render_application_dropdown() -> str:
 
 def render_nav(docs: list[dict[str, object]], current_slug: str) -> str:
     del docs
-    items = [render_application_dropdown()]
+    items = [
+        render_nav_link("/", "nav.application", "Application"),
+        render_application_pages_dropdown(),
+    ]
     current_href = f"/{current_slug}/"
     items.append('<span class="nav-section-label" data-i18n="nav.documents">Documents</span>')
     for href, translation_key, fallback_label in DOCUMENT_NAV_ITEMS:
@@ -334,10 +338,13 @@ def render_page(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
     asset_href = Path("/".join([".."] * len(doc_dir.relative_to(PUBLIC_ROOT).parts)) or ".")
     stylesheet_href = (asset_href / "assets" / CSS_PATH.name).as_posix()
     script_href = (asset_href / "assets" / I18N_JS_PATH.name).as_posix()
+    navigation_script_href = (asset_href / "assets" / NAVIGATION_JS_PATH.name).as_posix()
     if stylesheet_href.startswith("./"):
         stylesheet_href = stylesheet_href[2:]
     if script_href.startswith("./"):
         script_href = script_href[2:]
+    if navigation_script_href.startswith("./"):
+        navigation_script_href = navigation_script_href[2:]
 
     title_suffix = f"{doc['title']} | CrewPortGlobal"
     intro = doc["summary"]
@@ -384,9 +391,8 @@ def render_page(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
             </div>
     </header>
 
-    <nav class="site-nav site-nav--documents" aria-label="Document navigation" data-i18n-aria-label="nav.documentsMenu">
-      {render_nav(docs, doc['slug'])}
-    </nav>
+    <div data-cpg-navigation="documents" data-cpg-nav-active="/{doc['slug']}/"></div>
+    <script src="{navigation_script_href}"></script>
 
     <main class="doc-main">
       <section class="doc-hero card">

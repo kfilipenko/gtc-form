@@ -58,12 +58,16 @@ test('functional pages expose Application menu with Documents dropdown', async (
   }
 });
 
-test('document pages expose Documents menu with Application dropdown', async ({ page }) => {
+test('document pages expose Documents menu with direct Application return and functional pages dropdown', async ({ page }) => {
   for (const item of documentPages) {
     await page.goto(item.path);
 
     const nav = page.locator('nav.site-nav--documents');
     await expect(nav).toBeVisible();
+    await expect(nav.locator(':scope > a[data-i18n="nav.application"]')).toHaveAttribute(
+      'href',
+      'https://crewportglobal.com/',
+    );
     await expect(nav.locator('.nav-section-label')).toHaveText('Documents');
     await expect(nav.getByRole('link', { name: item.active })).toHaveClass(/is-active/);
     await expect(nav.locator(':scope > a[data-i18n="nav.home"]')).toHaveCount(0);
@@ -72,15 +76,41 @@ test('document pages expose Documents menu with Application dropdown', async ({ 
       await expect(nav.getByRole('link', { name: link.name })).toHaveAttribute('href', link.href);
     }
 
-    const applicationMenu = nav.locator('details.nav-menu--application');
-    await expect(applicationMenu.locator('summary')).toContainText('Application');
+    const applicationMenu = nav.locator('details.nav-menu--application-pages');
+    await expect(applicationMenu.locator('summary')).toContainText('Functional pages');
     await expect(applicationMenu.locator('.nav-menu__panel')).toBeHidden();
 
     await applicationMenu.locator('summary').click();
+    await expect(applicationMenu.locator('.nav-menu__panel')).toBeVisible();
 
     for (const link of appLinks) {
       await expect(applicationMenu.getByRole('link', { name: link.name })).toHaveAttribute('href', link.href);
     }
+  }
+});
+
+test('document page menu controls expose every application and document target', async ({ page }) => {
+  await page.goto('/legal/verification-policy/');
+
+  const nav = page.locator('nav.site-nav--documents');
+  const applicationLink = nav.locator(':scope > a[data-i18n="nav.application"]');
+  await expect(applicationLink).toBeVisible();
+  await expect(applicationLink).toHaveAttribute('href', 'https://crewportglobal.com/');
+
+  const applicationMenu = nav.locator('details.nav-menu--application-pages');
+  await applicationMenu.locator('summary').click();
+  await expect(applicationMenu.locator('.nav-menu__panel')).toBeVisible();
+
+  for (const link of appLinks) {
+    const locator = applicationMenu.getByRole('link', { name: link.name });
+    await expect(locator).toBeVisible();
+    await expect(locator).toHaveAttribute('href', link.href);
+  }
+
+  for (const link of documentLinks) {
+    const locator = nav.getByRole('link', { name: link.name });
+    await expect(locator).toBeVisible();
+    await expect(locator).toHaveAttribute('href', link.href);
   }
 });
 

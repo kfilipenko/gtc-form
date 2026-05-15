@@ -42,11 +42,14 @@ Future frontend changes must preserve this model:
    - Login / Register;
    - Documents dropdown;
 2. documentary pages may show only:
-   - Application dropdown;
+   - Application direct return link to `/`;
+   - Functional pages dropdown;
    - Documents label and current document group links;
 3. documentary links must not be added back as top-level links on functional application pages;
 4. workflow action links must not be added back as a mixed top-level set on documentary pages;
 5. the protected operator workflow and future operator portal remain separate from the public application/document navigation model unless the Project Owner approves a dedicated operator navigation slice under document 80.
+6. Document 85 supersedes the earlier document-page `Application` dropdown behavior: `Application` must be a direct return link, while the functional links live under `Functional pages`.
+7. Document 86 supersedes page-level navigation duplication: shared navigation structure must be maintained in `projects/crewportglobal/public/assets/crewportglobal-navigation.js`.
 
 ## 4. Changed Files
 

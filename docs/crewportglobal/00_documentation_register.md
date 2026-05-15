@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.62
+- Version: 0.64
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -166,6 +166,8 @@ docs/crewportglobal/
   82_cpg_user_018_seafarer_application_withdrawal_report.md
   83_cpg_mkt_004_application_documents_navigation_report.md
   84_cpg_ops_018_operator_portal_navigation_and_role_lanes_report.md
+  85_cpg_mkt_005_document_application_return_menu_fix_report.md
+  86_cpg_mkt_006_shared_navigation_component_report.md
 ```
 
 ### 3.3 Product governance control
@@ -200,9 +202,13 @@ Document 81 records employer follow-up notes for operator-presented candidates i
 
 Document 82 records seafarer-side vacancy application withdrawal and not-available actions in `/create-profile/`.
 
-Document 83 records the frontend-only navigation separation between functional application pages and documentary pages, including the future rule that application pages use an Application menu with a Documents dropdown and documentary pages use a Documents menu with an Application dropdown.
+Document 83 records the frontend-only navigation separation between functional application pages and documentary pages, including the future rule that application pages use an Application menu with a Documents dropdown and documentary pages use a Documents menu with a direct Application return link and a Functional pages dropdown.
 
 Document 84 records the frontend-only operator portal navigation and role-lane separation for `/verify/` under the document 80 role model.
+
+Document 85 records the document-page Application return menu fix: `Application` is a direct link back to `/`, while functional page links live under a separate `Functional pages` dropdown.
+
+Document 86 records the shared frontend navigation component that centralizes Application, Documents and Operator menu rendering in `projects/crewportglobal/public/assets/crewportglobal-navigation.js`.
 
 Mandatory control statement:
 
@@ -307,6 +313,8 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.64 | 2026-05-15 | GTC IT / AI Assistant | Added document 86 as CPG-MKT-006 implementation report for the shared frontend navigation component and page-level mount contract |
+| 0.63 | 2026-05-15 | GTC IT / AI Assistant | Added document 85 as CPG-MKT-005 implementation report for the document-page Application return menu fix and Functional pages dropdown |
 | 0.62 | 2026-05-14 | GTC IT / AI Assistant | Added document 84 as CPG-OPS-018 implementation report for dedicated operator portal navigation and role lanes on /verify/ under the document 80 role model |
 | 0.61 | 2026-05-14 | GTC IT / AI Assistant | Added document 83 as CPG-MKT-004 implementation report and future-change rule for separating CrewPortGlobal application navigation from documentary navigation |
 | 0.60 | 2026-05-14 | GTC IT / AI Assistant | Added document 82 as CPG-USER-018 implementation report for seafarer-side vacancy application withdrawal and not-available actions in /create-profile/ |

@@ -260,49 +260,8 @@
       </div>
     </header>
 
-    <nav class="site-nav site-nav--operator" aria-label="Operator portal navigation" data-i18n-aria-label="operator.nav.menu">
-      <a class="nav-link is-active" href="https://crewportglobal.com/verify/" data-i18n="verify.nav.queue">Operator Queue</a>
-      <details class="nav-menu nav-menu--operator-roles">
-        <summary class="nav-menu__summary">
-          <span data-i18n="operator.nav.roles">Role lanes</span>
-          <span class="nav-menu__chevron" aria-hidden="true">▾</span>
-        </summary>
-        <div class="nav-menu__panel" data-i18n-aria-label="operator.nav.rolesMenu">
-          <button class="nav-link nav-menu__button is-active" type="button" data-operator-lane="all" aria-pressed="true" data-i18n="operator.lane.all">All work</button>
-          <button class="nav-link nav-menu__button" type="button" data-operator-lane="verifier" aria-pressed="false" data-i18n="operator.role.verifier">Verifier</button>
-          <button class="nav-link nav-menu__button" type="button" data-operator-lane="reviewer" aria-pressed="false" data-i18n="operator.role.reviewer">Reviewer</button>
-          <button class="nav-link nav-menu__button" type="button" data-operator-lane="complaint_operator" aria-pressed="false" data-i18n="operator.role.complaintOperator">Complaint Operator</button>
-          <button class="nav-link nav-menu__button" type="button" data-operator-lane="billing_operator" aria-pressed="false" data-i18n="operator.role.billingOperator">Billing Operator</button>
-          <button class="nav-link nav-menu__button" type="button" data-operator-lane="support_operator" aria-pressed="false" data-i18n="operator.role.supportOperator">Support Operator</button>
-          <button class="nav-link nav-menu__button" type="button" data-operator-lane="platform_administrator" aria-pressed="false" data-i18n="operator.role.platformAdministrator">Platform Administrator</button>
-        </div>
-      </details>
-      <details class="nav-menu nav-menu--application">
-        <summary class="nav-menu__summary">
-          <span data-i18n="operator.nav.publicApp">Public app</span>
-          <span class="nav-menu__chevron" aria-hidden="true">▾</span>
-        </summary>
-        <div class="nav-menu__panel" data-i18n-aria-label="operator.nav.publicAppMenu">
-          <a class="nav-link" href="https://crewportglobal.com/" data-i18n="nav.home">Home</a>
-          <a class="nav-link" href="https://crewportglobal.com/vacancies/" data-i18n="nav.vacancies">Vacancies</a>
-          <a class="nav-link" href="https://crewportglobal.com/create-profile/" data-i18n="nav.createProfile">Create Profile</a>
-          <a class="nav-link" href="https://crewportglobal.com/post-vacancy/" data-i18n="nav.postVacancy">Post Vacancy</a>
-          <a class="nav-link" href="https://crewportglobal.com/register/" data-i18n="nav.loginRegister">Login / Register</a>
-        </div>
-      </details>
-      <details class="nav-menu nav-menu--documents">
-        <summary class="nav-menu__summary">
-          <span data-i18n="operator.nav.documents">Reference documents</span>
-          <span class="nav-menu__chevron" aria-hidden="true">▾</span>
-        </summary>
-        <div class="nav-menu__panel" data-i18n-aria-label="operator.nav.documentsMenu">
-          <a class="nav-link" href="https://crewportglobal.com/for-seafarers/" data-i18n="nav.forSeafarers">For Seafarers</a>
-          <a class="nav-link" href="https://crewportglobal.com/for-shipowners/" data-i18n="nav.forShipowners">For Employers</a>
-          <a class="nav-link" href="https://crewportglobal.com/how-it-works/" data-i18n="nav.howItWorks">How It Works</a>
-          <a class="nav-link" href="https://crewportglobal.com/legal/verification-policy/" data-i18n="nav.trustSafety">Trust & Safety</a>
-        </div>
-      </details>
-    </nav>
+    <div data-cpg-navigation="operator"></div>
+    <script src="../assets/crewportglobal-navigation.js"></script>
 
     <main class="doc-main">
       <section class="card queue-card">
