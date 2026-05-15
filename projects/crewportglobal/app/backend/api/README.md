@@ -48,7 +48,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - admin email-code PostgreSQL adapter design: `lib/admin_access_pg_storage.php` defines a callable-query PostgreSQL adapter and static SQL tests for future `admin_email_codes`, `admin_sessions`, access-audit and admin-user eligibility queries without opening a database connection
 - admin email-code public route wiring: `public/index.php` exposes disabled-by-default POST route stubs for request/verify; by default they return `admin_access_flow_not_enabled` before reading JSON or touching storage
 - admin email-code storage factory contract: `lib/admin_access_storage_factory.php` defines disabled-by-default storage selection and explicit `pgsql` adapter creation through an injected query executor; it is not included by public routes yet
-- admin email-code delivery adapter contract: `lib/admin_access_email_delivery.php` defines disabled-by-default email delivery selection and a test-only capture adapter; no SMTP, `mail()` or external provider is wired
+- admin email-code delivery adapter contract: `lib/admin_access_email_delivery.php` defines disabled-by-default email delivery selection, Timeweb SMTP configuration validation, safe message preparation and a test-only capture adapter; no SMTP connection, `mail()` or external provider send is performed
 - full login/session logic: not implemented
 
 ## Access-control Phase 2 status
@@ -82,7 +82,22 @@ The public admin email-code route stubs are wired only as a disabled boundary. T
 
 `lib/admin_access_storage_factory.php` prepares the future route storage selection contract. Default mode is disabled; `CREWPORTGLOBAL_ADMIN_ACCESS_STORAGE_MODE=pgsql` can create a PostgreSQL adapter, but only through the factory and without querying at construction time. Public routes do not include or call the factory until runtime activation is separately approved.
 
-`lib/admin_access_email_delivery.php` prepares the future email delivery boundary. Default mode is disabled; `CREWPORTGLOBAL_ADMIN_ACCESS_EMAIL_DELIVERY_MODE=capture` is available only for isolated tests and records messages in memory without SMTP, PHP `mail()` or external provider calls. Public routes do not include or call the delivery factory.
+`lib/admin_access_email_delivery.php` prepares the future email delivery boundary. Default mode is disabled; `CREWPORTGLOBAL_ADMIN_ACCESS_EMAIL_ENABLED=true` triggers SMTP configuration validation, but delivery remains not-sent unless a separate future approval enables the send path. The approved sender mailbox is `not_reply@crewportglobal.com` via `smtp.timeweb.ru:465` with SSL. Public routes do not include or call the delivery factory.
+
+Admin access SMTP settings are server-only environment variables:
+
+```bash
+CREWPORTGLOBAL_SMTP_HOST=smtp.timeweb.ru
+CREWPORTGLOBAL_SMTP_PORT=465
+CREWPORTGLOBAL_SMTP_SECURITY=ssl
+CREWPORTGLOBAL_SMTP_USERNAME=not_reply@crewportglobal.com
+CREWPORTGLOBAL_SMTP_PASSWORD=<server-only-secret>
+CREWPORTGLOBAL_SMTP_FROM_EMAIL=not_reply@crewportglobal.com
+CREWPORTGLOBAL_SMTP_FROM_NAME="CrewPortGlobal Security"
+CREWPORTGLOBAL_ADMIN_ACCESS_EMAIL_ENABLED=false
+```
+
+The password must not be committed to Git, documentation, tests, comments or source files.
 
 ## Operator access token
 
@@ -152,7 +167,7 @@ php projects/crewportglobal/app/backend/api/tests/admin_access_public_routes_tes
 
 - account password hashing
 - login sessions
-- admin email sending
+- real admin email sending
 - active admin email delivery provider wiring
 - admin email-code PostgreSQL storage wiring
 - active admin email-code public route handling

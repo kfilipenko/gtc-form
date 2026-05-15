@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.78
+- Version: 0.79
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -182,6 +182,7 @@ docs/crewportglobal/
   98_cpg_access_011_disabled_admin_email_code_public_routes_report.md
   99_cpg_access_012_admin_email_code_storage_factory_report.md
   100_cpg_access_013_admin_email_code_email_delivery_contract_report.md
+  101_cpg_access_014_admin_email_delivery_adapter_report.md
 ```
 
 ### 3.3 Product governance control
@@ -251,6 +252,8 @@ Document 98 records the disabled public route wiring for admin email-code reques
 Document 99 records the admin email-code storage factory contract, including disabled-by-default storage mode, explicit PostgreSQL mode selection, factory status responses, query-executor injection and tests confirming public routes do not include or call the storage factory before runtime activation is approved.
 
 Document 100 records the admin email-code email delivery contract, including disabled-by-default delivery mode, test-only capture mode, safe delivery summaries that do not expose clear codes, and tests confirming public routes do not include or call email delivery before runtime activation is approved.
+
+Document 101 records the admin email delivery adapter preparation for the approved CrewPortGlobal sender mailbox, including Timeweb SMTP environment keys, disabled-by-default behavior, configuration validation, safe message construction, no-secret controls and no-real-send verification.
 
 Mandatory control statement:
 
@@ -355,6 +358,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.79 | 2026-05-15 | GTC IT / AI Assistant | Added document 101 as CPG-ACCESS-014 implementation report for admin email delivery adapter preparation with Timeweb SMTP configuration validation and no real send |
 | 0.78 | 2026-05-15 | GTC IT / AI Assistant | Added document 100 as CPG-ACCESS-013 implementation report for disabled-by-default admin email-code email delivery contract |
 | 0.77 | 2026-05-15 | GTC IT / AI Assistant | Added document 99 as CPG-ACCESS-012 implementation report for disabled-by-default admin email-code storage factory contract |
 | 0.76 | 2026-05-15 | GTC IT / AI Assistant | Added document 98 as CPG-ACCESS-011 implementation report for disabled admin email-code public route wiring behind feature flags |

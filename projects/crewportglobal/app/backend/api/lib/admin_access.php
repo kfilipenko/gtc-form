@@ -126,7 +126,7 @@ function cpg_admin_email_code_message(string $email, string $code, ?DateTimeImmu
         'purpose' => CPG_ADMIN_ACCESS_PURPOSE,
         'to' => strtolower(trim($email)),
         'subject' => 'CrewPortGlobal admin access code',
-        'body_text' => "Your CrewPortGlobal admin access code is {$normalized}. It expires in 10 minutes.",
+        'body_text' => "Your CrewPortGlobal admin access code is: {$normalized}\n\nThis code expires in 10 minutes.\nIf you did not request this code, ignore this message.",
         'expires_at' => $expiresAt,
     ];
 }
