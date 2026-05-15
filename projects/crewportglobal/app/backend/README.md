@@ -25,4 +25,6 @@ Until explicitly approved in task scope, this directory must not contain:
 
 Current approved implementation step:
 
-1. CPG-BE-001: registration database foundation in app/backend/db
+1. CPG-ACCESS-002: backend access guard foundation and isolated tests
+
+The current access-control step is preparation only. It must not replace the temporary operator token, enable account sessions, apply production SQL, or expose `/admin/access/` until the next approved phases are completed.

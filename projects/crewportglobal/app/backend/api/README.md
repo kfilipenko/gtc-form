@@ -37,7 +37,21 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - employer candidate pipeline logic: employer draft responses include only `presented_candidates` that belong to the employer company and the current vacancy workspace
 - employer shortlist action logic: employers can mark an operator-presented candidate as `contacted`, `interview_requested`, `not_suitable` or back to `presented`, with an optional employer follow-up note, through the draft-scoped employer workspace
 - operator access boundary: `GET /api/v1/operator/review-queue` and `PATCH /api/v1/operator/review-queue/{draft_id}/status` require `X-CPG-Operator-Token` or `Authorization: Bearer ...`
+- access-control guard foundation: `lib/access_control.php` defines Phase 2 permission-loading, scope-checking, operator queue permission mapping and access-audit write helpers, with isolated tests; the guard is not wired into runtime routes yet
 - full login/session logic: not implemented
+
+## Access-control Phase 2 status
+
+Document 88 defines the final access model. The current backend slice prepares the guard layer only:
+
+- `cpg_access_load_effective_permissions(user_id)`
+- `cpg_access_effective_permissions_allow(...)`
+- `cpg_access_require_permission(...)`
+- `cpg_access_operator_queue_view_permission(queue_type)`
+- `cpg_access_operator_queue_action_permission(queue_type, decision)`
+- `cpg_access_write_audit_event(...)`
+
+Runtime behavior is unchanged in this phase. The temporary operator token remains active, and no protected route calls the new guard until the access-control migration is reviewed, applied in an approved environment and account sessions are available.
 
 ## Operator access token
 
@@ -85,6 +99,12 @@ npm run test:cpg-api
 
 This suite starts the API web server, applies the registration and marketplace migrations,
 and verifies health/create/get/patch, operator decisions, reviewed vacancy publication, vacancy application flow, vacancy application operator review and validation error cases.
+
+Run the isolated access-control guard checks without a database connection:
+
+```bash
+php projects/crewportglobal/app/backend/api/tests/access_control_guard_test.php
+```
 
 ## Out of scope here
 

@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.66
+- Version: 0.67
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -170,6 +170,7 @@ docs/crewportglobal/
   86_cpg_mkt_006_shared_navigation_component_report.md
   87_cpg_ops_019_operator_role_lane_counts_report.md
   88_cpg_access_control_admin_console_plan.md
+  89_cpg_access_002_backend_access_guard_foundation_report.md
 ```
 
 ### 3.3 Product governance control
@@ -215,6 +216,8 @@ Document 86 records the shared frontend navigation component that centralizes Ap
 Document 87 records operator role-lane queue counts on `/verify/` and in the shared Operator role menu, preserving document 80 role separation while keeping counts frontend-only and separate from access control.
 
 Document 88 records the CrewPortGlobal access-control and admin-console plan, including the User -> Group -> Role -> Permission -> Scope model, administrative access console `/admin/access/`, email one-time-code protection for administrative access, access audit requirements and phased implementation order for replacing the temporary operator-token model with account-based permission enforcement.
+
+Document 89 records the Phase 2 backend access guard foundation: isolated PHP permission helpers, operator queue permission mapping, access-audit helper preparation and tests, without wiring runtime enforcement or replacing the temporary operator token.
 
 Mandatory control statement:
 
@@ -319,6 +322,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.67 | 2026-05-15 | GTC IT / AI Assistant | Added document 89 as CPG-ACCESS-002 implementation report for backend access guard foundation and isolated tests without runtime enforcement |
 | 0.66 | 2026-05-15 | GTC IT / AI Assistant | Added document 88 as CPG-ACCESS-001 final access-control and admin-console plan covering groups, roles, permissions, scopes, admin email-code protection, audit requirements and phased implementation order |
 | 0.65 | 2026-05-15 | GTC IT / AI Assistant | Added document 87 as CPG-OPS-019 implementation report for operator role-lane queue counts on /verify/ and in the shared Operator role menu |
 | 0.64 | 2026-05-15 | GTC IT / AI Assistant | Added document 86 as CPG-MKT-006 implementation report for the shared frontend navigation component and page-level mount contract |
