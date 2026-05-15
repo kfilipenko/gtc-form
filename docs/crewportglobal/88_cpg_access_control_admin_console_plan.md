@@ -7,7 +7,7 @@
 - Version: 1.0
 - Status: Final draft for project-owner approval
 - Date: 2026-05-15
-- Registration status: Not yet registered in `00_documentation_register.md`
+- Registration status: Registered in `00_documentation_register.md` version 0.66
 
 ## 1. Purpose
 
@@ -1390,4 +1390,5 @@ The first administrative security method should be email one-time code, with fut
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.1 | 2026-05-15 | GTC IT / AI Assistant | Registered document in documentation register version 0.66 before Phase 1 SQL migration draft review |
 | 1.0 | 2026-05-15 | GTC IT / AI Assistant | Final architecture and implementation plan for access groups, roles, permissions, admin console and email-code administrative protection |
