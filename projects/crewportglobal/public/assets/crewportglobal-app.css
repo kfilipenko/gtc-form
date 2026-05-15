@@ -128,9 +128,27 @@ body.doc-body.cpg-app-page {
   background: var(--app-ocean);
 }
 
+.cpg-app-page .nav-menu__button {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
+}
+
+.cpg-app-page .nav-menu__button.is-active {
+  color: #fff;
+  background: var(--app-ocean);
+}
+
 .cpg-app-page .nav-menu__panel {
   background: var(--app-surface);
   box-shadow: var(--app-shadow);
+}
+
+.cpg-app-page .site-nav--operator .nav-menu__panel {
+  right: auto;
+  left: 0;
 }
 
 .cpg-app-page .language-toggle {
@@ -285,6 +303,38 @@ body.doc-body.cpg-app-page {
   background: var(--app-surface-2);
   color: var(--app-ocean-dark);
   border-radius: 8px;
+}
+
+.operator-lane-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.operator-lane-button {
+  min-height: 38px;
+  padding: 9px 12px;
+  border: 1px solid var(--app-line);
+  border-radius: 8px;
+  background: var(--app-surface-2);
+  color: var(--app-ocean-dark);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.operator-lane-button:hover,
+.operator-lane-button:focus-visible {
+  border-color: rgba(20, 107, 124, 0.36);
+  background: #e4f0f3;
+  outline: none;
+}
+
+.operator-lane-button.is-active {
+  border-color: var(--app-ocean);
+  background: var(--app-ocean);
+  color: #fff;
 }
 
 .app-workspace {

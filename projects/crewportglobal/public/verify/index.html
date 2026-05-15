@@ -260,16 +260,62 @@
       </div>
     </header>
 
-    <nav class="site-nav" aria-label="Verify navigation">
-      <a class="nav-link" href="https://crewportglobal.com/" data-i18n="nav.home">Home</a>
-      <a class="nav-link" href="https://crewportglobal.com/register/" data-i18n="nav.loginRegister">Login / Register</a>
+    <nav class="site-nav site-nav--operator" aria-label="Operator portal navigation" data-i18n-aria-label="operator.nav.menu">
       <a class="nav-link is-active" href="https://crewportglobal.com/verify/" data-i18n="verify.nav.queue">Operator Queue</a>
+      <details class="nav-menu nav-menu--operator-roles">
+        <summary class="nav-menu__summary">
+          <span data-i18n="operator.nav.roles">Role lanes</span>
+          <span class="nav-menu__chevron" aria-hidden="true">▾</span>
+        </summary>
+        <div class="nav-menu__panel" data-i18n-aria-label="operator.nav.rolesMenu">
+          <button class="nav-link nav-menu__button is-active" type="button" data-operator-lane="all" aria-pressed="true" data-i18n="operator.lane.all">All work</button>
+          <button class="nav-link nav-menu__button" type="button" data-operator-lane="verifier" aria-pressed="false" data-i18n="operator.role.verifier">Verifier</button>
+          <button class="nav-link nav-menu__button" type="button" data-operator-lane="reviewer" aria-pressed="false" data-i18n="operator.role.reviewer">Reviewer</button>
+          <button class="nav-link nav-menu__button" type="button" data-operator-lane="complaint_operator" aria-pressed="false" data-i18n="operator.role.complaintOperator">Complaint Operator</button>
+          <button class="nav-link nav-menu__button" type="button" data-operator-lane="billing_operator" aria-pressed="false" data-i18n="operator.role.billingOperator">Billing Operator</button>
+          <button class="nav-link nav-menu__button" type="button" data-operator-lane="support_operator" aria-pressed="false" data-i18n="operator.role.supportOperator">Support Operator</button>
+          <button class="nav-link nav-menu__button" type="button" data-operator-lane="platform_administrator" aria-pressed="false" data-i18n="operator.role.platformAdministrator">Platform Administrator</button>
+        </div>
+      </details>
+      <details class="nav-menu nav-menu--application">
+        <summary class="nav-menu__summary">
+          <span data-i18n="operator.nav.publicApp">Public app</span>
+          <span class="nav-menu__chevron" aria-hidden="true">▾</span>
+        </summary>
+        <div class="nav-menu__panel" data-i18n-aria-label="operator.nav.publicAppMenu">
+          <a class="nav-link" href="https://crewportglobal.com/" data-i18n="nav.home">Home</a>
+          <a class="nav-link" href="https://crewportglobal.com/vacancies/" data-i18n="nav.vacancies">Vacancies</a>
+          <a class="nav-link" href="https://crewportglobal.com/create-profile/" data-i18n="nav.createProfile">Create Profile</a>
+          <a class="nav-link" href="https://crewportglobal.com/post-vacancy/" data-i18n="nav.postVacancy">Post Vacancy</a>
+          <a class="nav-link" href="https://crewportglobal.com/register/" data-i18n="nav.loginRegister">Login / Register</a>
+        </div>
+      </details>
+      <details class="nav-menu nav-menu--documents">
+        <summary class="nav-menu__summary">
+          <span data-i18n="operator.nav.documents">Reference documents</span>
+          <span class="nav-menu__chevron" aria-hidden="true">▾</span>
+        </summary>
+        <div class="nav-menu__panel" data-i18n-aria-label="operator.nav.documentsMenu">
+          <a class="nav-link" href="https://crewportglobal.com/for-seafarers/" data-i18n="nav.forSeafarers">For Seafarers</a>
+          <a class="nav-link" href="https://crewportglobal.com/for-shipowners/" data-i18n="nav.forShipowners">For Employers</a>
+          <a class="nav-link" href="https://crewportglobal.com/how-it-works/" data-i18n="nav.howItWorks">How It Works</a>
+          <a class="nav-link" href="https://crewportglobal.com/legal/verification-policy/" data-i18n="nav.trustSafety">Trust & Safety</a>
+        </div>
+      </details>
     </nav>
 
     <main class="doc-main">
       <section class="card queue-card">
         <p class="eyebrow" data-i18n="verify.eyebrow">Operator review</p>
         <h1 data-i18n="verify.title">Submitted Draft Queue</h1>
+        <div class="operator-lane-strip" role="toolbar" aria-label="Operator role lanes" data-i18n-aria-label="operator.lanes.label">
+          <button class="operator-lane-button is-active" type="button" data-operator-lane="all" aria-pressed="true" data-i18n="operator.lane.all">All work</button>
+          <button class="operator-lane-button" type="button" data-operator-lane="verifier" aria-pressed="false" data-i18n="operator.role.verifier">Verifier</button>
+          <button class="operator-lane-button" type="button" data-operator-lane="reviewer" aria-pressed="false" data-i18n="operator.role.reviewer">Reviewer</button>
+          <button class="operator-lane-button" type="button" data-operator-lane="complaint_operator" aria-pressed="false" data-i18n="operator.role.complaintOperator">Complaint Operator</button>
+          <button class="operator-lane-button" type="button" data-operator-lane="billing_operator" aria-pressed="false" data-i18n="operator.role.billingOperator">Billing Operator</button>
+          <button class="operator-lane-button" type="button" data-operator-lane="support_operator" aria-pressed="false" data-i18n="operator.role.supportOperator">Support Operator</button>
+        </div>
         <p class="status-note" id="queue-status" data-i18n="verify.loading">Loading operator queue...</p>
 
         <form id="operator-access" class="operator-access" hidden>
@@ -372,6 +418,21 @@
   <script>
     window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
       en: {
+        'operator.nav.menu': 'Operator portal navigation',
+        'operator.nav.roles': 'Role lanes',
+        'operator.nav.rolesMenu': 'Operator role lanes',
+        'operator.nav.publicApp': 'Public app',
+        'operator.nav.publicAppMenu': 'Public application links',
+        'operator.nav.documents': 'Reference documents',
+        'operator.nav.documentsMenu': 'Reference document links',
+        'operator.lanes.label': 'Operator role lanes',
+        'operator.lane.all': 'All work',
+        'operator.role.verifier': 'Verifier',
+        'operator.role.reviewer': 'Reviewer',
+        'operator.role.complaintOperator': 'Complaint Operator',
+        'operator.role.billingOperator': 'Billing Operator',
+        'operator.role.supportOperator': 'Support Operator',
+        'operator.role.platformAdministrator': 'Platform Administrator',
         'verify.nav.queue': 'Operator Queue',
         'verify.eyebrow': 'Operator review',
         'verify.title': 'Submitted Draft Queue',
@@ -481,6 +542,21 @@
         'verify.value.empty': '-'
       },
       ru: {
+        'operator.nav.menu': 'Навигация операторского портала',
+        'operator.nav.roles': 'Ролевые линии',
+        'operator.nav.rolesMenu': 'Ролевые линии операторов',
+        'operator.nav.publicApp': 'Публичное приложение',
+        'operator.nav.publicAppMenu': 'Ссылки публичного приложения',
+        'operator.nav.documents': 'Справочные документы',
+        'operator.nav.documentsMenu': 'Ссылки справочных документов',
+        'operator.lanes.label': 'Ролевые линии операторов',
+        'operator.lane.all': 'Все задачи',
+        'operator.role.verifier': 'Проверяющий',
+        'operator.role.reviewer': 'Ревьюер',
+        'operator.role.complaintOperator': 'Оператор жалоб',
+        'operator.role.billingOperator': 'Оператор биллинга',
+        'operator.role.supportOperator': 'Оператор поддержки',
+        'operator.role.platformAdministrator': 'Администратор платформы',
         'verify.nav.queue': 'Очередь оператора',
         'verify.eyebrow': 'Проверка оператором',
         'verify.title': 'Очередь отправленных черновиков',
@@ -610,8 +686,19 @@
       const operatorAccessForm = document.getElementById('operator-access');
       const operatorTokenInput = document.getElementById('operator-token');
       const operatorAccessFeedback = document.getElementById('operator-access-feedback');
+      const operatorLaneControls = Array.from(document.querySelectorAll('[data-operator-lane]'));
       const OPERATOR_TOKEN_STORAGE_KEY = 'crewportglobal.operatorAccessToken';
+      const OPERATOR_LANE_RULES = {
+        all: null,
+        verifier: ['seafarer_profile', 'company_verification'],
+        reviewer: ['vacancy_request', 'vacancy_application'],
+        complaint_operator: [],
+        billing_operator: [],
+        support_operator: null,
+        platform_administrator: null,
+      };
       let queueItems = [];
+      let activeOperatorLane = 'all';
       let currentLatestNote = '';
       let currentReviewHistory = [];
       let currentDraftPayload = null;
@@ -723,6 +810,27 @@
           return pick(left, 'created_at').localeCompare(pick(right, 'created_at'));
         }
         return pick(right, 'updated_at').localeCompare(pick(left, 'updated_at'));
+      }
+
+      function isItemInOperatorLane(item) {
+        const allowedTypes = OPERATOR_LANE_RULES[activeOperatorLane];
+        if (!Array.isArray(allowedTypes)) {
+          return true;
+        }
+        return allowedTypes.includes(item.queue_type);
+      }
+
+      function setOperatorLane(lane, shouldRender) {
+        activeOperatorLane = Object.prototype.hasOwnProperty.call(OPERATOR_LANE_RULES, lane) ? lane : 'all';
+        operatorLaneControls.forEach((control) => {
+          const isActive = control.getAttribute('data-operator-lane') === activeOperatorLane;
+          control.classList.toggle('is-active', isActive);
+          control.setAttribute('aria-pressed', String(isActive));
+        });
+
+        if (shouldRender && operatorAccessForm.hidden) {
+          renderQueue();
+        }
       }
 
       function clearNoteFeedback() {
@@ -1098,6 +1206,7 @@
         const sortValue = sortOrder.value;
 
         return queueItems
+          .filter((item) => isItemInOperatorLane(item))
           .filter((item) => (typeValue === 'all' ? true : item.queue_type === typeValue))
           .filter((item) => (roleValue === 'all' ? true : item.role === roleValue))
           .filter((item) => (statusValue === 'all' ? true : item.status === statusValue))
@@ -1341,6 +1450,16 @@
         });
       });
 
+      operatorLaneControls.forEach((control) => {
+        control.addEventListener('click', () => {
+          setOperatorLane(control.getAttribute('data-operator-lane') || 'all', true);
+          const menu = control.closest('details');
+          if (menu) {
+            menu.removeAttribute('open');
+          }
+        });
+      });
+
       operatorAccessForm.addEventListener('submit', (event) => {
         event.preventDefault();
         const token = (operatorTokenInput.value || '').trim();
@@ -1372,8 +1491,10 @@
       });
 
       if (getStoredOperatorToken()) {
+        setOperatorLane('all', false);
         loadQueue();
       } else {
+        setOperatorLane('all', false);
         showAccessPanel('verify.access.denied');
         status.textContent = t('verify.access.denied');
       }

@@ -91,3 +91,40 @@ test('document URLs remain directly accessible without redirects', async ({ page
     await expect(page.locator('h1')).toBeVisible();
   }
 });
+
+test('operator page exposes dedicated Operator navigation with separated public links', async ({ page }) => {
+  await page.goto('/verify/');
+
+  const nav = page.locator('nav.site-nav--operator');
+  await expect(nav).toBeVisible();
+  await expect(nav.getByRole('link', { name: 'Operator Queue' })).toHaveAttribute(
+    'href',
+    'https://crewportglobal.com/verify/',
+  );
+
+  await expect(nav.locator(':scope > a[data-i18n="nav.home"]')).toHaveCount(0);
+  await expect(nav.locator(':scope > a[data-i18n="nav.vacancies"]')).toHaveCount(0);
+  await expect(nav.locator(':scope > a[data-i18n="nav.forSeafarers"]')).toHaveCount(0);
+
+  const roleMenu = nav.locator('details.nav-menu--operator-roles');
+  await expect(roleMenu.locator('summary')).toContainText('Role lanes');
+  await roleMenu.locator('summary').click();
+  await expect(roleMenu.getByRole('button', { name: 'Verifier' })).toBeVisible();
+  await expect(roleMenu.getByRole('button', { name: 'Reviewer' })).toBeVisible();
+  await roleMenu.getByRole('button', { name: 'Reviewer' }).click();
+  await expect(page.locator('.operator-lane-button[data-operator-lane="reviewer"]')).toHaveClass(/is-active/);
+
+  const publicAppMenu = nav.locator('details.nav-menu--application');
+  await expect(publicAppMenu.locator('summary')).toContainText('Public app');
+  await publicAppMenu.locator('summary').click();
+  for (const link of appLinks) {
+    await expect(publicAppMenu.getByRole('link', { name: link.name })).toHaveAttribute('href', link.href);
+  }
+
+  const referenceDocsMenu = nav.locator('details.nav-menu--documents');
+  await expect(referenceDocsMenu.locator('summary')).toContainText('Reference documents');
+  await referenceDocsMenu.locator('summary').click();
+  for (const link of documentLinks) {
+    await expect(referenceDocsMenu.getByRole('link', { name: link.name })).toHaveAttribute('href', link.href);
+  }
+});
