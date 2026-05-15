@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../lib/bootstrap.php';
 require_once __DIR__ . '/../lib/access_control.php';
+require_once __DIR__ . '/../lib/identity_context.php';
 
 const REG_DRAFT_STATUSES = ['draft', 'submitted_for_human_review'];
 
@@ -69,7 +70,8 @@ function require_operator_access(): void {
 }
 
 function operator_queue_access_contract(string $queueType): ?array {
-    return cpg_access_operator_queue_capabilities($queueType, null, true, 'temporary_operator_token');
+    $identity = cpg_identity_temporary_operator_token('operator_review_queue');
+    return cpg_access_operator_queue_capabilities($queueType, null, true, cpg_identity_permission_mode($identity));
 }
 
 function read_role_for_user(string $userId): ?string {

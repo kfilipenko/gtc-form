@@ -39,6 +39,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - operator access boundary: `GET /api/v1/operator/review-queue` and `PATCH /api/v1/operator/review-queue/{draft_id}/status` require `X-CPG-Operator-Token` or `Authorization: Bearer ...`
 - access-control guard foundation: `lib/access_control.php` defines Phase 2 permission-loading, scope-checking, operator queue permission mapping and access-audit write helpers, with isolated tests; the guard is not wired into runtime routes yet
 - operator queue capability contract: operator queue responses include `operator_access` permission/scope metadata in `temporary_operator_token` mode so `/verify/` can prepare for future role-based action disabling without changing current token behavior
+- identity context foundation: `lib/identity_context.php` defines anonymous, temporary-operator-token, future account-session and future admin-session identity shapes without introducing login sessions or replacing the current token boundary
 - full login/session logic: not implemented
 
 ## Access-control Phase 2 status
@@ -57,6 +58,8 @@ Document 88 defines the final access model. The current backend slice prepares t
 Runtime behavior is unchanged in this phase. The temporary operator token remains active, and no protected route calls the new guard until the access-control migration is reviewed, applied in an approved environment and account sessions are available.
 
 Operator queue responses expose `operator_access` metadata for each queue item. In the current runtime this metadata uses `temporary_operator_token` mode with actions allowed, preserving existing behavior. Future account-session enforcement can switch the same contract to permission-checked `allowed` values, and `/verify/` already disables denied action buttons when `allowed` is `false`.
+
+`lib/identity_context.php` is a preparation layer for that transition. It distinguishes a shared temporary operator token from a named active user session, and it prevents the temporary token from being treated as a user that can load role permissions.
 
 ## Operator access token
 
@@ -110,6 +113,7 @@ Run the isolated access-control guard checks without a database connection:
 ```bash
 php projects/crewportglobal/app/backend/api/tests/access_control_guard_test.php
 php projects/crewportglobal/app/backend/api/tests/access_control_operator_queue_matrix_test.php
+php projects/crewportglobal/app/backend/api/tests/identity_context_test.php
 ```
 
 ## Out of scope here
