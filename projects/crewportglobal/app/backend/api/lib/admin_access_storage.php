@@ -51,11 +51,11 @@ function cpg_admin_access_storage_normalize_bool(mixed $value, bool $default = t
 
     if (is_string($value)) {
         $normalized = strtolower(trim($value));
-        if (in_array($normalized, ['1', 'true', 'yes', 'on', 'active'], true)) {
+        if (in_array($normalized, ['1', 't', 'true', 'yes', 'on', 'active'], true)) {
             return true;
         }
 
-        if (in_array($normalized, ['0', 'false', 'no', 'off', 'inactive', 'disabled'], true)) {
+        if (in_array($normalized, ['0', 'f', 'false', 'no', 'off', 'inactive', 'disabled'], true)) {
             return false;
         }
     }

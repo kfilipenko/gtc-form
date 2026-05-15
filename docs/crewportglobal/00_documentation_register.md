@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.74
+- Version: 0.75
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -178,6 +178,7 @@ docs/crewportglobal/
   94_cpg_access_007_admin_email_code_foundation_report.md
   95_cpg_access_008_admin_email_code_contract_and_skeleton_report.md
   96_cpg_access_009_admin_email_code_storage_adapter_report.md
+  97_cpg_access_010_admin_email_code_pg_adapter_static_query_report.md
 ```
 
 ### 3.3 Product governance control
@@ -239,6 +240,8 @@ Document 94 records the admin email-code backend foundation, including one-time 
 Document 95 records the admin email-code endpoint contract and disabled-by-default request/verify skeletons, including OpenAPI paths for future `/api/v1/admin/access/email-code/request` and `/api/v1/admin/access/email-code/verify` routes without enabling public runtime behavior.
 
 Document 96 records the admin email-code storage adapter contract, including hash-only code storage, attempt counting, single-use verification, admin session record creation and audit event boundaries through an in-memory test adapter only, without wiring PostgreSQL or public admin routes.
+
+Document 97 records the admin email-code PostgreSQL adapter static query design, including the callable-query storage adapter, parameterized SQL for future admin user eligibility, code storage, attempt counting, session creation and audit event writes, with fake-executor tests only and no database connection.
 
 Mandatory control statement:
 
@@ -343,6 +346,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.75 | 2026-05-15 | GTC IT / AI Assistant | Added document 97 as CPG-ACCESS-010 implementation report for admin email-code PostgreSQL adapter static query design without database connection |
 | 0.74 | 2026-05-15 | GTC IT / AI Assistant | Added document 96 as CPG-ACCESS-009 implementation report for admin email-code storage adapter contracts and in-memory tests without PostgreSQL wiring |
 | 0.73 | 2026-05-15 | GTC IT / AI Assistant | Added document 95 as CPG-ACCESS-008 implementation report for admin email-code API contracts and disabled runtime skeletons |
 | 0.72 | 2026-05-15 | GTC IT / AI Assistant | Added document 94 as CPG-ACCESS-007 implementation report for admin email-code backend security helper foundation before runtime endpoints |

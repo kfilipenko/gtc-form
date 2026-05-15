@@ -45,6 +45,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - admin email-code foundation: `lib/admin_access.php` defines one-time code generation, hashing, verification, expiry, attempt-limit helpers, admin-session TTL helpers and email message payloads without adding runtime endpoints or sending email
 - admin email-code flow skeleton: `lib/admin_access_flow.php` defines disabled-by-default request/verify skeleton responses and validates the future OpenAPI contract without adding public routes
 - admin email-code storage adapter contract: `lib/admin_access_storage.php` defines the storage boundary and in-memory test adapter for hash-only code storage, attempt counting, single-use verification, admin session creation and audit events without connecting to PostgreSQL
+- admin email-code PostgreSQL adapter design: `lib/admin_access_pg_storage.php` defines a callable-query PostgreSQL adapter and static SQL tests for future `admin_email_codes`, `admin_sessions`, access-audit and admin-user eligibility queries without opening a database connection
 - full login/session logic: not implemented
 
 ## Access-control Phase 2 status
@@ -71,6 +72,8 @@ Operator queue responses expose `operator_access` metadata for each queue item. 
 `lib/admin_access_flow.php` describes the future request/verify handler boundary. By default the flow returns `admin_access_flow_not_enabled`; even when enabled in isolated tests, the skeleton does not send email, write code storage or create admin sessions.
 
 `lib/admin_access_storage.php` defines the future storage boundary for admin email-code records and admin sessions. The current implementation includes only an in-memory test adapter and storage-backed helper tests; no production database connection, public route or email delivery is enabled by this layer.
+
+`lib/admin_access_pg_storage.php` defines the planned PostgreSQL adapter shape using an injected query executor. Its tests validate SQL shape, parameter usage and target tables through a fake executor only; it is not wired into runtime routes and does not call `api_db()` or `psql`.
 
 ## Operator access token
 
@@ -130,6 +133,7 @@ php projects/crewportglobal/app/backend/api/tests/admin_access_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_flow_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_contract_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_storage_test.php
+php projects/crewportglobal/app/backend/api/tests/admin_access_pg_storage_test.php
 ```
 
 ## Out of scope here
@@ -138,5 +142,6 @@ php projects/crewportglobal/app/backend/api/tests/admin_access_storage_test.php
 - login sessions
 - admin email sending
 - admin email-code PostgreSQL storage wiring
+- admin email-code public route wiring
 - public form wiring
 - deployment/nginx/openclaw/stripe changes
