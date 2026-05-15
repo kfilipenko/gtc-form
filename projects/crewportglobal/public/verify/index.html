@@ -186,6 +186,10 @@
       color: #f4b942;
       font-size: 13px;
     }
+    .queue-decision[disabled] {
+      cursor: not-allowed;
+      opacity: 0.52;
+    }
     .latest-note {
       margin: 0;
       color: var(--muted-on-dark);
@@ -453,6 +457,7 @@
         'verify.action.saved': 'Decision saved: {decision}',
         'verify.action.error': 'Could not apply operator decision.',
         'verify.action.noteRequired': 'Needs correction requires a review note.',
+        'verify.action.unavailable': 'This action is not available for the current operator role.',
         'verify.note.label': 'Review note (optional)',
         'verify.note.placeholder': 'Add note for review action. Required for Needs correction.',
         'verify.note.saved': 'Review note saved: {note}',
@@ -578,6 +583,7 @@
         'verify.action.saved': 'Решение сохранено: {decision}',
         'verify.action.error': 'Не удалось применить решение оператора.',
         'verify.action.noteRequired': 'Для статуса "Нужна доработка" требуется комментарий.',
+        'verify.action.unavailable': 'Это действие недоступно для текущей роли оператора.',
         'verify.note.label': 'Комментарий проверки (необязательно)',
         'verify.note.placeholder': 'Добавьте комментарий к решению. Для "Нужна доработка" комментарий обязателен.',
         'verify.note.saved': 'Комментарий сохранен: {note}',
@@ -757,7 +763,26 @@
         return cell;
       }
 
-      function createQueueButton(className, textKey, draftId, decision, queueType) {
+      function queueActionAccess(item, decision) {
+        if (!item || typeof item !== 'object' || !decision) {
+          return { allowed: true };
+        }
+        const access = item.operator_access;
+        if (!access || typeof access !== 'object') {
+          return { allowed: true };
+        }
+        const actions = access.actions;
+        if (!actions || typeof actions !== 'object') {
+          return { allowed: false };
+        }
+        const action = actions[decision];
+        if (!action || typeof action !== 'object') {
+          return { allowed: false };
+        }
+        return action;
+      }
+
+      function createQueueButton(className, textKey, draftId, decision, queueType, item) {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = `button secondary ${className}`;
@@ -767,6 +792,20 @@
         }
         if (queueType) {
           button.dataset.queueType = queueType;
+        }
+        if (decision) {
+          const actionAccess = queueActionAccess(item, decision);
+          if (actionAccess.permission_code) {
+            button.dataset.permissionCode = actionAccess.permission_code;
+          }
+          if (actionAccess.scope) {
+            button.dataset.permissionScope = actionAccess.scope;
+          }
+          if (actionAccess.allowed === false) {
+            button.disabled = true;
+            button.setAttribute('aria-disabled', 'true');
+            button.title = t('verify.action.unavailable');
+          }
         }
         button.textContent = t(textKey);
         return button;
@@ -1398,10 +1437,10 @@
           const actionWrap = document.createElement('div');
           actionWrap.className = 'inline-actions';
           actionWrap.append(
-            createQueueButton('queue-open', 'verify.action.open', targetId, '', item.queue_type),
-            createQueueButton('queue-decision', 'verify.action.startReview', targetId, 'start_review', item.queue_type),
-            createQueueButton('queue-decision', 'verify.action.needsCorrection', targetId, 'needs_correction', item.queue_type),
-            createQueueButton('queue-decision', 'verify.action.reviewed', targetId, 'reviewed', item.queue_type)
+            createQueueButton('queue-open', 'verify.action.open', targetId, '', item.queue_type, item),
+            createQueueButton('queue-decision', 'verify.action.startReview', targetId, 'start_review', item.queue_type, item),
+            createQueueButton('queue-decision', 'verify.action.needsCorrection', targetId, 'needs_correction', item.queue_type, item),
+            createQueueButton('queue-decision', 'verify.action.reviewed', targetId, 'reviewed', item.queue_type, item)
           );
           actionCell.appendChild(actionWrap);
           tr.appendChild(actionCell);
@@ -1426,6 +1465,9 @@
 
         body.querySelectorAll('.queue-decision').forEach((button) => {
           button.addEventListener('click', () => {
+            if (button.disabled) {
+              return;
+            }
             applyDecision(
               button.getAttribute('data-draft-id') || '',
               button.getAttribute('data-decision') || '',

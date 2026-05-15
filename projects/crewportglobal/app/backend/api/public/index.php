@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../lib/access_control.php';
 
 const REG_DRAFT_STATUSES = ['draft', 'submitted_for_human_review'];
 
@@ -65,6 +66,10 @@ function require_operator_access(): void {
     if ($provided === null || !hash_equals($expected, $provided)) {
         api_error(401, 'operator_access_required', 'Operator access token is required');
     }
+}
+
+function operator_queue_access_contract(string $queueType): ?array {
+    return cpg_access_operator_queue_capabilities($queueType, null, true, 'temporary_operator_token');
 }
 
 function read_role_for_user(string $userId): ?string {
@@ -1474,6 +1479,7 @@ function read_operator_review_queue(): array {
                 'availability_status' => $row['availability_status'],
                 'availability_date' => $row['availability_date'],
             ],
+            'operator_access' => operator_queue_access_contract('seafarer_profile'),
         ];
     }
 
@@ -1529,6 +1535,7 @@ function read_operator_review_queue(): array {
                 'country_code' => $row['country_code'],
                 'role_in_company' => $row['role_in_company'],
             ],
+            'operator_access' => operator_queue_access_contract('company_verification'),
         ];
     }
 
@@ -1595,6 +1602,7 @@ function read_operator_review_queue(): array {
                 'company_verification_status' => $row['verification_status'],
                 'vessel_name' => $row['vessel_name'],
             ],
+            'operator_access' => operator_queue_access_contract('vacancy_request'),
         ];
     }
 
@@ -1650,6 +1658,7 @@ function read_operator_review_queue(): array {
                 'vessel_name' => $row['vessel_name'],
                 'candidate_note' => $row['candidate_note'],
             ],
+            'operator_access' => operator_queue_access_contract('vacancy_application'),
         ];
     }
 
@@ -1667,6 +1676,7 @@ function handle_get_operator_review_queue(): void {
         'ok' => true,
         'queue' => $queue,
         'count' => count($queue),
+        'access_model' => 'temporary_operator_token',
         'generated_at' => gmdate('c'),
     ]);
 }
@@ -1872,6 +1882,7 @@ function read_operator_vacancy_application_detail(string $applicationId): ?array
         ],
         'operator_review' => $history[0] ?? null,
         'operator_review_history' => $history,
+        'operator_access' => operator_queue_access_contract('vacancy_application'),
         'generated_at' => gmdate('c'),
     ];
 }

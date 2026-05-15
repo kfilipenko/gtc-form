@@ -96,4 +96,46 @@ cpg_test_assert(
     'unknown queue type should not map to permission'
 );
 
+$vacancyRequestCapabilities = cpg_access_operator_queue_capabilities('vacancy_request', cpg_test_permissions([
+    ['view_review_queue', 'queue'],
+    ['approve_vacancy_request', 'queue'],
+]));
+
+cpg_test_assert(
+    is_array($vacancyRequestCapabilities),
+    'vacancy request capabilities should be returned'
+);
+cpg_test_assert(
+    ($vacancyRequestCapabilities['view']['allowed'] ?? null) === true,
+    'review queue view permission should allow vacancy request viewing'
+);
+cpg_test_assert(
+    ($vacancyRequestCapabilities['actions']['reviewed']['allowed'] ?? null) === true,
+    'approve vacancy request permission should allow reviewed decision'
+);
+cpg_test_assert(
+    ($vacancyRequestCapabilities['actions']['start_review']['allowed'] ?? null) === false,
+    'missing start human review permission should disable start_review'
+);
+
+$temporaryTokenCapabilities = cpg_access_operator_queue_capabilities(
+    'company_verification',
+    null,
+    true,
+    'temporary_operator_token'
+);
+cpg_test_assert(
+    ($temporaryTokenCapabilities['mode'] ?? null) === 'temporary_operator_token',
+    'temporary operator token mode should be exposed in capability contract'
+);
+cpg_test_assert(
+    ($temporaryTokenCapabilities['actions']['reviewed']['allowed'] ?? null) === true,
+    'temporary operator token mode should preserve current action availability'
+);
+
+cpg_test_assert(
+    cpg_access_operator_queue_capabilities('unknown_queue') === null,
+    'unknown queue type should not produce capabilities'
+);
+
 fwrite(STDOUT, "Access control guard tests passed\n");

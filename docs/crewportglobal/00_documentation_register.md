@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.68
+- Version: 0.69
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -172,6 +172,7 @@ docs/crewportglobal/
   88_cpg_access_control_admin_console_plan.md
   89_cpg_access_002_backend_access_guard_foundation_report.md
   90_cpg_access_003_operator_queue_permission_matrix_report.md
+  91_cpg_access_004_operator_queue_capability_contract_report.md
 ```
 
 ### 3.3 Product governance control
@@ -221,6 +222,8 @@ Document 88 records the CrewPortGlobal access-control and admin-console plan, in
 Document 89 records the Phase 2 backend access guard foundation: isolated PHP permission helpers, operator queue permission mapping, access-audit helper preparation and tests, without wiring runtime enforcement or replacing the temporary operator token.
 
 Document 90 records the explicit operator queue permission matrix contract, including queue-scoped view/action requirements and static tests that validate the matrix against the access-control SQL draft seed permissions before runtime enforcement is wired.
+
+Document 91 records the operator queue capability contract, including backend `operator_access` permission/scope metadata, temporary-token compatibility mode and `/verify/` action-button disabling for future permission-checked responses.
 
 Mandatory control statement:
 
@@ -325,6 +328,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.69 | 2026-05-15 | GTC IT / AI Assistant | Added document 91 as CPG-ACCESS-004 implementation report for operator queue capability metadata and frontend action disabling support before runtime enforcement |
 | 0.68 | 2026-05-15 | GTC IT / AI Assistant | Added document 90 as CPG-ACCESS-003 implementation report for the operator queue permission matrix contract and static validation tests |
 | 0.67 | 2026-05-15 | GTC IT / AI Assistant | Added document 89 as CPG-ACCESS-002 implementation report for backend access guard foundation and isolated tests without runtime enforcement |
 | 0.66 | 2026-05-15 | GTC IT / AI Assistant | Added document 88 as CPG-ACCESS-001 final access-control and admin-console plan covering groups, roles, permissions, scopes, admin email-code protection, audit requirements and phased implementation order |

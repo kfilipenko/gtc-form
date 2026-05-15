@@ -170,6 +170,49 @@ function cpg_access_operator_queue_action_permission(string $queueType, string $
         : null;
 }
 
+function cpg_access_requirement_capability(array $requirement, ?array $effectivePermissions, bool $defaultAllowed): array {
+    $permissionCode = $requirement['permission_code'] ?? null;
+    $scope = $requirement['scope'] ?? null;
+    $allowed = $defaultAllowed;
+
+    if (is_array($effectivePermissions) && is_string($permissionCode) && is_string($scope)) {
+        $allowed = cpg_access_effective_permissions_allow($effectivePermissions, $permissionCode, $scope);
+    }
+
+    return [
+        'permission_code' => is_string($permissionCode) ? $permissionCode : null,
+        'scope' => is_string($scope) ? $scope : null,
+        'allowed' => $allowed,
+    ];
+}
+
+function cpg_access_operator_queue_capabilities(
+    string $queueType,
+    ?array $effectivePermissions = null,
+    bool $defaultAllowed = false,
+    string $mode = 'permission_check'
+): ?array {
+    $viewRequirement = cpg_access_operator_queue_view_requirement($queueType);
+    if ($viewRequirement === null) {
+        return null;
+    }
+
+    $matrix = cpg_access_operator_queue_permission_matrix();
+    $actionRequirements = $matrix[$queueType]['actions'] ?? [];
+    $actions = [];
+    foreach ($actionRequirements as $decision => $requirement) {
+        if (is_string($decision) && is_array($requirement)) {
+            $actions[$decision] = cpg_access_requirement_capability($requirement, $effectivePermissions, $defaultAllowed);
+        }
+    }
+
+    return [
+        'mode' => $mode,
+        'view' => cpg_access_requirement_capability($viewRequirement, $effectivePermissions, $defaultAllowed),
+        'actions' => $actions,
+    ];
+}
+
 function cpg_access_write_audit_event(array $event): void {
     if (!function_exists('api_query')) {
         throw new RuntimeException('api_query is required to write access audit events');

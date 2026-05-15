@@ -38,6 +38,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - employer shortlist action logic: employers can mark an operator-presented candidate as `contacted`, `interview_requested`, `not_suitable` or back to `presented`, with an optional employer follow-up note, through the draft-scoped employer workspace
 - operator access boundary: `GET /api/v1/operator/review-queue` and `PATCH /api/v1/operator/review-queue/{draft_id}/status` require `X-CPG-Operator-Token` or `Authorization: Bearer ...`
 - access-control guard foundation: `lib/access_control.php` defines Phase 2 permission-loading, scope-checking, operator queue permission mapping and access-audit write helpers, with isolated tests; the guard is not wired into runtime routes yet
+- operator queue capability contract: operator queue responses include `operator_access` permission/scope metadata in `temporary_operator_token` mode so `/verify/` can prepare for future role-based action disabling without changing current token behavior
 - full login/session logic: not implemented
 
 ## Access-control Phase 2 status
@@ -50,9 +51,12 @@ Document 88 defines the final access model. The current backend slice prepares t
 - `cpg_access_operator_queue_permission_matrix()`
 - `cpg_access_operator_queue_view_permission(queue_type)`
 - `cpg_access_operator_queue_action_permission(queue_type, decision)`
+- `cpg_access_operator_queue_capabilities(queue_type, effective_permissions, default_allowed, mode)`
 - `cpg_access_write_audit_event(...)`
 
 Runtime behavior is unchanged in this phase. The temporary operator token remains active, and no protected route calls the new guard until the access-control migration is reviewed, applied in an approved environment and account sessions are available.
+
+Operator queue responses expose `operator_access` metadata for each queue item. In the current runtime this metadata uses `temporary_operator_token` mode with actions allowed, preserving existing behavior. Future account-session enforcement can switch the same contract to permission-checked `allowed` values, and `/verify/` already disables denied action buttons when `allowed` is `false`.
 
 ## Operator access token
 
