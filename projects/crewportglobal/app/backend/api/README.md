@@ -47,6 +47,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - admin email-code storage adapter contract: `lib/admin_access_storage.php` defines the storage boundary and in-memory test adapter for hash-only code storage, attempt counting, single-use verification, admin session creation and audit events without connecting to PostgreSQL
 - admin email-code PostgreSQL adapter design: `lib/admin_access_pg_storage.php` defines a callable-query PostgreSQL adapter and static SQL tests for future `admin_email_codes`, `admin_sessions`, access-audit and admin-user eligibility queries without opening a database connection
 - admin email-code public route wiring: `public/index.php` exposes disabled-by-default POST route stubs for request/verify; by default they return `admin_access_flow_not_enabled` before reading JSON or touching storage
+- admin email-code storage factory contract: `lib/admin_access_storage_factory.php` defines disabled-by-default storage selection and explicit `pgsql` adapter creation through an injected query executor; it is not included by public routes yet
 - full login/session logic: not implemented
 
 ## Access-control Phase 2 status
@@ -77,6 +78,8 @@ Operator queue responses expose `operator_access` metadata for each queue item. 
 `lib/admin_access_pg_storage.php` defines the planned PostgreSQL adapter shape using an injected query executor. Its tests validate SQL shape, parameter usage and target tables through a fake executor only; it is not wired into runtime routes and does not call `api_db()` or `psql`.
 
 The public admin email-code route stubs are wired only as a disabled boundary. They require both `CREWPORTGLOBAL_ADMIN_ACCESS_PUBLIC_ROUTES_ENABLED` and `CREWPORTGLOBAL_ADMIN_ACCESS_FLOW_ENABLED` before reaching skeleton body parsing; the default response is `admin_access_flow_not_enabled`.
+
+`lib/admin_access_storage_factory.php` prepares the future route storage selection contract. Default mode is disabled; `CREWPORTGLOBAL_ADMIN_ACCESS_STORAGE_MODE=pgsql` can create a PostgreSQL adapter, but only through the factory and without querying at construction time. Public routes do not include or call the factory until runtime activation is separately approved.
 
 ## Operator access token
 
@@ -137,6 +140,7 @@ php projects/crewportglobal/app/backend/api/tests/admin_access_flow_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_contract_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_storage_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_pg_storage_test.php
+php projects/crewportglobal/app/backend/api/tests/admin_access_storage_factory_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_public_routes_test.php
 ```
 
