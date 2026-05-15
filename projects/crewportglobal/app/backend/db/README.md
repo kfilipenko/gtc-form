@@ -10,6 +10,7 @@ Current step:
 - CPG-MKT-002: reviewed vacancy request foundation
 - CPG-MKT-003: reviewed vacancy application foundation
 - CPG-EMP-008: employer shortlist action fields for presented applications
+- CPG-ACCESS-001: access-control foundation draft only
 
 ## Migration Files
 
@@ -18,6 +19,9 @@ Current step:
 - migrations/003_create_vacancy_requests.sql
 - migrations/004_create_vacancy_applications.sql
 - migrations/005_extend_vacancy_applications_employer_shortlist.sql
+- migrations/006_access_control_foundation_draft.sql
+
+Migration `006_access_control_foundation_draft.sql` is a draft-only access-control package. It must not be applied to production until separately reviewed and approved.
 
 ## Objects Created by 001
 
@@ -51,6 +55,14 @@ PGUSER=<user> PGPASSWORD=<password> PGDATABASE=<db> psql -v ON_ERROR_STOP=1 -f p
 PGUSER=<user> PGPASSWORD=<password> PGDATABASE=<db> psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/003_create_vacancy_requests.sql
 PGUSER=<user> PGPASSWORD=<password> PGDATABASE=<db> psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/004_create_vacancy_applications.sql
 PGUSER=<user> PGPASSWORD=<password> PGDATABASE=<db> psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/005_extend_vacancy_applications_employer_shortlist.sql
+```
+
+Do not include `006_access_control_foundation_draft.sql` in normal apply commands until the access-control review package is approved for a non-production target.
+
+Static draft validation without a database connection:
+
+```bash
+php projects/crewportglobal/app/backend/api/tests/access_control_migration_draft_test.php
 ```
 
 ## Idempotency

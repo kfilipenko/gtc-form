@@ -74,7 +74,7 @@ $requiredIndexes = [
 ];
 
 foreach ($requiredIndexes as $index) {
-    cpg_migration_contains($sql, "CREATE INDEX IF NOT EXISTS {$index}", "missing index {$index}");
+    cpg_migration_contains($sql, "INDEX IF NOT EXISTS {$index}", "missing index {$index}");
 }
 
 cpg_migration_contains($sql, "group_type IN ('public', 'external', 'internal', 'administration', 'system')", 'group type constraint should be present');

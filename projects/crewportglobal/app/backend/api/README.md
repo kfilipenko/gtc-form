@@ -113,6 +113,7 @@ Run the isolated access-control guard checks without a database connection:
 ```bash
 php projects/crewportglobal/app/backend/api/tests/access_control_guard_test.php
 php projects/crewportglobal/app/backend/api/tests/access_control_operator_queue_matrix_test.php
+php projects/crewportglobal/app/backend/api/tests/access_control_migration_draft_test.php
 php projects/crewportglobal/app/backend/api/tests/identity_context_test.php
 ```
 
