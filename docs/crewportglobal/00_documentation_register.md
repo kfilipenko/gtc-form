@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.67
+- Version: 0.68
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -171,6 +171,7 @@ docs/crewportglobal/
   87_cpg_ops_019_operator_role_lane_counts_report.md
   88_cpg_access_control_admin_console_plan.md
   89_cpg_access_002_backend_access_guard_foundation_report.md
+  90_cpg_access_003_operator_queue_permission_matrix_report.md
 ```
 
 ### 3.3 Product governance control
@@ -218,6 +219,8 @@ Document 87 records operator role-lane queue counts on `/verify/` and in the sha
 Document 88 records the CrewPortGlobal access-control and admin-console plan, including the User -> Group -> Role -> Permission -> Scope model, administrative access console `/admin/access/`, email one-time-code protection for administrative access, access audit requirements and phased implementation order for replacing the temporary operator-token model with account-based permission enforcement.
 
 Document 89 records the Phase 2 backend access guard foundation: isolated PHP permission helpers, operator queue permission mapping, access-audit helper preparation and tests, without wiring runtime enforcement or replacing the temporary operator token.
+
+Document 90 records the explicit operator queue permission matrix contract, including queue-scoped view/action requirements and static tests that validate the matrix against the access-control SQL draft seed permissions before runtime enforcement is wired.
 
 Mandatory control statement:
 
@@ -322,6 +325,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.68 | 2026-05-15 | GTC IT / AI Assistant | Added document 90 as CPG-ACCESS-003 implementation report for the operator queue permission matrix contract and static validation tests |
 | 0.67 | 2026-05-15 | GTC IT / AI Assistant | Added document 89 as CPG-ACCESS-002 implementation report for backend access guard foundation and isolated tests without runtime enforcement |
 | 0.66 | 2026-05-15 | GTC IT / AI Assistant | Added document 88 as CPG-ACCESS-001 final access-control and admin-console plan covering groups, roles, permissions, scopes, admin email-code protection, audit requirements and phased implementation order |
 | 0.65 | 2026-05-15 | GTC IT / AI Assistant | Added document 87 as CPG-OPS-019 implementation report for operator role-lane queue counts on /verify/ and in the shared Operator role menu |

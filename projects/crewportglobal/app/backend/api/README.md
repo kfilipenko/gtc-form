@@ -47,6 +47,7 @@ Document 88 defines the final access model. The current backend slice prepares t
 - `cpg_access_load_effective_permissions(user_id)`
 - `cpg_access_effective_permissions_allow(...)`
 - `cpg_access_require_permission(...)`
+- `cpg_access_operator_queue_permission_matrix()`
 - `cpg_access_operator_queue_view_permission(queue_type)`
 - `cpg_access_operator_queue_action_permission(queue_type, decision)`
 - `cpg_access_write_audit_event(...)`
@@ -104,6 +105,7 @@ Run the isolated access-control guard checks without a database connection:
 
 ```bash
 php projects/crewportglobal/app/backend/api/tests/access_control_guard_test.php
+php projects/crewportglobal/app/backend/api/tests/access_control_operator_queue_matrix_test.php
 ```
 
 ## Out of scope here

@@ -12,33 +12,38 @@ const CPG_ACCESS_SCOPES = [
     'system',
 ];
 
-const CPG_OPERATOR_QUEUE_VIEW_PERMISSIONS = [
-    'seafarer_profile' => 'view_verification_queue',
-    'company_verification' => 'view_verification_queue',
-    'vacancy_request' => 'view_review_queue',
-    'vacancy_application' => 'view_review_queue',
-];
-
-const CPG_OPERATOR_QUEUE_ACTION_PERMISSIONS = [
+const CPG_OPERATOR_QUEUE_PERMISSION_MATRIX = [
     'seafarer_profile' => [
-        'start_review' => 'start_human_review',
-        'needs_correction' => 'return_profile_for_correction',
-        'reviewed' => 'approve_seafarer_profile',
+        'view' => ['permission_code' => 'view_verification_queue', 'scope' => 'queue'],
+        'actions' => [
+            'start_review' => ['permission_code' => 'start_human_review', 'scope' => 'queue'],
+            'needs_correction' => ['permission_code' => 'return_profile_for_correction', 'scope' => 'queue'],
+            'reviewed' => ['permission_code' => 'approve_seafarer_profile', 'scope' => 'queue'],
+        ],
     ],
     'company_verification' => [
-        'start_review' => 'mark_document_under_review',
-        'needs_correction' => 'request_document_correction',
-        'reviewed' => 'approve_company_profile',
+        'view' => ['permission_code' => 'view_verification_queue', 'scope' => 'queue'],
+        'actions' => [
+            'start_review' => ['permission_code' => 'mark_document_under_review', 'scope' => 'queue'],
+            'needs_correction' => ['permission_code' => 'request_document_correction', 'scope' => 'queue'],
+            'reviewed' => ['permission_code' => 'approve_company_profile', 'scope' => 'queue'],
+        ],
     ],
     'vacancy_request' => [
-        'start_review' => 'start_human_review',
-        'needs_correction' => 'create_review_note',
-        'reviewed' => 'approve_vacancy_request',
+        'view' => ['permission_code' => 'view_review_queue', 'scope' => 'queue'],
+        'actions' => [
+            'start_review' => ['permission_code' => 'start_human_review', 'scope' => 'queue'],
+            'needs_correction' => ['permission_code' => 'create_review_note', 'scope' => 'queue'],
+            'reviewed' => ['permission_code' => 'approve_vacancy_request', 'scope' => 'queue'],
+        ],
     ],
     'vacancy_application' => [
-        'start_review' => 'start_human_review',
-        'needs_correction' => 'create_review_note',
-        'reviewed' => 'approve_candidate_presentation',
+        'view' => ['permission_code' => 'view_review_queue', 'scope' => 'queue'],
+        'actions' => [
+            'start_review' => ['permission_code' => 'start_human_review', 'scope' => 'queue'],
+            'needs_correction' => ['permission_code' => 'create_review_note', 'scope' => 'queue'],
+            'reviewed' => ['permission_code' => 'approve_candidate_presentation', 'scope' => 'queue'],
+        ],
     ],
 ];
 
@@ -137,12 +142,32 @@ function cpg_access_require_permission(string $userId, string $permissionCode, s
     return $effectivePermissions;
 }
 
+function cpg_access_operator_queue_permission_matrix(): array {
+    return CPG_OPERATOR_QUEUE_PERMISSION_MATRIX;
+}
+
+function cpg_access_operator_queue_view_requirement(string $queueType): ?array {
+    $requirement = CPG_OPERATOR_QUEUE_PERMISSION_MATRIX[$queueType]['view'] ?? null;
+    return is_array($requirement) ? $requirement : null;
+}
+
 function cpg_access_operator_queue_view_permission(string $queueType): ?string {
-    return CPG_OPERATOR_QUEUE_VIEW_PERMISSIONS[$queueType] ?? null;
+    $requirement = cpg_access_operator_queue_view_requirement($queueType);
+    return is_array($requirement) && is_string($requirement['permission_code'] ?? null)
+        ? $requirement['permission_code']
+        : null;
+}
+
+function cpg_access_operator_queue_action_requirement(string $queueType, string $decision): ?array {
+    $requirement = CPG_OPERATOR_QUEUE_PERMISSION_MATRIX[$queueType]['actions'][$decision] ?? null;
+    return is_array($requirement) ? $requirement : null;
 }
 
 function cpg_access_operator_queue_action_permission(string $queueType, string $decision): ?string {
-    return CPG_OPERATOR_QUEUE_ACTION_PERMISSIONS[$queueType][$decision] ?? null;
+    $requirement = cpg_access_operator_queue_action_requirement($queueType, $decision);
+    return is_array($requirement) && is_string($requirement['permission_code'] ?? null)
+        ? $requirement['permission_code']
+        : null;
 }
 
 function cpg_access_write_audit_event(array $event): void {

@@ -85,6 +85,13 @@ cpg_test_assert(
     'seafarer correction should require return-profile permission'
 );
 cpg_test_assert(
+    cpg_access_operator_queue_action_requirement('company_verification', 'reviewed') === [
+        'permission_code' => 'approve_company_profile',
+        'scope' => 'queue',
+    ],
+    'company verification final approval should be represented as a queue-scoped requirement'
+);
+cpg_test_assert(
     cpg_access_operator_queue_action_permission('unknown_queue', 'reviewed') === null,
     'unknown queue type should not map to permission'
 );
