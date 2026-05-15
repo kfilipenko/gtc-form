@@ -97,6 +97,11 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await page.goto('/verify/');
 
   await expect(page.locator('#queue-status')).toContainText('Queue loaded');
+  await expect
+    .poll(async () => Number((await page.locator('[data-operator-lane-count="verifier"]').first().textContent()) || '0'))
+    .toBeGreaterThanOrEqual(1);
+  await page.locator('.operator-lane-button[data-operator-lane="verifier"]').click();
+  await expect(page.locator('#queue-status')).toContainText('Verifier');
   await expect(page.locator('#queue-body')).toContainText(seafarerEmail);
   await expect(page.locator('#queue-body')).toContainText('seafarer_profile');
 
@@ -223,6 +228,11 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
   await page.goto('/verify/');
 
   await expect(page.locator('#queue-status')).toContainText('Queue loaded');
+  await expect
+    .poll(async () => Number((await page.locator('[data-operator-lane-count="reviewer"]').first().textContent()) || '0'))
+    .toBeGreaterThanOrEqual(1);
+  await page.locator('.operator-lane-button[data-operator-lane="reviewer"]').click();
+  await expect(page.locator('#queue-status')).toContainText('Reviewer');
   await page.locator('#filter-type').selectOption('vacancy_application');
   await expect(page.locator('#queue-body')).toContainText(seafarerEmail);
   await expect(page.locator('#queue-body')).toContainText(title);

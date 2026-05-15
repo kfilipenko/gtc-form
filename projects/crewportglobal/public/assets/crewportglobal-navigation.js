@@ -76,7 +76,10 @@
       const active = item.lane === 'all' ? ' is-active' : '';
       const pressed = item.lane === 'all' ? 'true' : 'false';
       return [
-        `    <button class="nav-link nav-menu__button${active}" type="button" data-operator-lane="${item.lane}" aria-pressed="${pressed}" data-i18n="${item.key}">${item.label}</button>`,
+        `    <button class="nav-link nav-menu__button${active}" type="button" data-operator-lane="${item.lane}" aria-pressed="${pressed}">`,
+        `      <span data-i18n="${item.key}">${item.label}</span>`,
+        `      <span class="operator-lane-count" data-operator-lane-count="${item.lane}" aria-hidden="true">0</span>`,
+        '    </button>',
       ].join('');
     }).join('\n');
 

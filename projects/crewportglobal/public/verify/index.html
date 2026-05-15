@@ -268,12 +268,30 @@
         <p class="eyebrow" data-i18n="verify.eyebrow">Operator review</p>
         <h1 data-i18n="verify.title">Submitted Draft Queue</h1>
         <div class="operator-lane-strip" role="toolbar" aria-label="Operator role lanes" data-i18n-aria-label="operator.lanes.label">
-          <button class="operator-lane-button is-active" type="button" data-operator-lane="all" aria-pressed="true" data-i18n="operator.lane.all">All work</button>
-          <button class="operator-lane-button" type="button" data-operator-lane="verifier" aria-pressed="false" data-i18n="operator.role.verifier">Verifier</button>
-          <button class="operator-lane-button" type="button" data-operator-lane="reviewer" aria-pressed="false" data-i18n="operator.role.reviewer">Reviewer</button>
-          <button class="operator-lane-button" type="button" data-operator-lane="complaint_operator" aria-pressed="false" data-i18n="operator.role.complaintOperator">Complaint Operator</button>
-          <button class="operator-lane-button" type="button" data-operator-lane="billing_operator" aria-pressed="false" data-i18n="operator.role.billingOperator">Billing Operator</button>
-          <button class="operator-lane-button" type="button" data-operator-lane="support_operator" aria-pressed="false" data-i18n="operator.role.supportOperator">Support Operator</button>
+          <button class="operator-lane-button is-active" type="button" data-operator-lane="all" aria-pressed="true">
+            <span data-i18n="operator.lane.all">All work</span>
+            <span class="operator-lane-count" data-operator-lane-count="all" aria-hidden="true">0</span>
+          </button>
+          <button class="operator-lane-button" type="button" data-operator-lane="verifier" aria-pressed="false">
+            <span data-i18n="operator.role.verifier">Verifier</span>
+            <span class="operator-lane-count" data-operator-lane-count="verifier" aria-hidden="true">0</span>
+          </button>
+          <button class="operator-lane-button" type="button" data-operator-lane="reviewer" aria-pressed="false">
+            <span data-i18n="operator.role.reviewer">Reviewer</span>
+            <span class="operator-lane-count" data-operator-lane-count="reviewer" aria-hidden="true">0</span>
+          </button>
+          <button class="operator-lane-button" type="button" data-operator-lane="complaint_operator" aria-pressed="false">
+            <span data-i18n="operator.role.complaintOperator">Complaint Operator</span>
+            <span class="operator-lane-count" data-operator-lane-count="complaint_operator" aria-hidden="true">0</span>
+          </button>
+          <button class="operator-lane-button" type="button" data-operator-lane="billing_operator" aria-pressed="false">
+            <span data-i18n="operator.role.billingOperator">Billing Operator</span>
+            <span class="operator-lane-count" data-operator-lane-count="billing_operator" aria-hidden="true">0</span>
+          </button>
+          <button class="operator-lane-button" type="button" data-operator-lane="support_operator" aria-pressed="false">
+            <span data-i18n="operator.role.supportOperator">Support Operator</span>
+            <span class="operator-lane-count" data-operator-lane-count="support_operator" aria-hidden="true">0</span>
+          </button>
         </div>
         <p class="status-note" id="queue-status" data-i18n="verify.loading">Loading operator queue...</p>
 
@@ -396,8 +414,9 @@
         'verify.eyebrow': 'Operator review',
         'verify.title': 'Submitted Draft Queue',
         'verify.loading': 'Loading operator queue...',
-        'verify.loaded': 'Queue loaded: {count} items (showing {shown})',
+        'verify.loaded': 'Queue loaded: {count} items (showing {shown}). Lane: {lane} ({laneCount})',
         'verify.empty': 'Queue is empty. No submitted drafts yet.',
+        'verify.emptyFiltered': 'No items match the current filters in {lane}. Lane total: {laneCount}.',
         'verify.error': 'Could not load queue. Please try again.',
         'verify.access.label': 'Operator access token',
         'verify.access.placeholder': 'Access token',
@@ -520,8 +539,9 @@
         'verify.eyebrow': 'Проверка оператором',
         'verify.title': 'Очередь отправленных черновиков',
         'verify.loading': 'Загружаем очередь оператора...',
-        'verify.loaded': 'Очередь загружена: {count} записей (показано {shown})',
+        'verify.loaded': 'Очередь загружена: {count} записей (показано {shown}). Линия: {lane} ({laneCount})',
         'verify.empty': 'Очередь пуста. Отправленных черновиков пока нет.',
+        'verify.emptyFiltered': 'Нет записей по текущим фильтрам в линии {lane}. Всего в линии: {laneCount}.',
         'verify.error': 'Не удалось загрузить очередь. Попробуйте еще раз.',
         'verify.access.label': 'Токен доступа оператора',
         'verify.access.placeholder': 'Токен доступа',
@@ -656,6 +676,15 @@
         support_operator: null,
         platform_administrator: null,
       };
+      const OPERATOR_LANE_LABEL_KEYS = {
+        all: 'operator.lane.all',
+        verifier: 'operator.role.verifier',
+        reviewer: 'operator.role.reviewer',
+        complaint_operator: 'operator.role.complaintOperator',
+        billing_operator: 'operator.role.billingOperator',
+        support_operator: 'operator.role.supportOperator',
+        platform_administrator: 'operator.role.platformAdministrator',
+      };
       let queueItems = [];
       let activeOperatorLane = 'all';
       let currentLatestNote = '';
@@ -772,11 +801,31 @@
       }
 
       function isItemInOperatorLane(item) {
-        const allowedTypes = OPERATOR_LANE_RULES[activeOperatorLane];
+        return isItemInLane(item, activeOperatorLane);
+      }
+
+      function isItemInLane(item, lane) {
+        const allowedTypes = OPERATOR_LANE_RULES[lane];
         if (!Array.isArray(allowedTypes)) {
           return true;
         }
         return allowedTypes.includes(item.queue_type);
+      }
+
+      function laneLabel(lane) {
+        const key = OPERATOR_LANE_LABEL_KEYS[lane] || OPERATOR_LANE_LABEL_KEYS.all;
+        return t(key);
+      }
+
+      function countItemsForLane(lane) {
+        return queueItems.filter((item) => isItemInLane(item, lane)).length;
+      }
+
+      function syncOperatorLaneCounts() {
+        document.querySelectorAll('[data-operator-lane-count]').forEach((badge) => {
+          const lane = badge.getAttribute('data-operator-lane-count') || 'all';
+          badge.textContent = String(countItemsForLane(lane));
+        });
       }
 
       function setOperatorLane(lane, shouldRender) {
@@ -1318,9 +1367,13 @@
 
       function renderQueue() {
         const items = filteredQueue();
+        const laneTotal = countItemsForLane(activeOperatorLane);
+        syncOperatorLaneCounts();
         body.innerHTML = '';
         if (!Array.isArray(items) || items.length === 0) {
-          status.textContent = t('verify.empty');
+          status.textContent = queueItems.length === 0
+            ? t('verify.empty')
+            : t('verify.emptyFiltered', { lane: laneLabel(activeOperatorLane), laneCount: laneTotal });
           return;
         }
 
@@ -1355,7 +1408,12 @@
           body.appendChild(tr);
         });
 
-        status.textContent = t('verify.loaded', { count: queueItems.length, shown: items.length });
+        status.textContent = t('verify.loaded', {
+          count: queueItems.length,
+          shown: items.length,
+          lane: laneLabel(activeOperatorLane),
+          laneCount: laneTotal,
+        });
 
         body.querySelectorAll('.queue-open').forEach((button) => {
           button.addEventListener('click', () => {
@@ -1387,6 +1445,7 @@
           if (isOperatorAccessFailure(response)) {
             queueItems = [];
             body.innerHTML = '';
+            syncOperatorLaneCounts();
             showAccessPanel('verify.access.denied');
             status.textContent = t('verify.access.denied');
             return;

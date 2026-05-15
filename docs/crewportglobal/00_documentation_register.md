@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.64
+- Version: 0.65
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -168,6 +168,7 @@ docs/crewportglobal/
   84_cpg_ops_018_operator_portal_navigation_and_role_lanes_report.md
   85_cpg_mkt_005_document_application_return_menu_fix_report.md
   86_cpg_mkt_006_shared_navigation_component_report.md
+  87_cpg_ops_019_operator_role_lane_counts_report.md
 ```
 
 ### 3.3 Product governance control
@@ -209,6 +210,8 @@ Document 84 records the frontend-only operator portal navigation and role-lane s
 Document 85 records the document-page Application return menu fix: `Application` is a direct link back to `/`, while functional page links live under a separate `Functional pages` dropdown.
 
 Document 86 records the shared frontend navigation component that centralizes Application, Documents and Operator menu rendering in `projects/crewportglobal/public/assets/crewportglobal-navigation.js`.
+
+Document 87 records operator role-lane queue counts on `/verify/` and in the shared Operator role menu, preserving document 80 role separation while keeping counts frontend-only and separate from access control.
 
 Mandatory control statement:
 
@@ -313,6 +316,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.65 | 2026-05-15 | GTC IT / AI Assistant | Added document 87 as CPG-OPS-019 implementation report for operator role-lane queue counts on /verify/ and in the shared Operator role menu |
 | 0.64 | 2026-05-15 | GTC IT / AI Assistant | Added document 86 as CPG-MKT-006 implementation report for the shared frontend navigation component and page-level mount contract |
 | 0.63 | 2026-05-15 | GTC IT / AI Assistant | Added document 85 as CPG-MKT-005 implementation report for the document-page Application return menu fix and Functional pages dropdown |
 | 0.62 | 2026-05-14 | GTC IT / AI Assistant | Added document 84 as CPG-OPS-018 implementation report for dedicated operator portal navigation and role lanes on /verify/ under the document 80 role model |

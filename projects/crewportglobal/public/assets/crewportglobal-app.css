@@ -129,6 +129,10 @@ body.doc-body.cpg-app-page {
 }
 
 .cpg-app-page .nav-menu__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   width: 100%;
   font: inherit;
   text-align: left;
@@ -313,6 +317,10 @@ body.doc-body.cpg-app-page {
 }
 
 .operator-lane-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   min-height: 38px;
   padding: 9px 12px;
   border: 1px solid var(--app-line);
@@ -334,6 +342,29 @@ body.doc-body.cpg-app-page {
 .operator-lane-button.is-active {
   border-color: var(--app-ocean);
   background: var(--app-ocean);
+  color: #fff;
+}
+
+.operator-lane-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  border: 1px solid rgba(20, 107, 124, 0.2);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--app-ocean-dark);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.operator-lane-button.is-active .operator-lane-count,
+.cpg-app-page .nav-menu__button.is-active .operator-lane-count {
+  border-color: rgba(255, 255, 255, 0.38);
+  background: rgba(255, 255, 255, 0.18);
   color: #fff;
 }
 
