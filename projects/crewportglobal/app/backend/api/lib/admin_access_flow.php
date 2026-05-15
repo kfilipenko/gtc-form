@@ -47,6 +47,17 @@ function cpg_admin_access_normalize_email(mixed $email): ?string {
     return filter_var($normalized, FILTER_VALIDATE_EMAIL) ? $normalized : null;
 }
 
+function cpg_admin_access_normalize_session_token(mixed $token): ?string {
+    if (!is_string($token)) {
+        return null;
+    }
+
+    $normalized = strtolower(trim($token));
+    return preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $normalized) === 1
+        ? $normalized
+        : null;
+}
+
 function cpg_admin_access_string_list(mixed $value): array {
     if (is_array($value)) {
         return array_values(array_filter(array_map(
@@ -63,6 +74,19 @@ function cpg_admin_access_string_list(mixed $value): array {
     }
 
     return [];
+}
+
+function cpg_admin_access_role_status(array $session): string {
+    $roles = cpg_admin_access_string_list($session['roles'] ?? []);
+    if (in_array('project_owner', $roles, true)) {
+        return 'Project Owner';
+    }
+
+    if (in_array('platform_administrator', $roles, true)) {
+        return 'Platform Administrator';
+    }
+
+    return 'Admin user';
 }
 
 function cpg_admin_access_user_is_active(array $user): bool {
@@ -432,7 +456,7 @@ function cpg_admin_access_verify_code_with_storage(
 
     $storage->markAdminEmailCodeUsed($adminEmailCodeId, $base);
     $sessionExpiresAt = cpg_admin_session_expires_at($base);
-    $storage->createAdminSession([
+    $session = $storage->createAdminSession([
         'user_id' => $userId,
         'created_at' => cpg_admin_format_time($base),
         'expires_at' => $sessionExpiresAt,
@@ -454,6 +478,112 @@ function cpg_admin_access_verify_code_with_storage(
     return cpg_admin_access_response(200, [
         'ok' => true,
         'purpose' => CPG_ADMIN_ACCESS_PURPOSE,
+        'admin_session_token' => (string) ($session['admin_session_id'] ?? ''),
         'admin_session_expires_at' => $sessionExpiresAt,
+    ]);
+}
+
+function cpg_admin_access_session_summary_with_storage(
+    CpgAdminAccessStorage $storage,
+    mixed $sessionToken,
+    ?DateTimeImmutable $now = null,
+    int $auditLimit = 10
+): array {
+    $normalizedToken = cpg_admin_access_normalize_session_token($sessionToken);
+    if ($normalizedToken === null) {
+        return cpg_admin_access_response(401, [
+            'ok' => false,
+            'error' => 'admin_session_required',
+            'message' => 'Admin session is required',
+        ]);
+    }
+
+    $base = $now ?? cpg_admin_now();
+    $session = $storage->findActiveAdminSession($normalizedToken, $base);
+    if (!is_array($session) || !cpg_admin_access_user_can_receive_admin_code($session)) {
+        return cpg_admin_access_response(401, [
+            'ok' => false,
+            'error' => 'admin_session_invalid',
+            'message' => 'Admin session is invalid or expired',
+        ]);
+    }
+
+    $groups = cpg_admin_access_string_list($session['groups'] ?? []);
+    $roles = cpg_admin_access_string_list($session['roles'] ?? []);
+    $permissions = cpg_admin_access_string_list($session['permissions'] ?? []);
+    sort($groups);
+    sort($roles);
+    sort($permissions);
+
+    return cpg_admin_access_response(200, [
+        'ok' => true,
+        'user' => [
+            'user_id' => (string) ($session['user_id'] ?? ''),
+            'email' => (string) ($session['email'] ?? ''),
+            'status' => cpg_admin_access_role_status($session),
+            'is_active' => cpg_admin_access_user_is_active($session),
+        ],
+        'admin_session' => [
+            'created_at' => (string) ($session['created_at'] ?? ''),
+            'expires_at' => (string) ($session['expires_at'] ?? ''),
+            'last_used_at' => $session['last_used_at'] ?? null,
+        ],
+        'groups' => $groups,
+        'roles' => $roles,
+        'effective_permissions' => $permissions,
+        'recent_access_audit_events' => $storage->readRecentAccessAuditEvents($auditLimit),
+        'notice' => 'Group and role management will be implemented in the next phase.',
+    ]);
+}
+
+function cpg_admin_access_revoke_session_with_storage(
+    CpgAdminAccessStorage $storage,
+    mixed $sessionToken,
+    ?DateTimeImmutable $now = null,
+    array $metadata = []
+): array {
+    $normalizedToken = cpg_admin_access_normalize_session_token($sessionToken);
+    if ($normalizedToken === null) {
+        return cpg_admin_access_response(401, [
+            'ok' => false,
+            'error' => 'admin_session_required',
+            'message' => 'Admin session is required',
+        ]);
+    }
+
+    $base = $now ?? cpg_admin_now();
+    $session = $storage->findActiveAdminSession($normalizedToken, $base);
+    if (!is_array($session)) {
+        return cpg_admin_access_response(401, [
+            'ok' => false,
+            'error' => 'admin_session_invalid',
+            'message' => 'Admin session is invalid or expired',
+        ]);
+    }
+
+    $revoked = $storage->revokeAdminSession($normalizedToken, $base);
+    if (!is_array($revoked)) {
+        return cpg_admin_access_response(401, [
+            'ok' => false,
+            'error' => 'admin_session_invalid',
+            'message' => 'Admin session is invalid or expired',
+        ]);
+    }
+
+    $storage->writeAdminAccessAuditEvent([
+        'actor_user_id' => (string) ($session['user_id'] ?? ''),
+        'event_type' => 'admin_session_revoked',
+        'new_value' => [
+            'masked_email' => cpg_admin_mask_email((string) ($session['email'] ?? '')),
+            'revoked_at' => cpg_admin_format_time($base),
+        ],
+        'ip_address' => $metadata['ip_address'] ?? null,
+        'user_agent' => $metadata['user_agent'] ?? null,
+        'created_at' => cpg_admin_format_time($base),
+    ]);
+
+    return cpg_admin_access_response(200, [
+        'ok' => true,
+        'revoked_at' => cpg_admin_format_time($base),
     ]);
 }

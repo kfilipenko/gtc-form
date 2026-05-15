@@ -105,6 +105,11 @@ cpg_admin_storage_test_assert(
     ($validVerify['payload']['admin_session_expires_at'] ?? null) === '2026-05-15T12:32:00+00:00',
     'admin session should expire after 30 minutes'
 );
+$sessionToken = (string) ($validVerify['payload']['admin_session_token'] ?? '');
+cpg_admin_storage_test_assert(
+    cpg_admin_access_normalize_session_token($sessionToken) === $sessionToken,
+    'valid admin code should return an admin session token'
+);
 cpg_admin_storage_test_assert(
     ($storage->adminEmailCodes()[0]['used_at'] ?? null) === '2026-05-15T12:02:00+00:00',
     'valid admin code should be marked used'
@@ -112,6 +117,41 @@ cpg_admin_storage_test_assert(
 cpg_admin_storage_test_assert(
     count($storage->adminSessions()) === 1,
     'valid admin code should create one admin session'
+);
+$sessionSummary = cpg_admin_access_session_summary_with_storage(
+    $storage,
+    $sessionToken,
+    new DateTimeImmutable('2026-05-15T12:03:00+00:00')
+);
+cpg_admin_storage_test_assert(
+    ($sessionSummary['status'] ?? null) === 200,
+    'active admin session should return a console summary'
+);
+cpg_admin_storage_test_assert(
+    ($sessionSummary['payload']['user']['email'] ?? null) === 'owner@crewportglobal.com',
+    'console summary should include current user email'
+);
+cpg_admin_storage_test_assert(
+    in_array('view_admin_console', $sessionSummary['payload']['effective_permissions'] ?? [], true),
+    'console summary should include effective permissions'
+);
+$revokeSession = cpg_admin_access_revoke_session_with_storage(
+    $storage,
+    $sessionToken,
+    new DateTimeImmutable('2026-05-15T12:04:00+00:00'),
+    $metadata
+);
+cpg_admin_storage_test_assert(
+    ($revokeSession['status'] ?? null) === 200,
+    'admin session revoke should succeed'
+);
+cpg_admin_storage_test_assert(
+    cpg_admin_access_session_summary_with_storage(
+        $storage,
+        $sessionToken,
+        new DateTimeImmutable('2026-05-15T12:05:00+00:00')
+    )['status'] === 401,
+    'revoked admin session should not return a console summary'
 );
 
 $reuseVerify = cpg_admin_access_verify_code_with_storage(

@@ -17,6 +17,12 @@ interface CpgAdminAccessStorage {
 
     public function createAdminSession(array $record): array;
 
+    public function findActiveAdminSession(string $adminSessionId, DateTimeImmutable $now): ?array;
+
+    public function revokeAdminSession(string $adminSessionId, DateTimeImmutable $now): ?array;
+
+    public function readRecentAccessAuditEvents(int $limit = 10): array;
+
     public function writeAdminAccessAuditEvent(array $event): void;
 }
 
@@ -61,6 +67,24 @@ function cpg_admin_access_storage_normalize_bool(mixed $value, bool $default = t
     }
 
     return $default;
+}
+
+function cpg_admin_access_storage_text_list(mixed $value): array {
+    if (is_array($value)) {
+        return array_values(array_filter(array_map(
+            static fn (mixed $item): string => strtolower(trim((string) $item)),
+            $value
+        )));
+    }
+
+    if (is_string($value)) {
+        return array_values(array_filter(array_map(
+            static fn (string $item): string => strtolower(trim($item)),
+            preg_split('/[,;\s]+/', $value) ?: []
+        )));
+    }
+
+    return [];
 }
 
 function cpg_admin_access_storage_sort_newest_first(array $left, array $right): int {
@@ -167,6 +191,49 @@ final class CpgAdminAccessMemoryStorage implements CpgAdminAccessStorage {
 
         $this->sessionsById[$adminSessionId] = $stored;
         return $stored;
+    }
+
+    public function findActiveAdminSession(string $adminSessionId, DateTimeImmutable $now): ?array {
+        $session = $this->sessionsById[$adminSessionId] ?? null;
+        if (!is_array($session) || ($session['revoked_at'] ?? null) !== null || cpg_admin_is_expired($session['expires_at'] ?? null, $now)) {
+            return null;
+        }
+
+        $user = null;
+        foreach ($this->usersByEmail as $candidate) {
+            if ((string) ($candidate['user_id'] ?? '') === (string) ($session['user_id'] ?? '')) {
+                $user = $candidate;
+                break;
+            }
+        }
+
+        if (!is_array($user)) {
+            return null;
+        }
+
+        return array_merge($session, [
+            'user_id' => (string) $user['user_id'],
+            'email' => (string) $user['email'],
+            'is_active' => cpg_admin_access_storage_normalize_bool($user['is_active'] ?? true, true),
+            'permissions' => cpg_admin_access_storage_text_list($user['permissions'] ?? []),
+            'roles' => cpg_admin_access_storage_text_list($user['roles'] ?? []),
+            'groups' => cpg_admin_access_storage_text_list($user['groups'] ?? []),
+        ]);
+    }
+
+    public function revokeAdminSession(string $adminSessionId, DateTimeImmutable $now): ?array {
+        if (!isset($this->sessionsById[$adminSessionId])) {
+            return null;
+        }
+
+        $this->sessionsById[$adminSessionId]['revoked_at'] = cpg_admin_format_time($now);
+        return $this->sessionsById[$adminSessionId];
+    }
+
+    public function readRecentAccessAuditEvents(int $limit = 10): array {
+        $events = $this->auditEvents;
+        usort($events, 'cpg_admin_access_storage_sort_newest_first');
+        return array_slice($events, 0, max(1, min(50, $limit)));
     }
 
     public function writeAdminAccessAuditEvent(array $event): void {

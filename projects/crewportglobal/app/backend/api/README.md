@@ -22,8 +22,10 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - PATCH /api/v1/seafarer/vacancy-applications/{vacancy_application_id}/status
 - PATCH /api/v1/employer/vacancy-applications/{vacancy_application_id}/shortlist
 - GET /api/v1/health
-- POST /api/v1/admin/access/email-code/request (disabled public route, runtime flow off)
-- POST /api/v1/admin/access/email-code/verify (disabled public route, runtime flow off)
+- POST /api/v1/admin/access/email-code/request
+- POST /api/v1/admin/access/email-code/verify
+- GET /api/v1/admin/access/session
+- POST /api/v1/admin/access/session/revoke
 
 ## Current status
 
@@ -50,6 +52,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - admin email-code storage factory contract: `lib/admin_access_storage_factory.php` defines disabled-by-default storage selection and explicit `pgsql` adapter creation through an injected query executor; public routes call it only after runtime gates pass
 - admin email-code delivery adapter contract: `lib/admin_access_email_delivery.php` defines disabled-by-default email delivery selection, Timeweb SMTP configuration validation, safe message preparation, a test-only capture adapter and a controlled SMTP send path for approved admin access runtime use
 - admin access Project Owner bootstrap: `tools/bootstrap_project_owner.php` records the controlled first-owner bootstrap path for `kfilipenko@gtchain.io`
+- admin access console view: `/admin/access/` displays the current Project Owner session, active groups, roles, effective permissions and recent access audit events, with logout / session revoke only
 - full login/session logic: not implemented
 
 ## Access-control Phase 2 status
@@ -84,6 +87,8 @@ The public admin email-code routes require both `CREWPORTGLOBAL_ADMIN_ACCESS_PUB
 `lib/admin_access_storage_factory.php` controls route storage selection. Default mode is disabled; `CREWPORTGLOBAL_ADMIN_ACCESS_STORAGE_MODE=pgsql` creates a PostgreSQL adapter through the factory and without querying at construction time. Public routes call the factory only after route and flow gates pass.
 
 `lib/admin_access_email_delivery.php` controls email delivery. Default mode is disabled; `CREWPORTGLOBAL_ADMIN_ACCESS_EMAIL_ENABLED=true` triggers SMTP configuration validation, but delivery remains not-sent unless `smtp_send_ready` mode and `CREWPORTGLOBAL_ADMIN_ACCESS_SMTP_SEND_ENABLED=true` are explicitly set in protected server config. The approved sender mailbox is `not_reply@crewportglobal.com` via `smtp.timeweb.ru:465` with SSL.
+
+`/admin/access/` is the first read-only Project Owner console view. It uses the verified admin session token to call `GET /api/v1/admin/access/session` and displays the current user, status, active groups, active roles, effective permissions and recent access audit events. `POST /api/v1/admin/access/session/revoke` logs out by setting `admin_sessions.revoked_at`.
 
 Admin access SMTP settings are server-only environment variables:
 

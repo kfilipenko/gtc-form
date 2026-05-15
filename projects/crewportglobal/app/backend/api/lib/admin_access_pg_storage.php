@@ -246,6 +246,114 @@ final class CpgAdminAccessPgStorage implements CpgAdminAccessStorage {
         return $row ?? [];
     }
 
+    public function findActiveAdminSession(string $adminSessionId, DateTimeImmutable $now): ?array {
+        $row = $this->firstRow(
+            'SELECT s.admin_session_id::text AS admin_session_id,
+                    s.user_id::text AS user_id,
+                    s.created_at::text AS created_at,
+                    s.expires_at::text AS expires_at,
+                    s.revoked_at::text AS revoked_at,
+                    s.last_used_at::text AS last_used_at,
+                    lower(u.email) AS email,
+                    u.is_active,
+                    COALESCE(array_agg(DISTINCT p.permission_code) FILTER (WHERE p.permission_code IS NOT NULL), ARRAY[]::text[]) AS permissions,
+                    COALESCE(array_agg(DISTINCT r.role_code) FILTER (WHERE r.role_code IS NOT NULL), ARRAY[]::text[]) AS roles,
+                    COALESCE(array_agg(DISTINCT g.group_code) FILTER (WHERE g.group_code IS NOT NULL), ARRAY[]::text[]) AS groups
+             FROM crewportglobal.admin_sessions s
+             JOIN crewportglobal.users u
+               ON u.user_id = s.user_id
+             LEFT JOIN crewportglobal.access_group_members gm
+               ON gm.user_id = u.user_id
+              AND gm.membership_state = $3
+             LEFT JOIN crewportglobal.access_groups g
+               ON g.group_id = gm.group_id
+              AND g.is_active = TRUE
+             LEFT JOIN crewportglobal.access_group_roles gr
+               ON gr.group_id = g.group_id
+              AND gr.assignment_state = $3
+             LEFT JOIN crewportglobal.access_roles r
+               ON r.role_id = gr.role_id
+              AND r.is_active = TRUE
+             LEFT JOIN crewportglobal.access_role_permissions rp
+               ON rp.role_id = r.role_id
+             LEFT JOIN crewportglobal.access_permissions p
+               ON p.permission_id = rp.permission_id
+              AND p.is_active = TRUE
+             WHERE s.admin_session_id = $1::uuid
+               AND s.revoked_at IS NULL
+               AND s.expires_at > $2::timestamptz
+             GROUP BY s.admin_session_id, s.user_id, s.created_at, s.expires_at, s.revoked_at,
+                      s.last_used_at, u.email, u.is_active
+             LIMIT 1',
+            [$adminSessionId, cpg_admin_format_time($now), 'active']
+        );
+
+        if ($row === null) {
+            return null;
+        }
+
+        return [
+            'admin_session_id' => (string) $row['admin_session_id'],
+            'user_id' => (string) $row['user_id'],
+            'created_at' => (string) $row['created_at'],
+            'expires_at' => (string) $row['expires_at'],
+            'revoked_at' => cpg_admin_access_pg_optional_string($row['revoked_at'] ?? null),
+            'last_used_at' => cpg_admin_access_pg_optional_string($row['last_used_at'] ?? null),
+            'email' => (string) $row['email'],
+            'is_active' => cpg_admin_access_storage_normalize_bool($row['is_active'] ?? true, true),
+            'permissions' => cpg_admin_access_pg_text_list($row['permissions'] ?? []),
+            'roles' => cpg_admin_access_pg_text_list($row['roles'] ?? []),
+            'groups' => cpg_admin_access_pg_text_list($row['groups'] ?? []),
+        ];
+    }
+
+    public function revokeAdminSession(string $adminSessionId, DateTimeImmutable $now): ?array {
+        $row = $this->firstRow(
+            'UPDATE crewportglobal.admin_sessions
+             SET revoked_at = $2::timestamptz
+             WHERE admin_session_id = $1::uuid
+               AND revoked_at IS NULL
+             RETURNING admin_session_id::text AS admin_session_id,
+                       user_id::text AS user_id,
+                       created_at::text AS created_at,
+                       expires_at::text AS expires_at,
+                       revoked_at::text AS revoked_at,
+                       last_used_at::text AS last_used_at',
+            [$adminSessionId, cpg_admin_format_time($now)]
+        );
+
+        return $row;
+    }
+
+    public function readRecentAccessAuditEvents(int $limit = 10): array {
+        $boundedLimit = max(1, min(50, $limit));
+        return $this->queryRows(
+            'SELECT e.access_audit_event_id::text AS access_audit_event_id,
+                    e.event_type,
+                    e.reason,
+                    e.created_at::text AS created_at,
+                    actor.email AS actor_email,
+                    target_user.email AS target_user_email,
+                    target_group.group_code AS target_group_code,
+                    target_role.role_code AS target_role_code,
+                    target_permission.permission_code AS target_permission_code
+             FROM crewportglobal.access_audit_events e
+             LEFT JOIN crewportglobal.users actor
+               ON actor.user_id = e.actor_user_id
+             LEFT JOIN crewportglobal.users target_user
+               ON target_user.user_id = e.target_user_id
+             LEFT JOIN crewportglobal.access_groups target_group
+               ON target_group.group_id = e.target_group_id
+             LEFT JOIN crewportglobal.access_roles target_role
+               ON target_role.role_id = e.target_role_id
+             LEFT JOIN crewportglobal.access_permissions target_permission
+               ON target_permission.permission_id = e.target_permission_id
+             ORDER BY e.created_at DESC
+             LIMIT $1::int',
+            [$boundedLimit]
+        );
+    }
+
     public function writeAdminAccessAuditEvent(array $event): void {
         $this->queryRows(
             'INSERT INTO crewportglobal.access_audit_events

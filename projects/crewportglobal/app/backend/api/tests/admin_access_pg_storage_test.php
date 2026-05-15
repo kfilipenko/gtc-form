@@ -88,6 +88,38 @@ $recorder = new CpgAdminAccessPgQueryRecorder([
         'user_agent' => 'pg-storage-test',
     ]],
     [],
+    [[
+        'admin_session_id' => $sessionId,
+        'user_id' => $ownerUserId,
+        'created_at' => '2026-05-15 12:02:00+00',
+        'expires_at' => '2026-05-15 12:32:00+00',
+        'revoked_at' => null,
+        'last_used_at' => null,
+        'email' => 'owner@crewportglobal.com',
+        'is_active' => 't',
+        'permissions' => '{view_admin_console,view_full_audit_log}',
+        'roles' => '{project_owner}',
+        'groups' => '{platform_owners}',
+    ]],
+    [[
+        'admin_session_id' => $sessionId,
+        'user_id' => $ownerUserId,
+        'created_at' => '2026-05-15 12:02:00+00',
+        'expires_at' => '2026-05-15 12:32:00+00',
+        'revoked_at' => '2026-05-15 12:10:00+00',
+        'last_used_at' => null,
+    ]],
+    [[
+        'access_audit_event_id' => '55555555-5555-4555-8555-555555555555',
+        'event_type' => 'project_owner_bootstrap_completed',
+        'reason' => 'static query test',
+        'created_at' => '2026-05-15 12:02:00+00',
+        'actor_email' => 'owner@crewportglobal.com',
+        'target_user_email' => 'owner@crewportglobal.com',
+        'target_group_code' => 'platform_owners',
+        'target_role_code' => 'project_owner',
+        'target_permission_code' => null,
+    ]],
 ]);
 
 $storage = new CpgAdminAccessPgStorage($recorder);
@@ -172,6 +204,26 @@ cpg_admin_pg_storage_test_assert(str_contains($auditCall['sql'], 'INSERT INTO cr
 cpg_admin_pg_storage_test_assert(str_contains($auditCall['sql'], '$7::jsonb'), 'audit SQL should cast previous_value as JSONB');
 cpg_admin_pg_storage_test_assert(str_contains($auditCall['sql'], '$10::inet'), 'audit SQL should cast ip parameter');
 cpg_admin_pg_storage_test_assert(json_decode((string) $auditCall['params'][7], true) === ['purpose' => 'admin_access'], 'audit SQL should JSON encode new_value parameter');
-cpg_admin_pg_storage_test_assert(count($recorder->calls) === 7, 'PG storage test should cover all adapter methods');
+
+$activeSession = $storage->findActiveAdminSession($sessionId, new DateTimeImmutable('2026-05-15T12:10:00+00:00'));
+$activeSessionCall = $recorder->calls[7];
+cpg_admin_pg_storage_test_assert(($activeSession['admin_session_id'] ?? null) === $sessionId, 'active session query should return session row');
+cpg_admin_pg_storage_test_assert(in_array('project_owner', $activeSession['roles'] ?? [], true), 'active session query should parse roles');
+cpg_admin_pg_storage_test_assert(in_array('platform_owners', $activeSession['groups'] ?? [], true), 'active session query should parse groups');
+cpg_admin_pg_storage_test_assert(str_contains($activeSessionCall['sql'], 'FROM crewportglobal.admin_sessions'), 'active session SQL should read admin_sessions');
+cpg_admin_pg_storage_test_assert(str_contains($activeSessionCall['sql'], 's.revoked_at IS NULL'), 'active session SQL should reject revoked sessions');
+cpg_admin_pg_storage_test_assert(str_contains($activeSessionCall['sql'], 's.expires_at > $2::timestamptz'), 'active session SQL should reject expired sessions');
+
+$revokedSession = $storage->revokeAdminSession($sessionId, new DateTimeImmutable('2026-05-15T12:10:00+00:00'));
+$revokeSessionCall = $recorder->calls[8];
+cpg_admin_pg_storage_test_assert(($revokedSession['revoked_at'] ?? null) !== null, 'revoke session should return revoked_at');
+cpg_admin_pg_storage_test_assert(str_contains($revokeSessionCall['sql'], 'SET revoked_at = $2::timestamptz'), 'revoke session SQL should set revoked_at by parameter');
+
+$auditEvents = $storage->readRecentAccessAuditEvents(12);
+$readAuditCall = $recorder->calls[9];
+cpg_admin_pg_storage_test_assert(($auditEvents[0]['event_type'] ?? null) === 'project_owner_bootstrap_completed', 'recent audit query should return event rows');
+cpg_admin_pg_storage_test_assert(str_contains($readAuditCall['sql'], 'ORDER BY e.created_at DESC'), 'recent audit SQL should order newest first');
+cpg_admin_pg_storage_test_assert(str_contains($readAuditCall['sql'], 'LIMIT $1::int'), 'recent audit SQL should use a bounded limit parameter');
+cpg_admin_pg_storage_test_assert(count($recorder->calls) === 10, 'PG storage test should cover all adapter methods');
 
 fwrite(STDOUT, "Admin access PostgreSQL storage adapter tests passed\n");

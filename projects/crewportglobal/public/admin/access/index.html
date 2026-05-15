@@ -14,24 +14,28 @@
   <style>
     .admin-shell {
       min-height: 100vh;
-      display: grid;
-      align-items: center;
-      padding: 40px 18px;
+      padding: 28px 18px 42px;
     }
-    .admin-panel {
-      width: min(620px, 100%);
+    .admin-frame {
+      width: min(1120px, 100%);
       margin: 0 auto;
-      padding: 28px;
+    }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 18px;
+      padding: 16px;
       border: 1px solid var(--line);
       border-radius: 16px;
       background: rgba(255, 255, 255, 0.06);
-      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
     }
     .admin-brand {
       display: flex;
       gap: 12px;
       align-items: center;
-      margin-bottom: 24px;
+      min-width: 0;
     }
     .admin-mark {
       width: 40px;
@@ -43,6 +47,7 @@
       color: #fff;
       font-weight: 800;
       letter-spacing: 0;
+      flex: 0 0 auto;
     }
     .admin-title {
       margin: 0;
@@ -54,6 +59,17 @@
       margin: 4px 0 0;
       color: var(--muted-on-dark);
       font-size: 13px;
+    }
+    .admin-panel {
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.2);
+    }
+    .admin-login {
+      width: min(620px, 100%);
+      margin: 60px auto 0;
     }
     .admin-form {
       display: grid;
@@ -99,6 +115,10 @@
       border-color: var(--line);
       color: var(--text-on-dark);
     }
+    .admin-button.danger {
+      background: #ffb0a5;
+      color: #2f0d08;
+    }
     .admin-button:disabled {
       cursor: wait;
       opacity: 0.62;
@@ -111,17 +131,139 @@
     }
     .admin-status.ok { color: #7ce3b1; }
     .admin-status.error { color: #ffb0a5; }
-    .admin-result {
-      margin-top: 18px;
+    .console {
+      display: grid;
+      gap: 16px;
+    }
+    .console[hidden],
+    .admin-login[hidden] {
+      display: none;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .summary-card,
+    .console-section {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
       padding: 14px;
-      border-radius: 12px;
+    }
+    .summary-label,
+    .section-kicker {
+      margin: 0 0 6px;
+      color: var(--muted-on-dark);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .summary-value {
+      margin: 0;
+      color: var(--text-on-dark);
+      font-weight: 800;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+    .console-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 16px;
+    }
+    .section-title {
+      margin: 0 0 12px;
+      color: var(--text-on-dark);
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    .chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .chip {
+      padding: 6px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--text-on-dark);
+      background: rgba(78, 199, 216, 0.12);
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+    .permission-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      max-height: 360px;
+      overflow: auto;
+    }
+    .permission-list li {
+      padding: 8px 10px;
+      border-radius: 10px;
       border: 1px solid var(--line);
       color: var(--muted-on-dark);
       background: rgba(255, 255, 255, 0.04);
+      font-size: 13px;
+      overflow-wrap: anywhere;
     }
-    .admin-result[hidden] { display: none; }
+    .audit-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .audit-item {
+      display: grid;
+      gap: 4px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .audit-type {
+      color: var(--text-on-dark);
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+    .audit-meta {
+      color: var(--muted-on-dark);
+      font-size: 13px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+    .phase-warning {
+      margin: 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(244, 185, 66, 0.45);
+      border-radius: 12px;
+      color: #f4d38a;
+      background: rgba(244, 185, 66, 0.1);
+      line-height: 1.5;
+    }
+    @media (max-width: 860px) {
+      .admin-header,
+      .console-grid,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+      .admin-header {
+        display: grid;
+      }
+      .permission-list {
+        grid-template-columns: 1fr;
+      }
+    }
     @media (max-width: 640px) {
-      .admin-panel { padding: 22px; }
+      .admin-panel { padding: 18px; }
+      .admin-login { margin-top: 24px; }
       .admin-actions { display: grid; }
       .admin-button { width: 100%; }
     }
@@ -129,51 +271,104 @@
 </head>
 <body>
   <main class="admin-shell">
-    <section class="admin-panel" aria-labelledby="admin-title">
-      <div class="admin-brand">
-        <div class="admin-mark" aria-hidden="true">CPG</div>
-        <div>
-          <h1 class="admin-title" id="admin-title">Admin access</h1>
-          <p class="admin-subtitle">CrewPortGlobal protected console</p>
+    <div class="admin-frame">
+      <header class="admin-header">
+        <div class="admin-brand">
+          <div class="admin-mark" aria-hidden="true">CPG</div>
+          <div>
+            <h1 class="admin-title">Admin access</h1>
+            <p class="admin-subtitle">CrewPortGlobal protected console</p>
+          </div>
         </div>
-      </div>
+        <button class="admin-button danger" type="button" id="logout-button" hidden>Logout</button>
+      </header>
 
-      <form class="admin-form" id="admin-access-form">
-        <div class="admin-field">
-          <label for="admin-email">Email</label>
-          <input id="admin-email" name="email" type="email" autocomplete="email" value="kfilipenko@gtchain.io" required>
+      <section class="admin-panel admin-login" id="login-panel" aria-labelledby="login-title">
+        <h2 class="section-title" id="login-title">Email code login</h2>
+        <form class="admin-form" id="admin-access-form">
+          <div class="admin-field">
+            <label for="admin-email">Email</label>
+            <input id="admin-email" name="email" type="email" autocomplete="email" value="kfilipenko@gtchain.io" required>
+          </div>
+
+          <div class="admin-actions">
+            <button class="admin-button" type="button" id="request-code">Send code</button>
+            <button class="admin-button secondary" type="button" id="clear-code">Clear</button>
+          </div>
+
+          <div class="admin-field">
+            <label for="admin-code">Code</label>
+            <input id="admin-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+          </div>
+
+          <div class="admin-actions">
+            <button class="admin-button" type="submit" id="verify-code">Verify</button>
+          </div>
+
+          <p class="admin-status" id="admin-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="console" id="console-panel" hidden aria-labelledby="console-title">
+        <div class="summary-grid">
+          <div class="summary-card">
+            <p class="summary-label">Current user</p>
+            <p class="summary-value" id="summary-email">-</p>
+          </div>
+          <div class="summary-card">
+            <p class="summary-label">Status</p>
+            <p class="summary-value" id="summary-status">-</p>
+          </div>
+          <div class="summary-card">
+            <p class="summary-label">Groups</p>
+            <p class="summary-value" id="summary-groups">0</p>
+          </div>
+          <div class="summary-card">
+            <p class="summary-label">Session expires</p>
+            <p class="summary-value" id="summary-expires">-</p>
+          </div>
         </div>
 
-        <div class="admin-actions">
-          <button class="admin-button" type="button" id="request-code">Send code</button>
-          <button class="admin-button secondary" type="button" id="clear-code">Clear</button>
+        <p class="phase-warning">Group and role management will be implemented in the next phase. This console is read-only except logout.</p>
+
+        <div class="console-grid">
+          <section class="console-section" aria-labelledby="identity-title">
+            <p class="section-kicker">Identity</p>
+            <h2 class="section-title" id="identity-title">Groups and roles</h2>
+            <p class="summary-label">Active groups</p>
+            <ul class="chip-list" id="group-list"></ul>
+            <p class="summary-label" style="margin-top:14px">Active roles</p>
+            <ul class="chip-list" id="role-list"></ul>
+          </section>
+
+          <section class="console-section" aria-labelledby="permissions-title">
+            <p class="section-kicker">Access</p>
+            <h2 class="section-title" id="permissions-title">Effective permissions</h2>
+            <ul class="permission-list" id="permission-list"></ul>
+          </section>
         </div>
 
-        <div class="admin-field">
-          <label for="admin-code">Code</label>
-          <input id="admin-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
-        </div>
-
-        <div class="admin-actions">
-          <button class="admin-button" type="submit" id="verify-code">Verify</button>
-        </div>
-
-        <p class="admin-status" id="admin-status" role="status" aria-live="polite"></p>
-      </form>
-
-      <div class="admin-result" id="admin-result" hidden></div>
-    </section>
+        <section class="console-section" aria-labelledby="audit-title">
+          <p class="section-kicker">Audit</p>
+          <h2 class="section-title" id="audit-title">Recent access events</h2>
+          <ul class="audit-list" id="audit-list"></ul>
+        </section>
+      </section>
+    </div>
   </main>
 
   <script>
+    const SESSION_KEY = 'crewportglobal_admin_session';
     const form = document.getElementById('admin-access-form');
     const email = document.getElementById('admin-email');
     const code = document.getElementById('admin-code');
     const statusNode = document.getElementById('admin-status');
-    const resultNode = document.getElementById('admin-result');
     const requestButton = document.getElementById('request-code');
     const verifyButton = document.getElementById('verify-code');
     const clearButton = document.getElementById('clear-code');
+    const logoutButton = document.getElementById('logout-button');
+    const loginPanel = document.getElementById('login-panel');
+    const consolePanel = document.getElementById('console-panel');
 
     function setStatus(message, type = '') {
       statusNode.textContent = message;
@@ -183,23 +378,133 @@
     function setBusy(isBusy) {
       requestButton.disabled = isBusy;
       verifyButton.disabled = isBusy;
+      logoutButton.disabled = isBusy;
     }
 
-    async function postJson(path, payload) {
+    function showLogin(message = '') {
+      loginPanel.hidden = false;
+      consolePanel.hidden = true;
+      logoutButton.hidden = true;
+      setStatus(message);
+    }
+
+    function showConsole() {
+      loginPanel.hidden = true;
+      consolePanel.hidden = false;
+      logoutButton.hidden = false;
+    }
+
+    function sessionToken() {
+      return window.localStorage.getItem(SESSION_KEY) || '';
+    }
+
+    function clearSession() {
+      window.localStorage.removeItem(SESSION_KEY);
+    }
+
+    async function postJson(path, payload = {}, token = '') {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
       const response = await fetch(path, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(payload),
       });
       const body = await response.json().catch(() => ({}));
       return { response, body };
     }
 
+    async function getJson(path, token = '') {
+      const headers = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(path, { headers });
+      const body = await response.json().catch(() => ({}));
+      return { response, body };
+    }
+
+    function setText(id, value) {
+      document.getElementById(id).textContent = value || '-';
+    }
+
+    function renderList(id, values, className = 'chip') {
+      const node = document.getElementById(id);
+      node.replaceChildren();
+      const list = Array.isArray(values) ? values : [];
+      if (list.length === 0) {
+        const item = document.createElement('li');
+        item.className = className;
+        item.textContent = 'none';
+        node.append(item);
+        return;
+      }
+      for (const value of list) {
+        const item = document.createElement('li');
+        item.className = className;
+        item.textContent = String(value);
+        node.append(item);
+      }
+    }
+
+    function renderAudit(events) {
+      const node = document.getElementById('audit-list');
+      node.replaceChildren();
+      const list = Array.isArray(events) ? events : [];
+      if (list.length === 0) {
+        const item = document.createElement('li');
+        item.className = 'audit-item';
+        item.textContent = 'No access events yet.';
+        node.append(item);
+        return;
+      }
+      for (const event of list) {
+        const item = document.createElement('li');
+        item.className = 'audit-item';
+        const type = document.createElement('div');
+        type.className = 'audit-type';
+        type.textContent = event.event_type || 'access_event';
+        const meta = document.createElement('div');
+        meta.className = 'audit-meta';
+        const pieces = [
+          event.created_at,
+          event.actor_email ? `actor ${event.actor_email}` : '',
+          event.target_user_email ? `target ${event.target_user_email}` : '',
+          event.target_group_code ? `group ${event.target_group_code}` : '',
+          event.target_role_code ? `role ${event.target_role_code}` : '',
+          event.reason || '',
+        ].filter(Boolean);
+        meta.textContent = pieces.join(' | ');
+        item.append(type, meta);
+        node.append(item);
+      }
+    }
+
+    async function loadConsole() {
+      const token = sessionToken();
+      if (!token) {
+        showLogin();
+        return;
+      }
+      const { response, body } = await getJson('/api/v1/admin/access/session', token);
+      if (!response.ok || body.ok !== true) {
+        clearSession();
+        showLogin('Session expired. Please request a new code.');
+        return;
+      }
+      setText('summary-email', body.user?.email);
+      setText('summary-status', body.user?.status);
+      setText('summary-groups', String((body.groups || []).length));
+      setText('summary-expires', body.admin_session?.expires_at);
+      renderList('group-list', body.groups || []);
+      renderList('role-list', body.roles || []);
+      renderList('permission-list', body.effective_permissions || [], '');
+      renderAudit(body.recent_access_audit_events || []);
+      showConsole();
+    }
+
     requestButton.addEventListener('click', async () => {
       if (!email.reportValidity()) return;
       setBusy(true);
       setStatus('Sending code...');
-      resultNode.hidden = true;
       try {
         const { response, body } = await postJson('/api/v1/admin/access/email-code/request', {
           email: email.value,
@@ -219,7 +524,6 @@
 
     clearButton.addEventListener('click', () => {
       code.value = '';
-      resultNode.hidden = true;
       setStatus('');
       code.focus();
     });
@@ -229,24 +533,45 @@
       if (!email.reportValidity() || !code.reportValidity()) return;
       setBusy(true);
       setStatus('Verifying code...');
-      resultNode.hidden = true;
       try {
         const { response, body } = await postJson('/api/v1/admin/access/email-code/verify', {
           email: email.value,
           code: code.value,
         });
-        if (!response.ok || body.ok !== true) {
+        if (!response.ok || body.ok !== true || !body.admin_session_token) {
           setStatus(body.message || 'Code verification failed.', 'error');
           return;
         }
-        setStatus('Admin access verified.', 'ok');
-        resultNode.textContent = `Session expires at ${body.admin_session_expires_at || 'the configured expiry time'}.`;
-        resultNode.hidden = false;
+        window.localStorage.setItem(SESSION_KEY, body.admin_session_token);
+        code.value = '';
+        await loadConsole();
       } catch (error) {
         setStatus('Code verification failed.', 'error');
       } finally {
         setBusy(false);
       }
+    });
+
+    logoutButton.addEventListener('click', async () => {
+      const token = sessionToken();
+      if (!token) {
+        clearSession();
+        showLogin();
+        return;
+      }
+      setBusy(true);
+      try {
+        await postJson('/api/v1/admin/access/session/revoke', {}, token);
+      } finally {
+        clearSession();
+        setBusy(false);
+        showLogin('Session closed.');
+      }
+    });
+
+    loadConsole().catch(() => {
+      clearSession();
+      showLogin();
     });
   </script>
 </body>

@@ -129,9 +129,54 @@ cpg_admin_flow_test_assert(
     ($verifyWithStorage['status'] ?? null) === 200,
     'admin access verify with storage should accept the correct code'
 );
+$sessionToken = (string) ($verifyWithStorage['payload']['admin_session_token'] ?? '');
+cpg_admin_flow_test_assert(
+    cpg_admin_access_normalize_session_token($sessionToken) === $sessionToken,
+    'admin access verify should return a valid session token'
+);
 cpg_admin_flow_test_assert(
     count($storage->adminSessions()) === 1,
     'admin access verify should create one admin session'
+);
+$summary = cpg_admin_access_session_summary_with_storage(
+    $storage,
+    $sessionToken,
+    $fixedNow,
+    5
+);
+cpg_admin_flow_test_assert(
+    ($summary['status'] ?? null) === 200,
+    'admin access session summary should return a console payload for active sessions'
+);
+cpg_admin_flow_test_assert(
+    ($summary['payload']['user']['status'] ?? null) === 'Project Owner',
+    'admin access session summary should show Project Owner status'
+);
+cpg_admin_flow_test_assert(
+    in_array('platform_owners', $summary['payload']['groups'] ?? [], true),
+    'admin access session summary should expose active groups'
+);
+cpg_admin_flow_test_assert(
+    in_array('project_owner', $summary['payload']['roles'] ?? [], true),
+    'admin access session summary should expose active roles'
+);
+cpg_admin_flow_test_assert(
+    in_array('view_admin_console', $summary['payload']['effective_permissions'] ?? [], true),
+    'admin access session summary should expose effective permissions'
+);
+
+$revoked = cpg_admin_access_revoke_session_with_storage(
+    $storage,
+    $sessionToken,
+    new DateTimeImmutable('2026-05-15T12:05:00+00:00')
+);
+cpg_admin_flow_test_assert(
+    ($revoked['status'] ?? null) === 200,
+    'admin access session revoke should return success'
+);
+cpg_admin_flow_test_assert(
+    cpg_admin_access_session_summary_with_storage($storage, $sessionToken, new DateTimeImmutable('2026-05-15T12:06:00+00:00'))['status'] === 401,
+    'revoked admin access session should be rejected'
 );
 
 fwrite(STDOUT, "Admin access flow skeleton tests passed\n");

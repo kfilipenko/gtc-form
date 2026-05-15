@@ -110,15 +110,43 @@ function admin_access_request_metadata(): array {
     ];
 }
 
+function admin_access_session_token(): ?string {
+    $headerToken = request_header_value('X-CPG-Admin-Session');
+    if ($headerToken !== null) {
+        return $headerToken;
+    }
+
+    $authorization = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+    if (is_string($authorization) && preg_match('/^Bearer\s+(.+)$/i', trim($authorization), $matches) === 1) {
+        $token = trim($matches[1]);
+        return $token === '' ? null : $token;
+    }
+
+    return null;
+}
+
+function admin_access_storage_or_response(): CpgAdminAccessStorage {
+    $storageDisabled = cpg_admin_access_storage_factory_disabled_response();
+    if ($storageDisabled !== null) {
+        admin_access_api_response($storageDisabled);
+    }
+
+    $storage = cpg_admin_access_create_storage();
+    if (!$storage instanceof CpgAdminAccessStorage) {
+        admin_access_api_response(cpg_admin_access_response(503, [
+            'ok' => false,
+            'error' => 'admin_access_storage_not_configured',
+            'message' => 'Admin access storage is not configured yet',
+        ]));
+    }
+
+    return $storage;
+}
+
 function handle_post_admin_access_email_code_request(): void {
     admin_access_load_runtime_env();
     if (!admin_access_public_flow_enabled()) {
         admin_access_api_response(cpg_admin_access_disabled_response());
-    }
-
-    $storageDisabled = cpg_admin_access_storage_factory_disabled_response();
-    if ($storageDisabled !== null) {
-        admin_access_api_response($storageDisabled);
     }
 
     $deliveryDisabled = cpg_admin_access_email_delivery_disabled_response();
@@ -127,7 +155,7 @@ function handle_post_admin_access_email_code_request(): void {
     }
 
     $body = api_decode_json_body();
-    $storage = cpg_admin_access_create_storage();
+    $storage = admin_access_storage_or_response();
     $delivery = cpg_admin_access_create_email_delivery();
     if (!$storage instanceof CpgAdminAccessStorage || !$delivery instanceof CpgAdminAccessEmailDelivery) {
         admin_access_api_response(cpg_admin_access_response(503, [
@@ -153,25 +181,43 @@ function handle_post_admin_access_email_code_verify(): void {
         admin_access_api_response(cpg_admin_access_disabled_response());
     }
 
-    $storageDisabled = cpg_admin_access_storage_factory_disabled_response();
-    if ($storageDisabled !== null) {
-        admin_access_api_response($storageDisabled);
-    }
-
     $body = api_decode_json_body();
-    $storage = cpg_admin_access_create_storage();
-    if (!$storage instanceof CpgAdminAccessStorage) {
-        admin_access_api_response(cpg_admin_access_response(503, [
-            'ok' => false,
-            'error' => 'admin_access_storage_not_configured',
-            'message' => 'Admin access storage is not configured yet',
-        ]));
-    }
+    $storage = admin_access_storage_or_response();
 
     admin_access_api_response(cpg_admin_access_verify_code_with_storage(
         $body,
         $storage,
         true,
+        null,
+        admin_access_request_metadata()
+    ));
+}
+
+function handle_get_admin_access_session(): void {
+    admin_access_load_runtime_env();
+    if (!admin_access_public_flow_enabled()) {
+        admin_access_api_response(cpg_admin_access_disabled_response());
+    }
+
+    $storage = admin_access_storage_or_response();
+    admin_access_api_response(cpg_admin_access_session_summary_with_storage(
+        $storage,
+        admin_access_session_token(),
+        null,
+        12
+    ));
+}
+
+function handle_post_admin_access_session_revoke(): void {
+    admin_access_load_runtime_env();
+    if (!admin_access_public_flow_enabled()) {
+        admin_access_api_response(cpg_admin_access_disabled_response());
+    }
+
+    $storage = admin_access_storage_or_response();
+    admin_access_api_response(cpg_admin_access_revoke_session_with_storage(
+        $storage,
+        admin_access_session_token(),
         null,
         admin_access_request_metadata()
     ));
@@ -2541,6 +2587,22 @@ if ($path === '/admin/access/email-code/request') {
 if ($path === '/admin/access/email-code/verify') {
     if ($method === 'POST') {
         handle_post_admin_access_email_code_verify();
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if ($path === '/admin/access/session') {
+    if ($method === 'GET') {
+        handle_get_admin_access_session();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if ($path === '/admin/access/session/revoke') {
+    if ($method === 'POST') {
+        handle_post_admin_access_session_revoke();
     }
     header('Allow: POST');
     api_error(405, 'method_not_allowed', 'Allowed methods: POST');
