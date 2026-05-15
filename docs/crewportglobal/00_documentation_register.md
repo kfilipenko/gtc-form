@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.71
+- Version: 0.72
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -175,6 +175,7 @@ docs/crewportglobal/
   91_cpg_access_004_operator_queue_capability_contract_report.md
   92_cpg_access_005_identity_context_foundation_report.md
   93_cpg_access_006_sql_draft_static_review_report.md
+  94_cpg_access_007_admin_email_code_foundation_report.md
 ```
 
 ### 3.3 Product governance control
@@ -230,6 +231,8 @@ Document 91 records the operator queue capability contract, including backend `o
 Document 92 records the backend identity-context foundation, including anonymous, temporary-operator-token, future account-session and future admin-session boundaries, with the rule that the shared temporary operator token is not a named user identity and cannot load role permissions.
 
 Document 93 records the static review control for the access-control SQL draft, including no-DB validation of required tables, indexes, seed groups, seed roles, seed permissions and representative role-permission mappings before any future approved non-production migration application.
+
+Document 94 records the admin email-code backend foundation, including one-time code generation, hashing, verification, expiry, attempt-limit helpers, admin-session TTL helpers and email message payload generation before runtime admin endpoints, email sending or admin sessions are enabled.
 
 Mandatory control statement:
 
@@ -334,6 +337,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.72 | 2026-05-15 | GTC IT / AI Assistant | Added document 94 as CPG-ACCESS-007 implementation report for admin email-code backend security helper foundation before runtime endpoints |
 | 0.71 | 2026-05-15 | GTC IT / AI Assistant | Added document 93 as CPG-ACCESS-006 implementation report for static SQL draft review and non-production migration readiness controls |
 | 0.70 | 2026-05-15 | GTC IT / AI Assistant | Added document 92 as CPG-ACCESS-005 implementation report for backend identity-context boundaries before account-session enforcement |
 | 0.69 | 2026-05-15 | GTC IT / AI Assistant | Added document 91 as CPG-ACCESS-004 implementation report for operator queue capability metadata and frontend action disabling support before runtime enforcement |
