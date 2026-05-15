@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.79
+- Version: 0.80
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -183,6 +183,7 @@ docs/crewportglobal/
   99_cpg_access_012_admin_email_code_storage_factory_report.md
   100_cpg_access_013_admin_email_code_email_delivery_contract_report.md
   101_cpg_access_014_admin_email_delivery_adapter_report.md
+  102_cpg_access_015_admin_email_delivery_smtp_smoke_test_report.md
 ```
 
 ### 3.3 Product governance control
@@ -254,6 +255,8 @@ Document 99 records the admin email-code storage factory contract, including dis
 Document 100 records the admin email-code email delivery contract, including disabled-by-default delivery mode, test-only capture mode, safe delivery summaries that do not expose clear codes, and tests confirming public routes do not include or call email delivery before runtime activation is approved.
 
 Document 101 records the admin email delivery adapter preparation for the approved CrewPortGlobal sender mailbox, including Timeweb SMTP environment keys, disabled-by-default behavior, configuration validation, safe message construction, no-secret controls and no-real-send verification.
+
+Document 102 records the controlled server-side SMTP smoke-test for admin email-code delivery, including protected `/etc/crewportglobal/admin-access.env` loading, explicit send-ready execution, safe result reporting, no-secret controls and confirmation that public admin routes remain disconnected from runtime email sending.
 
 Mandatory control statement:
 
@@ -358,6 +361,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.80 | 2026-05-15 | GTC IT / AI Assistant | Added document 102 as CPG-ACCESS-015 implementation and smoke-test report for protected-config admin email-code SMTP sending through Timeweb with no secret exposure and no public route activation |
 | 0.79 | 2026-05-15 | GTC IT / AI Assistant | Added document 101 as CPG-ACCESS-014 implementation report for admin email delivery adapter preparation with Timeweb SMTP configuration validation and no real send |
 | 0.78 | 2026-05-15 | GTC IT / AI Assistant | Added document 100 as CPG-ACCESS-013 implementation report for disabled-by-default admin email-code email delivery contract |
 | 0.77 | 2026-05-15 | GTC IT / AI Assistant | Added document 99 as CPG-ACCESS-012 implementation report for disabled-by-default admin email-code storage factory contract |

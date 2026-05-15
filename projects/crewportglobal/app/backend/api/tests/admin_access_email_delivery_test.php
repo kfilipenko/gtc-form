@@ -67,6 +67,30 @@ cpg_admin_email_delivery_test_assert(
     'invalid email delivery mode should not create an adapter'
 );
 
+$tempEnvFile = tempnam(sys_get_temp_dir(), 'cpg-admin-env-');
+cpg_admin_email_delivery_test_assert(is_string($tempEnvFile), 'temporary env file should be available');
+file_put_contents($tempEnvFile, "CPG_ADMIN_ACCESS_TEST_ENV_KEY=\"secret-value\"\n");
+$loadedEnv = cpg_admin_access_load_protected_env_file($tempEnvFile, true);
+cpg_admin_email_delivery_test_assert(
+    ($loadedEnv['ok'] ?? false) === true,
+    'protected env loader should load readable env files'
+);
+cpg_admin_email_delivery_test_assert(
+    in_array('CPG_ADMIN_ACCESS_TEST_ENV_KEY', $loadedEnv['loaded_keys'] ?? [], true),
+    'protected env loader should report loaded keys without values'
+);
+cpg_admin_email_delivery_test_assert(
+    getenv('CPG_ADMIN_ACCESS_TEST_ENV_KEY') === 'secret-value',
+    'protected env loader should make values available to runtime without returning them'
+);
+cpg_admin_email_delivery_test_assert(
+    !str_contains(json_encode($loadedEnv, JSON_THROW_ON_ERROR), 'secret-value'),
+    'protected env loader result must not expose loaded secret values'
+);
+putenv('CPG_ADMIN_ACCESS_TEST_ENV_KEY');
+unset($_ENV['CPG_ADMIN_ACCESS_TEST_ENV_KEY'], $_SERVER['CPG_ADMIN_ACCESS_TEST_ENV_KEY']);
+unlink($tempEnvFile);
+
 $sinkMessages = [];
 $delivery = cpg_admin_access_create_email_delivery([
     'CREWPORTGLOBAL_ADMIN_ACCESS_EMAIL_DELIVERY_MODE' => 'capture',
@@ -192,6 +216,14 @@ cpg_admin_email_delivery_test_assert(
     ($sendReadyStatus['code'] ?? null) === 'admin_email_delivery_message_ready',
     'SMTP send-ready mode should expose message-ready result code'
 );
+$sendReadyDelivery = cpg_admin_access_create_email_delivery(array_merge($smtpEnv, [
+    'CREWPORTGLOBAL_ADMIN_ACCESS_EMAIL_DELIVERY_MODE' => 'smtp_send_ready',
+    'CREWPORTGLOBAL_ADMIN_ACCESS_SMTP_SEND_ENABLED' => 'true',
+]));
+cpg_admin_email_delivery_test_assert(
+    $sendReadyDelivery instanceof CpgAdminAccessSmtpPreparedEmailDelivery,
+    'SMTP send-ready mode should create SMTP delivery adapter without sending during construction'
+);
 
 $source = file_get_contents(__DIR__ . '/../public/index.php');
 cpg_admin_email_delivery_test_assert(is_string($source), 'public index should be readable');
@@ -208,11 +240,16 @@ $deliverySource = file_get_contents(__DIR__ . '/../lib/admin_access_email_delive
 cpg_admin_email_delivery_test_assert(is_string($deliverySource), 'email delivery source should be readable');
 cpg_admin_email_delivery_test_assert(
     preg_match('/(?<![A-Za-z0-9_])mail\s*\(/', $deliverySource) !== 1,
-    'email delivery adapter must not use PHP mail() in this safe slice'
+    'email delivery adapter must not use PHP mail()'
 );
 cpg_admin_email_delivery_test_assert(
-    !str_contains($deliverySource, 'fsockopen(') && !str_contains($deliverySource, 'stream_socket_client('),
-    'email delivery adapter must not open SMTP sockets in this safe slice'
+    !str_contains($deliverySource, 'fsockopen('),
+    'email delivery adapter must not use fsockopen for SMTP'
+);
+cpg_admin_email_delivery_test_assert(
+    str_contains($deliverySource, 'stream_socket_client(')
+        && str_contains($deliverySource, 'cpg_admin_access_smtp_send_prepared_message('),
+    'email delivery adapter should keep the real SMTP path explicit and isolated'
 );
 
 fwrite(STDOUT, "Admin access email delivery tests passed\n");

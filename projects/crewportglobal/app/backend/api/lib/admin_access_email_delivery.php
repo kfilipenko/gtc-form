@@ -18,6 +18,9 @@ const CPG_ADMIN_ACCESS_EMAIL_DELIVERY_CODE_DISABLED = 'admin_email_delivery_disa
 const CPG_ADMIN_ACCESS_EMAIL_DELIVERY_CODE_CONFIG_INCOMPLETE = 'admin_email_delivery_config_incomplete';
 const CPG_ADMIN_ACCESS_EMAIL_DELIVERY_CODE_MESSAGE_READY = 'admin_email_delivery_message_ready';
 const CPG_ADMIN_ACCESS_EMAIL_DELIVERY_CODE_SEND_NOT_ENABLED = 'admin_email_delivery_send_not_enabled';
+const CPG_ADMIN_ACCESS_EMAIL_DELIVERY_CODE_SENT = 'admin_email_delivery_sent';
+const CPG_ADMIN_ACCESS_EMAIL_DELIVERY_CODE_SEND_FAILED = 'admin_email_delivery_send_failed';
+const CPG_ADMIN_ACCESS_PROTECTED_ENV_FILE = '/etc/crewportglobal/admin-access.env';
 const CPG_ADMIN_ACCESS_SMTP_HOST_ENV = 'CREWPORTGLOBAL_SMTP_HOST';
 const CPG_ADMIN_ACCESS_SMTP_PORT_ENV = 'CREWPORTGLOBAL_SMTP_PORT';
 const CPG_ADMIN_ACCESS_SMTP_SECURITY_ENV = 'CREWPORTGLOBAL_SMTP_SECURITY';
@@ -38,6 +41,7 @@ const CPG_ADMIN_ACCESS_SMTP_DEFAULT_SECURITY = 'ssl';
 const CPG_ADMIN_ACCESS_SMTP_DEFAULT_USERNAME = 'not_reply@crewportglobal.com';
 const CPG_ADMIN_ACCESS_SMTP_DEFAULT_FROM_EMAIL = 'not_reply@crewportglobal.com';
 const CPG_ADMIN_ACCESS_SMTP_DEFAULT_FROM_NAME = 'CrewPortGlobal Security';
+const CPG_ADMIN_ACCESS_SMTP_TIMEOUT_SECONDS = 20;
 
 interface CpgAdminAccessEmailDelivery {
     public function sendAdminEmailCode(array $message): array;
@@ -60,6 +64,77 @@ function cpg_admin_access_email_delivery_bool_env(string $name, ?array $env = nu
     }
 
     return in_array(strtolower(trim($value)), ['1', 'true', 'yes', 'on', 'enabled'], true);
+}
+
+function cpg_admin_access_parse_env_file_value(string $value): string {
+    $trimmed = trim($value);
+    if ($trimmed === '') {
+        return '';
+    }
+
+    $quote = substr($trimmed, 0, 1);
+    if (($quote === '"' || $quote === "'") && substr($trimmed, -1) === $quote) {
+        $inner = substr($trimmed, 1, -1);
+        return $quote === '"' ? stripcslashes($inner) : $inner;
+    }
+
+    return $trimmed;
+}
+
+function cpg_admin_access_load_protected_env_file(
+    string $path = CPG_ADMIN_ACCESS_PROTECTED_ENV_FILE,
+    bool $override = false
+): array {
+    if (!is_file($path) || !is_readable($path)) {
+        return [
+            'ok' => false,
+            'path' => $path,
+            'loaded_keys' => [],
+            'error' => 'admin_access_env_file_not_readable',
+        ];
+    }
+
+    $lines = file($path, FILE_IGNORE_NEW_LINES);
+    if ($lines === false) {
+        return [
+            'ok' => false,
+            'path' => $path,
+            'loaded_keys' => [],
+            'error' => 'admin_access_env_file_read_failed',
+        ];
+    }
+
+    $loadedKeys = [];
+    foreach ($lines as $line) {
+        $trimmed = trim($line);
+        if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+            continue;
+        }
+
+        if (preg_match('/^(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/', $line, $matches) !== 1) {
+            continue;
+        }
+
+        $key = $matches[1];
+        $value = cpg_admin_access_parse_env_file_value($matches[2]);
+        if (!$override && getenv($key) !== false) {
+            continue;
+        }
+
+        putenv($key . '=' . $value);
+        $_ENV[$key] = $value;
+        $_SERVER[$key] = $value;
+        $loadedKeys[] = $key;
+    }
+
+    sort($loadedKeys);
+
+    return [
+        'ok' => true,
+        'path' => $path,
+        'loaded_keys' => $loadedKeys,
+        'error' => null,
+    ];
 }
 
 function cpg_admin_access_email_enabled(?array $env = null): bool {
@@ -369,6 +444,187 @@ function cpg_admin_access_build_smtp_message(array $message, array $config): arr
     ];
 }
 
+function cpg_admin_access_smtp_clean_header_value(string $value): string {
+    return trim(str_replace(["\r", "\n"], '', $value));
+}
+
+function cpg_admin_access_smtp_message_id(string $fromEmail): string {
+    $domain = 'crewportglobal.com';
+    $atPosition = strrpos($fromEmail, '@');
+    if ($atPosition !== false) {
+        $candidate = substr($fromEmail, $atPosition + 1);
+        if (is_string($candidate) && preg_match('/^[A-Za-z0-9.-]+$/', $candidate) === 1) {
+            $domain = strtolower($candidate);
+        }
+    }
+
+    return sprintf(
+        '<cpg-admin-%s-%s@%s>',
+        gmdate('YmdHis'),
+        bin2hex(random_bytes(8)),
+        $domain
+    );
+}
+
+function cpg_admin_access_smtp_dot_stuff(string $value): string {
+    $normalized = str_replace(["\r\n", "\r"], "\n", $value);
+    $lines = explode("\n", $normalized);
+    foreach ($lines as $index => $line) {
+        if (str_starts_with($line, '.')) {
+            $lines[$index] = '.' . $line;
+        }
+    }
+
+    return implode("\r\n", $lines);
+}
+
+function cpg_admin_access_smtp_raw_message(array $prepared, string $messageId): string {
+    $headers = $prepared['headers'] ?? [];
+    $bodyText = (string) ($prepared['body_text'] ?? '');
+
+    $headerLines = [
+        'Date: ' . gmdate('D, d M Y H:i:s') . ' +0000',
+        'Message-ID: ' . cpg_admin_access_smtp_clean_header_value($messageId),
+        'From: ' . cpg_admin_access_smtp_clean_header_value((string) ($headers['From'] ?? '')),
+        'To: ' . cpg_admin_access_smtp_clean_header_value((string) ($headers['To'] ?? '')),
+        'Subject: ' . cpg_admin_access_smtp_clean_header_value((string) ($headers['Subject'] ?? '')),
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding: 8bit',
+    ];
+
+    return implode("\r\n", $headerLines) . "\r\n\r\n" . cpg_admin_access_smtp_dot_stuff($bodyText) . "\r\n";
+}
+
+function cpg_admin_access_smtp_read_response(mixed $socket, string $context): array {
+    $lines = [];
+    while (!feof($socket)) {
+        $line = fgets($socket, 2048);
+        if ($line === false) {
+            break;
+        }
+
+        $line = rtrim($line, "\r\n");
+        $lines[] = $line;
+        if (preg_match('/^([0-9]{3})([\s-])/', $line, $matches) === 1 && $matches[2] === ' ') {
+            return [
+                'code' => (int) $matches[1],
+                'context' => $context,
+                'line_count' => count($lines),
+            ];
+        }
+
+        if (count($lines) > 100) {
+            break;
+        }
+    }
+
+    throw new RuntimeException('Admin access SMTP response failed during ' . $context);
+}
+
+function cpg_admin_access_smtp_expect(mixed $socket, array $expectedCodes, string $context): array {
+    $response = cpg_admin_access_smtp_read_response($socket, $context);
+    if (!in_array((int) $response['code'], $expectedCodes, true)) {
+        throw new RuntimeException(sprintf(
+            'Admin access SMTP command failed during %s with response code %d',
+            $context,
+            (int) $response['code']
+        ));
+    }
+
+    return $response;
+}
+
+function cpg_admin_access_smtp_write_line(mixed $socket, string $line, string $context): void {
+    $written = fwrite($socket, $line . "\r\n");
+    if ($written === false) {
+        throw new RuntimeException('Admin access SMTP write failed during ' . $context);
+    }
+}
+
+function cpg_admin_access_smtp_command(
+    mixed $socket,
+    string $line,
+    array $expectedCodes,
+    string $context
+): array {
+    cpg_admin_access_smtp_write_line($socket, $line, $context);
+    return cpg_admin_access_smtp_expect($socket, $expectedCodes, $context);
+}
+
+function cpg_admin_access_smtp_send_prepared_message(array $prepared, array $config): string {
+    $host = (string) ($config['host'] ?? '');
+    $port = (int) ($config['port'] ?? 0);
+    $security = (string) ($config['security'] ?? '');
+    $username = (string) ($config['username'] ?? '');
+    $password = (string) ($config['password'] ?? '');
+    $fromEmail = (string) ($prepared['envelope']['from_email'] ?? '');
+    $toEmail = (string) ($prepared['envelope']['to'] ?? '');
+    $messageId = cpg_admin_access_smtp_message_id($fromEmail);
+    $rawMessage = cpg_admin_access_smtp_raw_message($prepared, $messageId);
+
+    if ($host === '' || $port < 1 || $username === '' || $password === '' || $fromEmail === '' || $toEmail === '') {
+        throw new RuntimeException('Admin access SMTP send configuration is incomplete');
+    }
+
+    $scheme = $security === 'ssl' ? 'ssl' : 'tcp';
+    $context = stream_context_create([
+        'ssl' => [
+            'verify_peer' => true,
+            'verify_peer_name' => true,
+            'peer_name' => $host,
+        ],
+    ]);
+
+    $socket = @stream_socket_client(
+        sprintf('%s://%s:%d', $scheme, $host, $port),
+        $errorCode,
+        $errorMessage,
+        CPG_ADMIN_ACCESS_SMTP_TIMEOUT_SECONDS,
+        STREAM_CLIENT_CONNECT,
+        $context
+    );
+
+    if (!is_resource($socket)) {
+        throw new RuntimeException('Admin access SMTP connection failed');
+    }
+
+    try {
+        stream_set_timeout($socket, CPG_ADMIN_ACCESS_SMTP_TIMEOUT_SECONDS);
+        $ehloName = gethostname();
+        if (!is_string($ehloName) || trim($ehloName) === '') {
+            $ehloName = 'crewportglobal.com';
+        }
+
+        cpg_admin_access_smtp_expect($socket, [220], 'connect');
+        cpg_admin_access_smtp_command($socket, 'EHLO ' . $ehloName, [250], 'ehlo');
+
+        if ($security === 'tls') {
+            cpg_admin_access_smtp_command($socket, 'STARTTLS', [220], 'starttls');
+            $cryptoEnabled = stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+            if ($cryptoEnabled !== true) {
+                throw new RuntimeException('Admin access SMTP TLS negotiation failed');
+            }
+
+            cpg_admin_access_smtp_command($socket, 'EHLO ' . $ehloName, [250], 'ehlo_after_starttls');
+        }
+
+        cpg_admin_access_smtp_command($socket, 'AUTH LOGIN', [334], 'auth_login');
+        cpg_admin_access_smtp_command($socket, base64_encode($username), [334], 'auth_username');
+        cpg_admin_access_smtp_command($socket, base64_encode($password), [235], 'auth_password');
+        cpg_admin_access_smtp_command($socket, 'MAIL FROM:<' . $fromEmail . '>', [250], 'mail_from');
+        cpg_admin_access_smtp_command($socket, 'RCPT TO:<' . $toEmail . '>', [250, 251], 'rcpt_to');
+        cpg_admin_access_smtp_command($socket, 'DATA', [354], 'data');
+        cpg_admin_access_smtp_write_line($socket, $rawMessage . '.', 'message_data');
+        cpg_admin_access_smtp_expect($socket, [250], 'message_accepted');
+        cpg_admin_access_smtp_command($socket, 'QUIT', [221], 'quit');
+    } finally {
+        fclose($socket);
+    }
+
+    return $messageId;
+}
+
 final class CpgAdminAccessCaptureEmailDelivery implements CpgAdminAccessEmailDelivery {
     /** @var array<int, array> */
     private array $messages = [];
@@ -419,16 +675,14 @@ final class CpgAdminAccessSmtpPreparedEmailDelivery implements CpgAdminAccessEma
 
     public function sendAdminEmailCode(array $message): array {
         $prepared = cpg_admin_access_build_smtp_message($message, $this->config);
-        $this->preparedMessages[] = $prepared;
         $summary = cpg_admin_access_email_delivery_safe_summary($message);
+        $this->preparedMessages[] = [
+            'summary' => $summary,
+            'smtp' => cpg_admin_access_smtp_config_safe_summary($this->config),
+            'mode' => $this->mode,
+        ];
 
-        $code = $this->mode === CPG_ADMIN_ACCESS_EMAIL_DELIVERY_MODE_SMTP_READY
-            ? CPG_ADMIN_ACCESS_EMAIL_DELIVERY_CODE_MESSAGE_READY
-            : CPG_ADMIN_ACCESS_EMAIL_DELIVERY_CODE_SEND_NOT_ENABLED;
-
-        return [
-            'ok' => true,
-            'delivery_status' => $code,
+        $baseResult = [
             'mode' => $this->mode,
             'purpose' => $summary['purpose'],
             'masked_to' => $summary['masked_to'],
@@ -438,8 +692,33 @@ final class CpgAdminAccessSmtpPreparedEmailDelivery implements CpgAdminAccessEma
             'smtp_port' => $this->config['port'] ?? null,
             'smtp_security' => (string) ($this->config['security'] ?? ''),
             'expires_at' => $summary['expires_at'],
-            'real_send_performed' => false,
         ];
+
+        if ($this->mode !== CPG_ADMIN_ACCESS_EMAIL_DELIVERY_MODE_SMTP_READY) {
+            return array_merge($baseResult, [
+                'ok' => true,
+                'delivery_status' => CPG_ADMIN_ACCESS_EMAIL_DELIVERY_CODE_SEND_NOT_ENABLED,
+                'real_send_performed' => false,
+            ]);
+        }
+
+        try {
+            $messageId = cpg_admin_access_smtp_send_prepared_message($prepared, $this->config);
+
+            return array_merge($baseResult, [
+                'ok' => true,
+                'delivery_status' => CPG_ADMIN_ACCESS_EMAIL_DELIVERY_CODE_SENT,
+                'message_id' => $messageId,
+                'real_send_performed' => true,
+            ]);
+        } catch (Throwable) {
+            return array_merge($baseResult, [
+                'ok' => false,
+                'delivery_status' => CPG_ADMIN_ACCESS_EMAIL_DELIVERY_CODE_SEND_FAILED,
+                'error' => CPG_ADMIN_ACCESS_EMAIL_DELIVERY_CODE_SEND_FAILED,
+                'real_send_performed' => false,
+            ]);
+        }
     }
 
     public function preparedMessages(): array {
