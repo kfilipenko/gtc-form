@@ -67,6 +67,70 @@ paths:
           description: Invalid request payload
         '404':
           description: Draft not found
+  /admin/access/email-code/request:
+    post:
+      summary: Request admin access email code
+      operationId: requestAdminAccessEmailCode
+      description: |
+        Contract for future admin access email-code request flow. Runtime route is not enabled until access-control storage, email delivery and admin session handling are approved.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminEmailCodeRequest'
+      responses:
+        '202':
+          description: Request accepted without revealing whether the email is an eligible admin account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminEmailCodeRequestAcceptedResponse'
+        '400':
+          description: Invalid request payload
+        '403':
+          description: Admin access is not allowed for the current user
+        '429':
+          description: Rate limit exceeded
+        '503':
+          description: Admin access email-code flow is not enabled yet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAccessDisabledResponse'
+  /admin/access/email-code/verify:
+    post:
+      summary: Verify admin access email code
+      operationId: verifyAdminAccessEmailCode
+      description: |
+        Contract for future admin access email-code verification. Runtime route is not enabled until access-control storage, email delivery and admin session handling are approved.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminEmailCodeVerifyRequest'
+      responses:
+        '200':
+          description: Admin session marker created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAccessSessionResponse'
+        '400':
+          description: Invalid request payload
+        '401':
+          description: Invalid or expired admin access code
+        '403':
+          description: Admin access is not allowed for the current user
+        '429':
+          description: Verification attempt limit exceeded
+        '503':
+          description: Admin access email-code flow is not enabled yet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAccessDisabledResponse'
   /vacancies:
     get:
       summary: List reviewed public vacancies
@@ -204,6 +268,68 @@ components:
         updated_at:
           type: string
           format: date-time
+    AdminEmailCodeRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+    AdminEmailCodeVerifyRequest:
+      type: object
+      required:
+        - email
+        - code
+      properties:
+        email:
+          type: string
+          format: email
+        code:
+          type: string
+          minLength: 6
+          maxLength: 6
+          pattern: '^[0-9]{6}$'
+    AdminEmailCodeRequestAcceptedResponse:
+      type: object
+      required: [ok, purpose, masked_email, expires_in_seconds, message]
+      properties:
+        ok:
+          type: boolean
+        purpose:
+          type: string
+          enum: [admin_access]
+        masked_email:
+          type: string
+        expires_in_seconds:
+          type: integer
+          enum: [600]
+        message:
+          type: string
+    AdminAccessSessionResponse:
+      type: object
+      required: [ok, purpose, admin_session_expires_at]
+      properties:
+        ok:
+          type: boolean
+        purpose:
+          type: string
+          enum: [admin_access]
+        admin_session_expires_at:
+          type: string
+          format: date-time
+    AdminAccessDisabledResponse:
+      type: object
+      required: [ok, error, message]
+      properties:
+        ok:
+          type: boolean
+          enum: [false]
+        error:
+          type: string
+          enum: [admin_access_flow_not_enabled]
+        message:
+          type: string
     PublicVacanciesResponse:
       type: object
       required: [ok, vacancies, count, generated_at]

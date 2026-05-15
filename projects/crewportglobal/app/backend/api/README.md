@@ -22,6 +22,8 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - PATCH /api/v1/seafarer/vacancy-applications/{vacancy_application_id}/status
 - PATCH /api/v1/employer/vacancy-applications/{vacancy_application_id}/shortlist
 - GET /api/v1/health
+- POST /api/v1/admin/access/email-code/request (contract only, runtime disabled)
+- POST /api/v1/admin/access/email-code/verify (contract only, runtime disabled)
 
 ## Current status
 
@@ -41,6 +43,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - operator queue capability contract: operator queue responses include `operator_access` permission/scope metadata in `temporary_operator_token` mode so `/verify/` can prepare for future role-based action disabling without changing current token behavior
 - identity context foundation: `lib/identity_context.php` defines anonymous, temporary-operator-token, future account-session and future admin-session identity shapes without introducing login sessions or replacing the current token boundary
 - admin email-code foundation: `lib/admin_access.php` defines one-time code generation, hashing, verification, expiry, attempt-limit helpers, admin-session TTL helpers and email message payloads without adding runtime endpoints or sending email
+- admin email-code flow skeleton: `lib/admin_access_flow.php` defines disabled-by-default request/verify skeleton responses and validates the future OpenAPI contract without adding public routes
 - full login/session logic: not implemented
 
 ## Access-control Phase 2 status
@@ -63,6 +66,8 @@ Operator queue responses expose `operator_access` metadata for each queue item. 
 `lib/identity_context.php` is a preparation layer for that transition. It distinguishes a shared temporary operator token from a named active user session, and it prevents the temporary token from being treated as a user that can load role permissions.
 
 `lib/admin_access.php` is a preparation layer for document 88 Phase 3. It implements the local security primitives for admin email-code protection, but it is not wired into public routes until the access-control migration and admin session storage are approved for use.
+
+`lib/admin_access_flow.php` describes the future request/verify handler boundary. By default the flow returns `admin_access_flow_not_enabled`; even when enabled in isolated tests, the skeleton does not send email, write code storage or create admin sessions.
 
 ## Operator access token
 
@@ -119,6 +124,8 @@ php projects/crewportglobal/app/backend/api/tests/access_control_operator_queue_
 php projects/crewportglobal/app/backend/api/tests/access_control_migration_draft_test.php
 php projects/crewportglobal/app/backend/api/tests/identity_context_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_test.php
+php projects/crewportglobal/app/backend/api/tests/admin_access_flow_test.php
+php projects/crewportglobal/app/backend/api/tests/admin_access_contract_test.php
 ```
 
 ## Out of scope here

@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.72
+- Version: 0.73
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -176,6 +176,7 @@ docs/crewportglobal/
   92_cpg_access_005_identity_context_foundation_report.md
   93_cpg_access_006_sql_draft_static_review_report.md
   94_cpg_access_007_admin_email_code_foundation_report.md
+  95_cpg_access_008_admin_email_code_contract_and_skeleton_report.md
 ```
 
 ### 3.3 Product governance control
@@ -233,6 +234,8 @@ Document 92 records the backend identity-context foundation, including anonymous
 Document 93 records the static review control for the access-control SQL draft, including no-DB validation of required tables, indexes, seed groups, seed roles, seed permissions and representative role-permission mappings before any future approved non-production migration application.
 
 Document 94 records the admin email-code backend foundation, including one-time code generation, hashing, verification, expiry, attempt-limit helpers, admin-session TTL helpers and email message payload generation before runtime admin endpoints, email sending or admin sessions are enabled.
+
+Document 95 records the admin email-code endpoint contract and disabled-by-default request/verify skeletons, including OpenAPI paths for future `/api/v1/admin/access/email-code/request` and `/api/v1/admin/access/email-code/verify` routes without enabling public runtime behavior.
 
 Mandatory control statement:
 
@@ -337,6 +340,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.73 | 2026-05-15 | GTC IT / AI Assistant | Added document 95 as CPG-ACCESS-008 implementation report for admin email-code API contracts and disabled runtime skeletons |
 | 0.72 | 2026-05-15 | GTC IT / AI Assistant | Added document 94 as CPG-ACCESS-007 implementation report for admin email-code backend security helper foundation before runtime endpoints |
 | 0.71 | 2026-05-15 | GTC IT / AI Assistant | Added document 93 as CPG-ACCESS-006 implementation report for static SQL draft review and non-production migration readiness controls |
 | 0.70 | 2026-05-15 | GTC IT / AI Assistant | Added document 92 as CPG-ACCESS-005 implementation report for backend identity-context boundaries before account-session enforcement |
