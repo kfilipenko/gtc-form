@@ -156,6 +156,99 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AdminAccessDisabledResponse'
+  /admin/access/management:
+    get:
+      summary: Read admin access-management snapshot
+      operationId: readAdminAccessManagement
+      description: |
+        Returns users, groups and assignable groups for Project Owner access-management UI. This phase is read plus create-user/add-member only.
+      security:
+        - AdminSessionBearer: []
+      responses:
+        '200':
+          description: Access-management snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAccessManagementResponse'
+        '401':
+          description: Admin session is missing, invalid or expired
+        '403':
+          description: manage_user_groups permission or Project Owner ownership is required
+        '503':
+          description: Admin access flow is not enabled
+  /admin/access/users:
+    post:
+      summary: Create or confirm admin-manageable user
+      operationId: createAdminAccessUser
+      description: |
+        Creates or confirms a CrewPortGlobal user record before group membership assignment. Does not assign permissions directly.
+      security:
+        - AdminSessionBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCreateUserRequest'
+      responses:
+        '200':
+          description: Existing user confirmed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCreateUserResponse'
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminCreateUserResponse'
+        '400':
+          description: Invalid request payload
+        '401':
+          description: Admin session is missing, invalid or expired
+        '403':
+          description: manage_user_groups permission or Project Owner ownership is required
+        '503':
+          description: Admin access flow is not enabled
+  /admin/access/group-members:
+    post:
+      summary: Add user to access group
+      operationId: addAdminAccessGroupMember
+      description: |
+        Adds an existing active user to an assignable internal or administration group. Does not edit group roles.
+      security:
+        - AdminSessionBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminAddGroupMemberRequest'
+      responses:
+        '200':
+          description: Membership already existed and was confirmed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminGroupMemberResponse'
+        '201':
+          description: Membership created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminGroupMemberResponse'
+        '400':
+          description: Invalid request payload
+        '401':
+          description: Admin session is missing, invalid or expired
+        '403':
+          description: Group is not assignable or permission is missing
+        '404':
+          description: User or group was not found
+        '503':
+          description: Admin access flow is not enabled
   /vacancies:
     get:
       summary: List reviewed public vacancies
@@ -402,6 +495,78 @@ components:
               url:
                 type: string
                 format: uri
+    AdminAccessManagementResponse:
+      type: object
+      required: [ok, current_user, users, groups, assignable_groups, allowed_actions]
+      properties:
+        ok:
+          type: boolean
+          enum: [true]
+        current_user:
+          type: object
+          additionalProperties: true
+        users:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        groups:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        assignable_groups:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        allowed_actions:
+          type: array
+          items:
+            type: string
+    AdminCreateUserRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+          maxLength: 160
+    AdminCreateUserResponse:
+      type: object
+      required: [ok, user]
+      properties:
+        ok:
+          type: boolean
+          enum: [true]
+        user:
+          type: object
+          additionalProperties: true
+    AdminAddGroupMemberRequest:
+      type: object
+      required: [email, group_code]
+      properties:
+        email:
+          type: string
+          format: email
+        group_code:
+          type: string
+          pattern: '^[a-z0-9_]{2,80}$'
+        reason:
+          type: string
+          maxLength: 500
+    AdminGroupMemberResponse:
+      type: object
+      required: [ok, membership]
+      properties:
+        ok:
+          type: boolean
+          enum: [true]
+        membership:
+          type: object
+          additionalProperties: true
     PublicVacanciesResponse:
       type: object
       required: [ok, vacancies, count, generated_at]

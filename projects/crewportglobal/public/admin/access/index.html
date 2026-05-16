@@ -113,9 +113,12 @@
       font-weight: 700;
       font-size: 14px;
     }
-    .admin-field input {
+    .admin-field input,
+    .admin-field select,
+    .admin-field textarea {
       width: 100%;
       min-height: 46px;
+      box-sizing: border-box;
       padding: 11px 13px;
       border-radius: 10px;
       border: 1px solid var(--admin-border-strong);
@@ -125,7 +128,13 @@
       font-weight: 700;
       box-shadow: inset 0 1px 2px rgba(16, 42, 67, 0.06);
     }
-    .admin-field input:focus {
+    .admin-field textarea {
+      min-height: 86px;
+      resize: vertical;
+    }
+    .admin-field input:focus,
+    .admin-field select:focus,
+    .admin-field textarea:focus {
       outline: 3px solid rgba(8, 122, 140, 0.22);
       border-color: var(--admin-primary);
     }
@@ -316,6 +325,58 @@
       background: var(--admin-warning-bg);
       line-height: 1.5;
     }
+    .management-grid,
+    .management-lists {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .management-form {
+      display: grid;
+      align-content: start;
+      gap: 12px;
+      padding: 0;
+    }
+    .management-title {
+      margin: 0;
+      color: var(--admin-text);
+      font-size: 15px;
+      line-height: 1.3;
+    }
+    .management-status {
+      min-height: 24px;
+      margin: 10px 0 0;
+      color: var(--admin-muted);
+      font-weight: 700;
+      line-height: 1.5;
+    }
+    .management-status.ok { color: var(--admin-success); }
+    .management-status.error { color: var(--admin-danger); }
+    .compact-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      max-height: 280px;
+      overflow: auto;
+    }
+    .compact-list li {
+      padding: 9px 10px;
+      border: 1px solid var(--admin-border);
+      border-radius: 10px;
+      background: var(--admin-surface-soft);
+      color: var(--admin-text);
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+    .compact-list small {
+      display: block;
+      margin-top: 3px;
+      color: var(--admin-muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
     @media (max-width: 860px) {
       .admin-header,
       .console-grid,
@@ -326,6 +387,10 @@
         display: grid;
       }
       .permission-list {
+        grid-template-columns: 1fr;
+      }
+      .management-grid,
+      .management-lists {
         grid-template-columns: 1fr;
       }
     }
@@ -399,7 +464,58 @@
           </div>
         </div>
 
-        <p class="phase-warning">Group and role management will be implemented in the next phase. This console is read-only except logout.</p>
+        <p class="phase-warning">This phase allows Project Owner user creation and group membership assignment only. Group role editing and group work pages come next.</p>
+
+        <section class="console-section" aria-labelledby="management-title">
+          <p class="section-kicker">Access management</p>
+          <h2 class="section-title" id="management-title">Users and groups</h2>
+          <div class="management-grid">
+            <form class="management-form" id="create-user-form">
+              <h3 class="management-title">Create or confirm user</h3>
+              <div class="admin-field">
+                <label for="new-user-email">Email</label>
+                <input id="new-user-email" name="email" type="email" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="member@example.com" required>
+              </div>
+              <div class="admin-field">
+                <label for="new-user-name">Display name</label>
+                <input id="new-user-name" name="display_name" type="text" autocomplete="off" maxlength="160" placeholder="Optional">
+              </div>
+              <div class="admin-actions">
+                <button class="admin-button" type="submit" id="create-user-button">Create user</button>
+              </div>
+            </form>
+
+            <form class="management-form" id="add-member-form">
+              <h3 class="management-title">Add user to group</h3>
+              <div class="admin-field">
+                <label for="member-email">User email</label>
+                <input id="member-email" name="email" type="email" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="member@example.com" required>
+              </div>
+              <div class="admin-field">
+                <label for="member-group">Group</label>
+                <select id="member-group" name="group_code" required></select>
+              </div>
+              <div class="admin-field">
+                <label for="member-reason">Reason</label>
+                <textarea id="member-reason" name="reason" maxlength="500" placeholder="Optional audit note"></textarea>
+              </div>
+              <div class="admin-actions">
+                <button class="admin-button" type="submit" id="add-member-button">Add to group</button>
+              </div>
+            </form>
+          </div>
+          <p class="management-status" id="management-status" role="status" aria-live="polite"></p>
+          <div class="management-lists" style="margin-top:14px">
+            <div>
+              <p class="summary-label">Assignable groups</p>
+              <ul class="compact-list" id="assignable-group-list"></ul>
+            </div>
+            <div>
+              <p class="summary-label">Users</p>
+              <ul class="compact-list" id="access-user-list"></ul>
+            </div>
+          </div>
+        </section>
 
         <div class="console-grid">
           <section class="console-section" aria-labelledby="identity-title">
@@ -439,6 +555,15 @@
     const logoutButton = document.getElementById('logout-button');
     const loginPanel = document.getElementById('login-panel');
     const consolePanel = document.getElementById('console-panel');
+    const createUserForm = document.getElementById('create-user-form');
+    const addMemberForm = document.getElementById('add-member-form');
+    const createUserButton = document.getElementById('create-user-button');
+    const addMemberButton = document.getElementById('add-member-button');
+    const managementStatus = document.getElementById('management-status');
+    const assignableGroupList = document.getElementById('assignable-group-list');
+    const accessUserList = document.getElementById('access-user-list');
+    const memberGroupSelect = document.getElementById('member-group');
+    const memberEmailInput = document.getElementById('member-email');
 
     function setStatus(message, type = '') {
       statusNode.textContent = message;
@@ -449,6 +574,16 @@
       requestButton.disabled = isBusy;
       verifyButton.disabled = isBusy;
       logoutButton.disabled = isBusy;
+    }
+
+    function setManagementBusy(isBusy) {
+      createUserButton.disabled = isBusy;
+      addMemberButton.disabled = isBusy;
+    }
+
+    function setManagementStatus(message, type = '') {
+      managementStatus.textContent = message;
+      managementStatus.className = `management-status ${type}`.trim();
     }
 
     function showLogin(message = '') {
@@ -548,6 +683,63 @@
       }
     }
 
+    function renderManagement(body) {
+      const assignableGroups = Array.isArray(body.assignable_groups) ? body.assignable_groups : [];
+      const users = Array.isArray(body.users) ? body.users : [];
+
+      memberGroupSelect.replaceChildren();
+      for (const group of assignableGroups) {
+        const option = document.createElement('option');
+        option.value = group.group_code;
+        option.textContent = `${group.group_name || group.group_code} (${group.group_code})`;
+        memberGroupSelect.append(option);
+      }
+
+      assignableGroupList.replaceChildren();
+      if (assignableGroups.length === 0) {
+        const item = document.createElement('li');
+        item.textContent = 'No assignable groups.';
+        assignableGroupList.append(item);
+      } else {
+        for (const group of assignableGroups) {
+          const item = document.createElement('li');
+          item.textContent = `${group.group_name || group.group_code} (${group.group_code})`;
+          const meta = document.createElement('small');
+          const roles = Array.isArray(group.roles) && group.roles.length > 0 ? group.roles.join(', ') : 'no roles';
+          meta.textContent = `${group.group_type || 'group'} | members ${group.active_member_count || 0} | ${roles}`;
+          item.append(meta);
+          assignableGroupList.append(item);
+        }
+      }
+
+      accessUserList.replaceChildren();
+      if (users.length === 0) {
+        const item = document.createElement('li');
+        item.textContent = 'No users.';
+        accessUserList.append(item);
+      } else {
+        for (const user of users.slice(0, 40)) {
+          const item = document.createElement('li');
+          item.textContent = user.display_name ? `${user.display_name} | ${user.email}` : user.email;
+          const meta = document.createElement('small');
+          const groups = Array.isArray(user.groups) && user.groups.length > 0 ? user.groups.join(', ') : 'no groups';
+          meta.textContent = `${user.is_active ? 'active' : 'inactive'} | ${groups}`;
+          item.append(meta);
+          accessUserList.append(item);
+        }
+      }
+    }
+
+    async function loadManagement(token = sessionToken()) {
+      const { response, body } = await getJson('/api/v1/admin/access/management', token);
+      if (!response.ok || body.ok !== true) {
+        setManagementStatus(body.message || 'Access management is not available.', 'error');
+        return;
+      }
+      renderManagement(body);
+      setManagementStatus('');
+    }
+
     async function loadConsole() {
       const token = sessionToken();
       if (!token) {
@@ -569,6 +761,7 @@
       renderList('permission-list', body.effective_permissions || [], '');
       renderAudit(body.recent_access_audit_events || []);
       showConsole();
+      await loadManagement(token);
     }
 
     requestButton.addEventListener('click', async () => {
@@ -640,6 +833,77 @@
         clearSession();
         setBusy(false);
         showLogin('Session closed.');
+      }
+    });
+
+    createUserForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const token = sessionToken();
+      if (!token) {
+        showLogin('Session expired. Please request a new code.');
+        return;
+      }
+      const formData = new FormData(createUserForm);
+      const payload = {
+        email: String(formData.get('email') || '').trim().toLowerCase(),
+        display_name: String(formData.get('display_name') || '').trim(),
+      };
+      if (!payload.display_name) {
+        delete payload.display_name;
+      }
+      setManagementBusy(true);
+      setManagementStatus('Creating user...');
+      try {
+        const { response, body } = await postJson('/api/v1/admin/access/users', payload, token);
+        if (!response.ok || body.ok !== true) {
+          setManagementStatus(body.message || 'User creation failed.', 'error');
+          return;
+        }
+        memberEmailInput.value = body.user?.email || payload.email;
+        createUserForm.reset();
+        setManagementStatus(body.user?.created ? 'User created.' : 'User already existed and was confirmed.', 'ok');
+        await loadManagement(token);
+      } catch (error) {
+        setManagementStatus('User creation failed.', 'error');
+      } finally {
+        setManagementBusy(false);
+      }
+    });
+
+    addMemberForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const token = sessionToken();
+      if (!token) {
+        showLogin('Session expired. Please request a new code.');
+        return;
+      }
+      const formData = new FormData(addMemberForm);
+      const payload = {
+        email: String(formData.get('email') || '').trim().toLowerCase(),
+        group_code: String(formData.get('group_code') || '').trim(),
+        reason: String(formData.get('reason') || '').trim(),
+      };
+      if (!payload.reason) {
+        delete payload.reason;
+      }
+      setManagementBusy(true);
+      setManagementStatus('Adding user to group...');
+      try {
+        const { response, body } = await postJson('/api/v1/admin/access/group-members', payload, token);
+        if (!response.ok || body.ok !== true) {
+          setManagementStatus(body.message || 'Group membership update failed.', 'error');
+          return;
+        }
+        addMemberForm.reset();
+        setManagementStatus(
+          body.membership?.created ? 'User added to group.' : 'User was already in this group.',
+          'ok'
+        );
+        await loadManagement(token);
+      } catch (error) {
+        setManagementStatus('Group membership update failed.', 'error');
+      } finally {
+        setManagementBusy(false);
       }
     });
 

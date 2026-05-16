@@ -27,6 +27,9 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - GET /api/v1/admin/access/session
 - POST /api/v1/admin/access/session/revoke
 - GET /api/v1/admin/access/team-links
+- GET /api/v1/admin/access/management
+- POST /api/v1/admin/access/users
+- POST /api/v1/admin/access/group-members
 
 ## Current status
 
@@ -56,6 +59,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - group-based access bootstrap: `tools/bootstrap_group_based_access.php` creates/confirms `owners` and `cpg_team`, assigns `project_owner` through the `owners` group and removes the owner user from the legacy direct bootstrap membership
 - admin access console view: `/admin/access/` displays the current Project Owner session, active groups, roles, effective permissions and recent access audit events, with logout / session revoke only
 - protected team links: `/team/` loads links only through `GET /api/v1/admin/access/team-links` after a session whose user belongs to `owners` or `cpg_team`
+- access-management console slice: Project Owner can read users/groups, create or confirm users, and add users to assignable internal/administration groups through `GET /api/v1/admin/access/management`, `POST /api/v1/admin/access/users` and `POST /api/v1/admin/access/group-members`
 - full login/session logic: not implemented
 
 ## Access-control Phase 2 status
@@ -114,6 +118,19 @@ Members: Project Owner approved members only
 ```
 
 The `/team/` entry page is a protected shell: it does not embed the internal link list in static HTML. The browser loads links from `GET /api/v1/admin/access/team-links` only after group-checked session validation.
+
+The first writable `/admin/access/` management slice is intentionally narrow:
+
+```text
+allowed: create/confirm user records
+allowed: add existing users to assignable internal/administration groups
+not allowed yet: create groups
+not allowed yet: edit group roles
+not allowed yet: revoke membership
+not allowed yet: open group work pages
+```
+
+This keeps user access administration separate from the next product stage, where each working group receives its own functional page and data permissions.
 
 Admin access SMTP settings are server-only environment variables:
 

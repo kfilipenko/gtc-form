@@ -137,6 +137,72 @@ cpg_admin_storage_test_assert(
     in_array('view_admin_console', $sessionSummary['payload']['effective_permissions'] ?? [], true),
     'console summary should include effective permissions'
 );
+$managementSnapshot = cpg_admin_access_management_snapshot_with_storage(
+    $storage,
+    $sessionToken,
+    new DateTimeImmutable('2026-05-15T12:03:00+00:00')
+);
+cpg_admin_storage_test_assert(
+    ($managementSnapshot['status'] ?? null) === 200,
+    'project owner sessions should read access-management snapshot'
+);
+$createdUser = cpg_admin_access_create_user_with_storage(
+    [
+        'email' => 'New.Team.Member@CrewPortGlobal.com',
+        'display_name' => 'New Team Member',
+    ],
+    $storage,
+    $sessionToken,
+    new DateTimeImmutable('2026-05-15T12:03:10+00:00'),
+    $metadata
+);
+cpg_admin_storage_test_assert(
+    ($createdUser['status'] ?? null) === 201,
+    'project owner should create an access user'
+);
+$addMember = cpg_admin_access_add_group_member_with_storage(
+    [
+        'email' => 'new.team.member@crewportglobal.com',
+        'group_code' => 'cpg_team',
+        'reason' => 'storage test membership',
+    ],
+    $storage,
+    $sessionToken,
+    new DateTimeImmutable('2026-05-15T12:03:20+00:00'),
+    $metadata
+);
+cpg_admin_storage_test_assert(
+    ($addMember['status'] ?? null) === 201,
+    'project owner should add a user to an assignable group'
+);
+$repeatMember = cpg_admin_access_add_group_member_with_storage(
+    [
+        'email' => 'new.team.member@crewportglobal.com',
+        'group_code' => 'cpg_team',
+    ],
+    $storage,
+    $sessionToken,
+    new DateTimeImmutable('2026-05-15T12:03:30+00:00'),
+    $metadata
+);
+cpg_admin_storage_test_assert(
+    ($repeatMember['status'] ?? null) === 200 && ($repeatMember['payload']['membership']['created'] ?? true) === false,
+    'repeat group membership assignment should be idempotent'
+);
+$unassignable = cpg_admin_access_add_group_member_with_storage(
+    [
+        'email' => 'new.team.member@crewportglobal.com',
+        'group_code' => 'registered_users',
+    ],
+    $storage,
+    $sessionToken,
+    new DateTimeImmutable('2026-05-15T12:03:40+00:00'),
+    $metadata
+);
+cpg_admin_storage_test_assert(
+    ($unassignable['status'] ?? null) === 403,
+    'public/default groups should not be assignable through the admin console'
+);
 $revokeSession = cpg_admin_access_revoke_session_with_storage(
     $storage,
     $sessionToken,

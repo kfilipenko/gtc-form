@@ -219,6 +219,10 @@ cpg_admin_flow_test_assert(
     cpg_admin_access_team_links_with_storage($teamStorage, $teamSessionToken, new DateTimeImmutable('2026-05-15T12:02:00+00:00'))['status'] === 200,
     'cpg_team group sessions should open protected team links'
 );
+cpg_admin_flow_test_assert(
+    cpg_admin_access_management_snapshot_with_storage($teamStorage, $teamSessionToken, new DateTimeImmutable('2026-05-15T12:02:00+00:00'))['status'] === 403,
+    'cpg_team group sessions must not manage users or memberships'
+);
 
 $revoked = cpg_admin_access_revoke_session_with_storage(
     $storage,

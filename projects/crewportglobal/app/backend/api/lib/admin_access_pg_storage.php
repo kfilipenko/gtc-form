@@ -126,6 +126,204 @@ final class CpgAdminAccessPgStorage implements CpgAdminAccessStorage {
         ];
     }
 
+    public function readAccessManagementSnapshot(): array {
+        $groups = $this->queryRows(
+            'SELECT g.group_id::text AS group_id,
+                    g.group_code,
+                    g.group_name,
+                    g.group_type,
+                    g.description,
+                    g.is_active,
+                    COALESCE(array_agg(DISTINCT r.role_code) FILTER (WHERE r.role_code IS NOT NULL), ARRAY[]::text[]) AS roles,
+                    COUNT(DISTINCT gm.user_id) FILTER (WHERE gm.membership_state = $1) AS active_member_count
+             FROM crewportglobal.access_groups g
+             LEFT JOIN crewportglobal.access_group_roles gr
+               ON gr.group_id = g.group_id
+              AND gr.assignment_state = $1
+             LEFT JOIN crewportglobal.access_roles r
+               ON r.role_id = gr.role_id
+              AND r.is_active = TRUE
+             LEFT JOIN crewportglobal.access_group_members gm
+               ON gm.group_id = g.group_id
+              AND gm.membership_state = $1
+             GROUP BY g.group_id, g.group_code, g.group_name, g.group_type, g.description, g.is_active
+             ORDER BY g.group_type, g.group_code',
+            ['active']
+        );
+
+        $users = $this->queryRows(
+            'SELECT u.user_id::text AS user_id,
+                    lower(u.email) AS email,
+                    u.display_name,
+                    u.registration_status,
+                    u.is_active,
+                    u.created_at::text AS created_at,
+                    u.updated_at::text AS updated_at,
+                    COALESCE(array_agg(DISTINCT g.group_code) FILTER (WHERE g.group_code IS NOT NULL), ARRAY[]::text[]) AS groups
+             FROM crewportglobal.users u
+             LEFT JOIN crewportglobal.access_group_members gm
+               ON gm.user_id = u.user_id
+              AND gm.membership_state = $1
+             LEFT JOIN crewportglobal.access_groups g
+               ON g.group_id = gm.group_id
+              AND g.is_active = TRUE
+             GROUP BY u.user_id, u.email, u.display_name, u.registration_status, u.is_active, u.created_at, u.updated_at
+             ORDER BY u.created_at DESC
+             LIMIT 200',
+            ['active']
+        );
+
+        return [
+            'groups' => array_map(
+                static fn (array $row): array => [
+                    'group_id' => (string) $row['group_id'],
+                    'group_code' => (string) $row['group_code'],
+                    'group_name' => (string) $row['group_name'],
+                    'group_type' => (string) $row['group_type'],
+                    'description' => cpg_admin_access_pg_optional_string($row['description'] ?? null),
+                    'is_active' => cpg_admin_access_storage_normalize_bool($row['is_active'] ?? true, true),
+                    'roles' => cpg_admin_access_pg_text_list($row['roles'] ?? []),
+                    'active_member_count' => (int) ($row['active_member_count'] ?? 0),
+                ],
+                $groups
+            ),
+            'users' => array_map(
+                static fn (array $row): array => [
+                    'user_id' => (string) $row['user_id'],
+                    'email' => (string) $row['email'],
+                    'display_name' => cpg_admin_access_pg_optional_string($row['display_name'] ?? null),
+                    'registration_status' => (string) ($row['registration_status'] ?? 'draft'),
+                    'is_active' => cpg_admin_access_storage_normalize_bool($row['is_active'] ?? true, true),
+                    'groups' => cpg_admin_access_pg_text_list($row['groups'] ?? []),
+                    'created_at' => (string) ($row['created_at'] ?? ''),
+                    'updated_at' => (string) ($row['updated_at'] ?? ''),
+                ],
+                $users
+            ),
+        ];
+    }
+
+    public function createAccessUser(array $record): array {
+        $row = $this->firstRow(
+            'INSERT INTO crewportglobal.users (email, display_name, registration_status, is_active, created_at, updated_at)
+             VALUES ($1, $2, $3, TRUE, now(), now())
+             ON CONFLICT ((lower(email)))
+             DO UPDATE SET
+               display_name = COALESCE(EXCLUDED.display_name, crewportglobal.users.display_name),
+               updated_at = now()
+             RETURNING user_id::text AS user_id,
+                       lower(email) AS email,
+                       display_name,
+                       registration_status,
+                       is_active,
+                       created_at::text AS created_at,
+                       updated_at::text AS updated_at,
+                       (xmax = 0) AS created',
+            [
+                cpg_admin_access_pg_required_string($record, 'email'),
+                cpg_admin_access_pg_optional_string($record['display_name'] ?? null),
+                (string) ($record['registration_status'] ?? 'draft'),
+            ]
+        );
+
+        if ($row === null) {
+            return [];
+        }
+
+        return [
+            'user_id' => (string) $row['user_id'],
+            'email' => (string) $row['email'],
+            'display_name' => cpg_admin_access_pg_optional_string($row['display_name'] ?? null),
+            'registration_status' => (string) ($row['registration_status'] ?? 'draft'),
+            'is_active' => cpg_admin_access_storage_normalize_bool($row['is_active'] ?? true, true),
+            'created_at' => (string) ($row['created_at'] ?? ''),
+            'updated_at' => (string) ($row['updated_at'] ?? ''),
+            'created' => cpg_admin_access_storage_normalize_bool($row['created'] ?? false, false),
+        ];
+    }
+
+    public function addAccessGroupMember(array $record): array {
+        $row = $this->firstRow(
+            'WITH selected_user AS (
+               SELECT user_id, lower(email) AS email
+               FROM crewportglobal.users
+               WHERE lower(email) = lower($1)
+                 AND is_active = TRUE
+               LIMIT 1
+             ),
+             selected_group AS (
+               SELECT group_id, group_code
+               FROM crewportglobal.access_groups
+               WHERE group_code = $2
+                 AND is_active = TRUE
+               LIMIT 1
+             ),
+             existing AS (
+               SELECT gm.group_member_id,
+                      gm.user_id,
+                      su.email,
+                      gm.group_id,
+                      sg.group_code,
+                      gm.membership_state
+               FROM crewportglobal.access_group_members gm
+               JOIN selected_user su ON su.user_id = gm.user_id
+               JOIN selected_group sg ON sg.group_id = gm.group_id
+               WHERE gm.membership_state = $5
+               LIMIT 1
+             ),
+             inserted AS (
+               INSERT INTO crewportglobal.access_group_members
+                 (group_id, user_id, membership_state, granted_by_user_id, granted_at, reason, created_at, updated_at)
+               SELECT sg.group_id, su.user_id, $5, $3::uuid, now(), $4, now(), now()
+               FROM selected_group sg
+               CROSS JOIN selected_user su
+               WHERE NOT EXISTS (SELECT 1 FROM existing)
+               RETURNING group_member_id, user_id, group_id, membership_state
+             )
+             SELECT i.group_member_id::text AS group_member_id,
+                    i.user_id::text AS user_id,
+                    su.email,
+                    i.group_id::text AS group_id,
+                    sg.group_code,
+                    i.membership_state,
+                    TRUE AS created
+             FROM inserted i
+             JOIN selected_user su ON su.user_id = i.user_id
+             JOIN selected_group sg ON sg.group_id = i.group_id
+             UNION ALL
+             SELECT e.group_member_id::text AS group_member_id,
+                    e.user_id::text AS user_id,
+                    e.email,
+                    e.group_id::text AS group_id,
+                    e.group_code,
+                    e.membership_state,
+                    FALSE AS created
+             FROM existing e
+             LIMIT 1',
+            [
+                cpg_admin_access_pg_required_string($record, 'email'),
+                cpg_admin_access_pg_required_string($record, 'group_code'),
+                cpg_admin_access_pg_required_string($record, 'granted_by_user_id'),
+                cpg_admin_access_pg_optional_string($record['reason'] ?? null),
+                'active',
+            ]
+        );
+
+        if ($row === null) {
+            return [];
+        }
+
+        return [
+            'group_member_id' => (string) $row['group_member_id'],
+            'user_id' => (string) $row['user_id'],
+            'email' => (string) $row['email'],
+            'group_id' => (string) $row['group_id'],
+            'group_code' => (string) $row['group_code'],
+            'membership_state' => (string) $row['membership_state'],
+            'created' => cpg_admin_access_storage_normalize_bool($row['created'] ?? false, false),
+        ];
+    }
+
     public function storeAdminEmailCode(array $record): array {
         $row = $this->firstRow(
             'INSERT INTO crewportglobal.admin_email_codes

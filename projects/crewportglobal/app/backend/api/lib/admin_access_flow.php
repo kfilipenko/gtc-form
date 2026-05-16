@@ -12,6 +12,16 @@ const CPG_ADMIN_ACCESS_OWNER_GROUP = 'owners';
 const CPG_ADMIN_ACCESS_PLATFORM_ADMIN_GROUP = 'platform_administrators';
 const CPG_ADMIN_ACCESS_TEAM_GROUP = 'cpg_team';
 const CPG_ADMIN_ACCESS_REQUIRED_PERMISSION = 'view_admin_console';
+const CPG_ADMIN_ACCESS_MANAGE_GROUPS_PERMISSION = 'manage_user_groups';
+const CPG_ADMIN_ACCESS_ASSIGNABLE_GROUP_TYPES = ['internal', 'administration'];
+const CPG_ADMIN_ACCESS_UNASSIGNABLE_GROUPS = [
+    'public_visitors',
+    'registered_users',
+    'registered_seafarers',
+    'registered_employers',
+    'platform_owners',
+    'ai_assistants',
+];
 const CPG_ADMIN_ACCESS_TEAM_LINKS = [
     [
         'label' => 'CrewPortGlobal public site',
@@ -92,6 +102,41 @@ function cpg_admin_access_normalize_session_token(mixed $token): ?string {
         : null;
 }
 
+function cpg_admin_access_normalize_display_name(mixed $value): ?string {
+    if (!is_string($value)) {
+        return null;
+    }
+
+    $normalized = trim(preg_replace('/\s+/', ' ', $value) ?? $value);
+    if ($normalized === '') {
+        return null;
+    }
+
+    return mb_substr($normalized, 0, 160);
+}
+
+function cpg_admin_access_normalize_group_code(mixed $value): ?string {
+    if (!is_string($value)) {
+        return null;
+    }
+
+    $normalized = strtolower(trim($value));
+    return preg_match('/^[a-z0-9_]{2,80}$/', $normalized) === 1 ? $normalized : null;
+}
+
+function cpg_admin_access_normalize_reason(mixed $value): ?string {
+    if (!is_string($value)) {
+        return null;
+    }
+
+    $normalized = trim(preg_replace('/\s+/', ' ', $value) ?? $value);
+    if ($normalized === '') {
+        return null;
+    }
+
+    return mb_substr($normalized, 0, 500);
+}
+
 function cpg_admin_access_string_list(mixed $value): array {
     if (is_array($value)) {
         return array_values(array_filter(array_map(
@@ -168,6 +213,90 @@ function cpg_admin_access_user_can_view_team_links(array $user): bool {
 function cpg_admin_access_user_can_receive_protected_code(array $user): bool {
     return cpg_admin_access_user_can_receive_admin_code($user)
         || cpg_admin_access_user_can_view_team_links($user);
+}
+
+function cpg_admin_access_user_can_manage_group_members(array $user): bool {
+    if (cpg_admin_access_user_id($user) === null || !cpg_admin_access_user_is_active($user)) {
+        return false;
+    }
+
+    $groups = cpg_admin_access_string_list($user['groups'] ?? ($user['group_codes'] ?? []));
+    if (!in_array(CPG_ADMIN_ACCESS_OWNER_GROUP, $groups, true)) {
+        return false;
+    }
+
+    $permissions = cpg_admin_access_string_list($user['permissions'] ?? []);
+    if (in_array(CPG_ADMIN_ACCESS_MANAGE_GROUPS_PERMISSION, $permissions, true)) {
+        return true;
+    }
+
+    $roles = cpg_admin_access_string_list($user['roles'] ?? ($user['role_codes'] ?? []));
+    return in_array('project_owner', $roles, true);
+}
+
+function cpg_admin_access_group_is_assignable(array $group): bool {
+    $groupCode = cpg_admin_access_normalize_group_code($group['group_code'] ?? null);
+    if ($groupCode === null || in_array($groupCode, CPG_ADMIN_ACCESS_UNASSIGNABLE_GROUPS, true)) {
+        return false;
+    }
+
+    if (!cpg_admin_access_storage_normalize_bool($group['is_active'] ?? true, true)) {
+        return false;
+    }
+
+    $groupType = strtolower(trim((string) ($group['group_type'] ?? '')));
+    return in_array($groupType, CPG_ADMIN_ACCESS_ASSIGNABLE_GROUP_TYPES, true);
+}
+
+function cpg_admin_access_management_session(
+    CpgAdminAccessStorage $storage,
+    mixed $sessionToken,
+    ?DateTimeImmutable $now = null
+): array {
+    $normalizedToken = cpg_admin_access_normalize_session_token($sessionToken);
+    if ($normalizedToken === null) {
+        return [
+            null,
+            cpg_admin_access_response(401, [
+                'ok' => false,
+                'error' => 'admin_session_required',
+                'message' => 'Admin session is required',
+            ]),
+        ];
+    }
+
+    $base = $now ?? cpg_admin_now();
+    $session = $storage->findActiveAdminSession($normalizedToken, $base);
+    if (!is_array($session)) {
+        return [
+            null,
+            cpg_admin_access_response(401, [
+                'ok' => false,
+                'error' => 'admin_session_invalid',
+                'message' => 'Admin session is invalid or expired',
+            ]),
+        ];
+    }
+
+    if (!cpg_admin_access_user_can_manage_group_members($session)) {
+        return [
+            null,
+            cpg_admin_access_response(403, [
+                'ok' => false,
+                'error' => 'manage_user_groups_required',
+                'message' => 'Managing users and group memberships requires owners group membership',
+            ]),
+        ];
+    }
+
+    return [$session, null];
+}
+
+function cpg_admin_access_assignable_groups(array $snapshot): array {
+    return array_values(array_filter(
+        is_array($snapshot['groups'] ?? null) ? $snapshot['groups'] : [],
+        'cpg_admin_access_group_is_assignable'
+    ));
 }
 
 function cpg_admin_access_request_code_skeleton(
@@ -581,6 +710,197 @@ function cpg_admin_access_session_summary_with_storage(
         'effective_permissions' => $permissions,
         'recent_access_audit_events' => $storage->readRecentAccessAuditEvents($auditLimit),
         'notice' => 'Group and role management will be implemented in the next phase.',
+    ]);
+}
+
+function cpg_admin_access_management_snapshot_with_storage(
+    CpgAdminAccessStorage $storage,
+    mixed $sessionToken,
+    ?DateTimeImmutable $now = null
+): array {
+    [$session, $error] = cpg_admin_access_management_session($storage, $sessionToken, $now);
+    if ($error !== null) {
+        return $error;
+    }
+
+    $snapshot = $storage->readAccessManagementSnapshot();
+    $assignableGroups = cpg_admin_access_assignable_groups($snapshot);
+
+    return cpg_admin_access_response(200, [
+        'ok' => true,
+        'current_user' => [
+            'user_id' => (string) ($session['user_id'] ?? ''),
+            'email' => (string) ($session['email'] ?? ''),
+            'groups' => cpg_admin_access_string_list($session['groups'] ?? []),
+        ],
+        'users' => is_array($snapshot['users'] ?? null) ? $snapshot['users'] : [],
+        'groups' => is_array($snapshot['groups'] ?? null) ? $snapshot['groups'] : [],
+        'assignable_groups' => $assignableGroups,
+        'allowed_actions' => [
+            'create_user',
+            'add_user_to_group',
+        ],
+        'notice' => 'This phase allows user creation and group membership assignment only.',
+    ]);
+}
+
+function cpg_admin_access_create_user_with_storage(
+    array $body,
+    CpgAdminAccessStorage $storage,
+    mixed $sessionToken,
+    ?DateTimeImmutable $now = null,
+    array $metadata = []
+): array {
+    [$session, $error] = cpg_admin_access_management_session($storage, $sessionToken, $now);
+    if ($error !== null) {
+        return $error;
+    }
+
+    $email = cpg_admin_access_normalize_email($body['email'] ?? null);
+    if ($email === null) {
+        return cpg_admin_access_response(400, [
+            'ok' => false,
+            'error' => 'invalid_user_email',
+            'message' => 'A valid user email is required',
+        ]);
+    }
+
+    $displayName = cpg_admin_access_normalize_display_name($body['display_name'] ?? $body['name'] ?? null);
+    $base = $now ?? cpg_admin_now();
+    $user = $storage->createAccessUser([
+        'email' => $email,
+        'display_name' => $displayName,
+        'registration_status' => 'draft',
+    ]);
+    if ($user === []) {
+        return cpg_admin_access_response(500, [
+            'ok' => false,
+            'error' => 'admin_user_create_failed',
+            'message' => 'Unable to create or confirm user',
+        ]);
+    }
+
+    $storage->writeAdminAccessAuditEvent([
+        'actor_user_id' => (string) ($session['user_id'] ?? ''),
+        'event_type' => ($user['created'] ?? false) ? 'admin_user_created' : 'admin_user_confirmed',
+        'target_user_id' => (string) ($user['user_id'] ?? ''),
+        'new_value' => [
+            'email' => cpg_admin_mask_email($email),
+            'display_name_present' => $displayName !== null,
+            'created' => (bool) ($user['created'] ?? false),
+        ],
+        'reason' => cpg_admin_access_normalize_reason($body['reason'] ?? null),
+        'ip_address' => $metadata['ip_address'] ?? null,
+        'user_agent' => $metadata['user_agent'] ?? null,
+        'created_at' => cpg_admin_format_time($base),
+    ]);
+
+    return cpg_admin_access_response(($user['created'] ?? false) ? 201 : 200, [
+        'ok' => true,
+        'user' => [
+            'user_id' => (string) ($user['user_id'] ?? ''),
+            'email' => (string) ($user['email'] ?? $email),
+            'display_name' => $user['display_name'] ?? null,
+            'registration_status' => (string) ($user['registration_status'] ?? 'draft'),
+            'is_active' => cpg_admin_access_storage_normalize_bool($user['is_active'] ?? true, true),
+            'created' => (bool) ($user['created'] ?? false),
+        ],
+    ]);
+}
+
+function cpg_admin_access_add_group_member_with_storage(
+    array $body,
+    CpgAdminAccessStorage $storage,
+    mixed $sessionToken,
+    ?DateTimeImmutable $now = null,
+    array $metadata = []
+): array {
+    [$session, $error] = cpg_admin_access_management_session($storage, $sessionToken, $now);
+    if ($error !== null) {
+        return $error;
+    }
+
+    $email = cpg_admin_access_normalize_email($body['email'] ?? null);
+    if ($email === null) {
+        return cpg_admin_access_response(400, [
+            'ok' => false,
+            'error' => 'invalid_user_email',
+            'message' => 'A valid user email is required',
+        ]);
+    }
+
+    $groupCode = cpg_admin_access_normalize_group_code($body['group_code'] ?? null);
+    if ($groupCode === null) {
+        return cpg_admin_access_response(400, [
+            'ok' => false,
+            'error' => 'invalid_group_code',
+            'message' => 'A valid group_code is required',
+        ]);
+    }
+
+    $snapshot = $storage->readAccessManagementSnapshot();
+    $assignableGroups = cpg_admin_access_assignable_groups($snapshot);
+    $targetGroup = null;
+    foreach ($assignableGroups as $group) {
+        if (($group['group_code'] ?? null) === $groupCode) {
+            $targetGroup = $group;
+            break;
+        }
+    }
+
+    if ($targetGroup === null) {
+        return cpg_admin_access_response(403, [
+            'ok' => false,
+            'error' => 'group_not_assignable',
+            'message' => 'This group cannot be assigned through the current console phase',
+        ]);
+    }
+
+    $reason = cpg_admin_access_normalize_reason($body['reason'] ?? null)
+        ?? 'Project Owner group membership assignment.';
+    $base = $now ?? cpg_admin_now();
+    $membership = $storage->addAccessGroupMember([
+        'email' => $email,
+        'group_code' => $groupCode,
+        'granted_by_user_id' => (string) ($session['user_id'] ?? ''),
+        'reason' => $reason,
+    ]);
+
+    if ($membership === []) {
+        return cpg_admin_access_response(404, [
+            'ok' => false,
+            'error' => 'user_or_group_not_found',
+            'message' => 'User or group was not found',
+        ]);
+    }
+
+    $storage->writeAdminAccessAuditEvent([
+        'actor_user_id' => (string) ($session['user_id'] ?? ''),
+        'event_type' => ($membership['created'] ?? false) ? 'admin_group_member_added' : 'admin_group_member_confirmed',
+        'target_user_id' => (string) ($membership['user_id'] ?? ''),
+        'target_group_id' => (string) ($membership['group_id'] ?? ''),
+        'new_value' => [
+            'email' => cpg_admin_mask_email($email),
+            'group_code' => $groupCode,
+            'created' => (bool) ($membership['created'] ?? false),
+        ],
+        'reason' => $reason,
+        'ip_address' => $metadata['ip_address'] ?? null,
+        'user_agent' => $metadata['user_agent'] ?? null,
+        'created_at' => cpg_admin_format_time($base),
+    ]);
+
+    return cpg_admin_access_response(($membership['created'] ?? false) ? 201 : 200, [
+        'ok' => true,
+        'membership' => [
+            'group_member_id' => (string) ($membership['group_member_id'] ?? ''),
+            'user_id' => (string) ($membership['user_id'] ?? ''),
+            'email' => (string) ($membership['email'] ?? $email),
+            'group_id' => (string) ($membership['group_id'] ?? ''),
+            'group_code' => (string) ($membership['group_code'] ?? $groupCode),
+            'membership_state' => (string) ($membership['membership_state'] ?? 'active'),
+            'created' => (bool) ($membership['created'] ?? false),
+        ],
     ]);
 }
 

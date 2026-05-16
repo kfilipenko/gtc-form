@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.84
+- Version: 0.85
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -188,6 +188,7 @@ docs/crewportglobal/
   104_cpg_access_017_project_owner_console_view_report.md
   105_cpg_access_018_admin_console_contrast_and_owner_email_lock_report.md
   106_cpg_access_019_group_based_access_control_and_team_entry_page_report.md
+  107_cpg_access_020_project_owner_user_group_membership_management_report.md
 ```
 
 ### 3.3 Product governance control
@@ -269,6 +270,8 @@ Document 104 records the first minimal `/admin/access/` Project Owner console vi
 Document 105 records the `/admin/access/` contrast/readability correction and the temporary bootstrap owner e-mail lock used during the first live console test. The contrast correction remains active; the e-mail lock was superseded by document 106 when Issue #10 moved normal access to group membership.
 
 Document 106 records Issue #10 group-based access correction: creation/confirmation of the `owners` and `cpg_team` groups, moving Project Owner access to `owners -> project_owner`, removing the normal direct personal-email rule, adding the protected `/team/` entry page and protecting internal team links through group-checked sessions.
+
+Document 107 records the first writable Project Owner access-management console slice, including user creation/confirmation, adding users to assignable internal/administration groups, management API endpoints, audit events and the boundary that group work pages are a later stage.
 
 Mandatory control statement:
 
@@ -373,6 +376,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.85 | 2026-05-16 | GTC IT / AI Assistant | Added document 107 as CPG-ACCESS-020 implementation report for the first writable Project Owner user and group membership management slice in /admin/access/ |
 | 0.84 | 2026-05-16 | GTC IT / AI Assistant | Added document 106 as CPG-ACCESS-019 implementation report for Issue #10 group-based owner/team access, owners and cpg_team groups, protected /team/ entry page and removal of direct personal-email access as the normal rule |
 | 0.83 | 2026-05-15 | GTC IT / AI Assistant | Added document 105 as CPG-ACCESS-018 correction report for /admin/access/ contrast/readability fixes and bootstrap Project Owner e-mail lock to prevent browser-altered non-owner verification attempts |
 | 0.82 | 2026-05-15 | GTC IT / AI Assistant | Added document 104 as CPG-ACCESS-017 implementation report for the first read-only Project Owner console view on /admin/access/ with active session summary, permissions, audit events and logout/revoke session |

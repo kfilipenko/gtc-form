@@ -120,6 +120,45 @@ $recorder = new CpgAdminAccessPgQueryRecorder([
         'target_role_code' => 'project_owner',
         'target_permission_code' => null,
     ]],
+    [[
+        'group_id' => '66666666-6666-4666-8666-666666666666',
+        'group_code' => 'owners',
+        'group_name' => 'Owners',
+        'group_type' => 'administration',
+        'description' => 'Owner group',
+        'is_active' => 't',
+        'roles' => '{project_owner}',
+        'active_member_count' => 1,
+    ]],
+    [[
+        'user_id' => $ownerUserId,
+        'email' => 'owner@crewportglobal.com',
+        'display_name' => 'Owner',
+        'registration_status' => 'draft',
+        'is_active' => 't',
+        'created_at' => '2026-05-15 12:00:00+00',
+        'updated_at' => '2026-05-15 12:00:00+00',
+        'groups' => '{owners}',
+    ]],
+    [[
+        'user_id' => '77777777-7777-4777-8777-777777777777',
+        'email' => 'new.user@crewportglobal.com',
+        'display_name' => 'New User',
+        'registration_status' => 'draft',
+        'is_active' => 't',
+        'created_at' => '2026-05-15 12:12:00+00',
+        'updated_at' => '2026-05-15 12:12:00+00',
+        'created' => 't',
+    ]],
+    [[
+        'group_member_id' => '88888888-8888-4888-8888-888888888888',
+        'user_id' => '77777777-7777-4777-8777-777777777777',
+        'email' => 'new.user@crewportglobal.com',
+        'group_id' => '66666666-6666-4666-8666-666666666666',
+        'group_code' => 'owners',
+        'membership_state' => 'active',
+        'created' => 't',
+    ]],
 ]);
 
 $storage = new CpgAdminAccessPgStorage($recorder);
@@ -224,6 +263,35 @@ $readAuditCall = $recorder->calls[9];
 cpg_admin_pg_storage_test_assert(($auditEvents[0]['event_type'] ?? null) === 'project_owner_bootstrap_completed', 'recent audit query should return event rows');
 cpg_admin_pg_storage_test_assert(str_contains($readAuditCall['sql'], 'ORDER BY e.created_at DESC'), 'recent audit SQL should order newest first');
 cpg_admin_pg_storage_test_assert(str_contains($readAuditCall['sql'], 'LIMIT $1::int'), 'recent audit SQL should use a bounded limit parameter');
-cpg_admin_pg_storage_test_assert(count($recorder->calls) === 10, 'PG storage test should cover all adapter methods');
+
+$managementSnapshot = $storage->readAccessManagementSnapshot();
+$groupsCall = $recorder->calls[10];
+$usersCall = $recorder->calls[11];
+cpg_admin_pg_storage_test_assert(($managementSnapshot['groups'][0]['group_code'] ?? null) === 'owners', 'management snapshot should include groups');
+cpg_admin_pg_storage_test_assert(($managementSnapshot['users'][0]['email'] ?? null) === 'owner@crewportglobal.com', 'management snapshot should include users');
+cpg_admin_pg_storage_test_assert(str_contains($groupsCall['sql'], 'FROM crewportglobal.access_groups'), 'management group query should read access_groups');
+cpg_admin_pg_storage_test_assert(str_contains($usersCall['sql'], 'FROM crewportglobal.users'), 'management user query should read users');
+
+$createdAccessUser = $storage->createAccessUser([
+    'email' => 'new.user@crewportglobal.com',
+    'display_name' => 'New User',
+]);
+$createAccessUserCall = $recorder->calls[12];
+cpg_admin_pg_storage_test_assert(($createdAccessUser['created'] ?? false) === true, 'create access user should parse created flag');
+cpg_admin_pg_storage_test_assert(str_contains($createAccessUserCall['sql'], 'ON CONFLICT ((lower(email)))'), 'create access user should upsert on normalized email');
+cpg_admin_pg_storage_test_assert(!str_contains($createAccessUserCall['sql'], 'new.user@crewportglobal.com'), 'create access user SQL must not interpolate email');
+
+$member = $storage->addAccessGroupMember([
+    'email' => 'new.user@crewportglobal.com',
+    'group_code' => 'owners',
+    'granted_by_user_id' => $ownerUserId,
+    'reason' => 'static query test',
+]);
+$memberCall = $recorder->calls[13];
+cpg_admin_pg_storage_test_assert(($member['created'] ?? false) === true, 'add access group member should parse created flag');
+cpg_admin_pg_storage_test_assert(str_contains($memberCall['sql'], 'INSERT INTO crewportglobal.access_group_members'), 'add member SQL should insert access_group_members');
+cpg_admin_pg_storage_test_assert(str_contains($memberCall['sql'], 'NOT EXISTS (SELECT 1 FROM existing)'), 'add member SQL should be idempotent');
+cpg_admin_pg_storage_test_assert(!str_contains($memberCall['sql'], 'new.user@crewportglobal.com'), 'add member SQL must not interpolate email');
+cpg_admin_pg_storage_test_assert(count($recorder->calls) === 14, 'PG storage test should cover all adapter methods');
 
 fwrite(STDOUT, "Admin access PostgreSQL storage adapter tests passed\n");

@@ -236,6 +236,53 @@ function handle_get_admin_access_team_links(): void {
     ));
 }
 
+function handle_get_admin_access_management(): void {
+    admin_access_load_runtime_env();
+    if (!admin_access_public_flow_enabled()) {
+        admin_access_api_response(cpg_admin_access_disabled_response());
+    }
+
+    $storage = admin_access_storage_or_response();
+    admin_access_api_response(cpg_admin_access_management_snapshot_with_storage(
+        $storage,
+        admin_access_session_token()
+    ));
+}
+
+function handle_post_admin_access_user(): void {
+    admin_access_load_runtime_env();
+    if (!admin_access_public_flow_enabled()) {
+        admin_access_api_response(cpg_admin_access_disabled_response());
+    }
+
+    $body = api_decode_json_body();
+    $storage = admin_access_storage_or_response();
+    admin_access_api_response(cpg_admin_access_create_user_with_storage(
+        $body,
+        $storage,
+        admin_access_session_token(),
+        null,
+        admin_access_request_metadata()
+    ));
+}
+
+function handle_post_admin_access_group_member(): void {
+    admin_access_load_runtime_env();
+    if (!admin_access_public_flow_enabled()) {
+        admin_access_api_response(cpg_admin_access_disabled_response());
+    }
+
+    $body = api_decode_json_body();
+    $storage = admin_access_storage_or_response();
+    admin_access_api_response(cpg_admin_access_add_group_member_with_storage(
+        $body,
+        $storage,
+        admin_access_session_token(),
+        null,
+        admin_access_request_metadata()
+    ));
+}
+
 function read_role_for_user(string $userId): ?string {
     $result = api_query(
         'SELECT role FROM crewportglobal.user_roles WHERE user_id = $1 ORDER BY created_at ASC LIMIT 1',
@@ -2627,6 +2674,30 @@ if ($path === '/admin/access/team-links') {
     }
     header('Allow: GET');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if ($path === '/admin/access/management') {
+    if ($method === 'GET') {
+        handle_get_admin_access_management();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if ($path === '/admin/access/users') {
+    if ($method === 'POST') {
+        handle_post_admin_access_user();
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if ($path === '/admin/access/group-members') {
+    if ($method === 'POST') {
+        handle_post_admin_access_group_member();
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
 }
 
 if ($method === 'POST' && $path === '/registration/drafts') {
