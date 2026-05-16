@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.86
+- Version: 0.87
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -190,6 +190,9 @@ docs/crewportglobal/
   106_cpg_access_019_group_based_access_control_and_team_entry_page_report.md
   107_cpg_access_020_project_owner_user_group_membership_management_report.md
   108_cpg_access_021_admin_audit_panel_collapse_report.md
+  business_processes/
+    00_business_process_register.md
+    01_business_declaration_client_lifecycle_and_operating_model.md
 ```
 
 ### 3.3 Product governance control
@@ -275,6 +278,8 @@ Document 106 records Issue #10 group-based access correction: creation/confirmat
 Document 107 records the first writable Project Owner access-management console slice, including user creation/confirmation, adding users to assignable internal/administration groups, management API endpoints, audit events and the boundary that group work pages are a later stage.
 
 Document 108 records the `/admin/access/` usability correction that makes the audit panel collapsed by default while preserving click-to-open access to recent audit events, existing audit data loading and all admin access-control boundaries.
+
+Business Process Register 0.1 starts a separate CrewPortGlobal business-process documentation block for CPG-BIZ documents. BP-001 records Issue #11 / CPG-BIZ-018: employer-side primary payer declaration, no-fee seafarer boundary, client lifecycle, `Tasks` and `My clients` working lists, SLA color states, client-card automation and the six working-group operating model.
 
 Mandatory control statement:
 
@@ -379,6 +384,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.87 | 2026-05-16 | GTC IT / AI Assistant | Added separate business-process documentation block with its own register and BP-001 for Issue #11 / CPG-BIZ-018 business declaration, client lifecycle, Tasks/My clients, SLA colors and working-group operating model |
 | 0.86 | 2026-05-16 | GTC IT / AI Assistant | Added document 108 as CPG-ACCESS-021 implementation report for the /admin/access/ audit panel collapsed-by-default UI correction |
 | 0.85 | 2026-05-16 | GTC IT / AI Assistant | Added document 107 as CPG-ACCESS-020 implementation report for the first writable Project Owner user and group membership management slice in /admin/access/ |
 | 0.84 | 2026-05-16 | GTC IT / AI Assistant | Added document 106 as CPG-ACCESS-019 implementation report for Issue #10 group-based owner/team access, owners and cpg_team groups, protected /team/ entry page and removal of direct personal-email access as the normal rule |
