@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.82
+- Version: 0.83
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -186,6 +186,7 @@ docs/crewportglobal/
   102_cpg_access_015_admin_email_delivery_smtp_smoke_test_report.md
   103_cpg_access_016_project_owner_bootstrap_and_admin_access_activation_report.md
   104_cpg_access_017_project_owner_console_view_report.md
+  105_cpg_access_018_admin_console_contrast_and_owner_email_lock_report.md
 ```
 
 ### 3.3 Product governance control
@@ -263,6 +264,8 @@ Document 102 records the controlled server-side SMTP smoke-test for admin email-
 Document 103 records the controlled GTC1 bootstrap of `kfilipenko@gtchain.io` as the first CrewPortGlobal Project Owner, including backup before migration 006, access-control migration application, `platform_owners -> project_owner` membership, audit event creation, protected admin access runtime flags, email-code delivery to the owner address and `/admin/access/` live entry verification.
 
 Document 104 records the first minimal `/admin/access/` Project Owner console view, including active admin-session summary, read-only display of current user, groups, roles, effective permissions and recent access audit events, plus logout / session revoke without user, group or role editing.
+
+Document 105 records the `/admin/access/` contrast/readability correction and bootstrap owner e-mail lock, ensuring the page uses high-contrast admin-specific styles and that request/verify actions always use the approved Project Owner address `kfilipenko@gtchain.io` during the bootstrap phase.
 
 Mandatory control statement:
 
@@ -367,6 +370,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.83 | 2026-05-15 | GTC IT / AI Assistant | Added document 105 as CPG-ACCESS-018 correction report for /admin/access/ contrast/readability fixes and bootstrap Project Owner e-mail lock to prevent browser-altered non-owner verification attempts |
 | 0.82 | 2026-05-15 | GTC IT / AI Assistant | Added document 104 as CPG-ACCESS-017 implementation report for the first read-only Project Owner console view on /admin/access/ with active session summary, permissions, audit events and logout/revoke session |
 | 0.81 | 2026-05-15 | GTC IT / AI Assistant | Added document 103 as CPG-ACCESS-016 implementation report for applying access-control migration 006 after backup, bootstrapping kfilipenko@gtchain.io as first Project Owner, enabling protected admin access email-code runtime and verifying /admin/access/ |
 | 0.80 | 2026-05-15 | GTC IT / AI Assistant | Added document 102 as CPG-ACCESS-015 implementation and smoke-test report for protected-config admin email-code SMTP sending through Timeweb with no secret exposure and no public route activation |
