@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.83
+- Version: 0.84
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -187,6 +187,7 @@ docs/crewportglobal/
   103_cpg_access_016_project_owner_bootstrap_and_admin_access_activation_report.md
   104_cpg_access_017_project_owner_console_view_report.md
   105_cpg_access_018_admin_console_contrast_and_owner_email_lock_report.md
+  106_cpg_access_019_group_based_access_control_and_team_entry_page_report.md
 ```
 
 ### 3.3 Product governance control
@@ -265,7 +266,9 @@ Document 103 records the controlled GTC1 bootstrap of `kfilipenko@gtchain.io` as
 
 Document 104 records the first minimal `/admin/access/` Project Owner console view, including active admin-session summary, read-only display of current user, groups, roles, effective permissions and recent access audit events, plus logout / session revoke without user, group or role editing.
 
-Document 105 records the `/admin/access/` contrast/readability correction and bootstrap owner e-mail lock, ensuring the page uses high-contrast admin-specific styles and that request/verify actions always use the approved Project Owner address `kfilipenko@gtchain.io` during the bootstrap phase.
+Document 105 records the `/admin/access/` contrast/readability correction and the temporary bootstrap owner e-mail lock used during the first live console test. The contrast correction remains active; the e-mail lock was superseded by document 106 when Issue #10 moved normal access to group membership.
+
+Document 106 records Issue #10 group-based access correction: creation/confirmation of the `owners` and `cpg_team` groups, moving Project Owner access to `owners -> project_owner`, removing the normal direct personal-email rule, adding the protected `/team/` entry page and protecting internal team links through group-checked sessions.
 
 Mandatory control statement:
 
@@ -370,6 +373,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.84 | 2026-05-16 | GTC IT / AI Assistant | Added document 106 as CPG-ACCESS-019 implementation report for Issue #10 group-based owner/team access, owners and cpg_team groups, protected /team/ entry page and removal of direct personal-email access as the normal rule |
 | 0.83 | 2026-05-15 | GTC IT / AI Assistant | Added document 105 as CPG-ACCESS-018 correction report for /admin/access/ contrast/readability fixes and bootstrap Project Owner e-mail lock to prevent browser-altered non-owner verification attempts |
 | 0.82 | 2026-05-15 | GTC IT / AI Assistant | Added document 104 as CPG-ACCESS-017 implementation report for the first read-only Project Owner console view on /admin/access/ with active session summary, permissions, audit events and logout/revoke session |
 | 0.81 | 2026-05-15 | GTC IT / AI Assistant | Added document 103 as CPG-ACCESS-016 implementation report for applying access-control migration 006 after backup, bootstrapping kfilipenko@gtchain.io as first Project Owner, enabling protected admin access email-code runtime and verifying /admin/access/ |

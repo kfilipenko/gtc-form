@@ -87,7 +87,7 @@ $storage = new CpgAdminAccessMemoryStorage([
         'email' => 'owner@example.com',
         'is_active' => true,
         'roles' => ['project_owner'],
-        'groups' => ['platform_owners'],
+        'groups' => ['owners'],
         'permissions' => ['view_admin_console'],
     ],
 ]);
@@ -153,7 +153,7 @@ cpg_admin_flow_test_assert(
     'admin access session summary should show Project Owner status'
 );
 cpg_admin_flow_test_assert(
-    in_array('platform_owners', $summary['payload']['groups'] ?? [], true),
+    in_array('owners', $summary['payload']['groups'] ?? [], true),
     'admin access session summary should expose active groups'
 );
 cpg_admin_flow_test_assert(
@@ -163,6 +163,61 @@ cpg_admin_flow_test_assert(
 cpg_admin_flow_test_assert(
     in_array('view_admin_console', $summary['payload']['effective_permissions'] ?? [], true),
     'admin access session summary should expose effective permissions'
+);
+
+$teamLinks = cpg_admin_access_team_links_with_storage(
+    $storage,
+    $sessionToken,
+    $fixedNow
+);
+cpg_admin_flow_test_assert(
+    ($teamLinks['status'] ?? null) === 200,
+    'owner group sessions should be allowed to view protected team links'
+);
+cpg_admin_flow_test_assert(
+    ($teamLinks['payload']['access_model']['mode'] ?? null) === 'group_membership',
+    'team links should report group membership access mode'
+);
+
+$teamStorage = new CpgAdminAccessMemoryStorage([
+    [
+        'user_id' => '22222222-2222-4222-8222-222222222222',
+        'email' => 'team@example.com',
+        'is_active' => true,
+        'groups' => ['cpg_team'],
+    ],
+]);
+$teamRequest = cpg_admin_access_request_code_with_storage(
+    ['email' => 'team@example.com'],
+    $teamStorage,
+    true,
+    $fixedNow,
+    ['ip_address' => '127.0.0.1', 'user_agent' => 'team-flow-test'],
+    static fn (): string => '654321'
+);
+cpg_admin_flow_test_assert(
+    ($teamRequest['status'] ?? null) === 202 && count($teamStorage->adminEmailCodes()) === 1,
+    'cpg_team group members should be able to request a protected team access code'
+);
+$teamVerify = cpg_admin_access_verify_code_with_storage(
+    ['email' => 'team@example.com', 'code' => '654321'],
+    $teamStorage,
+    true,
+    new DateTimeImmutable('2026-05-15T12:01:00+00:00'),
+    ['ip_address' => '127.0.0.1', 'user_agent' => 'team-flow-test']
+);
+$teamSessionToken = (string) ($teamVerify['payload']['admin_session_token'] ?? '');
+cpg_admin_flow_test_assert(
+    cpg_admin_access_normalize_session_token($teamSessionToken) === $teamSessionToken,
+    'cpg_team group verification should create a protected session token'
+);
+cpg_admin_flow_test_assert(
+    cpg_admin_access_session_summary_with_storage($teamStorage, $teamSessionToken, new DateTimeImmutable('2026-05-15T12:02:00+00:00'))['status'] === 401,
+    'cpg_team group sessions must not open the admin console without admin permissions'
+);
+cpg_admin_flow_test_assert(
+    cpg_admin_access_team_links_with_storage($teamStorage, $teamSessionToken, new DateTimeImmutable('2026-05-15T12:02:00+00:00'))['status'] === 200,
+    'cpg_team group sessions should open protected team links'
 );
 
 $revoked = cpg_admin_access_revoke_session_with_storage(

@@ -356,15 +356,15 @@
         <form class="admin-form" id="admin-access-form">
           <div class="admin-field">
             <label for="admin-email">Email</label>
-            <input id="admin-email" name="email" type="email" autocomplete="off" autocapitalize="none" spellcheck="false" value="kfilipenko@gtchain.io" readonly required>
-            <p class="field-note">Bootstrap owner account is fixed for this phase.</p>
+            <input id="admin-email" name="email" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="name@example.com" required>
+            <p class="field-note">Access is granted through approved owner or administrator groups.</p>
           </div>
 
           <div class="admin-actions">
             <button class="admin-button" type="button" id="request-code">Send code</button>
             <button class="admin-button secondary" type="button" id="clear-code">Clear</button>
           </div>
-          <p class="admin-help">Use the newest 6-digit code sent to kfilipenko@gtchain.io. If you request a new code, ignore older emails.</p>
+          <p class="admin-help">Use the newest 6-digit code sent to your group member e-mail. If you request a new code, ignore older emails.</p>
 
           <div class="admin-field">
             <label for="admin-code">Code</label>
@@ -428,7 +428,6 @@
   </main>
 
   <script>
-    const OWNER_EMAIL = 'kfilipenko@gtchain.io';
     const SESSION_KEY = 'crewportglobal_admin_session';
     const form = document.getElementById('admin-access-form');
     const email = document.getElementById('admin-email');
@@ -452,13 +451,7 @@
       logoutButton.disabled = isBusy;
     }
 
-    function lockOwnerEmail() {
-      email.value = OWNER_EMAIL;
-      return OWNER_EMAIL;
-    }
-
     function showLogin(message = '') {
-      lockOwnerEmail();
       loginPanel.hidden = false;
       consolePanel.hidden = true;
       logoutButton.hidden = true;
@@ -579,21 +572,21 @@
     }
 
     requestButton.addEventListener('click', async () => {
-      const ownerEmail = lockOwnerEmail();
       if (!email.reportValidity()) return;
+      const memberEmail = email.value.trim().toLowerCase();
       setBusy(true);
       setStatus('Sending code...');
       code.value = '';
       clearSession();
       try {
         const { response, body } = await postJson('/api/v1/admin/access/email-code/request', {
-          email: ownerEmail,
+          email: memberEmail,
         });
         if (!response.ok || body.ok !== true) {
           setStatus(body.message || 'Code request failed.', 'error');
           return;
         }
-        setStatus(`Code sent to ${OWNER_EMAIL}. Use the newest email code.`, 'ok');
+        setStatus('Code sent if this e-mail belongs to an approved access group. Use the newest email code.', 'ok');
         code.focus();
       } catch (error) {
         setStatus('Code request failed.', 'error');
@@ -610,13 +603,13 @@
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
-      const ownerEmail = lockOwnerEmail();
       if (!email.reportValidity() || !code.reportValidity()) return;
+      const memberEmail = email.value.trim().toLowerCase();
       setBusy(true);
       setStatus('Verifying code...');
       try {
         const { response, body } = await postJson('/api/v1/admin/access/email-code/verify', {
-          email: ownerEmail,
+          email: memberEmail,
           code: code.value,
         });
         if (!response.ok || body.ok !== true || !body.admin_session_token) {
@@ -650,7 +643,6 @@
       }
     });
 
-    lockOwnerEmail();
     loadConsole().catch(() => {
       clearSession();
       showLogin();

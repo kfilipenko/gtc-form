@@ -8,6 +8,40 @@ require_once __DIR__ . '/admin_access_storage.php';
 
 const CPG_ADMIN_ACCESS_FLOW_ENV = 'CREWPORTGLOBAL_ADMIN_ACCESS_FLOW_ENABLED';
 const CPG_ADMIN_ACCESS_FLOW_LEGACY_ENV = 'CPG_ADMIN_ACCESS_FLOW_ENABLED';
+const CPG_ADMIN_ACCESS_OWNER_GROUP = 'owners';
+const CPG_ADMIN_ACCESS_PLATFORM_ADMIN_GROUP = 'platform_administrators';
+const CPG_ADMIN_ACCESS_TEAM_GROUP = 'cpg_team';
+const CPG_ADMIN_ACCESS_REQUIRED_PERMISSION = 'view_admin_console';
+const CPG_ADMIN_ACCESS_TEAM_LINKS = [
+    [
+        'label' => 'CrewPortGlobal public site',
+        'url' => 'https://crewportglobal.com/',
+    ],
+    [
+        'label' => 'Register',
+        'url' => 'https://crewportglobal.com/register/',
+    ],
+    [
+        'label' => 'Create Profile',
+        'url' => 'https://crewportglobal.com/create-profile/',
+    ],
+    [
+        'label' => 'Post Vacancy',
+        'url' => 'https://crewportglobal.com/post-vacancy/',
+    ],
+    [
+        'label' => 'Operator Queue',
+        'url' => 'https://crewportglobal.com/verify/',
+    ],
+    [
+        'label' => 'GitHub repository',
+        'url' => 'https://github.com/kfilipenko/gtc-form',
+    ],
+    [
+        'label' => 'Main implementation issue',
+        'url' => 'https://github.com/kfilipenko/gtc-form/issues/8',
+    ],
+];
 
 function cpg_admin_access_bool_env(string $name): bool {
     $value = getenv($name);
@@ -108,18 +142,32 @@ function cpg_admin_access_user_can_receive_admin_code(array $user): bool {
         return false;
     }
 
+    $groups = cpg_admin_access_string_list($user['groups'] ?? ($user['group_codes'] ?? []));
+    if (array_intersect($groups, [CPG_ADMIN_ACCESS_OWNER_GROUP, CPG_ADMIN_ACCESS_PLATFORM_ADMIN_GROUP]) === []) {
+        return false;
+    }
+
     $permissions = cpg_admin_access_string_list($user['permissions'] ?? []);
-    if (in_array('view_admin_console', $permissions, true)) {
+    if (in_array(CPG_ADMIN_ACCESS_REQUIRED_PERMISSION, $permissions, true)) {
         return true;
     }
 
     $roles = cpg_admin_access_string_list($user['roles'] ?? ($user['role_codes'] ?? []));
-    if (array_intersect($roles, ['platform_administrator', 'project_owner']) !== []) {
-        return true;
+    return array_intersect($roles, ['platform_administrator', 'project_owner']) !== [];
+}
+
+function cpg_admin_access_user_can_view_team_links(array $user): bool {
+    if (cpg_admin_access_user_id($user) === null || !cpg_admin_access_user_is_active($user)) {
+        return false;
     }
 
     $groups = cpg_admin_access_string_list($user['groups'] ?? ($user['group_codes'] ?? []));
-    return array_intersect($groups, ['platform_administrators', 'platform_owners']) !== [];
+    return array_intersect($groups, [CPG_ADMIN_ACCESS_OWNER_GROUP, CPG_ADMIN_ACCESS_TEAM_GROUP]) !== [];
+}
+
+function cpg_admin_access_user_can_receive_protected_code(array $user): bool {
+    return cpg_admin_access_user_can_receive_admin_code($user)
+        || cpg_admin_access_user_can_view_team_links($user);
 }
 
 function cpg_admin_access_request_code_skeleton(
@@ -209,7 +257,7 @@ function cpg_admin_access_request_code_with_storage(
     $base = $now ?? cpg_admin_now();
     $maskedEmail = cpg_admin_mask_email($email);
     $user = $storage->findAdminUserByEmail($email);
-    $canReceiveCode = is_array($user) && cpg_admin_access_user_can_receive_admin_code($user);
+    $canReceiveCode = is_array($user) && cpg_admin_access_user_can_receive_protected_code($user);
     $userId = is_array($user) ? cpg_admin_access_user_id($user) : null;
 
     if ($canReceiveCode) {
@@ -292,7 +340,7 @@ function cpg_admin_access_request_code_with_storage_and_delivery(
     $base = $now ?? cpg_admin_now();
     $maskedEmail = cpg_admin_mask_email($email);
     $user = $storage->findAdminUserByEmail($email);
-    $canReceiveCode = is_array($user) && cpg_admin_access_user_can_receive_admin_code($user);
+    $canReceiveCode = is_array($user) && cpg_admin_access_user_can_receive_protected_code($user);
     $userId = is_array($user) ? cpg_admin_access_user_id($user) : null;
     $deliveryStatus = 'not_sent_not_eligible';
 
@@ -387,7 +435,7 @@ function cpg_admin_access_verify_code_with_storage(
     $base = $now ?? cpg_admin_now();
     $user = $storage->findAdminUserByEmail($email);
     $userId = is_array($user) ? cpg_admin_access_user_id($user) : null;
-    if (!is_array($user) || !cpg_admin_access_user_can_receive_admin_code($user)) {
+    if (!is_array($user) || !cpg_admin_access_user_can_receive_protected_code($user)) {
         $storage->writeAdminAccessAuditEvent([
             'actor_user_id' => $userId,
             'event_type' => 'admin_email_code_verify_rejected',
@@ -585,5 +633,55 @@ function cpg_admin_access_revoke_session_with_storage(
     return cpg_admin_access_response(200, [
         'ok' => true,
         'revoked_at' => cpg_admin_format_time($base),
+    ]);
+}
+
+function cpg_admin_access_team_links_with_storage(
+    CpgAdminAccessStorage $storage,
+    mixed $sessionToken,
+    ?DateTimeImmutable $now = null
+): array {
+    $normalizedToken = cpg_admin_access_normalize_session_token($sessionToken);
+    if ($normalizedToken === null) {
+        return cpg_admin_access_response(401, [
+            'ok' => false,
+            'error' => 'team_session_required',
+            'message' => 'Team session is required',
+        ]);
+    }
+
+    $base = $now ?? cpg_admin_now();
+    $session = $storage->findActiveAdminSession($normalizedToken, $base);
+    if (!is_array($session)) {
+        return cpg_admin_access_response(401, [
+            'ok' => false,
+            'error' => 'team_session_invalid',
+            'message' => 'Team session is invalid or expired',
+        ]);
+    }
+
+    if (!cpg_admin_access_user_can_view_team_links($session)) {
+        return cpg_admin_access_response(403, [
+            'ok' => false,
+            'error' => 'team_access_group_required',
+            'message' => 'Team links require owners or cpg_team group membership',
+        ]);
+    }
+
+    $groups = cpg_admin_access_string_list($session['groups'] ?? []);
+    sort($groups);
+
+    return cpg_admin_access_response(200, [
+        'ok' => true,
+        'user' => [
+            'user_id' => (string) ($session['user_id'] ?? ''),
+            'email' => (string) ($session['email'] ?? ''),
+            'groups' => $groups,
+        ],
+        'access_model' => [
+            'mode' => 'group_membership',
+            'allowed_groups' => [CPG_ADMIN_ACCESS_OWNER_GROUP, CPG_ADMIN_ACCESS_TEAM_GROUP],
+        ],
+        'links' => CPG_ADMIN_ACCESS_TEAM_LINKS,
     ]);
 }

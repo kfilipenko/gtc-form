@@ -42,8 +42,8 @@ $recorder = new CpgAdminAccessPgQueryRecorder([
         'email' => 'owner@crewportglobal.com',
         'is_active' => 't',
         'permissions' => '{view_admin_console,view_users}',
-        'roles' => '{platform_administrator}',
-        'groups' => '{platform_administrators}',
+        'roles' => '{project_owner}',
+        'groups' => '{owners}',
     ]],
     [[
         'admin_email_code_id' => $codeId,
@@ -99,7 +99,7 @@ $recorder = new CpgAdminAccessPgQueryRecorder([
         'is_active' => 't',
         'permissions' => '{view_admin_console,view_full_audit_log}',
         'roles' => '{project_owner}',
-        'groups' => '{platform_owners}',
+        'groups' => '{owners}',
     ]],
     [[
         'admin_session_id' => $sessionId,
@@ -131,8 +131,8 @@ cpg_admin_pg_storage_test_assert($user !== null, 'PG storage should return admin
 cpg_admin_pg_storage_test_assert(($user['email'] ?? null) === 'owner@crewportglobal.com', 'PG storage should normalize user email from row');
 cpg_admin_pg_storage_test_assert(($user['is_active'] ?? null) === true, 'PG storage should parse PostgreSQL boolean values');
 cpg_admin_pg_storage_test_assert(in_array('view_admin_console', $user['permissions'] ?? [], true), 'PG storage should parse permission arrays');
-cpg_admin_pg_storage_test_assert(in_array('platform_administrator', $user['roles'] ?? [], true), 'PG storage should parse role arrays');
-cpg_admin_pg_storage_test_assert(in_array('platform_administrators', $user['groups'] ?? [], true), 'PG storage should parse group arrays');
+cpg_admin_pg_storage_test_assert(in_array('project_owner', $user['roles'] ?? [], true), 'PG storage should parse role arrays');
+cpg_admin_pg_storage_test_assert(in_array('owners', $user['groups'] ?? [], true), 'PG storage should parse group arrays');
 cpg_admin_pg_storage_test_assert(str_contains($findUserCall['sql'], 'crewportglobal.access_group_members'), 'find user SQL should join access_group_members');
 cpg_admin_pg_storage_test_assert(str_contains($findUserCall['sql'], 'crewportglobal.access_role_permissions'), 'find user SQL should join role permissions');
 cpg_admin_pg_storage_test_assert(str_contains($findUserCall['sql'], 'lower(u.email) = lower($1)'), 'find user SQL should use normalized parameter matching');
@@ -209,7 +209,7 @@ $activeSession = $storage->findActiveAdminSession($sessionId, new DateTimeImmuta
 $activeSessionCall = $recorder->calls[7];
 cpg_admin_pg_storage_test_assert(($activeSession['admin_session_id'] ?? null) === $sessionId, 'active session query should return session row');
 cpg_admin_pg_storage_test_assert(in_array('project_owner', $activeSession['roles'] ?? [], true), 'active session query should parse roles');
-cpg_admin_pg_storage_test_assert(in_array('platform_owners', $activeSession['groups'] ?? [], true), 'active session query should parse groups');
+cpg_admin_pg_storage_test_assert(in_array('owners', $activeSession['groups'] ?? [], true), 'active session query should parse groups');
 cpg_admin_pg_storage_test_assert(str_contains($activeSessionCall['sql'], 'FROM crewportglobal.admin_sessions'), 'active session SQL should read admin_sessions');
 cpg_admin_pg_storage_test_assert(str_contains($activeSessionCall['sql'], 's.revoked_at IS NULL'), 'active session SQL should reject revoked sessions');
 cpg_admin_pg_storage_test_assert(str_contains($activeSessionCall['sql'], 's.expires_at > $2::timestamptz'), 'active session SQL should reject expired sessions');

@@ -23,6 +23,8 @@ $storage = new CpgAdminAccessMemoryStorage([
         'user_id' => $ownerUserId,
         'email' => 'Owner@CrewPortGlobal.com',
         'is_active' => true,
+        'groups' => ['owners'],
+        'roles' => ['project_owner'],
         'permissions' => ['view_admin_console'],
     ],
 ]);
@@ -191,11 +193,54 @@ cpg_admin_storage_test_assert(
     'non-admin request should not store an admin email code'
 );
 
+$directPermissionStorage = new CpgAdminAccessMemoryStorage([
+    [
+        'user_id' => '33333333-3333-4333-8333-333333333333',
+        'email' => 'permission-only@example.com',
+        'is_active' => true,
+        'permissions' => ['view_admin_console'],
+    ],
+]);
+$directPermissionRequest = cpg_admin_access_request_code_with_storage(
+    ['email' => 'permission-only@example.com'],
+    $directPermissionStorage,
+    true,
+    $fixedNow,
+    $metadata,
+    static fn (): string => '111111'
+);
+cpg_admin_storage_test_assert(
+    ($directPermissionRequest['status'] ?? null) === 202 && count($directPermissionStorage->adminEmailCodes()) === 0,
+    'direct permission without approved group membership must not store an admin email code'
+);
+
+$directRoleStorage = new CpgAdminAccessMemoryStorage([
+    [
+        'user_id' => '44444444-4444-4444-8444-444444444444',
+        'email' => 'role-only@example.com',
+        'is_active' => true,
+        'roles' => ['project_owner'],
+    ],
+]);
+$directRoleRequest = cpg_admin_access_request_code_with_storage(
+    ['email' => 'role-only@example.com'],
+    $directRoleStorage,
+    true,
+    $fixedNow,
+    $metadata,
+    static fn (): string => '111111'
+);
+cpg_admin_storage_test_assert(
+    ($directRoleRequest['status'] ?? null) === 202 && count($directRoleStorage->adminEmailCodes()) === 0,
+    'direct role without approved group membership must not store an admin email code'
+);
+
 $limitStorage = new CpgAdminAccessMemoryStorage([
     [
         'user_id' => $ownerUserId,
         'email' => 'owner@crewportglobal.com',
-        'groups' => ['platform_owners'],
+        'groups' => ['owners'],
+        'roles' => ['project_owner'],
     ],
 ]);
 cpg_admin_access_request_code_with_storage(

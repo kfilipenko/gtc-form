@@ -4,7 +4,14 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Date: 2026-05-15
 - Document type: Implementation report
-- Status: Implemented and verified on GTC1
+- Status: Superseded in part by Document 106 on 2026-05-16
+
+Supersession note:
+
+```text
+The contrast/readability correction remains active.
+The bootstrap owner e-mail lock was removed by Document 106 after Issue #10 clarified that normal access must be group-based, not personal-email based.
+```
 
 ## 1. Purpose
 

@@ -36,10 +36,12 @@ $requiredFragments = [
     'function handle_post_admin_access_email_code_verify(): void',
     'function handle_get_admin_access_session(): void',
     'function handle_post_admin_access_session_revoke(): void',
+    'function handle_get_admin_access_team_links(): void',
     "\$path === '/admin/access/email-code/request'",
     "\$path === '/admin/access/email-code/verify'",
     "\$path === '/admin/access/session'",
     "\$path === '/admin/access/session/revoke'",
+    "\$path === '/admin/access/team-links'",
     'cpg_admin_access_disabled_response()',
 ];
 
@@ -54,16 +56,19 @@ $requestHandler = cpg_admin_public_routes_extract_function($source, 'handle_post
 $verifyHandler = cpg_admin_public_routes_extract_function($source, 'handle_post_admin_access_email_code_verify');
 $sessionHandler = cpg_admin_public_routes_extract_function($source, 'handle_get_admin_access_session');
 $revokeHandler = cpg_admin_public_routes_extract_function($source, 'handle_post_admin_access_session_revoke');
+$teamLinksHandler = cpg_admin_public_routes_extract_function($source, 'handle_get_admin_access_team_links');
 cpg_admin_public_routes_test_assert($requestHandler !== '', 'request handler should be extractable');
 cpg_admin_public_routes_test_assert($verifyHandler !== '', 'verify handler should be extractable');
 cpg_admin_public_routes_test_assert($sessionHandler !== '', 'session handler should be extractable');
 cpg_admin_public_routes_test_assert($revokeHandler !== '', 'revoke handler should be extractable');
+cpg_admin_public_routes_test_assert($teamLinksHandler !== '', 'team links handler should be extractable');
 
 foreach ([
     'request' => $requestHandler,
     'verify' => $verifyHandler,
     'session' => $sessionHandler,
     'revoke' => $revokeHandler,
+    'team-links' => $teamLinksHandler,
 ] as $name => $handlerSource) {
     $disabledPos = strpos($handlerSource, 'cpg_admin_access_disabled_response()');
     $decodePos = strpos($handlerSource, 'api_decode_json_body()');
@@ -108,6 +113,11 @@ cpg_admin_public_routes_test_assert(
     str_contains($revokeHandler, 'cpg_admin_access_revoke_session_with_storage(')
         && str_contains($revokeHandler, 'admin_access_session_token()'),
     'revoke handler should revoke the current admin session token'
+);
+cpg_admin_public_routes_test_assert(
+    str_contains($teamLinksHandler, 'cpg_admin_access_team_links_with_storage(')
+        && str_contains($teamLinksHandler, 'admin_access_session_token()'),
+    'team links handler should protect links behind a verified group session'
 );
 
 fwrite(STDOUT, "Admin access public route wiring tests passed\n");

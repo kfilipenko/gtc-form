@@ -131,6 +131,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AdminAccessDisabledResponse'
+  /admin/access/team-links:
+    get:
+      summary: Read protected team links
+      operationId: readProtectedTeamLinks
+      description: |
+        Returns CrewPortGlobal team entry links only for an active protected session whose user belongs to an approved access group such as owners or cpg_team.
+      security:
+        - AdminSessionBearer: []
+      responses:
+        '200':
+          description: Protected team links
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamLinksResponse'
+        '401':
+          description: Team session is missing, invalid or expired
+        '403':
+          description: Team access group membership is required
+        '503':
+          description: Admin access email-code flow is not enabled yet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAccessDisabledResponse'
   /vacancies:
     get:
       summary: List reviewed public vacancies
@@ -143,6 +168,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/PublicVacanciesResponse'
 components:
+  securitySchemes:
+    AdminSessionBearer:
+      type: http
+      scheme: bearer
   parameters:
     DraftId:
       name: draft_id
@@ -330,6 +359,49 @@ components:
           enum: [admin_access_flow_not_enabled]
         message:
           type: string
+    TeamLinksResponse:
+      type: object
+      required: [ok, user, access_model, links]
+      properties:
+        ok:
+          type: boolean
+          enum: [true]
+        user:
+          type: object
+          required: [user_id, email, groups]
+          properties:
+            user_id:
+              type: string
+              format: uuid
+            email:
+              type: string
+              format: email
+            groups:
+              type: array
+              items:
+                type: string
+        access_model:
+          type: object
+          required: [mode, allowed_groups]
+          properties:
+            mode:
+              type: string
+              enum: [group_membership]
+            allowed_groups:
+              type: array
+              items:
+                type: string
+        links:
+          type: array
+          items:
+            type: object
+            required: [label, url]
+            properties:
+              label:
+                type: string
+              url:
+                type: string
+                format: uri
     PublicVacanciesResponse:
       type: object
       required: [ok, vacancies, count, generated_at]

@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Team</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="canonical" href="https://crewportglobal.com/team/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <style>
+    :root {
+      --team-bg: #eef4f7;
+      --team-surface: #ffffff;
+      --team-surface-soft: #f7fbfc;
+      --team-text: #102a43;
+      --team-muted: #4f6575;
+      --team-border: #c8d6df;
+      --team-border-strong: #96acb8;
+      --team-primary: #087a8c;
+      --team-primary-strong: #045b69;
+      --team-danger: #b42318;
+      --team-success: #087443;
+    }
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+      background: var(--team-bg);
+      color: var(--team-text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .team-shell {
+      min-height: 100vh;
+      padding: 28px 18px 42px;
+    }
+    .team-frame {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+    }
+    .team-header,
+    .team-panel,
+    .team-card {
+      border: 1px solid var(--team-border);
+      background: var(--team-surface);
+      box-shadow: 0 10px 32px rgba(16, 42, 67, 0.08);
+    }
+    .team-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 18px;
+      padding: 16px;
+      border-radius: 16px;
+    }
+    .team-brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      min-width: 0;
+    }
+    .team-mark {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: #0b6f82;
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: 0;
+      flex: 0 0 auto;
+    }
+    .team-title {
+      margin: 0;
+      color: var(--team-text);
+      font-size: 24px;
+      line-height: 1.2;
+    }
+    .team-subtitle {
+      margin: 4px 0 0;
+      color: var(--team-muted);
+      font-size: 13px;
+    }
+    .team-button {
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: var(--team-primary);
+      color: #ffffff;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .team-button:hover {
+      background: var(--team-primary-strong);
+    }
+    .team-button.secondary {
+      background: var(--team-surface);
+      border-color: var(--team-border-strong);
+      color: var(--team-text);
+    }
+    .team-button.danger {
+      background: var(--team-danger);
+      color: #ffffff;
+    }
+    .team-button:disabled {
+      cursor: wait;
+      opacity: 0.62;
+    }
+    .team-panel {
+      width: min(620px, 100%);
+      margin: 56px auto 0;
+      padding: 24px;
+      border-radius: 16px;
+    }
+    .team-console {
+      display: grid;
+      gap: 16px;
+    }
+    .team-login[hidden],
+    .team-console[hidden] {
+      display: none;
+    }
+    .team-form,
+    .team-grid {
+      display: grid;
+      gap: 16px;
+    }
+    .team-field {
+      display: grid;
+      gap: 7px;
+    }
+    .team-field label,
+    .team-section-title {
+      color: var(--team-text);
+      font-weight: 800;
+    }
+    .team-field input {
+      width: 100%;
+      min-height: 46px;
+      box-sizing: border-box;
+      padding: 11px 13px;
+      border-radius: 10px;
+      border: 1px solid var(--team-border-strong);
+      background: var(--team-surface);
+      color: var(--team-text);
+      font: inherit;
+      font-weight: 700;
+    }
+    .team-field input:focus,
+    .team-button:focus-visible {
+      outline: 3px solid rgba(8, 122, 140, 0.24);
+      outline-offset: 2px;
+    }
+    .team-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .team-note,
+    .team-status,
+    .team-meta {
+      color: var(--team-muted);
+      line-height: 1.5;
+    }
+    .team-note,
+    .team-status {
+      margin: 0;
+      font-size: 13px;
+    }
+    .team-status {
+      min-height: 24px;
+      font-weight: 700;
+    }
+    .team-status.ok {
+      color: var(--team-success);
+    }
+    .team-status.error {
+      color: var(--team-danger);
+    }
+    .team-card {
+      padding: 16px;
+      border-radius: 14px;
+    }
+    .team-section-title {
+      margin: 0 0 12px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+    .team-link-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .team-link-list a {
+      display: block;
+      min-height: 44px;
+      padding: 11px 12px;
+      border: 1px solid var(--team-border);
+      border-radius: 10px;
+      background: var(--team-surface-soft);
+      color: var(--team-text);
+      font-weight: 800;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+    }
+    .team-link-list a:hover {
+      border-color: var(--team-primary);
+      color: var(--team-primary-strong);
+    }
+    @media (max-width: 760px) {
+      .team-header {
+        display: grid;
+      }
+      .team-panel {
+        margin-top: 24px;
+        padding: 18px;
+      }
+      .team-link-list {
+        grid-template-columns: 1fr;
+      }
+      .team-actions {
+        display: grid;
+      }
+      .team-button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="team-shell">
+    <div class="team-frame">
+      <header class="team-header">
+        <div class="team-brand">
+          <div class="team-mark" aria-hidden="true">CPG</div>
+          <div>
+            <h1 class="team-title">CrewPortGlobal team</h1>
+            <p class="team-subtitle">Protected links for approved project groups</p>
+          </div>
+        </div>
+        <button class="team-button danger" type="button" id="logout-button" hidden>Logout</button>
+      </header>
+
+      <section class="team-panel team-login" id="login-panel" aria-labelledby="login-title">
+        <h2 class="team-section-title" id="login-title">Team code login</h2>
+        <form class="team-form" id="team-access-form">
+          <div class="team-field">
+            <label for="team-email">Email</label>
+            <input id="team-email" name="email" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="name@example.com" required>
+          </div>
+          <p class="team-note">Access is granted through owners or cpg_team group membership.</p>
+
+          <div class="team-actions">
+            <button class="team-button" type="button" id="request-code">Send code</button>
+            <button class="team-button secondary" type="button" id="clear-code">Clear</button>
+          </div>
+
+          <div class="team-field">
+            <label for="team-code">Code</label>
+            <input id="team-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+          </div>
+
+          <div class="team-actions">
+            <button class="team-button" type="submit" id="verify-code">Open team links</button>
+          </div>
+
+          <p class="team-status" id="team-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="team-console" id="team-console" hidden aria-labelledby="team-links-title">
+        <section class="team-card">
+          <h2 class="team-section-title" id="team-links-title">Team links</h2>
+          <p class="team-meta" id="team-meta">-</p>
+          <ul class="team-link-list" id="team-link-list"></ul>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const TEAM_SESSION_KEY = 'crewportglobal_team_session';
+    const ADMIN_SESSION_KEY = 'crewportglobal_admin_session';
+    const form = document.getElementById('team-access-form');
+    const email = document.getElementById('team-email');
+    const code = document.getElementById('team-code');
+    const statusNode = document.getElementById('team-status');
+    const requestButton = document.getElementById('request-code');
+    const verifyButton = document.getElementById('verify-code');
+    const clearButton = document.getElementById('clear-code');
+    const logoutButton = document.getElementById('logout-button');
+    const loginPanel = document.getElementById('login-panel');
+    const consolePanel = document.getElementById('team-console');
+    const linkList = document.getElementById('team-link-list');
+    const metaNode = document.getElementById('team-meta');
+
+    function setStatus(message, type = '') {
+      statusNode.textContent = message;
+      statusNode.className = `team-status ${type}`.trim();
+    }
+
+    function setBusy(isBusy) {
+      requestButton.disabled = isBusy;
+      verifyButton.disabled = isBusy;
+      logoutButton.disabled = isBusy;
+    }
+
+    function sessionToken() {
+      return window.localStorage.getItem(TEAM_SESSION_KEY)
+        || window.localStorage.getItem(ADMIN_SESSION_KEY)
+        || '';
+    }
+
+    function storeSession(token) {
+      window.localStorage.setItem(TEAM_SESSION_KEY, token);
+    }
+
+    function clearSession() {
+      window.localStorage.removeItem(TEAM_SESSION_KEY);
+    }
+
+    async function postJson(path, payload = {}, token = '') {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(path, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+      });
+      const body = await response.json().catch(() => ({}));
+      return { response, body };
+    }
+
+    async function getJson(path, token = '') {
+      const headers = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(path, { headers });
+      const body = await response.json().catch(() => ({}));
+      return { response, body };
+    }
+
+    function showLogin(message = '') {
+      loginPanel.hidden = false;
+      consolePanel.hidden = true;
+      logoutButton.hidden = true;
+      setStatus(message);
+    }
+
+    function showConsole() {
+      loginPanel.hidden = true;
+      consolePanel.hidden = false;
+      logoutButton.hidden = false;
+    }
+
+    function renderLinks(body) {
+      const groups = Array.isArray(body.user?.groups) ? body.user.groups.join(', ') : 'none';
+      metaNode.textContent = `${body.user?.email || 'team member'} | groups: ${groups}`;
+      linkList.replaceChildren();
+      for (const link of Array.isArray(body.links) ? body.links : []) {
+        const item = document.createElement('li');
+        const anchor = document.createElement('a');
+        anchor.href = link.url;
+        anchor.textContent = link.label;
+        anchor.rel = 'noopener noreferrer';
+        if (String(link.url || '').startsWith('https://github.com/')) {
+          anchor.target = '_blank';
+        }
+        item.append(anchor);
+        linkList.append(item);
+      }
+    }
+
+    async function loadLinks() {
+      const token = sessionToken();
+      if (!token) {
+        showLogin();
+        return;
+      }
+      const { response, body } = await getJson('/api/v1/admin/access/team-links', token);
+      if (!response.ok || body.ok !== true) {
+        if (response.status === 403) {
+          showLogin('This account is not in an approved team access group.');
+          return;
+        }
+        clearSession();
+        showLogin('Session expired. Please request a new code.');
+        return;
+      }
+      renderLinks(body);
+      showConsole();
+    }
+
+    requestButton.addEventListener('click', async () => {
+      if (!email.reportValidity()) return;
+      const memberEmail = email.value.trim().toLowerCase();
+      setBusy(true);
+      setStatus('Sending code...');
+      code.value = '';
+      clearSession();
+      try {
+        const { response, body } = await postJson('/api/v1/admin/access/email-code/request', {
+          email: memberEmail,
+        });
+        if (!response.ok || body.ok !== true) {
+          setStatus(body.message || 'Code request failed.', 'error');
+          return;
+        }
+        setStatus('Code sent if this e-mail belongs to an approved access group. Use the newest email code.', 'ok');
+        code.focus();
+      } catch (error) {
+        setStatus('Code request failed.', 'error');
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    clearButton.addEventListener('click', () => {
+      code.value = '';
+      setStatus('');
+      code.focus();
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!email.reportValidity() || !code.reportValidity()) return;
+      const memberEmail = email.value.trim().toLowerCase();
+      setBusy(true);
+      setStatus('Verifying code...');
+      try {
+        const { response, body } = await postJson('/api/v1/admin/access/email-code/verify', {
+          email: memberEmail,
+          code: code.value,
+        });
+        if (!response.ok || body.ok !== true || !body.admin_session_token) {
+          setStatus(body.message || 'Invalid or expired code. Request a new code and use the newest email.', 'error');
+          return;
+        }
+        storeSession(body.admin_session_token);
+        code.value = '';
+        await loadLinks();
+      } catch (error) {
+        setStatus('Code verification failed.', 'error');
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    logoutButton.addEventListener('click', async () => {
+      const token = sessionToken();
+      setBusy(true);
+      try {
+        if (token) {
+          await postJson('/api/v1/admin/access/session/revoke', {}, token);
+        }
+      } finally {
+        clearSession();
+        setBusy(false);
+        showLogin('Session closed.');
+      }
+    });
+
+    loadLinks().catch(() => {
+      clearSession();
+      showLogin();
+    });
+  </script>
+</body>
+</html>

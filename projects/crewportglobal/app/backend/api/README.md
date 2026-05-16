@@ -26,6 +26,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - POST /api/v1/admin/access/email-code/verify
 - GET /api/v1/admin/access/session
 - POST /api/v1/admin/access/session/revoke
+- GET /api/v1/admin/access/team-links
 
 ## Current status
 
@@ -52,7 +53,9 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - admin email-code storage factory contract: `lib/admin_access_storage_factory.php` defines disabled-by-default storage selection and explicit `pgsql` adapter creation through an injected query executor; public routes call it only after runtime gates pass
 - admin email-code delivery adapter contract: `lib/admin_access_email_delivery.php` defines disabled-by-default email delivery selection, Timeweb SMTP configuration validation, safe message preparation, a test-only capture adapter and a controlled SMTP send path for approved admin access runtime use
 - admin access Project Owner bootstrap: `tools/bootstrap_project_owner.php` records the controlled first-owner bootstrap path for `kfilipenko@gtchain.io`
+- group-based access bootstrap: `tools/bootstrap_group_based_access.php` creates/confirms `owners` and `cpg_team`, assigns `project_owner` through the `owners` group and removes the owner user from the legacy direct bootstrap membership
 - admin access console view: `/admin/access/` displays the current Project Owner session, active groups, roles, effective permissions and recent access audit events, with logout / session revoke only
+- protected team links: `/team/` loads links only through `GET /api/v1/admin/access/team-links` after a session whose user belongs to `owners` or `cpg_team`
 - full login/session logic: not implemented
 
 ## Access-control Phase 2 status
@@ -90,6 +93,28 @@ The public admin email-code routes require both `CREWPORTGLOBAL_ADMIN_ACCESS_PUB
 
 `/admin/access/` is the first read-only Project Owner console view. It uses the verified admin session token to call `GET /api/v1/admin/access/session` and displays the current user, status, active groups, active roles, effective permissions and recent access audit events. `POST /api/v1/admin/access/session/revoke` logs out by setting `admin_sessions.revoked_at`.
 
+Admin console access is group-based. A user can open the admin console only when an active access-control group membership grants the owner/admin role or permission. Direct personal e-mail allowlists are not part of normal access control.
+
+The initial owner group is:
+
+```text
+Display name: Владельцы
+Group code: owners
+Recommended group email: owners@gtchain.io
+Initial member: kfilipenko@gtchain.io
+```
+
+The team entry group is:
+
+```text
+Display name: Команда CPG
+Group code: cpg_team
+Recommended group email: cpg-team@gtchain.io
+Members: Project Owner approved members only
+```
+
+The `/team/` entry page is a protected shell: it does not embed the internal link list in static HTML. The browser loads links from `GET /api/v1/admin/access/team-links` only after group-checked session validation.
+
 Admin access SMTP settings are server-only environment variables:
 
 ```bash
@@ -125,6 +150,12 @@ Controlled Project Owner bootstrap:
 
 ```bash
 php projects/crewportglobal/app/backend/api/tools/bootstrap_project_owner.php --owner-email=kfilipenko@gtchain.io
+```
+
+Controlled group-based access bootstrap:
+
+```bash
+php projects/crewportglobal/app/backend/api/tools/bootstrap_group_based_access.php --owner-email=kfilipenko@gtchain.io
 ```
 
 ## Operator access token

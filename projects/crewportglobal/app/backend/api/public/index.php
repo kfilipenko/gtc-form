@@ -223,6 +223,19 @@ function handle_post_admin_access_session_revoke(): void {
     ));
 }
 
+function handle_get_admin_access_team_links(): void {
+    admin_access_load_runtime_env();
+    if (!admin_access_public_flow_enabled()) {
+        admin_access_api_response(cpg_admin_access_disabled_response());
+    }
+
+    $storage = admin_access_storage_or_response();
+    admin_access_api_response(cpg_admin_access_team_links_with_storage(
+        $storage,
+        admin_access_session_token()
+    ));
+}
+
 function read_role_for_user(string $userId): ?string {
     $result = api_query(
         'SELECT role FROM crewportglobal.user_roles WHERE user_id = $1 ORDER BY created_at ASC LIMIT 1',
@@ -2606,6 +2619,14 @@ if ($path === '/admin/access/session/revoke') {
     }
     header('Allow: POST');
     api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if ($path === '/admin/access/team-links') {
+    if ($method === 'GET') {
+        handle_get_admin_access_team_links();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
 }
 
 if ($method === 'POST' && $path === '/registration/drafts') {
