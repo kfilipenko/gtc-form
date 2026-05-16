@@ -290,6 +290,58 @@
       font-size: 13px;
       overflow-wrap: anywhere;
     }
+    .audit-section {
+      padding: 0;
+      overflow: hidden;
+    }
+    .audit-toggle {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      border: 0;
+      color: var(--admin-text);
+      background: transparent;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .audit-toggle:hover {
+      background: var(--admin-surface-soft);
+    }
+    .audit-toggle:focus-visible {
+      outline: 3px solid rgba(78, 199, 216, 0.55);
+      outline-offset: -3px;
+    }
+    .audit-toggle-copy {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+    }
+    .audit-toggle .section-kicker,
+    .audit-toggle .section-title {
+      margin: 0;
+    }
+    .audit-toggle-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 6px 10px;
+      border: 1px solid var(--admin-border);
+      border-radius: 999px;
+      color: var(--admin-primary-strong);
+      background: #eaf8fb;
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+    .audit-body {
+      padding: 0 16px 16px;
+    }
     .audit-list {
       display: grid;
       gap: 8px;
@@ -534,10 +586,20 @@
           </section>
         </div>
 
-        <section class="console-section" aria-labelledby="audit-title">
-          <p class="section-kicker">Audit</p>
-          <h2 class="section-title" id="audit-title">Recent access events</h2>
-          <ul class="audit-list" id="audit-list"></ul>
+        <section class="console-section audit-section" aria-labelledby="audit-title">
+          <button class="audit-toggle" type="button" id="audit-toggle" aria-expanded="false" aria-controls="audit-body">
+            <span class="audit-toggle-copy">
+              <span class="section-kicker">Audit</span>
+              <span class="section-title" id="audit-title">Recent access events</span>
+            </span>
+            <span class="audit-toggle-state" aria-hidden="true">
+              <span id="audit-toggle-label">Open</span>
+              <span id="audit-toggle-icon">v</span>
+            </span>
+          </button>
+          <div class="audit-body" id="audit-body" hidden>
+            <ul class="audit-list" id="audit-list"></ul>
+          </div>
         </section>
       </section>
     </div>
@@ -564,6 +626,10 @@
     const accessUserList = document.getElementById('access-user-list');
     const memberGroupSelect = document.getElementById('member-group');
     const memberEmailInput = document.getElementById('member-email');
+    const auditToggle = document.getElementById('audit-toggle');
+    const auditBody = document.getElementById('audit-body');
+    const auditToggleLabel = document.getElementById('audit-toggle-label');
+    const auditToggleIcon = document.getElementById('audit-toggle-icon');
 
     function setStatus(message, type = '') {
       statusNode.textContent = message;
@@ -650,6 +716,13 @@
       }
     }
 
+    function setAuditExpanded(isExpanded) {
+      auditToggle.setAttribute('aria-expanded', String(isExpanded));
+      auditBody.hidden = !isExpanded;
+      auditToggleLabel.textContent = isExpanded ? 'Close' : 'Open';
+      auditToggleIcon.textContent = isExpanded ? '^' : 'v';
+    }
+
     function renderAudit(events) {
       const node = document.getElementById('audit-list');
       node.replaceChildren();
@@ -682,6 +755,11 @@
         node.append(item);
       }
     }
+
+    auditToggle.addEventListener('click', () => {
+      setAuditExpanded(auditToggle.getAttribute('aria-expanded') !== 'true');
+    });
+    setAuditExpanded(false);
 
     function renderManagement(body) {
       const assignableGroups = Array.isArray(body.assignable_groups) ? body.assignable_groups : [];

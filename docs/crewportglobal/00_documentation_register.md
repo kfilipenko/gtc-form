@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.85
+- Version: 0.86
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -189,6 +189,7 @@ docs/crewportglobal/
   105_cpg_access_018_admin_console_contrast_and_owner_email_lock_report.md
   106_cpg_access_019_group_based_access_control_and_team_entry_page_report.md
   107_cpg_access_020_project_owner_user_group_membership_management_report.md
+  108_cpg_access_021_admin_audit_panel_collapse_report.md
 ```
 
 ### 3.3 Product governance control
@@ -272,6 +273,8 @@ Document 105 records the `/admin/access/` contrast/readability correction and th
 Document 106 records Issue #10 group-based access correction: creation/confirmation of the `owners` and `cpg_team` groups, moving Project Owner access to `owners -> project_owner`, removing the normal direct personal-email rule, adding the protected `/team/` entry page and protecting internal team links through group-checked sessions.
 
 Document 107 records the first writable Project Owner access-management console slice, including user creation/confirmation, adding users to assignable internal/administration groups, management API endpoints, audit events and the boundary that group work pages are a later stage.
+
+Document 108 records the `/admin/access/` usability correction that makes the audit panel collapsed by default while preserving click-to-open access to recent audit events, existing audit data loading and all admin access-control boundaries.
 
 Mandatory control statement:
 
@@ -376,6 +379,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.86 | 2026-05-16 | GTC IT / AI Assistant | Added document 108 as CPG-ACCESS-021 implementation report for the /admin/access/ audit panel collapsed-by-default UI correction |
 | 0.85 | 2026-05-16 | GTC IT / AI Assistant | Added document 107 as CPG-ACCESS-020 implementation report for the first writable Project Owner user and group membership management slice in /admin/access/ |
 | 0.84 | 2026-05-16 | GTC IT / AI Assistant | Added document 106 as CPG-ACCESS-019 implementation report for Issue #10 group-based owner/team access, owners and cpg_team groups, protected /team/ entry page and removal of direct personal-email access as the normal rule |
 | 0.83 | 2026-05-15 | GTC IT / AI Assistant | Added document 105 as CPG-ACCESS-018 correction report for /admin/access/ contrast/readability fixes and bootstrap Project Owner e-mail lock to prevent browser-altered non-owner verification attempts |
