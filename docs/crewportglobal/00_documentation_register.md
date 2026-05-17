@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.97
+- Version: 0.98
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -61,6 +61,7 @@ Service-first public paths (action-first journey):
 /register/
 /register/confirm/
 /register/next/
+/register/authorization/
 /register/employer/
 /register/vessel/
 /employers/
@@ -194,6 +195,7 @@ docs/crewportglobal/
   108_cpg_access_021_admin_audit_panel_collapse_report.md
   109_cpg_mkt_007_public_navigation_registration_cta_report.md
   110_cpg_auth_001_public_person_registration_email_confirmation_report.md
+  111_cpg_auth_002_authorization_request_cards_frontend_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -313,6 +315,8 @@ Document 109 records the frontend-only BP-009 implementation slice that simplifi
 
 Document 110 records the first public registration/authentication implementation slice: `/register/` creates or confirms the physical person/user record, sends a protected SMTP email confirmation link, confirms `email_verified_at`, creates the email auth identity and routes the user to `/register/next/` without assigning roles or broad visibility.
 
+Document 111 records the frontend-only authorization-card request slice: `/register/authorization/` lets one physical person request multiple authorization cards such as Seafarer / Specialist and Buyer / Employer, keeps phone verification marked as `следует настроить`, supports returning later when status or activity changes, and preserves the boundary that saving cards does not grant groups, roles, visibility or right to act.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -416,6 +420,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.98 | 2026-05-17 | GTC IT / AI Assistant | Added document 111 as CPG-AUTH-002 authorization request cards frontend report covering multiple authorization card selection, return-to-authorization behavior, phone-verification-to-configure note and no automatic authority boundary |
 | 0.97 | 2026-05-17 | GTC IT / AI Assistant | Added document 110 as CPG-AUTH-001 public person registration email confirmation implementation report covering /register/ backend submission, protected SMTP confirmation link, email auth confirmation and sequential /register/next/ route |
 | 0.96 | 2026-05-17 | GTC IT / AI Assistant | Added document 109 as CPG-MKT-007 public navigation registration CTA implementation report for the first frontend-only BP-009 slice |
 | 0.95 | 2026-05-17 | GTC IT / AI Assistant | Added BP-009 public site and authenticated navigation transition plan covering public menu simplification, authenticated menu generation, route transition, protected team/admin navigation and implementation phases |

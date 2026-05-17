@@ -77,4 +77,61 @@ test('email confirmation page posts token and routes to registration sequence', 
   await expect(page.locator('h1')).toContainText('Continue step by step');
   await expect(page.locator('.sequence-card[open] summary')).toContainText('My tasks');
   await expect(page.locator('.sequence-card')).toHaveCount(5);
+  await expect(page.locator('a[href="https://crewportglobal.com/register/authorization/"]')).toHaveCount(2);
+  await expect(page.locator('text=To configure')).toBeVisible();
+});
+
+test('authorization page supports multiple card requests without granting authority', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('crewportglobal.registration.person', JSON.stringify({
+      person_id: '11111111-1111-4111-8111-111111111111',
+      email: 'person@example.com',
+      masked_email: 'p***@example.com',
+      registration_state: 'email_confirmed',
+      authorization_state: 'not_granted'
+    }));
+  });
+
+  await page.goto('/register/authorization/');
+
+  await expect(page.locator('h1')).toContainText('Request one or more authorization cards');
+  await expect(page.locator('.auth-card')).toHaveCount(4);
+  await expect(page.locator('.auth-card[open] summary')).toContainText('My tasks');
+  await expect(page.locator('.auth-card:not([open])')).toHaveCount(3);
+  await expect(page.locator('text=Phone confirmation')).toBeVisible();
+  await expect(page.locator('text=To configure')).toBeVisible();
+
+  await page.locator('#card-seafarer-specialist').check();
+  await page.locator('#card-buyer-employer').check();
+
+  await page.locator('.auth-card').nth(1).locator('summary').click();
+  await page.locator('#seafarer-rank').fill('Chief Officer');
+  await page.locator('#seafarer-department').selectOption('deck');
+  await page.locator('#seafarer-documents').selectOption('ready');
+  await page.locator('#seafarer-note').fill('Ready for reviewed matching.');
+
+  await page.locator('.auth-card').nth(2).locator('summary').click();
+  await page.locator('#employer-company').fill('Ocean Example Ltd');
+  await page.locator('#employer-position').fill('Crewing manager');
+  await page.locator('#employer-authority').selectOption('manager');
+  await page.locator('#employer-request-ready').selectOption('planning');
+  await page.locator('#employer-note').fill('Planning a crew request after evidence review.');
+
+  await page.locator('#save-authorization').click();
+  await expect(page.locator('#authorization-status')).toContainText('Authorization card requests saved');
+
+  await expect.poll(() => page.evaluate(() => {
+    const payload = JSON.parse(window.localStorage.getItem('crewportglobal.authorization.requests') || '{}');
+    return [
+      payload.phone_verification_state,
+      payload.authorization_state,
+      payload.cards.map((card: { card_type: string }) => card.card_type).sort().join('|'),
+      payload.cards.find((card: { card_type: string }) => card.card_type === 'seafarer_specialist')?.rank,
+      payload.cards.find((card: { card_type: string }) => card.card_type === 'buyer_employer')?.company_name,
+    ].join('::');
+  })).toBe('to_be_configured::requested_not_granted::buyer_employer|seafarer_specialist::Chief Officer::Ocean Example Ltd');
+
+  await page.reload();
+  await expect(page.locator('#card-seafarer-specialist')).toBeChecked();
+  await expect(page.locator('#card-buyer-employer')).toBeChecked();
 });
