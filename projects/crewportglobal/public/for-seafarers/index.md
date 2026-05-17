@@ -5,8 +5,8 @@ summary: Present your maritime experience clearly, keep documents organised and 
 trust_note: CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.
 primary_focus: Benefits of using CrewPortGlobal as a seafarer
 hero_ctas:
-  - label: Create Seafarer Profile
-    href: https://crewportglobal.com/create-profile/
+  - label: Login / Register
+    href: https://crewportglobal.com/register/
     style: primary
   - label: Browse Vacancies
     href: https://crewportglobal.com/vacancies/
@@ -22,8 +22,8 @@ summary_cards:
   - title: Stay inside fair rules
     text: Profiles are submitted for human review before wider candidate presentation, and no recruitment fees are charged to seafarers.
 related_links:
-  - label: Create Seafarer Profile
-    href: https://crewportglobal.com/create-profile/
+  - label: Login / Register
+    href: https://crewportglobal.com/register/
   - label: Browse Vacancies
     href: https://crewportglobal.com/vacancies/
   - label: Verification Policy

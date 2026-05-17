@@ -5,8 +5,8 @@ summary: No-fee candidate agreement for seafarers covering profiles, documents, 
 trust_note: CrewPortGlobal does not charge seafarers recruitment, placement or employment fees.
 primary_focus: Candidate registration baseline
 hero_ctas:
-  - label: Create Seafarer Profile
-    href: https://crewportglobal.com/onboarding/seafarer-registration/
+  - label: Login / Register
+    href: https://crewportglobal.com/register/
     style: primary
   - label: Read No Recruitment Fees Policy
     href: https://crewportglobal.com/legal/no-recruitment-fees/

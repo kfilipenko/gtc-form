@@ -70,7 +70,8 @@ test('same-page selector translates the homepage and persists after reload', asy
   await expect(page.locator('.site-nav')).toContainText('Документы');
   await page.locator('.nav-menu--documents > summary').click();
   await expect(page.locator('.nav-menu--documents')).toContainText('Для работодателей');
-  await expect(page.locator('.site-nav')).toContainText('Создать профиль');
+  await expect(page.locator('.site-nav')).toContainText('Вход / Регистрация');
+  await expect(page.locator('.site-nav')).not.toContainText('Создать профиль');
   await expect(page.locator('.landing-lead')).toContainText('CrewPortGlobal помогает морякам показать CV');
   await expect.poll(() => page.evaluate(() => window.localStorage.getItem('crewportglobal.language'))).toBe('ru');
 
@@ -131,16 +132,19 @@ test('homepage and vacancies pages avoid internal planning language', async ({ p
 test('homepage and vacancies CTAs match their destinations', async ({ page }) => {
   await page.goto('/index.html');
 
-  await expect(page.getByRole('link', { name: 'Prepare Vacancy Request' }).first()).toHaveAttribute('href', 'https://crewportglobal.com/post-vacancy/');
+  await expect(page.getByRole('link', { name: 'Login / Register' }).first()).toHaveAttribute('href', 'https://crewportglobal.com/register/');
   await expect(page.getByRole('link', { name: 'Open Vacancy Board' }).first()).toHaveAttribute('href', 'https://crewportglobal.com/vacancies/');
+  await expect(page.locator('main a[href="https://crewportglobal.com/create-profile/"]')).toHaveCount(0);
+  await expect(page.locator('main a[href="https://crewportglobal.com/post-vacancy/"]')).toHaveCount(0);
 
   await page.goto('/vacancies/index.html');
 
   await expect(page.locator('#vacancy-empty-state')).toContainText('No public vacancies are available yet');
   await expect(page.locator('#vacancy-empty-state')).toContainText('Create a seafarer profile to be ready to apply');
   await expect(page.getByRole('link', { name: 'Search Vacancies' })).toHaveAttribute('href', '#vacancy-results');
-  await expect(page.getByRole('link', { name: 'Prepare Vacancy Request' }).first()).toHaveAttribute('href', 'https://crewportglobal.com/post-vacancy/');
-  await expect(page.getByRole('link', { name: 'Create Seafarer Profile' }).first()).toHaveAttribute('href', 'https://crewportglobal.com/create-profile/');
+  await expect(page.getByRole('link', { name: 'Login / Register' }).first()).toHaveAttribute('href', 'https://crewportglobal.com/register/');
+  await expect(page.locator('main a[href="https://crewportglobal.com/create-profile/"]')).toHaveCount(0);
+  await expect(page.locator('main a[href="https://crewportglobal.com/post-vacancy/"]')).toHaveCount(0);
   await expect(page.locator('body')).not.toContainText('View Details');
 });
 

@@ -27,8 +27,6 @@ FAVICON_LINKS: Final = """  <link rel=\"icon\" type=\"image/png\" sizes=\"32x32\
 APPLICATION_NAV_ITEMS: Final = [
     ("/", "nav.home", "Home"),
     ("/vacancies/", "nav.vacancies", "Vacancies"),
-    ("/create-profile/", "nav.createProfile", "Create Profile"),
-    ("/post-vacancy/", "nav.postVacancy", "Post Vacancy"),
     ("/register/", "nav.loginRegister", "Login / Register"),
 ]
 
@@ -205,30 +203,11 @@ def render_nav_link(
     return f'<a class="{class_name}" href="{SITE_ORIGIN}{href}" data-i18n="{translation_key}">{fallback_label}</a>'
 
 
-def render_application_pages_dropdown() -> str:
-    items = []
-    for href, translation_key, fallback_label in APPLICATION_NAV_ITEMS:
-        items.append(render_nav_link(href, translation_key, fallback_label))
-    return "\n".join(
-        [
-            '<details class="nav-menu nav-menu--application-pages">',
-            '  <summary class="nav-menu__summary">',
-            '    <span data-i18n="nav.functionalPages">Functional pages</span>',
-            '    <span class="nav-menu__chevron" aria-hidden="true">▾</span>',
-            "  </summary>",
-            '  <div class="nav-menu__panel" data-i18n-aria-label="nav.applicationMenu">',
-            *[f"    {item}" for item in items],
-            "  </div>",
-            "</details>",
-        ]
-    )
-
-
 def render_nav(docs: list[dict[str, object]], current_slug: str) -> str:
     del docs
     items = [
-        render_nav_link("/", "nav.application", "Application"),
-        render_application_pages_dropdown(),
+        render_nav_link(href, translation_key, fallback_label)
+        for href, translation_key, fallback_label in APPLICATION_NAV_ITEMS
     ]
     current_href = f"/{current_slug}/"
     items.append('<span class="nav-section-label" data-i18n="nav.documents">Documents</span>')

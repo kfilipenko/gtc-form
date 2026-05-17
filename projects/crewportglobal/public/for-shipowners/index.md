@@ -5,8 +5,8 @@ summary: Present your company clearly, prepare vacancy requests and review candi
 trust_note: Employer access depends on company verification, clear vacancy information and human-reviewed candidate handling.
 primary_focus: Benefits of using CrewPortGlobal for maritime hiring
 hero_ctas:
-  - label: Prepare Vacancy Request
-    href: https://crewportglobal.com/post-vacancy/
+  - label: Login / Register
+    href: https://crewportglobal.com/register/
     style: primary
   - label: Browse Vacancies
     href: https://crewportglobal.com/vacancies/
@@ -22,8 +22,8 @@ summary_cards:
   - title: Review candidates through trust rules
     text: Candidate presentation is human-reviewed, and public vacancies appear only when real reviewed data is ready.
 related_links:
-  - label: Prepare Vacancy Request
-    href: https://crewportglobal.com/post-vacancy/
+  - label: Login / Register
+    href: https://crewportglobal.com/register/
   - label: Browse Vacancies
     href: https://crewportglobal.com/vacancies/
   - label: How It Works

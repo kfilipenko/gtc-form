@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.95
+- Version: 0.96
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -190,6 +190,7 @@ docs/crewportglobal/
   106_cpg_access_019_group_based_access_control_and_team_entry_page_report.md
   107_cpg_access_020_project_owner_user_group_membership_management_report.md
   108_cpg_access_021_admin_audit_panel_collapse_report.md
+  109_cpg_mkt_007_public_navigation_registration_cta_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -305,6 +306,8 @@ Business Process Register 0.8 adds BP-008. BP-008 records the client registratio
 
 Business Process Register 0.9 adds BP-009. BP-009 records the public site and authenticated navigation transition plan, including public menu simplification, authenticated menu generation, route transition behavior, direct URL safety, protected team/admin navigation, implementation phases and verification requirements before frontend implementation.
 
+Document 109 records the frontend-only BP-009 implementation slice that simplifies public and document navigation, removes public Create Profile / Post Vacancy navigation exposure and routes public functional CTAs to Login / Registration while preserving direct URLs.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -408,6 +411,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.96 | 2026-05-17 | GTC IT / AI Assistant | Added document 109 as CPG-MKT-007 public navigation registration CTA implementation report for the first frontend-only BP-009 slice |
 | 0.95 | 2026-05-17 | GTC IT / AI Assistant | Added BP-009 public site and authenticated navigation transition plan covering public menu simplification, authenticated menu generation, route transition, protected team/admin navigation and implementation phases |
 | 0.94 | 2026-05-17 | GTC IT / AI Assistant | Added BP-008 client registration and interaction procedure covering public-site entry, registration/authentication/path selection, seafarer/employer-side flows, internal interaction and public-to-authenticated navigation transition |
 | 0.93 | 2026-05-17 | GTC IT / AI Assistant | Added BP-007 personal cabinet UI layout and component requirements covering registration entry, collapsible card behavior, badges, forms, empty states, responsive layout and interaction rules |

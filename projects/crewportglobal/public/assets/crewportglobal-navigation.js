@@ -4,8 +4,6 @@
   const APPLICATION_LINKS = [
     { href: '/', key: 'nav.home', label: 'Home' },
     { href: '/vacancies/', key: 'nav.vacancies', label: 'Vacancies' },
-    { href: '/create-profile/', key: 'nav.createProfile', label: 'Create Profile' },
-    { href: '/post-vacancy/', key: 'nav.postVacancy', label: 'Post Vacancy' },
     { href: '/register/', key: 'nav.loginRegister', label: 'Login / Register' },
   ];
 
@@ -41,20 +39,6 @@
 
   function createDocumentLinks(activeHref) {
     return DOCUMENT_LINKS.map((item) => createLink(item, activeHref)).join('\n');
-  }
-
-  function createApplicationPagesMenu() {
-    return [
-      '<details class="nav-menu nav-menu--application-pages">',
-      '  <summary class="nav-menu__summary">',
-      '    <span data-i18n="nav.functionalPages">Functional pages</span>',
-      '    <span class="nav-menu__chevron" aria-hidden="true">▾</span>',
-      '  </summary>',
-      '  <div class="nav-menu__panel" data-i18n-aria-label="nav.applicationMenu">',
-      createApplicationLinks('').split('\n').map((line) => `    ${line}`).join('\n'),
-      '  </div>',
-      '</details>',
-    ].join('\n');
   }
 
   function createDocumentsMenu() {
@@ -136,8 +120,7 @@
   function renderDocumentsNav(activeHref) {
     return [
       '<nav class="site-nav site-nav--documents" aria-label="Document navigation" data-i18n-aria-label="nav.documentsMenu">',
-      `  ${createLink({ href: '/', key: 'nav.application', label: 'Application' }, '')}`,
-      `  ${createApplicationPagesMenu().split('\n').join('\n  ')}`,
+      createApplicationLinks('').split('\n').map((line) => `  ${line}`).join('\n'),
       '  <span class="nav-section-label" data-i18n="nav.documents">Documents</span>',
       createDocumentLinks(activeHref).split('\n').map((line) => `  ${line}`).join('\n'),
       '</nav>',
