@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.94
+- Version: 0.95
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -200,6 +200,7 @@ docs/crewportglobal/
     06_scoped_visibility_and_access_check_contract.md
     07_personal_cabinet_ui_layout_and_component_requirements.md
     08_client_registration_and_interaction_procedure.md
+    09_public_site_and_authenticated_navigation_transition_plan.md
 ```
 
 ### 3.3 Product governance control
@@ -301,6 +302,8 @@ Business Process Register 0.6 adds BP-006. BP-006 records the scoped visibility 
 Business Process Register 0.7 adds BP-007. BP-007 records the personal cabinet UI layout and component requirements, including first-time registration entry, card order, collapsible card behavior, badges, task-first layout, forms, empty states, responsive layout and interaction rules for future implementation.
 
 Business Process Register 0.8 adds BP-008. BP-008 records the client registration and interaction procedure, including public-site entry, physical person registration, service-account authentication, intended path selection, seafarer and employer-side flows, internal team/review interaction and the transition rule that public pages provide general information while functional pages and menus are generated after login by scoped access context.
+
+Business Process Register 0.9 adds BP-009. BP-009 records the public site and authenticated navigation transition plan, including public menu simplification, authenticated menu generation, route transition behavior, direct URL safety, protected team/admin navigation, implementation phases and verification requirements before frontend implementation.
 
 Mandatory control statement:
 
@@ -405,6 +408,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.95 | 2026-05-17 | GTC IT / AI Assistant | Added BP-009 public site and authenticated navigation transition plan covering public menu simplification, authenticated menu generation, route transition, protected team/admin navigation and implementation phases |
 | 0.94 | 2026-05-17 | GTC IT / AI Assistant | Added BP-008 client registration and interaction procedure covering public-site entry, registration/authentication/path selection, seafarer/employer-side flows, internal interaction and public-to-authenticated navigation transition |
 | 0.93 | 2026-05-17 | GTC IT / AI Assistant | Added BP-007 personal cabinet UI layout and component requirements covering registration entry, collapsible card behavior, badges, forms, empty states, responsive layout and interaction rules |
 | 0.92 | 2026-05-17 | GTC IT / AI Assistant | Added BP-006 scoped visibility and access-check contract covering future API access decisions, field filtering, action scopes, audit obligations, AI context limits and standard collapsible card presentation |
