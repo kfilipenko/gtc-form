@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.87
+- Version: 0.88
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -193,6 +193,7 @@ docs/crewportglobal/
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
+    02_role_instructions_for_team_and_ai_agents.md
 ```
 
 ### 3.3 Product governance control
@@ -280,6 +281,8 @@ Document 107 records the first writable Project Owner access-management console 
 Document 108 records the `/admin/access/` usability correction that makes the audit panel collapsed by default while preserving click-to-open access to recent audit events, existing audit data loading and all admin access-control boundaries.
 
 Business Process Register 0.1 starts a separate CrewPortGlobal business-process documentation block for CPG-BIZ documents. BP-001 records Issue #11 / CPG-BIZ-018: employer-side primary payer declaration, no-fee seafarer boundary, client lifecycle, `Tasks` and `My clients` working lists, SLA color states, client-card automation and the six working-group operating model.
+
+Business Process Register 0.2 adds BP-002 for Issue #12 / CPG-BIZ-019. BP-002 records role instructions for the six working groups and future AI agents, including Tasks / My clients behavior, client visibility, required client-card updates, SLA colors, handoff rules, escalation, revenue/no-fee boundaries and AI-agent decision limits.
 
 Mandatory control statement:
 
@@ -384,6 +387,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.88 | 2026-05-16 | GTC IT / AI Assistant | Added BP-002 as CPG-BIZ-019 role instructions for team and AI agents covering six working groups, Tasks/My clients, SLA colors, client-card updates, handoffs, escalation, revenue/no-fee boundaries and AI decision limits |
 | 0.87 | 2026-05-16 | GTC IT / AI Assistant | Added separate business-process documentation block with its own register and BP-001 for Issue #11 / CPG-BIZ-018 business declaration, client lifecycle, Tasks/My clients, SLA colors and working-group operating model |
 | 0.86 | 2026-05-16 | GTC IT / AI Assistant | Added document 108 as CPG-ACCESS-021 implementation report for the /admin/access/ audit panel collapsed-by-default UI correction |
 | 0.85 | 2026-05-16 | GTC IT / AI Assistant | Added document 107 as CPG-ACCESS-020 implementation report for the first writable Project Owner user and group membership management slice in /admin/access/ |

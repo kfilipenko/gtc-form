@@ -1,0 +1,1436 @@
+# CrewPortGlobal - BP-002 Role Instructions For Team And AI Agents
+
+- Project: CrewPortGlobal.com
+- Company: GTC INFORMATION TECHNOLOGY FZ-LLC
+- Business-process ID: BP-002
+- Source task: GitHub Issue #12 / CPG-BIZ-019
+- Baseline: BP-001 Business Declaration, Client Lifecycle and Operating Model
+- Date: 2026-05-16
+- Document type: Role instructions and AI-agent operating guidance
+- Status: Drafted for Project Owner review
+
+## 1. Purpose
+
+This document converts the BP-001 business-process model into practical role instructions for CrewPortGlobal team groups and future AI agents.
+
+The instructions define:
+
+1. what each group is responsible for;
+2. what each group sees in `Tasks`;
+3. what each group sees in `My clients`;
+4. how the client card must be updated;
+5. how deadlines and SLA colors must be interpreted;
+6. when a client moves to the next group;
+7. when a client stays connected to the specialist;
+8. what a human specialist must never do;
+9. what an AI agent may assist with;
+10. what an AI agent must never decide independently.
+
+## 2. Baseline From BP-001
+
+BP-002 uses BP-001 as the controlling operating baseline.
+
+The shared model is:
+
+```text
+Tasks = clients or client-linked records requiring action now.
+My clients = clients connected to the specialist by responsibility, relationship, previous work, retention, follow-up or future reward attribution.
+```
+
+The client card remains the operational source of truth.
+
+Tasks should be generated from the client card state, lifecycle stage, missing data, deadline, payment state, service state, support case, compliance review, next-contact plan or repeat-sales plan.
+
+## 3. Commercial And Compliance Boundary
+
+Employer-side clients are the primary payers:
+
+```text
+shipowners
+vessel operators
+ship managers
+crew managers
+maritime employers
+approved business clients
+```
+
+Seafarers must not be charged recruitment or placement fees.
+
+Optional seafarer services may be offered only when they are voluntary, separated from employment placement and not required for job access.
+
+Allowed optional service categories may include:
+
+```text
+training
+qualification improvement
+document preparation support
+career consultation
+profile improvement
+job search support outside the portal
+```
+
+These optional services must not become hidden employment-placement fees.
+
+## 4. Client Visibility Rule
+
+Client visibility must be scoped.
+
+Allowed visibility:
+
+```text
+responsible manager
+current specialist
+authorized group lead
+authorized controller
+Project Owner
+approved AI agent with task-scoped access
+```
+
+Default forbidden model:
+
+```text
+all team members see all clients
+personal e-mail allowlists replace group-based access
+AI agent receives unrestricted client data
+client data is shown without task, relationship or control reason
+```
+
+## 5. Shared SLA Color Model
+
+Every active task must have a deadline and a color status.
+
+| Color | Meaning | Default interpretation |
+|---|---|---|
+| Green | On time | Work is active and deadline is not close |
+| Yellow | Deadline approaching | Action is required soon |
+| Red | Overdue | Deadline passed and escalation may be needed |
+| Grey | Waiting for client | Work is blocked by client response, document, payment or other external input |
+| Blue | Completed / no current action | Work is complete, closed, paused or scheduled for future follow-up |
+
+Color must not replace judgment. A grey waiting state still needs a next-contact date. A blue completed state still needs retention or repeat-sales planning when relevant.
+
+## 6. AI-Agent Global Boundary
+
+AI agents may:
+
+1. assist;
+2. classify;
+3. draft;
+4. remind;
+5. summarize;
+6. check completeness;
+7. detect duplicates;
+8. prepare recommendations;
+9. identify missing client-card fields;
+10. prepare quality-control summaries.
+
+AI agents must not independently make final:
+
+1. legal decisions;
+2. employment decisions;
+3. payment decisions;
+4. reward decisions;
+5. compliance decisions;
+6. client-approval decisions;
+7. access-control decisions;
+8. binding commercial commitments.
+
+Human review remains mandatory for approvals, rejections, exceptions, payments, client eligibility and compliance outcomes.
+
+## 7. Group 0 - Marketing
+
+### 7.1 Role purpose
+
+Generate, classify and qualify employer-side and seafarer-side interest, while preserving source attribution for future sales, retention and reward analysis.
+
+### 7.2 Main business responsibility
+
+Marketing turns raw attention into qualified client or candidate records that can be handled by the correct operational group.
+
+### 7.3 Client types handled
+
+```text
+shipowner leads
+employer leads
+crew manager leads
+vessel operator leads
+seafarer leads
+partner leads
+referral leads
+```
+
+### 7.4 What appears in Tasks
+
+```text
+new unqualified leads
+duplicate-check tasks
+first-contact tasks
+source clarification tasks
+campaign follow-up tasks
+lead routing tasks
+overdue lead response tasks
+```
+
+### 7.5 What appears in My clients
+
+```text
+leads generated by the specialist
+leads contacted by the specialist
+leads converted from the specialist's campaign
+clients needing remarketing
+clients linked to source attribution
+clients scheduled for future marketing follow-up
+```
+
+### 7.6 Inputs received
+
+```text
+website inquiries
+campaign forms
+social media contacts
+event contacts
+referrals
+partner introductions
+inbound e-mails
+phone or messenger requests
+```
+
+### 7.7 Actions to perform
+
+1. create or confirm the lead card;
+2. identify client type;
+3. record source channel and campaign;
+4. check for duplicates;
+5. perform first qualification;
+6. schedule first contact;
+7. route employer-side leads to client registration;
+8. route seafarer leads to seafarer registration and development;
+9. mark unresponsive leads with next follow-up date;
+10. close irrelevant leads with reason.
+
+### 7.8 Required client-card updates
+
+```text
+client_type
+source_channel
+source_campaign
+first_contact_status
+lead_quality
+responsible_manager if assigned
+current_group
+current_stage
+current_task
+task_deadline
+task_color_state
+next_contact_date
+marketing_notes
+duplicate_check_status
+```
+
+### 7.9 Deadlines / SLA
+
+```text
+hot lead first review: same business day
+standard lead first review: within 1 business day
+lead routing after qualification: same business day
+unresponsive lead follow-up: within 3 business days
+campaign quality review: weekly
+```
+
+### 7.10 Color-status interpretation
+
+```text
+green: lead is inside first-review or follow-up deadline
+yellow: first-review or follow-up deadline is close
+red: lead was not reviewed or routed on time
+grey: waiting for lead/client response
+blue: lead routed, closed or scheduled for future campaign
+```
+
+### 7.11 Outputs / result of work
+
+```text
+qualified employer lead
+qualified seafarer lead
+closed irrelevant lead
+duplicate lead record
+source attribution
+first-contact note
+routing decision
+```
+
+### 7.12 When to transfer the client to the next group
+
+Transfer to Group 1 when an employer-side lead is relevant and contactable.
+
+Transfer to Group 2 when a seafarer lead is relevant and willing to create or improve a profile.
+
+Transfer to Group 5 when a lead contains compliance risk, prohibited request, suspicious behavior or complaint language.
+
+### 7.13 When to keep the client in My clients
+
+Keep the record when the specialist generated, qualified, contacted or owns the marketing source for the lead, even after transfer to another group.
+
+### 7.14 What the specialist must never do
+
+1. promise employment;
+2. promise crew placement;
+3. charge seafarer recruitment or placement fees;
+4. make binding commercial offers without sales approval;
+5. expose all lead records to unrelated team members;
+6. delete lead source history;
+7. hide duplicate or low-quality source data.
+
+### 7.15 Quality indicators
+
+```text
+source accuracy
+lead qualification accuracy
+duplicate detection rate
+first-contact timeliness
+routing timeliness
+campaign-to-client attribution completeness
+conversion rate by source
+```
+
+### 7.16 Revenue / reward link
+
+Marketing may create source attribution for future employer-side revenue and campaign performance analysis.
+
+Marketing source attribution must not create seafarer recruitment-fee liability.
+
+### 7.17 Escalation rules
+
+Escalate when:
+
+1. a hot employer lead is overdue;
+2. a lead requests prohibited seafarer fees;
+3. a client asks for illegal or unsafe crew terms;
+4. duplicate records cannot be resolved;
+5. source quality appears fraudulent;
+6. a complaint or risk signal appears.
+
+### 7.18 Daily checklist
+
+1. review new leads;
+2. process red and yellow lead tasks first;
+3. check duplicate alerts;
+4. route qualified leads;
+5. update next-contact dates;
+6. confirm source attribution.
+
+### 7.19 Weekly checklist
+
+1. review campaign quality;
+2. review conversion by source;
+3. clean duplicate lead patterns;
+4. check stale grey waiting leads;
+5. identify repeat-campaign opportunities;
+6. send source-quality issues to internal control if needed.
+
+### 7.20 AI Agent Instruction
+
+The AI agent may classify leads, detect duplicates, draft first-contact messages, summarize campaign performance and recommend routing.
+
+The AI agent must not approve clients, promise jobs, decide commercial terms, contact clients without approved workflow or override no-fee controls.
+
+## 8. Group 1 - Shipowners / Employers / Clients Registration
+
+### 8.1 Role purpose
+
+Register employer-side clients and collect the information required for verification, commercial handling and service delivery.
+
+### 8.2 Main business responsibility
+
+This group turns qualified employer-side leads into structured client cards with company, representative, vessel and service-need data.
+
+### 8.3 Client types handled
+
+```text
+shipowners
+employers
+crew managers
+crewing companies
+vessel operators
+ship managers
+company representatives
+```
+
+### 8.4 What appears in Tasks
+
+```text
+qualified employer leads awaiting registration
+incomplete company cards
+missing representative data
+missing vessel context
+missing crew request data
+verification handoff tasks
+client reactivation tasks
+```
+
+### 8.5 What appears in My clients
+
+```text
+clients registered by the specialist
+clients assigned to the specialist as responsible manager
+clients pending missing data
+clients transferred to verification or sales but still manager-linked
+clients scheduled for retention or repeat crew requests
+```
+
+### 8.6 Inputs received
+
+```text
+qualified employer lead
+company name and contact data
+representative details
+authority evidence
+vessel information
+crew request information
+commercial need summary
+support notes from marketing
+```
+
+### 8.7 Actions to perform
+
+1. create or confirm client card;
+2. assign responsible manager;
+3. collect company details;
+4. collect representative details;
+5. collect authority evidence where required;
+6. collect vessel and crew request context;
+7. identify missing information;
+8. create missing-information task;
+9. prepare verification handoff;
+10. prepare service-need summary for sales.
+
+### 8.8 Required client-card updates
+
+```text
+company_name
+company_type
+registered_country
+primary_business_email
+representative_name
+representative_authority_status
+vessel_context
+crew_request_context
+client_need
+responsible_manager
+current_specialist
+current_group
+current_stage
+current_task
+task_deadline
+task_color_state
+last_contact_date
+next_contact_date
+missing_information_list
+```
+
+### 8.9 Deadlines / SLA
+
+```text
+client card creation after qualified lead: same business day
+missing-information request: within 1 business day
+verification handoff after complete data: within 1 business day
+client follow-up while waiting: every 3 business days unless another date is approved
+```
+
+### 8.10 Color-status interpretation
+
+```text
+green: registration is progressing within SLA
+yellow: missing data or handoff deadline is close
+red: registration or handoff is overdue
+grey: waiting for client company, representative or vessel data
+blue: registration completed, transferred or scheduled for future follow-up
+```
+
+### 8.11 Outputs / result of work
+
+```text
+complete employer-side client card
+assigned responsible manager
+company profile draft
+representative profile
+vessel or crew request context
+verification handoff
+sales need summary
+```
+
+### 8.12 When to transfer the client to the next group
+
+Transfer to Group 5 when verification or compliance review is required.
+
+Transfer to Group 3 when the client need is clear enough for an offer, invoice or entitlement discussion.
+
+Transfer to Group 4 when the client has support questions or operational blockers.
+
+### 8.13 When to keep the client in My clients
+
+Keep the client when the specialist is the responsible manager, registered the client, owns the relationship, or is linked to future reward attribution.
+
+### 8.14 What the specialist must never do
+
+1. approve unverified authority;
+2. bypass verification;
+3. hide missing company or representative data;
+4. publish a crew request without required review;
+5. promise candidate availability;
+6. grant system access outside group-based controls;
+7. expose the client to unrelated team members.
+
+### 8.15 Quality indicators
+
+```text
+client-card completeness
+representative authority completeness
+missing-data rate
+duplicate company rate
+handoff quality
+time from qualification to registration
+client response tracking completeness
+```
+
+### 8.16 Revenue / reward link
+
+The responsible manager relationship must remain linked for future employer-side revenue attribution and repeat sales.
+
+No reward rule may create or depend on charging seafarers recruitment or placement fees.
+
+### 8.17 Escalation rules
+
+Escalate when:
+
+1. company identity appears suspicious;
+2. representative authority is unclear;
+3. client requests unsafe or unlawful terms;
+4. client data remains incomplete past follow-up threshold;
+5. duplicate company records conflict;
+6. high-value or urgent client is at risk of loss.
+
+### 8.18 Daily checklist
+
+1. review new employer registration tasks;
+2. handle red and yellow tasks first;
+3. request missing information;
+4. update client-card fields;
+5. prepare verification handoffs;
+6. update next-contact dates.
+
+### 8.19 Weekly checklist
+
+1. review incomplete client cards;
+2. review grey waiting clients;
+3. check duplicate employer records;
+4. confirm responsible manager assignments;
+5. review handoff quality with internal control;
+6. identify clients ready for sales or repeat requests.
+
+### 8.20 AI Agent Instruction
+
+The AI agent may extract company fields, detect missing data, draft missing-information requests, identify duplicate clients and prepare verification checklists.
+
+The AI agent must not approve companies, approve representatives, create final commercial commitments, bypass human verification or decide client eligibility.
+
+## 9. Group 2 - Seafarer Registration And Development
+
+### 9.1 Role purpose
+
+Help seafarers create complete, useful and compliant profiles without charging recruitment or placement fees.
+
+### 9.2 Main business responsibility
+
+This group improves seafarer readiness, profile quality and document completeness so candidates can be considered for employer-side workflows.
+
+### 9.3 Client types handled
+
+```text
+seafarer candidates
+registered seafarers
+profile-draft users
+returning candidates
+seafarers interested in optional services
+```
+
+### 9.4 What appears in Tasks
+
+```text
+new seafarer profile drafts
+incomplete profile tasks
+missing certificate tasks
+availability update tasks
+correction follow-up tasks
+readiness review preparation tasks
+optional service inquiry tasks
+```
+
+### 9.5 What appears in My clients
+
+```text
+seafarers assisted by the specialist
+seafarers assigned for development
+seafarers needing periodic readiness follow-up
+seafarers with correction history
+seafarers interested in voluntary optional services
+```
+
+### 9.6 Inputs received
+
+```text
+profile draft
+CV data
+rank and experience information
+certificate metadata
+availability date
+preferred vessel or trade information
+correction requests
+candidate communication history
+```
+
+### 9.7 Actions to perform
+
+1. help complete profile fields;
+2. identify missing document metadata;
+3. record availability;
+4. summarize rank and experience;
+5. request corrections;
+6. prepare readiness summary;
+7. route profile to review when complete;
+8. track response to correction requests;
+9. record optional service interest separately;
+10. preserve no-fee compliance status.
+
+### 9.8 Required client-card updates
+
+```text
+client_type
+rank
+availability_date
+document_readiness_status
+profile_review_status
+candidate_matching_status
+optional_service_interest
+no_recruitment_fee_control_status
+responsible_manager if assigned
+current_specialist
+current_group
+current_stage
+current_task
+task_deadline
+task_color_state
+last_contact_date
+next_contact_date
+missing_document_list
+```
+
+### 9.9 Deadlines / SLA
+
+```text
+new candidate profile first review: within 2 business days
+missing document request: within 1 business day after detection
+correction follow-up: every 5 business days while waiting
+availability refresh: monthly for active candidates or by availability date
+optional service inquiry response: within 2 business days
+```
+
+### 9.10 Color-status interpretation
+
+```text
+green: profile development is inside SLA
+yellow: correction or review deadline is close
+red: profile review, document request or follow-up is overdue
+grey: waiting for seafarer response or documents
+blue: profile ready, closed, paused or scheduled for future refresh
+```
+
+### 9.11 Outputs / result of work
+
+```text
+complete seafarer profile
+readiness summary
+correction request
+document metadata update
+availability update
+candidate development recommendation
+review handoff
+optional service inquiry record
+```
+
+### 9.12 When to transfer the client to the next group
+
+Transfer to Group 5 when profile or document review is required.
+
+Transfer to Group 4 when the candidate has support questions or communication issues.
+
+Transfer to employer-side matching or review workflow only when profile readiness rules permit it.
+
+### 9.13 When to keep the client in My clients
+
+Keep the seafarer when the specialist assisted profile development, owns a development follow-up, is waiting for corrections, or is responsible for future readiness refresh.
+
+### 9.14 What the specialist must never do
+
+1. charge recruitment or placement fees;
+2. imply payment is required for job access;
+3. promise employment or vessel assignment;
+4. falsify certificate or experience data;
+5. approve own verification outcome;
+6. hide missing documents;
+7. mix optional services with job-access conditions.
+
+### 9.15 Quality indicators
+
+```text
+profile completeness
+document metadata completeness
+correction cycle count
+candidate response time
+readiness rate
+no-fee compliance accuracy
+availability freshness
+```
+
+### 9.16 Revenue / reward link
+
+Seafarer development work may be measured for quality and workload.
+
+Optional seafarer services may be tracked only as voluntary, separate services. They must not be linked to employment placement access or hidden recruitment fees.
+
+Employer-side matching revenue remains employer-side.
+
+### 9.17 Escalation rules
+
+Escalate when:
+
+1. a seafarer reports payment pressure;
+2. documents appear false or inconsistent;
+3. profile data conflicts with certificates;
+4. correction cycles become excessive;
+5. candidate complaint language appears;
+6. a high-priority candidate is blocked by internal delay.
+
+### 9.18 Daily checklist
+
+1. review new profile tasks;
+2. process red and yellow tasks first;
+3. update missing-document lists;
+4. send correction requests;
+5. update availability;
+6. prepare review handoffs.
+
+### 9.19 Weekly checklist
+
+1. review grey waiting candidates;
+2. refresh availability for active candidates;
+3. review correction-cycle patterns;
+4. check no-fee compliance notes;
+5. identify candidates ready for matching;
+6. review optional service inquiries for compliance separation.
+
+### 9.20 AI Agent Instruction
+
+The AI agent may extract CV fields, summarize experience, identify missing documents, draft correction messages and recommend profile improvements.
+
+The AI agent must not approve certificates, approve employment readiness, promise jobs, rank candidates for final hiring decision without human review or connect optional services to job access.
+
+## 10. Group 3 - Payments, Sales And Revenue Distribution
+
+### 10.1 Role purpose
+
+Convert approved employer-side needs into offers, invoices, payment tracking, service entitlements and revenue attribution.
+
+### 10.2 Main business responsibility
+
+This group protects the commercial workflow and confirms that paid employer-side services are properly offered, tracked and attributed.
+
+### 10.3 Client types handled
+
+```text
+shipowners
+employers
+crew managers
+vessel operators
+ship managers
+approved business clients
+internal responsible managers linked to revenue attribution
+```
+
+### 10.4 What appears in Tasks
+
+```text
+offer preparation tasks
+invoice preparation tasks
+payment follow-up tasks
+entitlement activation tasks
+billing exception tasks
+revenue attribution review tasks
+repeat-sale planning tasks
+```
+
+### 10.5 What appears in My clients
+
+```text
+clients with offers prepared by the specialist
+clients with invoices managed by the specialist
+clients with payment follow-up responsibility
+clients linked to revenue attribution
+clients ready for repeat sales
+```
+
+### 10.6 Inputs received
+
+```text
+service need summary
+verified or reviewable employer client card
+approved commercial scope
+pricing or tariff reference
+invoice request
+payment confirmation
+service entitlement request
+manager attribution data
+```
+
+### 10.7 Actions to perform
+
+1. prepare offer draft;
+2. confirm approved pricing source;
+3. prepare invoice request;
+4. track payment status;
+5. update service entitlement status;
+6. follow up overdue payment;
+7. record billing exception request;
+8. record revenue attribution data;
+9. prepare repeat-sale plan;
+10. hand off active service to the delivery or support group.
+
+### 10.8 Required client-card updates
+
+```text
+proposed_service
+commercial_terms_status
+offer_status
+invoice_status
+payment_status
+service_entitlement_status
+service_delivery_status
+responsible_manager
+sales_contributor
+manager_reward_link
+current_group
+current_stage
+current_task
+task_deadline
+task_color_state
+last_contact_date
+next_contact_date
+next_sale_plan
+```
+
+### 10.9 Deadlines / SLA
+
+```text
+offer after complete need summary: within 1 business day
+invoice after approved offer: within 1 business day
+payment follow-up after due date: within 1 business day
+entitlement update after payment confirmation: same business day
+revenue attribution review: before service cycle closure
+repeat-sale plan: before completed state
+```
+
+### 10.10 Color-status interpretation
+
+```text
+green: offer, invoice or entitlement action is inside SLA
+yellow: commercial or payment deadline is close
+red: offer, invoice, payment follow-up or entitlement update is overdue
+grey: waiting for client approval, payment or billing data
+blue: offer closed, payment confirmed, entitlement active or no current action
+```
+
+### 10.11 Outputs / result of work
+
+```text
+commercial offer draft
+invoice status
+payment status
+service entitlement
+billing exception request
+revenue attribution record
+repeat-sale plan
+handoff to service delivery
+```
+
+### 10.12 When to transfer the client to the next group
+
+Transfer to Group 4 when client communication or payment support is needed.
+
+Transfer to Group 5 when billing exception, compliance review or revenue attribution dispute appears.
+
+Transfer to operational service delivery when entitlement is active and service can start.
+
+### 10.13 When to keep the client in My clients
+
+Keep the client when the specialist owns offer follow-up, invoice follow-up, payment follow-up, revenue attribution, repeat-sale plan or commercial relationship history.
+
+### 10.14 What the specialist must never do
+
+1. charge seafarer recruitment or placement fees;
+2. activate paid service without approved payment or entitlement rule;
+3. promise outcomes not covered by service scope;
+4. change reward attribution without audit trail;
+5. hide overdue payment state;
+6. bypass billing exception review;
+7. issue unapproved discounts or commercial commitments.
+
+### 10.15 Quality indicators
+
+```text
+offer timeliness
+invoice accuracy
+payment follow-up timeliness
+entitlement accuracy
+unassigned revenue exceptions
+reward attribution completeness
+repeat-sale plan coverage
+billing exception traceability
+```
+
+### 10.16 Revenue / reward link
+
+This group owns employer-side revenue tracking and prepares reward attribution data for human-approved distribution.
+
+Reward attribution may include source manager, responsible manager, sales contributor and delivery contributor according to approved policy.
+
+AI or individual specialists must not finalize reward distribution without approved rules and human control.
+
+### 10.17 Escalation rules
+
+Escalate when:
+
+1. payment is overdue;
+2. client disputes invoice;
+3. revenue attribution is unclear;
+4. billing exception is requested;
+5. high-value offer is at risk;
+6. seafarer-fee risk appears;
+7. service entitlement conflicts with payment status.
+
+### 10.18 Daily checklist
+
+1. review red and yellow payment tasks;
+2. prepare due offers;
+3. prepare due invoices;
+4. update payment states;
+5. update entitlement states;
+6. record follow-up notes.
+
+### 10.19 Weekly checklist
+
+1. review unpaid invoices;
+2. review offer conversion;
+3. review entitlement exceptions;
+4. review revenue attribution completeness;
+5. update repeat-sale plans;
+6. prepare commercial risk summary for management.
+
+### 10.20 AI Agent Instruction
+
+The AI agent may draft offer summaries, detect missing billing data, flag overdue payments, summarize commercial history and recommend repeat-sale timing.
+
+The AI agent must not set final prices, issue invoices independently, approve discounts, confirm payment, distribute rewards or create binding commercial commitments.
+
+## 11. Group 4 - Client Support
+
+### 11.1 Role purpose
+
+Support clients and seafarers during active workflows, prevent loss between stages and ensure questions, blockers and complaints are routed correctly.
+
+### 11.2 Main business responsibility
+
+This group maintains communication continuity and ensures clients do not disappear when a workflow is waiting, blocked or unclear.
+
+### 11.3 Client types handled
+
+```text
+employer-side clients with support questions
+seafarers with support questions
+waiting clients
+blocked clients
+clients with service delivery questions
+clients with complaint signals
+```
+
+### 11.4 What appears in Tasks
+
+```text
+new support requests
+client questions
+missing-information follow-ups
+waiting-for-client reminders
+complaint signal triage
+service delivery issue tasks
+communication update tasks
+```
+
+### 11.5 What appears in My clients
+
+```text
+clients supported by the specialist
+clients with open support cases
+clients waiting for response
+clients needing scheduled follow-up
+clients with recurring support history
+```
+
+### 11.6 Inputs received
+
+```text
+support form submission
+client message
+internal request
+service delivery issue
+missing-information state
+payment support issue
+complaint language
+communication history
+```
+
+### 11.7 Actions to perform
+
+1. classify support request;
+2. answer approved routine questions;
+3. request missing information;
+4. update communication history;
+5. schedule next contact;
+6. route issue to correct group;
+7. escalate complaint signals;
+8. confirm client satisfaction when resolved;
+9. prevent client loss during waiting periods;
+10. close support task with outcome.
+
+### 11.8 Required client-card updates
+
+```text
+support_case_status
+last_contact_date
+next_contact_date
+current_task
+task_deadline
+task_color_state
+blocking_reason
+client_response_status
+communication_history
+support_notes
+escalation_status
+quality_signal
+```
+
+### 11.9 Deadlines / SLA
+
+```text
+urgent operational support first response: same business day
+standard support first response: within 1 business day
+waiting-for-client follow-up: by next_contact_date
+complaint signal escalation: same business day when severity requires it
+resolved issue closure note: same business day after resolution
+```
+
+### 11.10 Color-status interpretation
+
+```text
+green: support request is within response or follow-up SLA
+yellow: response or follow-up deadline is close
+red: support response or escalation is overdue
+grey: waiting for client response or external input
+blue: support issue resolved, closed or scheduled for future contact
+```
+
+### 11.11 Outputs / result of work
+
+```text
+support response
+support note
+missing-information request
+route to specialist
+complaint escalation
+updated next-contact date
+client satisfaction signal
+closed support task
+```
+
+### 11.12 When to transfer the client to the next group
+
+Transfer to Group 1 when employer registration data is missing.
+
+Transfer to Group 2 when seafarer profile support is needed.
+
+Transfer to Group 3 when payment, invoice or entitlement support is needed.
+
+Transfer to Group 5 when complaint, compliance, quality or control review is required.
+
+### 11.13 When to keep the client in My clients
+
+Keep the client while a support case is open, while follow-up is scheduled, or when the specialist has recurring communication responsibility.
+
+### 11.14 What the specialist must never do
+
+1. make legal, payment or compliance decisions;
+2. approve client or candidate eligibility;
+3. promise employment or commercial outcomes;
+4. ignore complaint language;
+5. hide unresolved support issues;
+6. expose client records to unrelated team members;
+7. close tasks without outcome note.
+
+### 11.15 Quality indicators
+
+```text
+first response time
+resolution time
+reopen rate
+routing accuracy
+complaint escalation accuracy
+client satisfaction
+communication history completeness
+```
+
+### 11.16 Revenue / reward link
+
+Support quality may affect retention, repeat sales and service quality scoring.
+
+Support must preserve responsible manager attribution and must not alter revenue or reward distribution directly.
+
+### 11.17 Escalation rules
+
+Escalate when:
+
+1. complaint language appears;
+2. client is angry or at risk of loss;
+3. support issue becomes overdue;
+4. payment or service entitlement conflict appears;
+5. unsafe, illegal or discriminatory request appears;
+6. repeated support issue suggests process failure.
+
+### 11.18 Daily checklist
+
+1. review new support tasks;
+2. handle red and yellow tasks first;
+3. reply to due client messages;
+4. update communication history;
+5. route specialist issues;
+6. escalate complaint signals.
+
+### 11.19 Weekly checklist
+
+1. review reopened cases;
+2. review overdue support patterns;
+3. review clients waiting too long;
+4. summarize recurring questions;
+5. recommend process improvements;
+6. review support impact on retention.
+
+### 11.20 AI Agent Instruction
+
+The AI agent may draft support replies, summarize history, classify support requests, detect complaint language and recommend routing.
+
+The AI agent must not send sensitive replies without approved workflow, make final legal or compliance decisions, approve payments, promise employment or close complaints independently.
+
+## 12. Group 5 - Internal Control
+
+### 12.1 Role purpose
+
+Protect compliance, quality, auditability, no-fee controls, access boundaries and process discipline.
+
+### 12.2 Main business responsibility
+
+This group reviews evidence, exceptions, overdue risks, complaints and quality signals so CrewPortGlobal remains controlled as it grows.
+
+### 12.3 Client types handled
+
+```text
+employer-side clients under verification
+seafarers under review
+clients with compliance flags
+clients with complaints
+clients with quality exceptions
+clients with billing or reward exceptions
+internal access or audit subjects
+```
+
+### 12.4 What appears in Tasks
+
+```text
+verification review tasks
+profile review tasks
+complaint review tasks
+quality review tasks
+overdue task control checks
+billing exception checks
+reward attribution exception checks
+access audit review tasks
+```
+
+### 12.5 What appears in My clients
+
+```text
+clients currently under control review
+clients with active compliance flags
+clients with complaint history
+clients with quality exceptions
+clients assigned to the controller for follow-up
+```
+
+### 12.6 Inputs received
+
+```text
+verification evidence
+review request
+complaint record
+support escalation
+billing exception request
+reward exception request
+overdue task report
+access audit event
+quality score
+```
+
+### 12.7 Actions to perform
+
+1. review evidence;
+2. approve, reject or return for correction where authorized;
+3. create correction request;
+4. review complaint severity;
+5. monitor overdue task patterns;
+6. review no-fee compliance;
+7. review billing and reward exceptions;
+8. record audit note;
+9. escalate high-risk case to Project Owner;
+10. recommend process improvement.
+
+### 12.8 Required client-card updates
+
+```text
+verification_status
+review_status
+compliance_flag
+complaint_status
+quality_score
+control_decision
+correction_reason
+exception_status
+audit_reference
+current_group
+current_stage
+current_task
+task_deadline
+task_color_state
+last_control_review_date
+next_control_review_date
+```
+
+### 12.9 Deadlines / SLA
+
+```text
+standard verification review: within 2 business days after complete data
+high-risk exception review: same business day or next business day depending severity
+complaint-linked review: according to complaint severity
+red overdue task review: daily
+quality review after service completion: within 3 business days
+access-audit exception review: same business day when high risk
+```
+
+### 12.10 Color-status interpretation
+
+```text
+green: control review is inside SLA
+yellow: review deadline is close
+red: review, complaint, exception or audit check is overdue
+grey: waiting for evidence, client response or specialist correction
+blue: decision made, review closed or scheduled for future control check
+```
+
+### 12.11 Outputs / result of work
+
+```text
+approval
+rejection
+return for correction
+exception decision
+complaint escalation
+audit note
+quality score
+process improvement recommendation
+Project Owner escalation
+```
+
+### 12.12 When to transfer the client to the next group
+
+Transfer back to the originating group when corrections are needed.
+
+Transfer to Group 3 when billing or revenue action is approved.
+
+Transfer to Group 4 when communication, complaint support or client follow-up is needed.
+
+Transfer to operational workflow when review is approved and no blockers remain.
+
+### 12.13 When to keep the client in My clients
+
+Keep the client while a control review, complaint, exception, quality issue or audit follow-up remains open.
+
+### 12.14 What the specialist must never do
+
+1. approve own conflict-of-interest case;
+2. hide compliance flags;
+3. delete audit history;
+4. bypass no-fee controls;
+5. approve payment or reward exceptions without policy basis;
+6. expose sensitive evidence unnecessarily;
+7. let AI make final control decisions.
+
+### 12.15 Quality indicators
+
+```text
+review timeliness
+decision consistency
+correction clarity
+audit completeness
+overdue task reduction
+exception traceability
+complaint closure quality
+no-fee compliance accuracy
+```
+
+### 12.16 Revenue / reward link
+
+Internal Control validates that revenue and reward workflows follow approved policy.
+
+It may review exceptions, but final reward distribution rules must remain documented and approved.
+
+Internal Control must protect seafarer no-fee compliance even when revenue pressure exists.
+
+### 12.17 Escalation rules
+
+Escalate to Project Owner when:
+
+1. high-risk compliance issue appears;
+2. complaint alleges serious harm;
+3. seafarer-fee violation is suspected;
+4. access abuse is suspected;
+5. payment or reward exception exceeds normal authority;
+6. audit trail is missing for material action;
+7. repeated overdue tasks indicate management failure.
+
+### 12.18 Daily checklist
+
+1. review high-risk and red control tasks;
+2. review complaint escalations;
+3. review overdue task report;
+4. process due verification reviews;
+5. update audit notes;
+6. escalate high-risk exceptions.
+
+### 12.19 Weekly checklist
+
+1. review control decision consistency;
+2. review overdue trends;
+3. review no-fee compliance signals;
+4. review billing and reward exceptions;
+5. review access audit patterns;
+6. prepare process improvement recommendations.
+
+### 12.20 AI Agent Instruction
+
+The AI agent may summarize evidence, identify missing audit trail, detect inconsistencies, prepare review notes and list overdue risks.
+
+The AI agent must not approve, reject, close complaints, decide compliance, change audit records, grant access, approve payments or decide reward distribution.
+
+## 13. Shared Handoff Rule
+
+Every handoff between groups must record:
+
+```text
+source_group
+target_group
+source_specialist
+target_specialist if known
+handoff_reason
+client_card_state_before_handoff
+required_next_action
+deadline
+handoff_time
+audit_reference
+```
+
+The responsible manager should remain connected in `My clients` unless formal reassignment occurs.
+
+## 14. Shared Daily Operating Order
+
+Every specialist should start daily work in this order:
+
+1. red tasks;
+2. yellow tasks;
+3. grey tasks with due follow-up today;
+4. new tasks;
+5. green tasks by priority;
+6. blue completed tasks that need retention or next-sale planning;
+7. `My clients` follow-up review.
+
+## 15. Shared Weekly Operating Order
+
+Every group lead should review weekly:
+
+1. overdue tasks;
+2. approaching deadlines;
+3. stale grey waiting states;
+4. clients without responsible manager;
+5. clients without next-contact date;
+6. completed clients without next-sale or retention plan;
+7. quality indicators;
+8. handoff problems;
+9. AI-agent recommendation quality;
+10. process changes needed for the next week.
+
+## 16. Open Questions For Project Owner
+
+The next documents should resolve:
+
+1. exact SLA thresholds by group and client priority;
+2. exact group leads and escalation authority levels;
+3. exact reward attribution rules for source manager, responsible manager, sales contributor and delivery contributor;
+4. exact list of approved voluntary seafarer services;
+5. exact client-card data model for implementation;
+6. exact first group portal pages to build;
+7. exact AI-agent data access scopes for each group;
+8. exact complaint severity matrix mapping to Internal Control tasks.
+
+## 17. Implementation Boundary
+
+This document is business-process documentation only.
+
+It does not implement:
+
+```text
+database schema changes
+backend routes
+frontend portal pages
+payment logic
+reward calculation
+AI-agent runtime
+access-control enforcement changes
+nginx/server configuration
+deployment
+```
+
+## 18. Next Recommended Work
+
+Recommended next document:
+
+```text
+BP-003 - Client card data model and automation events
+```
+
+Reason:
+
+BP-001 defined the operating model and BP-002 defined role instructions. The next step should define the exact data fields, events and task-generation rules that will later drive backend tables, APIs and portal pages.

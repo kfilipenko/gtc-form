@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 0.1
+- Version: 0.2
 - Status: For internal review
 
 ## 1. Purpose
@@ -36,6 +36,7 @@ For this reason, the approved safe structure for the new block is:
 docs/crewportglobal/business_processes/
   00_business_process_register.md
   01_business_declaration_client_lifecycle_and_operating_model.md
+  02_role_instructions_for_team_and_ai_agents.md
 ```
 
 ## 3. Active Business-Process Documents
@@ -43,6 +44,7 @@ docs/crewportglobal/business_processes/
 | BP ID | File | Source task | Status | Purpose |
 |---|---|---|---|---|
 | BP-001 | `01_business_declaration_client_lifecycle_and_operating_model.md` | GitHub Issue #11 / CPG-BIZ-018 | Drafted for owner review | Business declaration, client lifecycle, Tasks / My clients model, SLA colors, client card automation and working-group operating model |
+| BP-002 | `02_role_instructions_for_team_and_ai_agents.md` | GitHub Issue #12 / CPG-BIZ-019 | Drafted for owner review | Role instructions for the six working groups, including Tasks / My clients behavior, client-card updates, SLA colors, handoffs, escalation rules, revenue/no-fee boundaries and AI-agent instructions |
 
 ## 4. Core Controls Introduced By This Block
 
@@ -58,6 +60,7 @@ This documentation block starts from the following approved business controls:
 8. The client card is the source of automation for tasks, deadlines, assignments, handoffs, revenue logic and repeat sales.
 9. Deadlines must be visible through color states: green, yellow, red, grey and blue.
 10. Each group page and AI-agent instruction must derive from the approved operating model, not from ad hoc manual task creation.
+11. AI agents may assist, classify, draft, remind, summarize, check completeness and prepare recommendations, but must not independently make final legal, employment, payment, reward, compliance or client-approval decisions.
 
 ## 5. Intended Use
 
@@ -77,4 +80,5 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.2 | 2026-05-16 | GTC IT / AI Assistant | Added BP-002 role instructions for team and AI agents covering six working groups, Tasks / My clients behavior, SLA colors, client-card updates, handoffs, escalation and AI boundaries |
 | 0.1 | 2026-05-16 | GTC IT / AI Assistant | Created separate business-process documentation register and registered BP-001 for CPG-BIZ-018 |
