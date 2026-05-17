@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Buyer authorization form</title>
+  <meta name="description" content="Complete the CrewPortGlobal buyer, employer or authorized representative authorization request form.">
+  <link rel="canonical" href="https://crewportglobal.com/register/authorization/buyer-employer/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../../../assets/crewportglobal-docs.css">
+  <link rel="stylesheet" href="../../../assets/crewportglobal-app.css">
+  <link rel="stylesheet" href="../../../assets/crewportglobal-authz.css">
+</head>
+<body class="doc-body cpg-app-page">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+    </header>
+
+    <div data-cpg-navigation="application" data-cpg-nav-active="/register/"></div>
+    <script src="../../../assets/crewportglobal-navigation.js"></script>
+
+    <main class="doc-main">
+      <section class="card app-panel authorization-layout">
+        <p class="eyebrow" data-i18n="be.eyebrow">Buyer / Employer authorization</p>
+        <h1 data-i18n="be.title">Complete the buyer / employer form.</h1>
+        <p data-i18n="be.copy">This form collects company, authority and demand-side evidence needed to request buyer, employer or authorized representative status. Saving the form does not grant company visibility or right to act automatically.</p>
+
+        <details class="auth-card" open>
+          <summary data-i18n="be.tasks.title">My tasks</summary>
+          <div class="auth-card__content">
+            <ul class="task-list">
+              <li>
+                <span class="task-state" data-i18n="be.tasks.company.state">Now</span>
+                <strong data-i18n="be.tasks.company.title">Describe the buyer-side context</strong>
+                <div data-i18n="be.tasks.company.copy">Provide company, representative role, authority basis and crew request context.</div>
+              </li>
+              <li>
+                <span class="task-state" data-i18n="be.tasks.docs.state">Now</span>
+                <strong data-i18n="be.tasks.docs.title">Attach authority documents</strong>
+                <div data-i18n="be.tasks.docs.copy">Upload controls are prepared for future backend storage. In this slice only document metadata is saved locally.</div>
+              </li>
+            </ul>
+          </div>
+        </details>
+
+        <form id="buyer-form" class="authz-section">
+          <h2 class="app-card-title" data-i18n="be.form.title">Buyer-side status request</h2>
+          <div class="field-grid">
+            <label class="field-box">
+              <strong data-i18n="be.company">Company / buyer name</strong>
+              <input id="buyer-company" type="text" placeholder="Ocean Example Ltd" data-i18n-placeholder="be.company.placeholder">
+            </label>
+            <label class="field-box">
+              <strong data-i18n="be.country">Company country</strong>
+              <input id="buyer-country" type="text" placeholder="United Arab Emirates" data-i18n-placeholder="be.country.placeholder">
+            </label>
+            <label class="field-box">
+              <strong data-i18n="be.website">Company website</strong>
+              <input id="buyer-website" type="url" placeholder="https://example.com" data-i18n-placeholder="be.website.placeholder">
+            </label>
+            <label class="field-box">
+              <strong data-i18n="be.position">Your position</strong>
+              <input id="buyer-position" type="text" placeholder="Crewing manager" data-i18n-placeholder="be.position.placeholder">
+            </label>
+            <label class="field-box">
+              <strong data-i18n="be.authority">Authority basis</strong>
+              <select id="buyer-authority">
+                <option value="" data-i18n="be.option.select">Select</option>
+                <option value="owner" data-i18n="be.authority.owner">Owner / director</option>
+                <option value="employee" data-i18n="be.authority.employee">Company employee</option>
+                <option value="authorized_representative" data-i18n="be.authority.representative">Authorized representative</option>
+                <option value="power_of_attorney" data-i18n="be.authority.poa">Power of attorney</option>
+                <option value="other" data-i18n="be.authority.other">Other evidence</option>
+              </select>
+            </label>
+            <label class="field-box">
+              <strong data-i18n="be.buyerType">Buyer-side type</strong>
+              <select id="buyer-type">
+                <option value="" data-i18n="be.option.select">Select</option>
+                <option value="employer" data-i18n="be.type.employer">Employer</option>
+                <option value="shipowner" data-i18n="be.type.shipowner">Shipowner</option>
+                <option value="ship_manager" data-i18n="be.type.manager">Ship manager</option>
+                <option value="crewing_manager" data-i18n="be.type.crewing">Crewing manager</option>
+                <option value="vessel_operator" data-i18n="be.type.operator">Vessel operator</option>
+                <option value="charterer" data-i18n="be.type.charterer">Charterer</option>
+              </select>
+            </label>
+            <label class="field-box">
+              <strong data-i18n="be.requestStatus">Crew request status</strong>
+              <select id="buyer-request-status">
+                <option value="" data-i18n="be.option.select">Select</option>
+                <option value="ready" data-i18n="be.request.ready">Ready to prepare request</option>
+                <option value="planning" data-i18n="be.request.planning">Planning demand</option>
+                <option value="not_yet" data-i18n="be.request.notYet">Not yet</option>
+              </select>
+            </label>
+            <label class="field-box">
+              <strong data-i18n="be.vessel">Vessel / fleet context</strong>
+              <input id="buyer-vessel" type="text" placeholder="Vessel name, IMO or fleet type" data-i18n-placeholder="be.vessel.placeholder">
+            </label>
+            <label class="field-box">
+              <strong data-i18n="be.ranks">Requested ranks / crew demand</strong>
+              <input id="buyer-ranks" type="text" placeholder="Chief Officer, 2/E, AB" data-i18n-placeholder="be.ranks.placeholder">
+            </label>
+            <label class="field-box">
+              <strong data-i18n="be.timeline">Expected timeline</strong>
+              <input id="buyer-timeline" type="text" placeholder="Next 30 days" data-i18n-placeholder="be.timeline.placeholder">
+            </label>
+            <label class="field-box full">
+              <strong data-i18n="be.note">Buyer-side note</strong>
+              <textarea id="buyer-note" placeholder="Company context, demand details, evidence you can provide" data-i18n-placeholder="be.note.placeholder"></textarea>
+            </label>
+          </div>
+        </form>
+
+        <section class="authz-section">
+          <h2 class="app-card-title" data-i18n="be.docs.title">Documents for authority review</h2>
+          <p class="form-note" data-i18n="be.docs.copy">Attach documents that prove the company context and your right to act for the buyer-side request. Files are not uploaded to the server yet; metadata is saved locally until backend storage is implemented.</p>
+          <div class="field-grid">
+            <label class="field-box file-box">
+              <strong data-i18n="be.file.registration">Company registration / license</strong>
+              <input id="buyer-file-registration" type="file" accept=".pdf,.jpg,.jpeg,.png">
+            </label>
+            <label class="field-box file-box">
+              <strong data-i18n="be.file.authority">Authorization letter / POA</strong>
+              <input id="buyer-file-authority" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+            </label>
+            <label class="field-box file-box">
+              <strong data-i18n="be.file.representativeId">Representative ID</strong>
+              <input id="buyer-file-representative-id" type="file" accept=".pdf,.jpg,.jpeg,.png">
+            </label>
+            <label class="field-box file-box">
+              <strong data-i18n="be.file.vessel">Vessel / management evidence</strong>
+              <input id="buyer-file-vessel" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple>
+            </label>
+            <label class="field-box file-box">
+              <strong data-i18n="be.file.request">Crew request / service brief</strong>
+              <input id="buyer-file-request" type="file" accept=".pdf,.doc,.docx">
+            </label>
+            <label class="field-box file-box">
+              <strong data-i18n="be.file.other">Other evidence</strong>
+              <input id="buyer-file-other" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple>
+            </label>
+          </div>
+        </section>
+
+        <div class="inline-actions">
+          <button id="save-buyer-form" class="button primary" type="button" data-i18n="be.save">Save buyer form draft</button>
+          <a class="button secondary" href="https://crewportglobal.com/register/authorization/selected/" data-i18n="be.backSelected">Back to selected forms</a>
+          <a class="button secondary" href="https://crewportglobal.com/register/authorization/" data-i18n="be.change">Change authorization forms</a>
+        </div>
+        <p id="buyer-status" class="auth-status" data-i18n="be.status">Draft is not saved yet.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'be.eyebrow': 'Buyer / Employer authorization',
+        'be.title': 'Complete the buyer / employer form.',
+        'be.copy': 'This form collects company, authority and demand-side evidence needed to request buyer, employer or authorized representative status. Saving the form does not grant company visibility or right to act automatically.',
+        'be.tasks.title': 'My tasks',
+        'be.tasks.company.state': 'Now',
+        'be.tasks.company.title': 'Describe the buyer-side context',
+        'be.tasks.company.copy': 'Provide company, representative role, authority basis and crew request context.',
+        'be.tasks.docs.state': 'Now',
+        'be.tasks.docs.title': 'Attach authority documents',
+        'be.tasks.docs.copy': 'Upload controls are prepared for future backend storage. In this slice only document metadata is saved locally.',
+        'be.form.title': 'Buyer-side status request',
+        'be.company': 'Company / buyer name',
+        'be.company.placeholder': 'Ocean Example Ltd',
+        'be.country': 'Company country',
+        'be.country.placeholder': 'United Arab Emirates',
+        'be.website': 'Company website',
+        'be.website.placeholder': 'https://example.com',
+        'be.position': 'Your position',
+        'be.position.placeholder': 'Crewing manager',
+        'be.authority': 'Authority basis',
+        'be.buyerType': 'Buyer-side type',
+        'be.requestStatus': 'Crew request status',
+        'be.vessel': 'Vessel / fleet context',
+        'be.vessel.placeholder': 'Vessel name, IMO or fleet type',
+        'be.ranks': 'Requested ranks / crew demand',
+        'be.ranks.placeholder': 'Chief Officer, 2/E, AB',
+        'be.timeline': 'Expected timeline',
+        'be.timeline.placeholder': 'Next 30 days',
+        'be.note': 'Buyer-side note',
+        'be.note.placeholder': 'Company context, demand details, evidence you can provide',
+        'be.option.select': 'Select',
+        'be.authority.owner': 'Owner / director',
+        'be.authority.employee': 'Company employee',
+        'be.authority.representative': 'Authorized representative',
+        'be.authority.poa': 'Power of attorney',
+        'be.authority.other': 'Other evidence',
+        'be.type.employer': 'Employer',
+        'be.type.shipowner': 'Shipowner',
+        'be.type.manager': 'Ship manager',
+        'be.type.crewing': 'Crewing manager',
+        'be.type.operator': 'Vessel operator',
+        'be.type.charterer': 'Charterer',
+        'be.request.ready': 'Ready to prepare request',
+        'be.request.planning': 'Planning demand',
+        'be.request.notYet': 'Not yet',
+        'be.docs.title': 'Documents for authority review',
+        'be.docs.copy': 'Attach documents that prove the company context and your right to act for the buyer-side request. Files are not uploaded to the server yet; metadata is saved locally until backend storage is implemented.',
+        'be.file.registration': 'Company registration / license',
+        'be.file.authority': 'Authorization letter / POA',
+        'be.file.representativeId': 'Representative ID',
+        'be.file.vessel': 'Vessel / management evidence',
+        'be.file.request': 'Crew request / service brief',
+        'be.file.other': 'Other evidence',
+        'be.save': 'Save buyer form draft',
+        'be.backSelected': 'Back to selected forms',
+        'be.change': 'Change authorization forms',
+        'be.status': 'Draft is not saved yet.',
+        'be.status.saved': 'Buyer / Employer authorization form draft saved. No status is granted automatically.'
+      },
+      ru: {
+        'be.eyebrow': 'Авторизация покупателя / работодателя',
+        'be.title': 'Заполните форму покупателя / работодателя.',
+        'be.copy': 'Эта форма собирает данные компании, полномочий и стороны спроса для запроса статуса покупателя, работодателя или уполномоченного представителя. Сохранение формы не выдаёт видимость компании или право действовать автоматически.',
+        'be.tasks.title': 'Мои задачи',
+        'be.tasks.company.state': 'Сейчас',
+        'be.tasks.company.title': 'Описать контекст стороны спроса',
+        'be.tasks.company.copy': 'Укажите компанию, роль представителя, основание полномочий и контекст заявки на экипаж.',
+        'be.tasks.docs.state': 'Сейчас',
+        'be.tasks.docs.title': 'Приложить документы полномочий',
+        'be.tasks.docs.copy': 'Поля загрузки подготовлены для будущего backend-хранилища. На этом этапе локально сохраняются только метаданные документов.',
+        'be.form.title': 'Запрос статуса стороны спроса',
+        'be.company': 'Компания / покупатель',
+        'be.company.placeholder': 'Ocean Example Ltd',
+        'be.country': 'Страна компании',
+        'be.country.placeholder': 'ОАЭ',
+        'be.website': 'Сайт компании',
+        'be.website.placeholder': 'https://example.com',
+        'be.position': 'Ваша должность',
+        'be.position.placeholder': 'Crewing manager',
+        'be.authority': 'Основание полномочий',
+        'be.buyerType': 'Тип стороны спроса',
+        'be.requestStatus': 'Статус заявки на экипаж',
+        'be.vessel': 'Контекст судна / флота',
+        'be.vessel.placeholder': 'Название судна, IMO или тип флота',
+        'be.ranks': 'Запрашиваемые должности / потребность',
+        'be.ranks.placeholder': 'Chief Officer, 2/E, AB',
+        'be.timeline': 'Ожидаемый срок',
+        'be.timeline.placeholder': 'В течение 30 дней',
+        'be.note': 'Заметка стороны спроса',
+        'be.note.placeholder': 'Контекст компании, детали потребности, доказательства, которые можно предоставить',
+        'be.option.select': 'Выберите',
+        'be.authority.owner': 'Владелец / директор',
+        'be.authority.employee': 'Сотрудник компании',
+        'be.authority.representative': 'Уполномоченный представитель',
+        'be.authority.poa': 'Доверенность',
+        'be.authority.other': 'Другое доказательство',
+        'be.type.employer': 'Работодатель',
+        'be.type.shipowner': 'Судовладелец',
+        'be.type.manager': 'Ship manager',
+        'be.type.crewing': 'Crewing manager',
+        'be.type.operator': 'Оператор судна',
+        'be.type.charterer': 'Фрахтователь',
+        'be.request.ready': 'Готова заявка',
+        'be.request.planning': 'Планируется потребность',
+        'be.request.notYet': 'Пока нет',
+        'be.docs.title': 'Документы для проверки полномочий',
+        'be.docs.copy': 'Приложите документы, подтверждающие контекст компании и ваше право действовать по заявке стороны спроса. Файлы пока не загружаются на сервер; метаданные сохраняются локально до реализации backend-хранилища.',
+        'be.file.registration': 'Регистрация / лицензия компании',
+        'be.file.authority': 'Письмо авторизации / доверенность',
+        'be.file.representativeId': 'ID представителя',
+        'be.file.vessel': 'Доказательства по судну / управлению',
+        'be.file.request': 'Заявка на экипаж / service brief',
+        'be.file.other': 'Другие доказательства',
+        'be.save': 'Сохранить черновик формы покупателя',
+        'be.backSelected': 'Назад к выбранным формам',
+        'be.change': 'Изменить формы авторизации',
+        'be.status': 'Черновик ещё не сохранён.',
+        'be.status.saved': 'Черновик формы покупателя / работодателя сохранён. Статус автоматически не выдаётся.'
+      }
+    };
+  </script>
+  <script src="../../../assets/crewportglobal-public-i18n.js" defer></script>
+  <script>
+    (function () {
+      const saveButton = document.getElementById('save-buyer-form');
+      const status = document.getElementById('buyer-status');
+      const storageKey = 'crewportglobal.authorization.form.buyerEmployer';
+
+      function resolveLanguage() {
+        const language = document.documentElement.lang || 'en';
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[language] ? language : 'en';
+      }
+
+      function message(key) {
+        const dictionary = window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[resolveLanguage()] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en;
+        return dictionary[key] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key] || key;
+      }
+
+      function value(id) {
+        const field = document.getElementById(id);
+        return field ? field.value.trim() : '';
+      }
+
+      function files(id) {
+        const field = document.getElementById(id);
+        return field && field.files ? Array.from(field.files).map((file) => ({
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          last_modified: file.lastModified
+        })) : [];
+      }
+
+      function readPerson() {
+        try {
+          return JSON.parse(window.localStorage.getItem('crewportglobal.registration.person') || '{}');
+        } catch (error) {
+          console.error(error);
+          return {};
+        }
+      }
+
+      saveButton.addEventListener('click', () => {
+        const person = readPerson();
+        const payload = {
+          card_type: 'buyer_employer',
+          request_state: 'draft_pending_review',
+          person_id: person.person_id || null,
+          email: person.email || null,
+          fields: {
+            company_name: value('buyer-company'),
+            company_country: value('buyer-country'),
+            company_website: value('buyer-website'),
+            position: value('buyer-position'),
+            authority_basis: value('buyer-authority'),
+            buyer_type: value('buyer-type'),
+            crew_request_status: value('buyer-request-status'),
+            vessel_context: value('buyer-vessel'),
+            requested_ranks: value('buyer-ranks'),
+            expected_timeline: value('buyer-timeline'),
+            note: value('buyer-note')
+          },
+          documents: {
+            company_registration: files('buyer-file-registration'),
+            authority: files('buyer-file-authority'),
+            representative_id: files('buyer-file-representative-id'),
+            vessel: files('buyer-file-vessel'),
+            request: files('buyer-file-request'),
+            other: files('buyer-file-other')
+          },
+          authorization_state: 'requested_not_granted',
+          updated_at: new Date().toISOString()
+        };
+
+        window.localStorage.setItem(storageKey, JSON.stringify(payload));
+        status.textContent = message('be.status.saved');
+        status.classList.add('is-success');
+      });
+
+      window.addEventListener('crewportglobal:languagechange', () => {
+        if (status.classList.contains('is-success')) {
+          status.textContent = message('be.status.saved');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

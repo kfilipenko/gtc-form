@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Selected authorization forms</title>
+  <meta name="description" content="Open the selected CrewPortGlobal authorization forms.">
+  <link rel="canonical" href="https://crewportglobal.com/register/authorization/selected/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../../../assets/crewportglobal-docs.css">
+  <link rel="stylesheet" href="../../../assets/crewportglobal-app.css">
+  <link rel="stylesheet" href="../../../assets/crewportglobal-authz.css">
+</head>
+<body class="doc-body cpg-app-page">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+    </header>
+
+    <div data-cpg-navigation="application" data-cpg-nav-active="/register/"></div>
+    <script src="../../../assets/crewportglobal-navigation.js"></script>
+
+    <main class="doc-main">
+      <section class="card app-panel authorization-layout">
+        <p class="eyebrow" data-i18n="selected.eyebrow">Selected forms</p>
+        <h1 data-i18n="selected.title">Complete the selected authorization forms.</h1>
+        <p data-i18n="selected.copy">Each authorization form opens on its own page. Complete every selected form and attach the documents needed for evidence review.</p>
+
+        <details class="auth-card" open>
+          <summary data-i18n="selected.tasks.title">My tasks</summary>
+          <div class="auth-card__content">
+            <ul class="task-list">
+              <li>
+                <span class="task-state" data-i18n="selected.tasks.forms.state">Now</span>
+                <strong data-i18n="selected.tasks.forms.title">Open selected forms</strong>
+                <div data-i18n="selected.tasks.forms.copy">Fill each selected authorization form on its dedicated page. Upload fields currently save document metadata only until backend file storage is implemented.</div>
+              </li>
+              <li>
+                <span class="task-state" data-i18n="selected.tasks.review.state">Future</span>
+                <strong data-i18n="selected.tasks.review.title">Human review</strong>
+                <div data-i18n="selected.tasks.review.copy">Submission for review, evidence validation and status granting are separate backend steps.</div>
+              </li>
+            </ul>
+          </div>
+        </details>
+
+        <section class="authz-section">
+          <h2 class="app-card-title" data-i18n="selected.forms.title">Selected authorization forms</h2>
+          <p id="selected-empty" class="authz-empty" data-i18n="selected.forms.empty">No forms are selected yet. Return to the authorization selection page.</p>
+          <div class="selected-forms-grid">
+            <article id="selected-seafarer" class="selected-form-card" hidden>
+              <strong data-i18n="selected.seafarer.title">Seafarer / Specialist form</strong>
+              <span data-i18n="selected.seafarer.copy">Professional supply-side authorization request with qualification, availability and maritime document evidence.</span>
+              <a class="button primary" href="https://crewportglobal.com/register/authorization/seafarer-specialist/" data-i18n="selected.seafarer.open">Open seafarer form</a>
+            </article>
+            <article id="selected-employer" class="selected-form-card" hidden>
+              <strong data-i18n="selected.employer.title">Buyer / Employer form</strong>
+              <span data-i18n="selected.employer.copy">Demand-side authorization request with company, vessel, authority and buyer evidence.</span>
+              <a class="button primary" href="https://crewportglobal.com/register/authorization/buyer-employer/" data-i18n="selected.employer.open">Open buyer form</a>
+            </article>
+          </div>
+        </section>
+
+        <div class="inline-actions">
+          <a class="button secondary" href="https://crewportglobal.com/register/authorization/" data-i18n="selected.change">Change selected forms</a>
+          <a class="button secondary" href="https://crewportglobal.com/register/next/" data-i18n="selected.back">Back to registration sequence</a>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'selected.eyebrow': 'Selected forms',
+        'selected.title': 'Complete the selected authorization forms.',
+        'selected.copy': 'Each authorization form opens on its own page. Complete every selected form and attach the documents needed for evidence review.',
+        'selected.tasks.title': 'My tasks',
+        'selected.tasks.forms.state': 'Now',
+        'selected.tasks.forms.title': 'Open selected forms',
+        'selected.tasks.forms.copy': 'Fill each selected authorization form on its dedicated page. Upload fields currently save document metadata only until backend file storage is implemented.',
+        'selected.tasks.review.state': 'Future',
+        'selected.tasks.review.title': 'Human review',
+        'selected.tasks.review.copy': 'Submission for review, evidence validation and status granting are separate backend steps.',
+        'selected.forms.title': 'Selected authorization forms',
+        'selected.forms.empty': 'No forms are selected yet. Return to the authorization selection page.',
+        'selected.seafarer.title': 'Seafarer / Specialist form',
+        'selected.seafarer.copy': 'Professional supply-side authorization request with qualification, availability and maritime document evidence.',
+        'selected.seafarer.open': 'Open seafarer form',
+        'selected.employer.title': 'Buyer / Employer form',
+        'selected.employer.copy': 'Demand-side authorization request with company, vessel, authority and buyer evidence.',
+        'selected.employer.open': 'Open buyer form',
+        'selected.change': 'Change selected forms',
+        'selected.back': 'Back to registration sequence'
+      },
+      ru: {
+        'selected.eyebrow': 'Выбранные формы',
+        'selected.title': 'Заполните выбранные формы авторизации.',
+        'selected.copy': 'Каждая форма авторизации открывается на своей странице. Заполните каждую выбранную форму и приложите документы, необходимые для проверки доказательств.',
+        'selected.tasks.title': 'Мои задачи',
+        'selected.tasks.forms.state': 'Сейчас',
+        'selected.tasks.forms.title': 'Открыть выбранные формы',
+        'selected.tasks.forms.copy': 'Заполните каждую выбранную форму на отдельной странице. Поля загрузки пока сохраняют только метаданные документов до реализации backend-хранилища файлов.',
+        'selected.tasks.review.state': 'Будущее',
+        'selected.tasks.review.title': 'Проверка человеком',
+        'selected.tasks.review.copy': 'Отправка на проверку, validation доказательств и выдача статуса являются отдельными backend-этапами.',
+        'selected.forms.title': 'Выбранные формы авторизации',
+        'selected.forms.empty': 'Формы пока не выбраны. Вернитесь на страницу выбора авторизации.',
+        'selected.seafarer.title': 'Форма моряка / специалиста',
+        'selected.seafarer.copy': 'Заявка стороны предложения с квалификацией, доступностью и доказательствами морских документов.',
+        'selected.seafarer.open': 'Открыть форму моряка',
+        'selected.employer.title': 'Форма покупателя / работодателя',
+        'selected.employer.copy': 'Заявка стороны спроса с компанией, судном, полномочиями и доказательствами покупателя.',
+        'selected.employer.open': 'Открыть форму покупателя',
+        'selected.change': 'Изменить выбранные формы',
+        'selected.back': 'Назад к последовательности регистрации'
+      }
+    };
+  </script>
+  <script src="../../../assets/crewportglobal-public-i18n.js" defer></script>
+  <script>
+    (function () {
+      function readSelection() {
+        try {
+          return JSON.parse(window.localStorage.getItem('crewportglobal.authorization.selectedCards') || '{}');
+        } catch (error) {
+          console.error(error);
+          return {};
+        }
+      }
+
+      const selected = readSelection();
+      const cards = Array.isArray(selected.selected_cards) ? selected.selected_cards : [];
+      const seafarer = document.getElementById('selected-seafarer');
+      const employer = document.getElementById('selected-employer');
+      const empty = document.getElementById('selected-empty');
+
+      seafarer.hidden = !cards.includes('seafarer_specialist');
+      employer.hidden = !cards.includes('buyer_employer');
+      empty.hidden = cards.length > 0;
+    })();
+  </script>
+</body>
+</html>

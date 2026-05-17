@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.98
+- Version: 0.99
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -62,6 +62,9 @@ Service-first public paths (action-first journey):
 /register/confirm/
 /register/next/
 /register/authorization/
+/register/authorization/selected/
+/register/authorization/seafarer-specialist/
+/register/authorization/buyer-employer/
 /register/employer/
 /register/vessel/
 /employers/
@@ -315,7 +318,7 @@ Document 109 records the frontend-only BP-009 implementation slice that simplifi
 
 Document 110 records the first public registration/authentication implementation slice: `/register/` creates or confirms the physical person/user record, sends a protected SMTP email confirmation link, confirms `email_verified_at`, creates the email auth identity and routes the user to `/register/next/` without assigning roles or broad visibility.
 
-Document 111 records the frontend-only authorization-card request slice: `/register/authorization/` lets one physical person request multiple authorization cards such as Seafarer / Specialist and Buyer / Employer, keeps phone verification marked as `следует настроить`, supports returning later when status or activity changes, and preserves the boundary that saving cards does not grant groups, roles, visibility or right to act.
+Document 111 records the frontend-only authorization-card request slice: `/register/authorization/` now acts only as the authorization-form selection page, selected forms route to `/register/authorization/selected/`, and each detailed form lives on its own page (`/register/authorization/seafarer-specialist/` and `/register/authorization/buyer-employer/`) with status-request fields and document upload controls prepared for future backend storage. Phone verification remains marked as `следует настроить`, and saving drafts does not grant groups, roles, visibility or right to act.
 
 Mandatory control statement:
 
@@ -420,6 +423,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.99 | 2026-05-17 | GTC IT / AI Assistant | Updated document 111 and public route register for separate authorization form pages: selection-only /register/authorization/, selected-forms route, seafarer/specialist form, buyer/employer form and document-upload draft controls |
 | 0.98 | 2026-05-17 | GTC IT / AI Assistant | Added document 111 as CPG-AUTH-002 authorization request cards frontend report covering multiple authorization card selection, return-to-authorization behavior, phone-verification-to-configure note and no automatic authority boundary |
 | 0.97 | 2026-05-17 | GTC IT / AI Assistant | Added document 110 as CPG-AUTH-001 public person registration email confirmation implementation report covering /register/ backend submission, protected SMTP confirmation link, email auth confirmation and sequential /register/next/ route |
 | 0.96 | 2026-05-17 | GTC IT / AI Assistant | Added document 109 as CPG-MKT-007 public navigation registration CTA implementation report for the first frontend-only BP-009 slice |

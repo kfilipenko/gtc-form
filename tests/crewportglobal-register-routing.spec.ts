@@ -81,7 +81,7 @@ test('email confirmation page posts token and routes to registration sequence', 
   await expect(page.locator('text=To configure')).toBeVisible();
 });
 
-test('authorization page supports multiple card requests without granting authority', async ({ page }) => {
+test('authorization selection routes multiple selected forms without embedded form fields', async ({ page }) => {
   await page.addInitScript(() => {
     window.localStorage.setItem('crewportglobal.registration.person', JSON.stringify({
       person_id: '11111111-1111-4111-8111-111111111111',
@@ -94,44 +94,119 @@ test('authorization page supports multiple card requests without granting author
 
   await page.goto('/register/authorization/');
 
-  await expect(page.locator('h1')).toContainText('Request one or more authorization cards');
-  await expect(page.locator('.auth-card')).toHaveCount(4);
+  await expect(page.locator('h1')).toContainText('Choose authorization forms');
+  await expect(page.locator('.auth-card')).toHaveCount(2);
   await expect(page.locator('.auth-card[open] summary')).toContainText('My tasks');
-  await expect(page.locator('.auth-card:not([open])')).toHaveCount(3);
+  await expect(page.locator('.auth-card:not([open])')).toHaveCount(1);
   await expect(page.locator('text=Phone confirmation')).toBeVisible();
   await expect(page.locator('text=To configure')).toBeVisible();
+  await expect(page.locator('#seafarer-rank')).toHaveCount(0);
+  await expect(page.locator('#buyer-company')).toHaveCount(0);
 
   await page.locator('#card-seafarer-specialist').check();
   await page.locator('#card-buyer-employer').check();
+  await page.locator('#continue-authorization').click();
 
-  await page.locator('.auth-card').nth(1).locator('summary').click();
-  await page.locator('#seafarer-rank').fill('Chief Officer');
-  await page.locator('#seafarer-department').selectOption('deck');
-  await page.locator('#seafarer-documents').selectOption('ready');
-  await page.locator('#seafarer-note').fill('Ready for reviewed matching.');
-
-  await page.locator('.auth-card').nth(2).locator('summary').click();
-  await page.locator('#employer-company').fill('Ocean Example Ltd');
-  await page.locator('#employer-position').fill('Crewing manager');
-  await page.locator('#employer-authority').selectOption('manager');
-  await page.locator('#employer-request-ready').selectOption('planning');
-  await page.locator('#employer-note').fill('Planning a crew request after evidence review.');
-
-  await page.locator('#save-authorization').click();
-  await expect(page.locator('#authorization-status')).toContainText('Authorization card requests saved');
+  await expect(page).toHaveURL(/\/register\/authorization\/selected\//);
+  await expect(page.locator('h1')).toContainText('Complete the selected authorization forms');
+  await expect(page.locator('#selected-seafarer')).toBeVisible();
+  await expect(page.locator('#selected-employer')).toBeVisible();
 
   await expect.poll(() => page.evaluate(() => {
-    const payload = JSON.parse(window.localStorage.getItem('crewportglobal.authorization.requests') || '{}');
+    const payload = JSON.parse(window.localStorage.getItem('crewportglobal.authorization.selectedCards') || '{}');
+    const request = JSON.parse(window.localStorage.getItem('crewportglobal.authorization.requests') || '{}');
     return [
       payload.phone_verification_state,
       payload.authorization_state,
-      payload.cards.map((card: { card_type: string }) => card.card_type).sort().join('|'),
-      payload.cards.find((card: { card_type: string }) => card.card_type === 'seafarer_specialist')?.rank,
-      payload.cards.find((card: { card_type: string }) => card.card_type === 'buyer_employer')?.company_name,
+      payload.selected_cards.sort().join('|'),
+      request.cards.map((card: { card_type: string }) => card.card_type).sort().join('|'),
     ].join('::');
-  })).toBe('to_be_configured::requested_not_granted::buyer_employer|seafarer_specialist::Chief Officer::Ocean Example Ltd');
+  })).toBe('to_be_configured::forms_selected_not_submitted::buyer_employer|seafarer_specialist::buyer_employer|seafarer_specialist');
+});
 
-  await page.reload();
-  await expect(page.locator('#card-seafarer-specialist')).toBeChecked();
-  await expect(page.locator('#card-buyer-employer')).toBeChecked();
+test('seafarer authorization form saves a separate draft with document metadata', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('crewportglobal.registration.person', JSON.stringify({
+      person_id: '11111111-1111-4111-8111-111111111111',
+      email: 'person@example.com',
+      registration_state: 'email_confirmed'
+    }));
+  });
+
+  await page.goto('/register/authorization/seafarer-specialist/');
+  await expect(page.locator('h1')).toContainText('Complete the seafarer / specialist form');
+  await expect(page.locator('#seafarer-file-passport')).toHaveCount(1);
+
+  await page.locator('#seafarer-rank').fill('Chief Officer');
+  await page.locator('#seafarer-department').selectOption('deck');
+  await page.locator('#seafarer-nationality').fill('Philippines');
+  await page.locator('#seafarer-residence').fill('United Arab Emirates');
+  await page.locator('#seafarer-salary').fill('USD 4500');
+  await page.locator('#seafarer-vessels').fill('Container, bulk carrier');
+  await page.locator('#seafarer-experience').fill('6 years, 2 contracts in rank');
+  await page.locator('#seafarer-languages').fill('English');
+  await page.locator('#seafarer-documents').selectOption('ready');
+  await page.locator('#seafarer-note').fill('Ready for reviewed matching.');
+  await page.locator('#seafarer-file-passport').setInputFiles({
+    name: 'passport.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('passport')
+  });
+
+  await page.locator('#save-seafarer-form').click();
+  await expect(page.locator('#seafarer-status')).toContainText('Seafarer / Specialist authorization form draft saved');
+
+  await expect.poll(() => page.evaluate(() => {
+    const payload = JSON.parse(window.localStorage.getItem('crewportglobal.authorization.form.seafarerSpecialist') || '{}');
+    return [
+      payload.card_type,
+      payload.authorization_state,
+      payload.fields.rank,
+      payload.fields.department,
+      payload.documents.passport[0]?.name,
+    ].join('::');
+  })).toBe('seafarer_specialist::requested_not_granted::Chief Officer::deck::passport.pdf');
+});
+
+test('buyer authorization form saves a separate draft with authority document metadata', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('crewportglobal.registration.person', JSON.stringify({
+      person_id: '11111111-1111-4111-8111-111111111111',
+      email: 'person@example.com',
+      registration_state: 'email_confirmed'
+    }));
+  });
+
+  await page.goto('/register/authorization/buyer-employer/');
+  await expect(page.locator('h1')).toContainText('Complete the buyer / employer form');
+  await expect(page.locator('#buyer-file-authority')).toHaveCount(1);
+
+  await page.locator('#buyer-company').fill('Ocean Example Ltd');
+  await page.locator('#buyer-country').fill('United Arab Emirates');
+  await page.locator('#buyer-position').fill('Crewing manager');
+  await page.locator('#buyer-authority').selectOption('employee');
+  await page.locator('#buyer-type').selectOption('ship_manager');
+  await page.locator('#buyer-request-status').selectOption('planning');
+  await page.locator('#buyer-vessel').fill('Container fleet');
+  await page.locator('#buyer-ranks').fill('Chief Officer, 2/E');
+  await page.locator('#buyer-note').fill('Planning a crew request after evidence review.');
+  await page.locator('#buyer-file-authority').setInputFiles({
+    name: 'authority-letter.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('authority')
+  });
+
+  await page.locator('#save-buyer-form').click();
+  await expect(page.locator('#buyer-status')).toContainText('Buyer / Employer authorization form draft saved');
+
+  await expect.poll(() => page.evaluate(() => {
+    const payload = JSON.parse(window.localStorage.getItem('crewportglobal.authorization.form.buyerEmployer') || '{}');
+    return [
+      payload.card_type,
+      payload.authorization_state,
+      payload.fields.company_name,
+      payload.fields.authority_basis,
+      payload.documents.authority[0]?.name,
+    ].join('::');
+  })).toBe('buyer_employer::requested_not_granted::Ocean Example Ltd::employee::authority-letter.pdf');
 });

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CrewPortGlobal | Authorization requests</title>
-  <meta name="description" content="Request CrewPortGlobal authorization cards after physical person registration and account authentication.">
+  <title>CrewPortGlobal | Authorization card selection</title>
+  <meta name="description" content="Select CrewPortGlobal authorization card forms after physical person registration and account authentication.">
   <link rel="canonical" href="https://crewportglobal.com/register/authorization/">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -12,193 +12,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="stylesheet" href="../../assets/crewportglobal-docs.css">
   <link rel="stylesheet" href="../../assets/crewportglobal-app.css">
-  <style>
-    .authorization-layout {
-      display: grid;
-      gap: 18px;
-    }
-
-    .auth-card {
-      overflow: hidden;
-      border: 1px solid var(--app-line);
-      border-radius: 18px;
-      background: var(--app-surface);
-    }
-
-    .auth-card summary {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      padding: 18px 20px;
-      cursor: pointer;
-      color: var(--app-ink);
-      font-weight: 800;
-      list-style: none;
-    }
-
-    .auth-card summary::-webkit-details-marker {
-      display: none;
-    }
-
-    .auth-card summary::after {
-      content: "+";
-      width: 28px;
-      height: 28px;
-      display: inline-grid;
-      place-items: center;
-      border-radius: 50%;
-      border: 1px solid var(--app-line);
-      color: var(--app-muted);
-      flex: 0 0 auto;
-    }
-
-    .auth-card[open] summary::after {
-      content: "-";
-    }
-
-    .auth-card__content {
-      display: grid;
-      gap: 16px;
-      padding: 0 20px 20px;
-      color: var(--app-muted);
-      line-height: 1.6;
-    }
-
-    .task-list {
-      display: grid;
-      gap: 10px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .task-list li,
-    .selection-item,
-    .field-box {
-      padding: 14px;
-      border-radius: 14px;
-      border: 1px solid var(--app-line);
-      background: var(--app-surface);
-    }
-
-    .task-state {
-      display: inline-flex;
-      margin-bottom: 6px;
-      font-size: 0.76rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--app-yellow);
-    }
-
-    .task-state.done {
-      color: var(--app-green);
-    }
-
-    .selection-grid,
-    .field-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .selection-item {
-      display: grid;
-      grid-template-columns: 20px minmax(0, 1fr);
-      gap: 12px;
-      align-items: start;
-      align-content: start;
-      min-height: 132px;
-      color: var(--app-muted);
-    }
-
-    .selection-item strong,
-    .field-box strong {
-      color: var(--app-ink);
-    }
-
-    .selection-item > span {
-      display: grid;
-      gap: 6px;
-      min-width: 0;
-    }
-
-    .selection-item strong {
-      display: block;
-      font-size: 1.02rem;
-      line-height: 1.28;
-    }
-
-    .selection-item strong + span {
-      display: block;
-      line-height: 1.52;
-      overflow-wrap: anywhere;
-    }
-
-    .selection-item input {
-      width: 16px;
-      height: 16px;
-      margin-top: 4px;
-      accent-color: var(--app-ocean);
-    }
-
-    .selection-item:has(input:checked) {
-      border-color: rgba(20, 107, 124, 0.38);
-      background: rgba(20, 107, 124, 0.06);
-    }
-
-    .field-box {
-      display: grid;
-      gap: 9px;
-    }
-
-    .field-box.full {
-      grid-column: 1 / -1;
-    }
-
-    .field-box input,
-    .field-box select,
-    .field-box textarea {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid var(--app-line);
-      background: var(--app-surface);
-      color: var(--app-ink);
-      font: inherit;
-    }
-
-    .field-box input::placeholder,
-    .field-box textarea::placeholder {
-      color: #718899;
-      opacity: 1;
-    }
-
-    .field-box textarea {
-      min-height: 104px;
-      resize: vertical;
-    }
-
-    .auth-status {
-      color: var(--app-muted);
-    }
-
-    .auth-status.is-success {
-      color: var(--app-green);
-    }
-
-    .auth-status.is-error {
-      color: #b3261e;
-    }
-
-    @media (max-width: 780px) {
-      .selection-grid,
-      .field-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="../../assets/crewportglobal-authz.css">
 </head>
 <body class="doc-body cpg-app-page">
   <div class="site-shell">
@@ -231,8 +45,8 @@
     <main class="doc-main">
       <section class="card app-panel authorization-layout">
         <p class="eyebrow" data-i18n="authz.eyebrow">Authorization requests</p>
-        <h1 data-i18n="authz.title">Request one or more authorization cards.</h1>
-        <p data-i18n="authz.copy">A physical person may request several work directions. CrewPortGlobal stores the request first; actual authorization, roles and visibility are granted later after evidence review.</p>
+        <h1 data-i18n="authz.title">Choose authorization forms.</h1>
+        <p data-i18n="authz.copy">Select one or more directions. The detailed forms are opened on separate pages and include the fields and document uploads needed for future status review.</p>
 
         <details class="auth-card" open>
           <summary data-i18n="authz.tasks.title">My tasks</summary>
@@ -250,7 +64,7 @@
               </li>
               <li>
                 <span class="task-state" data-i18n="authz.tasks.cards.state">Now</span>
-                <strong data-i18n="authz.tasks.cards.title">Choose authorization cards</strong>
+                <strong data-i18n="authz.tasks.cards.title">Choose authorization forms</strong>
                 <div data-i18n="authz.tasks.cards.copy">Select every direction that applies. You can return here later if your status or activity changes.</div>
               </li>
             </ul>
@@ -260,97 +74,15 @@
                 <input id="card-seafarer-specialist" type="checkbox" value="seafarer_specialist">
                 <span>
                   <strong data-i18n="authz.choice.seafarer.title">Seafarer / Specialist</strong>
-                  <span data-i18n="authz.choice.seafarer.copy">Supply-side professional capability for qualification, documents, availability and maritime work readiness.</span>
+                  <span data-i18n="authz.choice.seafarer.copy">Supply-side professional form for qualification, documents, availability and maritime work readiness.</span>
                 </span>
               </label>
               <label class="selection-item">
                 <input id="card-buyer-employer" type="checkbox" value="buyer_employer">
                 <span>
                   <strong data-i18n="authz.choice.employer.title">Buyer / Employer</strong>
-                  <span data-i18n="authz.choice.employer.copy">Demand-side capability for employer, shipowner, manager or authorized representative requests.</span>
+                  <span data-i18n="authz.choice.employer.copy">Demand-side form for employer, shipowner, manager or authorized representative requests.</span>
                 </span>
-              </label>
-            </div>
-          </div>
-        </details>
-
-        <details class="auth-card">
-          <summary data-i18n="authz.seafarer.title">Seafarer / Specialist authorization card</summary>
-          <div class="auth-card__content">
-            <p data-i18n="authz.seafarer.copy">This card records the person as a maritime professional / workforce resource. It is a request for review, not automatic publication as a candidate.</p>
-            <div class="field-grid">
-              <label class="field-box">
-                <strong data-i18n="authz.seafarer.rank">Rank / specialty</strong>
-                <input id="seafarer-rank" type="text" placeholder="Chief Officer" data-i18n-placeholder="authz.seafarer.rank.placeholder">
-              </label>
-              <label class="field-box">
-                <strong data-i18n="authz.seafarer.department">Department</strong>
-                <select id="seafarer-department">
-                  <option value="" data-i18n="authz.option.select">Select</option>
-                  <option value="deck" data-i18n="authz.department.deck">Deck</option>
-                  <option value="engine" data-i18n="authz.department.engine">Engine</option>
-                  <option value="catering" data-i18n="authz.department.catering">Catering</option>
-                  <option value="hotel" data-i18n="authz.department.hotel">Hotel</option>
-                  <option value="other" data-i18n="authz.department.other">Other</option>
-                </select>
-              </label>
-              <label class="field-box">
-                <strong data-i18n="authz.seafarer.availability">Availability date</strong>
-                <input id="seafarer-availability" type="date">
-              </label>
-              <label class="field-box">
-                <strong data-i18n="authz.seafarer.documents">Document readiness</strong>
-                <select id="seafarer-documents">
-                  <option value="" data-i18n="authz.option.select">Select</option>
-                  <option value="collecting" data-i18n="authz.documents.collecting">Collecting documents</option>
-                  <option value="ready" data-i18n="authz.documents.ready">Ready for review</option>
-                  <option value="needs_update" data-i18n="authz.documents.needsUpdate">Needs update</option>
-                </select>
-              </label>
-              <label class="field-box full">
-                <strong data-i18n="authz.seafarer.note">Professional note</strong>
-                <textarea id="seafarer-note" placeholder="Short work history, certificates, preferred vessel types" data-i18n-placeholder="authz.seafarer.note.placeholder"></textarea>
-              </label>
-            </div>
-          </div>
-        </details>
-
-        <details class="auth-card">
-          <summary data-i18n="authz.employer.title">Buyer / Employer authorization card</summary>
-          <div class="auth-card__content">
-            <p data-i18n="authz.employer.copy">This card records a request to act for an employer-side buyer, company, vessel or crew request. Evidence review is required before any authority is granted.</p>
-            <div class="field-grid">
-              <label class="field-box">
-                <strong data-i18n="authz.employer.company">Company / buyer name</strong>
-                <input id="employer-company" type="text" placeholder="Ocean Example Ltd" data-i18n-placeholder="authz.employer.company.placeholder">
-              </label>
-              <label class="field-box">
-                <strong data-i18n="authz.employer.position">Your position</strong>
-                <input id="employer-position" type="text" placeholder="Crewing manager" data-i18n-placeholder="authz.employer.position.placeholder">
-              </label>
-              <label class="field-box">
-                <strong data-i18n="authz.employer.authority">Authority basis</strong>
-                <select id="employer-authority">
-                  <option value="" data-i18n="authz.option.select">Select</option>
-                  <option value="owner" data-i18n="authz.authority.owner">Owner / director</option>
-                  <option value="manager" data-i18n="authz.authority.manager">Manager / employee</option>
-                  <option value="authorized_representative" data-i18n="authz.authority.representative">Authorized representative</option>
-                  <option value="power_of_attorney" data-i18n="authz.authority.poa">Power of attorney</option>
-                  <option value="other" data-i18n="authz.authority.other">Other evidence</option>
-                </select>
-              </label>
-              <label class="field-box">
-                <strong data-i18n="authz.employer.requestReady">Crew request status</strong>
-                <select id="employer-request-ready">
-                  <option value="" data-i18n="authz.option.select">Select</option>
-                  <option value="ready" data-i18n="authz.request.ready">Ready to prepare request</option>
-                  <option value="planning" data-i18n="authz.request.planning">Planning demand</option>
-                  <option value="not_yet" data-i18n="authz.request.notYet">Not yet</option>
-                </select>
-              </label>
-              <label class="field-box full">
-                <strong data-i18n="authz.employer.note">Employer-side note</strong>
-                <textarea id="employer-note" placeholder="Company context, vessel/request details, evidence you can provide" data-i18n-placeholder="authz.employer.note.placeholder"></textarea>
               </label>
             </div>
           </div>
@@ -359,15 +91,15 @@
         <details class="auth-card">
           <summary data-i18n="authz.boundary.title">Authorization boundary</summary>
           <div class="auth-card__content">
-            <p data-i18n="authz.boundary.copy">Saving these cards does not grant roles, group membership, company visibility, vessel visibility, candidate publication or buyer-side action rights. A team member must review evidence and scoped relationships first.</p>
+            <p data-i18n="authz.boundary.copy">Choosing a form does not grant roles, group membership, company visibility, vessel visibility, candidate publication or buyer-side action rights. A team member must review evidence and scoped relationships first.</p>
           </div>
         </details>
 
         <div class="inline-actions">
-          <button id="save-authorization" class="button primary" type="button" data-i18n="authz.save">Save authorization requests</button>
+          <button id="continue-authorization" class="button primary" type="button" data-i18n="authz.continue">Continue to selected forms</button>
           <a class="button secondary" href="https://crewportglobal.com/register/next/" data-i18n="authz.back">Back to registration sequence</a>
         </div>
-        <p id="authorization-status" class="auth-status" data-i18n="authz.status">Select one or more cards and save the request for review.</p>
+        <p id="authorization-status" class="auth-status" data-i18n="authz.status">Select one or more forms to continue.</p>
       </section>
     </main>
   </div>
@@ -376,8 +108,8 @@
     window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
       en: {
         'authz.eyebrow': 'Authorization requests',
-        'authz.title': 'Request one or more authorization cards.',
-        'authz.copy': 'A physical person may request several work directions. CrewPortGlobal stores the request first; actual authorization, roles and visibility are granted later after evidence review.',
+        'authz.title': 'Choose authorization forms.',
+        'authz.copy': 'Select one or more directions. The detailed forms are opened on separate pages and include the fields and document uploads needed for future status review.',
         'authz.tasks.title': 'My tasks',
         'authz.tasks.email.state': 'Done',
         'authz.tasks.email.title': 'Email authentication',
@@ -386,60 +118,23 @@
         'authz.tasks.phone.title': 'Phone confirmation',
         'authz.tasks.phone.copy': 'Phone verification is required in the target process and should be configured in the next implementation stage.',
         'authz.tasks.cards.state': 'Now',
-        'authz.tasks.cards.title': 'Choose authorization cards',
+        'authz.tasks.cards.title': 'Choose authorization forms',
         'authz.tasks.cards.copy': 'Select every direction that applies. You can return here later if your status or activity changes.',
         'authz.choice.seafarer.title': 'Seafarer / Specialist',
-        'authz.choice.seafarer.copy': 'Supply-side professional capability for qualification, documents, availability and maritime work readiness.',
+        'authz.choice.seafarer.copy': 'Supply-side professional form for qualification, documents, availability and maritime work readiness.',
         'authz.choice.employer.title': 'Buyer / Employer',
-        'authz.choice.employer.copy': 'Demand-side capability for employer, shipowner, manager or authorized representative requests.',
-        'authz.seafarer.title': 'Seafarer / Specialist authorization card',
-        'authz.seafarer.copy': 'This card records the person as a maritime professional / workforce resource. It is a request for review, not automatic publication as a candidate.',
-        'authz.seafarer.rank': 'Rank / specialty',
-        'authz.seafarer.rank.placeholder': 'Chief Officer',
-        'authz.seafarer.department': 'Department',
-        'authz.seafarer.availability': 'Availability date',
-        'authz.seafarer.documents': 'Document readiness',
-        'authz.seafarer.note': 'Professional note',
-        'authz.seafarer.note.placeholder': 'Short work history, certificates, preferred vessel types',
-        'authz.employer.title': 'Buyer / Employer authorization card',
-        'authz.employer.copy': 'This card records a request to act for an employer-side buyer, company, vessel or crew request. Evidence review is required before any authority is granted.',
-        'authz.employer.company': 'Company / buyer name',
-        'authz.employer.company.placeholder': 'Ocean Example Ltd',
-        'authz.employer.position': 'Your position',
-        'authz.employer.position.placeholder': 'Crewing manager',
-        'authz.employer.authority': 'Authority basis',
-        'authz.employer.requestReady': 'Crew request status',
-        'authz.employer.note': 'Employer-side note',
-        'authz.employer.note.placeholder': 'Company context, vessel/request details, evidence you can provide',
-        'authz.option.select': 'Select',
-        'authz.department.deck': 'Deck',
-        'authz.department.engine': 'Engine',
-        'authz.department.catering': 'Catering',
-        'authz.department.hotel': 'Hotel',
-        'authz.department.other': 'Other',
-        'authz.documents.collecting': 'Collecting documents',
-        'authz.documents.ready': 'Ready for review',
-        'authz.documents.needsUpdate': 'Needs update',
-        'authz.authority.owner': 'Owner / director',
-        'authz.authority.manager': 'Manager / employee',
-        'authz.authority.representative': 'Authorized representative',
-        'authz.authority.poa': 'Power of attorney',
-        'authz.authority.other': 'Other evidence',
-        'authz.request.ready': 'Ready to prepare request',
-        'authz.request.planning': 'Planning demand',
-        'authz.request.notYet': 'Not yet',
+        'authz.choice.employer.copy': 'Demand-side form for employer, shipowner, manager or authorized representative requests.',
         'authz.boundary.title': 'Authorization boundary',
-        'authz.boundary.copy': 'Saving these cards does not grant roles, group membership, company visibility, vessel visibility, candidate publication or buyer-side action rights. A team member must review evidence and scoped relationships first.',
-        'authz.save': 'Save authorization requests',
+        'authz.boundary.copy': 'Choosing a form does not grant roles, group membership, company visibility, vessel visibility, candidate publication or buyer-side action rights. A team member must review evidence and scoped relationships first.',
+        'authz.continue': 'Continue to selected forms',
         'authz.back': 'Back to registration sequence',
-        'authz.status': 'Select one or more cards and save the request for review.',
-        'authz.status.validation': 'Select at least one authorization card before saving.',
-        'authz.status.saved': 'Authorization card requests saved for future review. No authority is granted automatically.'
+        'authz.status': 'Select one or more forms to continue.',
+        'authz.status.validation': 'Select at least one authorization form before continuing.'
       },
       ru: {
         'authz.eyebrow': 'Заявки на авторизацию',
-        'authz.title': 'Запросите одну или несколько карточек авторизации.',
-        'authz.copy': 'Физическое лицо может запросить несколько направлений работы. CrewPortGlobal сначала сохраняет заявку; фактическая авторизация, роли и видимость выдаются позже после проверки доказательств.',
+        'authz.title': 'Выберите формы авторизации.',
+        'authz.copy': 'Выберите одно или несколько направлений. Подробные формы открываются на отдельных страницах и содержат поля и загрузку документов для будущей проверки статуса.',
         'authz.tasks.title': 'Мои задачи',
         'authz.tasks.email.state': 'Готово',
         'authz.tasks.email.title': 'Аутентификация email',
@@ -448,55 +143,18 @@
         'authz.tasks.phone.title': 'Подтверждение телефона',
         'authz.tasks.phone.copy': 'Проверка телефона требуется в целевом процессе и должна быть настроена на следующем этапе реализации.',
         'authz.tasks.cards.state': 'Сейчас',
-        'authz.tasks.cards.title': 'Выберите карточки авторизации',
+        'authz.tasks.cards.title': 'Выберите формы авторизации',
         'authz.tasks.cards.copy': 'Выберите все подходящие направления. Сюда можно вернуться позже, если статус или деятельность изменятся.',
         'authz.choice.seafarer.title': 'Моряк / специалист',
-        'authz.choice.seafarer.copy': 'Профессиональное направление стороны предложения: квалификация, документы, доступность и готовность к морской работе.',
+        'authz.choice.seafarer.copy': 'Форма стороны предложения: квалификация, документы, доступность и готовность к морской работе.',
         'authz.choice.employer.title': 'Покупатель / работодатель',
-        'authz.choice.employer.copy': 'Направление стороны спроса для работодателя, судовладельца, менеджера или уполномоченного представителя.',
-        'authz.seafarer.title': 'Карточка авторизации моряка / специалиста',
-        'authz.seafarer.copy': 'Эта карточка фиксирует человека как морского специалиста / workforce resource. Это заявка на проверку, а не автоматическая публикация кандидата.',
-        'authz.seafarer.rank': 'Должность / специализация',
-        'authz.seafarer.rank.placeholder': 'Старший помощник капитана',
-        'authz.seafarer.department': 'Департамент',
-        'authz.seafarer.availability': 'Дата доступности',
-        'authz.seafarer.documents': 'Готовность документов',
-        'authz.seafarer.note': 'Профессиональная заметка',
-        'authz.seafarer.note.placeholder': 'Краткий опыт, сертификаты, предпочтительные типы судов',
-        'authz.employer.title': 'Карточка авторизации покупателя / работодателя',
-        'authz.employer.copy': 'Эта карточка фиксирует заявку действовать для employer-side покупателя, компании, судна или заявки на экипаж. До выдачи полномочий требуется проверка доказательств.',
-        'authz.employer.company': 'Компания / покупатель',
-        'authz.employer.company.placeholder': 'Ocean Example Ltd',
-        'authz.employer.position': 'Ваша должность',
-        'authz.employer.position.placeholder': 'Crewing manager',
-        'authz.employer.authority': 'Основание полномочий',
-        'authz.employer.requestReady': 'Статус заявки на экипаж',
-        'authz.employer.note': 'Заметка стороны работодателя',
-        'authz.employer.note.placeholder': 'Контекст компании, детали судна/заявки, доказательства, которые можно предоставить',
-        'authz.option.select': 'Выберите',
-        'authz.department.deck': 'Палуба',
-        'authz.department.engine': 'Машина',
-        'authz.department.catering': 'Камбуз',
-        'authz.department.hotel': 'Отель',
-        'authz.department.other': 'Другое',
-        'authz.documents.collecting': 'Документы собираются',
-        'authz.documents.ready': 'Готовы к проверке',
-        'authz.documents.needsUpdate': 'Нужно обновить',
-        'authz.authority.owner': 'Владелец / директор',
-        'authz.authority.manager': 'Менеджер / сотрудник',
-        'authz.authority.representative': 'Уполномоченный представитель',
-        'authz.authority.poa': 'Доверенность',
-        'authz.authority.other': 'Другое доказательство',
-        'authz.request.ready': 'Готова заявка',
-        'authz.request.planning': 'Планируется потребность',
-        'authz.request.notYet': 'Пока нет',
+        'authz.choice.employer.copy': 'Форма стороны спроса для работодателя, судовладельца, менеджера или уполномоченного представителя.',
         'authz.boundary.title': 'Граница авторизации',
-        'authz.boundary.copy': 'Сохранение этих карточек не выдаёт роли, членство в группе, видимость компании, видимость судна, публикацию кандидата или право действий на стороне покупателя. Команда должна сначала проверить доказательства и scoped relationships.',
-        'authz.save': 'Сохранить заявки на авторизацию',
+        'authz.boundary.copy': 'Выбор формы не выдаёт роли, членство в группе, видимость компании, видимость судна, публикацию кандидата или право действий на стороне покупателя. Команда должна сначала проверить доказательства и scoped relationships.',
+        'authz.continue': 'Перейти к выбранным формам',
         'authz.back': 'Назад к последовательности регистрации',
-        'authz.status': 'Выберите одну или несколько карточек и сохраните заявку на проверку.',
-        'authz.status.validation': 'Перед сохранением выберите хотя бы одну карточку авторизации.',
-        'authz.status.saved': 'Заявки на карточки авторизации сохранены для будущей проверки. Полномочия автоматически не выдаются.'
+        'authz.status': 'Выберите одну или несколько форм для продолжения.',
+        'authz.status.validation': 'Перед продолжением выберите хотя бы одну форму авторизации.'
       }
     };
   </script>
@@ -505,7 +163,7 @@
     (function () {
       const seafarerCheckbox = document.getElementById('card-seafarer-specialist');
       const employerCheckbox = document.getElementById('card-buyer-employer');
-      const saveButton = document.getElementById('save-authorization');
+      const continueButton = document.getElementById('continue-authorization');
       const status = document.getElementById('authorization-status');
       const personSummary = document.getElementById('person-summary');
 
@@ -519,122 +177,86 @@
         return dictionary[key] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key] || key;
       }
 
-      function readPerson() {
+      function readJson(key) {
         try {
-          return JSON.parse(window.localStorage.getItem('crewportglobal.registration.person') || '{}');
+          return JSON.parse(window.localStorage.getItem(key) || '{}');
         } catch (error) {
           console.error(error);
           return {};
         }
       }
 
-      function readRequests() {
-        try {
-          return JSON.parse(window.localStorage.getItem('crewportglobal.authorization.requests') || '{}');
-        } catch (error) {
-          console.error(error);
-          return {};
-        }
-      }
-
-      function setFieldValue(id, value) {
-        const field = document.getElementById(id);
-        if (field && typeof value === 'string') {
-          field.value = value;
-        }
+      function selectedCards() {
+        return [
+          seafarerCheckbox.checked ? 'seafarer_specialist' : null,
+          employerCheckbox.checked ? 'buyer_employer' : null
+        ].filter(Boolean);
       }
 
       function loadExisting() {
-        const person = readPerson();
+        const person = readJson('crewportglobal.registration.person');
         if (person.email || person.masked_email) {
-          personSummary.textContent = `${person.masked_email || person.email} - authorization requests can be updated.`;
+          personSummary.textContent = `${person.masked_email || person.email} - authorization forms can be updated.`;
         }
 
-        const existing = readRequests();
-        const cards = Array.isArray(existing.cards) ? existing.cards : [];
-        const seafarer = cards.find((card) => card.card_type === 'seafarer_specialist');
-        const employer = cards.find((card) => card.card_type === 'buyer_employer');
+        const selected = readJson('crewportglobal.authorization.selectedCards');
+        const existingCards = Array.isArray(selected.selected_cards)
+          ? selected.selected_cards
+          : (Array.isArray(readJson('crewportglobal.authorization.requests').cards)
+            ? readJson('crewportglobal.authorization.requests').cards.map((card) => card.card_type)
+            : []);
 
-        seafarerCheckbox.checked = Boolean(seafarer);
-        employerCheckbox.checked = Boolean(employer);
-
-        if (seafarer) {
-          setFieldValue('seafarer-rank', seafarer.rank);
-          setFieldValue('seafarer-department', seafarer.department);
-          setFieldValue('seafarer-availability', seafarer.availability_date);
-          setFieldValue('seafarer-documents', seafarer.document_readiness);
-          setFieldValue('seafarer-note', seafarer.note);
-        }
-
-        if (employer) {
-          setFieldValue('employer-company', employer.company_name);
-          setFieldValue('employer-position', employer.position);
-          setFieldValue('employer-authority', employer.authority_basis);
-          setFieldValue('employer-request-ready', employer.crew_request_status);
-          setFieldValue('employer-note', employer.note);
-        }
+        seafarerCheckbox.checked = existingCards.includes('seafarer_specialist');
+        employerCheckbox.checked = existingCards.includes('buyer_employer');
       }
 
-      function cardPayloads() {
-        const cards = [];
-
-        if (seafarerCheckbox.checked) {
-          cards.push({
-            card_type: 'seafarer_specialist',
-            request_state: 'draft_pending_review',
-            rank: document.getElementById('seafarer-rank').value.trim(),
-            department: document.getElementById('seafarer-department').value,
-            availability_date: document.getElementById('seafarer-availability').value,
-            document_readiness: document.getElementById('seafarer-documents').value,
-            note: document.getElementById('seafarer-note').value.trim()
-          });
-        }
-
-        if (employerCheckbox.checked) {
-          cards.push({
-            card_type: 'buyer_employer',
-            request_state: 'draft_pending_review',
-            company_name: document.getElementById('employer-company').value.trim(),
-            position: document.getElementById('employer-position').value.trim(),
-            authority_basis: document.getElementById('employer-authority').value,
-            crew_request_status: document.getElementById('employer-request-ready').value,
-            note: document.getElementById('employer-note').value.trim()
-          });
-        }
-
-        return cards;
-      }
-
-      saveButton.addEventListener('click', () => {
-        const cards = cardPayloads();
-        if (cards.length === 0) {
-          status.textContent = message('authz.status.validation');
-          status.classList.add('is-error');
-          status.classList.remove('is-success');
-          return;
-        }
-
-        const person = readPerson();
+      function saveSelection(cards) {
+        const person = readJson('crewportglobal.registration.person');
         const payload = {
           person_id: person.person_id || null,
           email: person.email || null,
           registration_state: person.registration_state || null,
           phone_verification_state: 'to_be_configured',
-          authorization_state: 'requested_not_granted',
-          cards,
+          authorization_state: 'forms_selected_not_submitted',
+          selected_cards: cards,
           updated_at: new Date().toISOString()
         };
 
-        window.localStorage.setItem('crewportglobal.authorization.requests', JSON.stringify(payload));
-        status.textContent = message('authz.status.saved');
-        status.classList.add('is-success');
-        status.classList.remove('is-error');
+        window.localStorage.setItem('crewportglobal.authorization.selectedCards', JSON.stringify(payload));
+        window.localStorage.setItem('crewportglobal.authorization.requests', JSON.stringify({
+          ...payload,
+          cards: cards.map((cardType) => ({
+            card_type: cardType,
+            request_state: 'form_not_started'
+          }))
+        }));
+      }
+
+      continueButton.addEventListener('click', () => {
+        const cards = selectedCards();
+        if (cards.length === 0) {
+          status.textContent = message('authz.status.validation');
+          status.classList.add('is-error');
+          return;
+        }
+
+        saveSelection(cards);
+
+        if (cards.length === 1 && cards[0] === 'seafarer_specialist') {
+          window.location.href = '/register/authorization/seafarer-specialist/';
+          return;
+        }
+
+        if (cards.length === 1 && cards[0] === 'buyer_employer') {
+          window.location.href = '/register/authorization/buyer-employer/';
+          return;
+        }
+
+        window.location.href = '/register/authorization/selected/';
       });
 
       window.addEventListener('crewportglobal:languagechange', () => {
-        if (status.classList.contains('is-success')) {
-          status.textContent = message('authz.status.saved');
-        } else if (status.classList.contains('is-error')) {
+        if (status.classList.contains('is-error')) {
           status.textContent = message('authz.status.validation');
         }
       });

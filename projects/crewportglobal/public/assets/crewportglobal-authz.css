@@ -1,0 +1,215 @@
+.authorization-layout {
+  display: grid;
+  gap: 18px;
+}
+
+.auth-card,
+.authz-section,
+.selected-form-card {
+  overflow: hidden;
+  border: 1px solid var(--app-line);
+  border-radius: 8px;
+  background: var(--app-surface);
+}
+
+.auth-card summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 20px;
+  cursor: pointer;
+  color: var(--app-ink);
+  font-weight: 800;
+  list-style: none;
+}
+
+.auth-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.auth-card summary::after {
+  content: "+";
+  width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--app-line);
+  color: var(--app-muted);
+  flex: 0 0 auto;
+}
+
+.auth-card[open] summary::after {
+  content: "-";
+}
+
+.auth-card__content,
+.authz-section {
+  display: grid;
+  gap: 16px;
+  padding: 0 20px 20px;
+  color: var(--app-muted);
+  line-height: 1.6;
+}
+
+.authz-section {
+  padding: 20px;
+}
+
+.task-list,
+.document-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.task-list li,
+.selection-item,
+.field-box,
+.document-list li,
+.selected-form-card {
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid var(--app-line);
+  background: var(--app-surface);
+}
+
+.task-state {
+  display: inline-flex;
+  margin-bottom: 6px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--app-yellow);
+}
+
+.task-state.done {
+  color: var(--app-green);
+}
+
+.selection-grid,
+.field-grid,
+.selected-forms-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.selection-item {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  align-content: start;
+  min-height: 132px;
+  color: var(--app-muted);
+}
+
+.selection-item strong,
+.field-box strong,
+.selected-form-card strong,
+.document-list strong {
+  color: var(--app-ink);
+}
+
+.selection-item > span,
+.selected-form-card,
+.document-list li {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.selection-item strong {
+  display: block;
+  font-size: 1.02rem;
+  line-height: 1.28;
+}
+
+.selection-item strong + span {
+  display: block;
+  line-height: 1.52;
+  overflow-wrap: anywhere;
+}
+
+.selection-item input {
+  width: 16px;
+  height: 16px;
+  margin-top: 4px;
+  accent-color: var(--app-ocean);
+}
+
+.selection-item:has(input:checked) {
+  border-color: rgba(20, 107, 124, 0.38);
+  background: rgba(20, 107, 124, 0.06);
+}
+
+.field-box {
+  display: grid;
+  gap: 9px;
+}
+
+.field-box.full {
+  grid-column: 1 / -1;
+}
+
+.field-box input,
+.field-box select,
+.field-box textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--app-line);
+  background: var(--app-surface);
+  color: var(--app-ink);
+  font: inherit;
+}
+
+.field-box input::placeholder,
+.field-box textarea::placeholder {
+  color: #718899;
+  opacity: 1;
+}
+
+.field-box textarea {
+  min-height: 104px;
+  resize: vertical;
+}
+
+.file-box input {
+  padding: 10px;
+}
+
+.form-note,
+.auth-status {
+  color: var(--app-muted);
+}
+
+.auth-status.is-success {
+  color: var(--app-green);
+}
+
+.auth-status.is-error {
+  color: #b3261e;
+}
+
+.selected-form-card[hidden],
+.authz-empty[hidden] {
+  display: none;
+}
+
+.selected-form-card .button {
+  width: fit-content;
+}
+
+@media (max-width: 780px) {
+  .selection-grid,
+  .field-grid,
+  .selected-forms-grid {
+    grid-template-columns: 1fr;
+  }
+}

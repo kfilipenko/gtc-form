@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Seafarer authorization form</title>
+  <meta name="description" content="Complete the CrewPortGlobal seafarer or specialist authorization request form.">
+  <link rel="canonical" href="https://crewportglobal.com/register/authorization/seafarer-specialist/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../../../assets/crewportglobal-docs.css">
+  <link rel="stylesheet" href="../../../assets/crewportglobal-app.css">
+  <link rel="stylesheet" href="../../../assets/crewportglobal-authz.css">
+</head>
+<body class="doc-body cpg-app-page">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+    </header>
+
+    <div data-cpg-navigation="application" data-cpg-nav-active="/register/"></div>
+    <script src="../../../assets/crewportglobal-navigation.js"></script>
+
+    <main class="doc-main">
+      <section class="card app-panel authorization-layout">
+        <p class="eyebrow" data-i18n="sf.eyebrow">Seafarer / Specialist authorization</p>
+        <h1 data-i18n="sf.title">Complete the seafarer / specialist form.</h1>
+        <p data-i18n="sf.copy">This form collects the professional and document evidence needed to request seafarer or maritime specialist status. Saving the form does not publish the candidate or grant authorization automatically.</p>
+
+        <details class="auth-card" open>
+          <summary data-i18n="sf.tasks.title">My tasks</summary>
+          <div class="auth-card__content">
+            <ul class="task-list">
+              <li>
+                <span class="task-state" data-i18n="sf.tasks.form.state">Now</span>
+                <strong data-i18n="sf.tasks.form.title">Fill professional data</strong>
+                <div data-i18n="sf.tasks.form.copy">Provide rank, department, availability, expected conditions and supporting notes.</div>
+              </li>
+              <li>
+                <span class="task-state" data-i18n="sf.tasks.docs.state">Now</span>
+                <strong data-i18n="sf.tasks.docs.title">Attach authorization documents</strong>
+                <div data-i18n="sf.tasks.docs.copy">Upload controls are prepared for the future backend. In this slice the browser stores document metadata only.</div>
+              </li>
+            </ul>
+          </div>
+        </details>
+
+        <form id="seafarer-form" class="authz-section">
+          <h2 class="app-card-title" data-i18n="sf.form.title">Professional status request</h2>
+          <div class="field-grid">
+            <label class="field-box">
+              <strong data-i18n="sf.rank">Rank / specialty</strong>
+              <input id="seafarer-rank" type="text" placeholder="Chief Officer" data-i18n-placeholder="sf.rank.placeholder">
+            </label>
+            <label class="field-box">
+              <strong data-i18n="sf.department">Department</strong>
+              <select id="seafarer-department">
+                <option value="" data-i18n="sf.option.select">Select</option>
+                <option value="deck" data-i18n="sf.department.deck">Deck</option>
+                <option value="engine" data-i18n="sf.department.engine">Engine</option>
+                <option value="catering" data-i18n="sf.department.catering">Catering</option>
+                <option value="hotel" data-i18n="sf.department.hotel">Hotel</option>
+                <option value="other" data-i18n="sf.department.other">Other</option>
+              </select>
+            </label>
+            <label class="field-box">
+              <strong data-i18n="sf.nationality">Nationality</strong>
+              <input id="seafarer-nationality" type="text" placeholder="Philippines" data-i18n-placeholder="sf.nationality.placeholder">
+            </label>
+            <label class="field-box">
+              <strong data-i18n="sf.residence">Residence country</strong>
+              <input id="seafarer-residence" type="text" placeholder="United Arab Emirates" data-i18n-placeholder="sf.residence.placeholder">
+            </label>
+            <label class="field-box">
+              <strong data-i18n="sf.availability">Availability date</strong>
+              <input id="seafarer-availability" type="date">
+            </label>
+            <label class="field-box">
+              <strong data-i18n="sf.salary">Expected monthly compensation</strong>
+              <input id="seafarer-salary" type="text" placeholder="USD 4500" data-i18n-placeholder="sf.salary.placeholder">
+            </label>
+            <label class="field-box">
+              <strong data-i18n="sf.vessels">Preferred / accepted vessel types</strong>
+              <input id="seafarer-vessels" type="text" placeholder="Container, bulk carrier" data-i18n-placeholder="sf.vessels.placeholder">
+            </label>
+            <label class="field-box">
+              <strong data-i18n="sf.experience">Relevant experience</strong>
+              <input id="seafarer-experience" type="text" placeholder="6 years, 2 contracts in rank" data-i18n-placeholder="sf.experience.placeholder">
+            </label>
+            <label class="field-box">
+              <strong data-i18n="sf.languages">Working languages</strong>
+              <input id="seafarer-languages" type="text" placeholder="English, Russian" data-i18n-placeholder="sf.languages.placeholder">
+            </label>
+            <label class="field-box">
+              <strong data-i18n="sf.documents">Document readiness</strong>
+              <select id="seafarer-documents">
+                <option value="" data-i18n="sf.option.select">Select</option>
+                <option value="collecting" data-i18n="sf.documents.collecting">Collecting documents</option>
+                <option value="ready" data-i18n="sf.documents.ready">Ready for review</option>
+                <option value="needs_update" data-i18n="sf.documents.needsUpdate">Needs update</option>
+              </select>
+            </label>
+            <label class="field-box full">
+              <strong data-i18n="sf.note">Professional note</strong>
+              <textarea id="seafarer-note" placeholder="Short work history, certificates, restrictions, preferred routes" data-i18n-placeholder="sf.note.placeholder"></textarea>
+            </label>
+          </div>
+        </form>
+
+        <section class="authz-section">
+          <h2 class="app-card-title" data-i18n="sf.docs.title">Documents for authorization review</h2>
+          <p class="form-note" data-i18n="sf.docs.copy">Attach the documents that prove identity, qualification and readiness. Files are not uploaded to the server yet; metadata is saved locally until backend storage is implemented.</p>
+          <div class="field-grid">
+            <label class="field-box file-box">
+              <strong data-i18n="sf.file.passport">Passport / ID</strong>
+              <input id="seafarer-file-passport" type="file" accept=".pdf,.jpg,.jpeg,.png">
+            </label>
+            <label class="field-box file-box">
+              <strong data-i18n="sf.file.seamansBook">Seaman's book</strong>
+              <input id="seafarer-file-seamans-book" type="file" accept=".pdf,.jpg,.jpeg,.png">
+            </label>
+            <label class="field-box file-box">
+              <strong data-i18n="sf.file.certificates">Certificates / CoC / STCW</strong>
+              <input id="seafarer-file-certificates" type="file" accept=".pdf,.jpg,.jpeg,.png" multiple>
+            </label>
+            <label class="field-box file-box">
+              <strong data-i18n="sf.file.medical">Medical certificate</strong>
+              <input id="seafarer-file-medical" type="file" accept=".pdf,.jpg,.jpeg,.png">
+            </label>
+            <label class="field-box file-box">
+              <strong data-i18n="sf.file.cv">Maritime CV</strong>
+              <input id="seafarer-file-cv" type="file" accept=".pdf,.doc,.docx">
+            </label>
+            <label class="field-box file-box">
+              <strong data-i18n="sf.file.other">Other evidence</strong>
+              <input id="seafarer-file-other" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple>
+            </label>
+          </div>
+        </section>
+
+        <div class="inline-actions">
+          <button id="save-seafarer-form" class="button primary" type="button" data-i18n="sf.save">Save seafarer form draft</button>
+          <a class="button secondary" href="https://crewportglobal.com/register/authorization/selected/" data-i18n="sf.backSelected">Back to selected forms</a>
+          <a class="button secondary" href="https://crewportglobal.com/register/authorization/" data-i18n="sf.change">Change authorization forms</a>
+        </div>
+        <p id="seafarer-status" class="auth-status" data-i18n="sf.status">Draft is not saved yet.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'sf.eyebrow': 'Seafarer / Specialist authorization',
+        'sf.title': 'Complete the seafarer / specialist form.',
+        'sf.copy': 'This form collects the professional and document evidence needed to request seafarer or maritime specialist status. Saving the form does not publish the candidate or grant authorization automatically.',
+        'sf.tasks.title': 'My tasks',
+        'sf.tasks.form.state': 'Now',
+        'sf.tasks.form.title': 'Fill professional data',
+        'sf.tasks.form.copy': 'Provide rank, department, availability, expected conditions and supporting notes.',
+        'sf.tasks.docs.state': 'Now',
+        'sf.tasks.docs.title': 'Attach authorization documents',
+        'sf.tasks.docs.copy': 'Upload controls are prepared for the future backend. In this slice the browser stores document metadata only.',
+        'sf.form.title': 'Professional status request',
+        'sf.rank': 'Rank / specialty',
+        'sf.rank.placeholder': 'Chief Officer',
+        'sf.department': 'Department',
+        'sf.nationality': 'Nationality',
+        'sf.nationality.placeholder': 'Philippines',
+        'sf.residence': 'Residence country',
+        'sf.residence.placeholder': 'United Arab Emirates',
+        'sf.availability': 'Availability date',
+        'sf.salary': 'Expected monthly compensation',
+        'sf.salary.placeholder': 'USD 4500',
+        'sf.vessels': 'Preferred / accepted vessel types',
+        'sf.vessels.placeholder': 'Container, bulk carrier',
+        'sf.experience': 'Relevant experience',
+        'sf.experience.placeholder': '6 years, 2 contracts in rank',
+        'sf.languages': 'Working languages',
+        'sf.languages.placeholder': 'English, Russian',
+        'sf.documents': 'Document readiness',
+        'sf.note': 'Professional note',
+        'sf.note.placeholder': 'Short work history, certificates, restrictions, preferred routes',
+        'sf.option.select': 'Select',
+        'sf.department.deck': 'Deck',
+        'sf.department.engine': 'Engine',
+        'sf.department.catering': 'Catering',
+        'sf.department.hotel': 'Hotel',
+        'sf.department.other': 'Other',
+        'sf.documents.collecting': 'Collecting documents',
+        'sf.documents.ready': 'Ready for review',
+        'sf.documents.needsUpdate': 'Needs update',
+        'sf.docs.title': 'Documents for authorization review',
+        'sf.docs.copy': 'Attach the documents that prove identity, qualification and readiness. Files are not uploaded to the server yet; metadata is saved locally until backend storage is implemented.',
+        'sf.file.passport': 'Passport / ID',
+        'sf.file.seamansBook': "Seaman's book",
+        'sf.file.certificates': 'Certificates / CoC / STCW',
+        'sf.file.medical': 'Medical certificate',
+        'sf.file.cv': 'Maritime CV',
+        'sf.file.other': 'Other evidence',
+        'sf.save': 'Save seafarer form draft',
+        'sf.backSelected': 'Back to selected forms',
+        'sf.change': 'Change authorization forms',
+        'sf.status': 'Draft is not saved yet.',
+        'sf.status.saved': 'Seafarer / Specialist authorization form draft saved. No status is granted automatically.'
+      },
+      ru: {
+        'sf.eyebrow': 'Авторизация моряка / специалиста',
+        'sf.title': 'Заполните форму моряка / специалиста.',
+        'sf.copy': 'Эта форма собирает профессиональные данные и документы, необходимые для запроса статуса моряка или морского специалиста. Сохранение формы не публикует кандидата и не выдаёт авторизацию автоматически.',
+        'sf.tasks.title': 'Мои задачи',
+        'sf.tasks.form.state': 'Сейчас',
+        'sf.tasks.form.title': 'Заполнить профессиональные данные',
+        'sf.tasks.form.copy': 'Укажите должность, департамент, доступность, ожидаемые условия и дополнительные сведения.',
+        'sf.tasks.docs.state': 'Сейчас',
+        'sf.tasks.docs.title': 'Приложить документы авторизации',
+        'sf.tasks.docs.copy': 'Поля загрузки подготовлены для будущего backend. На этом этапе браузер сохраняет только метаданные документов.',
+        'sf.form.title': 'Запрос профессионального статуса',
+        'sf.rank': 'Звание / специальность',
+        'sf.rank.placeholder': 'Главный офицер',
+        'sf.department': 'Отделение',
+        'sf.nationality': 'Гражданство',
+        'sf.nationality.placeholder': 'Филиппины',
+        'sf.residence': 'Страна проживания',
+        'sf.residence.placeholder': 'ОАЭ',
+        'sf.availability': 'Дата доступности',
+        'sf.salary': 'Ожидаемая месячная компенсация',
+        'sf.salary.placeholder': 'USD 4500',
+        'sf.vessels': 'Предпочтительные / допустимые типы судов',
+        'sf.vessels.placeholder': 'Контейнеровоз, балкер',
+        'sf.experience': 'Релевантный опыт',
+        'sf.experience.placeholder': '6 лет, 2 контракта в должности',
+        'sf.languages': 'Рабочие языки',
+        'sf.languages.placeholder': 'Английский, русский',
+        'sf.documents': 'Готовность документов',
+        'sf.note': 'Профессиональная заметка',
+        'sf.note.placeholder': 'Краткий опыт, сертификаты, ограничения, предпочтительные маршруты',
+        'sf.option.select': 'Выберите',
+        'sf.department.deck': 'Палуба',
+        'sf.department.engine': 'Машина',
+        'sf.department.catering': 'Камбуз',
+        'sf.department.hotel': 'Отель',
+        'sf.department.other': 'Другое',
+        'sf.documents.collecting': 'Документы собираются',
+        'sf.documents.ready': 'Готовы к проверке',
+        'sf.documents.needsUpdate': 'Нужно обновить',
+        'sf.docs.title': 'Документы для проверки авторизации',
+        'sf.docs.copy': 'Приложите документы, подтверждающие личность, квалификацию и готовность. Файлы пока не загружаются на сервер; метаданные сохраняются локально до реализации backend-хранилища.',
+        'sf.file.passport': 'Паспорт / ID',
+        'sf.file.seamansBook': 'Мореходная книжка',
+        'sf.file.certificates': 'Сертификаты / CoC / STCW',
+        'sf.file.medical': 'Медицинский сертификат',
+        'sf.file.cv': 'Морское CV',
+        'sf.file.other': 'Другие доказательства',
+        'sf.save': 'Сохранить черновик формы моряка',
+        'sf.backSelected': 'Назад к выбранным формам',
+        'sf.change': 'Изменить формы авторизации',
+        'sf.status': 'Черновик ещё не сохранён.',
+        'sf.status.saved': 'Черновик формы моряка / специалиста сохранён. Статус автоматически не выдаётся.'
+      }
+    };
+  </script>
+  <script src="../../../assets/crewportglobal-public-i18n.js" defer></script>
+  <script>
+    (function () {
+      const saveButton = document.getElementById('save-seafarer-form');
+      const status = document.getElementById('seafarer-status');
+      const storageKey = 'crewportglobal.authorization.form.seafarerSpecialist';
+
+      function resolveLanguage() {
+        const language = document.documentElement.lang || 'en';
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[language] ? language : 'en';
+      }
+
+      function message(key) {
+        const dictionary = window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[resolveLanguage()] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en;
+        return dictionary[key] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key] || key;
+      }
+
+      function value(id) {
+        const field = document.getElementById(id);
+        return field ? field.value.trim() : '';
+      }
+
+      function files(id) {
+        const field = document.getElementById(id);
+        return field && field.files ? Array.from(field.files).map((file) => ({
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          last_modified: file.lastModified
+        })) : [];
+      }
+
+      function readPerson() {
+        try {
+          return JSON.parse(window.localStorage.getItem('crewportglobal.registration.person') || '{}');
+        } catch (error) {
+          console.error(error);
+          return {};
+        }
+      }
+
+      saveButton.addEventListener('click', () => {
+        const person = readPerson();
+        const payload = {
+          card_type: 'seafarer_specialist',
+          request_state: 'draft_pending_review',
+          person_id: person.person_id || null,
+          email: person.email || null,
+          fields: {
+            rank: value('seafarer-rank'),
+            department: value('seafarer-department'),
+            nationality: value('seafarer-nationality'),
+            residence_country: value('seafarer-residence'),
+            availability_date: value('seafarer-availability'),
+            expected_compensation: value('seafarer-salary'),
+            vessel_types: value('seafarer-vessels'),
+            relevant_experience: value('seafarer-experience'),
+            languages: value('seafarer-languages'),
+            document_readiness: value('seafarer-documents'),
+            note: value('seafarer-note')
+          },
+          documents: {
+            passport: files('seafarer-file-passport'),
+            seamans_book: files('seafarer-file-seamans-book'),
+            certificates: files('seafarer-file-certificates'),
+            medical: files('seafarer-file-medical'),
+            cv: files('seafarer-file-cv'),
+            other: files('seafarer-file-other')
+          },
+          authorization_state: 'requested_not_granted',
+          updated_at: new Date().toISOString()
+        };
+
+        window.localStorage.setItem(storageKey, JSON.stringify(payload));
+        status.textContent = message('sf.status.saved');
+        status.classList.add('is-success');
+      });
+
+      window.addEventListener('crewportglobal:languagechange', () => {
+        if (status.classList.contains('is-success')) {
+          status.textContent = message('sf.status.saved');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
