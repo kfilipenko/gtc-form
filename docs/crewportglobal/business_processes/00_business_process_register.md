@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 0.9
+- Version: 1.0
 - Status: For internal review
 
 ## 1. Purpose
@@ -44,6 +44,7 @@ docs/crewportglobal/business_processes/
   07_personal_cabinet_ui_layout_and_component_requirements.md
   08_client_registration_and_interaction_procedure.md
   09_public_site_and_authenticated_navigation_transition_plan.md
+  10_document_upload_storage_and_review_procedure.md
 ```
 
 ## 3. Active Business-Process Documents
@@ -59,6 +60,7 @@ docs/crewportglobal/business_processes/
 | BP-007 | `07_personal_cabinet_ui_layout_and_component_requirements.md` | Project Owner continuation after BP-006 | Drafted for owner review | Personal cabinet UI layout and component requirements covering registration entry, card order, collapsible behavior, badges, forms, empty states, responsive layout and interaction rules |
 | BP-008 | `08_client_registration_and_interaction_procedure.md` | Project Owner continuation after BP-007 | Drafted for owner review | Client registration and interaction procedure covering public-site entry, physical person registration, authentication, path selection, seafarer/employer-side flows, team/review interaction and public-to-authenticated navigation transition |
 | BP-009 | `09_public_site_and_authenticated_navigation_transition_plan.md` | Project Owner approval after BP-008 | Drafted for owner review | Public site and authenticated navigation transition plan covering public menu simplification, authenticated menu generation, route transition, protected team/admin navigation and implementation phases |
+| BP-010 | `10_document_upload_storage_and_review_procedure.md` | GitHub Issue #14 / CPG-DOC-021 | Drafted for owner review | Document upload, protected storage folders, metadata, antivirus scanning, review statuses, scoped visibility, vessel category preparation and implementation decisions required before upload endpoint |
 
 ## 4. Core Controls Introduced By This Block
 
@@ -83,6 +85,12 @@ This documentation block starts from the following approved business controls:
 17. Personal cabinet UI must render only visible sections, show only allowed actions and keep the working priority on `Мои задачи`.
 18. Public pages must provide general information and Login / Registration entry, while functional pages and menus are generated after registration/authentication according to groups, cards, relationships and authority evidence.
 19. Public navigation, document navigation, authenticated navigation and admin navigation must be separated before full personal-cabinet implementation.
+20. Uploaded documents must be stored only in protected server storage, never in public directories, Git or direct public URLs.
+21. Document storage categories must include `seafarer`, `employer` and future `vessel`.
+22. Vessel type must be prepared as a reference dictionary because it affects matching, requirements, service complexity and pricing.
+23. File upload must enforce allowed formats, size limits, count limits, sha256 hashing and antivirus / malware scanning before review.
+24. Document visibility must be scoped to the owner, assigned team member, authorized reviewer/controller and Project Owner when required; broad group membership alone must not reveal documents.
+25. Replacement uploads must create a new document record and hide the replaced document from normal user display while preserving audit history according to card/account lifecycle.
 
 ## 5. Intended Use
 
@@ -102,6 +110,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.0 | 2026-05-17 | GTC IT / AI Assistant | Added BP-010 document upload, protected storage and review procedure covering server-only folders, seafarer/employer/vessel document categories, file limits, antivirus scanning, metadata model, replacement behavior, scoped visibility and implementation decisions before upload endpoint |
 | 0.9 | 2026-05-17 | GTC IT / AI Assistant | Added BP-009 public site and authenticated navigation transition plan covering public menu simplification, authenticated menu generation, route transition, protected team/admin navigation and implementation phases |
 | 0.8 | 2026-05-17 | GTC IT / AI Assistant | Added BP-008 client registration and interaction procedure covering public-site entry, seafarer/employer-side registration, internal review/support interaction and public-to-authenticated navigation transition |
 | 0.7 | 2026-05-17 | GTC IT / AI Assistant | Added BP-007 personal cabinet UI layout and component requirements covering registration entry, collapsible card behavior, badges, forms, empty states, responsive layout and interaction rules |

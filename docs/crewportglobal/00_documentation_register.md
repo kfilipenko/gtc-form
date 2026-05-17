@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.99
+- Version: 1.00
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -210,6 +210,7 @@ docs/crewportglobal/
     07_personal_cabinet_ui_layout_and_component_requirements.md
     08_client_registration_and_interaction_procedure.md
     09_public_site_and_authenticated_navigation_transition_plan.md
+    10_document_upload_storage_and_review_procedure.md
 ```
 
 ### 3.3 Product governance control
@@ -313,6 +314,8 @@ Business Process Register 0.7 adds BP-007. BP-007 records the personal cabinet U
 Business Process Register 0.8 adds BP-008. BP-008 records the client registration and interaction procedure, including public-site entry, physical person registration, service-account authentication, intended path selection, seafarer and employer-side flows, internal team/review interaction and the transition rule that public pages provide general information while functional pages and menus are generated after login by scoped access context.
 
 Business Process Register 0.9 adds BP-009. BP-009 records the public site and authenticated navigation transition plan, including public menu simplification, authenticated menu generation, route transition behavior, direct URL safety, protected team/admin navigation, implementation phases and verification requirements before frontend implementation.
+
+Business Process Register 1.0 adds BP-010 for Issue #14 / CPG-DOC-021. BP-010 records the document upload, protected storage and review procedure, including seafarer, employer and future vessel document categories, server-only storage folders, metadata model, file limits, antivirus scanning, replacement behavior, scoped visibility and implementation decisions required before the first upload endpoint.
 
 Document 109 records the frontend-only BP-009 implementation slice that simplifies public and document navigation, removes public Create Profile / Post Vacancy navigation exposure and routes public functional CTAs to Login / Registration while preserving direct URLs.
 
@@ -423,6 +426,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.00 | 2026-05-17 | GTC IT / AI Assistant | Added BP-010 document upload, protected storage and review procedure for CPG-DOC-021 covering server-only document folders, seafarer/employer/vessel categories, file limits, antivirus scanning, metadata, scoped visibility and implementation decisions before upload endpoint |
 | 0.99 | 2026-05-17 | GTC IT / AI Assistant | Updated document 111 and public route register for separate authorization form pages: selection-only /register/authorization/, selected-forms route, seafarer/specialist form, buyer/employer form and document-upload draft controls |
 | 0.98 | 2026-05-17 | GTC IT / AI Assistant | Added document 111 as CPG-AUTH-002 authorization request cards frontend report covering multiple authorization card selection, return-to-authorization behavior, phone-verification-to-configure note and no automatic authority boundary |
 | 0.97 | 2026-05-17 | GTC IT / AI Assistant | Added document 110 as CPG-AUTH-001 public person registration email confirmation implementation report covering /register/ backend submission, protected SMTP confirmation link, email auth confirmation and sequential /register/next/ route |
