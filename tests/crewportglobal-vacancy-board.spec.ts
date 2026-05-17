@@ -100,7 +100,8 @@ test('vacancy board renders reviewed public vacancies from API', async ({ page, 
   await expect(page.locator('#vacancy-live-list')).toContainText(title);
   await expect(page.locator('#vacancy-live-list')).toContainText('Bulk Carrier');
   await expect(page.locator('#vacancy-live-list')).toContainText('USD 6500.00 - 7200.00');
-
-  await page.locator('#vacancy-filter-position').selectOption('deck');
-  await expect(page.locator('#vacancy-live-list')).toContainText(title);
+  await expect(page.locator('main input')).toHaveCount(0);
+  await expect(page.locator('main select')).toHaveCount(0);
+  await expect(page.locator('#vacancy-live-list a')).toHaveCount(0);
+  await expect(page.locator('main a[href="https://crewportglobal.com/register/"]')).toHaveCount(0);
 });

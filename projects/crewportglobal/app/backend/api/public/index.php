@@ -8,6 +8,7 @@ require_once __DIR__ . '/../lib/admin_access_email_delivery.php';
 require_once __DIR__ . '/../lib/admin_access_flow.php';
 require_once __DIR__ . '/../lib/admin_access_storage_factory.php';
 require_once __DIR__ . '/../lib/identity_context.php';
+require_once __DIR__ . '/../lib/registration_person_flow.php';
 
 const REG_DRAFT_STATUSES = ['draft', 'submitted_for_human_review'];
 const ADMIN_ACCESS_PUBLIC_ROUTES_ENV = 'CREWPORTGLOBAL_ADMIN_ACCESS_PUBLIC_ROUTES_ENABLED';
@@ -281,6 +282,218 @@ function handle_post_admin_access_group_member(): void {
         null,
         admin_access_request_metadata()
     ));
+}
+
+function registration_person_runtime_or_error(): void {
+    admin_access_load_runtime_env();
+    if (!cpg_registration_public_flow_enabled()) {
+        api_error(503, 'registration_person_flow_disabled', 'Registration person flow is not enabled');
+    }
+
+    $secret = cpg_registration_link_secret();
+    if ($secret === null) {
+        api_error(503, 'registration_link_secret_not_configured', 'Registration confirmation link secret is not configured');
+    }
+
+    $deliveryStatus = cpg_registration_email_delivery_status();
+    if (($deliveryStatus['ok'] ?? false) !== true) {
+        api_json(503, [
+            'ok' => false,
+            'error' => $deliveryStatus['error'] ?? 'registration_email_delivery_disabled',
+            'message' => 'Registration email delivery is not configured',
+            'missing_config' => $deliveryStatus['missing_config'] ?? [],
+        ]);
+    }
+}
+
+function normalize_registration_person_text(mixed $value, int $maxLength): ?string {
+    if (!is_string($value)) {
+        return null;
+    }
+
+    $text = trim($value);
+    if ($text === '') {
+        return null;
+    }
+
+    if (mb_strlen($text) > $maxLength) {
+        $text = mb_substr($text, 0, $maxLength);
+    }
+
+    return $text;
+}
+
+function handle_post_registration_person_request(): void {
+    registration_person_runtime_or_error();
+    $body = api_decode_json_body();
+
+    $email = api_normalize_email($body['email'] ?? null);
+    $fullName = normalize_registration_person_text($body['full_name'] ?? null, 240);
+    $phone = normalize_registration_person_text($body['phone'] ?? null, 80);
+    $country = normalize_registration_person_text($body['country'] ?? null, 120);
+    $language = normalize_registration_person_text($body['language'] ?? null, 12) ?? 'en';
+    $termsAccepted = ($body['terms_accepted'] ?? false) === true;
+    $consentAccepted = ($body['consent_accepted'] ?? false) === true;
+
+    if ($email === null) {
+        api_error(400, 'invalid_email', 'email is required and must be valid');
+    }
+    if ($fullName === null || $phone === null || $country === null || !$termsAccepted || !$consentAccepted) {
+        api_error(400, 'registration_person_required_fields_missing', 'full_name, phone, country and both consents are required');
+    }
+
+    $secret = cpg_registration_link_secret();
+    if ($secret === null) {
+        api_error(503, 'registration_link_secret_not_configured', 'Registration confirmation link secret is not configured');
+    }
+
+    api_tx_begin();
+    try {
+        $userResult = api_query(
+            "INSERT INTO crewportglobal.users (email, display_name, registration_status)
+             VALUES ($1, $2, 'draft')
+             ON CONFLICT ((lower(email)))
+             DO UPDATE SET
+               display_name = COALESCE(NULLIF(crewportglobal.users.display_name, ''), EXCLUDED.display_name),
+               registration_status = CASE
+                 WHEN crewportglobal.users.registration_status = 'approved' THEN crewportglobal.users.registration_status
+                 ELSE 'draft'
+               END,
+               updated_at = now()
+             RETURNING user_id, email, display_name, email_verified_at",
+            [$email, $fullName]
+        );
+        $userRow = pg_fetch_assoc($userResult);
+        if (!is_array($userRow)) {
+            api_tx_rollback();
+            api_error(500, 'registration_person_upsert_failed', 'Unable to create or update person record');
+        }
+
+        $userId = (string) $userRow['user_id'];
+        $now = time();
+        $token = cpg_registration_create_confirmation_token($userId, $email, $now, $secret);
+        $expiresAt = gmdate('c', $now + CPG_REGISTRATION_LINK_TTL_SECONDS);
+        $confirmationUrl = cpg_registration_confirmation_url($token);
+        $message = cpg_registration_email_message($email, $confirmationUrl, $expiresAt);
+        $delivery = cpg_registration_send_email_message($message);
+
+        $deliveryStatusCode = (string) ($delivery['delivery_status'] ?? '');
+        if (($delivery['ok'] ?? false) !== true
+            || !in_array($deliveryStatusCode, ['registration_email_delivery_sent', 'captured_test_only'], true)
+        ) {
+            api_tx_rollback();
+            api_json(502, [
+                'ok' => false,
+                'error' => $delivery['error'] ?? 'registration_email_delivery_failed',
+                'message' => 'Unable to send registration confirmation email',
+                'delivery_status' => $deliveryStatusCode,
+            ]);
+        }
+
+        write_audit_event('person_registration_email_requested', $userId, null, null, [
+            'email' => $email,
+            'phone_present' => $phone !== null,
+            'country' => $country,
+            'language' => $language,
+            'terms_accepted' => $termsAccepted,
+            'consent_accepted' => $consentAccepted,
+            'delivery_status' => $delivery['delivery_status'] ?? null,
+            'expires_at' => $expiresAt,
+        ], 'public_person_registration');
+
+        api_tx_commit();
+
+        api_json(202, [
+            'ok' => true,
+            'status' => 'registration_email_confirmation_sent',
+            'person_id' => $userId,
+            'masked_email' => cpg_admin_mask_email($email),
+            'email_verified' => $userRow['email_verified_at'] !== null,
+            'delivery_status' => $delivery['delivery_status'] ?? null,
+            'next_step' => 'open_email_confirmation_link',
+            'expires_at' => $expiresAt,
+            'generated_at' => gmdate('c'),
+        ]);
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'registration_person_request_failed', $error->getMessage());
+    }
+}
+
+function handle_post_registration_person_confirm(): void {
+    admin_access_load_runtime_env();
+    if (!cpg_registration_public_flow_enabled()) {
+        api_error(503, 'registration_person_flow_disabled', 'Registration person flow is not enabled');
+    }
+
+    $secret = cpg_registration_link_secret();
+    if ($secret === null) {
+        api_error(503, 'registration_link_secret_not_configured', 'Registration confirmation link secret is not configured');
+    }
+
+    $body = api_decode_json_body();
+    $token = isset($body['token']) && is_string($body['token']) ? trim($body['token']) : '';
+    if ($token === '') {
+        api_error(400, 'registration_confirmation_token_required', 'token is required');
+    }
+
+    $verifiedToken = cpg_registration_verify_confirmation_token($token, time(), $secret);
+    if (($verifiedToken['ok'] ?? false) !== true) {
+        api_error(400, (string) ($verifiedToken['error'] ?? 'registration_confirmation_token_invalid'), 'Registration confirmation token is invalid or expired');
+    }
+
+    $userId = (string) $verifiedToken['user_id'];
+    $email = (string) $verifiedToken['email'];
+
+    api_tx_begin();
+    try {
+        $userResult = api_query(
+            'UPDATE crewportglobal.users
+             SET email_verified_at = COALESCE(email_verified_at, now()),
+                 updated_at = now()
+             WHERE user_id = $1 AND lower(email) = lower($2)
+             RETURNING user_id, email, display_name, email_verified_at',
+            [$userId, $email]
+        );
+        $userRow = pg_fetch_assoc($userResult);
+        if (!is_array($userRow)) {
+            api_tx_rollback();
+            api_error(404, 'registration_person_not_found', 'Registration person record was not found');
+        }
+
+        api_query(
+            'INSERT INTO crewportglobal.user_auth_identities (user_id, provider, provider_subject, is_primary)
+             VALUES ($1, $2, $3, TRUE)
+             ON CONFLICT (user_id, provider)
+             DO UPDATE SET
+               provider_subject = EXCLUDED.provider_subject,
+               is_primary = TRUE,
+               updated_at = now()',
+            [$userId, 'email', $email]
+        );
+
+        write_audit_event('person_registration_email_confirmed', $userId, null, null, [
+            'email' => $email,
+            'confirmed_at' => $userRow['email_verified_at'] ?? gmdate('c'),
+        ], 'public_person_registration');
+
+        api_tx_commit();
+
+        api_json(200, [
+            'ok' => true,
+            'status' => 'registration_email_confirmed',
+            'person_id' => $userId,
+            'email' => $email,
+            'display_name' => $userRow['display_name'] ?? null,
+            'email_verified_at' => $userRow['email_verified_at'],
+            'next_url' => '/register/next/',
+            'next_step' => 'continue_registration_sequence',
+            'generated_at' => gmdate('c'),
+        ]);
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'registration_person_confirm_failed', $error->getMessage());
+    }
 }
 
 function read_role_for_user(string $userId): ?string {
@@ -2695,6 +2908,22 @@ if ($path === '/admin/access/users') {
 if ($path === '/admin/access/group-members') {
     if ($method === 'POST') {
         handle_post_admin_access_group_member();
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if ($path === '/registration/person/request') {
+    if ($method === 'POST') {
+        handle_post_registration_person_request();
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if ($path === '/registration/person/confirm') {
+    if ($method === 'POST') {
+        handle_post_registration_person_confirm();
     }
     header('Allow: POST');
     api_error(405, 'method_not_allowed', 'Allowed methods: POST');

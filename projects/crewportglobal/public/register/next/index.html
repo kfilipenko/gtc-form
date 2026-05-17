@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Registration sequence</title>
+  <meta name="description" content="CrewPortGlobal sequential registration steps after service-account email confirmation.">
+  <link rel="canonical" href="https://crewportglobal.com/register/next/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../../assets/crewportglobal-docs.css">
+  <link rel="stylesheet" href="../../assets/crewportglobal-app.css">
+  <style>
+    .sequence-layout {
+      display: grid;
+      gap: 18px;
+    }
+
+    .sequence-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .sequence-card summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 18px 20px;
+      cursor: pointer;
+      color: var(--text-on-dark);
+      font-weight: 800;
+      list-style: none;
+    }
+
+    .sequence-card summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .sequence-card summary::after {
+      content: "+";
+      width: 28px;
+      height: 28px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      color: var(--muted-on-dark);
+    }
+
+    .sequence-card[open] summary::after {
+      content: "-";
+    }
+
+    .sequence-content {
+      display: grid;
+      gap: 14px;
+      padding: 0 20px 20px;
+      color: var(--muted-on-dark);
+      line-height: 1.6;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .task-list li {
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .task-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #79e2a6;
+    }
+
+    .task-state.pending {
+      color: #ffd166;
+    }
+
+    .path-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .path-option {
+      display: grid;
+      gap: 8px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .path-option strong {
+      color: var(--text-on-dark);
+    }
+
+    @media (max-width: 760px) {
+      .path-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="doc-body cpg-app-page">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+    </header>
+
+    <div data-cpg-navigation="application" data-cpg-nav-active="/register/"></div>
+    <script src="../../assets/crewportglobal-navigation.js"></script>
+
+    <main class="doc-main">
+      <section class="card app-panel sequence-layout">
+        <p class="eyebrow" data-i18n="registerNext.eyebrow">Registration sequence</p>
+        <h1 data-i18n="registerNext.title">Continue step by step.</h1>
+        <p data-i18n="registerNext.copy">CrewPortGlobal first confirms the person and service account, then collects the right cards for the work path and grants authorization only after evidence review.</p>
+
+        <details class="sequence-card" open>
+          <summary data-i18n="registerNext.tasks.title">My tasks</summary>
+          <div class="sequence-content">
+            <ul class="task-list">
+              <li>
+                <span class="task-state" data-i18n="registerNext.tasks.email.state">Done</span>
+                <strong data-i18n="registerNext.tasks.email.title">Email confirmation</strong>
+                <div id="person-summary" data-i18n="registerNext.tasks.email.copy">The service account email is confirmed for this browser session.</div>
+              </li>
+              <li>
+                <span class="task-state pending" data-i18n="registerNext.tasks.phone.state">Next</span>
+                <strong data-i18n="registerNext.tasks.phone.title">Phone confirmation</strong>
+                <div data-i18n="registerNext.tasks.phone.copy">Phone verification will be the next authentication slice.</div>
+              </li>
+              <li>
+                <span class="task-state pending" data-i18n="registerNext.tasks.path.state">Pending</span>
+                <strong data-i18n="registerNext.tasks.path.title">Choose the work path</strong>
+                <div data-i18n="registerNext.tasks.path.copy">After account authentication, the user will request seafarer supply or employer-side demand cards.</div>
+              </li>
+            </ul>
+          </div>
+        </details>
+
+        <details class="sequence-card">
+          <summary data-i18n="registerNext.person.title">Physical person card</summary>
+          <div class="sequence-content">
+            <p data-i18n="registerNext.person.copy">The public registration form creates or confirms the person/user record. It does not create a seafarer profile, company authority, vessel authority or operator access by itself.</p>
+          </div>
+        </details>
+
+        <details class="sequence-card">
+          <summary data-i18n="registerNext.auth.title">Authentication card</summary>
+          <div class="sequence-content">
+            <p data-i18n="registerNext.auth.copy">Authentication confirms access to the service account and the correctness of contact channels. Email is the first implemented step; phone confirmation follows as the next slice.</p>
+          </div>
+        </details>
+
+        <details class="sequence-card">
+          <summary data-i18n="registerNext.paths.title">Capability-card request</summary>
+          <div class="sequence-content">
+            <div class="path-grid">
+              <div class="path-option">
+                <strong data-i18n="registerNext.paths.seafarer.title">Seafarer workforce card</strong>
+                <span data-i18n="registerNext.paths.seafarer.copy">For supply-side qualification, documents, availability, compensation expectations and matching readiness.</span>
+              </div>
+              <div class="path-option">
+                <strong data-i18n="registerNext.paths.employer.title">Employer-side request card</strong>
+                <span data-i18n="registerNext.paths.employer.copy">For demand-side company, vessel, authority evidence and crew request data.</span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="sequence-card">
+          <summary data-i18n="registerNext.authorization.title">Authorization and visibility</summary>
+          <div class="sequence-content">
+            <p data-i18n="registerNext.authorization.copy">Authorization is granted only through group membership, evidence and scoped relationship to a person, company, vessel, client, task or control function.</p>
+          </div>
+        </details>
+      </section>
+    </main>
+  </div>
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'registerNext.eyebrow': 'Registration sequence',
+        'registerNext.title': 'Continue step by step.',
+        'registerNext.copy': 'CrewPortGlobal first confirms the person and service account, then collects the right cards for the work path and grants authorization only after evidence review.',
+        'registerNext.tasks.title': 'My tasks',
+        'registerNext.tasks.email.state': 'Done',
+        'registerNext.tasks.email.title': 'Email confirmation',
+        'registerNext.tasks.email.copy': 'The service account email is confirmed for this browser session.',
+        'registerNext.tasks.phone.state': 'Next',
+        'registerNext.tasks.phone.title': 'Phone confirmation',
+        'registerNext.tasks.phone.copy': 'Phone verification will be the next authentication slice.',
+        'registerNext.tasks.path.state': 'Pending',
+        'registerNext.tasks.path.title': 'Choose the work path',
+        'registerNext.tasks.path.copy': 'After account authentication, the user will request seafarer supply or employer-side demand cards.',
+        'registerNext.person.title': 'Physical person card',
+        'registerNext.person.copy': 'The public registration form creates or confirms the person/user record. It does not create a seafarer profile, company authority, vessel authority or operator access by itself.',
+        'registerNext.auth.title': 'Authentication card',
+        'registerNext.auth.copy': 'Authentication confirms access to the service account and the correctness of contact channels. Email is the first implemented step; phone confirmation follows as the next slice.',
+        'registerNext.paths.title': 'Capability-card request',
+        'registerNext.paths.seafarer.title': 'Seafarer workforce card',
+        'registerNext.paths.seafarer.copy': 'For supply-side qualification, documents, availability, compensation expectations and matching readiness.',
+        'registerNext.paths.employer.title': 'Employer-side request card',
+        'registerNext.paths.employer.copy': 'For demand-side company, vessel, authority evidence and crew request data.',
+        'registerNext.authorization.title': 'Authorization and visibility',
+        'registerNext.authorization.copy': 'Authorization is granted only through group membership, evidence and scoped relationship to a person, company, vessel, client, task or control function.'
+      },
+      ru: {
+        'registerNext.eyebrow': 'Последовательность регистрации',
+        'registerNext.title': 'Продолжайте шаг за шагом.',
+        'registerNext.copy': 'CrewPortGlobal сначала подтверждает человека и сервисный аккаунт, затем собирает нужные карточки по рабочему пути и выдаёт авторизацию только после проверки доказательств.',
+        'registerNext.tasks.title': 'Мои задачи',
+        'registerNext.tasks.email.state': 'Готово',
+        'registerNext.tasks.email.title': 'Подтверждение email',
+        'registerNext.tasks.email.copy': 'Email сервисного аккаунта подтверждён для этой сессии браузера.',
+        'registerNext.tasks.phone.state': 'Далее',
+        'registerNext.tasks.phone.title': 'Подтверждение телефона',
+        'registerNext.tasks.phone.copy': 'Подтверждение телефона будет следующим authentication slice.',
+        'registerNext.tasks.path.state': 'Ожидает',
+        'registerNext.tasks.path.title': 'Выбрать рабочий путь',
+        'registerNext.tasks.path.copy': 'После аутентификации аккаунта пользователь запросит карточку моряка или карточку employer-side demand.',
+        'registerNext.person.title': 'Карточка физического лица',
+        'registerNext.person.copy': 'Публичная форма регистрации создаёт или подтверждает запись физического лица/пользователя. Она сама по себе не создаёт профиль моряка, полномочия компании, полномочия судна или доступ оператора.',
+        'registerNext.auth.title': 'Карточка аутентификации',
+        'registerNext.auth.copy': 'Аутентификация подтверждает доступ к сервисному аккаунту и корректность контактных каналов. Email — первый реализованный шаг; подтверждение телефона будет следующим slice.',
+        'registerNext.paths.title': 'Запрос capability card',
+        'registerNext.paths.seafarer.title': 'Карточка моряка / workforce',
+        'registerNext.paths.seafarer.copy': 'Для стороны предложения: квалификация, документы, доступность, ожидания по оплате и готовность к matching.',
+        'registerNext.paths.employer.title': 'Карточка employer-side request',
+        'registerNext.paths.employer.copy': 'Для стороны спроса: компания, судно, доказательство полномочий и данные заявки на экипаж.',
+        'registerNext.authorization.title': 'Авторизация и видимость',
+        'registerNext.authorization.copy': 'Авторизация выдаётся только через членство в группе, доказательства и ограниченную связь с физическим лицом, компанией, судном, клиентом, задачей или контрольной функцией.'
+      }
+    };
+  </script>
+  <script src="../../assets/crewportglobal-public-i18n.js" defer></script>
+  <script>
+    (function () {
+      const summary = document.getElementById('person-summary');
+      try {
+        const stored = JSON.parse(window.localStorage.getItem('crewportglobal.registration.person') || '{}');
+        if (stored.email || stored.masked_email) {
+          summary.textContent = `${stored.masked_email || stored.email} - email confirmed.`;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+  </script>
+</body>
+</html>

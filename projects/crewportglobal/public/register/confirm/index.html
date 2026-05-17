@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Email confirmation</title>
+  <meta name="description" content="Confirm CrewPortGlobal service account email and continue registration.">
+  <link rel="canonical" href="https://crewportglobal.com/register/confirm/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../../assets/crewportglobal-docs.css">
+  <link rel="stylesheet" href="../../assets/crewportglobal-app.css">
+  <style>
+    .confirm-panel {
+      display: grid;
+      gap: 18px;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 30px;
+    }
+
+    .confirm-status {
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      color: var(--muted-on-dark);
+      line-height: 1.6;
+    }
+
+    .confirm-status.is-success {
+      border-color: rgba(121, 226, 166, 0.55);
+      color: #79e2a6;
+      background: rgba(121, 226, 166, 0.08);
+    }
+
+    .confirm-status.is-error {
+      border-color: rgba(255, 180, 171, 0.55);
+      color: #ffb4ab;
+      background: rgba(255, 180, 171, 0.08);
+    }
+  </style>
+</head>
+<body class="doc-body cpg-app-page">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+    </header>
+
+    <div data-cpg-navigation="application" data-cpg-nav-active="/register/"></div>
+    <script src="../../assets/crewportglobal-navigation.js"></script>
+
+    <main class="doc-main">
+      <article class="card app-panel confirm-panel">
+        <p class="eyebrow" data-i18n="registerConfirm.eyebrow">Authentication</p>
+        <h1 data-i18n="registerConfirm.title">Confirming your email.</h1>
+        <p data-i18n="registerConfirm.copy">Email confirmation proves access to the service account. It does not grant roles, company authority or data visibility by itself.</p>
+        <div id="confirm-status" class="confirm-status" data-i18n="registerConfirm.status.pending">Checking confirmation link...</div>
+        <div class="inline-actions">
+          <a id="continue-link" class="button primary" href="https://crewportglobal.com/register/next/" hidden data-i18n="registerConfirm.continue">Continue registration</a>
+          <a class="button secondary" href="https://crewportglobal.com/register/" data-i18n="registerConfirm.retry">Request a new link</a>
+        </div>
+      </article>
+    </main>
+  </div>
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'registerConfirm.eyebrow': 'Authentication',
+        'registerConfirm.title': 'Confirming your email.',
+        'registerConfirm.copy': 'Email confirmation proves access to the service account. It does not grant roles, company authority or data visibility by itself.',
+        'registerConfirm.status.pending': 'Checking confirmation link...',
+        'registerConfirm.status.success': 'Email confirmed. Continue to the next registration step.',
+        'registerConfirm.status.missing': 'Confirmation token is missing. Request a new link.',
+        'registerConfirm.status.failed': 'Confirmation link is invalid or expired. Request a new link.',
+        'registerConfirm.continue': 'Continue registration',
+        'registerConfirm.retry': 'Request a new link'
+      },
+      ru: {
+        'registerConfirm.eyebrow': 'Аутентификация',
+        'registerConfirm.title': 'Подтверждаем ваш email.',
+        'registerConfirm.copy': 'Подтверждение email доказывает доступ к сервисному аккаунту. Само по себе оно не даёт роли, полномочия компании или видимость данных.',
+        'registerConfirm.status.pending': 'Проверяем ссылку подтверждения...',
+        'registerConfirm.status.success': 'Email подтверждён. Продолжайте следующий этап регистрации.',
+        'registerConfirm.status.missing': 'В ссылке отсутствует токен подтверждения. Запросите новую ссылку.',
+        'registerConfirm.status.failed': 'Ссылка подтверждения недействительна или истекла. Запросите новую ссылку.',
+        'registerConfirm.continue': 'Продолжить регистрацию',
+        'registerConfirm.retry': 'Запросить новую ссылку'
+      }
+    };
+  </script>
+  <script src="../../assets/crewportglobal-public-i18n.js" defer></script>
+  <script>
+    (function () {
+      const status = document.getElementById('confirm-status');
+      const continueLink = document.getElementById('continue-link');
+
+      function resolveLanguage() {
+        const language = document.documentElement.lang || 'en';
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[language] ? language : 'en';
+      }
+
+      function message(key) {
+        const translations = window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[resolveLanguage()] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en;
+        return translations[key] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key] || key;
+      }
+
+      async function confirmToken() {
+        const token = new URLSearchParams(window.location.search).get('token');
+        if (!token) {
+          status.textContent = message('registerConfirm.status.missing');
+          status.classList.add('is-error');
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/v1/registration/person/confirm', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ token })
+          });
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok || !result.ok) {
+            throw new Error(result.error || 'registration_confirmation_failed');
+          }
+
+          const stored = JSON.parse(window.localStorage.getItem('crewportglobal.registration.person') || '{}');
+          stored.person_id = result.person_id || stored.person_id || null;
+          stored.email = result.email || stored.email || null;
+          stored.full_name = result.display_name || stored.full_name || null;
+          stored.registration_state = 'email_confirmed';
+          stored.authentication_state = 'email_confirmed';
+          stored.email_verified_at = result.email_verified_at || new Date().toISOString();
+          window.localStorage.setItem('crewportglobal.registration.person', JSON.stringify(stored));
+
+          status.textContent = message('registerConfirm.status.success');
+          status.classList.add('is-success');
+          continueLink.hidden = false;
+          window.setTimeout(() => {
+            window.location.href = result.next_url || '/register/next/';
+          }, 1400);
+        } catch (error) {
+          status.textContent = message('registerConfirm.status.failed');
+          status.classList.add('is-error');
+          console.error(error);
+        }
+      }
+
+      window.addEventListener('crewportglobal:languagechange', () => {
+        if (status.classList.contains('is-success')) {
+          status.textContent = message('registerConfirm.status.success');
+        } else if (status.classList.contains('is-error')) {
+          status.textContent = message('registerConfirm.status.failed');
+        }
+      });
+
+      confirmToken();
+    })();
+  </script>
+</body>
+</html>

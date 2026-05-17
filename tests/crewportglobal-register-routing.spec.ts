@@ -1,112 +1,80 @@
 import { expect, test } from '@playwright/test';
-import { execSync } from 'node:child_process';
 
-function cleanupRegisterUiTestData(): void {
-  const sql = `
-WITH ui_users AS (
-  SELECT user_id
-  FROM crewportglobal.users
-  WHERE email LIKE 'ui.register.%@example.com'
-)
-UPDATE crewportglobal.seafarer_profiles sp
-SET review_status = 'rejected', updated_at = now()
-FROM ui_users uu
-WHERE sp.user_id = uu.user_id
-  AND sp.review_status IN ('submitted_for_human_review', 'in_review', 'approved');
+test('public register page creates a physical-person request without role routing', async ({ page }) => {
+  await page.route('**/api/v1/registration/person/request', async (route) => {
+    const request = route.request();
+    const body = JSON.parse(request.postData() || '{}');
+    await route.fulfill({
+      status: 202,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        ok: true,
+        status: 'registration_email_confirmation_sent',
+        person_id: '11111111-1111-4111-8111-111111111111',
+        masked_email: body.email.replace(/^(.).+(@.+)$/, '$1***$2'),
+        delivery_status: 'captured_test_only',
+        next_step: 'open_email_confirmation_link',
+        expires_at: '2026-05-17T15:00:00+00:00',
+      }),
+    });
+  });
 
-WITH ui_users AS (
-  SELECT user_id
-  FROM crewportglobal.users
-  WHERE email LIKE 'ui.register.%@example.com'
-),
-ui_companies AS (
-  SELECT DISTINCT cu.company_id
-  FROM crewportglobal.company_users cu
-  JOIN ui_users uu ON uu.user_id = cu.user_id
-)
-UPDATE crewportglobal.employer_companies ec
-SET verification_status = 'rejected', updated_at = now()
-FROM ui_companies uc
-WHERE ec.company_id = uc.company_id
-  AND ec.verification_status IN ('unverified', 'submitted', 'verified');
-
-WITH ui_users AS (
-  SELECT user_id
-  FROM crewportglobal.users
-  WHERE email LIKE 'ui.register.%@example.com'
-)
-UPDATE crewportglobal.vacancy_requests vr
-SET publication_status = 'closed', updated_at = now()
-FROM ui_users uu
-WHERE vr.created_by_user_id = uu.user_id
-  AND vr.publication_status IN ('submitted_for_human_review', 'in_review', 'published');
-`;
-
-  execSync(
-    'PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -v ON_ERROR_STOP=1 -q',
-    { input: sql, encoding: 'utf8' }
-  );
-}
-
-test.afterEach(() => {
-  cleanupRegisterUiTestData();
-});
-
-test('register creates seafarer draft and redirects to create-profile', async ({ page, request }) => {
   await page.goto('/register/');
 
-  const email = `ui.register.seafarer.${Date.now()}@example.com`;
+  await expect(page.locator('h1')).toContainText('Create a physical person');
+  await expect(page.locator('[data-role]')).toHaveCount(0);
+  await expect(page.locator('main a[href="https://crewportglobal.com/create-profile/"]')).toHaveCount(0);
+  await expect(page.locator('main a[href="https://crewportglobal.com/post-vacancy/"]')).toHaveCount(0);
+
+  await page.locator('#register-submit').click();
+  await expect(page.locator('#register-status')).toContainText('Complete full name');
+
+  const email = `ui.register.person.${Date.now()}@example.com`;
+  await page.locator('#full-name').fill('Person Registration');
   await page.locator('#email').fill(email);
-  await page.locator('#full-name').fill('Seafarer Entry');
+  await page.locator('#phone').fill('+15550123');
+  await page.locator('#country').fill('United States');
   await page.locator('#terms').check();
   await page.locator('#consent').check();
+  await page.locator('#register-submit').click();
 
-  await page.locator('#continue-button').click();
-  await expect(page).toHaveURL(/\/create-profile\/\?draft_id=/);
+  await expect(page).toHaveURL(/\/register\/$/);
+  await expect(page.locator('#register-status')).toContainText('Confirmation link sent');
+  await expect(page.locator('#register-next-steps')).toBeVisible();
 
-  const draftId = await page.evaluate(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('draft_id') || '';
-  });
-  expect(draftId).not.toBe('');
-
-  const draftResponse = await request.get(`/api/v1/registration/drafts/${draftId}`);
-  expect(draftResponse.ok()).toBeTruthy();
-  const draftBody = await draftResponse.json();
-  expect(draftBody.role).toBe('seafarer');
-  expect(draftBody.email).toBe(email);
+  await expect.poll(() => page.evaluate(() => {
+    const payload = JSON.parse(window.localStorage.getItem('crewportglobal.registration.person') || '{}');
+    return [
+      payload.registration_state,
+      payload.authorization_state,
+      payload.capability_state,
+      payload.email,
+      payload.person_id,
+    ].join('|');
+  })).toBe(`email_confirmation_sent|not_granted|not_requested|${email}|11111111-1111-4111-8111-111111111111`);
 });
 
-test('register routes employer-side roles to post-vacancy with draft_id', async ({ page, request }) => {
-  const roleCases = [
-    { uiRole: 'employer', apiRole: 'employer' },
-    { uiRole: 'shipowner', apiRole: 'shipowner' },
-    { uiRole: 'crewing-manager', apiRole: 'crewing_manager' },
-  ];
-
-  for (const roleCase of roleCases) {
-    await page.goto('/register/');
-
-    const email = `ui.register.${roleCase.uiRole}.${Date.now()}@example.com`;
-    await page.locator(`[data-role="${roleCase.uiRole}"]`).click();
-    await page.locator('#email').fill(email);
-    await page.locator('#full-name').fill('Employer Entry');
-    await page.locator('#terms').check();
-    await page.locator('#consent').check();
-
-    await page.locator('#continue-button').click();
-    await expect(page).toHaveURL(/\/post-vacancy\/\?draft_id=/);
-
-    const draftId = await page.evaluate(() => {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('draft_id') || '';
+test('email confirmation page posts token and routes to registration sequence', async ({ page }) => {
+  await page.route('**/api/v1/registration/person/confirm', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        ok: true,
+        status: 'registration_email_confirmed',
+        person_id: '11111111-1111-4111-8111-111111111111',
+        email: 'person@example.com',
+        display_name: 'Person Registration',
+        email_verified_at: '2026-05-17T14:00:00+00:00',
+        next_url: '/register/next/',
+      }),
     });
-    expect(draftId).not.toBe('');
+  });
 
-    const draftResponse = await request.get(`/api/v1/registration/drafts/${draftId}`);
-    expect(draftResponse.ok()).toBeTruthy();
-    const draftBody = await draftResponse.json();
-    expect(draftBody.role).toBe(roleCase.apiRole);
-    expect(draftBody.email).toBe(email);
-  }
+  await page.goto('/register/confirm/?token=test-token');
+  await expect(page.locator('#confirm-status')).toContainText('Email confirmed');
+  await expect(page).toHaveURL(/\/register\/next\//);
+  await expect(page.locator('h1')).toContainText('Continue step by step');
+  await expect(page.locator('.sequence-card[open] summary')).toContainText('My tasks');
+  await expect(page.locator('.sequence-card')).toHaveCount(5);
 });

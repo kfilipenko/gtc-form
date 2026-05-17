@@ -13,6 +13,8 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - POST /api/v1/registration/drafts
 - GET /api/v1/registration/drafts/{draft_id}
 - PATCH /api/v1/registration/drafts/{draft_id}
+- POST /api/v1/registration/person/request
+- POST /api/v1/registration/person/confirm
 - GET /api/v1/operator/review-queue
 - GET /api/v1/operator/review-queue/vacancy-applications/{vacancy_application_id}
 - PATCH /api/v1/operator/review-queue/{draft_id}/status
@@ -60,6 +62,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - admin access console view: `/admin/access/` displays the current Project Owner session, active groups, roles, effective permissions and recent access audit events, with logout / session revoke only
 - protected team links: `/team/` loads links only through `GET /api/v1/admin/access/team-links` after a session whose user belongs to `owners` or `cpg_team`
 - access-management console slice: Project Owner can read users/groups, create or confirm users, and add users to assignable internal/administration groups through `GET /api/v1/admin/access/management`, `POST /api/v1/admin/access/users` and `POST /api/v1/admin/access/group-members`
+- public physical-person registration slice: `/register/` posts to `POST /api/v1/registration/person/request`, creates or confirms the base user record without assigning a role, sends an e-mail confirmation link through the protected SMTP config, and `POST /api/v1/registration/person/confirm` confirms `email_verified_at` before routing the user to the sequential registration page
 - full login/session logic: not implemented
 
 ## Access-control Phase 2 status
@@ -155,6 +158,19 @@ CREWPORTGLOBAL_ADMIN_ACCESS_STORAGE_MODE=disabled
 
 The password must not be committed to Git, documentation, tests, comments or source files.
 
+Public registration e-mail confirmation uses the same protected SMTP mailbox but has its own feature flags and signing secret:
+
+```bash
+CREWPORTGLOBAL_REGISTRATION_PUBLIC_FLOW_ENABLED=true
+CREWPORTGLOBAL_REGISTRATION_EMAIL_ENABLED=true
+CREWPORTGLOBAL_REGISTRATION_EMAIL_DELIVERY_MODE=smtp_send_ready
+CREWPORTGLOBAL_REGISTRATION_SMTP_SEND_ENABLED=true
+CREWPORTGLOBAL_REGISTRATION_LINK_SECRET=<server-only-secret>
+CREWPORTGLOBAL_PUBLIC_BASE_URL=https://crewportglobal.com
+```
+
+The registration link secret is server-only and must not be committed. Public registration creates/confirms the physical person/user record first; role, company, vessel, task and data-visibility authorization remain later evidence-based steps.
+
 Controlled SMTP smoke test command:
 
 ```bash
@@ -204,6 +220,8 @@ Then call endpoints under:
 
 - http://127.0.0.1:8091/api/v1/registration/drafts
 - http://127.0.0.1:8091/api/v1/registration/drafts/{draft_id}
+- http://127.0.0.1:8091/api/v1/registration/person/request
+- http://127.0.0.1:8091/api/v1/registration/person/confirm
 - http://127.0.0.1:8091/api/v1/operator/review-queue
 - http://127.0.0.1:8091/api/v1/operator/review-queue/vacancy-applications/{vacancy_application_id}
 - http://127.0.0.1:8091/api/v1/vacancies
@@ -237,6 +255,7 @@ php projects/crewportglobal/app/backend/api/tests/admin_access_pg_storage_test.p
 php projects/crewportglobal/app/backend/api/tests/admin_access_storage_factory_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_email_delivery_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_public_routes_test.php
+php projects/crewportglobal/app/backend/api/tests/registration_person_flow_test.php
 ```
 
 ## Out of scope here

@@ -150,24 +150,57 @@ test('homepage and vacancies CTAs match their destinations', async ({ page }) =>
   await page.goto('/vacancies/index.html');
 
   await expect(page.locator('#vacancy-empty-state')).toContainText('No public vacancies are available yet');
-  await expect(page.locator('#vacancy-empty-state')).toContainText('Create a seafarer profile to be ready to apply');
-  await expect(page.getByRole('link', { name: 'Search Vacancies' })).toHaveAttribute('href', '#vacancy-results');
-  await expect(page.getByRole('link', { name: 'Login / Register' }).first()).toHaveAttribute('href', 'https://crewportglobal.com/register/');
+  await expect(page.locator('#vacancy-empty-state')).toContainText('read-only summary');
+  await expect(page.locator('main a[href="https://crewportglobal.com/register/"]')).toHaveCount(0);
+  await expect(page.locator('main input')).toHaveCount(0);
+  await expect(page.locator('main select')).toHaveCount(0);
   await expect(page.locator('main a[href="https://crewportglobal.com/create-profile/"]')).toHaveCount(0);
   await expect(page.locator('main a[href="https://crewportglobal.com/post-vacancy/"]')).toHaveCount(0);
   await expect(page.locator('body')).not.toContainText('View Details');
+  await expect(page.locator('body')).not.toContainText('Create Seafarer Profile');
+  await expect(page.locator('body')).not.toContainText('Prepare Vacancy Request');
 });
 
-test('register page updates the primary CTA label for the selected role', async ({ page }) => {
+test('register page records a physical person request without role routing', async ({ page }) => {
+  await page.route('**/api/v1/registration/person/request', async (route) => {
+    const body = JSON.parse(route.request().postData() || '{}');
+    await route.fulfill({
+      status: 202,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        ok: true,
+        status: 'registration_email_confirmation_sent',
+        person_id: '22222222-2222-4222-8222-222222222222',
+        masked_email: body.email.replace(/^(.).+(@.+)$/, '$1***$2'),
+        delivery_status: 'captured_test_only',
+        next_step: 'open_email_confirmation_link',
+        expires_at: '2026-05-17T15:00:00+00:00',
+      }),
+    });
+  });
+
   await page.goto('/register/index.html');
 
-  await expect(page.locator('#continue-button')).toHaveText('Continue as Seafarer');
-  await page.locator('[data-role="employer"]').click();
-  await expect(page.locator('#continue-button')).toHaveText('Continue as Employer');
-  await page.locator('[data-role="shipowner"]').click();
-  await expect(page.locator('#continue-button')).toHaveText('Continue as Shipowner');
-  await page.locator('[data-role="crewing-manager"]').click();
-  await expect(page.locator('#continue-button')).toHaveText('Continue as Crewing Manager');
+  await expect(page.locator('h1')).toContainText('Create a physical person');
+  await expect(page.locator('[data-role]')).toHaveCount(0);
+  await expect(page.locator('main a[href="https://crewportglobal.com/create-profile/"]')).toHaveCount(0);
+  await expect(page.locator('main a[href="https://crewportglobal.com/post-vacancy/"]')).toHaveCount(0);
+
+  await page.locator('#full-name').fill('Alex Person');
+  await page.locator('#email').fill('alex.person@example.com');
+  await page.locator('#phone').fill('+15550100');
+  await page.locator('#country').fill('United States');
+  await page.locator('#terms').check();
+  await page.locator('#consent').check();
+  await page.locator('#register-submit').click();
+
+  await expect(page).toHaveURL(/\/register\/index\.html/);
+  await expect(page.locator('#register-status')).toContainText('Confirmation link sent');
+  await expect(page.locator('#register-next-steps')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => {
+    const payload = JSON.parse(window.localStorage.getItem('crewportglobal.registration.person') || '{}');
+    return `${payload.registration_state}|${payload.authorization_state}|${payload.email}|${payload.person_id}`;
+  })).toBe('email_confirmation_sent|not_granted|alex.person@example.com|22222222-2222-4222-8222-222222222222');
 });
 
 test('fallback language page remains accessible', async ({ page }) => {
