@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 0.7
+- Version: 0.8
 - Status: For internal review
 
 ## 1. Purpose
@@ -42,6 +42,7 @@ docs/crewportglobal/business_processes/
   05_personal_cabinet_and_scoped_visibility_requirements.md
   06_scoped_visibility_and_access_check_contract.md
   07_personal_cabinet_ui_layout_and_component_requirements.md
+  08_client_registration_and_interaction_procedure.md
 ```
 
 ## 3. Active Business-Process Documents
@@ -55,6 +56,7 @@ docs/crewportglobal/business_processes/
 | BP-005 | `05_personal_cabinet_and_scoped_visibility_requirements.md` | Project Owner approval after BP-004 | Drafted for owner review | Personal cabinet assembly and scoped visibility requirements covering cards, tasks, My clients, service areas, action scopes, visibility reasons and future cabinet API requirements |
 | BP-006 | `06_scoped_visibility_and_access_check_contract.md` | Project Owner approval after BP-005 | Drafted for owner review | Backend access-check and presentation contract for scoped record visibility, field filtering, allowed actions, audit obligations, AI context limits and collapsible card layout |
 | BP-007 | `07_personal_cabinet_ui_layout_and_component_requirements.md` | Project Owner continuation after BP-006 | Drafted for owner review | Personal cabinet UI layout and component requirements covering registration entry, card order, collapsible behavior, badges, forms, empty states, responsive layout and interaction rules |
+| BP-008 | `08_client_registration_and_interaction_procedure.md` | Project Owner continuation after BP-007 | Drafted for owner review | Client registration and interaction procedure covering public-site entry, physical person registration, authentication, path selection, seafarer/employer-side flows, team/review interaction and public-to-authenticated navigation transition |
 
 ## 4. Core Controls Introduced By This Block
 
@@ -77,6 +79,7 @@ This documentation block starts from the following approved business controls:
 15. The personal cabinet must be assembled at runtime from confirmed cards, group memberships, authority evidence, card relationships, assigned tasks and allowed actions.
 16. Cabinet presentation must place `Мои задачи` first and always open; all other cards are collapsed by default and open by header click.
 17. Personal cabinet UI must render only visible sections, show only allowed actions and keep the working priority on `Мои задачи`.
+18. Public pages must provide general information and Login / Registration entry, while functional pages and menus are generated after registration/authentication according to groups, cards, relationships and authority evidence.
 
 ## 5. Intended Use
 
@@ -96,6 +99,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.8 | 2026-05-17 | GTC IT / AI Assistant | Added BP-008 client registration and interaction procedure covering public-site entry, seafarer/employer-side registration, internal review/support interaction and public-to-authenticated navigation transition |
 | 0.7 | 2026-05-17 | GTC IT / AI Assistant | Added BP-007 personal cabinet UI layout and component requirements covering registration entry, collapsible card behavior, badges, forms, empty states, responsive layout and interaction rules |
 | 0.6 | 2026-05-17 | GTC IT / AI Assistant | Added BP-006 scoped visibility and access-check contract covering decision inputs/outputs, field filtering, actions, audit, AI context limits and standard collapsible card presentation with `Мои задачи` always open |
 | 0.5 | 2026-05-17 | GTC IT / AI Assistant | Added BP-005 personal cabinet and scoped visibility requirements covering runtime cabinet assembly, sections, visibility reasons, action scopes, API requirements and acceptance criteria |
