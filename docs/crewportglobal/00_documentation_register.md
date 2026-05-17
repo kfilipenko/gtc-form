@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.88
+- Version: 0.90
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -194,6 +194,8 @@ docs/crewportglobal/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
     02_role_instructions_for_team_and_ai_agents.md
+    03_client_cards_for_employer_demand_and_seafarer_supply_model.md
+    04_card_field_dictionary_and_workflow_states.md
 ```
 
 ### 3.3 Product governance control
@@ -283,6 +285,10 @@ Document 108 records the `/admin/access/` usability correction that makes the au
 Business Process Register 0.1 starts a separate CrewPortGlobal business-process documentation block for CPG-BIZ documents. BP-001 records Issue #11 / CPG-BIZ-018: employer-side primary payer declaration, no-fee seafarer boundary, client lifecycle, `Tasks` and `My clients` working lists, SLA color states, client-card automation and the six working-group operating model.
 
 Business Process Register 0.2 adds BP-002 for Issue #12 / CPG-BIZ-019. BP-002 records role instructions for the six working groups and future AI agents, including Tasks / My clients behavior, client visibility, required client-card updates, SLA colors, handoff rules, escalation, revenue/no-fee boundaries and AI-agent decision limits.
+
+Business Process Register 0.3 adds BP-003 for Issue #13 / CPG-BIZ-020. BP-003 records the practical registration, authentication, authorization and card model for employer-side demand and seafarer-side supply, including physical person registration, service account authentication, scoped authority evidence, visibility by card relationship and reviewed candidate recommendation logic.
+
+Business Process Register 0.4 adds BP-004. BP-004 records the card field dictionary, workflow states, events, task triggers, relationship scopes and future database/API requirements for the BP-003 card model, preserving registration/authentication/authorization separation and scoped record visibility.
 
 Mandatory control statement:
 
@@ -387,6 +393,8 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.90 | 2026-05-17 | GTC IT / AI Assistant | Added BP-004 card field dictionary and workflow states covering fields, statuses, events, task triggers, relationship scopes and future database/API requirements |
+| 0.89 | 2026-05-17 | GTC IT / AI Assistant | Added BP-003 as CPG-BIZ-020 client cards for employer demand and seafarer supply model covering registration/authentication/authorization separation, scoped visibility, practical cards and reviewed candidate recommendation logic |
 | 0.88 | 2026-05-16 | GTC IT / AI Assistant | Added BP-002 as CPG-BIZ-019 role instructions for team and AI agents covering six working groups, Tasks/My clients, SLA colors, client-card updates, handoffs, escalation, revenue/no-fee boundaries and AI decision limits |
 | 0.87 | 2026-05-16 | GTC IT / AI Assistant | Added separate business-process documentation block with its own register and BP-001 for Issue #11 / CPG-BIZ-018 business declaration, client lifecycle, Tasks/My clients, SLA colors and working-group operating model |
 | 0.86 | 2026-05-16 | GTC IT / AI Assistant | Added document 108 as CPG-ACCESS-021 implementation report for the /admin/access/ audit panel collapsed-by-default UI correction |
