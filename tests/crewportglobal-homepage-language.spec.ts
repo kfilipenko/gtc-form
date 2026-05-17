@@ -29,7 +29,7 @@ test('first visit uses supported browser language and updates html metadata', as
   await page.goto('/index.html');
 
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
-  await expect(page.locator('.landing-title')).toContainText('Создайте профиль моряка или подготовьте запрос на вакансию');
+  await expect(page.locator('.landing-title')).toContainText('CrewPortGlobal соединяет спрос работодателей с предложением моряков');
   await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
   await expect(page.locator('html')).toHaveAttribute('translate', 'yes');
   await expect.poll(() => page.evaluate(() => window.localStorage.getItem('crewportglobal.language'))).toBe('ru');
@@ -58,7 +58,7 @@ test('first visit falls back to English when browser language is unsupported', a
 test('same-page selector translates the homepage and persists after reload', async ({ page }) => {
   await page.goto('/index.html');
 
-  await expect(page.locator('.landing-title')).toContainText('Create your seafarer profile');
+  await expect(page.locator('.landing-title')).toContainText('CrewPortGlobal connects employer demand with seafarer supply');
   await expect(page.locator('#current-language-label')).toHaveText('English');
 
   await page.locator('#current-language-toggle').click();
@@ -66,22 +66,22 @@ test('same-page selector translates the homepage and persists after reload', asy
 
   await expect(page).toHaveURL(/\/index\.html/);
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
-  await expect(page.locator('.landing-title')).toContainText('Создайте профиль моряка или подготовьте запрос на вакансию');
+  await expect(page.locator('.landing-title')).toContainText('CrewPortGlobal соединяет спрос работодателей с предложением моряков');
   await expect(page.locator('.site-nav')).toContainText('Документы');
   await page.locator('.nav-menu--documents > summary').click();
   await expect(page.locator('.nav-menu--documents')).toContainText('Для работодателей');
   await expect(page.locator('.site-nav')).toContainText('Вход / Регистрация');
   await expect(page.locator('.site-nav')).not.toContainText('Создать профиль');
-  await expect(page.locator('.landing-lead')).toContainText('CrewPortGlobal помогает морякам показать CV');
+  await expect(page.locator('.landing-lead')).toContainText('Публичный сайт объясняет модель сервиса');
   await expect.poll(() => page.evaluate(() => window.localStorage.getItem('crewportglobal.language'))).toBe('ru');
 
   await page.reload();
 
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
-  await expect(page.locator('.landing-title')).toContainText('Создайте профиль моряка или подготовьте запрос на вакансию');
+  await expect(page.locator('.landing-title')).toContainText('CrewPortGlobal соединяет спрос работодателей с предложением моряков');
   await page.locator('.nav-menu--documents > summary').click();
   await expect(page.locator('.nav-menu--documents')).toContainText('Для работодателей');
-  await expect(page.locator('.landing-lead')).toContainText('CrewPortGlobal помогает морякам показать CV');
+  await expect(page.locator('.landing-lead')).toContainText('Публичный сайт объясняет модель сервиса');
 });
 
 test('same-page selector works on generated public pages and persists after reload', async ({ page }) => {
@@ -114,7 +114,7 @@ test('homepage falls back to English for missing non-English page translations',
   await expect(page.locator('#current-language-label')).toHaveText('Português');
   await page.locator('.nav-menu--documents > summary').click();
   await expect(page.locator('.nav-menu--documents')).toContainText('Para empregadores');
-  await expect(page.locator('.landing-title')).toContainText('Create your seafarer profile');
+  await expect(page.locator('.landing-title')).toContainText('CrewPortGlobal connects employer demand with seafarer supply');
   await expect(page.locator('.vacancy-board')).toContainText('Current public vacancy board');
 });
 
@@ -132,10 +132,20 @@ test('homepage and vacancies pages avoid internal planning language', async ({ p
 test('homepage and vacancies CTAs match their destinations', async ({ page }) => {
   await page.goto('/index.html');
 
+  const main = page.locator('main');
+
   await expect(page.getByRole('link', { name: 'Login / Register' }).first()).toHaveAttribute('href', 'https://crewportglobal.com/register/');
-  await expect(page.getByRole('link', { name: 'Open Vacancy Board' }).first()).toHaveAttribute('href', 'https://crewportglobal.com/vacancies/');
+  await expect(main.locator('a[href="https://crewportglobal.com/how-it-works/"]').first()).toHaveText('How It Works');
+  await expect(main.locator('a[href="https://crewportglobal.com/legal/verification-policy/"]').first()).toContainText('Trust');
+  await expect(main.locator('a[href="https://crewportglobal.com/for-seafarers/"]').first()).toHaveText('For Seafarers');
+  await expect(page.locator('main a[href="https://crewportglobal.com/vacancies/"]')).toHaveCount(0);
+  await expect(page.locator('main a[href="https://crewportglobal.com/register/"]')).toHaveCount(0);
   await expect(page.locator('main a[href="https://crewportglobal.com/create-profile/"]')).toHaveCount(0);
   await expect(page.locator('main a[href="https://crewportglobal.com/post-vacancy/"]')).toHaveCount(0);
+  await expect(main.locator('select')).toHaveCount(0);
+  await expect(main.locator('input')).toHaveCount(0);
+  await expect(main).not.toContainText('Create Seafarer Profile');
+  await expect(main).not.toContainText('Prepare Vacancy Request');
 
   await page.goto('/vacancies/index.html');
 
