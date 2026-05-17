@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 0.91
+- Version: 0.92
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -197,6 +197,7 @@ docs/crewportglobal/
     03_client_cards_for_employer_demand_and_seafarer_supply_model.md
     04_card_field_dictionary_and_workflow_states.md
     05_personal_cabinet_and_scoped_visibility_requirements.md
+    06_scoped_visibility_and_access_check_contract.md
 ```
 
 ### 3.3 Product governance control
@@ -292,6 +293,8 @@ Business Process Register 0.3 adds BP-003 for Issue #13 / CPG-BIZ-020. BP-003 re
 Business Process Register 0.4 adds BP-004. BP-004 records the card field dictionary, workflow states, events, task triggers, relationship scopes and future database/API requirements for the BP-003 card model, preserving registration/authentication/authorization separation and scoped record visibility.
 
 Business Process Register 0.5 adds BP-005. BP-005 records personal cabinet assembly and scoped visibility requirements, including cabinet sections, visibility reasons, action scopes, task and My clients behavior, future cabinet API requirements and acceptance criteria that prevent broad record access from group membership alone.
+
+Business Process Register 0.6 adds BP-006. BP-006 records the scoped visibility and access-check contract for future APIs, including decision inputs/outputs, record visibility, field filtering, action authorization, audit obligations, AI context limits and the standard presentation rule that `Мои задачи` is always the first open card while all other cards are collapsed by default.
 
 Mandatory control statement:
 
@@ -396,6 +399,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.92 | 2026-05-17 | GTC IT / AI Assistant | Added BP-006 scoped visibility and access-check contract covering future API access decisions, field filtering, action scopes, audit obligations, AI context limits and standard collapsible card presentation |
 | 0.91 | 2026-05-17 | GTC IT / AI Assistant | Added BP-005 personal cabinet and scoped visibility requirements covering runtime cabinet assembly, visibility reasons, action scopes, future cabinet APIs and broad-access prevention rules |
 | 0.90 | 2026-05-17 | GTC IT / AI Assistant | Added BP-004 card field dictionary and workflow states covering fields, statuses, events, task triggers, relationship scopes and future database/API requirements |
 | 0.89 | 2026-05-17 | GTC IT / AI Assistant | Added BP-003 as CPG-BIZ-020 client cards for employer demand and seafarer supply model covering registration/authentication/authorization separation, scoped visibility, practical cards and reviewed candidate recommendation logic |
