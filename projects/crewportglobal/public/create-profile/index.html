@@ -200,6 +200,57 @@
       font-size: 13px;
     }
 
+    .document-upload-panel {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+      border: 1px solid var(--app-line);
+      border-radius: 8px;
+      background: var(--app-surface-2);
+    }
+
+    .document-upload-grid {
+      display: grid;
+      grid-template-columns: minmax(180px, 0.38fr) minmax(220px, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .document-upload-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .document-upload-item {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid var(--app-line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .document-upload-item strong {
+      color: var(--app-ink);
+      overflow-wrap: anywhere;
+    }
+
+    .document-upload-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--app-muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .document-upload-meta span {
+      padding: 5px 8px;
+      border: 1px solid var(--app-line);
+      border-radius: 999px;
+      background: var(--app-surface-2);
+    }
+
     .profile-status-panel {
       display: grid;
       gap: 14px;
@@ -380,6 +431,7 @@
 
       .field-grid,
       .summary-grid,
+      .document-upload-grid,
       .section-tabs {
         grid-template-columns: 1fr;
       }
@@ -604,6 +656,37 @@
                 <textarea id="create-document-notes" maxlength="1200" data-i18n-placeholder="create.form.documentNotes.placeholder" placeholder="COC valid until 2028, Schengen visa in progress, medical renewal booked"></textarea>
               </label>
             </div>
+            <div class="document-upload-panel" aria-labelledby="create-document-upload-title">
+              <div class="section-heading">
+                <p class="eyebrow" data-i18n="create.upload.eyebrow">Protected upload</p>
+                <h2 id="create-document-upload-title" data-i18n="create.upload.title">Upload evidence after saving the draft</h2>
+                <p class="field-note" data-i18n="create.upload.copy">Files are stored outside the public site, scanned for malware and only clean files become pending human review.</p>
+              </div>
+              <div class="document-upload-grid">
+                <label class="field-card">
+                  <strong data-i18n="create.upload.type">Document type</strong>
+                  <select id="create-document-upload-type">
+                    <option value="passport_or_id" data-i18n="create.upload.type.passport_or_id">Passport / ID</option>
+                    <option value="seamans_book" data-i18n="create.upload.type.seamans_book">Seaman's book</option>
+                    <option value="certificate_of_competency" data-i18n="create.upload.type.certificate_of_competency">Certificate of competency</option>
+                    <option value="stcw_certificate" data-i18n="create.upload.type.stcw_certificate">STCW certificate</option>
+                    <option value="medical_certificate" data-i18n="create.upload.type.medical_certificate">Medical certificate</option>
+                    <option value="maritime_cv" data-i18n="create.upload.type.maritime_cv">Maritime CV</option>
+                    <option value="experience_record" data-i18n="create.upload.type.experience_record">Experience record</option>
+                    <option value="training_certificate" data-i18n="create.upload.type.training_certificate">Training certificate</option>
+                    <option value="language_certificate" data-i18n="create.upload.type.language_certificate">Language certificate</option>
+                    <option value="other_professional_evidence" data-i18n="create.upload.type.other_professional_evidence">Other evidence</option>
+                  </select>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.upload.file">File</strong>
+                  <input id="create-document-upload-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp">
+                </label>
+                <button id="create-document-upload-submit" class="button secondary" type="button" data-i18n="create.upload.submit">Upload</button>
+              </div>
+              <p id="create-document-upload-status" class="status-note" data-i18n="create.upload.status.initial">Save the draft first, then upload PDF, JPG, PNG or WEBP files.</p>
+              <div id="create-document-upload-list" class="document-upload-list" aria-live="polite"></div>
+            </div>
           </section>
 
           <section id="profile-section-review" class="form-section">
@@ -758,6 +841,33 @@
         'create.form.visaStatus': 'Visa readiness',
         'create.form.documentNotes': 'Document notes',
         'create.form.documentNotes.placeholder': 'COC valid until 2028, Schengen visa in progress, medical renewal booked',
+        'create.upload.eyebrow': 'Protected upload',
+        'create.upload.title': 'Upload evidence after saving the draft',
+        'create.upload.copy': 'Files are stored outside the public site, scanned for malware and only clean files become pending human review.',
+        'create.upload.type': 'Document type',
+        'create.upload.type.passport_or_id': 'Passport / ID',
+        'create.upload.type.seamans_book': "Seaman's book",
+        'create.upload.type.certificate_of_competency': 'Certificate of competency',
+        'create.upload.type.stcw_certificate': 'STCW certificate',
+        'create.upload.type.medical_certificate': 'Medical certificate',
+        'create.upload.type.maritime_cv': 'Maritime CV',
+        'create.upload.type.experience_record': 'Experience record',
+        'create.upload.type.training_certificate': 'Training certificate',
+        'create.upload.type.language_certificate': 'Language certificate',
+        'create.upload.type.other_professional_evidence': 'Other evidence',
+        'create.upload.file': 'File',
+        'create.upload.submit': 'Upload',
+        'create.upload.status.initial': 'Save the draft first, then upload PDF, JPG, PNG or WEBP files.',
+        'create.upload.status.saveFirst': 'Save the draft first, then upload documents.',
+        'create.upload.status.chooseFile': 'Choose a file to upload.',
+        'create.upload.status.uploading': 'Uploading and scanning document...',
+        'create.upload.status.uploaded': 'Document uploaded and scanned.',
+        'create.upload.status.error': 'Document upload failed. Please check file type and size.',
+        'create.upload.status.empty': 'No uploaded documents yet.',
+        'create.upload.meta.scan': 'Scan',
+        'create.upload.meta.review': 'Review',
+        'create.upload.meta.size': 'Size',
+        'create.upload.meta.cleanReady': 'Pending human review',
         'create.documentStatus.unknown': 'Unknown',
         'create.documentStatus.collecting': 'Collecting',
         'create.documentStatus.ready': 'Ready',
@@ -911,6 +1021,33 @@
         'create.form.visaStatus': 'Готовность визы',
         'create.form.documentNotes': 'Заметки по документам',
         'create.form.documentNotes.placeholder': 'COC действителен до 2028, Schengen visa в процессе, медицина забронирована',
+        'create.upload.eyebrow': 'Защищенная загрузка',
+        'create.upload.title': 'Загрузите документы после сохранения черновика',
+        'create.upload.copy': 'Файлы хранятся вне публичного сайта, проходят проверку на вредоносный код, и только чистые файлы попадают на ручную проверку.',
+        'create.upload.type': 'Тип документа',
+        'create.upload.type.passport_or_id': 'Паспорт / ID',
+        'create.upload.type.seamans_book': 'Мореходная книжка',
+        'create.upload.type.certificate_of_competency': 'Рабочий диплом / COC',
+        'create.upload.type.stcw_certificate': 'Сертификат STCW',
+        'create.upload.type.medical_certificate': 'Медицинская справка',
+        'create.upload.type.maritime_cv': 'Морское CV',
+        'create.upload.type.experience_record': 'Подтверждение опыта',
+        'create.upload.type.training_certificate': 'Сертификат обучения',
+        'create.upload.type.language_certificate': 'Языковой сертификат',
+        'create.upload.type.other_professional_evidence': 'Другое подтверждение',
+        'create.upload.file': 'Файл',
+        'create.upload.submit': 'Загрузить',
+        'create.upload.status.initial': 'Сначала сохраните черновик, затем загрузите PDF, JPG, PNG или WEBP.',
+        'create.upload.status.saveFirst': 'Сначала сохраните черновик, затем загрузите документы.',
+        'create.upload.status.chooseFile': 'Выберите файл для загрузки.',
+        'create.upload.status.uploading': 'Загружаем и сканируем документ...',
+        'create.upload.status.uploaded': 'Документ загружен и просканирован.',
+        'create.upload.status.error': 'Не удалось загрузить документ. Проверьте тип и размер файла.',
+        'create.upload.status.empty': 'Пока нет загруженных документов.',
+        'create.upload.meta.scan': 'Сканирование',
+        'create.upload.meta.review': 'Проверка',
+        'create.upload.meta.size': 'Размер',
+        'create.upload.meta.cleanReady': 'Ожидает ручной проверки',
         'create.documentStatus.unknown': 'Не указано',
         'create.documentStatus.collecting': 'Собирается',
         'create.documentStatus.ready': 'Готово',
@@ -1018,6 +1155,11 @@
       const medicalExpiry = document.getElementById('create-medical-expiry');
       const visaStatus = document.getElementById('create-visa-status');
       const documentNotes = document.getElementById('create-document-notes');
+      const uploadType = document.getElementById('create-document-upload-type');
+      const uploadFile = document.getElementById('create-document-upload-file');
+      const uploadSubmit = document.getElementById('create-document-upload-submit');
+      const uploadStatus = document.getElementById('create-document-upload-status');
+      const uploadList = document.getElementById('create-document-upload-list');
       const reviewStatusLine = document.getElementById('create-review-status');
       const correctionNoteLine = document.getElementById('create-correction-note');
       const progressValue = document.getElementById('create-progress-value');
@@ -1119,6 +1261,110 @@
         return value === null || value === undefined || String(value).trim() === ''
           ? '-'
           : String(value).trim();
+      }
+
+      function formatBytes(value) {
+        const bytes = Number(value);
+        if (!Number.isFinite(bytes) || bytes <= 0) {
+          return '-';
+        }
+        if (bytes < 1024 * 1024) {
+          return `${Math.ceil(bytes / 1024)} KB`;
+        }
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+      }
+
+      function renderUploadedDocuments(documents) {
+        uploadList.innerHTML = '';
+        if (!Array.isArray(documents) || documents.length === 0) {
+          const empty = document.createElement('p');
+          empty.className = 'status-note';
+          empty.textContent = t('create.upload.status.empty');
+          uploadList.appendChild(empty);
+          return;
+        }
+
+        documents.forEach((documentRecord) => {
+          const item = document.createElement('article');
+          item.className = 'document-upload-item';
+
+          const title = document.createElement('strong');
+          title.textContent = documentRecord.original_filename || documentRecord.document_type || '-';
+          item.appendChild(title);
+
+          const meta = document.createElement('div');
+          meta.className = 'document-upload-meta';
+          [
+            `${t('create.upload.type')}: ${valueOrDash(documentRecord.document_type)}`,
+            `${t('create.upload.meta.scan')}: ${valueOrDash(documentRecord.scan_status)}`,
+            `${t('create.upload.meta.review')}: ${valueOrDash(documentRecord.review_status)}`,
+            `${t('create.upload.meta.size')}: ${formatBytes(documentRecord.file_size_bytes)}`
+          ].forEach((text) => {
+            const chip = document.createElement('span');
+            chip.textContent = text;
+            meta.appendChild(chip);
+          });
+          item.appendChild(meta);
+
+          if (documentRecord.scan_status === 'clean') {
+            const note = document.createElement('p');
+            note.className = 'status-note';
+            note.textContent = t('create.upload.meta.cleanReady');
+            item.appendChild(note);
+          }
+
+          uploadList.appendChild(item);
+        });
+      }
+
+      async function refreshUploadedDocuments() {
+        const draftId = currentDraftId();
+        if (!draftId) {
+          renderUploadedDocuments([]);
+          return;
+        }
+
+        try {
+          const response = await window.CPGDrafts.listDocuments(draftId, 'seafarer');
+          renderUploadedDocuments(response.documents || []);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      async function uploadSelectedDocument() {
+        const draftId = currentDraftId();
+        if (!draftId) {
+          uploadStatus.textContent = t('create.upload.status.saveFirst');
+          return;
+        }
+
+        const file = uploadFile.files && uploadFile.files[0] ? uploadFile.files[0] : null;
+        if (!file) {
+          uploadStatus.textContent = t('create.upload.status.chooseFile');
+          return;
+        }
+
+        uploadSubmit.disabled = true;
+        uploadStatus.textContent = t('create.upload.status.uploading');
+
+        try {
+          const response = await window.CPGDrafts.uploadDocument(draftId, {
+            formType: 'seafarer',
+            documentType: uploadType.value,
+            file
+          });
+          uploadFile.value = '';
+          uploadStatus.textContent = response.document && response.document.scan_status === 'clean'
+            ? t('create.upload.status.uploaded')
+            : `${t('create.upload.meta.scan')}: ${valueOrDash(response.document && response.document.scan_status)}`;
+          await refreshUploadedDocuments();
+        } catch (error) {
+          uploadStatus.textContent = t('create.upload.status.error');
+          console.error(error);
+        } finally {
+          uploadSubmit.disabled = false;
+        }
       }
 
       function shortDate(value) {
@@ -1557,7 +1803,9 @@
         renderApplicationHistory([]);
       }
 
-      prefillFromDraftIfPresent();
+      prefillFromDraftIfPresent().finally(() => {
+        refreshUploadedDocuments();
+      });
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -1612,6 +1860,7 @@
           renderApplicationHistoryFromResponse(response);
           window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
           window.history.replaceState(null, '', `?draft_id=${encodeURIComponent(response.draft_id)}`);
+          refreshUploadedDocuments();
         } catch (error) {
           status.textContent = t('create.form.error');
           console.error(error);
@@ -1619,6 +1868,8 @@
           submit.disabled = false;
         }
       });
+
+      uploadSubmit.addEventListener('click', uploadSelectedDocument);
 
       document.querySelectorAll('.section-tab').forEach((button) => {
         button.addEventListener('click', () => {

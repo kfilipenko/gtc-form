@@ -1,5 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { execSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
 
 type DraftResponse = {
   ok: boolean;
@@ -9,6 +12,94 @@ type DraftResponse = {
   status: string;
   payload: Record<string, unknown>;
 };
+
+type UploadedDocumentRow = {
+  uploadState: string;
+  reviewStatus: string;
+  scanStatus: string;
+  sha256Hash: string;
+  storageRoot: string;
+  storagePath: string;
+  fileSizeBytes: number;
+};
+
+function minimalPdfBuffer(extra = ''): Buffer {
+  return Buffer.from([
+    '%PDF-1.4',
+    '1 0 obj',
+    '<< /Type /Catalog >>',
+    'endobj',
+    extra,
+    '%%EOF',
+    '',
+  ].join('\n'));
+}
+
+function tinyPngBuffer(): Buffer {
+  return Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=',
+    'base64'
+  );
+}
+
+function sha256(buffer: Buffer): string {
+  return createHash('sha256').update(buffer).digest('hex');
+}
+
+function readUploadedDocumentRow(documentId: string): UploadedDocumentRow {
+  const safeDocumentId = documentId.replace(/'/g, "''");
+  const sql = [
+    'SELECT upload_state,',
+    '       review_status,',
+    '       scan_status,',
+    '       sha256_hash,',
+    '       storage_root,',
+    '       storage_path,',
+    '       file_size_bytes',
+    'FROM crewportglobal.uploaded_documents',
+    `WHERE document_id = '${safeDocumentId}'::uuid`,
+    'LIMIT 1;',
+  ].join(' ');
+
+  const output = execSync(
+    `PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -qAt -F '|' -c "${sql}"`,
+    { encoding: 'utf8' }
+  ).trim();
+
+  const [uploadState, reviewStatus, scanStatus, sha256Hash, storageRoot, storagePath, fileSizeBytes] = output.split('|');
+  return {
+    uploadState,
+    reviewStatus,
+    scanStatus,
+    sha256Hash,
+    storageRoot,
+    storagePath,
+    fileSizeBytes: Number(fileSizeBytes),
+  };
+}
+
+function cleanupUploadedApiDocuments(): void {
+  const sql = `
+SELECT storage_root || '/' || storage_path
+FROM crewportglobal.uploaded_documents ud
+JOIN crewportglobal.users u ON u.user_id = ud.draft_id
+WHERE u.email LIKE 'api.%@example.com';
+
+DELETE FROM crewportglobal.uploaded_documents ud
+USING crewportglobal.users u
+WHERE u.user_id = ud.draft_id
+  AND u.email LIKE 'api.%@example.com';
+`;
+
+  const output = execSync(
+    'PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -v ON_ERROR_STOP=1 -qAt',
+    { input: sql, encoding: 'utf8' }
+  ).trim();
+
+  for (const filePath of output.split('\n').map((item) => item.trim()).filter(Boolean)) {
+    fs.rmSync(filePath, { force: true });
+  }
+}
 
 function readLatestOperatorAuditForDraft(draftId: string): {
   source: string;
@@ -53,6 +144,8 @@ function readLatestOperatorAuditForDraft(draftId: string): {
 }
 
 function cleanupApiTestData(): void {
+  cleanupUploadedApiDocuments();
+
   const sql = `
 WITH api_users AS (
   SELECT user_id
@@ -231,6 +324,191 @@ test('seafarer draft create, get and patch flow works', async ({ request }) => {
   const patchedDocumentMetadata = JSON.parse(seafarerProfile.document_metadata as string) as Record<string, unknown>;
   expect(patchedDocumentMetadata.certificate_status).toBe('ready');
   expect(patchedDocumentMetadata.passport_expiry).toBe('2028-07-10');
+});
+
+test('seafarer document upload stores clean PDF metadata and protected file', async ({ request }) => {
+  const unique = Date.now();
+  const email = `api.upload.seafarer.${unique}@example.com`;
+  const fileBuffer = minimalPdfBuffer('Clean seafarer passport metadata test.');
+
+  const createResponse = await request.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'API Upload Seafarer',
+      rank: 'Chief Officer',
+      department: 'deck',
+      availability_status: 'available_now',
+      contact_phone: '+971500000777',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = (await createResponse.json()) as DraftResponse;
+
+  const uploadResponse = await request.post(`/registration/drafts/${created.draft_id}/documents`, {
+    multipart: {
+      form_type: 'seafarer',
+      document_type: 'passport_or_id',
+      file: {
+        name: 'api-passport.pdf',
+        mimeType: 'application/pdf',
+        buffer: fileBuffer,
+      },
+    },
+  });
+  expect(uploadResponse.status()).toBe(201);
+
+  const uploaded = await uploadResponse.json();
+  expect(uploaded.document.scan_status).toBe('clean');
+  expect(uploaded.document.review_status).toBe('pending_human_review');
+  expect(uploaded.document.upload_state).toBe('stored_protected');
+  expect(uploaded.document.sha256_hash).toBe(sha256(fileBuffer));
+
+  const row = readUploadedDocumentRow(uploaded.document.document_id);
+  expect(row.scanStatus).toBe('clean');
+  expect(row.reviewStatus).toBe('pending_human_review');
+  expect(row.uploadState).toBe('stored_protected');
+  expect(row.sha256Hash).toBe(sha256(fileBuffer));
+  expect(fs.existsSync(path.join(row.storageRoot, row.storagePath))).toBeTruthy();
+
+  const listResponse = await request.get(`/registration/drafts/${created.draft_id}/documents?form_type=seafarer`);
+  expect(listResponse.status()).toBe(200);
+  const listed = await listResponse.json();
+  expect(listed.documents).toHaveLength(1);
+  expect(listed.documents[0].document_id).toBe(uploaded.document.document_id);
+  expect(listed.documents[0].storage_path).toBeUndefined();
+  expect(listed.documents[0].storage_root).toBeUndefined();
+});
+
+test('employer document upload stores clean PNG metadata and protected file', async ({ request }) => {
+  const unique = Date.now();
+  const email = `api.upload.employer.${unique}@example.com`;
+  const fileBuffer = tinyPngBuffer();
+
+  const createResponse = await request.post('/registration/drafts', {
+    data: {
+      role: 'employer',
+      email,
+      full_name: 'API Upload Employer',
+      company_name: `Upload Employer ${unique}`,
+      country_code: 'AE',
+      registration_number: `AE-UP-${unique}`,
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = (await createResponse.json()) as DraftResponse;
+
+  const uploadResponse = await request.post(`/registration/drafts/${created.draft_id}/documents`, {
+    multipart: {
+      form_type: 'employer',
+      document_type: 'company_registration',
+      file: {
+        name: 'company-registration.png',
+        mimeType: 'image/png',
+        buffer: fileBuffer,
+      },
+    },
+  });
+  expect(uploadResponse.status()).toBe(201);
+
+  const uploaded = await uploadResponse.json();
+  expect(uploaded.document.scan_status).toBe('clean');
+  expect(uploaded.document.review_status).toBe('pending_human_review');
+
+  const row = readUploadedDocumentRow(uploaded.document.document_id);
+  expect(row.scanStatus).toBe('clean');
+  expect(row.reviewStatus).toBe('pending_human_review');
+  expect(row.sha256Hash).toBe(sha256(fileBuffer));
+  expect(fs.existsSync(path.join(row.storageRoot, row.storagePath))).toBeTruthy();
+});
+
+test('document upload validation rejects invalid inputs and EICAR is blocked', async ({ request }) => {
+  const unique = Date.now();
+  const email = `api.upload.negative.${unique}@example.com`;
+  const createResponse = await request.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'API Negative Upload',
+      rank: 'Second Engineer',
+      department: 'engine',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = (await createResponse.json()) as DraftResponse;
+
+  const missingType = await request.post(`/registration/drafts/${created.draft_id}/documents`, {
+    multipart: {
+      form_type: 'seafarer',
+      file: {
+        name: 'missing-type.pdf',
+        mimeType: 'application/pdf',
+        buffer: minimalPdfBuffer('Missing type'),
+      },
+    },
+  });
+  expect(missingType.status()).toBe(400);
+  expect((await missingType.json()).error).toBe('invalid_document_type');
+
+  const invalidForm = await request.post(`/registration/drafts/${created.draft_id}/documents`, {
+    multipart: {
+      form_type: 'employer',
+      document_type: 'company_registration',
+      file: {
+        name: 'wrong-form.pdf',
+        mimeType: 'application/pdf',
+        buffer: minimalPdfBuffer('Wrong form'),
+      },
+    },
+  });
+  expect(invalidForm.status()).toBe(400);
+
+  const unsupported = await request.post(`/registration/drafts/${created.draft_id}/documents`, {
+    multipart: {
+      form_type: 'seafarer',
+      document_type: 'passport_or_id',
+      file: {
+        name: 'notes.txt',
+        mimeType: 'text/plain',
+        buffer: Buffer.from('plain text is not an allowed upload type'),
+      },
+    },
+  });
+  expect(unsupported.status()).toBe(400);
+  expect((await unsupported.json()).error).toBe('unsupported_file_type');
+
+  const tooLarge = await request.post(`/registration/drafts/${created.draft_id}/documents`, {
+    multipart: {
+      form_type: 'seafarer',
+      document_type: 'passport_or_id',
+      file: {
+        name: 'too-large.pdf',
+        mimeType: 'application/pdf',
+        buffer: Buffer.alloc(10 * 1024 * 1024 + 1, 65),
+      },
+    },
+  });
+  expect(tooLarge.status()).toBe(413);
+
+  const eicar = [
+    'X5O!P%@AP[4\\PZX54(P^)7CC)7}',
+    '$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!',
+    '$H+H*',
+  ].join('');
+  const eicarResponse = await request.post(`/registration/drafts/${created.draft_id}/documents`, {
+    multipart: {
+      form_type: 'seafarer',
+      document_type: 'passport_or_id',
+      file: {
+        name: 'eicar.pdf',
+        mimeType: 'application/pdf',
+        buffer: Buffer.from(eicar),
+      },
+    },
+  });
+  expect(eicarResponse.status()).toBe(400);
+  const blocked = await eicarResponse.json();
+  expect(blocked.error).toBe('malware_detected');
 });
 
 test('shipowner flow normalizes IMO and updates vessel context', async ({ request }) => {

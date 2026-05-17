@@ -105,6 +105,26 @@
     return body;
   }
 
+  async function requestMultipart(path, method, formData) {
+    const response = await fetch(`${getApiBase()}${path}`, {
+      method,
+      body: formData
+    });
+
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const message = typeof body.message === 'string' && body.message
+        ? body.message
+        : `Request failed with status ${response.status}`;
+      const error = new Error(message);
+      error.status = response.status;
+      error.payload = body;
+      throw error;
+    }
+
+    return body;
+  }
+
   async function createDraft(payload) {
     const body = { ...payload };
     if (body.role) {
@@ -126,6 +146,26 @@
     const response = await requestJson(`/registration/drafts/${draftId}`, 'GET');
     persistDraft(response);
     return response;
+  }
+
+  async function listDocuments(draftId, formType) {
+    const query = formType ? `?form_type=${encodeURIComponent(formType)}` : '';
+    return requestJson(`/registration/drafts/${encodeURIComponent(draftId)}/documents${query}`, 'GET');
+  }
+
+  async function uploadDocument(draftId, payload) {
+    const formData = new FormData();
+    formData.append('form_type', payload.formType || payload.form_type || '');
+    formData.append('document_type', payload.documentType || payload.document_type || '');
+    if (payload.validFrom || payload.valid_from) {
+      formData.append('valid_from', payload.validFrom || payload.valid_from);
+    }
+    if (payload.validUntil || payload.valid_until) {
+      formData.append('valid_until', payload.validUntil || payload.valid_until);
+    }
+    formData.append('file', payload.file);
+
+    return requestMultipart(`/registration/drafts/${encodeURIComponent(draftId)}/documents`, 'POST', formData);
   }
 
   async function createOrUpdateDraft(payload, options) {
@@ -154,6 +194,8 @@
     createDraft,
     patchDraft,
     getDraft,
-    createOrUpdateDraft
+    createOrUpdateDraft,
+    listDocuments,
+    uploadDocument
   };
 })();

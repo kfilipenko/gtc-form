@@ -7,6 +7,7 @@ require_once __DIR__ . '/../lib/access_control.php';
 require_once __DIR__ . '/../lib/admin_access_email_delivery.php';
 require_once __DIR__ . '/../lib/admin_access_flow.php';
 require_once __DIR__ . '/../lib/admin_access_storage_factory.php';
+require_once __DIR__ . '/../lib/document_uploads.php';
 require_once __DIR__ . '/../lib/identity_context.php';
 require_once __DIR__ . '/../lib/registration_person_flow.php';
 
@@ -2943,6 +2944,18 @@ if (preg_match('#^/registration/drafts/([^/]+)$#', $path, $matches) === 1) {
     }
     header('Allow: GET, PATCH');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET, PATCH');
+}
+
+if (preg_match('#^/registration/drafts/([^/]+)/documents$#', $path, $matches) === 1) {
+    $draftId = $matches[1];
+    if ($method === 'GET') {
+        cpg_handle_get_registration_draft_documents($draftId);
+    }
+    if ($method === 'POST') {
+        cpg_handle_post_registration_draft_document($draftId);
+    }
+    header('Allow: GET, POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET, POST');
 }
 
 if ($method === 'GET' && $path === '/operator/review-queue') {
