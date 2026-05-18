@@ -964,3 +964,197 @@ html[data-cpg-theme="dark"] .cpg-app-page .app-empty {
     width: 100%;
   }
 }
+
+/* CPG-DESIGN-003 compact responsive workbench foundation. */
+.cpg-app-page .site-shell {
+  width: min(1180px, calc(100% - 28px));
+  padding: 14px 0 40px;
+}
+
+.cpg-app-page .site-header {
+  min-height: 58px;
+  padding: 10px 14px;
+}
+
+.cpg-app-page .brand-mark {
+  width: 42px;
+  height: 42px;
+}
+
+.cpg-app-page .brand-copy {
+  gap: 2px;
+}
+
+.cpg-app-page .doc-main {
+  margin-top: 14px;
+}
+
+.cpg-app-page .site-nav {
+  padding: 7px;
+  gap: 5px;
+}
+
+.cpg-app-page .nav-link,
+.cpg-app-page .nav-menu__summary {
+  min-height: 38px;
+  padding: 8px 11px;
+  font-size: 14px;
+}
+
+.cpg-app-page .card,
+.cpg-app-page .app-panel,
+.cpg-app-page .register-card,
+.cpg-app-page .side-card,
+.cpg-app-page .queue-card,
+.cpg-app-page .details-card,
+.cpg-app-page .history-panel {
+  border-radius: 8px;
+}
+
+.cpg-app-page .card,
+.cpg-app-page .register-card,
+.cpg-app-page .side-card,
+.cpg-app-page .queue-card {
+  padding: 18px;
+}
+
+.cpg-app-page h1,
+.cpg-app-page .app-title,
+.cpg-app-page .landing-title {
+  max-width: 980px;
+  margin-top: 0;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.cpg-app-page h2,
+.cpg-app-page .section-title,
+.cpg-app-page .details-title {
+  font-size: clamp(20px, 2vw, 26px);
+  line-height: 1.18;
+  letter-spacing: 0;
+}
+
+.cpg-app-page h3,
+.cpg-app-page .app-card-title {
+  font-size: 17px;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.cpg-app-page .lead-copy,
+.cpg-app-page .landing-lead,
+.cpg-app-page .section-copy {
+  max-width: 760px;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.cpg-app-page .register-grid,
+.cpg-app-page .field-grid,
+.cpg-app-page .queue-controls,
+.cpg-app-page .details-sections {
+  gap: 12px;
+}
+
+.cpg-app-page .field-card,
+.cpg-app-page .status-box,
+.cpg-app-page .step-card,
+.cpg-app-page .detail-section,
+.cpg-app-page .detail-field,
+.cpg-app-page .filter-field,
+.cpg-app-page .role-card,
+.cpg-app-page .app-empty {
+  padding: 13px;
+  border-radius: 8px;
+}
+
+.cpg-app-page .field-card input,
+.cpg-app-page .field-card select,
+.cpg-app-page .app-input,
+.cpg-app-page .app-select,
+.cpg-app-page .queue-control select,
+.cpg-app-page .operator-access__field input,
+.cpg-app-page .review-note-textarea {
+  min-height: 40px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.cpg-app-page .button,
+.cpg-app-page button.button,
+.cpg-app-page .operator-lane-button {
+  min-height: 38px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.cpg-app-page .operator-lane-strip {
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.cpg-app-page .queue-table th,
+.cpg-app-page .queue-table td,
+.cpg-app-page .app-table th,
+.cpg-app-page .app-table td {
+  padding: 8px 9px;
+}
+
+.cpg-app-page .detail-grid {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.cpg-app-page .raw-details,
+.cpg-app-page .history-panel {
+  padding: 9px 10px;
+}
+
+@media (max-width: 980px) {
+  .cpg-app-page .site-shell {
+    width: min(100% - 22px, 100%);
+  }
+
+  .cpg-app-page .register-grid,
+  .cpg-app-page .field-grid,
+  .cpg-app-page .queue-controls,
+  .cpg-app-page .operator-access {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .cpg-app-page .site-shell {
+    padding-top: 10px;
+  }
+
+  .cpg-app-page .site-header,
+  .cpg-app-page .site-nav,
+  .cpg-app-page .card,
+  .cpg-app-page .register-card,
+  .cpg-app-page .side-card,
+  .cpg-app-page .queue-card {
+    border-radius: 8px;
+  }
+
+  .cpg-app-page .card,
+  .cpg-app-page .register-card,
+  .cpg-app-page .side-card,
+  .cpg-app-page .queue-card {
+    padding: 14px;
+  }
+
+  .cpg-app-page h1,
+  .cpg-app-page .app-title,
+  .cpg-app-page .landing-title {
+    font-size: clamp(26px, 9vw, 34px);
+  }
+
+  .cpg-app-page .lead-copy,
+  .cpg-app-page .landing-lead,
+  .cpg-app-page .section-copy {
+    font-size: 15px;
+  }
+}

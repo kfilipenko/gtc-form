@@ -10,6 +10,8 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../../assets/crewportglobal-docs.css">
+  <link rel="stylesheet" href="../../assets/crewportglobal-app.css">
   <style>
     :root {
       --page-bg: #eef4f7;
@@ -25,6 +27,22 @@
       --warning: #a15c00;
       --success: #087443;
     }
+
+    html[data-cpg-theme="dark"] {
+      --page-bg: #07111c;
+      --surface: rgba(19, 38, 58, 0.92);
+      --surface-soft: rgba(12, 27, 43, 0.9);
+      --text: #e8f0f7;
+      --muted: #9fb4c8;
+      --line: rgba(137, 164, 190, 0.26);
+      --line-strong: rgba(137, 164, 190, 0.4);
+      --primary: #54c9d9;
+      --primary-strong: #8fe4ef;
+      --danger: #ff9b91;
+      --warning: #ffd28a;
+      --success: #79e2a6;
+    }
+
     * { box-sizing: border-box; }
     html,
     body {
@@ -34,15 +52,24 @@
       color: var(--text);
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
+
+    html[data-cpg-theme="dark"] body {
+      background:
+        radial-gradient(circle at 8% 0%, rgba(255, 139, 61, 0.12), transparent 26%),
+        radial-gradient(circle at 92% 8%, rgba(84, 201, 217, 0.12), transparent 24%),
+        var(--page-bg);
+    }
+
     .shell {
       min-height: 100vh;
-      padding: 26px 18px 42px;
+      padding: 16px 14px 40px;
     }
     .frame {
-      width: min(1240px, 100%);
+      width: min(1180px, 100%);
       margin: 0 auto;
       display: grid;
-      gap: 16px;
+      gap: 12px;
+      min-width: 0;
     }
     .header,
     .panel {
@@ -55,8 +82,9 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      padding: 16px;
-      border-radius: 16px;
+      min-height: 60px;
+      padding: 12px 14px;
+      border-radius: 8px;
     }
     .brand {
       display: flex;
@@ -70,7 +98,7 @@
       display: grid;
       place-items: center;
       flex: 0 0 auto;
-      border-radius: 10px;
+      border-radius: 8px;
       background: #0b6f82;
       color: #fff;
       font-weight: 900;
@@ -80,8 +108,9 @@
     p { margin-top: 0; }
     h1 {
       margin-bottom: 4px;
-      font-size: 24px;
+      font-size: 22px;
       line-height: 1.2;
+      letter-spacing: 0;
     }
     .subtitle,
     .status,
@@ -90,8 +119,17 @@
       line-height: 1.5;
     }
     .panel {
-      padding: 16px;
-      border-radius: 14px;
+      padding: 14px;
+      border-radius: 8px;
+      min-width: 0;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
     }
     .access-panel,
     .filters {
@@ -125,7 +163,7 @@
     input,
     select {
       min-height: 42px;
-      padding: 9px 11px;
+      padding: 8px 10px;
     }
     textarea {
       min-height: 108px;
@@ -174,9 +212,11 @@
       opacity: 0.58;
     }
     .queue-wrap {
+      max-width: 100%;
+      min-width: 0;
       overflow-x: auto;
       border: 1px solid var(--line);
-      border-radius: 12px;
+      border-radius: 8px;
     }
     table {
       width: 100%;
@@ -186,7 +226,7 @@
     }
     th,
     td {
-      padding: 10px 9px;
+      padding: 8px 9px;
       border-bottom: 1px solid var(--line);
       text-align: left;
       vertical-align: top;
@@ -214,20 +254,20 @@
     }
     .review-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 360px;
-      gap: 14px;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 12px;
     }
     .summary-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 12px;
+      gap: 8px;
+      margin-bottom: 10px;
     }
     .summary-card {
-      min-height: 72px;
-      padding: 10px;
+      min-height: 64px;
+      padding: 9px;
       border: 1px solid var(--line);
-      border-radius: 10px;
+      border-radius: 8px;
       background: var(--surface-soft);
       overflow-wrap: anywhere;
     }
@@ -251,6 +291,7 @@
       min-height: 22px;
       margin: 8px 0 0;
       font-weight: 700;
+      overflow-wrap: anywhere;
     }
     .status.ok { color: var(--success); }
     .status.error { color: var(--danger); }
@@ -264,14 +305,46 @@
       .summary-grid {
         grid-template-columns: 1fr;
       }
+      .header {
+        display: grid;
+      }
       .actions,
+      .header-actions,
+      .button,
       button {
         width: 100%;
       }
+
+      .header-actions {
+        align-items: stretch;
+      }
+
+      .header-actions > *,
+      .header-actions .cpg-theme-switcher,
+      .header-actions .cpg-theme-switcher__summary {
+        width: 100%;
+      }
+    }
+
+    html[data-cpg-theme="dark"] input,
+    html[data-cpg-theme="dark"] select,
+    html[data-cpg-theme="dark"] textarea {
+      background: rgba(7, 17, 28, 0.72);
+      color: var(--text);
+    }
+
+    html[data-cpg-theme="dark"] button,
+    html[data-cpg-theme="dark"] .button {
+      color: #08131d;
+    }
+
+    html[data-cpg-theme="dark"] button.secondary {
+      background: var(--surface-soft);
+      color: var(--text);
     }
   </style>
 </head>
-<body>
+<body class="doc-body cpg-app-page">
   <main class="shell">
     <div class="frame">
       <header class="header">
@@ -282,7 +355,10 @@
             <p class="subtitle">CrewPortGlobal protected document review</p>
           </div>
         </div>
-        <a class="button" href="/team/">Team links</a>
+        <div class="header-actions">
+          <div data-cpg-theme-switcher></div>
+          <a class="button" href="/team/">Team links</a>
+        </div>
       </header>
 
       <section class="panel access-panel" id="access-panel">
@@ -371,6 +447,7 @@
     </div>
   </main>
 
+  <script src="../../assets/crewportglobal-navigation.js"></script>
   <script>
     const OPERATOR_SESSION_KEY = 'crewportglobal.operatorAccessToken';
     const TEAM_SESSION_KEY = 'crewportglobal_team_session';

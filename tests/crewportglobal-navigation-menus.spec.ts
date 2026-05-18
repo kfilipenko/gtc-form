@@ -103,6 +103,55 @@ test('shared theme switcher applies and persists Dark Maritime and Light Work mo
   await expect(page.locator('html')).toHaveAttribute('data-cpg-theme-mode', 'auto');
 });
 
+test('cabinet, team and admin workbench pages expose the shared theme switcher', async ({ page }) => {
+  const workbenchPages = [
+    '/cabinet/',
+    '/team/documents/',
+    '/admin/access/',
+  ];
+
+  for (const path of workbenchPages) {
+    await page.goto(path);
+    await page.evaluate(() => {
+      window.localStorage.removeItem('crewportglobal.theme.mode');
+    });
+    await page.reload();
+
+    const themeSwitcher = page.locator('[data-cpg-theme-switcher] .cpg-theme-switcher').first();
+    await expect(themeSwitcher).toBeVisible();
+    await expect(themeSwitcher.locator('summary')).toContainText('Theme');
+    await expect(page.locator('html')).toHaveAttribute('data-cpg-theme-mode', 'dark');
+
+    await themeSwitcher.locator('summary').click();
+    await themeSwitcher.getByRole('button', { name: 'Light' }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-cpg-theme-mode', 'light');
+    await expect(page.locator('html')).toHaveAttribute('data-cpg-theme', 'light');
+  }
+});
+
+test('compact functional screens do not create page-level horizontal overflow on mobile', async ({ page }) => {
+  const compactPages = [
+    '/register/',
+    '/cabinet/',
+    '/team/documents/',
+    '/admin/access/',
+    '/verify/',
+  ];
+
+  await page.setViewportSize({ width: 390, height: 820 });
+
+  for (const path of compactPages) {
+    await page.goto(path);
+    await page.evaluate(() => {
+      window.localStorage.setItem('crewportglobal.theme.mode', 'dark');
+    });
+    await page.reload();
+
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow, `${path} should not overflow horizontally`).toBeLessThanOrEqual(1);
+  }
+});
+
 test('document pages expose simplified Documents menu without public functional links', async ({ page }) => {
   for (const item of documentPages) {
     await page.goto(item.path);

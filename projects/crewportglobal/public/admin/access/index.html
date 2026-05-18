@@ -30,6 +30,26 @@
       --admin-warning-border: #d8a928;
       --admin-warning-text: #5f4500;
     }
+
+    html[data-cpg-theme="dark"] {
+      --admin-bg: #07111c;
+      --admin-surface: rgba(19, 38, 58, 0.92);
+      --admin-surface-soft: rgba(12, 27, 43, 0.9);
+      --admin-text: #e8f0f7;
+      --admin-muted: #9fb4c8;
+      --admin-border: rgba(137, 164, 190, 0.26);
+      --admin-border-strong: rgba(137, 164, 190, 0.42);
+      --admin-primary: #54c9d9;
+      --admin-primary-strong: #8fe4ef;
+      --admin-danger: #ff9b91;
+      --admin-danger-soft: rgba(255, 155, 145, 0.12);
+      --admin-success: #79e2a6;
+      --admin-success-soft: rgba(121, 226, 166, 0.12);
+      --admin-warning-bg: rgba(255, 210, 138, 0.12);
+      --admin-warning-border: rgba(255, 210, 138, 0.62);
+      --admin-warning-text: #ffd28a;
+    }
+
     html,
     body {
       min-height: 100%;
@@ -40,12 +60,20 @@
     }
     .admin-shell {
       min-height: 100vh;
-      padding: 28px 18px 42px;
+      padding: 16px 14px 40px;
       background: var(--admin-bg);
       color: var(--admin-text);
     }
+
+    html[data-cpg-theme="dark"] .admin-shell {
+      background:
+        radial-gradient(circle at 8% 0%, rgba(255, 139, 61, 0.12), transparent 26%),
+        radial-gradient(circle at 92% 8%, rgba(84, 201, 217, 0.12), transparent 24%),
+        var(--admin-bg);
+    }
+
     .admin-frame {
-      width: min(1120px, 100%);
+      width: min(1180px, 100%);
       margin: 0 auto;
     }
     .admin-header {
@@ -53,10 +81,11 @@
       justify-content: space-between;
       gap: 16px;
       align-items: center;
-      margin-bottom: 18px;
-      padding: 16px;
+      min-height: 60px;
+      margin-bottom: 12px;
+      padding: 12px 14px;
       border: 1px solid var(--admin-border);
-      border-radius: 16px;
+      border-radius: 8px;
       background: var(--admin-surface);
       box-shadow: 0 10px 32px rgba(16, 42, 67, 0.08);
     }
@@ -71,7 +100,7 @@
       height: 40px;
       display: grid;
       place-items: center;
-      border-radius: 10px;
+      border-radius: 8px;
       background: #0b6f82;
       color: #fff;
       font-weight: 800;
@@ -81,8 +110,9 @@
     .admin-title {
       margin: 0;
       color: var(--admin-text);
-      font-size: 24px;
+      font-size: 22px;
       line-height: 1.2;
+      letter-spacing: 0;
     }
     .admin-subtitle {
       margin: 4px 0 0;
@@ -90,19 +120,19 @@
       font-size: 13px;
     }
     .admin-panel {
-      padding: 24px;
+      padding: 18px;
       border: 1px solid var(--admin-border);
-      border-radius: 16px;
+      border-radius: 8px;
       background: var(--admin-surface);
       box-shadow: 0 24px 80px rgba(16, 42, 67, 0.16);
     }
     .admin-login {
       width: min(620px, 100%);
-      margin: 60px auto 0;
+      margin: 32px auto 0;
     }
     .admin-form {
       display: grid;
-      gap: 16px;
+      gap: 12px;
     }
     .admin-field {
       display: grid;
@@ -120,7 +150,7 @@
       min-height: 46px;
       box-sizing: border-box;
       padding: 11px 13px;
-      border-radius: 10px;
+      border-radius: 8px;
       border: 1px solid var(--admin-border-strong);
       background: var(--admin-surface);
       color: var(--admin-text);
@@ -156,10 +186,17 @@
       gap: 10px;
       align-items: center;
     }
+    .admin-header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+    }
     .admin-button {
       min-height: 42px;
       padding: 0 16px;
-      border-radius: 10px;
+      border-radius: 8px;
       border: 1px solid transparent;
       background: var(--admin-primary);
       color: #ffffff;
@@ -209,7 +246,7 @@
     }
     .console {
       display: grid;
-      gap: 16px;
+      gap: 12px;
     }
     .console[hidden],
     .admin-login[hidden] {
@@ -217,15 +254,15 @@
     }
     .summary-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 8px;
     }
     .summary-card,
     .console-section {
       border: 1px solid var(--admin-border);
-      border-radius: 14px;
+      border-radius: 8px;
       background: var(--admin-surface);
-      padding: 14px;
+      padding: 12px;
       box-shadow: 0 8px 28px rgba(16, 42, 67, 0.07);
     }
     .summary-label,
@@ -234,7 +271,7 @@
       color: var(--admin-muted);
       font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0;
     }
     .summary-value {
       margin: 0;
@@ -246,7 +283,7 @@
     .console-grid {
       display: grid;
       grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-      gap: 16px;
+      gap: 12px;
     }
     .section-title {
       margin: 0 0 12px;
@@ -283,7 +320,7 @@
     }
     .permission-list li {
       padding: 8px 10px;
-      border-radius: 10px;
+      border-radius: 8px;
       border: 1px solid var(--admin-border);
       color: var(--admin-text);
       background: var(--admin-surface-soft);
@@ -300,7 +337,7 @@
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      padding: 16px;
+      padding: 12px 14px;
       border: 0;
       color: var(--admin-text);
       background: transparent;
@@ -333,14 +370,14 @@
       border: 1px solid var(--admin-border);
       border-radius: 999px;
       color: var(--admin-primary-strong);
-      background: #eaf8fb;
+      background: var(--admin-surface-soft);
       font-size: 13px;
       font-weight: 800;
       white-space: nowrap;
       flex: 0 0 auto;
     }
     .audit-body {
-      padding: 0 16px 16px;
+      padding: 0 14px 14px;
     }
     .audit-list {
       display: grid;
@@ -354,7 +391,7 @@
       gap: 4px;
       padding: 10px;
       border: 1px solid var(--admin-border);
-      border-radius: 10px;
+      border-radius: 8px;
       background: var(--admin-surface-soft);
     }
     .audit-type {
@@ -372,7 +409,7 @@
       margin: 0;
       padding: 12px 14px;
       border: 1px solid var(--admin-warning-border);
-      border-radius: 12px;
+      border-radius: 8px;
       color: var(--admin-warning-text);
       background: var(--admin-warning-bg);
       line-height: 1.5;
@@ -381,7 +418,7 @@
     .management-lists {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
+      gap: 12px;
     }
     .management-form {
       display: grid;
@@ -416,7 +453,7 @@
     .compact-list li {
       padding: 9px 10px;
       border: 1px solid var(--admin-border);
-      border-radius: 10px;
+      border-radius: 8px;
       background: var(--admin-surface-soft);
       color: var(--admin-text);
       line-height: 1.35;
@@ -438,6 +475,12 @@
       .admin-header {
         display: grid;
       }
+      .admin-header-actions,
+      .admin-header-actions > *,
+      .admin-header-actions .cpg-theme-switcher,
+      .admin-header-actions .cpg-theme-switcher__summary {
+        width: 100%;
+      }
       .permission-list {
         grid-template-columns: 1fr;
       }
@@ -452,9 +495,29 @@
       .admin-actions { display: grid; }
       .admin-button { width: 100%; }
     }
+
+    html[data-cpg-theme="dark"] .admin-button {
+      color: #08131d;
+    }
+
+    html[data-cpg-theme="dark"] .admin-button.secondary {
+      background: var(--admin-surface-soft);
+      color: var(--admin-text);
+    }
+
+    html[data-cpg-theme="dark"] .admin-button.danger {
+      color: #08131d;
+    }
+
+    html[data-cpg-theme="dark"] .admin-field input,
+    html[data-cpg-theme="dark"] .admin-field select,
+    html[data-cpg-theme="dark"] .admin-field textarea {
+      background: rgba(7, 17, 28, 0.72);
+      color: var(--admin-text);
+    }
   </style>
 </head>
-<body>
+<body class="doc-body cpg-app-page">
   <main class="admin-shell">
     <div class="admin-frame">
       <header class="admin-header">
@@ -465,7 +528,10 @@
             <p class="admin-subtitle">CrewPortGlobal protected console</p>
           </div>
         </div>
-        <button class="admin-button danger" type="button" id="logout-button" hidden>Logout</button>
+        <div class="admin-header-actions">
+          <div data-cpg-theme-switcher></div>
+          <button class="admin-button danger" type="button" id="logout-button" hidden>Logout</button>
+        </div>
       </header>
 
       <section class="admin-panel admin-login" id="login-panel" aria-labelledby="login-title">
@@ -605,6 +671,7 @@
     </div>
   </main>
 
+  <script src="../../assets/crewportglobal-navigation.js"></script>
   <script>
     const SESSION_KEY = 'crewportglobal_admin_session';
     const form = document.getElementById('admin-access-form');

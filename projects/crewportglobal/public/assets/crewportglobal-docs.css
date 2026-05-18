@@ -744,7 +744,7 @@ html[data-cpg-theme="light"] .cpg-account__field input {
 .doc-sidebar h2,
 .prose h2,
 .prose h3 {
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .doc-hero h1 {
