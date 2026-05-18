@@ -9,6 +9,7 @@ require_once __DIR__ . '/../lib/admin_access_flow.php';
 require_once __DIR__ . '/../lib/admin_access_storage_factory.php';
 require_once __DIR__ . '/../lib/document_uploads.php';
 require_once __DIR__ . '/../lib/identity_context.php';
+require_once __DIR__ . '/../lib/reference_catalogs.php';
 require_once __DIR__ . '/../lib/registration_person_flow.php';
 require_once __DIR__ . '/../lib/user_auth.php';
 require_once __DIR__ . '/../lib/user_email_verification.php';
@@ -315,6 +316,36 @@ function handle_post_admin_access_group_member(): void {
     $body = api_decode_json_body();
     $storage = admin_access_storage_or_response();
     admin_access_api_response(cpg_admin_access_add_group_member_with_storage(
+        $body,
+        $storage,
+        admin_access_session_token(),
+        null,
+        admin_access_request_metadata()
+    ));
+}
+
+function handle_get_admin_access_reference_catalogs(): void {
+    admin_access_load_runtime_env();
+    if (!admin_access_public_flow_enabled()) {
+        admin_access_api_response(cpg_admin_access_disabled_response());
+    }
+
+    $storage = admin_access_storage_or_response();
+    admin_access_api_response(cpg_reference_catalog_admin_snapshot_with_storage(
+        $storage,
+        admin_access_session_token()
+    ));
+}
+
+function handle_patch_admin_access_reference_catalog_publication(): void {
+    admin_access_load_runtime_env();
+    if (!admin_access_public_flow_enabled()) {
+        admin_access_api_response(cpg_admin_access_disabled_response());
+    }
+
+    $body = api_decode_json_body();
+    $storage = admin_access_storage_or_response();
+    admin_access_api_response(cpg_reference_catalog_publication_with_storage(
         $body,
         $storage,
         admin_access_session_token(),
@@ -3589,6 +3620,14 @@ if ($path === '/user/profile-photo/image') {
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
 }
 
+if ($path === '/reference-catalogs') {
+    if ($method === 'GET') {
+        cpg_handle_get_reference_catalogs();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
 if ($path === '/admin/access/email-code/request') {
     if ($method === 'POST') {
         handle_post_admin_access_email_code_request();
@@ -3651,6 +3690,22 @@ if ($path === '/admin/access/group-members') {
     }
     header('Allow: POST');
     api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if ($path === '/admin/access/reference-catalogs') {
+    if ($method === 'GET') {
+        handle_get_admin_access_reference_catalogs();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if ($path === '/admin/access/reference-catalogs/publication') {
+    if ($method === 'PATCH') {
+        handle_patch_admin_access_reference_catalog_publication();
+    }
+    header('Allow: PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
 }
 
 if ($path === '/registration/person/request') {

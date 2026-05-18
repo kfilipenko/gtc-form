@@ -27,6 +27,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - GET /api/v1/user/profile-photo
 - POST /api/v1/user/profile-photo
 - GET /api/v1/user/profile-photo/image
+- GET /api/v1/reference-catalogs
 - GET /api/v1/operator/review-queue
 - GET /api/v1/operator/review-queue/vacancy-applications/{vacancy_application_id}
 - PATCH /api/v1/operator/review-queue/{draft_id}/status
@@ -47,6 +48,8 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - GET /api/v1/admin/access/management
 - POST /api/v1/admin/access/users
 - POST /api/v1/admin/access/group-members
+- GET /api/v1/admin/access/reference-catalogs
+- PATCH /api/v1/admin/access/reference-catalogs/publication
 
 ## Current status
 
@@ -83,7 +86,8 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - password credential/session MVP: `POST /api/v1/auth/register-password`, `POST /api/v1/auth/login`, `POST /api/v1/auth/logout` and `GET /api/v1/auth/me` store only `password_hash`, store only hashed session tokens, issue HttpOnly SameSite=Lax cookies, revoke sessions on logout and never return raw passwords, password hashes or raw session tokens
 - email verification MVP: password registration creates a hash-only account e-mail verification token, sends or prepares a verification link through the protected SMTP delivery configuration, exposes `send-verification`, `resend-verification` and `verify` endpoints, updates `email_verified_at` / `email_verification_status`, and shows the cabinet task until the account e-mail is verified
 - protected profile photo MVP: authenticated users can upload JPG/PNG/WEBP profile photos through `POST /api/v1/user/profile-photo`; files are size-limited to 5 MB, scanned before use, stored outside the public web root, exposed only through the owner-session `GET /api/v1/user/profile-photo/image` endpoint and returned as metadata in `auth/me`
-- reference catalog foundation: migration 011 creates `reference_catalogs` and `reference_catalog_values`; `scripts/import_seafarer_reference_catalogs.py` reads the private seafarer Excel `DROPDOWN_LISTS` sheet and generates owner-review artifacts outside Git without publishing values through the API
+- reference catalog foundation: migration 011 creates `reference_catalogs` and `reference_catalog_values`; `scripts/import_seafarer_reference_catalogs.py` reads the private seafarer Excel `DROPDOWN_LISTS` sheet and generates owner-review artifacts outside Git
+- reference catalog publication boundary: `GET /api/v1/reference-catalogs` exposes only active catalogs and values whose `publication_state = published`; Project Owner can inspect internal catalog state through `GET /api/v1/admin/access/reference-catalogs` and change catalog/value publication state through `PATCH /api/v1/admin/access/reference-catalogs/publication`
 
 ## Access-control Phase 2 status
 
@@ -245,6 +249,7 @@ Then call endpoints under:
 - http://127.0.0.1:8091/api/v1/registration/drafts/{draft_id}/documents
 - http://127.0.0.1:8091/api/v1/registration/person/request
 - http://127.0.0.1:8091/api/v1/registration/person/confirm
+- http://127.0.0.1:8091/api/v1/reference-catalogs
 - http://127.0.0.1:8091/api/v1/operator/review-queue
 - http://127.0.0.1:8091/api/v1/operator/review-queue/vacancy-applications/{vacancy_application_id}
 - http://127.0.0.1:8091/api/v1/operator/document-review-queue
