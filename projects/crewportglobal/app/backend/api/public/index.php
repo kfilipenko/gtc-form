@@ -1007,6 +1007,135 @@ function normalize_allowed_document_value(mixed $value, array $allowed): ?string
     return in_array($normalized, $allowed, true) ? $normalized : null;
 }
 
+function normalize_text_fields(array $source, array $fields, int $maxLength = 240): array {
+    $result = [];
+    foreach ($fields as $field) {
+        $value = normalize_optional_text($source[$field] ?? null, $maxLength);
+        if ($value !== null) {
+            $result[$field] = $value;
+        }
+    }
+    return $result;
+}
+
+function normalize_date_fields(array $source, array $fields): array {
+    $result = [];
+    foreach ($fields as $field) {
+        $value = normalize_date_value($source[$field] ?? null);
+        if ($value !== null) {
+            $result[$field] = $value;
+        }
+    }
+    return $result;
+}
+
+function normalize_csv_text_list(mixed $value, int $maxItems = 12, int $maxItemLength = 160): array {
+    if (!is_string($value)) {
+        return [];
+    }
+
+    $items = [];
+    foreach (explode(',', $value) as $item) {
+        $clean = normalize_optional_text($item, $maxItemLength);
+        if ($clean !== null) {
+            $items[] = $clean;
+        }
+    }
+
+    return array_slice(array_values(array_unique($items)), 0, $maxItems);
+}
+
+function normalize_seafarer_workspace_metadata(mixed $value): array {
+    if (!is_array($value)) {
+        return [];
+    }
+
+    $workspace = [];
+
+    $personal = $value['personal_details'] ?? null;
+    if (is_array($personal)) {
+        $personalData = array_merge(
+            normalize_text_fields($personal, ['place_of_birth', 'gender', 'civil_status'], 160),
+            normalize_date_fields($personal, ['date_of_birth'])
+        );
+        if ($personalData !== []) {
+            $workspace['personal_details'] = $personalData;
+        }
+    }
+
+    $contact = $value['contact_and_addresses'] ?? null;
+    if (is_array($contact)) {
+        $contactData = array_merge(
+            normalize_text_fields($contact, [
+                'permanent_address',
+                'residence_city',
+                'nearest_airport',
+                'emergency_contact_name',
+                'emergency_contact_relation',
+                'emergency_contact_phone',
+            ], 500)
+        );
+        if ($contactData !== []) {
+            $workspace['contact_and_addresses'] = $contactData;
+        }
+    }
+
+    $qualification = $value['qualifications'] ?? null;
+    if (is_array($qualification)) {
+        $qualificationData = array_merge(
+            normalize_text_fields($qualification, [
+                'coc_type',
+                'coc_number',
+                'coc_issuing_country',
+                'education_institution',
+                'education_grade',
+            ], 240),
+            normalize_date_fields($qualification, ['coc_expiry'])
+        );
+        $trainingCourses = normalize_csv_text_list($qualification['training_courses'] ?? null, 20, 220);
+        if ($trainingCourses !== []) {
+            $qualificationData['training_courses'] = $trainingCourses;
+        }
+        if ($qualificationData !== []) {
+            $workspace['qualifications'] = $qualificationData;
+        }
+    }
+
+    $seaService = $value['sea_service'] ?? null;
+    if (is_array($seaService)) {
+        $seaServiceData = array_merge(
+            normalize_text_fields($seaService, [
+                'last_vessel_name',
+                'last_vessel_type',
+                'last_rank',
+                'flag_country',
+                'management_company',
+                'engine_type',
+                'deadweight',
+            ], 240),
+            normalize_date_fields($seaService, ['service_from', 'service_to'])
+        );
+        if ($seaServiceData !== []) {
+            $workspace['sea_service'] = $seaServiceData;
+        }
+    }
+
+    $publication = $value['matching_publication'] ?? null;
+    if (is_array($publication)) {
+        $publicationData = normalize_text_fields($publication, [
+            'information_source',
+            'candidate_summary',
+            'publish_to_matching',
+            'data_processing_confirmation',
+        ], 1200);
+        if ($publicationData !== []) {
+            $workspace['matching_publication'] = $publicationData;
+        }
+    }
+
+    return $workspace;
+}
+
 function normalize_seafarer_document_metadata(array $body): ?string {
     $rawMetadata = $body['document_metadata'] ?? null;
     if (!is_array($rawMetadata)) {
@@ -1047,6 +1176,11 @@ function normalize_seafarer_document_metadata(array $body): ?string {
     }
     if ($notes !== null) {
         $metadata['notes'] = $notes;
+    }
+
+    $workspace = normalize_seafarer_workspace_metadata($rawMetadata['seafarer_workspace'] ?? null);
+    if ($workspace !== []) {
+        $metadata['seafarer_workspace'] = $workspace;
     }
 
     if ($metadata === []) {
