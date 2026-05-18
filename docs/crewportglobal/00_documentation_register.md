@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.13
+- Version: 1.14
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -224,6 +224,7 @@ docs/crewportglobal/
     08_client_registration_and_interaction_procedure.md
     09_public_site_and_authenticated_navigation_transition_plan.md
     10_document_upload_storage_and_review_procedure.md
+    11_seafarer_field_dictionary_and_reference_catalog_alignment.md
 ```
 
 ### 3.3 Product governance control
@@ -329,6 +330,8 @@ Business Process Register 0.8 adds BP-008. BP-008 records the client registratio
 Business Process Register 0.9 adds BP-009. BP-009 records the public site and authenticated navigation transition plan, including public menu simplification, authenticated menu generation, route transition behavior, direct URL safety, protected team/admin navigation, implementation phases and verification requirements before frontend implementation.
 
 Business Process Register 1.0 adds BP-010 for Issue #14 / CPG-DOC-021. BP-010 records the document upload, protected storage and review procedure, including seafarer, employer and future vessel document categories, server-only storage folders, metadata model, file limits, antivirus scanning, replacement behavior, scoped visibility and implementation decisions required before the first upload endpoint.
+
+Business Process Register 1.1 adds BP-011. BP-011 records the seafarer Excel field dictionary and reference catalog alignment, including private source handling, workbook sheet inventory, seafarer workspace card plan, reference dictionaries, future database/API slices and controlled publication order.
 
 Document 109 records the frontend-only BP-009 implementation slice that simplifies public and document navigation, removes public Create Profile / Post Vacancy navigation exposure and routes public functional CTAs to Login / Registration while preserving direct URLs.
 
@@ -465,6 +468,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.14 | 2026-05-18 | GTC IT / AI Assistant | Added BP-011 seafarer field dictionary and reference catalog alignment covering private Excel source handling, workbook inventory, cabinet card plan, reference catalogs, future DB/API slices and publication order |
 | 1.13 | 2026-05-18 | GTC IT / AI Assistant | Added document 124 as CPG-CABINET-027 protected profile photo upload report covering user_profile_photos, authenticated avatar upload, ClamAV scan, protected storage, owner-session image delivery, cabinet/account-menu rendering and verification scope |
 | 1.12 | 2026-05-18 | GTC IT / AI Assistant | Added document 123 as CPG-DESIGN-003 compact responsive workbench report covering compact typography, spacing, shared workbench theme switcher, cabinet/team/admin dark mode overrides, mobile overflow prevention and focused verification |
 | 1.11 | 2026-05-18 | GTC IT / AI Assistant | Added document 122 as CPG-DESIGN-002 theme switcher and dark functional foundation report covering the shared theme switcher, Dark Maritime / Light Work / Auto modes, local preference persistence, app/document theme tokens, navigation layering fix and focused verification |

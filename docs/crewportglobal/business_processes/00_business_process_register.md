@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 1.0
+- Version: 1.1
 - Status: For internal review
 
 ## 1. Purpose
@@ -43,8 +43,9 @@ docs/crewportglobal/business_processes/
   06_scoped_visibility_and_access_check_contract.md
   07_personal_cabinet_ui_layout_and_component_requirements.md
   08_client_registration_and_interaction_procedure.md
-  09_public_site_and_authenticated_navigation_transition_plan.md
-  10_document_upload_storage_and_review_procedure.md
+	  09_public_site_and_authenticated_navigation_transition_plan.md
+	  10_document_upload_storage_and_review_procedure.md
+	  11_seafarer_field_dictionary_and_reference_catalog_alignment.md
 ```
 
 ## 3. Active Business-Process Documents
@@ -61,6 +62,7 @@ docs/crewportglobal/business_processes/
 | BP-008 | `08_client_registration_and_interaction_procedure.md` | Project Owner continuation after BP-007 | Drafted for owner review | Client registration and interaction procedure covering public-site entry, physical person registration, authentication, path selection, seafarer/employer-side flows, team/review interaction and public-to-authenticated navigation transition |
 | BP-009 | `09_public_site_and_authenticated_navigation_transition_plan.md` | Project Owner approval after BP-008 | Drafted for owner review | Public site and authenticated navigation transition plan covering public menu simplification, authenticated menu generation, route transition, protected team/admin navigation and implementation phases |
 | BP-010 | `10_document_upload_storage_and_review_procedure.md` | GitHub Issue #14 / CPG-DOC-021 | Drafted for owner review | Document upload, protected storage folders, metadata, antivirus scanning, review statuses, scoped visibility, vessel category preparation and implementation decisions required before upload endpoint |
+| BP-011 | `11_seafarer_field_dictionary_and_reference_catalog_alignment.md` | Project Owner uploaded seafarer Excel source | Drafted for owner review | Seafarer Excel field dictionary and reference catalog alignment covering workbook sheets, page/card plan, reference dictionaries, future DB/API slices and controlled publication order |
 
 ## 4. Core Controls Introduced By This Block
 
@@ -91,6 +93,8 @@ This documentation block starts from the following approved business controls:
 23. File upload must enforce allowed formats, size limits, count limits, sha256 hashing and antivirus / malware scanning before review.
 24. Document visibility must be scoped to the owner, assigned team member, authorized reviewer/controller and Project Owner when required; broad group membership alone must not reveal documents.
 25. Replacement uploads must create a new document record and hide the replaced document from normal user display while preserving audit history according to card/account lifecycle.
+26. Seafarer Excel source materials must remain outside Git/public storage when they contain personal example data; only normalized field structures, catalog plans and implementation controls may be recorded in project documentation.
+27. Seafarer forms must become dictionary-driven authenticated cabinet cards, not one long static public form.
 
 ## 5. Intended Use
 
@@ -110,6 +114,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.1 | 2026-05-18 | GTC IT / AI Assistant | Added BP-011 seafarer field dictionary and reference catalog alignment covering private Excel source handling, workbook inventory, seafarer workspace card plan, dictionaries, future DB/API slices and publication order |
 | 1.0 | 2026-05-17 | GTC IT / AI Assistant | Added BP-010 document upload, protected storage and review procedure covering server-only folders, seafarer/employer/vessel document categories, file limits, antivirus scanning, metadata model, replacement behavior, scoped visibility and implementation decisions before upload endpoint |
 | 0.9 | 2026-05-17 | GTC IT / AI Assistant | Added BP-009 public site and authenticated navigation transition plan covering public menu simplification, authenticated menu generation, route transition, protected team/admin navigation and implementation phases |
 | 0.8 | 2026-05-17 | GTC IT / AI Assistant | Added BP-008 client registration and interaction procedure covering public-site entry, seafarer/employer-side registration, internal review/support interaction and public-to-authenticated navigation transition |
