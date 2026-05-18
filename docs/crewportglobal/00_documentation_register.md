@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.10
+- Version: 1.11
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -209,6 +209,7 @@ docs/crewportglobal/
   119_cpg_deploy_001_public_live_sync_automation_report.md
   120_cpg_deploy_002_public_live_systemd_timer_activation_report.md
   121_cpg_design_001_unified_responsive_theme_system.md
+  122_cpg_design_002_theme_switcher_and_dark_functional_foundation_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -353,6 +354,8 @@ Document 120 records the CPG-DEPLOY-002 activation of the server-side systemd ti
 
 Document 121 records the CPG-DESIGN-001 unified responsive theme system, including the decision to use one CrewPortGlobal design system with Dark Maritime and Light Work themes, compact typography, responsive behavior for mobile/tablet/desktop, shared component standards and implementation phases for public pages, document pages, user cabinet, team cabinet and admin console.
 
+Document 122 records the CPG-DESIGN-002 first implementation slice for the unified theme system, including the shared header theme switcher, Dark Maritime / Light Work / Auto modes, localStorage persistence, document-page light overrides, functional-page dark foundation, navigation layering fix and focused Playwright verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -456,6 +459,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.11 | 2026-05-18 | GTC IT / AI Assistant | Added document 122 as CPG-DESIGN-002 theme switcher and dark functional foundation report covering the shared theme switcher, Dark Maritime / Light Work / Auto modes, local preference persistence, app/document theme tokens, navigation layering fix and focused verification |
 | 1.10 | 2026-05-18 | GTC IT / AI Assistant | Added document 121 as CPG-DESIGN-001 unified responsive theme system covering Dark Maritime and Light Work themes, compact typography, responsive behavior, shared component standards and implementation phases across public, document, cabinet, team and admin pages |
 | 1.09 | 2026-05-18 | GTC IT / AI Assistant | Added document 120 as CPG-DEPLOY-002 public live systemd timer activation report covering installed units, timer schedule, runtime user, deploy environment, safety boundaries and operational commands |
 | 1.08 | 2026-05-18 | GTC IT / AI Assistant | Added document 119 as CPG-DEPLOY-001 public live sync automation report covering the repository-to-live-root publication gap, dedicated frontend/public deploy script, rsync safety controls, dry-run and smoke checks, and automatic trigger options |
