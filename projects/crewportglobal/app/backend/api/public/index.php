@@ -11,6 +11,7 @@ require_once __DIR__ . '/../lib/document_uploads.php';
 require_once __DIR__ . '/../lib/identity_context.php';
 require_once __DIR__ . '/../lib/registration_person_flow.php';
 require_once __DIR__ . '/../lib/user_auth.php';
+require_once __DIR__ . '/../lib/user_email_verification.php';
 
 const REG_DRAFT_STATUSES = ['draft', 'submitted_for_human_review'];
 const ADMIN_ACCESS_PUBLIC_ROUTES_ENV = 'CREWPORTGLOBAL_ADMIN_ACCESS_PUBLIC_ROUTES_ENABLED';
@@ -534,6 +535,7 @@ function handle_post_registration_person_confirm(): void {
 }
 
 function handle_post_auth_register_password(): void {
+    admin_access_load_runtime_env();
     $body = api_decode_json_body();
     $email = api_normalize_email($body['email'] ?? null);
     $password = cpg_auth_normalize_password($body['password'] ?? null);
@@ -609,11 +611,18 @@ function handle_post_auth_register_password(): void {
         }
 
         $session = cpg_auth_create_session($userId);
+        $emailVerification = cpg_email_verification_create_and_send(
+            $userId,
+            $email,
+            'password_registration'
+        );
 
         write_audit_event('password_credential_registered', $userId, null, null, [
             'role' => $createdRole,
             'login_email' => $email,
             'session_created' => true,
+            'email_verification_status' => $emailVerification['email_verification_status'] ?? 'pending',
+            'email_delivery_status' => $emailVerification['email_delivery_status'] ?? 'not_configured',
         ], 'auth_password_session');
 
         $draft = build_draft_response($userId);
@@ -626,11 +635,14 @@ function handle_post_auth_register_password(): void {
                 'user_id' => $userId,
                 'email' => $email,
                 'display_name' => $body['full_name'] ?? null,
+                'email_verified_at' => null,
+                'email_verification_status' => $emailVerification['email_verification_status'] ?? 'pending',
                 'registration_status' => $draft['status'] ?? 'draft',
             ], $createdRole),
             'session' => [
                 'expires_at' => $session['expires_at'],
             ],
+            'email_verification' => $emailVerification,
             'draft_id' => $draft['draft_id'],
             'draft' => $draft,
             'next_url' => '/cabinet/',
@@ -657,6 +669,8 @@ function handle_post_auth_login(): void {
                 c.is_active AS credential_active,
                 u.email,
                 u.display_name,
+                u.email_verified_at,
+                u.email_verification_status,
                 u.registration_status,
                 u.is_active AS user_active
          FROM crewportglobal.user_credentials c
@@ -767,6 +781,73 @@ function handle_get_auth_me(): void {
         ],
         'draft' => $draft,
     ]);
+}
+
+function handle_post_auth_email_send_verification(string $source): void {
+    admin_access_load_runtime_env();
+    $session = cpg_auth_find_active_session();
+    if ($session === null) {
+        api_error(401, 'authentication_required', 'Authentication is required');
+    }
+
+    $userId = (string) $session['user_id'];
+    $status = cpg_email_verification_user_status($userId);
+    if (($status['email_verified'] ?? false) === true) {
+        api_json(200, [
+            'ok' => true,
+            'status' => 'email_already_verified',
+            'email_verification' => $status,
+        ]);
+    }
+
+    api_tx_begin();
+    try {
+        $emailVerification = cpg_email_verification_create_and_send(
+            $userId,
+            (string) $status['email'],
+            $source
+        );
+        api_tx_commit();
+
+        api_json(202, [
+            'ok' => true,
+            'status' => 'email_verification_pending',
+            'email_verification' => $emailVerification,
+        ]);
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'email_verification_send_failed', $error->getMessage());
+    }
+}
+
+function handle_post_auth_email_verify(): void {
+    $body = api_decode_json_body();
+    $token = isset($body['token']) && is_string($body['token']) ? trim($body['token']) : '';
+    if ($token === '') {
+        api_error(400, 'email_verification_token_required', 'verification token is required');
+    }
+
+    api_tx_begin();
+    try {
+        $result = cpg_email_verification_verify_token($token);
+        $userRow = $result['user'];
+        $userId = (string) $userRow['user_id'];
+        $role = read_role_for_user($userId);
+        $draft = $role === null ? null : build_draft_response($userId);
+        api_tx_commit();
+
+        api_json(200, [
+            'ok' => true,
+            'status' => 'email_verified',
+            'user' => cpg_auth_public_user_payload($userRow, $role),
+            'email_verification' => $result['email_verification'],
+            'draft' => $draft,
+            'next_url' => '/cabinet/',
+        ]);
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'email_verification_failed', $error->getMessage());
+    }
 }
 
 function read_role_for_user(string $userId): ?string {
@@ -1603,7 +1684,14 @@ function read_vacancy_applications_for_seafarer(string $userId): array {
 
 function build_draft_response(string $userId): array {
     $userResult = api_query(
-        'SELECT user_id, email, display_name, registration_status, created_at, updated_at
+        'SELECT user_id,
+                email,
+                display_name,
+                email_verified_at,
+                email_verification_status,
+                registration_status,
+                created_at,
+                updated_at
          FROM crewportglobal.users
          WHERE user_id = $1',
         [$userId]
@@ -1675,6 +1763,14 @@ function build_draft_response(string $userId): array {
         'role' => $role,
         'email' => $userRow['email'],
         'display_name' => $userRow['display_name'] ?? null,
+        'email_verified' => $userRow['email_verified_at'] !== null || (string) $userRow['email_verification_status'] === 'verified',
+        'email_verified_at' => $userRow['email_verified_at'] ?? null,
+        'email_verification_status' => $userRow['email_verified_at'] !== null
+            ? 'verified'
+            : (string) $userRow['email_verification_status'],
+        'account_activation_status' => ($userRow['email_verified_at'] !== null || (string) $userRow['email_verification_status'] === 'verified')
+            ? 'active'
+            : 'pending_email_verification',
         'status' => in_array($userRow['registration_status'], REG_DRAFT_STATUSES, true)
             ? $userRow['registration_status']
             : 'draft',
@@ -3433,6 +3529,30 @@ if ($path === '/auth/login') {
 if ($path === '/auth/logout') {
     if ($method === 'POST') {
         handle_post_auth_logout();
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if ($path === '/auth/email/send-verification') {
+    if ($method === 'POST') {
+        handle_post_auth_email_send_verification('user_requested');
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if ($path === '/auth/email/resend-verification') {
+    if ($method === 'POST') {
+        handle_post_auth_email_send_verification('user_requested_resend');
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if ($path === '/auth/email/verify') {
+    if ($method === 'POST') {
+        handle_post_auth_email_verify();
     }
     header('Allow: POST');
     api_error(405, 'method_not_allowed', 'Allowed methods: POST');

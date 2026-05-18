@@ -133,9 +133,10 @@
           return;
         }
 
-        try {
-          const response = await fetch('/api/v1/registration/person/confirm', {
+        async function postConfirmation(url) {
+          const response = await fetch(url, {
             method: 'POST',
+            credentials: 'include',
             headers: {
               'Content-Type': 'application/json'
             },
@@ -145,21 +146,43 @@
           if (!response.ok || !result.ok) {
             throw new Error(result.error || 'registration_confirmation_failed');
           }
+          return result;
+        }
+
+        try {
+          let result;
+          try {
+            result = await postConfirmation('/api/v1/auth/email/verify');
+          } catch (authError) {
+            result = await postConfirmation('/api/v1/registration/person/confirm');
+          }
 
           const stored = JSON.parse(window.localStorage.getItem('crewportglobal.registration.person') || '{}');
-          stored.person_id = result.person_id || stored.person_id || null;
-          stored.email = result.email || stored.email || null;
-          stored.full_name = result.display_name || stored.full_name || null;
-          stored.registration_state = 'email_confirmed';
+          const verifiedUser = result.user || {};
+          const verification = result.email_verification || {};
+          stored.person_id = result.person_id || verifiedUser.user_id || verification.user_id || stored.person_id || null;
+          stored.email = result.email || verifiedUser.email || verification.email || stored.email || null;
+          stored.full_name = result.display_name || verifiedUser.display_name || verification.display_name || stored.full_name || null;
+          stored.registration_state = result.status === 'email_verified' ? 'account_email_verified' : 'email_confirmed';
           stored.authentication_state = 'email_confirmed';
-          stored.email_verified_at = result.email_verified_at || new Date().toISOString();
+          stored.email_verification_status = verification.email_verification_status || verifiedUser.email_verification_status || 'verified';
+          stored.account_activation_status = verification.account_activation_status || verifiedUser.account_activation_status || 'active';
+          stored.email_verified_at = result.email_verified_at || verifiedUser.email_verified_at || verification.email_verified_at || new Date().toISOString();
           window.localStorage.setItem('crewportglobal.registration.person', JSON.stringify(stored));
+          if (result.draft) {
+            window.localStorage.setItem('crewportglobal.registration.last_response', JSON.stringify(result.draft));
+            if (result.draft.draft_id) {
+              window.localStorage.setItem('crewportglobal.registration.draft_id', result.draft.draft_id);
+            }
+          }
 
           status.textContent = message('registerConfirm.status.success');
           status.classList.add('is-success');
+          continueLink.href = result.next_url || '/cabinet/';
           continueLink.hidden = false;
+          window.dispatchEvent(new CustomEvent('crewportglobal:authchanged'));
           window.setTimeout(() => {
-            window.location.href = result.next_url || '/register/next/';
+            window.location.href = result.next_url || '/cabinet/';
           }, 1400);
         } catch (error) {
           status.textContent = message('registerConfirm.status.failed');

@@ -20,6 +20,9 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - POST /api/v1/auth/register-password
 - POST /api/v1/auth/login
 - POST /api/v1/auth/logout
+- POST /api/v1/auth/email/send-verification
+- POST /api/v1/auth/email/verify
+- POST /api/v1/auth/email/resend-verification
 - GET /api/v1/auth/me
 - GET /api/v1/operator/review-queue
 - GET /api/v1/operator/review-queue/vacancy-applications/{vacancy_application_id}
@@ -73,8 +76,9 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - admin access console view: `/admin/access/` displays the current Project Owner session, active groups, roles, effective permissions and recent access audit events, with logout / session revoke only
 - protected team links: `/team/` loads links only through `GET /api/v1/admin/access/team-links` after a session whose user belongs to `owners` or `cpg_team`; the protected document review page is available at `/team/documents/`
 - access-management console slice: Project Owner can read users/groups, create or confirm users, and add users to assignable internal/administration groups through `GET /api/v1/admin/access/management`, `POST /api/v1/admin/access/users` and `POST /api/v1/admin/access/group-members`
-- public physical-person registration slice: `/register/` posts to `POST /api/v1/auth/register-password` for the first password credential MVP, creates a base user/draft with the selected primary capability and opens `/cabinet/`; the earlier `registration/person/*` e-mail confirmation endpoints remain available for the later verified-email stage
+- public physical-person registration slice: `/register/` posts to `POST /api/v1/auth/register-password` for the first password credential MVP, creates a base user/draft with the selected primary capability and opens `/cabinet/`; the earlier `registration/person/*` e-mail confirmation endpoints remain available for the legacy physical-person e-mail link path
 - password credential/session MVP: `POST /api/v1/auth/register-password`, `POST /api/v1/auth/login`, `POST /api/v1/auth/logout` and `GET /api/v1/auth/me` store only `password_hash`, store only hashed session tokens, issue HttpOnly SameSite=Lax cookies, revoke sessions on logout and never return raw passwords, password hashes or raw session tokens
+- email verification MVP: password registration creates a hash-only account e-mail verification token, sends or prepares a verification link through the protected SMTP delivery configuration, exposes `send-verification`, `resend-verification` and `verify` endpoints, updates `email_verified_at` / `email_verification_status`, and shows the cabinet task until the account e-mail is verified
 
 ## Access-control Phase 2 status
 
@@ -179,6 +183,8 @@ CREWPORTGLOBAL_REGISTRATION_SMTP_SEND_ENABLED=true
 CREWPORTGLOBAL_REGISTRATION_LINK_SECRET=<server-only-secret>
 CREWPORTGLOBAL_PUBLIC_BASE_URL=https://crewportglobal.com
 ```
+
+Password-account email verification uses the same protected SMTP mailbox and delivery flags. It stores only `email_verification_tokens.verification_token_hash`; the raw token appears only in the e-mail link and, for automated tests, when `CREWPORTGLOBAL_AUTH_EMAIL_VERIFICATION_TEST_MODE=true`.
 
 The registration link secret is server-only and must not be committed. Public registration creates/confirms the physical person/user record first; role, company, vessel, task and data-visibility authorization remain later evidence-based steps.
 

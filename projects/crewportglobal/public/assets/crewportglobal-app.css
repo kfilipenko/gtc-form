@@ -198,6 +198,24 @@ body.doc-body.cpg-app-page {
   color: var(--app-muted);
 }
 
+.cpg-app-page .cpg-account__email-status {
+  border-color: var(--app-line);
+  color: var(--app-muted);
+  background: #eef6f8;
+}
+
+.cpg-app-page .cpg-account__email-status.is-verified {
+  border-color: #80b99a;
+  color: #167147;
+  background: #e8f7ef;
+}
+
+.cpg-app-page .cpg-account__email-status.is-unverified {
+  border-color: #d5a540;
+  color: #8a5a00;
+  background: #fff7df;
+}
+
 .cpg-app-page .cpg-account__panel {
   border-color: var(--app-line);
   background: var(--app-surface);

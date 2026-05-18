@@ -81,12 +81,22 @@ function cpg_auth_normalize_password(mixed $value): ?string {
 }
 
 function cpg_auth_public_user_payload(array $row, ?string $role = null): array {
+    $emailVerifiedAt = $row['email_verified_at'] ?? null;
+    $emailVerificationStatus = isset($row['email_verification_status']) && is_string($row['email_verification_status'])
+        ? (string) $row['email_verification_status']
+        : ($emailVerifiedAt !== null ? 'verified' : 'unverified');
+    $emailVerified = $emailVerifiedAt !== null || $emailVerificationStatus === 'verified';
+
     return [
         'user_id' => (string) $row['user_id'],
         'email' => (string) $row['email'],
         'display_name' => $row['display_name'] ?? null,
         'role' => $role,
         'registration_status' => $row['registration_status'] ?? null,
+        'email_verified' => $emailVerified,
+        'email_verified_at' => $emailVerifiedAt,
+        'email_verification_status' => $emailVerified ? 'verified' : $emailVerificationStatus,
+        'account_activation_status' => $emailVerified ? 'active' : 'pending_email_verification',
     ];
 }
 
@@ -135,6 +145,8 @@ function cpg_auth_find_active_session(?string $token = null): ?array {
                 s.expires_at,
                 u.email,
                 u.display_name,
+                u.email_verified_at,
+                u.email_verification_status,
                 u.registration_status,
                 u.is_active
          FROM crewportglobal.user_sessions s

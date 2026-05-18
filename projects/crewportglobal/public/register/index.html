@@ -217,7 +217,7 @@
                 <strong data-i18n="register.nextSteps.title">Account created</strong>
                 <ol>
                   <li data-i18n="register.nextSteps.item1">A secure session was created with an HttpOnly cookie.</li>
-                  <li data-i18n="register.nextSteps.item2">Open the cabinet and continue the registration sequence.</li>
+                  <li data-i18n="register.nextSteps.item2">Verify your email from the cabinet task or mailbox link.</li>
                   <li data-i18n="register.nextSteps.item3">Phone confirmation remains scheduled for the next implementation stage.</li>
                 </ol>
                 <div class="inline-actions">
@@ -275,7 +275,7 @@
         'register.form.status': 'Create a password credential first. Phone confirmation should be configured in the next authentication stage.',
         'register.nextSteps.title': 'Account created',
         'register.nextSteps.item1': 'A secure session was created with an HttpOnly cookie.',
-        'register.nextSteps.item2': 'Open the cabinet and continue the registration sequence.',
+        'register.nextSteps.item2': 'Verify your email from the cabinet task or mailbox link.',
         'register.nextSteps.item3': 'Phone confirmation remains scheduled for the next implementation stage.',
         'register.nextSteps.cabinet': 'Open cabinet',
         'register.nextSteps.authorization': 'Choose authorization cards',
@@ -313,7 +313,7 @@
         'register.form.status': 'Сначала создайте парольный доступ. Подтверждение телефона следует настроить на следующем этапе аутентификации.',
         'register.nextSteps.title': 'Аккаунт создан',
         'register.nextSteps.item1': 'Создана безопасная сессия через HttpOnly cookie.',
-        'register.nextSteps.item2': 'Откройте кабинет и продолжите регистрационную последовательность.',
+        'register.nextSteps.item2': 'Подтвердите email через задачу в кабинете или ссылку из письма.',
         'register.nextSteps.item3': 'Подтверждение телефона остаётся задачей следующего этапа реализации.',
         'register.nextSteps.cabinet': 'Открыть кабинет',
         'register.nextSteps.authorization': 'Выбрать карточки авторизации',
@@ -339,7 +339,8 @@
           validation: 'Complete full name, email, phone, country, role, password and both consent checks before continuing.',
           passwordMismatch: 'Password confirmation does not match.',
           preparing: 'Creating password credential...',
-          prepared: 'Account created. You can open the cabinet now.',
+          prepared: 'Account created. Verify your email to activate the account fully.',
+          preparedNoEmail: 'Account created. Email delivery is not configured yet, so the verification task remains in the cabinet.',
           requestFailed: 'Account could not be created. The email may already have password credentials.',
           networkFailed: 'Registration service is unavailable. Please try again later.',
           status: 'Create a password credential first. Phone confirmation should be configured in the next authentication stage.'
@@ -348,7 +349,8 @@
           validation: 'Заполните полное имя, email, телефон, страну, роль, пароль и отметьте оба согласия перед продолжением.',
           passwordMismatch: 'Подтверждение пароля не совпадает.',
           preparing: 'Создаём парольный доступ...',
-          prepared: 'Аккаунт создан. Теперь можно открыть кабинет.',
+          prepared: 'Аккаунт создан. Подтвердите email для полной активации аккаунта.',
+          preparedNoEmail: 'Аккаунт создан. Отправка email пока не настроена, поэтому задача подтверждения остаётся в кабинете.',
           requestFailed: 'Не удалось создать аккаунт. Возможно, для этого email уже есть парольный доступ.',
           networkFailed: 'Сервис регистрации временно недоступен. Попробуйте позже.',
           status: 'Сначала создайте парольный доступ. Подтверждение телефона следует настроить на следующем этапе аутентификации.'
@@ -442,6 +444,11 @@
 
           payload.person_id = result.user && result.user.user_id ? result.user.user_id : null;
           payload.registration_state = 'password_credential_registered';
+          payload.authentication_state = 'email_verification_pending';
+          payload.email_verification_status = result.email_verification && result.email_verification.email_verification_status
+            ? result.email_verification.email_verification_status
+            : 'pending';
+          payload.account_activation_status = 'pending_email_verification';
           payload.draft_id = result.draft_id || null;
           delete payload.password;
           delete payload.confirm_password;
@@ -454,7 +461,10 @@
           if (result.draft) {
             window.localStorage.setItem('crewportglobal.registration.last_response', JSON.stringify(result.draft));
           }
-          status.textContent = messages[language].prepared;
+          const deliveryStatus = result.email_verification && result.email_verification.email_delivery_status;
+          status.textContent = deliveryStatus === 'not_configured'
+            ? messages[language].preparedNoEmail
+            : messages[language].prepared;
           status.classList.add('is-success');
           status.classList.remove('is-error');
           nextSteps.hidden = false;

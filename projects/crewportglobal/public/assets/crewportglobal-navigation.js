@@ -118,7 +118,9 @@
       profileSettings: 'Profile settings',
       logout: 'Logout',
       loggingOut: 'Signing out...',
-      avatarLabel: 'Profile menu'
+      avatarLabel: 'Profile menu',
+      verifiedEmail: 'Verified email',
+      emailNotVerified: 'Email not verified'
     },
     ru: {
       entry: 'Аккаунт / Войти',
@@ -134,7 +136,9 @@
       profileSettings: 'Настройки профиля',
       logout: 'Выйти',
       loggingOut: 'Выходим...',
-      avatarLabel: 'Меню профиля'
+      avatarLabel: 'Меню профиля',
+      verifiedEmail: 'Email подтверждён',
+      emailNotVerified: 'Email не подтверждён'
     },
     pt: {
       entry: 'Conta / Entrar',
@@ -150,7 +154,9 @@
       profileSettings: 'Definicoes do perfil',
       logout: 'Sair',
       loggingOut: 'A terminar sessao...',
-      avatarLabel: 'Menu do perfil'
+      avatarLabel: 'Menu do perfil',
+      verifiedEmail: 'Email verificado',
+      emailNotVerified: 'Email nao verificado'
     }
   };
 
@@ -244,12 +250,16 @@
   function createAuthenticatedAccountArea() {
     const user = accountState.user || {};
     const display = accountDisplayName(user);
+    const emailVerified = user.email_verified === true;
+    const verificationLabel = emailVerified ? accountLabel('verifiedEmail') : accountLabel('emailNotVerified');
+    const verificationClass = emailVerified ? ' is-verified' : ' is-unverified';
 
     return [
       '<details class="cpg-account is-authenticated" data-cpg-account-menu>',
       '  <summary class="cpg-account__summary">',
       `    <span class="cpg-account__avatar" aria-hidden="true">${accountInitials(user)}</span>`,
       `    <span class="cpg-account__label">${display}</span>`,
+      `    <span class="cpg-account__email-status${verificationClass}">${verificationLabel}</span>`,
       '    <span class="cpg-account__chevron" aria-hidden="true">▾</span>',
       '  </summary>',
       '  <div class="cpg-account__panel">',

@@ -220,6 +220,31 @@ a {
   font-weight: 900;
 }
 
+.cpg-account__email-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted-on-dark);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.cpg-account__email-status.is-verified {
+  border-color: rgba(121, 226, 166, 0.45);
+  color: #79e2a6;
+  background: rgba(121, 226, 166, 0.08);
+}
+
+.cpg-account__email-status.is-unverified {
+  border-color: rgba(255, 198, 97, 0.5);
+  color: #ffd28a;
+  background: rgba(255, 198, 97, 0.09);
+}
+
 .cpg-account__summary::-webkit-details-marker {
   display: none;
 }

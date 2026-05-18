@@ -599,6 +599,14 @@
         'cabinet.tasks.noDraft.copy': 'No current registration draft was found on this browser. Start registration or open a saved cabinet link with draft_id.',
         'cabinet.tasks.noDocuments.title': 'Action required: upload supporting documents',
         'cabinet.tasks.noDocuments.copy': 'Save the service form and upload the documents needed for review.',
+        'cabinet.tasks.verifyEmail.title': 'Action required: verify your email address',
+        'cabinet.tasks.verifyEmail.reason': 'We need to confirm that this email belongs to you before the account is fully activated.',
+        'cabinet.tasks.verifyEmail.action': 'Send verification email',
+        'cabinet.tasks.verifyEmail.resend': 'Resend verification email',
+        'cabinet.tasks.verifyEmail.preparing': 'Preparing verification email...',
+        'cabinet.tasks.verifyEmail.sent': 'Verification email prepared. Check your mailbox and open the confirmation link.',
+        'cabinet.tasks.verifyEmail.notConfigured': 'Email delivery is not configured yet. The account remains pending email verification.',
+        'cabinet.tasks.verifyEmail.failed': 'Verification email could not be prepared. Try again later.',
         'cabinet.tasks.correctDocument.title': 'Action required: upload corrected document',
         'cabinet.tasks.correctDocument.reason': 'Reason',
         'cabinet.tasks.correctDocument.action': 'Upload replacement',
@@ -617,7 +625,10 @@
         'cabinet.user.draftId': 'Draft ID',
         'cabinet.user.registrationStatus': 'Registration status',
         'cabinet.user.security': 'Account security',
-        'cabinet.user.security.copy': 'Email confirmation is handled through registration/authentication. Phone confirmation remains marked as to configure.',
+        'cabinet.user.security.copy': 'Email verification activates the account for verified cabinet use. Phone confirmation remains marked as to configure.',
+        'cabinet.user.emailVerification': 'Email verification',
+        'cabinet.user.emailVerified': 'Verified',
+        'cabinet.user.emailNotVerified': 'Not verified',
         'cabinet.documents.title': 'My documents',
         'cabinet.documents.status': 'Document metadata and review state',
         'cabinet.documents.empty': 'No uploaded documents are visible for this service area yet.',
@@ -690,6 +701,14 @@
         'cabinet.tasks.noDraft.copy': 'В этом браузере не найден текущий регистрационный черновик. Начните регистрацию или откройте сохраненную ссылку кабинета с draft_id.',
         'cabinet.tasks.noDocuments.title': 'Требуется действие: загрузите подтверждающие документы',
         'cabinet.tasks.noDocuments.copy': 'Сохраните сервисную форму и загрузите документы, необходимые для проверки.',
+        'cabinet.tasks.verifyEmail.title': 'Требуется действие: подтвердите email',
+        'cabinet.tasks.verifyEmail.reason': 'Нужно подтвердить, что этот email принадлежит вам, прежде чем аккаунт будет полностью активирован.',
+        'cabinet.tasks.verifyEmail.action': 'Отправить письмо подтверждения',
+        'cabinet.tasks.verifyEmail.resend': 'Отправить письмо повторно',
+        'cabinet.tasks.verifyEmail.preparing': 'Готовим письмо подтверждения...',
+        'cabinet.tasks.verifyEmail.sent': 'Письмо подтверждения подготовлено. Проверьте почту и откройте ссылку подтверждения.',
+        'cabinet.tasks.verifyEmail.notConfigured': 'Отправка email пока не настроена. Аккаунт остаётся в ожидании подтверждения email.',
+        'cabinet.tasks.verifyEmail.failed': 'Не удалось подготовить письмо подтверждения. Попробуйте позже.',
         'cabinet.tasks.correctDocument.title': 'Требуется действие: загрузите исправленный документ',
         'cabinet.tasks.correctDocument.reason': 'Причина',
         'cabinet.tasks.correctDocument.action': 'Загрузить новую версию',
@@ -708,7 +727,10 @@
         'cabinet.user.draftId': 'Draft ID',
         'cabinet.user.registrationStatus': 'Статус регистрации',
         'cabinet.user.security': 'Безопасность аккаунта',
-        'cabinet.user.security.copy': 'Подтверждение email выполняется через регистрацию/аутентификацию. Подтверждение телефона пока отмечено как следует настроить.',
+        'cabinet.user.security.copy': 'Подтверждение email активирует аккаунт для проверенного доступа к кабинету. Подтверждение телефона пока отмечено как следует настроить.',
+        'cabinet.user.emailVerification': 'Подтверждение email',
+        'cabinet.user.emailVerified': 'Подтверждён',
+        'cabinet.user.emailNotVerified': 'Не подтверждён',
         'cabinet.documents.title': 'Мои документы',
         'cabinet.documents.status': 'Метаданные документов и статус проверки',
         'cabinet.documents.empty': 'Для этого направления пока нет видимых загруженных документов.',
@@ -782,6 +804,7 @@
       const supportSummary = document.getElementById('cabinet-support-summary');
 
       let cabinetDraft = null;
+      let cabinetAuthUser = null;
       let cabinetDocuments = [];
       let activeFormType = '';
 
@@ -831,7 +854,7 @@
         if (!response.ok || body.authenticated !== true || !body.draft) {
           return null;
         }
-        return body.draft;
+        return body;
       }
 
       function roleLabel(role) {
@@ -927,6 +950,7 @@
         meta.className = 'meta-row';
         [
           `${t('cabinet.user.email')}: ${valueOrEmpty(cabinetDraft && cabinetDraft.email)}`,
+          `${t('cabinet.user.emailVerification')}: ${emailVerificationRequired() ? t('cabinet.user.emailNotVerified') : t('cabinet.user.emailVerified')}`,
           `${t('cabinet.user.currentCapability')}: ${cabinetDraft ? roleLabel(cabinetDraft.role) : t('cabinet.value.empty')}`,
           `${t('cabinet.user.profilePhoto')}: ${t('cabinet.user.photoPlaceholder')}`
         ].forEach((text) => {
@@ -946,6 +970,13 @@
           && typeof documentRecord.review_note === 'string'
           && documentRecord.review_note.trim() !== ''
         ));
+      }
+
+      function emailVerificationRequired() {
+        if (!cabinetDraft || !cabinetAuthUser) {
+          return false;
+        }
+        return cabinetAuthUser.email_verified !== true && cabinetDraft.email_verified !== true;
       }
 
       function waitingDocuments() {
@@ -1019,11 +1050,74 @@
         task.append(upload, status);
       }
 
+      function renderEmailVerificationTask() {
+        const task = document.createElement('article');
+        task.className = 'task-item is-action';
+        const title = document.createElement('h3');
+        title.textContent = t('cabinet.tasks.verifyEmail.title');
+        const meta = document.createElement('div');
+        meta.className = 'meta-row';
+        [
+          `${t('cabinet.user.email')}: ${valueOrEmpty(cabinetDraft && cabinetDraft.email)}`,
+          `${t('cabinet.tasks.correctDocument.reason')}: ${t('cabinet.tasks.verifyEmail.reason')}`
+        ].forEach((text) => {
+          const chip = document.createElement('span');
+          chip.className = 'chip action';
+          chip.textContent = text;
+          meta.appendChild(chip);
+        });
+
+        const actions = document.createElement('div');
+        actions.className = 'meta-row';
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'button primary';
+        button.textContent = t('cabinet.tasks.verifyEmail.resend');
+        const status = document.createElement('p');
+        status.className = 'status-line';
+
+        button.addEventListener('click', async () => {
+          button.disabled = true;
+          status.textContent = t('cabinet.tasks.verifyEmail.preparing');
+          status.className = 'status-line';
+          try {
+            const response = await fetch('/api/v1/auth/email/resend-verification', {
+              method: 'POST',
+              credentials: 'include',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({})
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || result.ok !== true) {
+              throw new Error(result.error || 'email_verification_send_failed');
+            }
+            const deliveryStatus = result.email_verification && result.email_verification.email_delivery_status;
+            status.textContent = deliveryStatus === 'not_configured'
+              ? t('cabinet.tasks.verifyEmail.notConfigured')
+              : t('cabinet.tasks.verifyEmail.sent');
+            status.className = deliveryStatus === 'not_configured' ? 'status-line error' : 'status-line ok';
+          } catch (error) {
+            console.error(error);
+            status.textContent = t('cabinet.tasks.verifyEmail.failed');
+            status.className = 'status-line error';
+          } finally {
+            button.disabled = false;
+          }
+        });
+
+        actions.append(button);
+        task.append(title, meta, actions, status);
+        taskList.append(task);
+      }
+
       function renderTasks() {
         taskList.replaceChildren();
         const corrections = taskDocuments();
         const waiting = waitingDocuments();
-        let taskCount = corrections.length;
+        const needsEmailVerification = emailVerificationRequired();
+        let taskCount = corrections.length + (needsEmailVerification ? 1 : 0);
 
         if (!cabinetDraft) {
           const task = document.createElement('article');
@@ -1043,6 +1137,10 @@
           taskList.append(task);
           setSummary(1);
           return;
+        }
+
+        if (needsEmailVerification) {
+          renderEmailVerificationTask();
         }
 
         corrections.forEach((documentRecord) => {
@@ -1068,7 +1166,6 @@
         });
 
         if (corrections.length === 0 && waiting.length > 0) {
-          taskCount = 0;
           const task = document.createElement('article');
           task.className = 'task-item is-waiting';
           const title = document.createElement('h3');
@@ -1081,7 +1178,7 @@
         }
 
         if (corrections.length === 0 && waiting.length === 0 && cabinetDocuments.length === 0) {
-          taskCount = 1;
+          taskCount += 1;
           const task = document.createElement('article');
           task.className = 'task-item is-action';
           const title = document.createElement('h3');
@@ -1128,6 +1225,10 @@
         userSummary.append(
           detailItem(t('cabinet.user.fullName'), profileDisplayName()),
           detailItem(t('cabinet.user.email'), cabinetDraft.email),
+          detailItem(
+            t('cabinet.user.emailVerification'),
+            emailVerificationRequired() ? t('cabinet.user.emailNotVerified') : t('cabinet.user.emailVerified')
+          ),
           detailItem(t('cabinet.user.currentCapability'), roleLabel(cabinetDraft.role)),
           detailItem(t('cabinet.user.draftId'), cabinetDraft.draft_id),
           detailItem(t('cabinet.user.registrationStatus'), cabinetDraft.status),
@@ -1269,14 +1370,17 @@
       }
 
       async function loadCabinet() {
-        const authenticatedDraft = await getAuthenticatedCabinetContext();
-        if (authenticatedDraft) {
-          cabinetDraft = authenticatedDraft;
+        const authenticatedContext = await getAuthenticatedCabinetContext();
+        if (authenticatedContext && authenticatedContext.draft) {
+          cabinetAuthUser = authenticatedContext.user || null;
+          cabinetDraft = authenticatedContext.draft;
           activeFormType = formTypeForRole(cabinetDraft.role);
           const documentsResponse = await window.CPGDrafts.listDocuments(cabinetDraft.draft_id, activeFormType);
           cabinetDocuments = Array.isArray(documentsResponse.documents) ? documentsResponse.documents : [];
           const correctionCount = taskDocuments().length;
-          const taskCount = correctionCount || (cabinetDocuments.length === 0 ? 1 : 0);
+          const taskCount = correctionCount
+            + (emailVerificationRequired() ? 1 : 0)
+            + (cabinetDocuments.length === 0 ? 1 : 0);
 
           renderTasks();
           renderUserSummary();
@@ -1290,6 +1394,7 @@
         const draftId = currentDraftId();
         if (!draftId) {
           cabinetDraft = null;
+          cabinetAuthUser = null;
           cabinetDocuments = [];
           activeFormType = 'seafarer';
           renderTasks();
@@ -1302,6 +1407,7 @@
         }
 
         cabinetDraft = await window.CPGDrafts.getDraft(draftId);
+        cabinetAuthUser = null;
         activeFormType = formTypeForRole(cabinetDraft.role);
         const documentsResponse = await window.CPGDrafts.listDocuments(cabinetDraft.draft_id, activeFormType);
         cabinetDocuments = Array.isArray(documentsResponse.documents) ? documentsResponse.documents : [];
@@ -1319,6 +1425,7 @@
       loadCabinet().catch((error) => {
         console.error(error);
         cabinetDraft = null;
+        cabinetAuthUser = null;
         cabinetDocuments = [];
         activeFormType = 'seafarer';
         renderTasks();
