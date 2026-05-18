@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.02
+- Version: 1.03
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -201,6 +201,7 @@ docs/crewportglobal/
   111_cpg_auth_002_authorization_request_cards_frontend_report.md
   112_cpg_doc_022_protected_upload_storage_clamav_report.md
   113_cpg_doc_023_protected_document_review_queue_report.md
+  114_cpg_doc_024_document_correction_task_replacement_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -329,6 +330,8 @@ Document 112 records the CPG-DOC-022 protected document upload storage and ClamA
 
 Document 113 records the CPG-DOC-023 protected document review queue and authorized reviewer file access implementation, including clean-only document review queue metadata, operator/team protected download endpoint, review decision endpoint, document view and decision audit events, `/team/documents/` UI and tests confirming infected, blocked and unscanned documents are not reviewable.
 
+Document 114 records the CPG-DOC-024 user-facing document correction task and replacement upload implementation, including computed correction tasks from `uploaded_documents`, clear Upload replacement actions on `/create-profile/` and `/post-vacancy/`, clean replacement task closure, unsafe replacement task persistence and UI/API tests for seafarer and employer flows.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -432,6 +435,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.03 | 2026-05-18 | GTC IT / AI Assistant | Added document 114 as CPG-DOC-024 user-facing document correction task and replacement upload implementation report covering computed correction tasks, Upload replacement actions, clean replacement closure, unsafe replacement persistence and seafarer/employer UI/API verification |
 | 1.02 | 2026-05-17 | GTC IT / AI Assistant | Added document 113 as CPG-DOC-023 protected document review queue and authorized reviewer file access implementation report covering clean-only queue metadata, protected download, review decisions, audit events, /team/documents/ UI and API/UI/security verification |
 | 1.01 | 2026-05-17 | GTC IT / AI Assistant | Added document 112 as CPG-DOC-022 protected document upload storage and ClamAV scanning implementation report covering migration 007, protected server storage, quarantine-to-scan-to-protected flow, upload endpoints, frontend upload sections, ClamAV verification and upload/security tests |
 | 1.00 | 2026-05-17 | GTC IT / AI Assistant | Added BP-010 document upload, protected storage and review procedure for CPG-DOC-021 covering server-only document folders, seafarer/employer/vessel categories, file limits, antivirus scanning, metadata, scoped visibility and implementation decisions before upload endpoint |

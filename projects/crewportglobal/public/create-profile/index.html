@@ -221,6 +221,43 @@
       gap: 10px;
     }
 
+    .document-action-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .document-action-task {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid #d9992c;
+      border-radius: 8px;
+      background: #fff8e8;
+    }
+
+    .document-action-task strong {
+      color: var(--app-ink);
+      overflow-wrap: anywhere;
+    }
+
+    .document-action-task p {
+      margin: 0;
+      color: var(--app-muted);
+      line-height: 1.5;
+    }
+
+    .document-action-task__meta {
+      display: grid;
+      gap: 4px;
+    }
+
+    .document-action-task__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
     .document-upload-item {
       display: grid;
       gap: 8px;
@@ -685,6 +722,7 @@
                 <button id="create-document-upload-submit" class="button secondary" type="button" data-i18n="create.upload.submit">Upload</button>
               </div>
               <p id="create-document-upload-status" class="status-note" data-i18n="create.upload.status.initial">Save the draft first, then upload PDF, JPG, PNG or WEBP files.</p>
+              <div id="create-document-action-list" class="document-action-list" aria-live="polite"></div>
               <div id="create-document-upload-list" class="document-upload-list" aria-live="polite"></div>
             </div>
           </section>
@@ -868,6 +906,17 @@
         'create.upload.meta.review': 'Review',
         'create.upload.meta.size': 'Size',
         'create.upload.meta.cleanReady': 'Pending human review',
+        'create.upload.task.title': 'Action required: upload corrected document',
+        'create.upload.task.document': 'Document',
+        'create.upload.task.status': 'Status',
+        'create.upload.task.reason': 'Reason',
+        'create.upload.task.uploadReplacement': 'Upload replacement',
+        'create.upload.task.replacementHint': 'Choose a corrected replacement file for {document}.',
+        'create.upload.review.pending_human_review': 'Waiting for team review',
+        'create.upload.review.under_review': 'Under review',
+        'create.upload.review.correction_requested': 'Correction requested',
+        'create.upload.review.rejected': 'Rejected',
+        'create.upload.review.verified': 'Verified',
         'create.documentStatus.unknown': 'Unknown',
         'create.documentStatus.collecting': 'Collecting',
         'create.documentStatus.ready': 'Ready',
@@ -1048,6 +1097,17 @@
         'create.upload.meta.review': 'Проверка',
         'create.upload.meta.size': 'Размер',
         'create.upload.meta.cleanReady': 'Ожидает ручной проверки',
+        'create.upload.task.title': 'Требуется действие: загрузите исправленный документ',
+        'create.upload.task.document': 'Документ',
+        'create.upload.task.status': 'Статус',
+        'create.upload.task.reason': 'Причина',
+        'create.upload.task.uploadReplacement': 'Загрузить новую версию',
+        'create.upload.task.replacementHint': 'Выберите исправленный файл для документа: {document}.',
+        'create.upload.review.pending_human_review': 'Ожидает проверки команды',
+        'create.upload.review.under_review': 'На проверке',
+        'create.upload.review.correction_requested': 'Требуется исправление',
+        'create.upload.review.rejected': 'Отклонен',
+        'create.upload.review.verified': 'Проверен',
         'create.documentStatus.unknown': 'Не указано',
         'create.documentStatus.collecting': 'Собирается',
         'create.documentStatus.ready': 'Готово',
@@ -1159,6 +1219,7 @@
       const uploadFile = document.getElementById('create-document-upload-file');
       const uploadSubmit = document.getElementById('create-document-upload-submit');
       const uploadStatus = document.getElementById('create-document-upload-status');
+      const documentActionList = document.getElementById('create-document-action-list');
       const uploadList = document.getElementById('create-document-upload-list');
       const reviewStatusLine = document.getElementById('create-review-status');
       const correctionNoteLine = document.getElementById('create-correction-note');
@@ -1274,7 +1335,75 @@
         return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
       }
 
+      function documentTypeLabel(value) {
+        const option = Array.from(uploadType.options).find((item) => item.value === value);
+        return option ? option.textContent.trim() : valueOrDash(value);
+      }
+
+      function reviewStatusLabel(value) {
+        const normalized = typeof value === 'string' ? value.trim() : '';
+        return normalized ? t(`create.upload.review.${normalized}`) : '-';
+      }
+
+      function documentsNeedingAction(documents) {
+        return Array.isArray(documents)
+          ? documents.filter((documentRecord) => (
+            ['correction_requested', 'rejected'].includes(documentRecord.review_status)
+            && typeof documentRecord.review_note === 'string'
+            && documentRecord.review_note.trim() !== ''
+          ))
+          : [];
+      }
+
+      function renderDocumentActionTasks(documents) {
+        documentActionList.innerHTML = '';
+        const tasks = documentsNeedingAction(documents);
+        documentActionList.hidden = tasks.length === 0;
+        tasks.forEach((documentRecord) => {
+          const task = document.createElement('article');
+          task.className = 'document-action-task';
+
+          const title = document.createElement('strong');
+          title.textContent = t('create.upload.task.title');
+          task.appendChild(title);
+
+          const meta = document.createElement('div');
+          meta.className = 'document-action-task__meta';
+          [
+            `${t('create.upload.task.document')}: ${documentTypeLabel(documentRecord.document_type)}`,
+            `${t('create.upload.task.status')}: ${reviewStatusLabel(documentRecord.review_status)}`,
+            `${t('create.upload.task.reason')}: ${documentRecord.review_note.trim()}`
+          ].forEach((text) => {
+            const line = document.createElement('p');
+            line.textContent = text;
+            meta.appendChild(line);
+          });
+          task.appendChild(meta);
+
+          const actions = document.createElement('div');
+          actions.className = 'document-action-task__actions';
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'button primary document-replacement-action';
+          button.textContent = t('create.upload.task.uploadReplacement');
+          button.addEventListener('click', () => {
+            if (documentRecord.document_type) {
+              uploadType.value = documentRecord.document_type;
+            }
+            uploadStatus.textContent = tFormat('create.upload.task.replacementHint', {
+              document: documentTypeLabel(documentRecord.document_type)
+            });
+            uploadFile.focus();
+          });
+          actions.appendChild(button);
+          task.appendChild(actions);
+
+          documentActionList.appendChild(task);
+        });
+      }
+
       function renderUploadedDocuments(documents) {
+        renderDocumentActionTasks(documents);
         uploadList.innerHTML = '';
         if (!Array.isArray(documents) || documents.length === 0) {
           const empty = document.createElement('p');
@@ -1306,7 +1435,14 @@
           });
           item.appendChild(meta);
 
-          if (documentRecord.scan_status === 'clean') {
+          if (documentRecord.review_note && ['correction_requested', 'rejected'].includes(documentRecord.review_status)) {
+            const reason = document.createElement('p');
+            reason.className = 'status-note';
+            reason.textContent = `${t('create.upload.task.reason')}: ${documentRecord.review_note}`;
+            item.appendChild(reason);
+          }
+
+          if (documentRecord.scan_status === 'clean' && documentRecord.review_status === 'pending_human_review') {
             const note = document.createElement('p');
             note.className = 'status-note';
             note.textContent = t('create.upload.meta.cleanReady');

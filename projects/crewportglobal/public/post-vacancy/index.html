@@ -127,6 +127,43 @@
       gap: 10px;
     }
 
+    .document-action-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .document-action-task {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 189, 89, 0.72);
+      background: rgba(255, 189, 89, 0.14);
+    }
+
+    .document-action-task strong {
+      color: var(--text-on-dark);
+      overflow-wrap: anywhere;
+    }
+
+    .document-action-task p {
+      margin: 0;
+      color: var(--muted-on-dark);
+      line-height: 1.5;
+    }
+
+    .document-action-task__meta {
+      display: grid;
+      gap: 4px;
+    }
+
+    .document-action-task__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
     .document-upload-item {
       display: grid;
       gap: 8px;
@@ -513,6 +550,7 @@
                 <button id="post-document-upload-submit" class="button secondary" type="button" data-i18n="post.upload.submit">Upload</button>
               </div>
               <p id="post-document-upload-status" class="status-note" data-i18n="post.upload.status.initial">Save the vacancy request first, then upload PDF, JPG, PNG or WEBP evidence.</p>
+              <div id="post-document-action-list" class="document-action-list" aria-live="polite"></div>
               <div id="post-document-upload-list" class="document-upload-list" aria-live="polite"></div>
             </section>
             <section class="candidate-pipeline" aria-labelledby="post-candidate-pipeline-title">
@@ -646,6 +684,17 @@
         'post.upload.meta.review': 'Review',
         'post.upload.meta.size': 'Size',
         'post.upload.meta.cleanReady': 'Pending human review',
+        'post.upload.task.title': 'Action required: upload corrected document',
+        'post.upload.task.document': 'Document',
+        'post.upload.task.status': 'Status',
+        'post.upload.task.reason': 'Reason',
+        'post.upload.task.uploadReplacement': 'Upload replacement',
+        'post.upload.task.replacementHint': 'Choose a corrected replacement file for {document}.',
+        'post.upload.review.pending_human_review': 'Waiting for team review',
+        'post.upload.review.under_review': 'Under review',
+        'post.upload.review.correction_requested': 'Correction requested',
+        'post.upload.review.rejected': 'Rejected',
+        'post.upload.review.verified': 'Verified',
         'post.form.submit': 'Save Vacancy Request',
         'post.form.status': 'This form saves employer, company, vessel and vacancy request context in backend.',
         'post.form.validation': 'Work email and company name are required.',
@@ -791,6 +840,17 @@
         'post.upload.meta.review': 'Проверка',
         'post.upload.meta.size': 'Размер',
         'post.upload.meta.cleanReady': 'Ожидает ручной проверки',
+        'post.upload.task.title': 'Требуется действие: загрузите исправленный документ',
+        'post.upload.task.document': 'Документ',
+        'post.upload.task.status': 'Статус',
+        'post.upload.task.reason': 'Причина',
+        'post.upload.task.uploadReplacement': 'Загрузить новую версию',
+        'post.upload.task.replacementHint': 'Выберите исправленный файл для документа: {document}.',
+        'post.upload.review.pending_human_review': 'Ожидает проверки команды',
+        'post.upload.review.under_review': 'На проверке',
+        'post.upload.review.correction_requested': 'Требуется исправление',
+        'post.upload.review.rejected': 'Отклонен',
+        'post.upload.review.verified': 'Проверен',
         'post.form.submit': 'Сохранить заявку на вакансию',
         'post.form.status': 'Эта форма сохраняет работодателя, компанию, судно и заявку на вакансию в backend.',
         'post.form.validation': 'Укажите рабочий email и название компании.',
@@ -899,6 +959,7 @@
       const uploadFile = document.getElementById('post-document-upload-file');
       const uploadSubmit = document.getElementById('post-document-upload-submit');
       const uploadStatus = document.getElementById('post-document-upload-status');
+      const documentActionList = document.getElementById('post-document-action-list');
       const uploadList = document.getElementById('post-document-upload-list');
       let currentWorkspaceResponse = null;
 
@@ -1096,7 +1157,75 @@
           : getDraftIdFromUrl();
       }
 
+      function documentTypeLabel(value) {
+        const option = Array.from(uploadType.options).find((item) => item.value === value);
+        return option ? option.textContent.trim() : valueOrDash(value);
+      }
+
+      function reviewStatusLabel(value) {
+        const normalized = typeof value === 'string' ? value.trim() : '';
+        return normalized ? t(`post.upload.review.${normalized}`) : '-';
+      }
+
+      function documentsNeedingAction(documents) {
+        return Array.isArray(documents)
+          ? documents.filter((documentRecord) => (
+            ['correction_requested', 'rejected'].includes(documentRecord.review_status)
+            && typeof documentRecord.review_note === 'string'
+            && documentRecord.review_note.trim() !== ''
+          ))
+          : [];
+      }
+
+      function renderDocumentActionTasks(documents) {
+        documentActionList.innerHTML = '';
+        const tasks = documentsNeedingAction(documents);
+        documentActionList.hidden = tasks.length === 0;
+        tasks.forEach((documentRecord) => {
+          const task = document.createElement('article');
+          task.className = 'document-action-task';
+
+          const title = document.createElement('strong');
+          title.textContent = t('post.upload.task.title');
+          task.appendChild(title);
+
+          const meta = document.createElement('div');
+          meta.className = 'document-action-task__meta';
+          [
+            `${t('post.upload.task.document')}: ${documentTypeLabel(documentRecord.document_type)}`,
+            `${t('post.upload.task.status')}: ${reviewStatusLabel(documentRecord.review_status)}`,
+            `${t('post.upload.task.reason')}: ${documentRecord.review_note.trim()}`
+          ].forEach((text) => {
+            const line = document.createElement('p');
+            line.textContent = text;
+            meta.appendChild(line);
+          });
+          task.appendChild(meta);
+
+          const actions = document.createElement('div');
+          actions.className = 'document-action-task__actions';
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'button primary document-replacement-action';
+          button.textContent = t('post.upload.task.uploadReplacement');
+          button.addEventListener('click', () => {
+            if (documentRecord.document_type) {
+              uploadType.value = documentRecord.document_type;
+            }
+            uploadStatus.textContent = tp('post.upload.task.replacementHint', {
+              document: documentTypeLabel(documentRecord.document_type)
+            });
+            uploadFile.focus();
+          });
+          actions.appendChild(button);
+          task.appendChild(actions);
+
+          documentActionList.appendChild(task);
+        });
+      }
+
       function renderUploadedDocuments(documents) {
+        renderDocumentActionTasks(documents);
         uploadList.innerHTML = '';
         if (!Array.isArray(documents) || documents.length === 0) {
           const empty = document.createElement('p');
@@ -1128,7 +1257,14 @@
           });
           item.appendChild(meta);
 
-          if (documentRecord.scan_status === 'clean') {
+          if (documentRecord.review_note && ['correction_requested', 'rejected'].includes(documentRecord.review_status)) {
+            const reason = document.createElement('p');
+            reason.className = 'status-note';
+            reason.textContent = `${t('post.upload.task.reason')}: ${documentRecord.review_note}`;
+            item.appendChild(reason);
+          }
+
+          if (documentRecord.scan_status === 'clean' && documentRecord.review_status === 'pending_human_review') {
             const note = document.createElement('p');
             note.className = 'status-note';
             note.textContent = t('post.upload.meta.cleanReady');
