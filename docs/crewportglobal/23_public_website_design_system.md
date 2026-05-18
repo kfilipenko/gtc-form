@@ -1,8 +1,8 @@
 # CrewPortGlobal — Public Website Design System
 
 - Document owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.2
-- Status: Active baseline
+- Version: 0.3
+- Status: Historical baseline; superseded for active implementation by document 121
 - Classification: Internal
 - Effective date: 2026-05-10
 - Review date: 2026-06-10
@@ -12,6 +12,12 @@
 This document fixes the current visual and navigational baseline for the public CrewPortGlobal website.
 
 The goal is to keep the site visually coherent with the published Trust Center documents while preserving a clear action hierarchy for shipowners and seafarers.
+
+Active implementation note:
+
+```text
+Document 121 is now the controlling design baseline for the unified responsive CrewPortGlobal theme system across public pages, document pages, user cabinet, team cabinet, admin console and functional application pages.
+```
 
 ## 2. Visual direction
 
@@ -123,5 +129,6 @@ Any major visual redesign should update:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.3 | 2026-05-18 | GTC IT / AI Assistant | Marked document as historical public-site baseline and linked active implementation control to document 121 unified responsive theme system |
 | 0.2 | 2026-05-10 | GitHub Copilot | Homepage aligned to the shared dark Trust Center theme and shared stylesheet baseline |
 | 0.1 | 2026-05-10 | GitHub Copilot | Initial design-system baseline created |
