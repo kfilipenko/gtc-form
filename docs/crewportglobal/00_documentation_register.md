@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.14
+- Version: 1.15
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -212,6 +212,7 @@ docs/crewportglobal/
   122_cpg_design_002_theme_switcher_and_dark_functional_foundation_report.md
   123_cpg_design_003_compact_responsive_workbench_report.md
   124_cpg_cabinet_027_profile_photo_protected_upload_report.md
+  125_cpg_ref_001_seafarer_reference_catalog_foundation_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -365,6 +366,8 @@ Document 123 records the CPG-DESIGN-003 compact responsive workbench implementat
 
 Document 124 records the CPG-CABINET-027 protected profile photo upload implementation, including `user_profile_photos`, authenticated profile photo upload endpoints, 5 MB JPG/PNG/WEBP limits, ClamAV scan before use, protected server storage outside public web root, owner-session image delivery, safe `auth/me` metadata and cabinet/account-menu avatar rendering.
 
+Document 125 records the CPG-REF-001 seafarer reference catalog foundation, including `reference_catalogs`, `reference_catalog_values`, the private Excel `DROPDOWN_LISTS` importer, generated private review artifacts, pending-owner-review publication boundary and the rule that unreviewed catalog values are not exposed through UI/API.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -468,6 +471,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.15 | 2026-05-18 | GTC IT / AI Assistant | Added document 125 as CPG-REF-001 seafarer reference catalog foundation report covering reference_catalogs, reference_catalog_values, private Excel importer, generated review artifacts and publication boundary before UI/API exposure |
 | 1.14 | 2026-05-18 | GTC IT / AI Assistant | Added BP-011 seafarer field dictionary and reference catalog alignment covering private Excel source handling, workbook inventory, cabinet card plan, reference catalogs, future DB/API slices and publication order |
 | 1.13 | 2026-05-18 | GTC IT / AI Assistant | Added document 124 as CPG-CABINET-027 protected profile photo upload report covering user_profile_photos, authenticated avatar upload, ClamAV scan, protected storage, owner-session image delivery, cabinet/account-menu rendering and verification scope |
 | 1.12 | 2026-05-18 | GTC IT / AI Assistant | Added document 123 as CPG-DESIGN-003 compact responsive workbench report covering compact typography, spacing, shared workbench theme switcher, cabinet/team/admin dark mode overrides, mobile overflow prevention and focused verification |

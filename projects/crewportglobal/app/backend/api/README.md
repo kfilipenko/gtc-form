@@ -83,6 +83,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - password credential/session MVP: `POST /api/v1/auth/register-password`, `POST /api/v1/auth/login`, `POST /api/v1/auth/logout` and `GET /api/v1/auth/me` store only `password_hash`, store only hashed session tokens, issue HttpOnly SameSite=Lax cookies, revoke sessions on logout and never return raw passwords, password hashes or raw session tokens
 - email verification MVP: password registration creates a hash-only account e-mail verification token, sends or prepares a verification link through the protected SMTP delivery configuration, exposes `send-verification`, `resend-verification` and `verify` endpoints, updates `email_verified_at` / `email_verification_status`, and shows the cabinet task until the account e-mail is verified
 - protected profile photo MVP: authenticated users can upload JPG/PNG/WEBP profile photos through `POST /api/v1/user/profile-photo`; files are size-limited to 5 MB, scanned before use, stored outside the public web root, exposed only through the owner-session `GET /api/v1/user/profile-photo/image` endpoint and returned as metadata in `auth/me`
+- reference catalog foundation: migration 011 creates `reference_catalogs` and `reference_catalog_values`; `scripts/import_seafarer_reference_catalogs.py` reads the private seafarer Excel `DROPDOWN_LISTS` sheet and generates owner-review artifacts outside Git without publishing values through the API
 
 ## Access-control Phase 2 status
 
