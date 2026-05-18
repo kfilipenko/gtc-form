@@ -182,7 +182,7 @@ test('cabinet lets seafarer upload corrected replacement and returns document to
   await expect(page.locator('#cabinet-summary-role')).toContainText('Seafarer');
   await page.locator('#cabinet-user-card > summary').click();
   await expect(page.locator('#cabinet-user-summary')).toContainText('Cabinet Seafarer');
-  await expect(page.locator('#cabinet-user-summary')).toContainText('Profile photo placeholder added');
+  await expect(page.locator('#cabinet-user-summary')).toContainText('No profile photo uploaded yet');
   await expect(page.locator('#cabinet-summary-tasks')).toHaveText('1');
   await expect(page.locator('#cabinet-task-list')).toContainText('Action required: upload corrected document');
   await expect(page.locator('#cabinet-task-list')).toContainText(note);

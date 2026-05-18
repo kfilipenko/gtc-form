@@ -44,6 +44,8 @@ export default defineConfig({
       'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/008_create_user_credentials_sessions.sql',
       '&& PGHOST=${PGHOST:-127.0.0.1} PGUSER=${PGUSER:-gtc_user} PGPASSWORD=${PGPASSWORD:-gtc_pass} PGDATABASE=${PGDATABASE:-gtc_db}',
       'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/009_create_email_verification_tokens.sql',
+      '&& PGHOST=${PGHOST:-127.0.0.1} PGUSER=${PGUSER:-gtc_user} PGPASSWORD=${PGPASSWORD:-gtc_pass} PGDATABASE=${PGDATABASE:-gtc_db}',
+      'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/010_create_user_profile_photos.sql',
       '&& export CREWPORTGLOBAL_ENV="${CREWPORTGLOBAL_ENV:-test}"',
       '&& export CREWPORTGLOBAL_REGISTRATION_EMAIL_ENABLED="${CREWPORTGLOBAL_REGISTRATION_EMAIL_ENABLED:-true}"',
       '&& export CREWPORTGLOBAL_REGISTRATION_EMAIL_DELIVERY_MODE="${CREWPORTGLOBAL_REGISTRATION_EMAIL_DELIVERY_MODE:-capture}"',

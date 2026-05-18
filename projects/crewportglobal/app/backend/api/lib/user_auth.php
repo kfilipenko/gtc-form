@@ -86,6 +86,10 @@ function cpg_auth_public_user_payload(array $row, ?string $role = null): array {
         ? (string) $row['email_verification_status']
         : ($emailVerifiedAt !== null ? 'verified' : 'unverified');
     $emailVerified = $emailVerifiedAt !== null || $emailVerificationStatus === 'verified';
+    $profilePhoto = null;
+    if (isset($row['user_id']) && function_exists('cpg_profile_photo_public_current')) {
+        $profilePhoto = cpg_profile_photo_public_current((string) $row['user_id']);
+    }
 
     return [
         'user_id' => (string) $row['user_id'],
@@ -97,6 +101,7 @@ function cpg_auth_public_user_payload(array $row, ?string $role = null): array {
         'email_verified_at' => $emailVerifiedAt,
         'email_verification_status' => $emailVerified ? 'verified' : $emailVerificationStatus,
         'account_activation_status' => $emailVerified ? 'active' : 'pending_email_verification',
+        'profile_photo' => $profilePhoto,
     ];
 }
 

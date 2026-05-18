@@ -12,6 +12,7 @@ require_once __DIR__ . '/../lib/identity_context.php';
 require_once __DIR__ . '/../lib/registration_person_flow.php';
 require_once __DIR__ . '/../lib/user_auth.php';
 require_once __DIR__ . '/../lib/user_email_verification.php';
+require_once __DIR__ . '/../lib/user_profile_photos.php';
 
 const REG_DRAFT_STATUSES = ['draft', 'submitted_for_human_review'];
 const ADMIN_ACCESS_PUBLIC_ROUTES_ENV = 'CREWPORTGLOBAL_ADMIN_ACCESS_PUBLIC_ROUTES_ENABLED';
@@ -1771,6 +1772,9 @@ function build_draft_response(string $userId): array {
         'account_activation_status' => ($userRow['email_verified_at'] !== null || (string) $userRow['email_verification_status'] === 'verified')
             ? 'active'
             : 'pending_email_verification',
+        'profile_photo' => function_exists('cpg_profile_photo_public_current')
+            ? cpg_profile_photo_public_current($userId)
+            : null,
         'status' => in_array($userRow['registration_status'], REG_DRAFT_STATUSES, true)
             ? $userRow['registration_status']
             : 'draft',
@@ -3561,6 +3565,25 @@ if ($path === '/auth/email/verify') {
 if ($path === '/auth/me') {
     if ($method === 'GET') {
         handle_get_auth_me();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if ($path === '/user/profile-photo') {
+    if ($method === 'GET') {
+        cpg_handle_get_user_profile_photo();
+    }
+    if ($method === 'POST') {
+        cpg_handle_post_user_profile_photo();
+    }
+    header('Allow: GET, POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET, POST');
+}
+
+if ($path === '/user/profile-photo/image') {
+    if ($method === 'GET') {
+        cpg_handle_get_user_profile_photo_image();
     }
     header('Allow: GET');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');

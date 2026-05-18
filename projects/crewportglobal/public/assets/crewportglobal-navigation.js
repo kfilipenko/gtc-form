@@ -272,6 +272,15 @@
     ].join('\n');
   }
 
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function bindThemeSwitcher(root) {
     root.querySelectorAll('[data-cpg-theme-mode]').forEach((button) => {
       button.addEventListener('click', () => {
@@ -311,6 +320,24 @@
       .slice(0, 2)
       .map((part) => part.charAt(0).toUpperCase())
       .join('') || 'CPG';
+  }
+
+  function accountProfilePhotoUrl(user) {
+    if (!user || typeof user !== 'object' || !user.profile_photo || typeof user.profile_photo !== 'object') {
+      return '';
+    }
+
+    const imageUrl = typeof user.profile_photo.image_url === 'string' ? user.profile_photo.image_url.trim() : '';
+    return imageUrl.startsWith('/api/v1/user/profile-photo/image') ? imageUrl : '';
+  }
+
+  function accountAvatarMarkup(user) {
+    const imageUrl = accountProfilePhotoUrl(user);
+    if (imageUrl) {
+      return `<span class="cpg-account__avatar has-image" aria-hidden="true"><img src="${escapeHtml(imageUrl)}" alt=""></span>`;
+    }
+
+    return `<span class="cpg-account__avatar" aria-hidden="true">${escapeHtml(accountInitials(user))}</span>`;
   }
 
   function persistAuthDraft(draft) {
@@ -373,8 +400,8 @@
     return [
       '<details class="cpg-account is-authenticated" data-cpg-account-menu>',
       '  <summary class="cpg-account__summary">',
-      `    <span class="cpg-account__avatar" aria-hidden="true">${accountInitials(user)}</span>`,
-      `    <span class="cpg-account__label">${display}</span>`,
+      `    ${accountAvatarMarkup(user)}`,
+      `    <span class="cpg-account__label">${escapeHtml(display)}</span>`,
       `    <span class="cpg-account__email-status${verificationClass}">${verificationLabel}</span>`,
       '    <span class="cpg-account__chevron" aria-hidden="true">▾</span>',
       '  </summary>',
@@ -671,6 +698,7 @@
   renderHeaderAccountAreas();
   fetchAccountState().then(renderAllAccountAreas);
   window.addEventListener('crewportglobal:authchanged', () => fetchAccountState().then(renderAllAccountAreas));
+  window.addEventListener('crewportglobal:profilephotochanged', () => fetchAccountState().then(renderAllAccountAreas));
   window.addEventListener('crewportglobal:languagechange', () => {
     renderAllThemeSwitchers();
     renderAllAccountAreas();

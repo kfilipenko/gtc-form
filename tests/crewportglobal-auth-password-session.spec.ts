@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { execSync } from 'node:child_process';
+import fs from 'node:fs';
 
 function runSql(sql: string): string {
   return execSync(
@@ -10,10 +11,27 @@ function runSql(sql: string): string {
 
 function cleanupAuthUser(email: string): void {
   const safeEmail = email.replace(/'/g, "''");
+  const photoPaths = runSql(`
+SELECT storage_root || '/' || storage_path
+FROM crewportglobal.user_profile_photos p
+JOIN crewportglobal.users u ON u.user_id = p.user_id
+WHERE lower(u.email) = lower('${safeEmail}');
+`);
+  for (const filePath of photoPaths.split('\n').map((item) => item.trim()).filter(Boolean)) {
+    fs.rmSync(filePath, { force: true });
+  }
+
   runSql(`
 DELETE FROM crewportglobal.users
 WHERE lower(email) = lower('${safeEmail}');
-`);
+	`);
+}
+
+function tinyPngBuffer(): Buffer {
+  return Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=',
+    'base64'
+  );
 }
 
 function readCredentialHash(email: string): string {
@@ -94,8 +112,34 @@ test('password registration, login session, account menu and cabinet access work
   });
   expect(me.authenticated).toBe(true);
   expect(me.user.email).toBe(email);
+  expect(me.user.profile_photo).toBeNull();
   expect(JSON.stringify(me)).not.toContain('password_hash');
   expect(JSON.stringify(me)).not.toContain('cpg_user_session');
+
+  const profilePhotoResponse = await request.post('/api/v1/user/profile-photo', {
+    multipart: {
+      file: {
+        name: 'profile-photo.png',
+        mimeType: 'image/png',
+        buffer: tinyPngBuffer(),
+      },
+    },
+  });
+  expect(profilePhotoResponse.status()).toBe(201);
+  const profilePhotoBody = await profilePhotoResponse.json();
+  expect(profilePhotoBody.profile_photo.image_url).toContain('/api/v1/user/profile-photo/image');
+  expect(JSON.stringify(profilePhotoBody)).not.toContain('storage_path');
+  expect(JSON.stringify(profilePhotoBody)).not.toContain('storage_root');
+
+  const imageResponse = await request.get('/api/v1/user/profile-photo/image');
+  expect(imageResponse.status()).toBe(200);
+  expect(imageResponse.headers()['content-type']).toContain('image/png');
+
+  const meWithPhotoResponse = await request.get('/api/v1/auth/me');
+  expect(meWithPhotoResponse.status()).toBe(200);
+  const meWithPhoto = await meWithPhotoResponse.json();
+  expect(meWithPhoto.user.profile_photo.image_url).toContain('/api/v1/user/profile-photo/image');
+  expect(JSON.stringify(meWithPhoto)).not.toContain('storage_path');
 
   await page.goto('/cabinet/');
   await expect(page.locator('#cabinet-summary-user')).toHaveText(email);
@@ -152,6 +196,21 @@ test('register page creates password credential session and opens cabinet', asyn
     await expect(page).toHaveURL(/\/cabinet\/$/);
     await expect(page.locator('#cabinet-summary-user')).toHaveText(email);
     await expect(page.locator('#cabinet-user-summary')).toContainText('Register Page User');
+
+    await page.locator('#cabinet-user-card').evaluate((element) => {
+      (element as HTMLDetailsElement).open = true;
+    });
+    await expect(page.locator('#cabinet-user-summary')).toContainText('No profile photo uploaded yet');
+    await page.locator('#cabinet-user-summary input[type="file"]').setInputFiles({
+      name: 'register-page-user.png',
+      mimeType: 'image/png',
+      buffer: tinyPngBuffer(),
+    });
+    await page.locator('#cabinet-user-summary').getByRole('button', { name: 'Upload profile photo' }).click();
+    await expect(page.locator('#cabinet-user-summary')).toContainText('Profile photo uploaded');
+    await expect(page.locator('#cabinet-user-summary')).toContainText('Protected profile photo uploaded');
+    await expect(page.locator('#cabinet-user-summary .profile-avatar img')).toBeVisible();
+    await expect(page.locator('.cabinet-header .cpg-account__avatar img')).toBeVisible();
   } finally {
     cleanupAuthUser(email);
   }

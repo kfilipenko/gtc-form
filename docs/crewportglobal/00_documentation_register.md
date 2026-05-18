@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.12
+- Version: 1.13
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -211,6 +211,7 @@ docs/crewportglobal/
   121_cpg_design_001_unified_responsive_theme_system.md
   122_cpg_design_002_theme_switcher_and_dark_functional_foundation_report.md
   123_cpg_design_003_compact_responsive_workbench_report.md
+  124_cpg_cabinet_027_profile_photo_protected_upload_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -359,6 +360,8 @@ Document 122 records the CPG-DESIGN-002 first implementation slice for the unifi
 
 Document 123 records the CPG-DESIGN-003 compact responsive workbench implementation slice, including compact typography and spacing, no-negative-letter-spacing correction, shared theme switcher on cabinet/team/admin workbench pages, Dark Maritime overrides for cabinet/admin/team, mobile overflow prevention and focused Playwright verification.
 
+Document 124 records the CPG-CABINET-027 protected profile photo upload implementation, including `user_profile_photos`, authenticated profile photo upload endpoints, 5 MB JPG/PNG/WEBP limits, ClamAV scan before use, protected server storage outside public web root, owner-session image delivery, safe `auth/me` metadata and cabinet/account-menu avatar rendering.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -462,6 +465,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.13 | 2026-05-18 | GTC IT / AI Assistant | Added document 124 as CPG-CABINET-027 protected profile photo upload report covering user_profile_photos, authenticated avatar upload, ClamAV scan, protected storage, owner-session image delivery, cabinet/account-menu rendering and verification scope |
 | 1.12 | 2026-05-18 | GTC IT / AI Assistant | Added document 123 as CPG-DESIGN-003 compact responsive workbench report covering compact typography, spacing, shared workbench theme switcher, cabinet/team/admin dark mode overrides, mobile overflow prevention and focused verification |
 | 1.11 | 2026-05-18 | GTC IT / AI Assistant | Added document 122 as CPG-DESIGN-002 theme switcher and dark functional foundation report covering the shared theme switcher, Dark Maritime / Light Work / Auto modes, local preference persistence, app/document theme tokens, navigation layering fix and focused verification |
 | 1.10 | 2026-05-18 | GTC IT / AI Assistant | Added document 121 as CPG-DESIGN-001 unified responsive theme system covering Dark Maritime and Light Work themes, compact typography, responsive behavior, shared component standards and implementation phases across public, document, cabinet, team and admin pages |
