@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { execSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -141,6 +141,112 @@ function readLatestOperatorAuditForDraft(draftId: string): {
     role: role || '',
     reviewNote: reviewNote || '',
   };
+}
+
+function readLatestDocumentAudit(documentId: string, eventType: string): Record<string, string> {
+  const safeDocumentId = documentId.replace(/'/g, "''");
+  const safeEventType = eventType.replace(/'/g, "''");
+  const sql = [
+    "SELECT source,",
+    "       event_payload->>'document_id',",
+    "       event_payload->>'draft_id',",
+    "       event_payload->>'form_type',",
+    "       event_payload->>'document_type',",
+    "       event_payload->>'previous_review_status',",
+    "       event_payload->>'new_review_status',",
+    "       event_payload->>'decision',",
+    "       COALESCE(event_payload->>'review_note', ''),",
+    "       event_payload->>'scan_status'",
+    "FROM crewportglobal.registration_audit_events",
+    `WHERE event_type = '${safeEventType}'`,
+    `  AND event_payload->>'document_id' = '${safeDocumentId}'`,
+    'ORDER BY created_at DESC',
+    'LIMIT 1;',
+  ].join(' ');
+
+  const output = execSync(
+    `PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -qAt -F '|' -c \"${sql}\"`,
+    { encoding: 'utf8' }
+  ).trim();
+
+  const [
+    source,
+    auditDocumentId,
+    draftId,
+    formType,
+    documentType,
+    previousReviewStatus,
+    newReviewStatus,
+    decision,
+    reviewNote,
+    scanStatus,
+  ] = output.split('|');
+
+  return {
+    source: source || '',
+    documentId: auditDocumentId || '',
+    draftId: draftId || '',
+    formType: formType || '',
+    documentType: documentType || '',
+    previousReviewStatus: previousReviewStatus || '',
+    newReviewStatus: newReviewStatus || '',
+    decision: decision || '',
+    reviewNote: reviewNote || '',
+    scanStatus: scanStatus || '',
+  };
+}
+
+function insertBlockedUploadedDocument(draftId: string, documentId: string): void {
+  const safeDraftId = draftId.replace(/'/g, "''");
+  const safeDocumentId = documentId.replace(/'/g, "''");
+  const sql = `
+INSERT INTO crewportglobal.uploaded_documents (
+  document_id,
+  person_id,
+  user_id,
+  draft_id,
+  form_type,
+  document_type,
+  original_filename,
+  stored_filename,
+  storage_root,
+  storage_path,
+  safe_extension,
+  mime_type,
+  file_size_bytes,
+  sha256_hash,
+  upload_state,
+  review_status,
+  scan_status,
+  scan_checked_at,
+  uploaded_by_user_id
+) VALUES (
+  '${safeDocumentId}'::uuid,
+  '${safeDraftId}'::uuid,
+  '${safeDraftId}'::uuid,
+  '${safeDraftId}'::uuid,
+  'seafarer',
+  'passport_or_id',
+  'eicar.pdf',
+  '${safeDocumentId}.pdf',
+  '/srv/crewportglobal/storage/documents',
+  '_quarantine/seafarer/drafts/${safeDraftId}/${safeDocumentId}.pdf',
+  'pdf',
+  'application/pdf',
+  68,
+  '${createHash('sha256').update('blocked-eicar-placeholder').digest('hex')}',
+  'scan_failed',
+  'rejected',
+  'infected',
+  now(),
+  '${safeDraftId}'::uuid
+);
+`;
+
+  execSync(
+    'PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -v ON_ERROR_STOP=1 -q',
+    { input: sql, encoding: 'utf8' }
+  );
 }
 
 function cleanupApiTestData(): void {
@@ -509,6 +615,155 @@ test('document upload validation rejects invalid inputs and EICAR is blocked', a
   expect(eicarResponse.status()).toBe(400);
   const blocked = await eicarResponse.json();
   expect(blocked.error).toBe('malware_detected');
+});
+
+test('operator document review queue download and decisions work for clean files', async ({ request }) => {
+  const unique = Date.now();
+  const email = `api.document.review.${unique}@example.com`;
+  const fileBuffer = minimalPdfBuffer('Clean document review queue test.');
+
+  const createResponse = await request.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'API Document Review Seafarer',
+      rank: 'Chief Engineer',
+      department: 'engine',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = (await createResponse.json()) as DraftResponse;
+
+  const uploadResponse = await request.post(`/registration/drafts/${created.draft_id}/documents`, {
+    multipart: {
+      form_type: 'seafarer',
+      document_type: 'passport_or_id',
+      file: {
+        name: 'review-passport.pdf',
+        mimeType: 'application/pdf',
+        buffer: fileBuffer,
+      },
+    },
+  });
+  expect(uploadResponse.status()).toBe(201);
+  const uploaded = await uploadResponse.json();
+  const documentId = uploaded.document.document_id as string;
+
+  const queueResponse = await request.get('/operator/document-review-queue');
+  expect(queueResponse.status()).toBe(200);
+  const queueBody = (await queueResponse.json()) as {
+    ok: boolean;
+    queue: Array<Record<string, unknown>>;
+  };
+  expect(queueBody.ok).toBe(true);
+  const queueItem = queueBody.queue.find((item) => item.document_id === documentId);
+  expect(queueItem).toBeTruthy();
+  expect(queueItem?.scan_status).toBe('clean');
+  expect(queueItem?.review_status).toBe('pending_human_review');
+  expect(queueItem?.storage_path).toBeUndefined();
+
+  const downloadResponse = await request.get(`/operator/documents/${documentId}/download`);
+  expect(downloadResponse.status()).toBe(200);
+  expect(downloadResponse.headers()['content-disposition']).toContain('review-passport.pdf');
+  const downloadedBody = await downloadResponse.body();
+  expect(sha256(downloadedBody)).toBe(sha256(fileBuffer));
+
+  const viewAudit = readLatestDocumentAudit(documentId, 'document_viewed');
+  expect(viewAudit.source).toBe('operator_document_review');
+  expect(viewAudit.documentId).toBe(documentId);
+  expect(viewAudit.decision).toBe('download');
+  expect(viewAudit.scanStatus).toBe('clean');
+
+  const startReview = await request.patch(`/operator/documents/${documentId}/review`, {
+    data: {
+      decision: 'start_review',
+    },
+  });
+  expect(startReview.status()).toBe(200);
+  const startBody = await startReview.json();
+  expect(startBody.document.review_status).toBe('under_review');
+  expect(startBody.previous_review_status).toBe('pending_human_review');
+  expect(startBody.new_review_status).toBe('under_review');
+
+  const needsCorrectionWithoutNote = await request.patch(`/operator/documents/${documentId}/review`, {
+    data: {
+      decision: 'needs_correction',
+    },
+  });
+  expect(needsCorrectionWithoutNote.status()).toBe(400);
+  expect((await needsCorrectionWithoutNote.json()).error).toBe('review_note_required');
+
+  const note = 'Passport scan is readable, but the expiry page must be uploaded separately.';
+  const needsCorrection = await request.patch(`/operator/documents/${documentId}/review`, {
+    data: {
+      decision: 'needs_correction',
+      review_note: note,
+    },
+  });
+  expect(needsCorrection.status()).toBe(200);
+  const correctionBody = await needsCorrection.json();
+  expect(correctionBody.document.review_status).toBe('correction_requested');
+  expect(correctionBody.document.review_note).toBe(note);
+  expect(correctionBody.previous_review_status).toBe('under_review');
+  expect(correctionBody.new_review_status).toBe('correction_requested');
+
+  const decisionAudit = readLatestDocumentAudit(documentId, 'document_review_decision_recorded');
+  expect(decisionAudit.source).toBe('operator_document_review');
+  expect(decisionAudit.documentId).toBe(documentId);
+  expect(decisionAudit.draftId).toBe(created.draft_id);
+  expect(decisionAudit.formType).toBe('seafarer');
+  expect(decisionAudit.documentType).toBe('passport_or_id');
+  expect(decisionAudit.previousReviewStatus).toBe('under_review');
+  expect(decisionAudit.newReviewStatus).toBe('correction_requested');
+  expect(decisionAudit.decision).toBe('needs_correction');
+  expect(decisionAudit.reviewNote).toBe(note);
+  expect(decisionAudit.scanStatus).toBe('clean');
+
+  const listResponse = await request.get(`/registration/drafts/${created.draft_id}/documents?form_type=seafarer`);
+  expect(listResponse.status()).toBe(200);
+  const listed = await listResponse.json();
+  const listedDocument = listed.documents.find((item: Record<string, unknown>) => item.document_id === documentId);
+  expect(listedDocument.review_status).toBe('correction_requested');
+  expect(listedDocument.review_note).toBe(note);
+});
+
+test('operator document review rejects infected documents from queue, download and review', async ({ request }) => {
+  const unique = Date.now();
+  const email = `api.document.blocked.${unique}@example.com`;
+  const documentId = randomUUID();
+
+  const createResponse = await request.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'API Blocked Document Seafarer',
+      rank: 'Second Officer',
+      department: 'deck',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = (await createResponse.json()) as DraftResponse;
+
+  insertBlockedUploadedDocument(created.draft_id, documentId);
+
+  const queueResponse = await request.get('/operator/document-review-queue');
+  expect(queueResponse.status()).toBe(200);
+  const queueBody = (await queueResponse.json()) as {
+    queue: Array<Record<string, unknown>>;
+  };
+  expect(queueBody.queue.some((item) => item.document_id === documentId)).toBe(false);
+
+  const downloadResponse = await request.get(`/operator/documents/${documentId}/download`);
+  expect(downloadResponse.status()).toBe(403);
+  expect((await downloadResponse.json()).error).toBe('document_not_clean');
+
+  const reviewResponse = await request.patch(`/operator/documents/${documentId}/review`, {
+    data: {
+      decision: 'start_review',
+    },
+  });
+  expect(reviewResponse.status()).toBe(403);
+  expect((await reviewResponse.json()).error).toBe('document_not_clean');
 });
 
 test('shipowner flow normalizes IMO and updates vessel context', async ({ request }) => {

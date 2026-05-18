@@ -76,6 +76,41 @@ function require_operator_access(): void {
     }
 }
 
+function require_operator_or_team_access(): array {
+    $expected = operator_access_token();
+    $provided = request_operator_token();
+    if ($expected !== null && $provided !== null && hash_equals($expected, $provided)) {
+        return [
+            'access_model' => 'temporary_operator_token',
+            'actor_label' => 'operator_document_review_queue',
+            'actor_user_id' => null,
+        ];
+    }
+
+    $adminToken = admin_access_session_token();
+    if ($adminToken !== null) {
+        admin_access_load_runtime_env();
+        if (admin_access_public_flow_enabled()) {
+            $storage = admin_access_storage_or_response();
+            $session = $storage->findActiveAdminSession($adminToken, cpg_admin_now());
+            if (is_array($session) && cpg_admin_access_user_can_view_team_links($session)) {
+                return [
+                    'access_model' => 'team_admin_session',
+                    'actor_label' => (string) ($session['email'] ?? 'team_session'),
+                    'actor_user_id' => (string) ($session['user_id'] ?? ''),
+                    'groups' => $session['groups'] ?? [],
+                ];
+            }
+        }
+    }
+
+    if ($expected === null && $adminToken === null) {
+        api_error(403, 'operator_access_not_configured', 'Operator access token is not configured');
+    }
+
+    api_error(401, 'operator_or_team_access_required', 'Operator or approved team access is required');
+}
+
 function operator_queue_access_contract(string $queueType): ?array {
     $identity = cpg_identity_temporary_operator_token('operator_review_queue');
     return cpg_access_operator_queue_capabilities($queueType, null, true, cpg_identity_permission_mode($identity));
@@ -2106,6 +2141,297 @@ function handle_get_operator_review_queue(): void {
     ]);
 }
 
+function read_operator_document_review_queue(): array {
+    $result = api_query(
+        "SELECT
+            ud.document_id::text AS document_id,
+            ud.draft_id::text AS draft_id,
+            ud.form_type,
+            ud.document_type,
+            ud.original_filename,
+            ud.file_size_bytes,
+            ud.scan_status,
+            ud.review_status,
+            ud.uploaded_at::text AS uploaded_at,
+            lower(u.email) AS email,
+            u.display_name
+         FROM crewportglobal.uploaded_documents ud
+         LEFT JOIN crewportglobal.users u ON u.user_id = ud.draft_id
+         WHERE ud.scan_status = 'clean'
+           AND ud.review_status IN ('pending_human_review', 'under_review', 'correction_requested')
+           AND ud.hidden_from_user_at IS NULL
+           AND ud.upload_state = 'stored_protected'
+         ORDER BY ud.uploaded_at DESC
+         LIMIT 300"
+    );
+
+    $items = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $items[] = [
+            'document_id' => $row['document_id'],
+            'draft_id' => $row['draft_id'],
+            'form_type' => $row['form_type'],
+            'document_type' => $row['document_type'],
+            'original_filename' => $row['original_filename'],
+            'file_size_bytes' => (int) $row['file_size_bytes'],
+            'scan_status' => $row['scan_status'],
+            'review_status' => $row['review_status'],
+            'uploaded_at' => $row['uploaded_at'],
+            'user' => [
+                'email' => $row['email'],
+                'display_name' => $row['display_name'],
+            ],
+        ];
+    }
+
+    return $items;
+}
+
+function handle_get_operator_document_review_queue(array $access): void {
+    $queue = read_operator_document_review_queue();
+    api_json(200, [
+        'ok' => true,
+        'queue' => $queue,
+        'count' => count($queue),
+        'access_model' => $access['access_model'] ?? 'operator_or_team',
+        'generated_at' => gmdate('c'),
+    ]);
+}
+
+function read_uploaded_document_private_row(string $documentId): ?array {
+    $result = api_query(
+        "SELECT
+            ud.document_id::text AS document_id,
+            ud.draft_id::text AS draft_id,
+            ud.form_type,
+            ud.document_type,
+            ud.original_filename,
+            ud.stored_filename,
+            ud.storage_root,
+            ud.storage_path,
+            ud.mime_type,
+            ud.file_size_bytes,
+            ud.scan_status,
+            ud.review_status,
+            ud.review_note,
+            ud.upload_state,
+            ud.uploaded_at::text AS uploaded_at,
+            lower(u.email) AS email,
+            u.display_name
+         FROM crewportglobal.uploaded_documents ud
+         LEFT JOIN crewportglobal.users u ON u.user_id = ud.draft_id
+         WHERE ud.document_id = $1::uuid
+         LIMIT 1",
+        [$documentId]
+    );
+    $row = pg_fetch_assoc($result);
+
+    return is_array($row) ? $row : null;
+}
+
+function ensure_document_clean_for_operator(array $document): void {
+    if (($document['scan_status'] ?? '') !== 'clean') {
+        api_error(403, 'document_not_clean', 'Only clean scanned documents can be opened for review');
+    }
+    if (($document['upload_state'] ?? '') !== 'stored_protected') {
+        api_error(403, 'document_not_available', 'Document is not available from protected storage');
+    }
+}
+
+function document_review_audit_payload(array $document, array $extra = []): array {
+    $payload = array_merge([
+        'document_id' => $document['document_id'],
+        'draft_id' => $document['draft_id'],
+        'form_type' => $document['form_type'],
+        'document_type' => $document['document_type'],
+        'scan_status' => $document['scan_status'],
+    ], $extra);
+    if (($payload['review_note'] ?? null) === null) {
+        unset($payload['review_note']);
+    }
+
+    return $payload;
+}
+
+function write_document_review_audit(string $eventType, array $document, array $payload): void {
+    write_audit_event(
+        $eventType,
+        (string) $document['draft_id'],
+        null,
+        null,
+        $payload,
+        'operator_document_review'
+    );
+}
+
+function safe_download_filename(string $originalFilename, string $documentId): string {
+    $filename = cpg_document_clean_original_filename($originalFilename);
+    if ($filename === 'uploaded-document') {
+        return $documentId . '.bin';
+    }
+
+    return $filename;
+}
+
+function handle_get_operator_document_download(string $documentId, array $access): void {
+    $uuid = api_normalize_uuid($documentId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_document_id', 'document_id must be a valid UUID');
+    }
+
+    $document = read_uploaded_document_private_row($uuid);
+    if ($document === null) {
+        api_error(404, 'document_not_found', 'Uploaded document was not found');
+    }
+
+    ensure_document_clean_for_operator($document);
+
+    $storageRoot = rtrim((string) $document['storage_root'], '/');
+    $storagePath = ltrim((string) $document['storage_path'], '/');
+    $rootPath = realpath($storageRoot);
+    $filePath = realpath($storageRoot . '/' . $storagePath);
+    if ($rootPath === false || $filePath === false || !str_starts_with($filePath, $rootPath . DIRECTORY_SEPARATOR) || !is_file($filePath)) {
+        api_error(404, 'document_file_not_found', 'Protected document file was not found');
+    }
+
+    write_document_review_audit('document_viewed', $document, document_review_audit_payload($document, [
+        'previous_review_status' => $document['review_status'],
+        'new_review_status' => $document['review_status'],
+        'decision' => 'download',
+        'access_model' => $access['access_model'] ?? null,
+    ]));
+
+    $downloadName = safe_download_filename((string) $document['original_filename'], $uuid);
+    $quotedName = addcslashes($downloadName, "\\\"");
+    header('Content-Type: ' . (string) $document['mime_type']);
+    header('Content-Length: ' . (string) filesize($filePath));
+    header('Content-Disposition: attachment; filename="' . $quotedName . '"; filename*=UTF-8\'\'' . rawurlencode($downloadName));
+    header('X-Content-Type-Options: nosniff');
+    header('Cache-Control: no-store, private');
+    readfile($filePath);
+    exit;
+}
+
+function normalize_document_review_decision(mixed $value): ?string {
+    if (!is_string($value)) {
+        return null;
+    }
+
+    $decision = trim(strtolower($value));
+    return in_array($decision, ['start_review', 'accept', 'needs_correction', 'reject'], true) ? $decision : null;
+}
+
+function document_review_status_for_decision(string $decision): string {
+    return match ($decision) {
+        'start_review' => 'under_review',
+        'accept' => 'verified',
+        'needs_correction' => 'correction_requested',
+        'reject' => 'rejected',
+    };
+}
+
+function handle_patch_operator_document_review(string $documentId, array $access): void {
+    $uuid = api_normalize_uuid($documentId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_document_id', 'document_id must be a valid UUID');
+    }
+
+    $body = api_decode_json_body();
+    $decision = normalize_document_review_decision($body['decision'] ?? $body['action'] ?? null);
+    if ($decision === null) {
+        api_error(400, 'invalid_decision', 'decision must be one of start_review, accept, needs_correction, reject');
+    }
+
+    $reviewNote = normalize_operator_review_note($body['note'] ?? $body['review_note'] ?? null);
+    if (($decision === 'needs_correction' || $decision === 'reject') && $reviewNote === null) {
+        api_error(400, 'review_note_required', 'review_note is required for needs_correction and reject');
+    }
+
+    api_tx_begin();
+    try {
+        $document = read_uploaded_document_private_row($uuid);
+        if ($document === null) {
+            api_tx_rollback();
+            api_error(404, 'document_not_found', 'Uploaded document was not found');
+        }
+        if (($document['scan_status'] ?? '') !== 'clean') {
+            api_tx_rollback();
+            api_error(403, 'document_not_clean', 'Only clean scanned documents can be reviewed');
+        }
+        if (($document['upload_state'] ?? '') !== 'stored_protected') {
+            api_tx_rollback();
+            api_error(403, 'document_not_available', 'Document is not available from protected storage');
+        }
+
+        $previousStatus = (string) $document['review_status'];
+        $newStatus = document_review_status_for_decision($decision);
+        $effectiveNote = $reviewNote;
+
+        $result = api_query(
+            'UPDATE crewportglobal.uploaded_documents
+             SET review_status = $2,
+                 review_note = CASE WHEN $3::text IS NULL THEN review_note ELSE $3 END,
+                 reviewed_by_user_id = CASE WHEN $4::uuid IS NULL THEN reviewed_by_user_id ELSE $4::uuid END,
+                 reviewed_at = now(),
+                 updated_at = now()
+             WHERE document_id = $1::uuid
+             RETURNING document_id::text AS document_id,
+                       draft_id::text AS draft_id,
+                       form_type,
+                       document_type,
+                       original_filename,
+                       file_size_bytes,
+                       scan_status,
+                       review_status,
+                       review_note,
+                       uploaded_at::text AS uploaded_at',
+            [
+                $uuid,
+                $newStatus,
+                $effectiveNote,
+                api_normalize_uuid((string) ($access['actor_user_id'] ?? '')),
+            ]
+        );
+        $updated = pg_fetch_assoc($result);
+        if (!is_array($updated)) {
+            api_tx_rollback();
+            api_error(500, 'document_review_update_failed', 'Unable to update document review status');
+        }
+
+        write_document_review_audit('document_review_decision_recorded', $document, document_review_audit_payload($document, [
+            'previous_review_status' => $previousStatus,
+            'new_review_status' => $newStatus,
+            'decision' => $decision,
+            'review_note' => $reviewNote,
+            'access_model' => $access['access_model'] ?? null,
+        ]));
+
+        api_tx_commit();
+        api_json(200, [
+            'ok' => true,
+            'document' => [
+                'document_id' => $updated['document_id'],
+                'draft_id' => $updated['draft_id'],
+                'form_type' => $updated['form_type'],
+                'document_type' => $updated['document_type'],
+                'original_filename' => $updated['original_filename'],
+                'file_size_bytes' => (int) $updated['file_size_bytes'],
+                'scan_status' => $updated['scan_status'],
+                'review_status' => $updated['review_status'],
+                'review_note' => $updated['review_note'],
+                'uploaded_at' => $updated['uploaded_at'],
+            ],
+            'decision' => $decision,
+            'previous_review_status' => $previousStatus,
+            'new_review_status' => $newStatus,
+            'generated_at' => gmdate('c'),
+        ]);
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'document_review_update_failed', $error->getMessage());
+    }
+}
+
 function normalize_operator_decision(mixed $value): ?string {
     if (!is_string($value)) {
         return null;
@@ -2961,6 +3287,29 @@ if (preg_match('#^/registration/drafts/([^/]+)/documents$#', $path, $matches) ==
 if ($method === 'GET' && $path === '/operator/review-queue') {
     require_operator_access();
     handle_get_operator_review_queue();
+}
+
+if ($method === 'GET' && $path === '/operator/document-review-queue') {
+    $access = require_operator_or_team_access();
+    handle_get_operator_document_review_queue($access);
+}
+
+if (preg_match('#^/operator/documents/([^/]+)/download$#', $path, $matches) === 1) {
+    if ($method === 'GET') {
+        $access = require_operator_or_team_access();
+        handle_get_operator_document_download($matches[1], $access);
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if (preg_match('#^/operator/documents/([^/]+)/review$#', $path, $matches) === 1) {
+    if ($method === 'PATCH') {
+        $access = require_operator_or_team_access();
+        handle_patch_operator_document_review($matches[1], $access);
+    }
+    header('Allow: PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
 }
 
 if (preg_match('#^/operator/review-queue/vacancy-applications/([^/]+)$#', $path, $matches) === 1) {

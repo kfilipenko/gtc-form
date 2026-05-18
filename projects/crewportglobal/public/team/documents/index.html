@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Document review</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="canonical" href="https://crewportglobal.com/team/documents/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <style>
+    :root {
+      --page-bg: #eef4f7;
+      --surface: #ffffff;
+      --surface-soft: #f6fafc;
+      --text: #102a43;
+      --muted: #526b7a;
+      --line: #c8d6df;
+      --line-strong: #90a8b6;
+      --primary: #087a8c;
+      --primary-strong: #045b69;
+      --danger: #b42318;
+      --warning: #a15c00;
+      --success: #087443;
+    }
+    * { box-sizing: border-box; }
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .shell {
+      min-height: 100vh;
+      padding: 26px 18px 42px;
+    }
+    .frame {
+      width: min(1240px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+    .header,
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      box-shadow: 0 10px 30px rgba(16, 42, 67, 0.08);
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px;
+      border-radius: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 10px;
+      background: #0b6f82;
+      color: #fff;
+      font-weight: 900;
+    }
+    h1,
+    h2,
+    p { margin-top: 0; }
+    h1 {
+      margin-bottom: 4px;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+    .subtitle,
+    .status,
+    .muted {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .panel {
+      padding: 16px;
+      border-radius: 14px;
+    }
+    .access-panel,
+    .filters {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto;
+      gap: 12px;
+      align-items: end;
+    }
+    .filters {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+    label {
+      color: var(--text);
+      font-weight: 800;
+      font-size: 13px;
+    }
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+    }
+    input,
+    select {
+      min-height: 42px;
+      padding: 9px 11px;
+    }
+    textarea {
+      min-height: 108px;
+      padding: 11px 12px;
+      resize: vertical;
+    }
+    input:focus,
+    select:focus,
+    textarea:focus,
+    button:focus-visible {
+      outline: 3px solid rgba(8, 122, 140, 0.24);
+      outline-offset: 2px;
+    }
+    button,
+    .button {
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: var(--primary);
+      color: #fff;
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-grid;
+      place-items: center;
+    }
+    button:hover,
+    .button:hover {
+      background: var(--primary-strong);
+    }
+    button.secondary {
+      border-color: var(--line-strong);
+      background: #fff;
+      color: var(--text);
+    }
+    button.danger {
+      background: var(--danger);
+    }
+    button.warning {
+      background: var(--warning);
+    }
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.58;
+    }
+    .queue-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    table {
+      width: 100%;
+      min-width: 980px;
+      border-collapse: collapse;
+      background: var(--surface);
+    }
+    th,
+    td {
+      padding: 10px 9px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--text);
+      font-size: 13px;
+    }
+    td {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .filename,
+    .status-chip {
+      color: var(--text);
+      font-weight: 800;
+    }
+    .status-chip {
+      display: inline-block;
+      padding: 3px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface-soft);
+      font-size: 12px;
+    }
+    .review-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 14px;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .summary-card {
+      min-height: 72px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-soft);
+      overflow-wrap: anywhere;
+    }
+    .summary-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .summary-card strong {
+      color: var(--text);
+      line-height: 1.35;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .status {
+      min-height: 22px;
+      margin: 8px 0 0;
+      font-weight: 700;
+    }
+    .status.ok { color: var(--success); }
+    .status.error { color: var(--danger); }
+    .status.warn { color: var(--warning); }
+    [hidden] { display: none !important; }
+    @media (max-width: 920px) {
+      .header,
+      .access-panel,
+      .filters,
+      .review-grid,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+      .actions,
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="frame">
+      <header class="header">
+        <div class="brand">
+          <div class="mark" aria-hidden="true">CPG</div>
+          <div>
+            <h1>Document review queue</h1>
+            <p class="subtitle">CrewPortGlobal protected document review</p>
+          </div>
+        </div>
+        <a class="button" href="/team/">Team links</a>
+      </header>
+
+      <section class="panel access-panel" id="access-panel">
+        <div class="field">
+          <label for="operator-token">Operator access token</label>
+          <input id="operator-token" type="password" autocomplete="off" placeholder="Access token">
+        </div>
+        <button id="unlock-queue" type="button">Open queue</button>
+        <p class="status" id="access-status">An approved team session or operator token is required.</p>
+      </section>
+
+      <section class="panel">
+        <div class="filters">
+          <div class="field">
+            <label for="filter-form-type">Form type</label>
+            <select id="filter-form-type">
+              <option value="all">All</option>
+              <option value="seafarer">Seafarer</option>
+              <option value="employer">Employer</option>
+              <option value="vessel">Vessel</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="filter-document-type">Document type</label>
+            <select id="filter-document-type">
+              <option value="all">All</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="filter-review-status">Review status</label>
+            <select id="filter-review-status">
+              <option value="all">All</option>
+              <option value="pending_human_review">pending_human_review</option>
+              <option value="under_review">under_review</option>
+              <option value="correction_requested">correction_requested</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="filter-scan-status">Scan status</label>
+            <select id="filter-scan-status">
+              <option value="clean">clean</option>
+            </select>
+          </div>
+        </div>
+        <p class="status" id="queue-status">Queue not loaded.</p>
+      </section>
+
+      <section class="panel">
+        <div class="queue-wrap">
+          <table aria-label="Document review queue">
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Form</th>
+                <th>Document type</th>
+                <th>User</th>
+                <th>Scan</th>
+                <th>Review</th>
+                <th>Uploaded</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="document-queue-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel review-grid" id="review-panel" hidden>
+        <div>
+          <h2 id="selected-title">Selected document</h2>
+          <div class="summary-grid" id="selected-summary"></div>
+          <div class="actions">
+            <button id="download-document" type="button">Download clean file</button>
+            <button class="secondary" type="button" data-decision="start_review">Start review</button>
+            <button class="secondary" type="button" data-decision="accept">Accept</button>
+            <button class="warning" type="button" data-decision="needs_correction">Needs correction</button>
+            <button class="danger" type="button" data-decision="reject">Reject</button>
+          </div>
+          <p class="status" id="review-status"></p>
+        </div>
+        <div class="field">
+          <label for="review-note">Review note</label>
+          <textarea id="review-note" maxlength="1000" placeholder="Required for Needs correction and Reject"></textarea>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const OPERATOR_SESSION_KEY = 'crewportglobal.operatorAccessToken';
+    const TEAM_SESSION_KEY = 'crewportglobal_team_session';
+    const ADMIN_SESSION_KEY = 'crewportglobal_admin_session';
+    const queueBody = document.getElementById('document-queue-body');
+    const queueStatus = document.getElementById('queue-status');
+    const accessStatus = document.getElementById('access-status');
+    const accessPanel = document.getElementById('access-panel');
+    const tokenInput = document.getElementById('operator-token');
+    const unlockButton = document.getElementById('unlock-queue');
+    const formTypeFilter = document.getElementById('filter-form-type');
+    const documentTypeFilter = document.getElementById('filter-document-type');
+    const reviewStatusFilter = document.getElementById('filter-review-status');
+    const reviewPanel = document.getElementById('review-panel');
+    const selectedTitle = document.getElementById('selected-title');
+    const selectedSummary = document.getElementById('selected-summary');
+    const reviewNote = document.getElementById('review-note');
+    const reviewStatus = document.getElementById('review-status');
+    const downloadButton = document.getElementById('download-document');
+
+    let queue = [];
+    let selectedDocument = null;
+
+    function operatorToken() {
+      return window.sessionStorage.getItem(OPERATOR_SESSION_KEY) || '';
+    }
+
+    function teamToken() {
+      return window.localStorage.getItem(TEAM_SESSION_KEY)
+        || window.localStorage.getItem(ADMIN_SESSION_KEY)
+        || '';
+    }
+
+    function authHeaders() {
+      const headers = {};
+      const operator = operatorToken();
+      if (operator) {
+        headers['X-CPG-Operator-Token'] = operator;
+        return headers;
+      }
+      const team = teamToken();
+      if (team) {
+        headers.Authorization = `Bearer ${team}`;
+      }
+      return headers;
+    }
+
+    function formatBytes(value) {
+      const bytes = Number(value || 0);
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    function valueOrDash(value) {
+      return value === null || value === undefined || value === '' ? '-' : String(value);
+    }
+
+    function setStatus(node, message, type = '') {
+      node.textContent = message;
+      node.className = `status ${type}`.trim();
+    }
+
+    function currentFilteredQueue() {
+      const formType = formTypeFilter.value;
+      const documentType = documentTypeFilter.value;
+      const reviewStatusValue = reviewStatusFilter.value;
+      return queue.filter((item) => (
+        (formType === 'all' || item.form_type === formType)
+        && (documentType === 'all' || item.document_type === documentType)
+        && (reviewStatusValue === 'all' || item.review_status === reviewStatusValue)
+      ));
+    }
+
+    function updateDocumentTypeFilter() {
+      const previous = documentTypeFilter.value;
+      const types = Array.from(new Set(queue.map((item) => item.document_type).filter(Boolean))).sort();
+      documentTypeFilter.replaceChildren(new Option('All', 'all'));
+      for (const type of types) {
+        documentTypeFilter.append(new Option(type, type));
+      }
+      if (types.includes(previous)) {
+        documentTypeFilter.value = previous;
+      }
+    }
+
+    function renderSummary(documentRecord) {
+      const user = documentRecord.user || {};
+      const fields = [
+        ['Document ID', documentRecord.document_id],
+        ['Draft ID', documentRecord.draft_id],
+        ['File size', formatBytes(documentRecord.file_size_bytes)],
+        ['Form type', documentRecord.form_type],
+        ['Document type', documentRecord.document_type],
+        ['Original filename', documentRecord.original_filename],
+        ['Scan status', documentRecord.scan_status],
+        ['Review status', documentRecord.review_status],
+        ['User', user.display_name || user.email || '-'],
+      ];
+      selectedSummary.replaceChildren();
+      for (const [label, value] of fields) {
+        const card = document.createElement('div');
+        card.className = 'summary-card';
+        const labelNode = document.createElement('span');
+        labelNode.textContent = label;
+        const valueNode = document.createElement('strong');
+        valueNode.textContent = valueOrDash(value);
+        card.append(labelNode, valueNode);
+        selectedSummary.append(card);
+      }
+    }
+
+    function selectDocument(documentRecord) {
+      selectedDocument = documentRecord;
+      selectedTitle.textContent = documentRecord.original_filename || documentRecord.document_id;
+      reviewNote.value = '';
+      setStatus(reviewStatus, '');
+      renderSummary(documentRecord);
+      reviewPanel.hidden = false;
+    }
+
+    function renderQueue() {
+      const filtered = currentFilteredQueue();
+      queueBody.replaceChildren();
+      if (filtered.length === 0) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 8;
+        cell.textContent = queue.length === 0 ? 'No clean documents are waiting for review.' : 'No documents match the current filters.';
+        row.append(cell);
+        queueBody.append(row);
+        return;
+      }
+
+      for (const item of filtered) {
+        const row = document.createElement('tr');
+        const user = item.user || {};
+        const cells = [
+          ['filename', item.original_filename || item.document_id],
+          ['', item.form_type],
+          ['', item.document_type],
+          ['', user.display_name || user.email || '-'],
+          ['status-chip', item.scan_status],
+          ['status-chip', item.review_status],
+          ['', item.uploaded_at],
+        ];
+        for (const [className, value] of cells) {
+          const cell = document.createElement('td');
+          const span = document.createElement('span');
+          if (className) span.className = className;
+          span.textContent = valueOrDash(value);
+          cell.append(span);
+          row.append(cell);
+        }
+        const actionCell = document.createElement('td');
+        const button = document.createElement('button');
+        button.className = 'secondary';
+        button.type = 'button';
+        button.textContent = 'Open';
+        button.addEventListener('click', () => selectDocument(item));
+        actionCell.append(button);
+        row.append(actionCell);
+        queueBody.append(row);
+      }
+    }
+
+    async function loadQueue() {
+      setStatus(queueStatus, 'Loading document queue...');
+      const response = await fetch('/api/v1/operator/document-review-queue', {
+        headers: authHeaders(),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok || body.ok !== true) {
+        accessPanel.hidden = false;
+        setStatus(queueStatus, body.message || 'Document queue access denied.', 'error');
+        return;
+      }
+      accessPanel.hidden = operatorToken() !== '' || teamToken() !== '';
+      queue = Array.isArray(body.queue) ? body.queue : [];
+      updateDocumentTypeFilter();
+      renderQueue();
+      setStatus(queueStatus, `Queue loaded: ${queue.length} clean reviewable document(s).`, 'ok');
+    }
+
+    async function downloadSelectedDocument() {
+      if (!selectedDocument) return;
+      setStatus(reviewStatus, 'Preparing secure download...');
+      const response = await fetch(`/api/v1/operator/documents/${selectedDocument.document_id}/download`, {
+        headers: authHeaders(),
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        setStatus(reviewStatus, body.message || 'Download rejected.', 'error');
+        return;
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = selectedDocument.original_filename || `${selectedDocument.document_id}.bin`;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      setStatus(reviewStatus, 'Clean document downloaded through protected API.', 'ok');
+    }
+
+    async function recordDecision(decision) {
+      if (!selectedDocument) return;
+      const note = reviewNote.value.trim();
+      if ((decision === 'needs_correction' || decision === 'reject') && note === '') {
+        setStatus(reviewStatus, 'Review note is required for this decision.', 'warn');
+        reviewNote.focus();
+        return;
+      }
+      setStatus(reviewStatus, `Saving decision: ${decision}...`);
+      const response = await fetch(`/api/v1/operator/documents/${selectedDocument.document_id}/review`, {
+        method: 'PATCH',
+        headers: {
+          ...authHeaders(),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ decision, review_note: note }),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok || body.ok !== true) {
+        setStatus(reviewStatus, body.message || 'Decision was rejected.', 'error');
+        return;
+      }
+      selectedDocument = body.document;
+      setStatus(reviewStatus, `Decision saved: ${body.new_review_status}`, 'ok');
+      await loadQueue();
+      if (selectedDocument && ['under_review', 'correction_requested'].includes(selectedDocument.review_status)) {
+        renderSummary(selectedDocument);
+      }
+    }
+
+    unlockButton.addEventListener('click', async () => {
+      const token = tokenInput.value.trim();
+      if (token) {
+        window.sessionStorage.setItem(OPERATOR_SESSION_KEY, token);
+      }
+      await loadQueue();
+    });
+
+    tokenInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        unlockButton.click();
+      }
+    });
+
+    for (const filter of [formTypeFilter, documentTypeFilter, reviewStatusFilter]) {
+      filter.addEventListener('change', renderQueue);
+    }
+
+    downloadButton.addEventListener('click', downloadSelectedDocument);
+    document.querySelectorAll('[data-decision]').forEach((button) => {
+      button.addEventListener('click', () => recordDecision(button.dataset.decision || ''));
+    });
+
+    if (operatorToken() || teamToken()) {
+      loadQueue().catch(() => setStatus(queueStatus, 'Could not load document queue.', 'error'));
+    } else {
+      setStatus(accessStatus, 'Enter operator token or open this page from an approved team session.', 'warn');
+    }
+  </script>
+</body>
+</html>

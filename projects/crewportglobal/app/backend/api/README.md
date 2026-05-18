@@ -13,11 +13,16 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - POST /api/v1/registration/drafts
 - GET /api/v1/registration/drafts/{draft_id}
 - PATCH /api/v1/registration/drafts/{draft_id}
+- GET /api/v1/registration/drafts/{draft_id}/documents
+- POST /api/v1/registration/drafts/{draft_id}/documents
 - POST /api/v1/registration/person/request
 - POST /api/v1/registration/person/confirm
 - GET /api/v1/operator/review-queue
 - GET /api/v1/operator/review-queue/vacancy-applications/{vacancy_application_id}
 - PATCH /api/v1/operator/review-queue/{draft_id}/status
+- GET /api/v1/operator/document-review-queue
+- GET /api/v1/operator/documents/{document_id}/download
+- PATCH /api/v1/operator/documents/{document_id}/review
 - GET /api/v1/vacancies
 - GET /api/v1/vacancies/{vacancy_request_id}
 - POST /api/v1/vacancies/{vacancy_request_id}/applications
@@ -46,7 +51,9 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - seafarer vacancy application action logic: seafarers can withdraw an active application or mark themselves not available, both resulting in `withdrawn` status with an audit event
 - employer candidate pipeline logic: employer draft responses include only `presented_candidates` that belong to the employer company and the current vacancy workspace
 - employer shortlist action logic: employers can mark an operator-presented candidate as `contacted`, `interview_requested`, `not_suitable` or back to `presented`, with an optional employer follow-up note, through the draft-scoped employer workspace
-- operator access boundary: `GET /api/v1/operator/review-queue` and `PATCH /api/v1/operator/review-queue/{draft_id}/status` require `X-CPG-Operator-Token` or `Authorization: Bearer ...`
+- protected document upload logic: draft documents can be uploaded through `POST /api/v1/registration/drafts/{draft_id}/documents`, stored outside the public web root, scanned by ClamAV and listed as metadata only through `GET /api/v1/registration/drafts/{draft_id}/documents`
+- protected document review logic: clean uploaded documents can be listed through `GET /api/v1/operator/document-review-queue`, downloaded through `GET /api/v1/operator/documents/{document_id}/download` and reviewed through `PATCH /api/v1/operator/documents/{document_id}/review`; infected, blocked, unscanned and scan-error files are not reviewable
+- operator access boundary: `GET /api/v1/operator/review-queue`, `PATCH /api/v1/operator/review-queue/{draft_id}/status` and document-review operator routes require `X-CPG-Operator-Token` or approved team/admin session access
 - access-control guard foundation: `lib/access_control.php` defines Phase 2 permission-loading, scope-checking, operator queue permission mapping and access-audit write helpers, with isolated tests; the guard is not wired into runtime routes yet
 - operator queue capability contract: operator queue responses include `operator_access` permission/scope metadata in `temporary_operator_token` mode so `/verify/` can prepare for future role-based action disabling without changing current token behavior
 - identity context foundation: `lib/identity_context.php` defines anonymous, temporary-operator-token, future account-session and future admin-session identity shapes without introducing login sessions or replacing the current token boundary
@@ -60,7 +67,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - admin access Project Owner bootstrap: `tools/bootstrap_project_owner.php` records the controlled first-owner bootstrap path for `kfilipenko@gtchain.io`
 - group-based access bootstrap: `tools/bootstrap_group_based_access.php` creates/confirms `owners` and `cpg_team`, assigns `project_owner` through the `owners` group and removes the owner user from the legacy direct bootstrap membership
 - admin access console view: `/admin/access/` displays the current Project Owner session, active groups, roles, effective permissions and recent access audit events, with logout / session revoke only
-- protected team links: `/team/` loads links only through `GET /api/v1/admin/access/team-links` after a session whose user belongs to `owners` or `cpg_team`
+- protected team links: `/team/` loads links only through `GET /api/v1/admin/access/team-links` after a session whose user belongs to `owners` or `cpg_team`; the protected document review page is available at `/team/documents/`
 - access-management console slice: Project Owner can read users/groups, create or confirm users, and add users to assignable internal/administration groups through `GET /api/v1/admin/access/management`, `POST /api/v1/admin/access/users` and `POST /api/v1/admin/access/group-members`
 - public physical-person registration slice: `/register/` posts to `POST /api/v1/registration/person/request`, creates or confirms the base user record without assigning a role, sends an e-mail confirmation link through the protected SMTP config, and `POST /api/v1/registration/person/confirm` confirms `email_verified_at` before routing the user to the sequential registration page
 - full login/session logic: not implemented
@@ -220,10 +227,14 @@ Then call endpoints under:
 
 - http://127.0.0.1:8091/api/v1/registration/drafts
 - http://127.0.0.1:8091/api/v1/registration/drafts/{draft_id}
+- http://127.0.0.1:8091/api/v1/registration/drafts/{draft_id}/documents
 - http://127.0.0.1:8091/api/v1/registration/person/request
 - http://127.0.0.1:8091/api/v1/registration/person/confirm
 - http://127.0.0.1:8091/api/v1/operator/review-queue
 - http://127.0.0.1:8091/api/v1/operator/review-queue/vacancy-applications/{vacancy_application_id}
+- http://127.0.0.1:8091/api/v1/operator/document-review-queue
+- http://127.0.0.1:8091/api/v1/operator/documents/{document_id}/download
+- http://127.0.0.1:8091/api/v1/operator/documents/{document_id}/review
 - http://127.0.0.1:8091/api/v1/vacancies
 - http://127.0.0.1:8091/api/v1/vacancies/{vacancy_request_id}
 - http://127.0.0.1:8091/api/v1/seafarer/vacancy-applications/{vacancy_application_id}/status

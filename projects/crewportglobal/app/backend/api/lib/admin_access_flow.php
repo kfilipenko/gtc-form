@@ -44,6 +44,10 @@ const CPG_ADMIN_ACCESS_TEAM_LINKS = [
         'url' => 'https://crewportglobal.com/verify/',
     ],
     [
+        'label' => 'Document Review Queue',
+        'url' => 'https://crewportglobal.com/team/documents/',
+    ],
+    [
         'label' => 'GitHub repository',
         'url' => 'https://github.com/kfilipenko/gtc-form',
     ],
