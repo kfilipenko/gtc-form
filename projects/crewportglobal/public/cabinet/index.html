@@ -1,0 +1,1197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Personal cabinet</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="canonical" href="https://crewportglobal.com/cabinet/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../assets/crewportglobal-docs.css">
+  <link rel="stylesheet" href="../assets/crewportglobal-app.css">
+  <style>
+    :root {
+      --cabinet-bg: #eef4f7;
+      --cabinet-surface: #ffffff;
+      --cabinet-soft: #f6fafc;
+      --cabinet-ink: #102a43;
+      --cabinet-muted: #526b7a;
+      --cabinet-line: #c8d6df;
+      --cabinet-line-strong: #90a8b6;
+      --cabinet-primary: #087a8c;
+      --cabinet-primary-dark: #045b69;
+      --cabinet-warning-bg: #fff8e8;
+      --cabinet-warning-line: #d9992c;
+      --cabinet-danger: #b42318;
+      --cabinet-success: #087443;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background: var(--cabinet-bg);
+      color: var(--cabinet-ink);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .cabinet-shell {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 48px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .cabinet-header,
+    .cabinet-status,
+    .cabinet-card,
+    .task-item,
+    .document-item,
+    .service-item {
+      border: 1px solid var(--cabinet-line);
+      background: var(--cabinet-surface);
+      box-shadow: 0 10px 30px rgba(16, 42, 67, 0.08);
+    }
+
+    .cabinet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px;
+      border-radius: 14px;
+    }
+
+    .cabinet-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      color: var(--cabinet-ink);
+      text-decoration: none;
+    }
+
+    .cabinet-brand-mark {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 10px;
+      background: var(--cabinet-primary);
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .cabinet-brand-copy {
+      display: grid;
+      gap: 3px;
+    }
+
+    .cabinet-brand-copy span,
+    .muted {
+      color: var(--cabinet-muted);
+      line-height: 1.5;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 6px;
+      font-size: clamp(32px, 4vw, 54px);
+      line-height: 1.05;
+    }
+
+    .cabinet-lede {
+      max-width: 780px;
+      margin-bottom: 0;
+      color: var(--cabinet-muted);
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .cabinet-status {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      padding: 14px;
+      border-radius: 14px;
+    }
+
+    .status-tile {
+      display: grid;
+      gap: 5px;
+      min-height: 74px;
+      padding: 12px;
+      border: 1px solid var(--cabinet-line);
+      border-radius: 10px;
+      background: var(--cabinet-soft);
+      overflow-wrap: anywhere;
+    }
+
+    .status-tile span,
+    .card-kicker {
+      color: var(--cabinet-muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .status-tile strong {
+      color: var(--cabinet-ink);
+      line-height: 1.35;
+    }
+
+    .cabinet-card {
+      border-radius: 14px;
+      overflow: clip;
+    }
+
+    .card-header,
+    .tasks-header {
+      width: 100%;
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 15px 16px;
+      border: 0;
+      background: var(--cabinet-surface);
+      color: var(--cabinet-ink);
+      text-align: left;
+      font: inherit;
+    }
+
+    .card-header {
+      cursor: pointer;
+      border-bottom: 1px solid transparent;
+    }
+
+    .card-header:focus-visible,
+    .button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 3px solid rgba(8, 122, 140, 0.24);
+      outline-offset: 2px;
+    }
+
+    .card-title {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .card-title strong {
+      color: var(--cabinet-ink);
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    .card-title span {
+      color: var(--cabinet-muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .card-indicator {
+      min-width: 34px;
+      min-height: 34px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid var(--cabinet-line);
+      border-radius: 999px;
+      color: var(--cabinet-primary-dark);
+      font-weight: 900;
+    }
+
+    .cabinet-card[open] .card-header {
+      border-bottom-color: var(--cabinet-line);
+    }
+
+    .cabinet-card[open] .card-indicator {
+      transform: rotate(45deg);
+    }
+
+    .card-body,
+    .tasks-body {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    .task-list,
+    .document-list,
+    .service-list,
+    .profile-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .profile-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .task-item,
+    .document-item,
+    .service-item {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 10px;
+      box-shadow: none;
+    }
+
+    .task-item.is-action {
+      border-color: var(--cabinet-warning-line);
+      background: var(--cabinet-warning-bg);
+    }
+
+    .task-item.is-waiting {
+      border-color: #8ab8c6;
+      background: #f0f9fb;
+    }
+
+    .task-item h3,
+    .document-item h3,
+    .service-item h3 {
+      margin-bottom: 0;
+      color: var(--cabinet-ink);
+      font-size: 17px;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 9px;
+      border: 1px solid var(--cabinet-line);
+      border-radius: 999px;
+      background: var(--cabinet-soft);
+      color: var(--cabinet-muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .chip.action {
+      border-color: var(--cabinet-warning-line);
+      color: #704100;
+      background: #fff8e8;
+    }
+
+    .chip.ok {
+      border-color: #8cc7aa;
+      color: var(--cabinet-success);
+      background: #f0fbf5;
+    }
+
+    .task-upload {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field strong {
+      color: var(--cabinet-ink);
+      font-size: 13px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 42px;
+      padding: 9px 10px;
+      border: 1px solid var(--cabinet-line-strong);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--cabinet-ink);
+      font: inherit;
+    }
+
+    .button {
+      min-height: 42px;
+      display: inline-grid;
+      place-items: center;
+      padding: 0 14px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: var(--cabinet-primary);
+      color: #fff;
+      font: inherit;
+      font-weight: 900;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background: var(--cabinet-primary-dark);
+    }
+
+    .button.secondary {
+      border-color: var(--cabinet-line-strong);
+      background: #fff;
+      color: var(--cabinet-ink);
+    }
+
+    .button:disabled {
+      cursor: not-allowed;
+      opacity: 0.58;
+    }
+
+    .empty-state {
+      padding: 14px;
+      border: 1px dashed var(--cabinet-line-strong);
+      border-radius: 10px;
+      color: var(--cabinet-muted);
+      background: var(--cabinet-soft);
+      line-height: 1.55;
+    }
+
+    .status-line {
+      min-height: 22px;
+      margin: 0;
+      color: var(--cabinet-muted);
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .status-line.ok {
+      color: var(--cabinet-success);
+    }
+
+    .status-line.error {
+      color: var(--cabinet-danger);
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 860px) {
+      .cabinet-header,
+      .cabinet-status,
+      .profile-grid,
+      .task-upload {
+        grid-template-columns: 1fr;
+      }
+
+      .cabinet-header {
+        align-items: stretch;
+      }
+
+      .header-actions,
+      .button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="cabinet-shell">
+    <header class="cabinet-header">
+      <a class="cabinet-brand" href="/">
+        <span class="cabinet-brand-mark">CPG</span>
+        <span class="cabinet-brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="cabinet.brand.subtitle">Personal service cabinet</span>
+        </span>
+      </a>
+      <div class="header-actions">
+        <a class="button secondary" href="/register/" data-i18n="cabinet.header.register">Registration</a>
+        <a class="button secondary" href="/register/authorization/" data-i18n="cabinet.header.authorization">Add authorization</a>
+      </div>
+    </header>
+
+    <section>
+      <p class="card-kicker" data-i18n="cabinet.hero.eyebrow">Personal cabinet MVP</p>
+      <h1 data-i18n="cabinet.hero.title">Your CrewPortGlobal work starts with tasks.</h1>
+      <p class="cabinet-lede" data-i18n="cabinet.hero.copy">This cabinet shows what requires your action now, which documents are waiting for review and which service areas are available from your current registration context.</p>
+    </section>
+
+    <section class="cabinet-status" aria-label="Cabinet summary">
+      <div class="status-tile">
+        <span data-i18n="cabinet.summary.user">User</span>
+        <strong id="cabinet-summary-user">-</strong>
+      </div>
+      <div class="status-tile">
+        <span data-i18n="cabinet.summary.role">Current area</span>
+        <strong id="cabinet-summary-role">-</strong>
+      </div>
+      <div class="status-tile">
+        <span data-i18n="cabinet.summary.tasks">My tasks</span>
+        <strong id="cabinet-summary-tasks">0</strong>
+      </div>
+      <div class="status-tile">
+        <span data-i18n="cabinet.summary.documents">My documents</span>
+        <strong id="cabinet-summary-documents">0</strong>
+      </div>
+    </section>
+
+    <section class="cabinet-card" aria-labelledby="cabinet-tasks-title">
+      <div class="tasks-header">
+        <div class="card-title">
+          <strong id="cabinet-tasks-title" data-i18n="cabinet.tasks.title">My tasks</strong>
+          <span id="cabinet-tasks-status" data-i18n="cabinet.tasks.status.loading">Loading current actions...</span>
+        </div>
+        <span class="card-indicator" aria-hidden="true">1</span>
+      </div>
+      <div class="tasks-body">
+        <div id="cabinet-task-list" class="task-list" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <details class="cabinet-card" id="cabinet-user-card">
+      <summary class="card-header">
+        <span class="card-title">
+          <strong data-i18n="cabinet.user.title">User summary</strong>
+          <span id="cabinet-user-status" data-i18n="cabinet.user.status">Account and registration context</span>
+        </span>
+        <span class="card-indicator" aria-hidden="true">+</span>
+      </summary>
+      <div class="card-body">
+        <div id="cabinet-user-summary" class="profile-grid"></div>
+      </div>
+    </details>
+
+    <details class="cabinet-card" id="cabinet-documents-card">
+      <summary class="card-header">
+        <span class="card-title">
+          <strong data-i18n="cabinet.documents.title">My documents</strong>
+          <span id="cabinet-documents-status" data-i18n="cabinet.documents.status">Document metadata and review state</span>
+        </span>
+        <span class="card-indicator" aria-hidden="true">+</span>
+      </summary>
+      <div class="card-body">
+        <div id="cabinet-document-list" class="document-list"></div>
+      </div>
+    </details>
+
+    <details class="cabinet-card" id="cabinet-profile-card">
+      <summary class="card-header">
+        <span class="card-title">
+          <strong data-i18n="cabinet.profile.title">My profile / request status</strong>
+          <span id="cabinet-profile-status" data-i18n="cabinet.profile.status">Current service card state</span>
+        </span>
+        <span class="card-indicator" aria-hidden="true">+</span>
+      </summary>
+      <div class="card-body">
+        <div id="cabinet-profile-summary" class="profile-grid"></div>
+      </div>
+    </details>
+
+    <details class="cabinet-card" id="cabinet-services-card">
+      <summary class="card-header">
+        <span class="card-title">
+          <strong data-i18n="cabinet.services.title">My services</strong>
+          <span id="cabinet-services-status" data-i18n="cabinet.services.status">Available service areas and capability requests</span>
+        </span>
+        <span class="card-indicator" aria-hidden="true">+</span>
+      </summary>
+      <div class="card-body">
+        <div id="cabinet-service-list" class="service-list"></div>
+      </div>
+    </details>
+
+    <details class="cabinet-card" id="cabinet-support-card">
+      <summary class="card-header">
+        <span class="card-title">
+          <strong data-i18n="cabinet.support.title">Next contact / support action</strong>
+          <span id="cabinet-support-status" data-i18n="cabinet.support.status">What to do after current tasks</span>
+        </span>
+        <span class="card-indicator" aria-hidden="true">+</span>
+      </summary>
+      <div class="card-body">
+        <div id="cabinet-support-summary" class="service-list"></div>
+      </div>
+    </details>
+  </main>
+
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'cabinet.brand.subtitle': 'Personal service cabinet',
+        'cabinet.header.register': 'Registration',
+        'cabinet.header.authorization': 'Add authorization',
+        'cabinet.hero.eyebrow': 'Personal cabinet MVP',
+        'cabinet.hero.title': 'Your CrewPortGlobal work starts with tasks.',
+        'cabinet.hero.copy': 'This cabinet shows what requires your action now, which documents are waiting for review and which service areas are available from your current registration context.',
+        'cabinet.summary.user': 'User',
+        'cabinet.summary.role': 'Current area',
+        'cabinet.summary.tasks': 'My tasks',
+        'cabinet.summary.documents': 'My documents',
+        'cabinet.tasks.title': 'My tasks',
+        'cabinet.tasks.status.loading': 'Loading current actions...',
+        'cabinet.tasks.status.ready': '{count} current task(s)',
+        'cabinet.tasks.status.empty': 'No immediate action required',
+        'cabinet.tasks.noDraft.title': 'Action required: open registration',
+        'cabinet.tasks.noDraft.copy': 'No current registration draft was found on this browser. Start registration or open a saved cabinet link with draft_id.',
+        'cabinet.tasks.noDocuments.title': 'Action required: upload supporting documents',
+        'cabinet.tasks.noDocuments.copy': 'Save the service form and upload the documents needed for review.',
+        'cabinet.tasks.correctDocument.title': 'Action required: upload corrected document',
+        'cabinet.tasks.correctDocument.reason': 'Reason',
+        'cabinet.tasks.correctDocument.action': 'Upload replacement',
+        'cabinet.tasks.correctDocument.file': 'Replacement file',
+        'cabinet.tasks.waiting.title': 'Waiting for team review',
+        'cabinet.tasks.waiting.copy': 'Your clean document has been uploaded and is waiting for human review.',
+        'cabinet.tasks.ready.title': 'No immediate action required',
+        'cabinet.tasks.ready.copy': 'Your current visible items do not require action. Keep contact details and service cards up to date.',
+        'cabinet.user.title': 'User summary',
+        'cabinet.user.status': 'Account and registration context',
+        'cabinet.user.email': 'Email',
+        'cabinet.user.draftId': 'Draft ID',
+        'cabinet.user.registrationStatus': 'Registration status',
+        'cabinet.user.security': 'Account security',
+        'cabinet.user.security.copy': 'Email confirmation is handled through registration/authentication. Phone confirmation remains marked as to configure.',
+        'cabinet.documents.title': 'My documents',
+        'cabinet.documents.status': 'Document metadata and review state',
+        'cabinet.documents.empty': 'No uploaded documents are visible for this service area yet.',
+        'cabinet.documents.documentType': 'Document',
+        'cabinet.documents.scan': 'Scan',
+        'cabinet.documents.review': 'Review',
+        'cabinet.documents.size': 'Size',
+        'cabinet.profile.title': 'My profile / request status',
+        'cabinet.profile.status': 'Current service card state',
+        'cabinet.profile.role': 'Role',
+        'cabinet.profile.seafarerReview': 'Seafarer review',
+        'cabinet.profile.rank': 'Rank',
+        'cabinet.profile.availability': 'Availability',
+        'cabinet.profile.company': 'Company',
+        'cabinet.profile.companyStatus': 'Company status',
+        'cabinet.profile.vacancyStatus': 'Crew request status',
+        'cabinet.profile.vacancy': 'Crew request',
+        'cabinet.services.title': 'My services',
+        'cabinet.services.status': 'Available service areas and capability requests',
+        'cabinet.services.currentSeafarer': 'Seafarer / specialist workspace',
+        'cabinet.services.currentEmployer': 'Buyer / employer workspace',
+        'cabinet.services.current.copy': 'Continue the current service card connected to this draft.',
+        'cabinet.services.addSeafarer': 'Request seafarer / specialist capability',
+        'cabinet.services.addEmployer': 'Request buyer / employer capability',
+        'cabinet.services.add.copy': 'A person may request more than one capability. Authorization is granted only after review and evidence.',
+        'cabinet.support.title': 'Next contact / support action',
+        'cabinet.support.status': 'What to do after current tasks',
+        'cabinet.support.withTasks': 'Complete My tasks first. If the task remains after a clean replacement, contact support with your draft ID.',
+        'cabinet.support.noTasks': 'No urgent support action is required. Keep your documents and contact details current.',
+        'cabinet.action.openRegistration': 'Open registration',
+        'cabinet.action.openCreateProfile': 'Open seafarer workspace',
+        'cabinet.action.openPostVacancy': 'Open employer workspace',
+        'cabinet.action.openAuthorization': 'Open authorization cards',
+        'cabinet.action.uploading': 'Uploading and scanning replacement...',
+        'cabinet.action.uploaded': 'Replacement uploaded and is waiting for team review.',
+        'cabinet.action.uploadError': 'Replacement upload failed. Choose another file and keep the task open.',
+        'cabinet.value.empty': 'Not available',
+        'cabinet.role.seafarer': 'Seafarer / specialist',
+        'cabinet.role.employer': 'Buyer / employer',
+        'cabinet.role.shipowner': 'Shipowner / employer-side requester',
+        'cabinet.role.crewing_manager': 'Crewing manager',
+        'cabinet.review.pending_human_review': 'Waiting for team review',
+        'cabinet.review.under_review': 'Under review',
+        'cabinet.review.correction_requested': 'Correction requested',
+        'cabinet.review.rejected': 'Rejected',
+        'cabinet.review.verified': 'Verified',
+        'cabinet.review.not_submitted': 'Not submitted',
+        'cabinet.scan.clean': 'Clean',
+        'cabinet.scan.pending': 'Pending scan',
+        'cabinet.scan.infected': 'Blocked',
+        'cabinet.scan.scan_error': 'Scanner error',
+        'cabinet.scan.not_scanned': 'Not scanned'
+      },
+      ru: {
+        'cabinet.brand.subtitle': 'Личный кабинет сервиса',
+        'cabinet.header.register': 'Регистрация',
+        'cabinet.header.authorization': 'Добавить полномочия',
+        'cabinet.hero.eyebrow': 'MVP личного кабинета',
+        'cabinet.hero.title': 'Работа в CrewPortGlobal начинается с задач.',
+        'cabinet.hero.copy': 'Кабинет показывает, что требует вашего действия сейчас, какие документы ожидают проверки и какие сервисные направления доступны из текущего регистрационного контекста.',
+        'cabinet.summary.user': 'Пользователь',
+        'cabinet.summary.role': 'Текущее направление',
+        'cabinet.summary.tasks': 'Мои задачи',
+        'cabinet.summary.documents': 'Мои документы',
+        'cabinet.tasks.title': 'Мои задачи',
+        'cabinet.tasks.status.loading': 'Загружаем текущие действия...',
+        'cabinet.tasks.status.ready': 'Текущие задачи: {count}',
+        'cabinet.tasks.status.empty': 'Срочных действий нет',
+        'cabinet.tasks.noDraft.title': 'Требуется действие: откройте регистрацию',
+        'cabinet.tasks.noDraft.copy': 'В этом браузере не найден текущий регистрационный черновик. Начните регистрацию или откройте сохраненную ссылку кабинета с draft_id.',
+        'cabinet.tasks.noDocuments.title': 'Требуется действие: загрузите подтверждающие документы',
+        'cabinet.tasks.noDocuments.copy': 'Сохраните сервисную форму и загрузите документы, необходимые для проверки.',
+        'cabinet.tasks.correctDocument.title': 'Требуется действие: загрузите исправленный документ',
+        'cabinet.tasks.correctDocument.reason': 'Причина',
+        'cabinet.tasks.correctDocument.action': 'Загрузить новую версию',
+        'cabinet.tasks.correctDocument.file': 'Файл замены',
+        'cabinet.tasks.waiting.title': 'Ожидает проверки команды',
+        'cabinet.tasks.waiting.copy': 'Чистый документ загружен и ожидает ручной проверки.',
+        'cabinet.tasks.ready.title': 'Срочных действий нет',
+        'cabinet.tasks.ready.copy': 'Текущие видимые элементы не требуют действия. Поддерживайте контакты и сервисные карточки в актуальном состоянии.',
+        'cabinet.user.title': 'Сводка пользователя',
+        'cabinet.user.status': 'Аккаунт и регистрационный контекст',
+        'cabinet.user.email': 'Email',
+        'cabinet.user.draftId': 'Draft ID',
+        'cabinet.user.registrationStatus': 'Статус регистрации',
+        'cabinet.user.security': 'Безопасность аккаунта',
+        'cabinet.user.security.copy': 'Подтверждение email выполняется через регистрацию/аутентификацию. Подтверждение телефона пока отмечено как следует настроить.',
+        'cabinet.documents.title': 'Мои документы',
+        'cabinet.documents.status': 'Метаданные документов и статус проверки',
+        'cabinet.documents.empty': 'Для этого направления пока нет видимых загруженных документов.',
+        'cabinet.documents.documentType': 'Документ',
+        'cabinet.documents.scan': 'Сканирование',
+        'cabinet.documents.review': 'Проверка',
+        'cabinet.documents.size': 'Размер',
+        'cabinet.profile.title': 'Мой профиль / статус запроса',
+        'cabinet.profile.status': 'Состояние текущей сервисной карточки',
+        'cabinet.profile.role': 'Роль',
+        'cabinet.profile.seafarerReview': 'Проверка моряка',
+        'cabinet.profile.rank': 'Звание',
+        'cabinet.profile.availability': 'Доступность',
+        'cabinet.profile.company': 'Компания',
+        'cabinet.profile.companyStatus': 'Статус компании',
+        'cabinet.profile.vacancyStatus': 'Статус запроса экипажа',
+        'cabinet.profile.vacancy': 'Запрос экипажа',
+        'cabinet.services.title': 'Мои сервисы',
+        'cabinet.services.status': 'Доступные направления и запросы полномочий',
+        'cabinet.services.currentSeafarer': 'Рабочее пространство моряка / специалиста',
+        'cabinet.services.currentEmployer': 'Рабочее пространство покупателя / работодателя',
+        'cabinet.services.current.copy': 'Продолжить текущую сервисную карточку, связанную с этим черновиком.',
+        'cabinet.services.addSeafarer': 'Запросить полномочие моряка / специалиста',
+        'cabinet.services.addEmployer': 'Запросить полномочие покупателя / работодателя',
+        'cabinet.services.add.copy': 'Один человек может запросить несколько полномочий. Авторизация предоставляется только после проверки и подтверждений.',
+        'cabinet.support.title': 'Следующий контакт / поддержка',
+        'cabinet.support.status': 'Что делать после текущих задач',
+        'cabinet.support.withTasks': 'Сначала выполните Мои задачи. Если задача остается после чистой замены, обратитесь в поддержку с вашим draft ID.',
+        'cabinet.support.noTasks': 'Срочное обращение в поддержку не требуется. Поддерживайте документы и контакты в актуальном состоянии.',
+        'cabinet.action.openRegistration': 'Открыть регистрацию',
+        'cabinet.action.openCreateProfile': 'Открыть кабинет моряка',
+        'cabinet.action.openPostVacancy': 'Открыть кабинет работодателя',
+        'cabinet.action.openAuthorization': 'Открыть карточки полномочий',
+        'cabinet.action.uploading': 'Загружаем и сканируем замену...',
+        'cabinet.action.uploaded': 'Замена загружена и ожидает проверки команды.',
+        'cabinet.action.uploadError': 'Не удалось загрузить замену. Выберите другой файл, задача остается открытой.',
+        'cabinet.value.empty': 'Нет данных',
+        'cabinet.role.seafarer': 'Моряк / специалист',
+        'cabinet.role.employer': 'Покупатель / работодатель',
+        'cabinet.role.shipowner': 'Судовладелец / сторона спроса',
+        'cabinet.role.crewing_manager': 'Crewing manager',
+        'cabinet.review.pending_human_review': 'Ожидает проверки команды',
+        'cabinet.review.under_review': 'На проверке',
+        'cabinet.review.correction_requested': 'Требуется исправление',
+        'cabinet.review.rejected': 'Отклонен',
+        'cabinet.review.verified': 'Проверен',
+        'cabinet.review.not_submitted': 'Не отправлен',
+        'cabinet.scan.clean': 'Чистый',
+        'cabinet.scan.pending': 'Ожидает сканирования',
+        'cabinet.scan.infected': 'Заблокирован',
+        'cabinet.scan.scan_error': 'Ошибка сканирования',
+        'cabinet.scan.not_scanned': 'Не сканирован'
+      }
+    };
+  </script>
+  <script src="../assets/crewportglobal-registration-drafts.js"></script>
+  <script src="../assets/crewportglobal-public-i18n.js" defer></script>
+  <script>
+    (function () {
+      const summaryUser = document.getElementById('cabinet-summary-user');
+      const summaryRole = document.getElementById('cabinet-summary-role');
+      const summaryTasks = document.getElementById('cabinet-summary-tasks');
+      const summaryDocuments = document.getElementById('cabinet-summary-documents');
+      const taskStatus = document.getElementById('cabinet-tasks-status');
+      const taskList = document.getElementById('cabinet-task-list');
+      const userSummary = document.getElementById('cabinet-user-summary');
+      const documentList = document.getElementById('cabinet-document-list');
+      const profileSummary = document.getElementById('cabinet-profile-summary');
+      const serviceList = document.getElementById('cabinet-service-list');
+      const supportSummary = document.getElementById('cabinet-support-summary');
+
+      let cabinetDraft = null;
+      let cabinetDocuments = [];
+      let activeFormType = '';
+
+      function lang() {
+        const current = document.documentElement.lang || 'en';
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[current] ? current : 'en';
+      }
+
+      function t(key) {
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang()][key]
+          || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key]
+          || key;
+      }
+
+      function tp(key, values) {
+        return Object.entries(values || {}).reduce((result, [token, value]) => {
+          return result.replace(`{${token}}`, String(value));
+        }, t(key));
+      }
+
+      function valueOrEmpty(value) {
+        return value === null || value === undefined || String(value).trim() === ''
+          ? t('cabinet.value.empty')
+          : String(value).trim();
+      }
+
+      function getDraftIdFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return (params.get('draft_id') || '').trim();
+      }
+
+      function currentDraftId() {
+        const fromUrl = getDraftIdFromUrl();
+        if (fromUrl) {
+          return fromUrl;
+        }
+        const stored = window.CPGDrafts.getStoredDraft();
+        return stored && typeof stored.draftId === 'string' ? stored.draftId.trim() : '';
+      }
+
+      function roleLabel(role) {
+        return t(`cabinet.role.${role}`) === `cabinet.role.${role}` ? valueOrEmpty(role) : t(`cabinet.role.${role}`);
+      }
+
+      function formTypeForRole(role) {
+        return role === 'seafarer' ? 'seafarer' : 'employer';
+      }
+
+      function reviewLabel(value) {
+        const key = `cabinet.review.${value}`;
+        const label = t(key);
+        return label === key ? valueOrEmpty(value) : label;
+      }
+
+      function scanLabel(value) {
+        const key = `cabinet.scan.${value}`;
+        const label = t(key);
+        return label === key ? valueOrEmpty(value) : label;
+      }
+
+      function formatBytes(value) {
+        const bytes = Number(value);
+        if (!Number.isFinite(bytes) || bytes <= 0) {
+          return '-';
+        }
+        if (bytes < 1024 * 1024) {
+          return `${Math.ceil(bytes / 1024)} KB`;
+        }
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+      }
+
+      function detailItem(label, value) {
+        const item = document.createElement('div');
+        item.className = 'status-tile';
+        const caption = document.createElement('span');
+        caption.textContent = label;
+        const strong = document.createElement('strong');
+        strong.textContent = valueOrEmpty(value);
+        item.append(caption, strong);
+        return item;
+      }
+
+      function actionLink(label, href) {
+        const link = document.createElement('a');
+        link.className = 'button secondary';
+        link.href = href;
+        link.textContent = label;
+        return link;
+      }
+
+      function taskDocuments() {
+        return cabinetDocuments.filter((documentRecord) => (
+          ['correction_requested', 'rejected'].includes(documentRecord.review_status)
+          && typeof documentRecord.review_note === 'string'
+          && documentRecord.review_note.trim() !== ''
+        ));
+      }
+
+      function waitingDocuments() {
+        return cabinetDocuments.filter((documentRecord) => (
+          documentRecord.scan_status === 'clean'
+          && documentRecord.review_status === 'pending_human_review'
+        ));
+      }
+
+      function setSummary(taskCount) {
+        summaryUser.textContent = cabinetDraft ? valueOrEmpty(cabinetDraft.email) : t('cabinet.value.empty');
+        summaryRole.textContent = cabinetDraft ? roleLabel(cabinetDraft.role) : t('cabinet.value.empty');
+        summaryTasks.textContent = String(taskCount);
+        summaryDocuments.textContent = String(cabinetDocuments.length);
+        taskStatus.textContent = taskCount > 0
+          ? tp('cabinet.tasks.status.ready', { count: taskCount })
+          : t('cabinet.tasks.status.empty');
+      }
+
+      function renderTaskUpload(task, documentRecord) {
+        const upload = document.createElement('div');
+        upload.className = 'task-upload';
+
+        const field = document.createElement('label');
+        field.className = 'field';
+        const label = document.createElement('strong');
+        label.textContent = t('cabinet.tasks.correctDocument.file');
+        const file = document.createElement('input');
+        file.type = 'file';
+        file.accept = '.pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp';
+        field.append(label, file);
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'button';
+        button.textContent = t('cabinet.tasks.correctDocument.action');
+
+        const status = document.createElement('p');
+        status.className = 'status-line';
+
+        button.addEventListener('click', async () => {
+          const selected = file.files && file.files[0] ? file.files[0] : null;
+          if (!selected || !cabinetDraft) {
+            status.textContent = t('cabinet.action.uploadError');
+            status.className = 'status-line error';
+            return;
+          }
+
+          button.disabled = true;
+          status.textContent = t('cabinet.action.uploading');
+          status.className = 'status-line';
+          try {
+            await window.CPGDrafts.uploadDocument(cabinetDraft.draft_id, {
+              formType: activeFormType,
+              documentType: documentRecord.document_type,
+              file: selected
+            });
+            status.textContent = t('cabinet.action.uploaded');
+            status.className = 'status-line ok';
+            await loadCabinet();
+          } catch (error) {
+            console.error(error);
+            status.textContent = t('cabinet.action.uploadError');
+            status.className = 'status-line error';
+          } finally {
+            button.disabled = false;
+          }
+        });
+
+        upload.append(field, button);
+        task.append(upload, status);
+      }
+
+      function renderTasks() {
+        taskList.replaceChildren();
+        const corrections = taskDocuments();
+        const waiting = waitingDocuments();
+        let taskCount = corrections.length;
+
+        if (!cabinetDraft) {
+          const task = document.createElement('article');
+          task.className = 'task-item is-action';
+          const title = document.createElement('h3');
+          title.textContent = t('cabinet.tasks.noDraft.title');
+          const copy = document.createElement('p');
+          copy.className = 'muted';
+          copy.textContent = t('cabinet.tasks.noDraft.copy');
+          const actions = document.createElement('div');
+          actions.className = 'meta-row';
+          actions.append(
+            actionLink(t('cabinet.action.openRegistration'), '/register/'),
+            actionLink(t('cabinet.action.openAuthorization'), '/register/authorization/')
+          );
+          task.append(title, copy, actions);
+          taskList.append(task);
+          setSummary(1);
+          return;
+        }
+
+        corrections.forEach((documentRecord) => {
+          const task = document.createElement('article');
+          task.className = 'task-item is-action';
+          const title = document.createElement('h3');
+          title.textContent = t('cabinet.tasks.correctDocument.title');
+          const meta = document.createElement('div');
+          meta.className = 'meta-row';
+          [
+            `${t('cabinet.documents.documentType')}: ${valueOrEmpty(documentRecord.document_type)}`,
+            `${t('cabinet.documents.review')}: ${reviewLabel(documentRecord.review_status)}`,
+            `${t('cabinet.tasks.correctDocument.reason')}: ${documentRecord.review_note.trim()}`
+          ].forEach((text) => {
+            const chip = document.createElement('span');
+            chip.className = 'chip action';
+            chip.textContent = text;
+            meta.appendChild(chip);
+          });
+          task.append(title, meta);
+          renderTaskUpload(task, documentRecord);
+          taskList.append(task);
+        });
+
+        if (corrections.length === 0 && waiting.length > 0) {
+          taskCount = 0;
+          const task = document.createElement('article');
+          task.className = 'task-item is-waiting';
+          const title = document.createElement('h3');
+          title.textContent = t('cabinet.tasks.waiting.title');
+          const copy = document.createElement('p');
+          copy.className = 'muted';
+          copy.textContent = t('cabinet.tasks.waiting.copy');
+          task.append(title, copy);
+          taskList.append(task);
+        }
+
+        if (corrections.length === 0 && waiting.length === 0 && cabinetDocuments.length === 0) {
+          taskCount = 1;
+          const task = document.createElement('article');
+          task.className = 'task-item is-action';
+          const title = document.createElement('h3');
+          title.textContent = t('cabinet.tasks.noDocuments.title');
+          const copy = document.createElement('p');
+          copy.className = 'muted';
+          copy.textContent = t('cabinet.tasks.noDocuments.copy');
+          const href = activeFormType === 'seafarer'
+            ? `/create-profile/?draft_id=${encodeURIComponent(cabinetDraft.draft_id)}`
+            : `/post-vacancy/?draft_id=${encodeURIComponent(cabinetDraft.draft_id)}`;
+          const actions = document.createElement('div');
+          actions.className = 'meta-row';
+          actions.append(actionLink(
+            activeFormType === 'seafarer' ? t('cabinet.action.openCreateProfile') : t('cabinet.action.openPostVacancy'),
+            href
+          ));
+          task.append(title, copy, actions);
+          taskList.append(task);
+        }
+
+        if (corrections.length === 0 && waiting.length === 0 && cabinetDocuments.length > 0) {
+          const task = document.createElement('article');
+          task.className = 'task-item is-waiting';
+          const title = document.createElement('h3');
+          title.textContent = t('cabinet.tasks.ready.title');
+          const copy = document.createElement('p');
+          copy.className = 'muted';
+          copy.textContent = t('cabinet.tasks.ready.copy');
+          task.append(title, copy);
+          taskList.append(task);
+        }
+
+        setSummary(taskCount);
+      }
+
+      function renderUserSummary() {
+        userSummary.replaceChildren();
+        if (!cabinetDraft) {
+          userSummary.append(detailItem(t('cabinet.user.email'), t('cabinet.value.empty')));
+          return;
+        }
+
+        userSummary.append(
+          detailItem(t('cabinet.user.email'), cabinetDraft.email),
+          detailItem(t('cabinet.user.draftId'), cabinetDraft.draft_id),
+          detailItem(t('cabinet.user.registrationStatus'), cabinetDraft.status),
+          detailItem(t('cabinet.user.security'), t('cabinet.user.security.copy'))
+        );
+      }
+
+      function renderDocuments() {
+        documentList.replaceChildren();
+        if (cabinetDocuments.length === 0) {
+          const empty = document.createElement('p');
+          empty.className = 'empty-state';
+          empty.textContent = t('cabinet.documents.empty');
+          documentList.append(empty);
+          return;
+        }
+
+        cabinetDocuments.forEach((documentRecord) => {
+          const item = document.createElement('article');
+          item.className = 'document-item';
+          const title = document.createElement('h3');
+          title.textContent = documentRecord.original_filename || documentRecord.document_type || '-';
+          const meta = document.createElement('div');
+          meta.className = 'meta-row';
+          [
+            `${t('cabinet.documents.documentType')}: ${valueOrEmpty(documentRecord.document_type)}`,
+            `${t('cabinet.documents.scan')}: ${scanLabel(documentRecord.scan_status)}`,
+            `${t('cabinet.documents.review')}: ${reviewLabel(documentRecord.review_status)}`,
+            `${t('cabinet.documents.size')}: ${formatBytes(documentRecord.file_size_bytes)}`
+          ].forEach((text) => {
+            const chip = document.createElement('span');
+            chip.className = documentRecord.review_status === 'pending_human_review' ? 'chip ok' : 'chip';
+            chip.textContent = text;
+            meta.append(chip);
+          });
+          item.append(title, meta);
+          if (documentRecord.review_note) {
+            const note = document.createElement('p');
+            note.className = 'muted';
+            note.textContent = `${t('cabinet.tasks.correctDocument.reason')}: ${documentRecord.review_note}`;
+            item.append(note);
+          }
+          documentList.append(item);
+        });
+      }
+
+      function renderProfileStatus() {
+        profileSummary.replaceChildren();
+        if (!cabinetDraft) {
+          profileSummary.append(detailItem(t('cabinet.profile.role'), t('cabinet.value.empty')));
+          return;
+        }
+
+        const payload = cabinetDraft.payload && typeof cabinetDraft.payload === 'object' ? cabinetDraft.payload : {};
+        if (cabinetDraft.role === 'seafarer') {
+          const profile = payload.seafarer_profile && typeof payload.seafarer_profile === 'object'
+            ? payload.seafarer_profile
+            : {};
+          profileSummary.append(
+            detailItem(t('cabinet.profile.role'), roleLabel(cabinetDraft.role)),
+            detailItem(t('cabinet.profile.seafarerReview'), profile.review_status),
+            detailItem(t('cabinet.profile.rank'), profile.primary_rank || profile.rank),
+            detailItem(t('cabinet.profile.availability'), profile.availability_status)
+          );
+          return;
+        }
+
+        const company = payload.company && typeof payload.company === 'object' ? payload.company : {};
+        const vacancy = payload.vacancy_request && typeof payload.vacancy_request === 'object' ? payload.vacancy_request : {};
+        profileSummary.append(
+          detailItem(t('cabinet.profile.role'), roleLabel(cabinetDraft.role)),
+          detailItem(t('cabinet.profile.company'), company.company_name),
+          detailItem(t('cabinet.profile.companyStatus'), company.verification_status),
+          detailItem(t('cabinet.profile.vacancyStatus'), vacancy.publication_status),
+          detailItem(t('cabinet.profile.vacancy'), vacancy.vacancy_title || vacancy.rank)
+        );
+      }
+
+      function renderServices() {
+        serviceList.replaceChildren();
+        const current = document.createElement('article');
+        current.className = 'service-item';
+        const title = document.createElement('h3');
+        title.textContent = activeFormType === 'seafarer'
+          ? t('cabinet.services.currentSeafarer')
+          : t('cabinet.services.currentEmployer');
+        const copy = document.createElement('p');
+        copy.className = 'muted';
+        copy.textContent = t('cabinet.services.current.copy');
+        const actions = document.createElement('div');
+        actions.className = 'meta-row';
+        if (cabinetDraft) {
+          actions.append(actionLink(
+            activeFormType === 'seafarer' ? t('cabinet.action.openCreateProfile') : t('cabinet.action.openPostVacancy'),
+            activeFormType === 'seafarer'
+              ? `/create-profile/?draft_id=${encodeURIComponent(cabinetDraft.draft_id)}`
+              : `/post-vacancy/?draft_id=${encodeURIComponent(cabinetDraft.draft_id)}`
+          ));
+        }
+        current.append(title, copy, actions);
+        serviceList.append(current);
+
+        const add = document.createElement('article');
+        add.className = 'service-item';
+        const addTitle = document.createElement('h3');
+        addTitle.textContent = activeFormType === 'seafarer'
+          ? t('cabinet.services.addEmployer')
+          : t('cabinet.services.addSeafarer');
+        const addCopy = document.createElement('p');
+        addCopy.className = 'muted';
+        addCopy.textContent = t('cabinet.services.add.copy');
+        const addActions = document.createElement('div');
+        addActions.className = 'meta-row';
+        addActions.append(actionLink(t('cabinet.action.openAuthorization'), '/register/authorization/'));
+        add.append(addTitle, addCopy, addActions);
+        serviceList.append(add);
+      }
+
+      function renderSupport(taskCount) {
+        supportSummary.replaceChildren();
+        const item = document.createElement('article');
+        item.className = 'service-item';
+        const title = document.createElement('h3');
+        title.textContent = t('cabinet.support.title');
+        const copy = document.createElement('p');
+        copy.className = 'muted';
+        copy.textContent = taskCount > 0 ? t('cabinet.support.withTasks') : t('cabinet.support.noTasks');
+        item.append(title, copy);
+        if (cabinetDraft) {
+          const meta = document.createElement('div');
+          meta.className = 'meta-row';
+          const chip = document.createElement('span');
+          chip.className = 'chip';
+          chip.textContent = `${t('cabinet.user.draftId')}: ${cabinetDraft.draft_id}`;
+          meta.append(chip);
+          item.append(meta);
+        }
+        supportSummary.append(item);
+      }
+
+      async function loadCabinet() {
+        const draftId = currentDraftId();
+        if (!draftId) {
+          cabinetDraft = null;
+          cabinetDocuments = [];
+          activeFormType = 'seafarer';
+          renderTasks();
+          renderUserSummary();
+          renderDocuments();
+          renderProfileStatus();
+          renderServices();
+          renderSupport(1);
+          return;
+        }
+
+        cabinetDraft = await window.CPGDrafts.getDraft(draftId);
+        activeFormType = formTypeForRole(cabinetDraft.role);
+        const documentsResponse = await window.CPGDrafts.listDocuments(cabinetDraft.draft_id, activeFormType);
+        cabinetDocuments = Array.isArray(documentsResponse.documents) ? documentsResponse.documents : [];
+        const correctionCount = taskDocuments().length;
+        const taskCount = correctionCount || (cabinetDocuments.length === 0 ? 1 : 0);
+
+        renderTasks();
+        renderUserSummary();
+        renderDocuments();
+        renderProfileStatus();
+        renderServices();
+        renderSupport(taskCount);
+      }
+
+      loadCabinet().catch((error) => {
+        console.error(error);
+        cabinetDraft = null;
+        cabinetDocuments = [];
+        activeFormType = 'seafarer';
+        renderTasks();
+        renderUserSummary();
+        renderDocuments();
+        renderProfileStatus();
+        renderServices();
+        renderSupport(1);
+      });
+    })();
+  </script>
+</body>
+</html>
