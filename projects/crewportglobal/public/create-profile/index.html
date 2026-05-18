@@ -599,7 +599,8 @@
               </label>
               <label class="field-card">
                 <strong data-i18n="create.form.rank">Rank</strong>
-                <input id="create-rank" type="text" data-i18n-placeholder="create.form.rank.placeholder" placeholder="Chief Officer">
+                <input id="create-rank" type="text" list="create-rank-options" data-i18n-placeholder="create.form.rank.placeholder" placeholder="Chief Officer">
+                <datalist id="create-rank-options"></datalist>
               </label>
               <label class="field-card">
                 <strong data-i18n="create.form.department">Department</strong>
@@ -641,7 +642,8 @@
               </label>
               <label class="field-card full">
                 <strong data-i18n="create.form.vesselTypes">Preferred vessel types</strong>
-                <input id="create-vessel-types" type="text" data-i18n-placeholder="create.form.vesselTypes.placeholder" placeholder="Bulk Carrier, Container, LNG">
+                <input id="create-vessel-types" type="text" list="create-vessel-type-options" data-i18n-placeholder="create.form.vesselTypes.placeholder" placeholder="Bulk Carrier, Container, LNG">
+                <datalist id="create-vessel-type-options"></datalist>
               </label>
             </div>
           </section>
@@ -1191,6 +1193,7 @@
     };
   </script>
   <script src="../assets/crewportglobal-registration-drafts.js"></script>
+  <script src="../assets/crewportglobal-reference-catalogs.js"></script>
   <script src="../assets/crewportglobal-public-i18n.js" defer></script>
   <script>
     (function () {
@@ -1251,6 +1254,25 @@
       function tFormat(key, values) {
         const raw = t(key);
         return Object.entries(values || {}).reduce((acc, entry) => acc.replace(`{${entry[0]}}`, String(entry[1])), raw);
+      }
+
+      function loadReferenceCatalogBindings() {
+        if (!window.CPGReferenceCatalogs) {
+          return Promise.resolve([]);
+        }
+        return window.CPGReferenceCatalogs.bindCatalogs([
+          {
+            catalogCode: 'seafarer_positions',
+            datalist: 'create-rank-options'
+          },
+          {
+            catalogCode: 'vessel_types',
+            datalist: 'create-vessel-type-options'
+          }
+        ]).catch((error) => {
+          console.error(error);
+          return [];
+        });
       }
 
       function getDraftIdFromUrl() {
@@ -1938,6 +1960,8 @@
       } else {
         renderApplicationHistory([]);
       }
+
+      loadReferenceCatalogBindings();
 
       prefillFromDraftIfPresent().finally(() => {
         refreshUploadedDocuments();

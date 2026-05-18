@@ -452,7 +452,8 @@
               </label>
               <label class="field-card">
                 <strong data-i18n="post.form.vesselType">Vessel type</strong>
-                <input id="post-vessel-type" type="text" data-i18n-placeholder="post.form.vesselType.placeholder" placeholder="Bulk Carrier">
+                <input id="post-vessel-type" type="text" list="post-vessel-type-options" data-i18n-placeholder="post.form.vesselType.placeholder" placeholder="Bulk Carrier">
+                <datalist id="post-vessel-type-options"></datalist>
               </label>
               <label class="field-card full">
                 <strong data-i18n="post.form.imo">IMO number</strong>
@@ -460,7 +461,8 @@
               </label>
               <label class="field-card">
                 <strong data-i18n="post.form.vacancyTitle">Vacancy title / rank</strong>
-                <input id="post-vacancy-title" type="text" data-i18n-placeholder="post.form.vacancyTitle.placeholder" placeholder="Chief Officer">
+                <input id="post-vacancy-title" type="text" list="post-rank-options" data-i18n-placeholder="post.form.vacancyTitle.placeholder" placeholder="Chief Officer">
+                <datalist id="post-rank-options"></datalist>
               </label>
               <label class="field-card">
                 <strong data-i18n="post.form.department">Department</strong>
@@ -923,6 +925,7 @@
     };
   </script>
   <script src="../assets/crewportglobal-registration-drafts.js"></script>
+  <script src="../assets/crewportglobal-reference-catalogs.js"></script>
   <script src="../assets/crewportglobal-public-i18n.js" defer></script>
   <script>
     (function () {
@@ -977,6 +980,25 @@
         return Object.entries(values).reduce((result, [token, value]) => {
           return result.replace(`{${token}}`, String(value));
         }, t(key));
+      }
+
+      function loadReferenceCatalogBindings() {
+        if (!window.CPGReferenceCatalogs) {
+          return Promise.resolve([]);
+        }
+        return window.CPGReferenceCatalogs.bindCatalogs([
+          {
+            catalogCode: 'vessel_types',
+            datalist: 'post-vessel-type-options'
+          },
+          {
+            catalogCode: 'seafarer_positions',
+            datalist: 'post-rank-options'
+          }
+        ]).catch((error) => {
+          console.error(error);
+          return [];
+        });
       }
 
       function getDraftIdFromUrl() {
@@ -1472,6 +1494,8 @@
       if (stored.role === 'shipowner' || stored.role === 'crewing-manager' || stored.role === 'employer') {
         role.value = stored.role === 'crewing-manager' ? 'crewing_manager' : stored.role;
       }
+
+      loadReferenceCatalogBindings();
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
