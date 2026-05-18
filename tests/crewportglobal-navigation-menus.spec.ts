@@ -75,6 +75,34 @@ test('public and direct functional URLs expose simplified Application menu with 
   }
 });
 
+test('shared theme switcher applies and persists Dark Maritime and Light Work modes', async ({ page }) => {
+  await page.goto('/register/');
+  await page.evaluate(() => {
+    window.localStorage.removeItem('crewportglobal.theme.mode');
+  });
+  await page.reload();
+
+  const themeSwitcher = page.locator('.site-header .cpg-theme-switcher');
+  await expect(themeSwitcher).toBeVisible();
+  await expect(themeSwitcher.locator('summary')).toContainText('Theme');
+  await expect(themeSwitcher.locator('summary')).toContainText('Dark');
+  await expect(page.locator('html')).toHaveAttribute('data-cpg-theme-mode', 'dark');
+  await expect(page.locator('html')).toHaveAttribute('data-cpg-theme', 'dark');
+
+  await themeSwitcher.locator('summary').click();
+  await themeSwitcher.getByRole('button', { name: 'Light' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-cpg-theme-mode', 'light');
+  await expect(page.locator('html')).toHaveAttribute('data-cpg-theme', 'light');
+
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-cpg-theme-mode', 'light');
+  await expect(page.locator('html')).toHaveAttribute('data-cpg-theme', 'light');
+
+  await page.locator('.site-header .cpg-theme-switcher summary').click();
+  await page.locator('.site-header .cpg-theme-switcher').getByRole('button', { name: 'Auto' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-cpg-theme-mode', 'auto');
+});
+
 test('document pages expose simplified Documents menu without public functional links', async ({ page }) => {
   for (const item of documentPages) {
     await page.goto(item.path);

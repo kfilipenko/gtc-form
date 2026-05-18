@@ -120,7 +120,11 @@
       loggingOut: 'Signing out...',
       avatarLabel: 'Profile menu',
       verifiedEmail: 'Verified email',
-      emailNotVerified: 'Email not verified'
+      emailNotVerified: 'Email not verified',
+      theme: 'Theme',
+      themeAuto: 'Auto',
+      themeDark: 'Dark',
+      themeLight: 'Light'
     },
     ru: {
       entry: 'Аккаунт / Войти',
@@ -138,7 +142,11 @@
       loggingOut: 'Выходим...',
       avatarLabel: 'Меню профиля',
       verifiedEmail: 'Email подтверждён',
-      emailNotVerified: 'Email не подтверждён'
+      emailNotVerified: 'Email не подтверждён',
+      theme: 'Тема',
+      themeAuto: 'Авто',
+      themeDark: 'Тёмная',
+      themeLight: 'Светлая'
     },
     pt: {
       entry: 'Conta / Entrar',
@@ -156,9 +164,18 @@
       loggingOut: 'A terminar sessao...',
       avatarLabel: 'Menu do perfil',
       verifiedEmail: 'Email verificado',
-      emailNotVerified: 'Email nao verificado'
+      emailNotVerified: 'Email nao verificado',
+      theme: 'Tema',
+      themeAuto: 'Auto',
+      themeDark: 'Escuro',
+      themeLight: 'Claro'
     }
   };
+
+  const THEME_STORAGE_KEY = 'crewportglobal.theme.mode';
+  const THEME_MODES = ['auto', 'dark', 'light'];
+
+  let themeMode = readThemeMode();
 
   let accountState = {
     loaded: false,
@@ -166,6 +183,8 @@
     user: null,
     draft: null
   };
+
+  applyThemeMode(themeMode);
 
   function accountLanguage() {
     const language = document.documentElement.lang || 'en';
@@ -175,6 +194,103 @@
   function accountLabel(key) {
     const language = accountLanguage();
     return ACCOUNT_LABELS[language][key] || ACCOUNT_LABELS.en[key] || key;
+  }
+
+  function readThemeMode() {
+    try {
+      const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+      return THEME_MODES.includes(stored) ? stored : 'dark';
+    } catch (error) {
+      return 'dark';
+    }
+  }
+
+  function systemTheme() {
+    if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      return 'light';
+    }
+    return 'dark';
+  }
+
+  function resolvedTheme(mode) {
+    return mode === 'auto' ? systemTheme() : mode;
+  }
+
+  function applyThemeMode(mode) {
+    const normalized = THEME_MODES.includes(mode) ? mode : 'dark';
+    const resolved = resolvedTheme(normalized);
+    document.documentElement.dataset.cpgThemeMode = normalized;
+    document.documentElement.dataset.cpgTheme = resolved;
+    document.documentElement.style.colorScheme = resolved;
+  }
+
+  function setThemeMode(mode) {
+    themeMode = THEME_MODES.includes(mode) ? mode : 'dark';
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, themeMode);
+    } catch (error) {
+      // Theme choice still applies for the current page when local storage is unavailable.
+    }
+    applyThemeMode(themeMode);
+    renderAllThemeSwitchers();
+    window.dispatchEvent(new CustomEvent('crewportglobal:themechange', {
+      detail: {
+        mode: themeMode,
+        theme: resolvedTheme(themeMode)
+      }
+    }));
+  }
+
+  function themeModeLabel(mode) {
+    if (mode === 'auto') {
+      return accountLabel('themeAuto');
+    }
+    if (mode === 'light') {
+      return accountLabel('themeLight');
+    }
+    return accountLabel('themeDark');
+  }
+
+  function createThemeSwitcher() {
+    const buttons = THEME_MODES.map((mode) => {
+      const active = mode === themeMode ? ' is-active' : '';
+      const pressed = mode === themeMode ? 'true' : 'false';
+      return `<button class="cpg-theme-option${active}" type="button" data-cpg-theme-mode="${mode}" aria-pressed="${pressed}">${themeModeLabel(mode)}</button>`;
+    }).join('\n');
+
+    return [
+      '<details class="cpg-theme-switcher" data-cpg-theme-switcher-menu>',
+      '  <summary class="cpg-theme-switcher__summary">',
+      `    <span class="cpg-theme-switcher__label">${accountLabel('theme')}</span>`,
+      `    <span class="cpg-theme-switcher__value">${themeModeLabel(themeMode)}</span>`,
+      '    <span class="cpg-theme-switcher__chevron" aria-hidden="true">▾</span>',
+      '  </summary>',
+      '  <div class="cpg-theme-switcher__panel">',
+      buttons.split('\n').map((line) => `    ${line}`).join('\n'),
+      '  </div>',
+      '</details>',
+    ].join('\n');
+  }
+
+  function bindThemeSwitcher(root) {
+    root.querySelectorAll('[data-cpg-theme-mode]').forEach((button) => {
+      button.addEventListener('click', () => {
+        setThemeMode(button.dataset.cpgThemeMode || 'dark');
+        const menu = root.querySelector('[data-cpg-theme-switcher-menu]');
+        if (menu) {
+          menu.open = false;
+        }
+      });
+    });
+  }
+
+  function renderThemeSwitcher(mount) {
+    mount.innerHTML = createThemeSwitcher();
+    bindThemeSwitcher(mount);
+  }
+
+  function renderAllThemeSwitchers() {
+    document.querySelectorAll('[data-cpg-theme-switcher]').forEach(renderThemeSwitcher);
   }
 
   function accountDisplayName(user) {
@@ -454,6 +570,27 @@
     });
   }
 
+  function renderHeaderThemeSwitchers() {
+    document.querySelectorAll('[data-cpg-theme-switcher]').forEach(renderThemeSwitcher);
+
+    document.querySelectorAll('.site-header').forEach((header) => {
+      if (header.querySelector('.cpg-theme-switcher') || header.querySelector('[data-cpg-theme-switcher]')) {
+        return;
+      }
+
+      const actions = ensureHeaderActions(header);
+      const mount = document.createElement('div');
+      mount.setAttribute('data-cpg-theme-switcher', '');
+      const languageSelector = actions.querySelector(':scope > .language-selector');
+      if (languageSelector) {
+        actions.insertBefore(mount, languageSelector);
+      } else {
+        actions.appendChild(mount);
+      }
+      renderThemeSwitcher(mount);
+    });
+  }
+
   function createReferenceDocumentsMenu() {
     return [
       '<details class="nav-menu nav-menu--documents">',
@@ -514,9 +651,28 @@
     }
   }
 
+  const themeMedia = typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-color-scheme: light)') : null;
+  if (themeMedia) {
+    const handleSystemThemeChange = () => {
+      if (themeMode === 'auto') {
+        applyThemeMode(themeMode);
+        renderAllThemeSwitchers();
+      }
+    };
+    if (typeof themeMedia.addEventListener === 'function') {
+      themeMedia.addEventListener('change', handleSystemThemeChange);
+    } else if (typeof themeMedia.addListener === 'function') {
+      themeMedia.addListener(handleSystemThemeChange);
+    }
+  }
+
   document.querySelectorAll('[data-cpg-navigation]').forEach(renderNavigation);
+  renderHeaderThemeSwitchers();
   renderHeaderAccountAreas();
   fetchAccountState().then(renderAllAccountAreas);
   window.addEventListener('crewportglobal:authchanged', () => fetchAccountState().then(renderAllAccountAreas));
-  window.addEventListener('crewportglobal:languagechange', renderAllAccountAreas);
+  window.addEventListener('crewportglobal:languagechange', () => {
+    renderAllThemeSwitchers();
+    renderAllAccountAreas();
+  });
 })();

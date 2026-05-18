@@ -10,6 +10,28 @@
   --text-on-dark: #e8f0f7;
   --muted-on-dark: #9fb4c8;
   --shadow: 0 28px 80px rgba(3, 11, 20, 0.42);
+  --cpg-focus: rgba(86, 210, 226, 0.45);
+  --cpg-danger: #d9473f;
+  --cpg-success: #5fdaa0;
+  --cpg-warning: #ffc661;
+}
+
+html[data-cpg-theme="light"] {
+  --bg: #eef4f7;
+  --paper: rgba(255, 255, 255, 0.94);
+  --paper-strong: #ffffff;
+  --ink: #102232;
+  --muted: #5f7281;
+  --line: #d3e0e7;
+  --teal: #146b7c;
+  --amber: #f36f21;
+  --text-on-dark: #102232;
+  --muted-on-dark: #607482;
+  --shadow: 0 18px 44px rgba(22, 42, 56, 0.12);
+  --cpg-focus: rgba(20, 107, 124, 0.32);
+  --cpg-danger: #b91c1c;
+  --cpg-success: #167147;
+  --cpg-warning: #9b6a06;
 }
 
 * {
@@ -28,6 +50,13 @@ body.doc-body {
     radial-gradient(circle at top left, rgba(255, 139, 61, 0.18), transparent 22%),
     radial-gradient(circle at 88% 12%, rgba(86, 210, 226, 0.16), transparent 20%),
     linear-gradient(180deg, #07111c 0%, var(--bg) 100%);
+}
+
+html[data-cpg-theme="light"] body.doc-body {
+  background:
+    radial-gradient(circle at top left, rgba(20, 107, 124, 0.08), transparent 23%),
+    radial-gradient(circle at 88% 10%, rgba(243, 111, 33, 0.08), transparent 18%),
+    linear-gradient(180deg, #f7fafc 0%, var(--bg) 100%);
 }
 
 a {
@@ -83,6 +112,125 @@ a {
 
 .language-selector {
   position: relative;
+}
+
+.cpg-theme-switcher {
+  position: relative;
+}
+
+.cpg-theme-switcher__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-on-dark);
+  cursor: pointer;
+  list-style: none;
+  transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+
+.cpg-theme-switcher__summary::-webkit-details-marker {
+  display: none;
+}
+
+.cpg-theme-switcher__summary:hover,
+.cpg-theme-switcher__summary:focus-visible,
+.cpg-theme-switcher[open] > .cpg-theme-switcher__summary {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.18);
+  outline: none;
+}
+
+.cpg-theme-switcher__label {
+  color: var(--muted-on-dark);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cpg-theme-switcher__value {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.cpg-theme-switcher__chevron {
+  color: var(--muted-on-dark);
+  font-size: 11px;
+  transition: transform 180ms ease;
+}
+
+.cpg-theme-switcher[open] .cpg-theme-switcher__chevron {
+  transform: rotate(180deg);
+}
+
+.cpg-theme-switcher__panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 46;
+  display: grid;
+  gap: 8px;
+  width: min(190px, calc(100vw - 32px));
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(22, 40, 61, 0.98);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.28);
+}
+
+.cpg-theme-option {
+  width: 100%;
+  min-height: 38px;
+  padding: 9px 11px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--text-on-dark);
+  font: inherit;
+  font-weight: 800;
+  text-align: start;
+  cursor: pointer;
+}
+
+.cpg-theme-option:hover,
+.cpg-theme-option:focus-visible,
+.cpg-theme-option.is-active {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+}
+
+html[data-cpg-theme="light"] .cpg-theme-switcher__summary {
+  background: rgba(237, 244, 246, 0.9);
+}
+
+html[data-cpg-theme="light"] .cpg-theme-switcher__summary:hover,
+html[data-cpg-theme="light"] .cpg-theme-switcher__summary:focus-visible,
+html[data-cpg-theme="light"] .cpg-theme-switcher[open] > .cpg-theme-switcher__summary {
+  background: #dcebf0;
+  border-color: rgba(20, 107, 124, 0.22);
+}
+
+html[data-cpg-theme="light"] .cpg-theme-switcher__panel {
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+html[data-cpg-theme="light"] .cpg-theme-option {
+  color: var(--ink);
+}
+
+html[data-cpg-theme="light"] .cpg-theme-option:hover,
+html[data-cpg-theme="light"] .cpg-theme-option:focus-visible,
+html[data-cpg-theme="light"] .cpg-theme-option.is-active {
+  border-color: rgba(20, 107, 124, 0.22);
+  background: #edf4f6;
 }
 
 .language-toggle {
@@ -372,6 +520,43 @@ a {
   color: #ffb4ab;
 }
 
+html[data-cpg-theme="light"] .language-toggle,
+html[data-cpg-theme="light"] .home-link,
+html[data-cpg-theme="light"] .button.secondary,
+html[data-cpg-theme="light"] .cpg-account__summary {
+  background: rgba(237, 244, 246, 0.9);
+  color: var(--ink);
+}
+
+html[data-cpg-theme="light"] .language-menu,
+html[data-cpg-theme="light"] .nav-menu__panel,
+html[data-cpg-theme="light"] .cpg-account__panel {
+  background: #ffffff;
+  box-shadow: var(--shadow);
+}
+
+html[data-cpg-theme="light"] .language-option,
+html[data-cpg-theme="light"] .cpg-account__action--secondary,
+html[data-cpg-theme="light"] .cpg-account__login-shell,
+html[data-cpg-theme="light"] .cpg-account__field input {
+  color: var(--ink);
+}
+
+html[data-cpg-theme="light"] .language-option:hover,
+html[data-cpg-theme="light"] .language-option:focus-visible,
+html[data-cpg-theme="light"] .language-option.is-current,
+html[data-cpg-theme="light"] .cpg-account__summary:hover,
+html[data-cpg-theme="light"] .cpg-account__summary:focus-visible,
+html[data-cpg-theme="light"] .cpg-account[open] > .cpg-account__summary {
+  background: #dcebf0;
+}
+
+html[data-cpg-theme="light"] .cpg-account__login-shell,
+html[data-cpg-theme="light"] .cpg-account__field input {
+  border-color: var(--line);
+  background: #f7fafc;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -423,6 +608,8 @@ a {
 }
 
 .site-nav {
+  position: relative;
+  z-index: 35;
   margin-top: 14px;
   padding: 10px;
   flex-wrap: wrap;
@@ -523,6 +710,8 @@ a {
 }
 
 .doc-main {
+  position: relative;
+  z-index: 1;
   margin-top: 22px;
 }
 
@@ -851,16 +1040,20 @@ a {
 
   .language-selector,
   .language-toggle,
+  .cpg-theme-switcher,
+  .cpg-theme-switcher__summary,
   .cpg-account,
   .cpg-account__summary {
     width: 100%;
   }
 
   .language-toggle,
+  .cpg-theme-switcher__summary,
   .cpg-account__summary {
     justify-content: space-between;
   }
 
+  .cpg-theme-switcher__panel,
   .cpg-account__panel {
     position: static;
     width: 100%;
