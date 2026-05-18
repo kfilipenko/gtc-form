@@ -10,6 +10,7 @@ require_once __DIR__ . '/../lib/admin_access_storage_factory.php';
 require_once __DIR__ . '/../lib/document_uploads.php';
 require_once __DIR__ . '/../lib/identity_context.php';
 require_once __DIR__ . '/../lib/registration_person_flow.php';
+require_once __DIR__ . '/../lib/user_auth.php';
 
 const REG_DRAFT_STATUSES = ['draft', 'submitted_for_human_review'];
 const ADMIN_ACCESS_PUBLIC_ROUTES_ENV = 'CREWPORTGLOBAL_ADMIN_ACCESS_PUBLIC_ROUTES_ENABLED';
@@ -530,6 +531,242 @@ function handle_post_registration_person_confirm(): void {
         api_tx_rollback();
         api_error(500, 'registration_person_confirm_failed', $error->getMessage());
     }
+}
+
+function handle_post_auth_register_password(): void {
+    $body = api_decode_json_body();
+    $email = api_normalize_email($body['email'] ?? null);
+    $password = cpg_auth_normalize_password($body['password'] ?? null);
+    $confirmPassword = isset($body['confirm_password']) ? cpg_auth_normalize_password($body['confirm_password']) : $password;
+    $role = api_normalize_role($body['role'] ?? null);
+    $termsAccepted = ($body['terms_accepted'] ?? false) === true;
+    $consentAccepted = ($body['consent_accepted'] ?? false) === true;
+
+    if ($email === null) {
+        api_error(400, 'invalid_email', 'email is required and must be valid');
+    }
+    if ($password === null) {
+        api_error(400, 'invalid_password', 'password must be between 8 and 200 characters');
+    }
+    if ($confirmPassword === null || !hash_equals($password, $confirmPassword)) {
+        api_error(400, 'password_confirmation_mismatch', 'password confirmation does not match');
+    }
+    if ($role === null) {
+        api_error(400, 'invalid_role', 'role must be one of seafarer, employer, shipowner, crewing_manager');
+    }
+    if (!$termsAccepted || !$consentAccepted) {
+        api_error(400, 'registration_consents_required', 'terms_accepted and consent_accepted are required');
+    }
+
+    $existingCredential = api_query(
+        'SELECT credential_id
+         FROM crewportglobal.user_credentials
+         WHERE lower(login_email) = lower($1)
+         LIMIT 1',
+        [$email]
+    );
+    if (is_array(pg_fetch_assoc($existingCredential))) {
+        api_error(409, 'credential_already_exists', 'An account with this email already has password credentials');
+    }
+
+    api_tx_begin();
+    try {
+        [$userId, $createdRole] = upsert_user_and_role([
+            'role' => $role,
+            'email' => $email,
+            'full_name' => $body['full_name'] ?? null,
+        ]);
+
+        api_query(
+            'INSERT INTO crewportglobal.user_auth_identities (user_id, provider, provider_subject, is_primary)
+             VALUES ($1, $2, $3, TRUE)
+             ON CONFLICT (user_id, provider)
+             DO UPDATE SET
+               provider_subject = EXCLUDED.provider_subject,
+               is_primary = TRUE,
+               updated_at = now()',
+            [$userId, 'email', $email]
+        );
+
+        if ($createdRole === 'seafarer') {
+            upsert_seafarer_profile($userId, $body, $email);
+        } else {
+            [$companyId, $vesselId] = upsert_company_context($userId, $createdRole, $body);
+            upsert_vacancy_request($userId, $companyId, $vesselId, $body);
+        }
+
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        $credentialResult = api_query(
+            'INSERT INTO crewportglobal.user_credentials (user_id, login_email, password_hash)
+             VALUES ($1, $2, $3)
+             ON CONFLICT (user_id) DO NOTHING
+             RETURNING credential_id',
+            [$userId, $email, $passwordHash]
+        );
+        if (!is_array(pg_fetch_assoc($credentialResult))) {
+            api_tx_rollback();
+            api_error(409, 'credential_already_exists', 'An account with this email already has password credentials');
+        }
+
+        $session = cpg_auth_create_session($userId);
+
+        write_audit_event('password_credential_registered', $userId, null, null, [
+            'role' => $createdRole,
+            'login_email' => $email,
+            'session_created' => true,
+        ], 'auth_password_session');
+
+        $draft = build_draft_response($userId);
+        api_tx_commit();
+
+        api_json(201, [
+            'ok' => true,
+            'status' => 'password_credential_registered',
+            'user' => cpg_auth_public_user_payload([
+                'user_id' => $userId,
+                'email' => $email,
+                'display_name' => $body['full_name'] ?? null,
+                'registration_status' => $draft['status'] ?? 'draft',
+            ], $createdRole),
+            'session' => [
+                'expires_at' => $session['expires_at'],
+            ],
+            'draft_id' => $draft['draft_id'],
+            'draft' => $draft,
+            'next_url' => '/cabinet/',
+        ]);
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'auth_register_password_failed', $error->getMessage());
+    }
+}
+
+function handle_post_auth_login(): void {
+    $body = api_decode_json_body();
+    $email = api_normalize_email($body['email'] ?? null);
+    $password = is_string($body['password'] ?? null) ? (string) $body['password'] : '';
+
+    if ($email === null || $password === '') {
+        api_error(401, 'invalid_login', 'Invalid email or password');
+    }
+
+    $result = api_query(
+        'SELECT c.credential_id,
+                c.user_id,
+                c.password_hash,
+                c.is_active AS credential_active,
+                u.email,
+                u.display_name,
+                u.registration_status,
+                u.is_active AS user_active
+         FROM crewportglobal.user_credentials c
+         JOIN crewportglobal.users u ON u.user_id = c.user_id
+         WHERE lower(c.login_email) = lower($1)
+         LIMIT 1',
+        [$email]
+    );
+    $row = pg_fetch_assoc($result);
+    $valid = is_array($row)
+        && ($row['credential_active'] === 't' || $row['credential_active'] === true)
+        && ($row['user_active'] === 't' || $row['user_active'] === true)
+        && password_verify($password, (string) $row['password_hash']);
+
+    if (!$valid) {
+        if (is_array($row)) {
+            api_query(
+                'UPDATE crewportglobal.user_credentials
+                 SET failed_login_attempts = failed_login_attempts + 1,
+                     last_failed_login_at = now()
+                 WHERE credential_id = $1',
+                [(string) $row['credential_id']]
+            );
+        }
+        api_error(401, 'invalid_login', 'Invalid email or password');
+    }
+
+    $userId = (string) $row['user_id'];
+    $role = read_role_for_user($userId);
+    if ($role === null) {
+        api_error(403, 'account_role_missing', 'Account role is not configured');
+    }
+
+    api_tx_begin();
+    try {
+        api_query(
+            'UPDATE crewportglobal.user_credentials
+             SET failed_login_attempts = 0,
+                 last_failed_login_at = NULL,
+                 last_login_at = now()
+             WHERE credential_id = $1',
+            [(string) $row['credential_id']]
+        );
+
+        $session = cpg_auth_create_session($userId);
+        write_audit_event('password_login_succeeded', $userId, null, null, [
+            'login_email' => $email,
+        ], 'auth_password_session');
+
+        $draft = build_draft_response($userId);
+        api_tx_commit();
+
+        api_json(200, [
+            'ok' => true,
+            'authenticated' => true,
+            'user' => cpg_auth_public_user_payload($row, $role),
+            'session' => [
+                'expires_at' => $session['expires_at'],
+            ],
+            'draft' => $draft,
+            'next_url' => '/cabinet/',
+        ]);
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'auth_login_failed', $error->getMessage());
+    }
+}
+
+function handle_post_auth_logout(): void {
+    $session = cpg_auth_find_active_session();
+    if ($session !== null) {
+        write_audit_event('password_session_logged_out', (string) $session['user_id'], null, null, [
+            'session_id' => (string) $session['session_id'],
+        ], 'auth_password_session');
+    }
+
+    cpg_auth_revoke_current_session();
+
+    api_json(200, [
+        'ok' => true,
+        'authenticated' => false,
+        'status' => 'logged_out',
+    ]);
+}
+
+function handle_get_auth_me(): void {
+    $session = cpg_auth_find_active_session();
+    if ($session === null) {
+        api_json(200, [
+            'ok' => true,
+            'authenticated' => false,
+        ]);
+    }
+
+    $userId = (string) $session['user_id'];
+    $role = read_role_for_user($userId);
+    $draft = null;
+    if ($role !== null) {
+        $draft = build_draft_response($userId);
+    }
+
+    api_json(200, [
+        'ok' => true,
+        'authenticated' => true,
+        'user' => cpg_auth_public_user_payload($session, $role),
+        'session' => [
+            'expires_at' => $session['expires_at'],
+        ],
+        'draft' => $draft,
+    ]);
 }
 
 function read_role_for_user(string $userId): ?string {
@@ -1366,7 +1603,7 @@ function read_vacancy_applications_for_seafarer(string $userId): array {
 
 function build_draft_response(string $userId): array {
     $userResult = api_query(
-        'SELECT user_id, email, registration_status, created_at, updated_at
+        'SELECT user_id, email, display_name, registration_status, created_at, updated_at
          FROM crewportglobal.users
          WHERE user_id = $1',
         [$userId]
@@ -1437,6 +1674,7 @@ function build_draft_response(string $userId): array {
         'draft_id' => $userRow['user_id'],
         'role' => $role,
         'email' => $userRow['email'],
+        'display_name' => $userRow['display_name'] ?? null,
         'status' => in_array($userRow['registration_status'], REG_DRAFT_STATUSES, true)
             ? $userRow['registration_status']
             : 'draft',
@@ -3175,6 +3413,38 @@ function handle_patch_operator_review_queue_status(string $draftId): void {
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = request_path();
+
+if ($path === '/auth/register-password') {
+    if ($method === 'POST') {
+        handle_post_auth_register_password();
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if ($path === '/auth/login') {
+    if ($method === 'POST') {
+        handle_post_auth_login();
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if ($path === '/auth/logout') {
+    if ($method === 'POST') {
+        handle_post_auth_logout();
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if ($path === '/auth/me') {
+    if ($method === 'GET') {
+        handle_get_auth_me();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
 
 if ($path === '/admin/access/email-code/request') {
     if ($method === 'POST') {

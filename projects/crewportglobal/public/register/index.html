@@ -47,7 +47,8 @@
       grid-column: 1 / -1;
     }
 
-    .field-card input {
+    .field-card input,
+    .field-card select {
       width: 100%;
       padding: 14px 16px;
       border-radius: 16px;
@@ -171,12 +172,27 @@
               <input id="full-name" name="full_name" type="text" autocomplete="name" placeholder="Alex Marinov" data-i18n-placeholder="register.form.fullName.placeholder" required>
             </label>
             <label class="field-card">
+              <strong data-i18n="register.form.role">Primary capability</strong>
+              <select id="role" name="role" required>
+                <option value="seafarer" data-i18n="register.form.role.seafarer">Seafarer / Specialist</option>
+                <option value="employer" data-i18n="register.form.role.employer">Buyer / Employer</option>
+              </select>
+            </label>
+            <label class="field-card">
               <strong data-i18n="register.form.phone">Phone</strong>
               <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+1 555 0100" data-i18n-placeholder="register.form.phone.placeholder" required>
             </label>
             <label class="field-card">
               <strong data-i18n="register.form.country">Country / residence</strong>
               <input id="country" name="country" type="text" autocomplete="country-name" placeholder="Country" data-i18n-placeholder="register.form.country.placeholder" required>
+            </label>
+            <label class="field-card">
+              <strong data-i18n="register.form.password">Password</strong>
+              <input id="password" name="password" type="password" autocomplete="new-password" placeholder="Minimum 8 characters" data-i18n-placeholder="register.form.password.placeholder" required>
+            </label>
+            <label class="field-card">
+              <strong data-i18n="register.form.confirmPassword">Confirm password</strong>
+              <input id="confirm-password" name="confirm_password" type="password" autocomplete="new-password" placeholder="Repeat password" data-i18n-placeholder="register.form.confirmPassword.placeholder" required>
             </label>
             <div class="field-card full">
               <strong data-i18n="register.form.consent.title">Terms and consent</strong>
@@ -193,17 +209,21 @@
             </div>
             <div class="field-card full">
               <div class="inline-actions">
-                <button id="register-submit" class="button primary" type="submit" data-i18n="register.form.submit">Send confirmation link</button>
+                <button id="register-submit" class="button primary" type="submit" data-i18n="register.form.submit">Create account and open cabinet</button>
                 <a class="button secondary" href="https://crewportglobal.com/how-it-works/" data-i18n="register.form.howItWorks">How It Works</a>
               </div>
-              <p id="register-status" class="status-note" data-i18n="register.form.status">Next steps are email confirmation, phone confirmation and later authorization based on verified evidence.</p>
+              <p id="register-status" class="status-note" data-i18n="register.form.status">Create a password credential first. Phone confirmation should be configured in the next authentication stage.</p>
               <div id="register-next-steps" class="next-steps" hidden>
-                <strong data-i18n="register.nextSteps.title">Check your email to continue</strong>
+                <strong data-i18n="register.nextSteps.title">Account created</strong>
                 <ol>
-                  <li data-i18n="register.nextSteps.item1">Open the confirmation link sent by CrewPortGlobal.</li>
-                  <li data-i18n="register.nextSteps.item2">Confirm access to the service account.</li>
-                  <li data-i18n="register.nextSteps.item3">Continue to phone confirmation and capability-card selection.</li>
+                  <li data-i18n="register.nextSteps.item1">A secure session was created with an HttpOnly cookie.</li>
+                  <li data-i18n="register.nextSteps.item2">Open the cabinet and continue the registration sequence.</li>
+                  <li data-i18n="register.nextSteps.item3">Phone confirmation remains scheduled for the next implementation stage.</li>
                 </ol>
+                <div class="inline-actions">
+                  <a class="button primary" href="/cabinet/" data-i18n="register.nextSteps.cabinet">Open cabinet</a>
+                  <a class="button secondary" href="/register/authorization/" data-i18n="register.nextSteps.authorization">Choose authorization cards</a>
+                </div>
               </div>
             </div>
           </form>
@@ -236,20 +256,29 @@
         'register.form.email.placeholder': 'name@example.com',
         'register.form.fullName': 'Full legal name',
         'register.form.fullName.placeholder': 'Alex Marinov',
+        'register.form.role': 'Primary capability',
+        'register.form.role.seafarer': 'Seafarer / Specialist',
+        'register.form.role.employer': 'Buyer / Employer',
         'register.form.phone': 'Phone',
         'register.form.phone.placeholder': '+1 555 0100',
         'register.form.country': 'Country / residence',
         'register.form.country.placeholder': 'Country',
+        'register.form.password': 'Password',
+        'register.form.password.placeholder': 'Minimum 8 characters',
+        'register.form.confirmPassword': 'Confirm password',
+        'register.form.confirmPassword.placeholder': 'Repeat password',
         'register.form.consent.title': 'Terms and consent',
         'register.form.consent.item1': 'I confirm that the person data is accurate and may be used to create a service account record.',
         'register.form.consent.item2': 'I understand that authentication and authorization are separate steps and no role or data visibility is granted automatically.',
-        'register.form.submit': 'Send confirmation link',
+        'register.form.submit': 'Create account and open cabinet',
         'register.form.howItWorks': 'How It Works',
-        'register.form.status': 'Next steps are email confirmation, phone confirmation and later authorization based on verified evidence.',
-        'register.nextSteps.title': 'Check your email to continue',
-        'register.nextSteps.item1': 'Open the confirmation link sent by CrewPortGlobal.',
-        'register.nextSteps.item2': 'Confirm access to the service account.',
-        'register.nextSteps.item3': 'Continue to phone confirmation and capability-card selection.',
+        'register.form.status': 'Create a password credential first. Phone confirmation should be configured in the next authentication stage.',
+        'register.nextSteps.title': 'Account created',
+        'register.nextSteps.item1': 'A secure session was created with an HttpOnly cookie.',
+        'register.nextSteps.item2': 'Open the cabinet and continue the registration sequence.',
+        'register.nextSteps.item3': 'Phone confirmation remains scheduled for the next implementation stage.',
+        'register.nextSteps.cabinet': 'Open cabinet',
+        'register.nextSteps.authorization': 'Choose authorization cards',
         'register.side.preview.title': 'What registration means',
         'register.side.preview.copy': 'Registration creates the person and user record. A person may later receive multiple confirmed capabilities.',
         'register.side.purpose.title': 'What happens next',
@@ -265,20 +294,29 @@
         'register.form.email.placeholder': 'name@example.com',
         'register.form.fullName': 'Полное юридическое имя',
         'register.form.fullName.placeholder': 'Алекс Маринов',
+        'register.form.role': 'Первичная возможность',
+        'register.form.role.seafarer': 'Моряк / Специалист',
+        'register.form.role.employer': 'Покупатель / Работодатель',
         'register.form.phone': 'Телефон',
         'register.form.phone.placeholder': '+1 555 0100',
         'register.form.country': 'Страна / место проживания',
         'register.form.country.placeholder': 'Страна',
+        'register.form.password': 'Пароль',
+        'register.form.password.placeholder': 'Минимум 8 символов',
+        'register.form.confirmPassword': 'Подтвердите пароль',
+        'register.form.confirmPassword.placeholder': 'Повторите пароль',
         'register.form.consent.title': 'Условия и согласие',
         'register.form.consent.item1': 'Я подтверждаю, что данные физического лица указаны верно и могут использоваться для создания сервисного аккаунта.',
         'register.form.consent.item2': 'Я понимаю, что аутентификация и авторизация являются отдельными этапами, а роль и видимость данных не предоставляются автоматически.',
-        'register.form.submit': 'Отправить ссылку для продолжения',
+        'register.form.submit': 'Создать аккаунт и открыть кабинет',
         'register.form.howItWorks': 'Как это работает',
-        'register.form.status': 'Следующие шаги: подтверждение email, подтверждение телефона и последующая авторизация на основании проверенных доказательств.',
-        'register.nextSteps.title': 'Проверьте email, чтобы продолжить',
-        'register.nextSteps.item1': 'Откройте ссылку подтверждения от CrewPortGlobal.',
-        'register.nextSteps.item2': 'Подтвердите доступ к сервисному аккаунту.',
-        'register.nextSteps.item3': 'Продолжите подтверждение телефона и выбор capability cards.',
+        'register.form.status': 'Сначала создайте парольный доступ. Подтверждение телефона следует настроить на следующем этапе аутентификации.',
+        'register.nextSteps.title': 'Аккаунт создан',
+        'register.nextSteps.item1': 'Создана безопасная сессия через HttpOnly cookie.',
+        'register.nextSteps.item2': 'Откройте кабинет и продолжите регистрационную последовательность.',
+        'register.nextSteps.item3': 'Подтверждение телефона остаётся задачей следующего этапа реализации.',
+        'register.nextSteps.cabinet': 'Открыть кабинет',
+        'register.nextSteps.authorization': 'Выбрать карточки авторизации',
         'register.side.preview.title': 'Что означает регистрация',
         'register.side.preview.copy': 'Регистрация создаёт запись физического лица и пользователя. Позднее человек может получить несколько подтверждённых возможностей.',
         'register.side.purpose.title': 'Что происходит дальше',
@@ -298,20 +336,22 @@
 
       const messages = {
         en: {
-          validation: 'Complete full name, email, phone, country and both consent checks before continuing.',
-          preparing: 'Sending confirmation link...',
-          prepared: 'Confirmation link sent. Open your email to continue registration.',
-          requestFailed: 'Registration link could not be sent. Please check the fields and try again.',
+          validation: 'Complete full name, email, phone, country, role, password and both consent checks before continuing.',
+          passwordMismatch: 'Password confirmation does not match.',
+          preparing: 'Creating password credential...',
+          prepared: 'Account created. You can open the cabinet now.',
+          requestFailed: 'Account could not be created. The email may already have password credentials.',
           networkFailed: 'Registration service is unavailable. Please try again later.',
-          status: 'Next steps are email confirmation, phone confirmation and later authorization based on verified evidence.'
+          status: 'Create a password credential first. Phone confirmation should be configured in the next authentication stage.'
         },
         ru: {
-          validation: 'Заполните полное имя, email, телефон, страну и отметьте оба согласия перед продолжением.',
-          preparing: 'Отправляем ссылку подтверждения...',
-          prepared: 'Ссылка подтверждения отправлена. Откройте email, чтобы продолжить регистрацию.',
-          requestFailed: 'Не удалось отправить ссылку регистрации. Проверьте поля и попробуйте ещё раз.',
+          validation: 'Заполните полное имя, email, телефон, страну, роль, пароль и отметьте оба согласия перед продолжением.',
+          passwordMismatch: 'Подтверждение пароля не совпадает.',
+          preparing: 'Создаём парольный доступ...',
+          prepared: 'Аккаунт создан. Теперь можно открыть кабинет.',
+          requestFailed: 'Не удалось создать аккаунт. Возможно, для этого email уже есть парольный доступ.',
           networkFailed: 'Сервис регистрации временно недоступен. Попробуйте позже.',
-          status: 'Следующие шаги: подтверждение email, подтверждение телефона и последующая авторизация на основании проверенных доказательств.'
+          status: 'Сначала создайте парольный доступ. Подтверждение телефона следует настроить на следующем этапе аутентификации.'
         }
       };
 
@@ -339,14 +379,24 @@
         event.preventDefault();
         const email = document.getElementById('email');
         const fullName = document.getElementById('full-name');
+        const role = document.getElementById('role');
         const phone = document.getElementById('phone');
         const country = document.getElementById('country');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm-password');
         const terms = document.getElementById('terms');
         const consent = document.getElementById('consent');
         const language = resolveLanguage();
 
-        if (!email.value.trim() || !fullName.value.trim() || !phone.value.trim() || !country.value.trim() || !terms.checked || !consent.checked) {
+        if (!email.value.trim() || !fullName.value.trim() || !role.value || !phone.value.trim() || !country.value.trim() || !password.value || !confirmPassword.value || !terms.checked || !consent.checked) {
           status.textContent = messages[language].validation;
+          status.dataset.messageOverride = 'true';
+          status.classList.add('is-error');
+          status.classList.remove('is-success');
+          return;
+        }
+        if (password.value !== confirmPassword.value) {
+          status.textContent = messages[language].passwordMismatch;
           status.dataset.messageOverride = 'true';
           status.classList.add('is-error');
           status.classList.remove('is-success');
@@ -366,16 +416,20 @@
             capability_state: 'not_requested',
             full_name: fullName.value.trim(),
             email: email.value.trim(),
+            role: role.value,
             phone: phone.value.trim(),
             country: country.value.trim(),
+            password: password.value,
+            confirm_password: confirmPassword.value,
             terms_accepted: terms.checked,
             consent_accepted: consent.checked,
             language: document.documentElement.lang || 'en',
             created_at: new Date().toISOString()
           };
 
-          const response = await fetch('/api/v1/registration/person/request', {
+          const response = await fetch('/api/v1/auth/register-password', {
             method: 'POST',
+            credentials: 'include',
             headers: {
               'Content-Type': 'application/json'
             },
@@ -386,17 +440,26 @@
             throw new Error(result.error || 'registration_request_failed');
           }
 
-          payload.person_id = result.person_id || null;
-          payload.registration_state = 'email_confirmation_sent';
-          payload.masked_email = result.masked_email || null;
-          payload.email_confirmation_expires_at = result.expires_at || null;
+          payload.person_id = result.user && result.user.user_id ? result.user.user_id : null;
+          payload.registration_state = 'password_credential_registered';
+          payload.draft_id = result.draft_id || null;
+          delete payload.password;
+          delete payload.confirm_password;
           window.localStorage.setItem('crewportglobal.registration.person', JSON.stringify(payload));
-          window.localStorage.removeItem('crewportglobal.registration.role');
+          if (result.draft_id) {
+            window.localStorage.setItem('crewportglobal.registration.draft_id', result.draft_id);
+          }
+          window.localStorage.setItem('crewportglobal.registration.role', role.value);
+          window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
+          if (result.draft) {
+            window.localStorage.setItem('crewportglobal.registration.last_response', JSON.stringify(result.draft));
+          }
           status.textContent = messages[language].prepared;
           status.classList.add('is-success');
           status.classList.remove('is-error');
           nextSteps.hidden = false;
           submitButton.disabled = false;
+          window.dispatchEvent(new CustomEvent('crewportglobal:authchanged'));
         } catch (error) {
           status.textContent = error && error.message === 'registration_request_failed'
             ? messages[language].requestFailed

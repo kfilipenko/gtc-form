@@ -17,6 +17,10 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - POST /api/v1/registration/drafts/{draft_id}/documents
 - POST /api/v1/registration/person/request
 - POST /api/v1/registration/person/confirm
+- POST /api/v1/auth/register-password
+- POST /api/v1/auth/login
+- POST /api/v1/auth/logout
+- GET /api/v1/auth/me
 - GET /api/v1/operator/review-queue
 - GET /api/v1/operator/review-queue/vacancy-applications/{vacancy_application_id}
 - PATCH /api/v1/operator/review-queue/{draft_id}/status
@@ -69,8 +73,8 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - admin access console view: `/admin/access/` displays the current Project Owner session, active groups, roles, effective permissions and recent access audit events, with logout / session revoke only
 - protected team links: `/team/` loads links only through `GET /api/v1/admin/access/team-links` after a session whose user belongs to `owners` or `cpg_team`; the protected document review page is available at `/team/documents/`
 - access-management console slice: Project Owner can read users/groups, create or confirm users, and add users to assignable internal/administration groups through `GET /api/v1/admin/access/management`, `POST /api/v1/admin/access/users` and `POST /api/v1/admin/access/group-members`
-- public physical-person registration slice: `/register/` posts to `POST /api/v1/registration/person/request`, creates or confirms the base user record without assigning a role, sends an e-mail confirmation link through the protected SMTP config, and `POST /api/v1/registration/person/confirm` confirms `email_verified_at` before routing the user to the sequential registration page
-- full login/session logic: not implemented
+- public physical-person registration slice: `/register/` posts to `POST /api/v1/auth/register-password` for the first password credential MVP, creates a base user/draft with the selected primary capability and opens `/cabinet/`; the earlier `registration/person/*` e-mail confirmation endpoints remain available for the later verified-email stage
+- password credential/session MVP: `POST /api/v1/auth/register-password`, `POST /api/v1/auth/login`, `POST /api/v1/auth/logout` and `GET /api/v1/auth/me` store only `password_hash`, store only hashed session tokens, issue HttpOnly SameSite=Lax cookies, revoke sessions on logout and never return raw passwords, password hashes or raw session tokens
 
 ## Access-control Phase 2 status
 
@@ -271,7 +275,6 @@ php projects/crewportglobal/app/backend/api/tests/registration_person_flow_test.
 
 ## Out of scope here
 
-- account password hashing
-- login sessions
+- OAuth, e-mail verification enforcement, password reset and phone verification
 - broader admin console features beyond the first email-code gate
 - deployment/nginx/openclaw/stripe changes

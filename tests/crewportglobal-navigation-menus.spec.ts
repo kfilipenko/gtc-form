@@ -43,7 +43,8 @@ test('public and direct functional URLs expose simplified Application menu with 
     await account.locator('summary').click();
     await expect(account.getByRole('link', { name: 'Registration' })).toHaveAttribute('href', 'https://crewportglobal.com/register/');
     await account.getByRole('button', { name: 'Login' }).click();
-    await expect(account).toContainText('Password login is not enabled yet.');
+    await expect(account.locator('input[name="email"]')).toBeEnabled();
+    await expect(account.locator('input[name="password"]')).toBeEnabled();
     await account.locator('summary').click();
 
     const nav = page.locator('nav.site-nav--application');
@@ -111,7 +112,8 @@ test('document page menu controls expose public application and document targets
   await account.locator('summary').click();
   await expect(account.getByRole('link', { name: 'Registration' })).toHaveAttribute('href', 'https://crewportglobal.com/register/');
   await account.getByRole('button', { name: 'Login' }).click();
-  await expect(account).toContainText('Password login is not enabled yet.');
+  await expect(account.locator('input[name="email"]')).toBeEnabled();
+  await expect(account.locator('input[name="password"]')).toBeEnabled();
   await account.locator('summary').click();
 
   const nav = page.locator('nav.site-nav--documents');

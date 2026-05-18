@@ -215,6 +215,12 @@ body.doc-body.cpg-app-page {
   color: var(--app-ocean-dark);
 }
 
+.cpg-app-page .cpg-account__action--danger {
+  border-color: #b91c1c;
+  background: #b91c1c;
+  color: #fff;
+}
+
 .cpg-app-page .cpg-account__login-shell {
   border-color: var(--app-line);
   background: var(--app-surface-2);
@@ -230,6 +236,14 @@ body.doc-body.cpg-app-page {
   border-color: var(--app-line);
   background: var(--app-surface);
   color: var(--app-ink);
+}
+
+.cpg-app-page .cpg-account__status {
+  color: var(--app-muted);
+}
+
+.cpg-app-page .cpg-account__status.is-error {
+  color: #b91c1c;
 }
 
 .cpg-app-page .button {

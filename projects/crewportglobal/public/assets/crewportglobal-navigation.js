@@ -103,37 +103,206 @@
     }
   }
 
-  function createAccountArea() {
+  const ACCOUNT_LABELS = {
+    en: {
+      entry: 'Account / Login',
+      register: 'Registration',
+      login: 'Login',
+      currentCabinet: 'Current cabinet',
+      email: 'Email',
+      password: 'Password',
+      loginSubmit: 'Log in',
+      loginPreparing: 'Checking credentials...',
+      loginFailed: 'Invalid email or password.',
+      myCabinet: 'My Cabinet',
+      profileSettings: 'Profile settings',
+      logout: 'Logout',
+      loggingOut: 'Signing out...',
+      avatarLabel: 'Profile menu'
+    },
+    ru: {
+      entry: 'Аккаунт / Войти',
+      register: 'Регистрация',
+      login: 'Вход',
+      currentCabinet: 'Текущий кабинет',
+      email: 'Email',
+      password: 'Пароль',
+      loginSubmit: 'Войти',
+      loginPreparing: 'Проверяем данные...',
+      loginFailed: 'Неверный email или пароль.',
+      myCabinet: 'Мой кабинет',
+      profileSettings: 'Настройки профиля',
+      logout: 'Выйти',
+      loggingOut: 'Выходим...',
+      avatarLabel: 'Меню профиля'
+    },
+    pt: {
+      entry: 'Conta / Entrar',
+      register: 'Registar',
+      login: 'Entrar',
+      currentCabinet: 'Gabinete atual',
+      email: 'Email',
+      password: 'Senha',
+      loginSubmit: 'Entrar',
+      loginPreparing: 'A verificar credenciais...',
+      loginFailed: 'Email ou senha invalidos.',
+      myCabinet: 'Meu gabinete',
+      profileSettings: 'Definicoes do perfil',
+      logout: 'Sair',
+      loggingOut: 'A terminar sessao...',
+      avatarLabel: 'Menu do perfil'
+    }
+  };
+
+  let accountState = {
+    loaded: false,
+    authenticated: false,
+    user: null,
+    draft: null
+  };
+
+  function accountLanguage() {
+    const language = document.documentElement.lang || 'en';
+    return ACCOUNT_LABELS[language] ? language : 'en';
+  }
+
+  function accountLabel(key) {
+    const language = accountLanguage();
+    return ACCOUNT_LABELS[language][key] || ACCOUNT_LABELS.en[key] || key;
+  }
+
+  function accountDisplayName(user) {
+    if (!user || typeof user !== 'object') {
+      return accountLabel('entry');
+    }
+
+    const displayName = typeof user.display_name === 'string' ? user.display_name.trim() : '';
+    const email = typeof user.email === 'string' ? user.email.trim() : '';
+    return displayName || email || accountLabel('avatarLabel');
+  }
+
+  function accountInitials(user) {
+    const source = accountDisplayName(user);
+    return source
+      .split(/[\s@._-]+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join('') || 'CPG';
+  }
+
+  function persistAuthDraft(draft) {
+    if (!draft || typeof draft !== 'object') {
+      return;
+    }
+
+    try {
+      if (typeof draft.draft_id === 'string' && draft.draft_id) {
+        window.localStorage.setItem('crewportglobal.registration.draft_id', draft.draft_id);
+      }
+      if (typeof draft.role === 'string' && draft.role) {
+        window.localStorage.setItem('crewportglobal.registration.role', draft.role === 'crewing_manager' ? 'crewing-manager' : draft.role);
+      }
+      if (typeof draft.email === 'string' && draft.email) {
+        window.localStorage.setItem('crewportglobal.registration.email', draft.email);
+      }
+      window.localStorage.setItem('crewportglobal.registration.last_response', JSON.stringify(draft));
+    } catch (error) {
+      // Local draft persistence is a convenience fallback; authenticated session remains canonical.
+    }
+  }
+
+  async function fetchAccountState() {
+    try {
+      const response = await fetch('/api/v1/auth/me', {
+        method: 'GET',
+        credentials: 'include'
+      });
+      const body = await response.json().catch(() => ({}));
+      if (response.ok && body && body.authenticated === true) {
+        accountState = {
+          loaded: true,
+          authenticated: true,
+          user: body.user || null,
+          draft: body.draft || null
+        };
+        persistAuthDraft(body.draft || null);
+        return;
+      }
+    } catch (error) {
+      // Keep the public account entry usable when auth/me is unavailable.
+    }
+
+    accountState = {
+      loaded: true,
+      authenticated: false,
+      user: null,
+      draft: null
+    };
+  }
+
+  function createAuthenticatedAccountArea() {
+    const user = accountState.user || {};
+    const display = accountDisplayName(user);
+
+    return [
+      '<details class="cpg-account is-authenticated" data-cpg-account-menu>',
+      '  <summary class="cpg-account__summary">',
+      `    <span class="cpg-account__avatar" aria-hidden="true">${accountInitials(user)}</span>`,
+      `    <span class="cpg-account__label">${display}</span>`,
+      '    <span class="cpg-account__chevron" aria-hidden="true">▾</span>',
+      '  </summary>',
+      '  <div class="cpg-account__panel">',
+      `    <a class="cpg-account__action" href="${absoluteHref('/cabinet/')}">${accountLabel('myCabinet')}</a>`,
+      `    <a class="cpg-account__action cpg-account__action--secondary" href="${absoluteHref('/cabinet/#profile')}">${accountLabel('profileSettings')}</a>`,
+      `    <button class="cpg-account__action cpg-account__action--danger" type="button" data-cpg-logout>${accountLabel('logout')}</button>`,
+      '    <p class="cpg-account__status" data-cpg-auth-status></p>',
+      '  </div>',
+      '</details>',
+    ].join('\n');
+  }
+
+  function createUnauthenticatedAccountArea() {
     const cabinetHref = currentDraftCabinetHref();
     const cabinetLink = cabinetHref
-      ? `<a class="cpg-account__action cpg-account__action--secondary" href="${absoluteHref(cabinetHref)}" data-i18n="account.currentCabinet">Current cabinet</a>`
+      ? `<a class="cpg-account__action cpg-account__action--secondary" href="${absoluteHref(cabinetHref)}">${accountLabel('currentCabinet')}</a>`
       : '';
 
     return [
       '<details class="cpg-account" data-cpg-account-menu>',
       '  <summary class="cpg-account__summary">',
-      '    <span class="cpg-account__label" data-i18n="account.entry">Account / Login</span>',
+      `    <span class="cpg-account__label">${accountLabel('entry')}</span>`,
       '    <span class="cpg-account__chevron" aria-hidden="true">▾</span>',
       '  </summary>',
       '  <div class="cpg-account__panel">',
-      '    <a class="cpg-account__action" href="https://crewportglobal.com/register/" data-i18n="account.register">Registration</a>',
-      '    <button class="cpg-account__action cpg-account__action--secondary" type="button" data-cpg-login-shell-toggle data-i18n="account.login">Login</button>',
+      `    <a class="cpg-account__action" href="https://crewportglobal.com/register/">${accountLabel('register')}</a>`,
+      `    <button class="cpg-account__action cpg-account__action--secondary" type="button" data-cpg-login-shell-toggle>${accountLabel('login')}</button>`,
       cabinetLink ? `    ${cabinetLink}` : '',
       '    <div class="cpg-account__login-shell" data-cpg-login-shell hidden>',
-      '      <strong data-i18n="account.loginUnavailableTitle">Password login is not enabled yet.</strong>',
-      '      <p data-i18n="account.loginUnavailableCopy">Registration and cabinet access currently continue through the registration draft context. Real password login requires the next authentication implementation slice.</p>',
-      '      <label class="cpg-account__field">',
-      '        <span data-i18n="account.email">Email</span>',
-      '        <input type="email" autocomplete="email" disabled placeholder="name@example.com">',
-      '      </label>',
-      '      <label class="cpg-account__field">',
-      '        <span data-i18n="account.password">Password</span>',
-      '        <input type="password" autocomplete="current-password" disabled placeholder="••••••••">',
-      '      </label>',
+      '      <form class="cpg-account__login-form" data-cpg-login-form>',
+      '        <label class="cpg-account__field">',
+      `          <span>${accountLabel('email')}</span>`,
+      '          <input type="email" autocomplete="email" name="email" placeholder="name@example.com" required>',
+      '        </label>',
+      '        <label class="cpg-account__field">',
+      `          <span>${accountLabel('password')}</span>`,
+      '          <input type="password" autocomplete="current-password" name="password" placeholder="••••••••" required>',
+      '        </label>',
+      `        <button class="cpg-account__action" type="submit">${accountLabel('loginSubmit')}</button>`,
+      '        <p class="cpg-account__status" data-cpg-auth-status></p>',
+      '      </form>',
       '    </div>',
       '  </div>',
       '</details>',
     ].join('\n');
+  }
+
+  function createAccountArea() {
+    return accountState.authenticated ? createAuthenticatedAccountArea() : createUnauthenticatedAccountArea();
+  }
+
+  function renderAllAccountAreas() {
+    document.querySelectorAll('[data-cpg-account-area]').forEach(renderAccountArea);
   }
 
   function bindAccountArea(root) {
@@ -153,6 +322,88 @@
         }
       });
     });
+
+    const form = root.querySelector('[data-cpg-login-form]');
+    const status = root.querySelector('[data-cpg-auth-status]');
+    if (form) {
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const submit = form.querySelector('button[type="submit"]');
+        const email = form.elements.email ? form.elements.email.value.trim() : '';
+        const password = form.elements.password ? form.elements.password.value : '';
+        if (status) {
+          status.textContent = accountLabel('loginPreparing');
+          status.classList.remove('is-error');
+        }
+        if (submit) {
+          submit.disabled = true;
+        }
+
+        try {
+          const response = await fetch('/api/v1/auth/login', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+          });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok || body.authenticated !== true) {
+            throw new Error('invalid_login');
+          }
+          accountState = {
+            loaded: true,
+            authenticated: true,
+            user: body.user || null,
+            draft: body.draft || null
+          };
+          persistAuthDraft(body.draft || null);
+          renderAllAccountAreas();
+          window.dispatchEvent(new CustomEvent('crewportglobal:authchanged', { detail: accountState }));
+        } catch (error) {
+          if (status) {
+            status.textContent = accountLabel('loginFailed');
+            status.classList.add('is-error');
+          }
+        } finally {
+          if (submit) {
+            submit.disabled = false;
+          }
+        }
+      });
+    }
+
+    const logout = root.querySelector('[data-cpg-logout]');
+    if (logout) {
+      logout.addEventListener('click', async () => {
+        const status = root.querySelector('[data-cpg-auth-status]');
+        logout.disabled = true;
+        if (status) {
+          status.textContent = accountLabel('loggingOut');
+          status.classList.remove('is-error');
+        }
+        try {
+          await fetch('/api/v1/auth/logout', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+          });
+        } finally {
+          accountState = {
+            loaded: true,
+            authenticated: false,
+            user: null,
+            draft: null
+          };
+          renderAllAccountAreas();
+          window.dispatchEvent(new CustomEvent('crewportglobal:authchanged', { detail: accountState }));
+        }
+      });
+    }
   }
 
   function renderAccountArea(mount) {
@@ -255,4 +506,7 @@
 
   document.querySelectorAll('[data-cpg-navigation]').forEach(renderNavigation);
   renderHeaderAccountAreas();
+  fetchAccountState().then(renderAllAccountAreas);
+  window.addEventListener('crewportglobal:authchanged', () => fetchAccountState().then(renderAllAccountAreas));
+  window.addEventListener('crewportglobal:languagechange', renderAllAccountAreas);
 })();

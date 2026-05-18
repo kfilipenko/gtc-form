@@ -822,6 +822,18 @@
         return stored && typeof stored.draftId === 'string' ? stored.draftId.trim() : '';
       }
 
+      async function getAuthenticatedCabinetContext() {
+        const response = await fetch('/api/v1/auth/me', {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok || body.authenticated !== true || !body.draft) {
+          return null;
+        }
+        return body.draft;
+      }
+
       function roleLabel(role) {
         return t(`cabinet.role.${role}`) === `cabinet.role.${role}` ? valueOrEmpty(role) : t(`cabinet.role.${role}`);
       }
@@ -1257,6 +1269,24 @@
       }
 
       async function loadCabinet() {
+        const authenticatedDraft = await getAuthenticatedCabinetContext();
+        if (authenticatedDraft) {
+          cabinetDraft = authenticatedDraft;
+          activeFormType = formTypeForRole(cabinetDraft.role);
+          const documentsResponse = await window.CPGDrafts.listDocuments(cabinetDraft.draft_id, activeFormType);
+          cabinetDocuments = Array.isArray(documentsResponse.documents) ? documentsResponse.documents : [];
+          const correctionCount = taskDocuments().length;
+          const taskCount = correctionCount || (cabinetDocuments.length === 0 ? 1 : 0);
+
+          renderTasks();
+          renderUserSummary();
+          renderDocuments();
+          renderProfileStatus();
+          renderServices();
+          renderSupport(taskCount);
+          return;
+        }
+
         const draftId = currentDraftId();
         if (!draftId) {
           cabinetDraft = null;

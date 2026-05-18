@@ -207,6 +207,19 @@ a {
   list-style: none;
 }
 
+.cpg-account__avatar {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #54c9d9;
+  color: #062533;
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .cpg-account__summary::-webkit-details-marker {
   display: none;
 }
@@ -267,6 +280,11 @@ a {
   color: var(--text-on-dark);
 }
 
+.cpg-account__action--danger {
+  background: #b91c1c;
+  color: #fff;
+}
+
 .cpg-account__action:hover,
 .cpg-account__action:focus-visible {
   filter: brightness(0.98);
@@ -282,6 +300,11 @@ a {
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.08);
   color: var(--text-on-dark);
+}
+
+.cpg-account__login-form {
+  display: grid;
+  gap: 10px;
 }
 
 .cpg-account__login-shell[hidden] {
@@ -310,6 +333,18 @@ a {
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
   color: var(--text-on-dark);
+}
+
+.cpg-account__status {
+  margin: 0;
+  color: var(--muted-on-dark);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.cpg-account__status.is-error {
+  color: #ffb4ab;
 }
 
 .brand {

@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.05
+- Version: 1.06
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -204,6 +204,7 @@ docs/crewportglobal/
   114_cpg_doc_024_document_correction_task_replacement_report.md
   115_cpg_cabinet_025_user_personal_cabinet_dashboard_report.md
   116_cpg_cabinet_026_account_menu_login_registration_shell_report.md
+  117_cpg_auth_003_password_credential_session_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -338,6 +339,8 @@ Document 115 records the CPG-CABINET-025 user personal cabinet dashboard MVP imp
 
 Document 116 records the CPG-CABINET-026 account menu implementation, including the top-right Account / Login dropdown, separation of Registration and Login actions, removal of Login / Register from the main public navigation, Path B password-login-unavailable shell based on verified auth gaps, cabinet avatar/profile placeholder and focused navigation/cabinet UI verification.
 
+Document 117 records the CPG-AUTH-003 password credential and user session foundation, including `user_credentials`, `user_sessions`, password-hash registration, login, logout, `auth/me`, HttpOnly SameSite=Lax session cookies, authenticated `/cabinet/` access without `draft_id`, account-menu profile state and preserved draft fallback.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -441,6 +444,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.06 | 2026-05-18 | GTC IT / AI Assistant | Added document 117 as CPG-AUTH-003 password credential/session foundation report covering password-hash registration, login/logout, auth/me, hashed session tokens, HttpOnly SameSite=Lax cookies, account-menu authenticated state and /cabinet/ session context |
 | 1.05 | 2026-05-18 | GTC IT / AI Assistant | Added document 116 as CPG-CABINET-026 account menu and login/registration shell report covering top-right Account / Login dropdown, separate registration/login actions, Path B password-login-unavailable state, cabinet profile placeholder and focused UI verification |
 | 1.04 | 2026-05-18 | GTC IT / AI Assistant | Added document 115 as CPG-CABINET-025 user personal cabinet dashboard MVP report covering /cabinet/, task-first cabinet layout, document correction tasks, replacement upload, document/status summaries, service-area capability links and focused UI/API verification |
 | 1.03 | 2026-05-18 | GTC IT / AI Assistant | Added document 114 as CPG-DOC-024 user-facing document correction task and replacement upload implementation report covering computed correction tasks, Upload replacement actions, clean replacement closure, unsafe replacement persistence and seafarer/employer UI/API verification |
