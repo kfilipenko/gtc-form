@@ -18,7 +18,6 @@ const documentPages = [
 const appLinks = [
   { name: 'Home', href: 'https://crewportglobal.com/' },
   { name: 'Vacancies', href: 'https://crewportglobal.com/vacancies/' },
-  { name: 'Login / Register', href: 'https://crewportglobal.com/register/' },
 ];
 
 const privateFunctionalNavKeys = [
@@ -36,6 +35,16 @@ const documentLinks = [
 test('public and direct functional URLs expose simplified Application menu with Documents dropdown', async ({ page }) => {
   for (const path of appPages) {
     await page.goto(path);
+
+    const account = page.locator('.site-header .cpg-account');
+    await expect(account).toBeVisible();
+    await expect(account.locator('summary')).toContainText('Account / Login');
+    await expect(account.locator('.cpg-account__avatar')).toHaveCount(0);
+    await account.locator('summary').click();
+    await expect(account.getByRole('link', { name: 'Registration' })).toHaveAttribute('href', 'https://crewportglobal.com/register/');
+    await account.getByRole('button', { name: 'Login' }).click();
+    await expect(account).toContainText('Password login is not enabled yet.');
+    await account.locator('summary').click();
 
     const nav = page.locator('nav.site-nav--application');
     await expect(nav).toBeVisible();
@@ -69,6 +78,10 @@ test('document pages expose simplified Documents menu without public functional 
   for (const item of documentPages) {
     await page.goto(item.path);
 
+    const account = page.locator('.site-header .cpg-account');
+    await expect(account).toBeVisible();
+    await expect(account.locator('summary')).toContainText('Account / Login');
+
     const nav = page.locator('nav.site-nav--documents');
     await expect(nav).toBeVisible();
 
@@ -92,6 +105,14 @@ test('document pages expose simplified Documents menu without public functional 
 
 test('document page menu controls expose public application and document targets', async ({ page }) => {
   await page.goto('/legal/verification-policy/');
+
+  const account = page.locator('.site-header .cpg-account');
+  await expect(account).toBeVisible();
+  await account.locator('summary').click();
+  await expect(account.getByRole('link', { name: 'Registration' })).toHaveAttribute('href', 'https://crewportglobal.com/register/');
+  await account.getByRole('button', { name: 'Login' }).click();
+  await expect(account).toContainText('Password login is not enabled yet.');
+  await account.locator('summary').click();
 
   const nav = page.locator('nav.site-nav--documents');
   for (const link of appLinks) {

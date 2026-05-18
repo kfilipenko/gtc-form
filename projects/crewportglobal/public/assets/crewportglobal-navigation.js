@@ -4,7 +4,6 @@
   const APPLICATION_LINKS = [
     { href: '/', key: 'nav.home', label: 'Home' },
     { href: '/vacancies/', key: 'nav.vacancies', label: 'Vacancies' },
-    { href: '/register/', key: 'nav.loginRegister', label: 'Login / Register' },
   ];
 
   const DOCUMENT_LINKS = [
@@ -94,6 +93,106 @@
     ].join('\n');
   }
 
+  function currentDraftCabinetHref() {
+    try {
+      const draftId = window.localStorage.getItem('crewportglobal.registration.draft_id') || '';
+      const trimmed = draftId.trim();
+      return trimmed ? `/cabinet/?draft_id=${encodeURIComponent(trimmed)}` : '';
+    } catch (error) {
+      return '';
+    }
+  }
+
+  function createAccountArea() {
+    const cabinetHref = currentDraftCabinetHref();
+    const cabinetLink = cabinetHref
+      ? `<a class="cpg-account__action cpg-account__action--secondary" href="${absoluteHref(cabinetHref)}" data-i18n="account.currentCabinet">Current cabinet</a>`
+      : '';
+
+    return [
+      '<details class="cpg-account" data-cpg-account-menu>',
+      '  <summary class="cpg-account__summary">',
+      '    <span class="cpg-account__label" data-i18n="account.entry">Account / Login</span>',
+      '    <span class="cpg-account__chevron" aria-hidden="true">▾</span>',
+      '  </summary>',
+      '  <div class="cpg-account__panel">',
+      '    <a class="cpg-account__action" href="https://crewportglobal.com/register/" data-i18n="account.register">Registration</a>',
+      '    <button class="cpg-account__action cpg-account__action--secondary" type="button" data-cpg-login-shell-toggle data-i18n="account.login">Login</button>',
+      cabinetLink ? `    ${cabinetLink}` : '',
+      '    <div class="cpg-account__login-shell" data-cpg-login-shell hidden>',
+      '      <strong data-i18n="account.loginUnavailableTitle">Password login is not enabled yet.</strong>',
+      '      <p data-i18n="account.loginUnavailableCopy">Registration and cabinet access currently continue through the registration draft context. Real password login requires the next authentication implementation slice.</p>',
+      '      <label class="cpg-account__field">',
+      '        <span data-i18n="account.email">Email</span>',
+      '        <input type="email" autocomplete="email" disabled placeholder="name@example.com">',
+      '      </label>',
+      '      <label class="cpg-account__field">',
+      '        <span data-i18n="account.password">Password</span>',
+      '        <input type="password" autocomplete="current-password" disabled placeholder="••••••••">',
+      '      </label>',
+      '    </div>',
+      '  </div>',
+      '</details>',
+    ].join('\n');
+  }
+
+  function bindAccountArea(root) {
+    const toggle = root.querySelector('[data-cpg-login-shell-toggle]');
+    const shell = root.querySelector('[data-cpg-login-shell]');
+    if (toggle && shell) {
+      toggle.addEventListener('click', () => {
+        shell.hidden = !shell.hidden;
+      });
+    }
+
+    root.querySelectorAll('.cpg-account__action[href]').forEach((link) => {
+      link.addEventListener('click', () => {
+        const menu = root.querySelector('[data-cpg-account-menu]');
+        if (menu) {
+          menu.open = false;
+        }
+      });
+    });
+  }
+
+  function renderAccountArea(mount) {
+    mount.innerHTML = createAccountArea();
+    bindAccountArea(mount);
+  }
+
+  function ensureHeaderActions(header) {
+    let actions = header.querySelector(':scope > .site-header__actions');
+    if (!actions) {
+      actions = document.createElement('div');
+      actions.className = 'site-header__actions';
+      const languageSelector = header.querySelector(':scope > .language-selector');
+      if (languageSelector) {
+        header.insertBefore(actions, languageSelector);
+        actions.appendChild(languageSelector);
+      } else {
+        header.appendChild(actions);
+      }
+    }
+
+    return actions;
+  }
+
+  function renderHeaderAccountAreas() {
+    document.querySelectorAll('[data-cpg-account-area]').forEach(renderAccountArea);
+
+    document.querySelectorAll('.site-header').forEach((header) => {
+      if (header.querySelector('.cpg-account') || header.querySelector('[data-cpg-account-area]')) {
+        return;
+      }
+
+      const actions = ensureHeaderActions(header);
+      const mount = document.createElement('div');
+      mount.setAttribute('data-cpg-account-area', '');
+      actions.appendChild(mount);
+      renderAccountArea(mount);
+    });
+  }
+
   function createReferenceDocumentsMenu() {
     return [
       '<details class="nav-menu nav-menu--documents">',
@@ -155,4 +254,5 @@
   }
 
   document.querySelectorAll('[data-cpg-navigation]').forEach(renderNavigation);
+  renderHeaderAccountAreas();
 })();

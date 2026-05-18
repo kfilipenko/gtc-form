@@ -137,7 +137,16 @@ test('cabinet shows empty registration task when no draft is available', async (
 
   await expect(page.locator('#cabinet-task-list')).toContainText('Action required: open registration');
   await expect(page.locator('#cabinet-summary-tasks')).toHaveText('1');
-  await expect(page.getByRole('link', { name: 'Registration', exact: true })).toHaveAttribute('href', '/register/');
+  await expect(page.getByRole('link', { name: 'Open registration' })).toHaveAttribute('href', '/register/');
+
+  const account = page.locator('.cabinet-header .cpg-account');
+  await expect(account).toBeVisible();
+  await expect(account.locator('summary')).toContainText('Account / Login');
+  await expect(account.locator('.cpg-account__avatar')).toHaveCount(0);
+  await account.locator('summary').click();
+  await expect(account.getByRole('link', { name: 'Registration' })).toHaveAttribute('href', 'https://crewportglobal.com/register/');
+  await account.getByRole('button', { name: 'Login' }).click();
+  await expect(account).toContainText('Password login is not enabled yet.');
 });
 
 test('cabinet lets seafarer upload corrected replacement and returns document to review', async ({ page, request }) => {
@@ -170,6 +179,9 @@ test('cabinet lets seafarer upload corrected replacement and returns document to
   await page.goto(`/cabinet/?draft_id=${created.draft_id}`);
   await expect(page.locator('#cabinet-summary-user')).toHaveText(email);
   await expect(page.locator('#cabinet-summary-role')).toContainText('Seafarer');
+  await page.locator('#cabinet-user-card > summary').click();
+  await expect(page.locator('#cabinet-user-summary')).toContainText('Cabinet Seafarer');
+  await expect(page.locator('#cabinet-user-summary')).toContainText('Profile photo placeholder added');
   await expect(page.locator('#cabinet-summary-tasks')).toHaveText('1');
   await expect(page.locator('#cabinet-task-list')).toContainText('Action required: upload corrected document');
   await expect(page.locator('#cabinet-task-list')).toContainText(note);

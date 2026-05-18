@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.04
+- Version: 1.05
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -203,6 +203,7 @@ docs/crewportglobal/
   113_cpg_doc_023_protected_document_review_queue_report.md
   114_cpg_doc_024_document_correction_task_replacement_report.md
   115_cpg_cabinet_025_user_personal_cabinet_dashboard_report.md
+  116_cpg_cabinet_026_account_menu_login_registration_shell_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -335,6 +336,8 @@ Document 114 records the CPG-DOC-024 user-facing document correction task and re
 
 Document 115 records the CPG-CABINET-025 user personal cabinet dashboard MVP implementation, including `/cabinet/`, task-first layout, collapsed-by-default cabinet cards, User summary, My tasks, My documents, profile/request status, service-area capability links, next contact/support action, document correction replacement flow and focused UI/API verification.
 
+Document 116 records the CPG-CABINET-026 account menu implementation, including the top-right Account / Login dropdown, separation of Registration and Login actions, removal of Login / Register from the main public navigation, Path B password-login-unavailable shell based on verified auth gaps, cabinet avatar/profile placeholder and focused navigation/cabinet UI verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -438,6 +441,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.05 | 2026-05-18 | GTC IT / AI Assistant | Added document 116 as CPG-CABINET-026 account menu and login/registration shell report covering top-right Account / Login dropdown, separate registration/login actions, Path B password-login-unavailable state, cabinet profile placeholder and focused UI verification |
 | 1.04 | 2026-05-18 | GTC IT / AI Assistant | Added document 115 as CPG-CABINET-025 user personal cabinet dashboard MVP report covering /cabinet/, task-first cabinet layout, document correction tasks, replacement upload, document/status summaries, service-area capability links and focused UI/API verification |
 | 1.03 | 2026-05-18 | GTC IT / AI Assistant | Added document 114 as CPG-DOC-024 user-facing document correction task and replacement upload implementation report covering computed correction tasks, Upload replacement actions, clean replacement closure, unsafe replacement persistence and seafarer/employer UI/API verification |
 | 1.02 | 2026-05-17 | GTC IT / AI Assistant | Added document 113 as CPG-DOC-023 protected document review queue and authorized reviewer file access implementation report covering clean-only queue metadata, protected download, review decisions, audit events, /team/documents/ UI and API/UI/security verification |

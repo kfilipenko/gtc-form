@@ -181,6 +181,57 @@ body.doc-body.cpg-app-page {
   background: var(--app-surface-2);
 }
 
+.cpg-app-page .cpg-account__summary {
+  border-color: var(--app-line);
+  background: var(--app-surface-2);
+  color: var(--app-ink);
+}
+
+.cpg-app-page .cpg-account__summary:hover,
+.cpg-app-page .cpg-account__summary:focus-visible,
+.cpg-app-page .cpg-account[open] > .cpg-account__summary {
+  background: #dcebf0;
+  color: var(--app-ocean-dark);
+}
+
+.cpg-app-page .cpg-account__chevron {
+  color: var(--app-muted);
+}
+
+.cpg-app-page .cpg-account__panel {
+  border-color: var(--app-line);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow);
+}
+
+.cpg-app-page .cpg-account__action {
+  background: var(--app-ocean);
+  color: #fff;
+}
+
+.cpg-app-page .cpg-account__action--secondary {
+  border-color: var(--app-line);
+  background: var(--app-surface-2);
+  color: var(--app-ocean-dark);
+}
+
+.cpg-app-page .cpg-account__login-shell {
+  border-color: var(--app-line);
+  background: var(--app-surface-2);
+  color: var(--app-ink);
+}
+
+.cpg-app-page .cpg-account__login-shell p,
+.cpg-app-page .cpg-account__field {
+  color: var(--app-muted);
+}
+
+.cpg-app-page .cpg-account__field input {
+  border-color: var(--app-line);
+  background: var(--app-surface);
+  color: var(--app-ink);
+}
+
 .cpg-app-page .button {
   min-height: 44px;
   padding: 11px 16px;

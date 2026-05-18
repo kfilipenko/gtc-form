@@ -251,6 +251,40 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    .profile-identity-card {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid var(--cabinet-line);
+      border-radius: 10px;
+      background: var(--cabinet-soft);
+    }
+
+    .profile-avatar {
+      width: 64px;
+      height: 64px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--cabinet-primary);
+      color: #fff;
+      font-weight: 900;
+      font-size: 22px;
+    }
+
+    .profile-identity-copy {
+      display: grid;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .profile-identity-copy h3 {
+      margin-bottom: 0;
+    }
+
     .task-item,
     .document-item,
     .service-item {
@@ -404,7 +438,8 @@
       .cabinet-header,
       .cabinet-status,
       .profile-grid,
-      .task-upload {
+      .task-upload,
+      .profile-identity-card {
         grid-template-columns: 1fr;
       }
 
@@ -415,6 +450,11 @@
       .header-actions,
       .button {
         width: 100%;
+      }
+
+      .profile-avatar {
+        width: 56px;
+        height: 56px;
       }
     }
   </style>
@@ -430,8 +470,7 @@
         </span>
       </a>
       <div class="header-actions">
-        <a class="button secondary" href="/register/" data-i18n="cabinet.header.register">Registration</a>
-        <a class="button secondary" href="/register/authorization/" data-i18n="cabinet.header.authorization">Add authorization</a>
+        <div data-cpg-account-area></div>
       </div>
     </header>
 
@@ -571,6 +610,10 @@
         'cabinet.user.title': 'User summary',
         'cabinet.user.status': 'Account and registration context',
         'cabinet.user.email': 'Email',
+        'cabinet.user.fullName': 'Full name',
+        'cabinet.user.currentCapability': 'Current capability',
+        'cabinet.user.profilePhoto': 'Profile photo',
+        'cabinet.user.photoPlaceholder': 'Profile photo placeholder added. Persistent protected photo upload is deferred.',
         'cabinet.user.draftId': 'Draft ID',
         'cabinet.user.registrationStatus': 'Registration status',
         'cabinet.user.security': 'Account security',
@@ -658,6 +701,10 @@
         'cabinet.user.title': 'Сводка пользователя',
         'cabinet.user.status': 'Аккаунт и регистрационный контекст',
         'cabinet.user.email': 'Email',
+        'cabinet.user.fullName': 'Полное имя',
+        'cabinet.user.currentCapability': 'Текущее полномочие',
+        'cabinet.user.profilePhoto': 'Фото профиля',
+        'cabinet.user.photoPlaceholder': 'Добавлен placeholder фото профиля. Постоянная защищенная загрузка фото будет отдельным этапом.',
         'cabinet.user.draftId': 'Draft ID',
         'cabinet.user.registrationStatus': 'Статус регистрации',
         'cabinet.user.security': 'Безопасность аккаунта',
@@ -717,6 +764,7 @@
       }
     };
   </script>
+  <script src="../assets/crewportglobal-navigation.js"></script>
   <script src="../assets/crewportglobal-registration-drafts.js"></script>
   <script src="../assets/crewportglobal-public-i18n.js" defer></script>
   <script>
@@ -822,6 +870,62 @@
         link.href = href;
         link.textContent = label;
         return link;
+      }
+
+      function initialsFromName(name, email) {
+        const source = valueOrEmpty(name) !== t('cabinet.value.empty') ? name : email;
+        return String(source || 'CPG')
+          .split(/[\s@._-]+/)
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((part) => part.charAt(0).toUpperCase())
+          .join('') || 'CPG';
+      }
+
+      function profileDisplayName() {
+        if (!cabinetDraft) {
+          return '';
+        }
+        if (typeof cabinetDraft.full_name === 'string' && cabinetDraft.full_name.trim()) {
+          return cabinetDraft.full_name.trim();
+        }
+        if (typeof cabinetDraft.display_name === 'string' && cabinetDraft.display_name.trim()) {
+          return cabinetDraft.display_name.trim();
+        }
+        const payload = cabinetDraft.payload && typeof cabinetDraft.payload === 'object' ? cabinetDraft.payload : {};
+        const profile = payload.seafarer_profile && typeof payload.seafarer_profile === 'object'
+          ? payload.seafarer_profile
+          : {};
+        const profileName = [profile.first_name, profile.last_name].filter(Boolean).join(' ').trim();
+        return profileName || cabinetDraft.email || '';
+      }
+
+      function renderIdentityCard() {
+        const card = document.createElement('article');
+        card.className = 'profile-identity-card';
+        const avatar = document.createElement('div');
+        avatar.className = 'profile-avatar';
+        avatar.textContent = initialsFromName(profileDisplayName(), cabinetDraft && cabinetDraft.email);
+
+        const copy = document.createElement('div');
+        copy.className = 'profile-identity-copy';
+        const title = document.createElement('h3');
+        title.textContent = valueOrEmpty(profileDisplayName());
+        const meta = document.createElement('div');
+        meta.className = 'meta-row';
+        [
+          `${t('cabinet.user.email')}: ${valueOrEmpty(cabinetDraft && cabinetDraft.email)}`,
+          `${t('cabinet.user.currentCapability')}: ${cabinetDraft ? roleLabel(cabinetDraft.role) : t('cabinet.value.empty')}`,
+          `${t('cabinet.user.profilePhoto')}: ${t('cabinet.user.photoPlaceholder')}`
+        ].forEach((text) => {
+          const chip = document.createElement('span');
+          chip.className = 'chip';
+          chip.textContent = text;
+          meta.append(chip);
+        });
+        copy.append(title, meta);
+        card.append(avatar, copy);
+        return card;
       }
 
       function taskDocuments() {
@@ -1003,13 +1107,16 @@
 
       function renderUserSummary() {
         userSummary.replaceChildren();
+        userSummary.append(renderIdentityCard());
         if (!cabinetDraft) {
           userSummary.append(detailItem(t('cabinet.user.email'), t('cabinet.value.empty')));
           return;
         }
 
         userSummary.append(
+          detailItem(t('cabinet.user.fullName'), profileDisplayName()),
           detailItem(t('cabinet.user.email'), cabinetDraft.email),
+          detailItem(t('cabinet.user.currentCapability'), roleLabel(cabinetDraft.role)),
           detailItem(t('cabinet.user.draftId'), cabinetDraft.draft_id),
           detailItem(t('cabinet.user.registrationStatus'), cabinetDraft.status),
           detailItem(t('cabinet.user.security'), t('cabinet.user.security.copy'))
