@@ -1,0 +1,12 @@
+[Unit]
+Description=Run CrewPortGlobal public frontend deploy periodically
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=2min
+AccuracySec=15s
+Persistent=true
+Unit=crewportglobal-public-deploy.service
+
+[Install]
+WantedBy=timers.target

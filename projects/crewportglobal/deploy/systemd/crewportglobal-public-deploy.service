@@ -1,0 +1,19 @@
+[Unit]
+Description=CrewPortGlobal public frontend deploy
+Documentation=file:/var/www/gtc-form/docs/crewportglobal/119_cpg_deploy_001_public_live_sync_automation_report.md
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=kfilipenko
+Group=kfilipenko
+WorkingDirectory=/var/www/gtc-form
+Environment=ROOT_DIR=/var/www/gtc-form
+Environment=LIVE_ROOT=/var/www/crewportglobal.com
+Environment=PUBLIC_BASE_URL=https://crewportglobal.com
+Environment=CPG_DEPLOY_GIT_PULL=0
+Environment=CPG_DEPLOY_RUN_I18N_CHECK=1
+Environment=CPG_DEPLOY_RUN_SMOKE_CHECKS=1
+Environment=CPG_DEPLOY_DELETE_STALE=1
+ExecStart=/var/www/gtc-form/projects/crewportglobal/scripts/deploy_public_live.sh

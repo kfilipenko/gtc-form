@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.08
+- Version: 1.09
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -207,6 +207,7 @@ docs/crewportglobal/
   117_cpg_auth_003_password_credential_session_report.md
   118_cpg_auth_004_email_verification_activation_report.md
   119_cpg_deploy_001_public_live_sync_automation_report.md
+  120_cpg_deploy_002_public_live_systemd_timer_activation_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -347,6 +348,8 @@ Document 118 records the CPG-AUTH-004 email verification and account activation 
 
 Document 119 records the CPG-DEPLOY-001 public live sync automation control, including the repository-to-live-root publication gap, the dedicated frontend/public deploy script, rsync safety controls, dry-run and smoke-check commands, and recommended automatic trigger options for systemd timer or GitHub Actions SSH deployment.
 
+Document 120 records the CPG-DEPLOY-002 activation of the server-side systemd timer for automatic public/frontend live synchronization, including installed unit names, schedule, runtime user, deploy environment, safety boundaries and operational commands.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -450,6 +453,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.09 | 2026-05-18 | GTC IT / AI Assistant | Added document 120 as CPG-DEPLOY-002 public live systemd timer activation report covering installed units, timer schedule, runtime user, deploy environment, safety boundaries and operational commands |
 | 1.08 | 2026-05-18 | GTC IT / AI Assistant | Added document 119 as CPG-DEPLOY-001 public live sync automation report covering the repository-to-live-root publication gap, dedicated frontend/public deploy script, rsync safety controls, dry-run and smoke checks, and automatic trigger options |
 | 1.07 | 2026-05-18 | GTC IT / AI Assistant | Added document 118 as CPG-AUTH-004 email verification and account activation report covering hash-only verification tokens, send/resend/verify endpoints, cabinet verification task, account-menu e-mail status and password-session preservation |
 | 1.06 | 2026-05-18 | GTC IT / AI Assistant | Added document 117 as CPG-AUTH-003 password credential/session foundation report covering password-hash registration, login/logout, auth/me, hashed session tokens, HttpOnly SameSite=Lax cookies, account-menu authenticated state and /cabinet/ session context |
