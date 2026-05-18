@@ -1342,11 +1342,11 @@
           setReferenceStatus(body.message || 'Reference catalog update failed.', 'error');
           return;
         }
+        await refreshReferencePanel(token);
         setReferenceStatus(
           `Updated ${body.updated_value_count || 0} value(s) to ${referenceStateLabel(publicationState)}.`,
           'ok'
         );
-        await refreshReferencePanel(token);
       } catch (error) {
         setReferenceStatus('Reference catalog update failed.', 'error');
       } finally {
