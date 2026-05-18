@@ -88,6 +88,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - protected profile photo MVP: authenticated users can upload JPG/PNG/WEBP profile photos through `POST /api/v1/user/profile-photo`; files are size-limited to 5 MB, scanned before use, stored outside the public web root, exposed only through the owner-session `GET /api/v1/user/profile-photo/image` endpoint and returned as metadata in `auth/me`
 - reference catalog foundation: migration 011 creates `reference_catalogs` and `reference_catalog_values`; `scripts/import_seafarer_reference_catalogs.py` reads the private seafarer Excel `DROPDOWN_LISTS` sheet and generates owner-review artifacts outside Git
 - reference catalog publication boundary: `GET /api/v1/reference-catalogs` exposes only active catalogs and values whose `publication_state = published`; Project Owner can inspect internal catalog state through `GET /api/v1/admin/access/reference-catalogs` and change catalog/value publication state through `PATCH /api/v1/admin/access/reference-catalogs/publication`
+- reference catalog admin console: `/admin/access/` includes a Project Owner Reference catalogs section with catalog counts, owner-review values, audit-note entry and approve/publish/retire actions for whole catalogs or selected values
 
 ## Access-control Phase 2 status
 

@@ -466,6 +466,151 @@
       font-size: 12px;
       line-height: 1.4;
     }
+    .reference-grid {
+      display: grid;
+      grid-template-columns: minmax(250px, 0.9fr) minmax(0, 1.4fr);
+      gap: 12px;
+    }
+    .reference-toolbar,
+    .reference-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: end;
+      margin: 0 0 12px;
+    }
+    .reference-toolbar .admin-field {
+      min-width: min(260px, 100%);
+      flex: 1 1 180px;
+    }
+    .reference-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+    .reference-mini-card {
+      padding: 9px 10px;
+      border: 1px solid var(--admin-border);
+      border-radius: 8px;
+      background: var(--admin-surface-soft);
+    }
+    .reference-mini-card strong {
+      display: block;
+      color: var(--admin-text);
+      font-size: 18px;
+      line-height: 1.2;
+    }
+    .reference-catalog-list,
+    .reference-value-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      max-height: 430px;
+      overflow: auto;
+    }
+    .reference-catalog-list li,
+    .reference-value-list li {
+      display: grid;
+      gap: 6px;
+      padding: 10px;
+      border: 1px solid var(--admin-border);
+      border-radius: 8px;
+      background: var(--admin-surface-soft);
+      color: var(--admin-text);
+    }
+    .reference-catalog-head,
+    .reference-value-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+    .reference-catalog-name,
+    .reference-value-name {
+      font-weight: 800;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+    .reference-meta {
+      color: var(--admin-muted);
+      font-size: 12px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+    .reference-state {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--admin-border-strong);
+      color: var(--admin-primary-strong);
+      background: var(--admin-surface);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .reference-state.is-pending_owner_review {
+      color: var(--admin-warning-text);
+      border-color: var(--admin-warning-border);
+      background: var(--admin-warning-bg);
+    }
+    .reference-state.is-approved {
+      color: var(--admin-primary-strong);
+      border-color: #8fd3de;
+      background: rgba(78, 199, 216, 0.12);
+    }
+    .reference-state.is-published {
+      color: var(--admin-success);
+      border-color: #8fcfab;
+      background: var(--admin-success-soft);
+    }
+    .reference-state.is-retired {
+      color: var(--admin-danger);
+      border-color: #e0aaa4;
+      background: var(--admin-danger-soft);
+    }
+    .reference-inline-button {
+      min-height: 30px;
+      padding: 0 10px;
+      border: 1px solid var(--admin-border-strong);
+      border-radius: 999px;
+      background: var(--admin-surface);
+      color: var(--admin-text);
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .reference-inline-button:hover,
+    .reference-inline-button:focus-visible {
+      border-color: var(--admin-primary);
+      color: var(--admin-primary-strong);
+      outline: none;
+    }
+    .reference-check {
+      display: flex;
+      gap: 8px;
+      align-items: start;
+      min-width: 0;
+    }
+    .reference-check input {
+      margin-top: 3px;
+      flex: 0 0 auto;
+    }
+    .reference-status {
+      min-height: 24px;
+      margin: 8px 0 0;
+      color: var(--admin-muted);
+      font-weight: 700;
+      line-height: 1.5;
+    }
+    .reference-status.ok { color: var(--admin-success); }
+    .reference-status.error { color: var(--admin-danger); }
     @media (max-width: 860px) {
       .admin-header,
       .console-grid,
@@ -485,7 +630,8 @@
         grid-template-columns: 1fr;
       }
       .management-grid,
-      .management-lists {
+      .management-lists,
+      .reference-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -635,6 +781,73 @@
           </div>
         </section>
 
+        <section class="console-section" aria-labelledby="reference-title">
+          <p class="section-kicker">Reference catalogs</p>
+          <h2 class="section-title" id="reference-title">Owner review and publication</h2>
+          <div class="reference-summary" aria-label="Reference catalog summary">
+            <div class="reference-mini-card">
+              <p class="summary-label">Catalogs</p>
+              <strong id="reference-total-catalogs">0</strong>
+            </div>
+            <div class="reference-mini-card">
+              <p class="summary-label">Pending review</p>
+              <strong id="reference-total-pending">0</strong>
+            </div>
+            <div class="reference-mini-card">
+              <p class="summary-label">Approved</p>
+              <strong id="reference-total-approved">0</strong>
+            </div>
+            <div class="reference-mini-card">
+              <p class="summary-label">Published</p>
+              <strong id="reference-total-published">0</strong>
+            </div>
+          </div>
+          <div class="reference-toolbar">
+            <div class="admin-field">
+              <label for="reference-catalog-select">Catalog</label>
+              <select id="reference-catalog-select"></select>
+            </div>
+            <div class="admin-field">
+              <label for="reference-state-filter">Value state</label>
+              <select id="reference-state-filter">
+                <option value="">All states</option>
+                <option value="pending_owner_review">Pending owner review</option>
+                <option value="approved">Approved</option>
+                <option value="published">Published</option>
+                <option value="retired">Retired</option>
+              </select>
+            </div>
+            <button class="admin-button secondary" type="button" id="reference-refresh">Refresh</button>
+          </div>
+
+          <div class="reference-grid">
+            <div>
+              <p class="summary-label">Catalog queue</p>
+              <ul class="reference-catalog-list" id="reference-catalog-list"></ul>
+            </div>
+            <div>
+              <p class="summary-label">Selected catalog</p>
+              <div class="reference-actions" aria-label="Catalog publication actions">
+                <button class="admin-button secondary" type="button" id="reference-approve-catalog">Approve catalog</button>
+                <button class="admin-button" type="button" id="reference-publish-catalog">Publish catalog</button>
+                <button class="admin-button danger" type="button" id="reference-retire-catalog">Retire catalog</button>
+              </div>
+              <div class="admin-field">
+                <label for="reference-reason">Reason / audit note</label>
+                <textarea id="reference-reason" maxlength="500" placeholder="Optional note for audit"></textarea>
+              </div>
+              <p class="reference-status" id="reference-status" role="status" aria-live="polite"></p>
+              <p class="summary-label" id="reference-selected-label">No catalog selected</p>
+              <div class="reference-actions" aria-label="Selected value publication actions">
+                <button class="admin-button secondary" type="button" id="reference-approve-selected">Approve selected</button>
+                <button class="admin-button" type="button" id="reference-publish-selected">Publish selected</button>
+                <button class="admin-button danger" type="button" id="reference-retire-selected">Retire selected</button>
+              </div>
+              <ul class="reference-value-list" id="reference-value-list"></ul>
+            </div>
+          </div>
+        </section>
+
         <div class="console-grid">
           <section class="console-section" aria-labelledby="identity-title">
             <p class="section-kicker">Identity</p>
@@ -697,6 +910,25 @@
     const auditBody = document.getElementById('audit-body');
     const auditToggleLabel = document.getElementById('audit-toggle-label');
     const auditToggleIcon = document.getElementById('audit-toggle-icon');
+    const referenceCatalogSelect = document.getElementById('reference-catalog-select');
+    const referenceStateFilter = document.getElementById('reference-state-filter');
+    const referenceRefresh = document.getElementById('reference-refresh');
+    const referenceCatalogList = document.getElementById('reference-catalog-list');
+    const referenceValueList = document.getElementById('reference-value-list');
+    const referenceStatus = document.getElementById('reference-status');
+    const referenceReason = document.getElementById('reference-reason');
+    const referenceSelectedLabel = document.getElementById('reference-selected-label');
+    const referenceApproveCatalog = document.getElementById('reference-approve-catalog');
+    const referencePublishCatalog = document.getElementById('reference-publish-catalog');
+    const referenceRetireCatalog = document.getElementById('reference-retire-catalog');
+    const referenceApproveSelected = document.getElementById('reference-approve-selected');
+    const referencePublishSelected = document.getElementById('reference-publish-selected');
+    const referenceRetireSelected = document.getElementById('reference-retire-selected');
+    const referenceState = {
+      catalogs: [],
+      values: [],
+      selectedCatalog: '',
+    };
 
     function setStatus(message, type = '') {
       statusNode.textContent = message;
@@ -717,6 +949,27 @@
     function setManagementStatus(message, type = '') {
       managementStatus.textContent = message;
       managementStatus.className = `management-status ${type}`.trim();
+    }
+
+    function setReferenceBusy(isBusy) {
+      for (const button of [
+        referenceRefresh,
+        referenceApproveCatalog,
+        referencePublishCatalog,
+        referenceRetireCatalog,
+        referenceApproveSelected,
+        referencePublishSelected,
+        referenceRetireSelected,
+      ]) {
+        button.disabled = isBusy;
+      }
+      referenceCatalogSelect.disabled = isBusy;
+      referenceStateFilter.disabled = isBusy;
+    }
+
+    function setReferenceStatus(message, type = '') {
+      referenceStatus.textContent = message;
+      referenceStatus.className = `reference-status ${type}`.trim();
     }
 
     function showLogin(message = '') {
@@ -745,6 +998,18 @@
       if (token) headers.Authorization = `Bearer ${token}`;
       const response = await fetch(path, {
         method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+      });
+      const body = await response.json().catch(() => ({}));
+      return { response, body };
+    }
+
+    async function patchJson(path, payload = {}, token = '') {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      const response = await fetch(path, {
+        method: 'PATCH',
         headers,
         body: JSON.stringify(payload),
       });
@@ -820,6 +1085,272 @@
         meta.textContent = pieces.join(' | ');
         item.append(type, meta);
         node.append(item);
+      }
+    }
+
+    function referenceStateLabel(state) {
+      return String(state || 'draft').replace(/_/g, ' ');
+    }
+
+    function makeReferenceStateChip(state) {
+      const chip = document.createElement('span');
+      chip.className = `reference-state is-${state || 'draft'}`;
+      chip.textContent = referenceStateLabel(state);
+      return chip;
+    }
+
+    function updateReferenceSummary(catalogs) {
+      const list = Array.isArray(catalogs) ? catalogs : [];
+      const totals = list.reduce(
+        (acc, catalog) => {
+          const counts = catalog.state_counts || {};
+          acc.pending += Number(counts.pending_owner_review || 0);
+          acc.approved += Number(counts.approved || 0);
+          acc.published += Number(counts.published || 0);
+          return acc;
+        },
+        { pending: 0, approved: 0, published: 0 }
+      );
+      setText('reference-total-catalogs', String(list.length));
+      setText('reference-total-pending', String(totals.pending));
+      setText('reference-total-approved', String(totals.approved));
+      setText('reference-total-published', String(totals.published));
+    }
+
+    function renderReferenceCatalogSelect() {
+      const previous = referenceState.selectedCatalog || referenceCatalogSelect.value;
+      referenceCatalogSelect.replaceChildren();
+      const empty = document.createElement('option');
+      empty.value = '';
+      empty.textContent = 'Select catalog';
+      referenceCatalogSelect.append(empty);
+
+      for (const catalog of referenceState.catalogs) {
+        const option = document.createElement('option');
+        option.value = catalog.catalog_code || '';
+        option.textContent = `${catalog.catalog_name || catalog.catalog_code} (${catalog.catalog_code})`;
+        referenceCatalogSelect.append(option);
+      }
+
+      if (previous && referenceState.catalogs.some((catalog) => catalog.catalog_code === previous)) {
+        referenceCatalogSelect.value = previous;
+      } else {
+        referenceCatalogSelect.value = '';
+        referenceState.selectedCatalog = '';
+      }
+    }
+
+    function renderReferenceCatalogs(catalogs) {
+      referenceState.catalogs = Array.isArray(catalogs) ? catalogs : [];
+      updateReferenceSummary(referenceState.catalogs);
+      renderReferenceCatalogSelect();
+      referenceCatalogList.replaceChildren();
+
+      if (referenceState.catalogs.length === 0) {
+        const item = document.createElement('li');
+        item.textContent = 'No reference catalogs loaded.';
+        referenceCatalogList.append(item);
+        return;
+      }
+
+      for (const catalog of referenceState.catalogs) {
+        const item = document.createElement('li');
+        const head = document.createElement('div');
+        head.className = 'reference-catalog-head';
+        const title = document.createElement('div');
+        title.className = 'reference-catalog-name';
+        title.textContent = catalog.catalog_name || catalog.catalog_code;
+        head.append(title, makeReferenceStateChip(catalog.publication_state));
+
+        const meta = document.createElement('div');
+        meta.className = 'reference-meta';
+        const counts = catalog.state_counts || {};
+        meta.textContent = [
+          catalog.catalog_code,
+          catalog.catalog_scope,
+          `values ${catalog.value_count || 0}`,
+          `pending ${counts.pending_owner_review || 0}`,
+          `approved ${counts.approved || 0}`,
+          `published ${counts.published || 0}`,
+        ].filter(Boolean).join(' | ');
+
+        const action = document.createElement('button');
+        action.className = 'reference-inline-button';
+        action.type = 'button';
+        action.textContent = 'Open values';
+        action.addEventListener('click', () => {
+          referenceState.selectedCatalog = catalog.catalog_code || '';
+          referenceCatalogSelect.value = referenceState.selectedCatalog;
+          loadReferenceValues();
+        });
+
+        item.append(head, meta, action);
+        referenceCatalogList.append(item);
+      }
+    }
+
+    function selectedReferenceValueCodes() {
+      return Array.from(referenceValueList.querySelectorAll('input[type="checkbox"]:checked'))
+        .map((input) => input.value)
+        .filter(Boolean);
+    }
+
+    function renderReferenceValues(values) {
+      referenceState.values = Array.isArray(values) ? values : [];
+      referenceValueList.replaceChildren();
+      const selectedCatalog = referenceState.selectedCatalog || referenceCatalogSelect.value;
+      const catalog = referenceState.catalogs.find((item) => item.catalog_code === selectedCatalog);
+      referenceSelectedLabel.textContent = catalog
+        ? `${catalog.catalog_name || catalog.catalog_code} | ${referenceState.values.length} loaded value(s)`
+        : 'No catalog selected';
+
+      if (!selectedCatalog) {
+        const item = document.createElement('li');
+        item.textContent = 'Select a catalog to inspect values.';
+        referenceValueList.append(item);
+        return;
+      }
+
+      if (referenceState.values.length === 0) {
+        const item = document.createElement('li');
+        item.textContent = 'No values match the current filter.';
+        referenceValueList.append(item);
+        return;
+      }
+
+      for (const value of referenceState.values) {
+        const item = document.createElement('li');
+        const head = document.createElement('div');
+        head.className = 'reference-value-head';
+
+        const label = document.createElement('label');
+        label.className = 'reference-check';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = value.value_code || '';
+        const name = document.createElement('span');
+        name.className = 'reference-value-name';
+        name.textContent = value.display_name || value.value_code;
+        label.append(checkbox, name);
+        head.append(label, makeReferenceStateChip(value.publication_state));
+
+        const meta = document.createElement('div');
+        meta.className = 'reference-meta';
+        meta.textContent = [
+          value.value_code,
+          value.source_row_number ? `row ${value.source_row_number}` : '',
+          value.source_value ? `source: ${value.source_value}` : '',
+        ].filter(Boolean).join(' | ');
+
+        item.append(head, meta);
+        referenceValueList.append(item);
+      }
+    }
+
+    function referenceQueryString(params) {
+      const query = new URLSearchParams();
+      for (const [key, value] of Object.entries(params)) {
+        if (value) query.set(key, value);
+      }
+      const stringValue = query.toString();
+      return stringValue ? `?${stringValue}` : '';
+    }
+
+    async function loadReferenceCatalogs(token = sessionToken()) {
+      const { response, body } = await getJson('/api/v1/admin/access/reference-catalogs', token);
+      if (!response.ok || body.ok !== true) {
+        setReferenceStatus(body.message || 'Reference catalogs are not available.', 'error');
+        return false;
+      }
+      renderReferenceCatalogs(body.catalogs || []);
+      setReferenceStatus('');
+      return true;
+    }
+
+    async function loadReferenceValues(token = sessionToken()) {
+      const catalogCode = referenceState.selectedCatalog || referenceCatalogSelect.value;
+      if (!catalogCode) {
+        referenceState.selectedCatalog = '';
+        renderReferenceValues([]);
+        return;
+      }
+
+      referenceState.selectedCatalog = catalogCode;
+      const query = referenceQueryString({
+        include_values: '1',
+        catalog_code: catalogCode,
+        publication_state: referenceStateFilter.value,
+      });
+      const { response, body } = await getJson(`/api/v1/admin/access/reference-catalogs${query}`, token);
+      if (!response.ok || body.ok !== true) {
+        setReferenceStatus(body.message || 'Reference values are not available.', 'error');
+        return;
+      }
+      renderReferenceValues(body.values || []);
+      setReferenceStatus('');
+    }
+
+    async function refreshReferencePanel(token = sessionToken()) {
+      setReferenceBusy(true);
+      try {
+        const ok = await loadReferenceCatalogs(token);
+        if (ok) {
+          await loadReferenceValues(token);
+        }
+      } finally {
+        setReferenceBusy(false);
+      }
+    }
+
+    async function updateReferencePublication(publicationState, valueCodes = null) {
+      const token = sessionToken();
+      const catalogCode = referenceState.selectedCatalog || referenceCatalogSelect.value;
+      if (!token) {
+        showLogin('Session expired. Please request a new code.');
+        return;
+      }
+      if (!catalogCode) {
+        setReferenceStatus('Select a catalog first.', 'error');
+        return;
+      }
+
+      const payload = {
+        catalog_code: catalogCode,
+        publication_state: publicationState,
+        reason: referenceReason.value.trim(),
+      };
+      if (!payload.reason) {
+        delete payload.reason;
+      }
+      if (Array.isArray(valueCodes)) {
+        if (valueCodes.length === 0) {
+          setReferenceStatus('Select one or more values first.', 'error');
+          return;
+        }
+        payload.value_codes = valueCodes;
+      }
+
+      setReferenceBusy(true);
+      setReferenceStatus('Updating reference catalog state...');
+      try {
+        const { response, body } = await patchJson(
+          '/api/v1/admin/access/reference-catalogs/publication',
+          payload,
+          token
+        );
+        if (!response.ok || body.ok !== true) {
+          setReferenceStatus(body.message || 'Reference catalog update failed.', 'error');
+          return;
+        }
+        setReferenceStatus(
+          `Updated ${body.updated_value_count || 0} value(s) to ${referenceStateLabel(publicationState)}.`,
+          'ok'
+        );
+        await refreshReferencePanel(token);
+      } catch (error) {
+        setReferenceStatus('Reference catalog update failed.', 'error');
+      } finally {
+        setReferenceBusy(false);
       }
     }
 
@@ -907,6 +1438,7 @@
       renderAudit(body.recent_access_audit_events || []);
       showConsole();
       await loadManagement(token);
+      await refreshReferencePanel(token);
     }
 
     requestButton.addEventListener('click', async () => {
@@ -1051,6 +1583,26 @@
         setManagementBusy(false);
       }
     });
+
+    referenceRefresh.addEventListener('click', () => {
+      refreshReferencePanel().catch(() => setReferenceStatus('Reference catalogs refresh failed.', 'error'));
+    });
+
+    referenceCatalogSelect.addEventListener('change', () => {
+      referenceState.selectedCatalog = referenceCatalogSelect.value;
+      loadReferenceValues().catch(() => setReferenceStatus('Reference values load failed.', 'error'));
+    });
+
+    referenceStateFilter.addEventListener('change', () => {
+      loadReferenceValues().catch(() => setReferenceStatus('Reference values load failed.', 'error'));
+    });
+
+    referenceApproveCatalog.addEventListener('click', () => updateReferencePublication('approved'));
+    referencePublishCatalog.addEventListener('click', () => updateReferencePublication('published'));
+    referenceRetireCatalog.addEventListener('click', () => updateReferencePublication('retired'));
+    referenceApproveSelected.addEventListener('click', () => updateReferencePublication('approved', selectedReferenceValueCodes()));
+    referencePublishSelected.addEventListener('click', () => updateReferencePublication('published', selectedReferenceValueCodes()));
+    referenceRetireSelected.addEventListener('click', () => updateReferencePublication('retired', selectedReferenceValueCodes()));
 
     loadConsole().catch(() => {
       clearSession();

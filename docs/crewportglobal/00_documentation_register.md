@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.16
+- Version: 1.17
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -214,6 +214,7 @@ docs/crewportglobal/
   124_cpg_cabinet_027_profile_photo_protected_upload_report.md
   125_cpg_ref_001_seafarer_reference_catalog_foundation_report.md
   126_cpg_ref_002_reference_catalog_publication_api_report.md
+  127_cpg_ref_003_admin_reference_catalog_publication_console_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -371,6 +372,8 @@ Document 125 records the CPG-REF-001 seafarer reference catalog foundation, incl
 
 Document 126 records the CPG-REF-002 reference catalog publication API implementation, including `GET /api/v1/reference-catalogs`, Project Owner protected catalog review/publication endpoints, the pending-owner-review seed import into the database, public-only-published visibility rules, access audit for publication changes and focused API verification that unpublished values are not exposed.
 
+Document 127 records the CPG-REF-003 admin reference catalog publication console, including the `/admin/access/` Reference catalogs section, summary counts, catalog queue, value inspection, owner audit note, catalog-level and selected-value publication actions, and focused UI verification that selected-value publication calls the protected endpoint.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -474,6 +477,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.17 | 2026-05-18 | GTC IT / AI Assistant | Added document 127 as CPG-REF-003 admin reference catalog publication console report covering the /admin/access/ owner UI for catalog counts, value inspection and protected approve/publish/retire actions |
 | 1.16 | 2026-05-18 | GTC IT / AI Assistant | Added document 126 as CPG-REF-002 reference catalog publication API report covering public-only-published catalog reads, Project Owner protected review/publication endpoints, pending seed import and unpublished-value visibility tests |
 | 1.15 | 2026-05-18 | GTC IT / AI Assistant | Added document 125 as CPG-REF-001 seafarer reference catalog foundation report covering reference_catalogs, reference_catalog_values, private Excel importer, generated review artifacts and publication boundary before UI/API exposure |
 | 1.14 | 2026-05-18 | GTC IT / AI Assistant | Added BP-011 seafarer field dictionary and reference catalog alignment covering private Excel source handling, workbook inventory, cabinet card plan, reference catalogs, future DB/API slices and publication order |
