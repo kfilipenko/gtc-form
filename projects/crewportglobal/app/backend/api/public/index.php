@@ -2536,6 +2536,8 @@ function read_latest_operator_review_event(string $userId): ?array {
                 event_payload->>'queue_type' AS queue_type,
                 event_payload->>'role' AS role,
                 event_payload->>'review_note' AS review_note,
+                event_payload->>'correction_card_code' AS correction_card_code,
+                event_payload->>'correction_card_name' AS correction_card_name,
                 created_at
          FROM crewportglobal.registration_audit_events
          WHERE event_type = 'operator_review_decision_recorded'
@@ -2557,7 +2559,9 @@ function read_operator_review_history(string $userId): array {
                 event_payload->>'new_status' AS new_status,
                 event_payload->>'queue_type' AS queue_type,
                 event_payload->>'role' AS role,
-                event_payload->>'review_note' AS review_note
+                event_payload->>'review_note' AS review_note,
+                event_payload->>'correction_card_code' AS correction_card_code,
+                event_payload->>'correction_card_name' AS correction_card_name
          FROM crewportglobal.registration_audit_events
          WHERE event_type = 'operator_review_decision_recorded'
            AND user_id = $1
@@ -2577,6 +2581,8 @@ function read_operator_review_history(string $userId): array {
             'queue_type' => $row['queue_type'] ?? null,
             'role' => $row['role'] ?? null,
             'review_note' => $row['review_note'] ?? null,
+            'correction_card_code' => $row['correction_card_code'] ?? null,
+            'correction_card_name' => $row['correction_card_name'] ?? null,
         ];
     }
 
@@ -3978,6 +3984,36 @@ function normalize_operator_review_note(mixed $value): ?string {
     return $note === '' ? null : $note;
 }
 
+function cpg_seafarer_review_card_name(?string $code): ?string {
+    return match ($code) {
+        'personal_contact' => 'Personal and contact details',
+        'qualifications' => 'Qualifications and training',
+        'sea_service' => 'Sea-service record',
+        'matching_publication' => 'Matching and publication consent',
+        'document_readiness' => 'Document readiness metadata',
+        default => null,
+    };
+}
+
+function normalize_operator_correction_card_code(mixed $value): ?string {
+    if ($value === null || $value === '') {
+        return null;
+    }
+    if (!is_string($value)) {
+        api_error(400, 'invalid_correction_card_code', 'correction_card_code must be a string');
+    }
+
+    $code = trim($value);
+    if ($code === '') {
+        return null;
+    }
+    if (cpg_seafarer_review_card_name($code) === null) {
+        api_error(400, 'invalid_correction_card_code', 'correction_card_code must be a known seafarer review card code');
+    }
+
+    return $code;
+}
+
 function normalize_operator_queue_type(mixed $value): ?string {
     if ($value === null || $value === '') {
         return null;
@@ -4003,6 +4039,8 @@ function read_operator_vacancy_application_review_history(string $applicationId)
                 event_payload->>'queue_type' AS queue_type,
                 event_payload->>'role' AS role,
                 event_payload->>'review_note' AS review_note,
+                event_payload->>'correction_card_code' AS correction_card_code,
+                event_payload->>'correction_card_name' AS correction_card_name,
                 source,
                 created_at
          FROM crewportglobal.registration_audit_events
@@ -4022,6 +4060,8 @@ function read_operator_vacancy_application_review_history(string $applicationId)
             'queue_type' => $row['queue_type'] ?? null,
             'role' => $row['role'] ?? null,
             'review_note' => $row['review_note'] ?? null,
+            'correction_card_code' => $row['correction_card_code'] ?? null,
+            'correction_card_name' => $row['correction_card_name'] ?? null,
             'source' => $row['source'] ?? null,
             'created_at' => $row['created_at'] ?? null,
         ];
@@ -4412,7 +4452,9 @@ function handle_patch_seafarer_vacancy_application_status(string $applicationId)
     }
 }
 
-function apply_operator_review_decision(string $draftId, string $decision, ?string $reviewNote, ?string $queueType = null): array {
+function apply_operator_review_decision(string $draftId, string $decision, ?string $reviewNote, ?string $queueType = null, ?string $correctionCardCode = null): array {
+    $correctionCardName = cpg_seafarer_review_card_name($correctionCardCode);
+
     if ($queueType === 'vacancy_application') {
         $statusMap = [
             'start_review' => 'in_review',
@@ -4467,6 +4509,8 @@ function apply_operator_review_decision(string $draftId, string $decision, ?stri
             'new_status' => $newStatus,
             'role' => 'seafarer',
             'review_note' => $reviewNote,
+            'correction_card_code' => $correctionCardCode,
+            'correction_card_name' => $correctionCardName,
             'vacancy_request_id' => $vacancyRequestId,
             'vacancy_application_id' => $applicationId,
         ], 'operator_review_queue');
@@ -4481,6 +4525,8 @@ function apply_operator_review_decision(string $draftId, string $decision, ?stri
             'vacancy_request_id' => $vacancyRequestId,
             'vacancy_application_id' => $applicationId,
             'review_note' => $reviewNote,
+            'correction_card_code' => $correctionCardCode,
+            'correction_card_name' => $correctionCardName,
         ];
     }
 
@@ -4529,6 +4575,8 @@ function apply_operator_review_decision(string $draftId, string $decision, ?stri
             'new_status' => $newStatus,
             'role' => $role,
             'review_note' => $reviewNote,
+            'correction_card_code' => $correctionCardCode,
+            'correction_card_name' => $correctionCardName,
         ], 'operator_review_queue');
 
         return [
@@ -4538,6 +4586,8 @@ function apply_operator_review_decision(string $draftId, string $decision, ?stri
             'new_status' => $newStatus,
             'company_id' => null,
             'review_note' => $reviewNote,
+            'correction_card_code' => $correctionCardCode,
+            'correction_card_name' => $correctionCardName,
         ];
     }
 
@@ -4591,6 +4641,8 @@ function apply_operator_review_decision(string $draftId, string $decision, ?stri
             'new_status' => $newStatus,
             'role' => $role,
             'review_note' => $reviewNote,
+            'correction_card_code' => $correctionCardCode,
+            'correction_card_name' => $correctionCardName,
             'vacancy_request_id' => $vacancyRequestId,
         ], 'operator_review_queue');
 
@@ -4603,6 +4655,8 @@ function apply_operator_review_decision(string $draftId, string $decision, ?stri
             'vessel_id' => $vesselId,
             'vacancy_request_id' => $vacancyRequestId,
             'review_note' => $reviewNote,
+            'correction_card_code' => $correctionCardCode,
+            'correction_card_name' => $correctionCardName,
         ];
     }
 
@@ -4641,6 +4695,8 @@ function apply_operator_review_decision(string $draftId, string $decision, ?stri
         'new_status' => $newStatus,
         'role' => $role,
         'review_note' => $reviewNote,
+        'correction_card_code' => $correctionCardCode,
+        'correction_card_name' => $correctionCardName,
     ], 'operator_review_queue');
 
     return [
@@ -4652,6 +4708,8 @@ function apply_operator_review_decision(string $draftId, string $decision, ?stri
         'vessel_id' => null,
         'vacancy_request_id' => null,
         'review_note' => $reviewNote,
+        'correction_card_code' => $correctionCardCode,
+        'correction_card_name' => $correctionCardName,
     ];
 }
 
@@ -4671,10 +4729,11 @@ function handle_patch_operator_review_queue_status(string $draftId): void {
         api_error(400, 'review_note_required', 'note is required for needs_correction');
     }
     $queueType = normalize_operator_queue_type($body['queue_type'] ?? null);
+    $correctionCardCode = normalize_operator_correction_card_code($body['correction_card_code'] ?? $body['correction_card'] ?? null);
 
     api_tx_begin();
     try {
-        $result = apply_operator_review_decision($uuid, $decision, $reviewNote, $queueType);
+        $result = apply_operator_review_decision($uuid, $decision, $reviewNote, $queueType, $correctionCardCode);
         api_tx_commit();
 
         api_json(200, [
@@ -4690,6 +4749,8 @@ function handle_patch_operator_review_queue_status(string $draftId): void {
             'vacancy_request_id' => $result['vacancy_request_id'] ?? null,
             'vacancy_application_id' => $result['vacancy_application_id'] ?? null,
             'review_note' => $result['review_note'],
+            'correction_card_code' => $result['correction_card_code'] ?? null,
+            'correction_card_name' => $result['correction_card_name'] ?? null,
             'updated_at' => gmdate('c'),
         ]);
     } catch (Throwable $error) {

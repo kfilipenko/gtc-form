@@ -1309,6 +1309,7 @@
         'create.reviewStatus.rejected': 'Needs correction',
         'create.reviewStatus.approved': 'Reviewed',
         'create.reviewStatus.correction': 'Correction requested: {note}',
+        'create.reviewStatus.correctionTarget': 'Correction requested in {target}: {note}',
         'create.applications.empty': 'No vacancy applications yet.',
         'create.applications.count': '{count} vacancy application(s)',
         'create.applications.company': 'Company',
@@ -1581,6 +1582,7 @@
         'create.reviewStatus.rejected': 'Нужна доработка',
         'create.reviewStatus.approved': 'Проверено',
         'create.reviewStatus.correction': 'Требуется исправление: {note}',
+        'create.reviewStatus.correctionTarget': 'Требуется исправление в карточке {target}: {note}',
         'create.applications.empty': 'Пока нет откликов на вакансии.',
         'create.applications.count': 'Откликов на вакансии: {count}',
         'create.applications.company': 'Компания',
@@ -2657,13 +2659,18 @@
         const reviewNote = operatorReview && typeof operatorReview.review_note === 'string'
           ? operatorReview.review_note.trim()
           : '';
+        const correctionTarget = operatorReview && typeof operatorReview.correction_card_name === 'string'
+          ? operatorReview.correction_card_name.trim()
+          : '';
         const correctionVisible = reviewStatus === 'rejected'
           && reviewNote !== ''
           && (decision === 'needs_correction' || newStatus === 'rejected');
 
         if (correctionVisible) {
           correctionNoteLine.hidden = false;
-          correctionNoteLine.textContent = tFormat('create.reviewStatus.correction', { note: reviewNote });
+          correctionNoteLine.textContent = correctionTarget
+            ? tFormat('create.reviewStatus.correctionTarget', { target: correctionTarget, note: reviewNote })
+            : tFormat('create.reviewStatus.correction', { note: reviewNote });
         } else {
           correctionNoteLine.hidden = true;
           correctionNoteLine.textContent = '';

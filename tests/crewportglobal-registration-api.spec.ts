@@ -109,6 +109,8 @@ function readLatestOperatorAuditForDraft(draftId: string): {
   queueType: string;
   role: string;
   reviewNote: string;
+  correctionCardCode: string;
+  correctionCardName: string;
 } {
   const safeDraftId = draftId.replace(/'/g, "''");
   const sql = [
@@ -118,7 +120,9 @@ function readLatestOperatorAuditForDraft(draftId: string): {
     "       event_payload->>'new_status',",
     "       event_payload->>'queue_type',",
     "       event_payload->>'role',",
-    "       event_payload->>'review_note'",
+    "       event_payload->>'review_note',",
+    "       COALESCE(event_payload->>'correction_card_code', ''),",
+    "       COALESCE(event_payload->>'correction_card_name', '')",
     "FROM crewportglobal.registration_audit_events",
     "WHERE event_type = 'operator_review_decision_recorded'",
     `  AND user_id = '${safeDraftId}'::uuid`,
@@ -131,7 +135,7 @@ function readLatestOperatorAuditForDraft(draftId: string): {
     { encoding: 'utf8' }
   ).trim();
 
-  const [source, decision, previousStatus, newStatus, queueType, role, reviewNote] = output.split('|');
+  const [source, decision, previousStatus, newStatus, queueType, role, reviewNote, correctionCardCode, correctionCardName] = output.split('|');
   return {
     source: source || '',
     decision: decision || '',
@@ -140,6 +144,8 @@ function readLatestOperatorAuditForDraft(draftId: string): {
     queueType: queueType || '',
     role: role || '',
     reviewNote: reviewNote || '',
+    correctionCardCode: correctionCardCode || '',
+    correctionCardName: correctionCardName || '',
   };
 }
 
@@ -1218,6 +1224,7 @@ test('operator decision note validation and persistence works', async ({ request
     data: {
       decision: 'needs_correction',
       note,
+      correction_card_code: 'qualifications',
     },
   });
   expect(needsCorrectionWithNote.status()).toBe(200);
@@ -1225,6 +1232,8 @@ test('operator decision note validation and persistence works', async ({ request
   expect(correctionBody.ok).toBe(true);
   expect(correctionBody.new_status).toBe('rejected');
   expect(correctionBody.review_note).toBe(note);
+  expect(correctionBody.correction_card_code).toBe('qualifications');
+  expect(correctionBody.correction_card_name).toBe('Qualifications and training');
 
   const audit = readLatestOperatorAuditForDraft(created.draft_id);
   expect(audit.source).toBe('operator_review_queue');
@@ -1234,6 +1243,8 @@ test('operator decision note validation and persistence works', async ({ request
   expect(audit.queueType).toBe('seafarer_profile');
   expect(audit.role).toBe('seafarer');
   expect(audit.reviewNote).toBe(note);
+  expect(audit.correctionCardCode).toBe('qualifications');
+  expect(audit.correctionCardName).toBe('Qualifications and training');
 
   const draftResponse = await request.get(`/registration/drafts/${created.draft_id}`);
   expect(draftResponse.status()).toBe(200);
@@ -1243,6 +1254,8 @@ test('operator decision note validation and persistence works', async ({ request
   expect(history.length).toBeGreaterThanOrEqual(2);
   expect(history[0].decision).toBe('needs_correction');
   expect(history[0].review_note).toBe(note);
+  expect(history[0].correction_card_code).toBe('qualifications');
+  expect(history[0].correction_card_name).toBe('Qualifications and training');
   expect(history[1].decision).toBe('start_review');
 });
 

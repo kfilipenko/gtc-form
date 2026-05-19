@@ -221,6 +221,49 @@ test('cabinet lets seafarer upload corrected replacement and returns document to
   expect(documents[0].review_status).toBe('pending_human_review');
 });
 
+test('cabinet shows card-level seafarer correction task from operator review', async ({ page, request }) => {
+  const unique = Date.now();
+  const email = `ui.cabinet.card.${unique}@example.com`;
+
+  const createResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Cabinet Card Seafarer',
+      rank: 'Second Officer',
+      department: 'deck',
+      document_metadata: {
+        seafarer_workspace: {
+          qualifications: {
+            coc_type: 'Second Officer'
+          }
+        }
+      }
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = await createResponse.json();
+
+  const note = 'COC number is missing. Please complete the qualifications card.';
+  const correctionResponse = await request.patch(`/api/v1/operator/review-queue/${created.draft_id}/status`, {
+    data: {
+      decision: 'needs_correction',
+      note,
+      correction_card_code: 'qualifications',
+    },
+  });
+  expect(correctionResponse.status()).toBe(200);
+
+  await page.goto(`/cabinet/?draft_id=${created.draft_id}`);
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: correct seafarer card');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Target card: Qualifications and training');
+  await expect(page.locator('#cabinet-task-list')).toContainText(note);
+  await expect(page.locator('#cabinet-task-list').getByRole('link', { name: 'Open card' })).toHaveAttribute(
+    'href',
+    `/create-profile/?draft_id=${created.draft_id}#profile-section-qualifications`
+  );
+});
+
 test('cabinet supports employer-side correction task and service area', async ({ page, request }) => {
   const unique = Date.now();
   const email = `ui.cabinet.employer.${unique}@example.com`;

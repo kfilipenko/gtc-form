@@ -160,12 +160,15 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#review-note-feedback')).toContainText('requires a review note');
 
   const note = 'Missing certificate details and availability date.';
+  await page.locator('#review-target').selectOption('qualifications');
   await page.locator('#review-note').fill(note);
   await queueRow.locator('.queue-decision[data-decision="needs_correction"]').click();
   await expect(page.locator('#queue-status')).toContainText('rejected');
   await expect(page.locator('#latest-review-note')).toContainText(note);
+  await expect(page.locator('#latest-review-note')).toContainText('Qualifications and training');
   await expect(page.locator('#review-history-list')).toContainText('needs_correction');
   await expect(page.locator('#review-history-list')).toContainText(note);
+  await expect(page.locator('#review-history-list')).toContainText('Target: Qualifications and training');
 });
 
 test('operator queue page renders and reviews vacancy applications', async ({ page, request }) => {

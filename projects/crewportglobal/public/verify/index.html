@@ -181,6 +181,15 @@
       font: inherit;
       resize: vertical;
     }
+    .review-note-select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-on-dark);
+      font: inherit;
+    }
     .review-note-feedback {
       margin: 0;
       color: #f4b942;
@@ -377,6 +386,10 @@
             <p class="details-empty" data-i18n="verify.details.empty">Select a queue item to load full draft details.</p>
           </div>
           <div class="review-note-block">
+            <label class="review-note-label" for="review-target" data-i18n="verify.note.target">Correction target</label>
+            <select id="review-target" class="review-note-select">
+              <option value="" data-i18n="verify.note.target.general">General review item</option>
+            </select>
             <label class="review-note-label" for="review-note" data-i18n="verify.note.label">Review note (optional)</label>
             <textarea id="review-note" class="review-note-textarea" maxlength="1000" placeholder="Add note for review action. Required for Needs correction."></textarea>
             <p id="review-note-feedback" class="review-note-feedback"></p>
@@ -459,14 +472,19 @@
         'verify.action.noteRequired': 'Needs correction requires a review note.',
         'verify.action.unavailable': 'This action is not available for the current operator role.',
         'verify.note.label': 'Review note (optional)',
+        'verify.note.target': 'Correction target',
+        'verify.note.target.general': 'General review item',
         'verify.note.placeholder': 'Add note for review action. Required for Needs correction.',
         'verify.note.saved': 'Review note saved: {note}',
+        'verify.note.savedWithTarget': 'Review note saved for {target}: {note}',
         'verify.note.latest': 'Latest review note: {note}',
+        'verify.note.latestWithTarget': 'Latest review note for {target}: {note}',
         'verify.note.latest.empty': 'Latest review note: -',
         'verify.history.title': 'Review history',
         'verify.history.empty': 'No operator review history yet.',
         'verify.history.item': '{created_at} | {decision} | {previous_status} -> {new_status} | {queue_type} | {role} | {source}',
         'verify.history.note': 'Note: {note}',
+        'verify.history.target': 'Target: {target}',
         'verify.details.title': 'Review item details',
         'verify.details.empty': 'Select a queue item to load full draft details.',
         'verify.details.loading': 'Loading draft details...',
@@ -600,14 +618,19 @@
         'verify.action.noteRequired': 'Для статуса "Нужна доработка" требуется комментарий.',
         'verify.action.unavailable': 'Это действие недоступно для текущей роли оператора.',
         'verify.note.label': 'Комментарий проверки (необязательно)',
+        'verify.note.target': 'Целевая карточка исправления',
+        'verify.note.target.general': 'Общая запись проверки',
         'verify.note.placeholder': 'Добавьте комментарий к решению. Для "Нужна доработка" комментарий обязателен.',
         'verify.note.saved': 'Комментарий сохранен: {note}',
+        'verify.note.savedWithTarget': 'Комментарий сохранен для {target}: {note}',
         'verify.note.latest': 'Последний комментарий проверки: {note}',
+        'verify.note.latestWithTarget': 'Последний комментарий проверки для {target}: {note}',
         'verify.note.latest.empty': 'Последний комментарий проверки: -',
         'verify.history.title': 'История проверки',
         'verify.history.empty': 'История проверки оператором пока пуста.',
         'verify.history.item': '{created_at} | {decision} | {previous_status} -> {new_status} | {queue_type} | {role} | {source}',
         'verify.history.note': 'Комментарий: {note}',
+        'verify.history.target': 'Цель: {target}',
         'verify.details.title': 'Детали записи проверки',
         'verify.details.empty': 'Выберите элемент очереди, чтобы загрузить полные детали черновика.',
         'verify.details.loading': 'Загружаем детали черновика...',
@@ -689,6 +712,7 @@
       const body = document.getElementById('queue-body');
       const detailsSections = document.getElementById('details-sections');
       const detailsJson = document.getElementById('details-json');
+      const reviewTargetSelect = document.getElementById('review-target');
       const reviewNoteInput = document.getElementById('review-note');
       const reviewNoteFeedback = document.getElementById('review-note-feedback');
       const latestReviewNote = document.getElementById('latest-review-note');
@@ -1296,12 +1320,24 @@
         sections.filter(Boolean).forEach((section) => detailsSections.appendChild(section));
       }
 
-      function setLatestReviewNote(note) {
+      function setLatestReviewNote(note, target) {
         const normalized = typeof note === 'string' ? note.trim() : '';
+        const normalizedTarget = typeof target === 'string' ? target.trim() : '';
         currentLatestNote = normalized;
         latestReviewNote.textContent = normalized
-          ? t('verify.note.latest', { note: normalized })
+          ? (normalizedTarget
+            ? t('verify.note.latestWithTarget', { target: normalizedTarget, note: normalized })
+            : t('verify.note.latest', { note: normalized }))
           : t('verify.note.latest.empty');
+      }
+
+      function reviewTargetLabelFromItem(item) {
+        if (!item || typeof item !== 'object') {
+          return '';
+        }
+        return typeof item.correction_card_name === 'string' && item.correction_card_name.trim()
+          ? item.correction_card_name.trim()
+          : '';
       }
 
       function extractLatestNote(payload) {
@@ -1321,6 +1357,22 @@
           return '';
         }
         return typeof operatorReview.review_note === 'string' ? operatorReview.review_note : '';
+      }
+
+      function extractLatestTarget(payload) {
+        if (!payload || typeof payload !== 'object') {
+          return '';
+        }
+        const rootOperatorReview = payload.operator_review;
+        if (rootOperatorReview && typeof rootOperatorReview === 'object') {
+          return reviewTargetLabelFromItem(rootOperatorReview);
+        }
+        const rootPayload = payload.payload;
+        if (!rootPayload || typeof rootPayload !== 'object') {
+          return '';
+        }
+        const operatorReview = rootPayload.operator_review;
+        return reviewTargetLabelFromItem(operatorReview);
       }
 
       function extractReviewHistory(payload) {
@@ -1373,8 +1425,41 @@
             noteDiv.textContent = t('verify.history.note', { note });
             li.appendChild(noteDiv);
           }
+          const target = reviewTargetLabelFromItem(item);
+          if (target) {
+            const targetDiv = document.createElement('div');
+            targetDiv.className = 'history-item-note';
+            targetDiv.textContent = t('verify.history.target', { target });
+            li.appendChild(targetDiv);
+          }
           reviewHistoryList.appendChild(li);
         });
+      }
+
+      function syncReviewTargetOptions(payload) {
+        const readiness = reviewReadiness(payload && payload.payload && typeof payload.payload === 'object' ? payload.payload : payload);
+        const currentValue = reviewTargetSelect.value;
+        reviewTargetSelect.innerHTML = '';
+
+        const general = document.createElement('option');
+        general.value = '';
+        general.textContent = t('verify.note.target.general');
+        reviewTargetSelect.appendChild(general);
+
+        readiness.forEach((item) => {
+          if (!item || typeof item !== 'object' || !item.card_code) {
+            return;
+          }
+          const option = document.createElement('option');
+          option.value = item.card_code;
+          option.textContent = item.card_name || item.card_code;
+          reviewTargetSelect.appendChild(option);
+        });
+
+        reviewTargetSelect.disabled = readiness.length === 0;
+        reviewTargetSelect.value = Array.from(reviewTargetSelect.options).some((option) => option.value === currentValue)
+          ? currentValue
+          : '';
       }
 
       function filteredQueue() {
@@ -1411,7 +1496,8 @@
           detailsJson.textContent = JSON.stringify(payload, null, 2);
           currentDraftPayload = payload;
           renderDraftDetails(payload);
-          setLatestReviewNote(extractLatestNote(payload));
+          syncReviewTargetOptions(payload);
+          setLatestReviewNote(extractLatestNote(payload), extractLatestTarget(payload));
           renderReviewHistory(extractReviewHistory(payload));
         } catch (error) {
           detailsJson.textContent = t('verify.details.error');
@@ -1422,6 +1508,7 @@
           errorLine.textContent = t('verify.details.error');
           detailsSections.appendChild(errorLine);
           setLatestReviewNote('');
+          syncReviewTargetOptions(null);
           renderReviewHistory([]);
           console.error(error);
         }
@@ -1454,7 +1541,8 @@
           detailsJson.textContent = JSON.stringify(payload, null, 2);
           currentDraftPayload = payload;
           renderApplicationDetails(payload);
-          setLatestReviewNote(extractLatestNote(payload));
+          syncReviewTargetOptions(payload);
+          setLatestReviewNote(extractLatestNote(payload), extractLatestTarget(payload));
           renderReviewHistory(extractReviewHistory(payload));
         } catch (error) {
           detailsJson.textContent = t('verify.details.error');
@@ -1466,6 +1554,7 @@
           errorLine.textContent = t('verify.details.error');
           detailsSections.appendChild(errorLine);
           setLatestReviewNote('');
+          syncReviewTargetOptions(null);
           renderReviewHistory([]);
           console.error(error);
         }
@@ -1486,6 +1575,7 @@
 
         clearNoteFeedback();
         const note = (reviewNoteInput.value || '').trim();
+        const correctionCardCode = (reviewTargetSelect.value || '').trim();
         if (decision === 'needs_correction' && !note) {
           reviewNoteFeedback.textContent = t('verify.action.noteRequired');
           return;
@@ -1499,6 +1589,9 @@
           }
           if (note) {
             requestBody.note = note;
+          }
+          if (decision === 'needs_correction' && correctionCardCode) {
+            requestBody.correction_card_code = correctionCardCode;
           }
           const response = await fetch(`/api/v1/operator/review-queue/${encodeURIComponent(draftId)}/status`, {
             method: 'PATCH',
@@ -1520,8 +1613,11 @@
           hideAccessPanel();
           status.textContent = t('verify.action.saved', { decision: payload.new_status || decision });
           if (typeof payload.review_note === 'string' && payload.review_note.trim() !== '') {
-            reviewNoteFeedback.textContent = t('verify.note.saved', { note: payload.review_note.trim() });
-            setLatestReviewNote(payload.review_note.trim());
+            const target = typeof payload.correction_card_name === 'string' ? payload.correction_card_name.trim() : '';
+            reviewNoteFeedback.textContent = target
+              ? t('verify.note.savedWithTarget', { target, note: payload.review_note.trim() })
+              : t('verify.note.saved', { note: payload.review_note.trim() });
+            setLatestReviewNote(payload.review_note.trim(), target);
           } else {
             reviewNoteFeedback.textContent = '';
             setLatestReviewNote('');

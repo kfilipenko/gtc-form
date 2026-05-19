@@ -744,6 +744,9 @@
         'cabinet.tasks.correctDocument.reason': 'Reason',
         'cabinet.tasks.correctDocument.action': 'Upload replacement',
         'cabinet.tasks.correctDocument.file': 'Replacement file',
+        'cabinet.tasks.correctProfile.title': 'Action required: correct seafarer card',
+        'cabinet.tasks.correctProfile.target': 'Target card',
+        'cabinet.tasks.correctProfile.action': 'Open card',
         'cabinet.tasks.completeProfile.title': 'Action required: complete seafarer workspace',
         'cabinet.tasks.completeProfile.action': 'Open section',
         'cabinet.tasks.completeProfile.personal': 'Add personal/contact details and primary emergency contact.',
@@ -909,6 +912,9 @@
         'cabinet.tasks.correctDocument.reason': 'Причина',
         'cabinet.tasks.correctDocument.action': 'Загрузить новую версию',
         'cabinet.tasks.correctDocument.file': 'Файл замены',
+        'cabinet.tasks.correctProfile.title': 'Требуется действие: исправьте карточку моряка',
+        'cabinet.tasks.correctProfile.target': 'Целевая карточка',
+        'cabinet.tasks.correctProfile.action': 'Открыть карточку',
         'cabinet.tasks.completeProfile.title': 'Требуется действие: заполните рабочую карточку моряка',
         'cabinet.tasks.completeProfile.action': 'Открыть раздел',
         'cabinet.tasks.completeProfile.personal': 'Добавьте личные/контактные данные и основной экстренный контакт.',
@@ -1427,6 +1433,46 @@
         ));
       }
 
+      function seafarerCorrectionSection(cardCode) {
+        const map = {
+          personal_contact: 'profile-section-contact',
+          qualifications: 'profile-section-qualifications',
+          sea_service: 'profile-section-sea-service',
+          matching_publication: 'profile-section-publication',
+          document_readiness: 'profile-section-documents'
+        };
+        return map[cardCode] || 'profile-section-review';
+      }
+
+      function profileCorrectionTask() {
+        if (!cabinetDraft || cabinetDraft.role !== 'seafarer') {
+          return null;
+        }
+        const payload = cabinetDraft.payload && typeof cabinetDraft.payload === 'object' ? cabinetDraft.payload : {};
+        const review = payload.operator_review && typeof payload.operator_review === 'object' ? payload.operator_review : null;
+        if (!review) {
+          return null;
+        }
+        const decision = typeof review.decision === 'string' ? review.decision : '';
+        const newStatus = typeof review.new_status === 'string' ? review.new_status : '';
+        const queueType = typeof review.queue_type === 'string' ? review.queue_type : '';
+        const note = typeof review.review_note === 'string' ? review.review_note.trim() : '';
+        if (decision !== 'needs_correction' || newStatus !== 'rejected' || queueType !== 'seafarer_profile' || !note) {
+          return null;
+        }
+
+        const cardCode = typeof review.correction_card_code === 'string' ? review.correction_card_code : '';
+        const cardName = typeof review.correction_card_name === 'string' && review.correction_card_name.trim()
+          ? review.correction_card_name.trim()
+          : t('cabinet.profile.seafarerReview');
+
+        return {
+          note,
+          cardName,
+          sectionId: seafarerCorrectionSection(cardCode)
+        };
+      }
+
       function emailVerificationRequired() {
         if (!cabinetDraft || !cabinetAuthUser) {
           return false;
@@ -1662,13 +1708,40 @@
         taskList.append(task);
       }
 
+      function renderProfileCorrectionTask(taskInfo) {
+        const task = document.createElement('article');
+        task.className = 'task-item is-action';
+        const title = document.createElement('h3');
+        title.textContent = t('cabinet.tasks.correctProfile.title');
+        const meta = document.createElement('div');
+        meta.className = 'meta-row';
+        [
+          `${t('cabinet.tasks.correctProfile.target')}: ${taskInfo.cardName}`,
+          `${t('cabinet.tasks.correctDocument.reason')}: ${taskInfo.note}`
+        ].forEach((text) => {
+          const chip = document.createElement('span');
+          chip.className = 'chip action';
+          chip.textContent = text;
+          meta.append(chip);
+        });
+        const actions = document.createElement('div');
+        actions.className = 'meta-row';
+        actions.append(actionLink(
+          t('cabinet.tasks.correctProfile.action'),
+          createProfileSectionHref(taskInfo.sectionId)
+        ));
+        task.append(title, meta, actions);
+        taskList.append(task);
+      }
+
       function renderTasks() {
         taskList.replaceChildren();
         const corrections = taskDocuments();
         const waiting = waitingDocuments();
         const needsEmailVerification = emailVerificationRequired();
         const completenessTasks = seafarerCompletenessTasks();
-        let taskCount = corrections.length + completenessTasks.length + (needsEmailVerification ? 1 : 0);
+        const profileCorrection = profileCorrectionTask();
+        let taskCount = corrections.length + completenessTasks.length + (profileCorrection ? 1 : 0) + (needsEmailVerification ? 1 : 0);
 
         if (!cabinetDraft) {
           const task = document.createElement('article');
@@ -1692,6 +1765,10 @@
 
         if (needsEmailVerification) {
           renderEmailVerificationTask();
+        }
+
+        if (profileCorrection) {
+          renderProfileCorrectionTask(profileCorrection);
         }
 
         corrections.forEach((documentRecord) => {
@@ -1752,7 +1829,7 @@
           taskList.append(task);
         }
 
-        if (corrections.length === 0 && completenessTasks.length === 0 && waiting.length === 0 && cabinetDocuments.length > 0) {
+        if (corrections.length === 0 && !profileCorrection && completenessTasks.length === 0 && waiting.length === 0 && cabinetDocuments.length > 0) {
           const task = document.createElement('article');
           task.className = 'task-item is-waiting';
           const title = document.createElement('h3');
