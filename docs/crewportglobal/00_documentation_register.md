@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.29
+- Version: 1.30
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -227,6 +227,7 @@ docs/crewportglobal/
   137_cpg_seafarer_007_document_readiness_section_save_report.md
   138_cpg_seafarer_008_operator_structured_workspace_visibility_report.md
   139_cpg_seafarer_009_operator_card_correction_tasks_report.md
+  140_cpg_seafarer_010_workspace_card_review_state_persistence_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -410,6 +411,8 @@ Document 138 records the CPG-SEAFARER-008 operator structured workspace visibili
 
 Document 139 records the CPG-SEAFARER-009 operator card-correction task implementation, including card-level correction targets in operator review decisions, audit/history metadata, `/verify/` correction-target selector, `/cabinet/` card-level correction tasks and direct links back to the relevant `/create-profile/` card.
 
+Document 140 records the CPG-SEAFARER-010 workspace card review-state persistence implementation, including persisted card review states in seafarer profile metadata, structured-table review status updates, operator checklist state visibility, user resubmission state reset and cabinet task suppression after corrected card resubmission.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -513,6 +516,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.30 | 2026-05-19 | GTC IT / AI Assistant | Added document 140 as CPG-SEAFARER-010 workspace card review-state persistence report covering persisted card review states, structured record status updates, operator checklist visibility, user resubmission reset and cabinet task suppression |
 | 1.29 | 2026-05-19 | GTC IT / AI Assistant | Added document 139 as CPG-SEAFARER-009 operator card-correction task report covering card-level correction targets, audit/history metadata, operator correction selector, cabinet task rendering and direct create-profile card links |
 | 1.28 | 2026-05-19 | GTC IT / AI Assistant | Added document 138 as CPG-SEAFARER-008 operator structured workspace visibility report covering operator detail structured seafarer workspace rendering, document-readiness metadata, review-readiness checklist, focused verification and no automatic publication/matching boundary |
 | 1.27 | 2026-05-19 | GTC IT / AI Assistant | Added document 137 as CPG-SEAFARER-007 document-readiness section-save report covering seafarer document-readiness PATCH endpoint, frontend card save action, metadata merge behavior, audit event and protected-upload boundary |

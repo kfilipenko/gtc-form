@@ -169,6 +169,7 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#review-history-list')).toContainText('needs_correction');
   await expect(page.locator('#review-history-list')).toContainText(note);
   await expect(page.locator('#review-history-list')).toContainText('Target: Qualifications and training');
+  await expect(page.locator('#details-sections')).toContainText('review: correction_requested');
 });
 
 test('operator queue page renders and reviews vacancy applications', async ({ page, request }) => {

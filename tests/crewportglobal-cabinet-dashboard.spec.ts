@@ -254,6 +254,16 @@ test('cabinet shows card-level seafarer correction task from operator review', a
   });
   expect(correctionResponse.status()).toBe(200);
 
+  const correctedDraftResponse = await request.get(`/api/v1/registration/drafts/${created.draft_id}`);
+  expect(correctedDraftResponse.status()).toBe(200);
+  const correctedDraft = await correctedDraftResponse.json();
+  expect(
+    correctedDraft.payload.seafarer_workspace_structured.card_review_states.qualifications.review_status
+  ).toBe('correction_requested');
+  expect(
+    correctedDraft.payload.seafarer_review_readiness.find((item: { card_code: string }) => item.card_code === 'qualifications').review_status
+  ).toBe('correction_requested');
+
   await page.goto(`/cabinet/?draft_id=${created.draft_id}`);
   await expect(page.locator('#cabinet-task-list')).toContainText('Action required: correct seafarer card');
   await expect(page.locator('#cabinet-task-list')).toContainText('Target card: Qualifications and training');
@@ -262,6 +272,26 @@ test('cabinet shows card-level seafarer correction task from operator review', a
     'href',
     `/create-profile/?draft_id=${created.draft_id}#profile-section-qualifications`
   );
+
+  const resubmitResponse = await request.patch('/api/v1/seafarer/workspace/sections/qualifications', {
+    data: {
+      draft_id: created.draft_id,
+      data: {
+        coc_type: 'Second Officer',
+        coc_number: 'COC-RESUBMITTED-001',
+        coc_issuing_country: 'CY',
+        coc_expiry: '2029-12-31',
+        training_courses: ['Basic Training'],
+      },
+    },
+  });
+  expect(resubmitResponse.status()).toBe(200);
+  const resubmitted = await resubmitResponse.json();
+  expect(resubmitted.workspace.card_review_states.qualifications.review_status).toBe('pending_human_review');
+  expect(resubmitted.workspace.certificates[0].review_status).toBe('pending_human_review');
+
+  await page.goto(`/cabinet/?draft_id=${created.draft_id}`);
+  await expect(page.locator('#cabinet-task-list')).not.toContainText('Action required: correct seafarer card');
 });
 
 test('cabinet supports employer-side correction task and service area', async ({ page, request }) => {

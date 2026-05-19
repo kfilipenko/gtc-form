@@ -1465,6 +1465,18 @@
         const cardName = typeof review.correction_card_name === 'string' && review.correction_card_name.trim()
           ? review.correction_card_name.trim()
           : t('cabinet.profile.seafarerReview');
+        const workspace = payload.seafarer_workspace_structured && typeof payload.seafarer_workspace_structured === 'object'
+          ? payload.seafarer_workspace_structured
+          : {};
+        const cardStates = workspace.card_review_states && typeof workspace.card_review_states === 'object'
+          ? workspace.card_review_states
+          : {};
+        const cardState = cardCode && cardStates[cardCode] && typeof cardStates[cardCode] === 'object'
+          ? cardStates[cardCode]
+          : null;
+        if (cardState && typeof cardState.review_status === 'string' && cardState.review_status !== 'correction_requested') {
+          return null;
+        }
 
         return {
           note,

@@ -1773,6 +1773,32 @@ function cpg_fetch_all_assoc(string $sql, array $params): array {
     return $items;
 }
 
+function cpg_seafarer_workspace_card_review_states(mixed $documentMetadata): array {
+    $metadata = cpg_decode_json_object(is_string($documentMetadata) ? $documentMetadata : null);
+    $states = isset($metadata['seafarer_workspace_card_reviews']) && is_array($metadata['seafarer_workspace_card_reviews'])
+        ? $metadata['seafarer_workspace_card_reviews']
+        : [];
+    $normalized = [];
+
+    foreach (cpg_seafarer_review_card_codes() as $code) {
+        $state = isset($states[$code]) && is_array($states[$code]) ? $states[$code] : [];
+        if ($state === []) {
+            continue;
+        }
+
+        $normalized[$code] = [
+            'card_code' => $code,
+            'card_name' => cpg_seafarer_review_card_name($code),
+            'review_status' => is_string($state['review_status'] ?? null) ? $state['review_status'] : null,
+            'review_note' => is_string($state['review_note'] ?? null) ? $state['review_note'] : null,
+            'review_decision' => is_string($state['review_decision'] ?? null) ? $state['review_decision'] : null,
+            'review_updated_at' => is_string($state['review_updated_at'] ?? null) ? $state['review_updated_at'] : null,
+        ];
+    }
+
+    return $normalized;
+}
+
 function cpg_read_seafarer_workspace_summary(string $userId): array {
     if (!cpg_seafarer_workspace_tables_ready()) {
         return [
@@ -1800,6 +1826,7 @@ function cpg_read_seafarer_workspace_summary(string $userId): array {
         'schema_ready' => true,
         'has_profile' => true,
         'profile_id' => $profileId,
+        'card_review_states' => cpg_seafarer_workspace_card_review_states($profile['document_metadata'] ?? null),
         'person_details' => cpg_fetch_one_assoc(
             'SELECT date_of_birth, place_of_birth, gender_label, civil_status_label,
                     nationality_code, residence_country_code, residence_city_label,
@@ -1872,15 +1899,23 @@ function cpg_seafarer_workspace_value_present(mixed $value): bool {
     return $value !== null && trim((string) $value) !== '';
 }
 
-function cpg_seafarer_workspace_review_card(string $code, string $name, array $missing): array {
+function cpg_seafarer_workspace_review_card(string $code, string $name, array $missing, array $reviewState = []): array {
     $missing = array_values(array_unique(array_filter($missing, static fn ($item) => is_string($item) && $item !== '')));
 
-    return [
+    $card = [
         'card_code' => $code,
         'card_name' => $name,
         'status' => count($missing) === 0 ? 'complete' : 'incomplete',
         'missing' => $missing,
     ];
+
+    foreach (['review_status', 'review_note', 'review_decision', 'review_updated_at'] as $key) {
+        if (isset($reviewState[$key]) && $reviewState[$key] !== '') {
+            $card[$key] = $reviewState[$key];
+        }
+    }
+
+    return $card;
 }
 
 function cpg_readiness_status_is_ready(mixed $value): bool {
@@ -1892,6 +1927,9 @@ function cpg_seafarer_workspace_review_readiness(array $workspace, array $docume
         return [];
     }
 
+    $cardReviewStates = isset($workspace['card_review_states']) && is_array($workspace['card_review_states'])
+        ? $workspace['card_review_states']
+        : [];
     $personDetails = is_array($workspace['person_details'] ?? null) ? $workspace['person_details'] : [];
     $emergencyContacts = is_array($workspace['emergency_contacts'] ?? null) ? $workspace['emergency_contacts'] : [];
     $certificates = is_array($workspace['certificates'] ?? null) ? $workspace['certificates'] : [];
@@ -1959,11 +1997,11 @@ function cpg_seafarer_workspace_review_readiness(array $workspace, array $docume
     }
 
     return [
-        cpg_seafarer_workspace_review_card('personal_contact', 'Personal and contact details', $personalMissing),
-        cpg_seafarer_workspace_review_card('qualifications', 'Qualifications and training', $qualificationMissing),
-        cpg_seafarer_workspace_review_card('sea_service', 'Sea-service record', $seaServiceMissing),
-        cpg_seafarer_workspace_review_card('matching_publication', 'Matching and publication consent', $matchingMissing),
-        cpg_seafarer_workspace_review_card('document_readiness', 'Document readiness metadata', $documentMissing),
+        cpg_seafarer_workspace_review_card('personal_contact', 'Personal and contact details', $personalMissing, $cardReviewStates['personal_contact'] ?? []),
+        cpg_seafarer_workspace_review_card('qualifications', 'Qualifications and training', $qualificationMissing, $cardReviewStates['qualifications'] ?? []),
+        cpg_seafarer_workspace_review_card('sea_service', 'Sea-service record', $seaServiceMissing, $cardReviewStates['sea_service'] ?? []),
+        cpg_seafarer_workspace_review_card('matching_publication', 'Matching and publication consent', $matchingMissing, $cardReviewStates['matching_publication'] ?? []),
+        cpg_seafarer_workspace_review_card('document_readiness', 'Document readiness metadata', $documentMissing, $cardReviewStates['document_readiness'] ?? []),
     ];
 }
 
@@ -3300,6 +3338,18 @@ function handle_patch_seafarer_workspace_section(string $section): void {
             'salary_expectation_usd' => $context['salary_expectation_usd'] ?? null,
         ]);
 
+        $cardCode = cpg_seafarer_workspace_section_review_card($section);
+        if ($cardCode !== null) {
+            cpg_set_seafarer_workspace_card_review_state(
+                $userId,
+                $cardCode,
+                'pending_human_review',
+                null,
+                'user_resubmitted',
+                'seafarer_workspace_section_updated'
+            );
+        }
+
         write_audit_event('seafarer_workspace_section_updated', $userId, null, null, [
             'section' => $section,
             'access_model' => $accessModel,
@@ -3349,8 +3399,17 @@ function handle_patch_seafarer_document_readiness(): void {
              SET document_metadata = $2::jsonb,
                  review_status = $3,
                  updated_at = now()
-             WHERE user_id = $1',
+            WHERE user_id = $1',
             [$userId, $documentMetadataJson, 'submitted_for_human_review']
+        );
+
+        cpg_set_seafarer_workspace_card_review_state(
+            $userId,
+            'document_readiness',
+            'pending_human_review',
+            null,
+            'user_resubmitted',
+            'seafarer_document_readiness_updated'
         );
 
         write_audit_event('seafarer_document_readiness_updated', $userId, null, null, [
@@ -3984,15 +4043,129 @@ function normalize_operator_review_note(mixed $value): ?string {
     return $note === '' ? null : $note;
 }
 
+function cpg_seafarer_review_card_codes(): array {
+    return [
+        'personal_contact',
+        'qualifications',
+        'sea_service',
+        'matching_publication',
+        'document_readiness',
+    ];
+}
+
 function cpg_seafarer_review_card_name(?string $code): ?string {
-    return match ($code) {
+    $names = [
         'personal_contact' => 'Personal and contact details',
         'qualifications' => 'Qualifications and training',
         'sea_service' => 'Sea-service record',
         'matching_publication' => 'Matching and publication consent',
         'document_readiness' => 'Document readiness metadata',
+    ];
+
+    return is_string($code) && isset($names[$code]) ? $names[$code] : null;
+}
+
+function cpg_seafarer_review_status_for_decision(string $decision): ?string {
+    return match ($decision) {
+        'start_review' => 'under_review',
+        'needs_correction' => 'correction_requested',
+        'reviewed' => 'verified',
         default => null,
     };
+}
+
+function cpg_seafarer_workspace_section_review_card(string $section): ?string {
+    return match ($section) {
+        'personal_details', 'contact_and_addresses' => 'personal_contact',
+        'qualifications' => 'qualifications',
+        'sea_service' => 'sea_service',
+        'matching_publication' => 'matching_publication',
+        default => null,
+    };
+}
+
+function cpg_set_seafarer_workspace_card_review_state(
+    string $userId,
+    string $cardCode,
+    string $reviewStatus,
+    ?string $reviewNote,
+    string $reviewDecision,
+    string $source
+): void {
+    $cardName = cpg_seafarer_review_card_name($cardCode);
+    if ($cardName === null) {
+        return;
+    }
+
+    $profile = cpg_fetch_one_assoc(
+        'SELECT seafarer_profile_id, document_metadata
+         FROM crewportglobal.seafarer_profiles
+         WHERE user_id = $1
+         LIMIT 1',
+        [$userId]
+    );
+    if ($profile === null) {
+        return;
+    }
+
+    $metadata = cpg_decode_json_object(is_string($profile['document_metadata'] ?? null) ? $profile['document_metadata'] : null);
+    $states = isset($metadata['seafarer_workspace_card_reviews']) && is_array($metadata['seafarer_workspace_card_reviews'])
+        ? $metadata['seafarer_workspace_card_reviews']
+        : [];
+    $states[$cardCode] = [
+        'card_code' => $cardCode,
+        'card_name' => $cardName,
+        'review_status' => $reviewStatus,
+        'review_note' => $reviewNote,
+        'review_decision' => $reviewDecision,
+        'review_updated_at' => gmdate('c'),
+        'source' => $source,
+    ];
+    $metadata['seafarer_workspace_card_reviews'] = $states;
+
+    api_query(
+        'UPDATE crewportglobal.seafarer_profiles
+         SET document_metadata = $2::jsonb,
+             updated_at = now()
+         WHERE user_id = $1',
+        [$userId, cpg_workspace_json($metadata)]
+    );
+
+    cpg_update_seafarer_workspace_card_record_status($userId, $cardCode, $reviewStatus);
+
+    write_audit_event('seafarer_workspace_card_review_state_updated', $userId, null, null, [
+        'card_code' => $cardCode,
+        'card_name' => $cardName,
+        'review_status' => $reviewStatus,
+        'review_decision' => $reviewDecision,
+        'review_note' => $reviewNote,
+        'source' => $source,
+    ], $source);
+}
+
+function cpg_update_seafarer_workspace_card_record_status(string $userId, string $cardCode, string $reviewStatus): void {
+    if (!cpg_seafarer_workspace_tables_ready()) {
+        return;
+    }
+
+    $tables = match ($cardCode) {
+        'personal_contact' => ['seafarer_person_details', 'seafarer_emergency_contacts'],
+        'qualifications' => ['seafarer_education_records', 'seafarer_certificates', 'seafarer_training_records'],
+        'sea_service' => ['seafarer_sea_service_records'],
+        'matching_publication' => ['seafarer_matching_preferences'],
+        'document_readiness' => ['seafarer_medical_declarations'],
+        default => [],
+    };
+
+    foreach ($tables as $table) {
+        api_query(
+            "UPDATE crewportglobal.{$table}
+             SET review_status = $2,
+                 updated_at = now()
+             WHERE user_id = $1",
+            [$userId, $reviewStatus]
+        );
+    }
 }
 
 function normalize_operator_correction_card_code(mixed $value): ?string {
@@ -4567,6 +4740,18 @@ function apply_operator_review_decision(string $draftId, string $decision, ?stri
              WHERE user_id = $1',
             [$draftId, $newStatus]
         );
+
+        $cardReviewStatus = cpg_seafarer_review_status_for_decision($decision);
+        if ($correctionCardCode !== null && $cardReviewStatus !== null) {
+            cpg_set_seafarer_workspace_card_review_state(
+                $draftId,
+                $correctionCardCode,
+                $cardReviewStatus,
+                $reviewNote,
+                $decision,
+                'operator_review_queue'
+            );
+        }
 
         write_audit_event('operator_review_decision_recorded', $draftId, null, null, [
             'decision' => $decision,

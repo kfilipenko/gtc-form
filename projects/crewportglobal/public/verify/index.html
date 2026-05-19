@@ -555,6 +555,8 @@
         'verify.value.complete': 'complete',
         'verify.value.incomplete': 'incomplete',
         'verify.value.missing': 'missing: {items}',
+        'verify.value.reviewState': 'review: {status}',
+        'verify.value.reviewNote': 'note: {note}',
         'verify.value.empty': '-'
       },
       ru: {
@@ -701,6 +703,8 @@
         'verify.value.complete': 'заполнено',
         'verify.value.incomplete': 'неполно',
         'verify.value.missing': 'не хватает: {items}',
+        'verify.value.reviewState': 'проверка: {status}',
+        'verify.value.reviewNote': 'заметка: {note}',
         'verify.value.empty': '-'
       }
     };
@@ -1083,11 +1087,19 @@
           const missing = Array.isArray(item.missing) && item.missing.length
             ? t('verify.value.missing', { items: item.missing.join(', ') })
             : '';
+          const reviewState = typeof item.review_status === 'string' && item.review_status.trim()
+            ? t('verify.value.reviewState', { status: item.review_status.trim() })
+            : '';
+          const reviewNote = typeof item.review_note === 'string' && item.review_note.trim()
+            ? t('verify.value.reviewNote', { note: item.review_note.trim() })
+            : '';
           return createDetailField('verify.field.reviewReadiness', joinPresent([
             item.card_name || item.card_code,
             status,
             missing,
-          ]), { muted: item.status !== 'complete' });
+            reviewState,
+            reviewNote,
+          ]), { muted: item.status !== 'complete' || item.review_status === 'correction_requested' });
         }).filter(Boolean);
       }
 
@@ -1590,7 +1602,7 @@
           if (note) {
             requestBody.note = note;
           }
-          if (decision === 'needs_correction' && correctionCardCode) {
+          if (correctionCardCode) {
             requestBody.correction_card_code = correctionCardCode;
           }
           const response = await fetch(`/api/v1/operator/review-queue/${encodeURIComponent(draftId)}/status`, {
