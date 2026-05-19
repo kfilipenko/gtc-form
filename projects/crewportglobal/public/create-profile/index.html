@@ -974,6 +974,10 @@
                 <textarea id="create-document-notes" maxlength="1200" data-i18n-placeholder="create.form.documentNotes.placeholder" placeholder="COC valid until 2028, Schengen visa in progress, medical renewal booked"></textarea>
               </label>
             </div>
+            <div class="section-save-row">
+              <button id="create-document-readiness-save" class="button secondary" type="button" data-i18n="create.section.save">Save section</button>
+              <p id="create-document-readiness-save-status" class="status-note section-save-status" aria-live="polite"></p>
+            </div>
             <div class="document-upload-panel" aria-labelledby="create-document-upload-title">
               <div class="section-heading">
                 <p class="eyebrow" data-i18n="create.upload.eyebrow">Protected upload</p>
@@ -1695,6 +1699,8 @@
       const uploadStatus = document.getElementById('create-document-upload-status');
       const documentActionList = document.getElementById('create-document-action-list');
       const uploadList = document.getElementById('create-document-upload-list');
+      const documentReadinessSave = document.getElementById('create-document-readiness-save');
+      const documentReadinessSaveStatus = document.getElementById('create-document-readiness-save-status');
       const reviewStatusLine = document.getElementById('create-review-status');
       const correctionNoteLine = document.getElementById('create-correction-note');
       const progressValue = document.getElementById('create-progress-value');
@@ -1946,6 +1952,17 @@
         return compactObject(value);
       }
 
+      function collectDocumentReadinessMetadata() {
+        return compactObject({
+          certificate_status: certificateStatus.value,
+          stcw_status: stcwStatus.value,
+          passport_expiry: passportExpiry.value || null,
+          medical_expiry: medicalExpiry.value || null,
+          visa_status: visaStatus.value,
+          notes: documentNotes.value.trim()
+        });
+      }
+
       async function saveWorkspaceSection(button) {
         const draftId = currentDraftId();
         const statusId = button.getAttribute('data-workspace-status') || '';
@@ -2019,6 +2036,46 @@
           console.error(error);
         } finally {
           button.disabled = false;
+        }
+      }
+
+      async function saveDocumentReadiness() {
+        const draftId = currentDraftId();
+        if (!draftId) {
+          documentReadinessSaveStatus.textContent = t('create.section.saveFirst');
+          return;
+        }
+
+        documentReadinessSave.disabled = true;
+        documentReadinessSaveStatus.textContent = t('create.section.saving');
+
+        try {
+          const response = await fetch('/api/v1/seafarer/document-readiness', {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+              draft_id: draftId,
+              data: collectDocumentReadinessMetadata()
+            })
+          });
+
+          const json = await response.json().catch(() => null);
+          if (!response.ok) {
+            throw new Error(json && json.error ? json.error : 'document_readiness_save_failed');
+          }
+
+          documentReadinessSaveStatus.textContent = t('create.section.saved');
+          status.textContent = t('create.section.saved');
+          renderWorkspace();
+        } catch (error) {
+          documentReadinessSaveStatus.textContent = t('create.section.error');
+          status.textContent = t('create.section.error');
+          console.error(error);
+        } finally {
+          documentReadinessSave.disabled = false;
         }
       }
 
@@ -2764,6 +2821,7 @@
       });
 
       uploadSubmit.addEventListener('click', uploadSelectedDocument);
+      documentReadinessSave.addEventListener('click', saveDocumentReadiness);
 
       sectionSaveButtons.forEach((button) => {
         button.addEventListener('click', () => {

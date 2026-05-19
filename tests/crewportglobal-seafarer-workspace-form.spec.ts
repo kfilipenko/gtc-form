@@ -144,6 +144,24 @@ test('extended seafarer workspace cards persist through draft save and reload', 
   const sectionSavedWorkspaceBody = await sectionSavedWorkspaceResponse.json();
   expect(sectionSavedWorkspaceBody.workspace.person_details.residence_city_label).toBe('Sharjah');
 
+  await page.locator('#create-stcw-status').selectOption('ready');
+  await page.locator('#create-passport-expiry').fill('2030-03-20');
+  await page.locator('#create-visa-status').selectOption('not_required');
+  await page.locator('#create-document-notes').fill('Passport renewed and visa not required for the current target route.');
+  await page.locator('#create-document-readiness-save').click();
+  await expect(page.locator('#create-document-readiness-save-status')).toContainText('Section saved.');
+
+  const documentReadinessDraftResponse = await request.get(`/api/v1/registration/drafts/${draftId}`);
+  expect(documentReadinessDraftResponse.ok()).toBeTruthy();
+  const documentReadinessDraftBody = await documentReadinessDraftResponse.json();
+  const documentReadinessMetadata = typeof documentReadinessDraftBody.payload.seafarer_profile.document_metadata === 'string'
+    ? JSON.parse(documentReadinessDraftBody.payload.seafarer_profile.document_metadata)
+    : documentReadinessDraftBody.payload.seafarer_profile.document_metadata;
+  expect(documentReadinessMetadata.stcw_status).toBe('ready');
+  expect(documentReadinessMetadata.passport_expiry).toBe('2030-03-20');
+  expect(documentReadinessMetadata.visa_status).toBe('not_required');
+  expect(documentReadinessMetadata.notes).toContain('Passport renewed');
+
   await page.locator('#profile-section-qualifications > summary').click();
   await expect(page.locator('#create-coc-number')).toHaveValue('COC-WS-123456');
   await expect(page.locator('#create-training-courses')).toHaveValue('Basic Training, Advanced Fire Fighting');

@@ -1192,6 +1192,46 @@ function normalize_seafarer_document_metadata(array $body): ?string {
     return $json === false ? null : $json;
 }
 
+function cpg_normalize_seafarer_document_readiness(array $payload): array {
+    $metadata = [];
+    $certificateStatus = normalize_allowed_document_value(
+        $payload['certificate_status'] ?? null,
+        ['unknown', 'collecting', 'ready', 'needs_update']
+    );
+    $stcwStatus = normalize_allowed_document_value(
+        $payload['stcw_status'] ?? null,
+        ['unknown', 'collecting', 'ready', 'needs_update']
+    );
+    $visaStatus = normalize_allowed_document_value(
+        $payload['visa_status'] ?? null,
+        ['unknown', 'not_required', 'required', 'ready']
+    );
+    $passportExpiry = normalize_date_value($payload['passport_expiry'] ?? null);
+    $medicalExpiry = normalize_date_value($payload['medical_expiry'] ?? null);
+    $notes = normalize_optional_text($payload['notes'] ?? null, 1200);
+
+    if ($certificateStatus !== null) {
+        $metadata['certificate_status'] = $certificateStatus;
+    }
+    if ($stcwStatus !== null) {
+        $metadata['stcw_status'] = $stcwStatus;
+    }
+    if ($passportExpiry !== null) {
+        $metadata['passport_expiry'] = $passportExpiry;
+    }
+    if ($medicalExpiry !== null) {
+        $metadata['medical_expiry'] = $medicalExpiry;
+    }
+    if ($visaStatus !== null) {
+        $metadata['visa_status'] = $visaStatus;
+    }
+    if ($notes !== null) {
+        $metadata['notes'] = $notes;
+    }
+
+    return $metadata;
+}
+
 function cpg_seafarer_workspace_tables_ready(): bool {
     static $ready = null;
     if (is_bool($ready)) {
@@ -3168,6 +3208,58 @@ function handle_patch_seafarer_workspace_section(string $section): void {
     ]);
 }
 
+function handle_patch_seafarer_document_readiness(): void {
+    $body = api_decode_json_body();
+    $readinessPayload = isset($body['data']) && is_array($body['data'])
+        ? $body['data']
+        : [];
+    if ($readinessPayload === []) {
+        api_error(400, 'document_readiness_data_required', 'data object is required');
+    }
+
+    $documentReadiness = cpg_normalize_seafarer_document_readiness($readinessPayload);
+    if ($documentReadiness === []) {
+        api_error(400, 'document_readiness_data_invalid', 'data does not contain valid document readiness fields');
+    }
+
+    [$userId, $accessModel] = cpg_resolve_seafarer_workspace_user($body);
+    $context = cpg_seafarer_profile_sync_context($userId);
+    $metadata = cpg_decode_json_object(is_string($context['document_metadata']) ? $context['document_metadata'] : null);
+    foreach ($documentReadiness as $key => $value) {
+        $metadata[$key] = $value;
+    }
+    $documentMetadataJson = cpg_workspace_json($metadata);
+
+    api_tx_begin();
+    try {
+        api_query(
+            'UPDATE crewportglobal.seafarer_profiles
+             SET document_metadata = $2::jsonb,
+                 review_status = $3,
+                 updated_at = now()
+             WHERE user_id = $1',
+            [$userId, $documentMetadataJson, 'submitted_for_human_review']
+        );
+
+        write_audit_event('seafarer_document_readiness_updated', $userId, null, null, [
+            'fields' => array_keys($documentReadiness),
+            'access_model' => $accessModel,
+        ]);
+
+        api_tx_commit();
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'seafarer_document_readiness_update_failed', $error->getMessage());
+    }
+
+    api_json(200, [
+        'ok' => true,
+        'access_model' => $accessModel,
+        'draft_id' => $userId,
+        'document_metadata' => $metadata,
+    ]);
+}
+
 function handle_patch_draft(string $draftId): void {
     $uuid = api_normalize_uuid($draftId);
     if ($uuid === null) {
@@ -4717,6 +4809,14 @@ if ($path === '/seafarer/workspace') {
 if (preg_match('#^/seafarer/workspace/sections/([^/]+)$#', $path, $matches) === 1) {
     if ($method === 'PATCH') {
         handle_patch_seafarer_workspace_section($matches[1]);
+    }
+    header('Allow: PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
+}
+
+if ($path === '/seafarer/document-readiness') {
+    if ($method === 'PATCH') {
+        handle_patch_seafarer_document_readiness();
     }
     header('Allow: PATCH');
     api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
