@@ -770,6 +770,14 @@
                   <datalist id="create-airport-options"></datalist>
                 </label>
                 <label class="field-card">
+                  <strong data-i18n="create.form.secondaryMobileNumber">Secondary mobile number</strong>
+                  <input id="create-secondary-mobile-number" type="tel" data-i18n-placeholder="create.form.secondaryMobileNumber.placeholder" placeholder="+995555100200">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.homePhone">Home phone</strong>
+                  <input id="create-home-phone" type="tel" data-i18n-placeholder="create.form.homePhone.placeholder" placeholder="Home phone">
+                </label>
+                <label class="field-card">
                   <strong data-i18n="create.form.emergencyName">Emergency contact name</strong>
                   <input id="create-emergency-contact-name" type="text" data-i18n-placeholder="create.form.emergencyName.placeholder" placeholder="Contact person">
                 </label>
@@ -832,6 +840,10 @@
                   <input id="create-permanent-flat" type="text" data-i18n-placeholder="create.form.permanentFlat.placeholder" placeholder="Flat">
                 </label>
                 <label class="field-card">
+                  <strong data-i18n="create.form.permanentRegion">Permanent region</strong>
+                  <input id="create-permanent-region" type="text" data-i18n-placeholder="create.form.permanentRegion.placeholder" placeholder="Region">
+                </label>
+                <label class="field-card">
                   <strong data-i18n="create.form.permanentPostCode">Permanent post code</strong>
                   <input id="create-permanent-post-code" type="text" data-i18n-placeholder="create.form.permanentPostCode.placeholder" placeholder="Post code">
                 </label>
@@ -858,6 +870,10 @@
                 <label class="field-card">
                   <strong data-i18n="create.form.registrationCountry">Registration country</strong>
                   <input id="create-registration-country" type="text" list="create-country-options" data-i18n-placeholder="create.form.registrationCountry.placeholder" placeholder="Country">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.registrationRegion">Registration region</strong>
+                  <input id="create-registration-region" type="text" data-i18n-placeholder="create.form.registrationRegion.placeholder" placeholder="Region">
                 </label>
                 <label class="field-card">
                   <strong data-i18n="create.form.registrationPostCode">Registration post code</strong>
@@ -906,6 +922,10 @@
                 <label class="field-card">
                   <strong data-i18n="create.form.kinRelation">Kin relation</strong>
                   <input id="create-kin-relation" type="text" list="create-relation-options" data-i18n-placeholder="create.form.kinRelation.placeholder" placeholder="Relation">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.kinMobile">Kin mobile</strong>
+                  <input id="create-kin-mobile" type="tel" data-i18n-placeholder="create.form.kinMobile.placeholder" placeholder="Mobile">
                 </label>
                 <label class="field-card">
                   <strong data-i18n="create.form.kinHomePhone">Kin home phone</strong>
@@ -1016,6 +1036,10 @@
                   <input id="create-foreign-passport-authority" type="text" data-i18n-placeholder="create.form.foreignPassportAuthority.placeholder" placeholder="Authority">
                 </label>
                 <label class="field-card">
+                  <strong data-i18n="create.form.seafarerIdSeries">Seafarer's ID series</strong>
+                  <input id="create-seafarer-id-series" type="text" data-i18n-placeholder="create.form.seafarerIdSeries.placeholder" placeholder="Series">
+                </label>
+                <label class="field-card">
                   <strong data-i18n="create.form.seafarerIdNumber">Seafarer's ID number</strong>
                   <input id="create-seafarer-id-number" type="text" data-i18n-placeholder="create.form.seafarerIdNumber.placeholder" placeholder="Number">
                 </label>
@@ -1028,12 +1052,28 @@
                   <input id="create-seafarer-id-expiry" type="date">
                 </label>
                 <label class="field-card">
+                  <strong data-i18n="create.form.seafarerIdAuthority">Seafarer's ID authority</strong>
+                  <input id="create-seafarer-id-authority" type="text" data-i18n-placeholder="create.form.seafarerIdAuthority.placeholder" placeholder="Authority">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.seamansBookSeries">Seaman's book series</strong>
+                  <input id="create-seamans-book-series" type="text" data-i18n-placeholder="create.form.seamansBookSeries.placeholder" placeholder="Series">
+                </label>
+                <label class="field-card">
                   <strong data-i18n="create.form.seamansBookNumber">Seaman's book number</strong>
                   <input id="create-seamans-book-number" type="text" data-i18n-placeholder="create.form.seamansBookNumber.placeholder" placeholder="Number">
                 </label>
                 <label class="field-card">
                   <strong data-i18n="create.form.seamansBookIssued">Seaman's book issued</strong>
                   <input id="create-seamans-book-issued" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.seamansBookExpiry">Seaman's book expiry</strong>
+                  <input id="create-seamans-book-expiry" type="date">
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.seamansBookAuthority">Seaman's book authority</strong>
+                  <input id="create-seamans-book-authority" type="text" data-i18n-placeholder="create.form.seamansBookAuthority.placeholder" placeholder="Authority">
                 </label>
                 <label class="field-card">
                   <strong data-i18n="create.form.usaVisaType">USA visa type</strong>
@@ -1712,6 +1752,10 @@
         'create.form.residenceCity.placeholder': 'Dubai',
         'create.form.nearestAirport': 'Nearest airport',
         'create.form.nearestAirport.placeholder': 'DXB',
+        'create.form.secondaryMobileNumber': 'Secondary mobile number',
+        'create.form.secondaryMobileNumber.placeholder': '+995555100200',
+        'create.form.homePhone': 'Home phone',
+        'create.form.homePhone.placeholder': 'Home phone',
         'create.form.emergencyName': 'Emergency contact name',
         'create.form.emergencyName.placeholder': 'Contact person',
         'create.form.emergencyRelation': 'Emergency contact relation',
@@ -1734,6 +1778,8 @@
         'create.form.permanentHouse.placeholder': 'House',
         'create.form.permanentFlat': 'Permanent flat',
         'create.form.permanentFlat.placeholder': 'Flat',
+        'create.form.permanentRegion': 'Permanent region',
+        'create.form.permanentRegion.placeholder': 'Region',
         'create.form.permanentPostCode': 'Permanent post code',
         'create.form.permanentPostCode.placeholder': 'Post code',
         'create.form.permanentComments': 'Permanent address comments',
@@ -1748,6 +1794,8 @@
         'create.form.registrationCity.placeholder': 'City',
         'create.form.registrationCountry': 'Registration country',
         'create.form.registrationCountry.placeholder': 'Country',
+        'create.form.registrationRegion': 'Registration region',
+        'create.form.registrationRegion.placeholder': 'Region',
         'create.form.registrationPostCode': 'Registration post code',
         'create.form.registrationPostCode.placeholder': 'Post code',
         'create.form.registrationComments': 'Registration address comments',
@@ -1763,6 +1811,8 @@
         'create.form.kinGender.placeholder': 'Gender',
         'create.form.kinRelation': 'Kin relation',
         'create.form.kinRelation.placeholder': 'Relation',
+        'create.form.kinMobile': 'Kin mobile',
+        'create.form.kinMobile.placeholder': 'Mobile',
         'create.form.kinHomePhone': 'Kin home phone',
         'create.form.kinHomePhone.placeholder': 'Home phone',
         'create.form.kinEmail': 'Kin email',
@@ -1798,13 +1848,22 @@
         'create.form.foreignPassportExpiry': 'Foreign passport expiry',
         'create.form.foreignPassportAuthority': 'Foreign passport authority',
         'create.form.foreignPassportAuthority.placeholder': 'Authority',
+        'create.form.seafarerIdSeries': "Seafarer's ID series",
+        'create.form.seafarerIdSeries.placeholder': 'Series',
         'create.form.seafarerIdNumber': "Seafarer's ID number",
         'create.form.seafarerIdNumber.placeholder': 'Number',
         'create.form.seafarerIdIssued': "Seafarer's ID issued",
         'create.form.seafarerIdExpiry': "Seafarer's ID expiry",
+        'create.form.seafarerIdAuthority': "Seafarer's ID authority",
+        'create.form.seafarerIdAuthority.placeholder': 'Authority',
+        'create.form.seamansBookSeries': "Seaman's book series",
+        'create.form.seamansBookSeries.placeholder': 'Series',
         'create.form.seamansBookNumber': "Seaman's book number",
         'create.form.seamansBookNumber.placeholder': 'Number',
         'create.form.seamansBookIssued': "Seaman's book issued",
+        'create.form.seamansBookExpiry': "Seaman's book expiry",
+        'create.form.seamansBookAuthority': "Seaman's book authority",
+        'create.form.seamansBookAuthority.placeholder': 'Authority',
         'create.form.usaVisaType': 'USA visa type',
         'create.form.usaVisaType.placeholder': 'Visa type',
         'create.form.usaVisaIssued': 'USA visa issued',
@@ -2177,6 +2236,10 @@
         'create.form.residenceCity.placeholder': 'Дубай',
         'create.form.nearestAirport': 'Ближайший аэропорт',
         'create.form.nearestAirport.placeholder': 'DXB',
+        'create.form.secondaryMobileNumber': 'Дополнительный мобильный телефон',
+        'create.form.secondaryMobileNumber.placeholder': '+995555100200',
+        'create.form.homePhone': 'Домашний телефон',
+        'create.form.homePhone.placeholder': 'Домашний телефон',
         'create.form.emergencyName': 'Имя экстренного контакта',
         'create.form.emergencyName.placeholder': 'Контактное лицо',
         'create.form.emergencyRelation': 'Связь с экстренным контактом',
@@ -2199,6 +2262,8 @@
         'create.form.permanentHouse.placeholder': 'Дом',
         'create.form.permanentFlat': 'Квартира постоянного адреса',
         'create.form.permanentFlat.placeholder': 'Квартира',
+        'create.form.permanentRegion': 'Регион постоянного адреса',
+        'create.form.permanentRegion.placeholder': 'Регион',
         'create.form.permanentPostCode': 'Почтовый индекс постоянного адреса',
         'create.form.permanentPostCode.placeholder': 'Индекс',
         'create.form.permanentComments': 'Комментарии к постоянному адресу',
@@ -2213,6 +2278,8 @@
         'create.form.registrationCity.placeholder': 'Город',
         'create.form.registrationCountry': 'Страна регистрации',
         'create.form.registrationCountry.placeholder': 'Страна',
+        'create.form.registrationRegion': 'Регион регистрации',
+        'create.form.registrationRegion.placeholder': 'Регион',
         'create.form.registrationPostCode': 'Почтовый индекс регистрации',
         'create.form.registrationPostCode.placeholder': 'Индекс',
         'create.form.registrationComments': 'Комментарии к регистрационному адресу',
@@ -2228,6 +2295,8 @@
         'create.form.kinGender.placeholder': 'Пол',
         'create.form.kinRelation': 'Родственная связь',
         'create.form.kinRelation.placeholder': 'Степень родства',
+        'create.form.kinMobile': 'Мобильный телефон родственника',
+        'create.form.kinMobile.placeholder': 'Мобильный телефон',
         'create.form.kinHomePhone': 'Домашний телефон родственника',
         'create.form.kinHomePhone.placeholder': 'Домашний телефон',
         'create.form.kinEmail': 'Email родственника',
@@ -2263,13 +2332,22 @@
         'create.form.foreignPassportExpiry': 'Срок загранпаспорта',
         'create.form.foreignPassportAuthority': 'Кем выдан загранпаспорт',
         'create.form.foreignPassportAuthority.placeholder': 'Орган выдачи',
+        'create.form.seafarerIdSeries': 'Серия Seafarer ID',
+        'create.form.seafarerIdSeries.placeholder': 'Серия',
         'create.form.seafarerIdNumber': 'Номер Seafarer ID',
         'create.form.seafarerIdNumber.placeholder': 'Номер',
         'create.form.seafarerIdIssued': 'Дата выдачи Seafarer ID',
         'create.form.seafarerIdExpiry': 'Срок Seafarer ID',
+        'create.form.seafarerIdAuthority': 'Кем выдан Seafarer ID',
+        'create.form.seafarerIdAuthority.placeholder': 'Орган выдачи',
+        'create.form.seamansBookSeries': 'Серия мореходной книжки',
+        'create.form.seamansBookSeries.placeholder': 'Серия',
         'create.form.seamansBookNumber': 'Номер мореходной книжки',
         'create.form.seamansBookNumber.placeholder': 'Номер',
         'create.form.seamansBookIssued': 'Дата выдачи мореходной книжки',
+        'create.form.seamansBookExpiry': 'Срок мореходной книжки',
+        'create.form.seamansBookAuthority': 'Кем выдана мореходная книжка',
+        'create.form.seamansBookAuthority.placeholder': 'Орган выдачи',
         'create.form.usaVisaType': 'Тип визы США',
         'create.form.usaVisaType.placeholder': 'Тип визы',
         'create.form.usaVisaIssued': 'Дата выдачи визы США',
@@ -2558,12 +2636,15 @@
       const permanentAddress = document.getElementById('create-permanent-address');
       const residenceCity = document.getElementById('create-residence-city');
       const nearestAirport = document.getElementById('create-nearest-airport');
+      const secondaryMobileNumber = document.getElementById('create-secondary-mobile-number');
+      const homePhone = document.getElementById('create-home-phone');
       const emergencyContactName = document.getElementById('create-emergency-contact-name');
       const emergencyContactRelation = document.getElementById('create-emergency-contact-relation');
       const emergencyContactPhone = document.getElementById('create-emergency-contact-phone');
       const permanentStreet = document.getElementById('create-permanent-street');
       const permanentHouse = document.getElementById('create-permanent-house');
       const permanentFlat = document.getElementById('create-permanent-flat');
+      const permanentRegion = document.getElementById('create-permanent-region');
       const permanentPostCode = document.getElementById('create-permanent-post-code');
       const permanentComments = document.getElementById('create-permanent-comments');
       const registrationStreet = document.getElementById('create-registration-street');
@@ -2571,6 +2652,7 @@
       const registrationFlat = document.getElementById('create-registration-flat');
       const registrationCity = document.getElementById('create-registration-city');
       const registrationCountry = document.getElementById('create-registration-country');
+      const registrationRegion = document.getElementById('create-registration-region');
       const registrationPostCode = document.getElementById('create-registration-post-code');
       const registrationComments = document.getElementById('create-registration-comments');
       const kinSurname = document.getElementById('create-kin-surname');
@@ -2579,6 +2661,7 @@
       const kinBirthdate = document.getElementById('create-kin-birthdate');
       const kinGender = document.getElementById('create-kin-gender');
       const kinRelation = document.getElementById('create-kin-relation');
+      const kinMobile = document.getElementById('create-kin-mobile');
       const kinHomePhone = document.getElementById('create-kin-home-phone');
       const kinEmail = document.getElementById('create-kin-email');
       const kinAddress = document.getElementById('create-kin-address');
@@ -2598,11 +2681,16 @@
       const foreignPassportIssued = document.getElementById('create-foreign-passport-issued');
       const foreignPassportExpiry = document.getElementById('create-foreign-passport-expiry');
       const foreignPassportAuthority = document.getElementById('create-foreign-passport-authority');
+      const seafarerIdSeries = document.getElementById('create-seafarer-id-series');
       const seafarerIdNumber = document.getElementById('create-seafarer-id-number');
       const seafarerIdIssued = document.getElementById('create-seafarer-id-issued');
       const seafarerIdExpiry = document.getElementById('create-seafarer-id-expiry');
+      const seafarerIdAuthority = document.getElementById('create-seafarer-id-authority');
+      const seamansBookSeries = document.getElementById('create-seamans-book-series');
       const seamansBookNumber = document.getElementById('create-seamans-book-number');
       const seamansBookIssued = document.getElementById('create-seamans-book-issued');
+      const seamansBookExpiry = document.getElementById('create-seamans-book-expiry');
+      const seamansBookAuthority = document.getElementById('create-seamans-book-authority');
       const usaVisaType = document.getElementById('create-usa-visa-type');
       const usaVisaIssued = document.getElementById('create-usa-visa-issued');
       const usaVisaExpiry = document.getElementById('create-usa-visa-expiry');
@@ -2905,8 +2993,11 @@
           }),
           contact_and_addresses: compactObject({
             permanent_address: permanentAddress.value.trim(),
+            residence_country: residence.value.trim().toUpperCase(),
             residence_city: residenceCity.value.trim(),
             nearest_airport: nearestAirport.value.trim(),
+            secondary_mobile_number: secondaryMobileNumber.value.trim(),
+            home_phone: homePhone.value.trim(),
             emergency_contact_name: emergencyContactName.value.trim(),
             emergency_contact_relation: emergencyContactRelation.value.trim(),
             emergency_contact_phone: emergencyContactPhone.value.trim()
@@ -2915,6 +3006,7 @@
             permanent_street: permanentStreet.value.trim(),
             permanent_house: permanentHouse.value.trim(),
             permanent_flat: permanentFlat.value.trim(),
+            permanent_region: permanentRegion.value.trim(),
             permanent_post_code: permanentPostCode.value.trim(),
             permanent_comments: permanentComments.value.trim(),
             registration_street: registrationStreet.value.trim(),
@@ -2922,6 +3014,7 @@
             registration_flat: registrationFlat.value.trim(),
             registration_city: registrationCity.value.trim(),
             registration_country: registrationCountry.value.trim(),
+            registration_region: registrationRegion.value.trim(),
             registration_post_code: registrationPostCode.value.trim(),
             registration_comments: registrationComments.value.trim()
           }),
@@ -2932,6 +3025,7 @@
             kin_birthdate: kinBirthdate.value || null,
             kin_gender: kinGender.value.trim(),
             kin_relation: kinRelation.value.trim(),
+            kin_mobile: kinMobile.value.trim(),
             kin_home_phone: kinHomePhone.value.trim(),
             kin_email: kinEmail.value.trim(),
             kin_address: kinAddress.value.trim(),
@@ -2955,11 +3049,16 @@
             foreign_passport_issued: foreignPassportIssued.value || null,
             foreign_passport_expiry: foreignPassportExpiry.value || null,
             foreign_passport_authority: foreignPassportAuthority.value.trim(),
+            seafarer_id_series: seafarerIdSeries.value.trim(),
             seafarer_id_number: seafarerIdNumber.value.trim(),
             seafarer_id_issued: seafarerIdIssued.value || null,
             seafarer_id_expiry: seafarerIdExpiry.value || null,
+            seafarer_id_authority: seafarerIdAuthority.value.trim(),
+            seamans_book_series: seamansBookSeries.value.trim(),
             seamans_book_number: seamansBookNumber.value.trim(),
             seamans_book_issued: seamansBookIssued.value || null,
+            seamans_book_expiry: seamansBookExpiry.value || null,
+            seamans_book_authority: seamansBookAuthority.value.trim(),
             usa_visa_type: usaVisaType.value.trim(),
             usa_visa_issued: usaVisaIssued.value || null,
             usa_visa_expiry: usaVisaExpiry.value || null,
@@ -3199,8 +3298,11 @@
 
         const contact = workspaceSection(workspace, 'contact_and_addresses');
         setFieldValue(permanentAddress, contact.permanent_address);
+        setFieldValue(residence, contact.residence_country);
         setFieldValue(residenceCity, contact.residence_city);
         setFieldValue(nearestAirport, contact.nearest_airport);
+        setFieldValue(secondaryMobileNumber, contact.secondary_mobile_number);
+        setFieldValue(homePhone, contact.home_phone);
         setFieldValue(emergencyContactName, contact.emergency_contact_name);
         setFieldValue(emergencyContactRelation, contact.emergency_contact_relation);
         setFieldValue(emergencyContactPhone, contact.emergency_contact_phone);
@@ -3209,6 +3311,7 @@
         setFieldValue(permanentStreet, addresses.permanent_street);
         setFieldValue(permanentHouse, addresses.permanent_house);
         setFieldValue(permanentFlat, addresses.permanent_flat);
+        setFieldValue(permanentRegion, addresses.permanent_region);
         setFieldValue(permanentPostCode, addresses.permanent_post_code);
         setFieldValue(permanentComments, addresses.permanent_comments);
         setFieldValue(registrationStreet, addresses.registration_street);
@@ -3216,6 +3319,7 @@
         setFieldValue(registrationFlat, addresses.registration_flat);
         setFieldValue(registrationCity, addresses.registration_city);
         setFieldValue(registrationCountry, addresses.registration_country);
+        setFieldValue(registrationRegion, addresses.registration_region);
         setFieldValue(registrationPostCode, addresses.registration_post_code);
         setFieldValue(registrationComments, addresses.registration_comments);
 
@@ -3226,6 +3330,7 @@
         setFieldValue(kinBirthdate, family.kin_birthdate);
         setFieldValue(kinGender, family.kin_gender);
         setFieldValue(kinRelation, family.kin_relation);
+        setFieldValue(kinMobile, family.kin_mobile);
         setFieldValue(kinHomePhone, family.kin_home_phone);
         setFieldValue(kinEmail, family.kin_email);
         setFieldValue(kinAddress, family.kin_address);
@@ -3249,11 +3354,16 @@
         setFieldValue(foreignPassportIssued, identity.foreign_passport_issued);
         setFieldValue(foreignPassportExpiry, identity.foreign_passport_expiry);
         setFieldValue(foreignPassportAuthority, identity.foreign_passport_authority);
+        setFieldValue(seafarerIdSeries, identity.seafarer_id_series);
         setFieldValue(seafarerIdNumber, identity.seafarer_id_number);
         setFieldValue(seafarerIdIssued, identity.seafarer_id_issued);
         setFieldValue(seafarerIdExpiry, identity.seafarer_id_expiry);
+        setFieldValue(seafarerIdAuthority, identity.seafarer_id_authority);
+        setFieldValue(seamansBookSeries, identity.seamans_book_series);
         setFieldValue(seamansBookNumber, identity.seamans_book_number);
         setFieldValue(seamansBookIssued, identity.seamans_book_issued);
+        setFieldValue(seamansBookExpiry, identity.seamans_book_expiry);
+        setFieldValue(seamansBookAuthority, identity.seamans_book_authority);
         setFieldValue(usaVisaType, identity.usa_visa_type);
         setFieldValue(usaVisaIssued, identity.usa_visa_issued);
         setFieldValue(usaVisaExpiry, identity.usa_visa_expiry);

@@ -1083,8 +1083,11 @@ function normalize_seafarer_workspace_metadata(mixed $value): array {
         $contactData = array_merge(
             normalize_text_fields($contact, [
                 'permanent_address',
+                'residence_country',
                 'residence_city',
                 'nearest_airport',
+                'secondary_mobile_number',
+                'home_phone',
                 'emergency_contact_name',
                 'emergency_contact_relation',
                 'emergency_contact_phone',
@@ -1100,17 +1103,19 @@ function normalize_seafarer_workspace_metadata(mixed $value): array {
         $addressData = normalize_text_fields($addressDetails, [
             'permanent_street',
             'permanent_house',
-            'permanent_flat',
-            'permanent_post_code',
-            'permanent_comments',
-            'registration_street',
-            'registration_house',
-            'registration_flat',
-            'registration_city',
-            'registration_country',
-            'registration_post_code',
-            'registration_comments',
-        ], 500);
+                'permanent_flat',
+                'permanent_region',
+                'permanent_post_code',
+                'permanent_comments',
+                'registration_street',
+                'registration_house',
+                'registration_flat',
+                'registration_city',
+                'registration_country',
+                'registration_region',
+                'registration_post_code',
+                'registration_comments',
+            ], 500);
         if ($addressData !== []) {
             $workspace['address_details'] = $addressData;
         }
@@ -1125,6 +1130,7 @@ function normalize_seafarer_workspace_metadata(mixed $value): array {
                 'kin_middle_name',
                 'kin_gender',
                 'kin_relation',
+                'kin_mobile',
                 'kin_home_phone',
                 'kin_email',
                 'kin_address',
@@ -1162,8 +1168,12 @@ function normalize_seafarer_workspace_metadata(mixed $value): array {
                 'foreign_passport_series',
                 'foreign_passport_number',
                 'foreign_passport_authority',
+                'seafarer_id_series',
                 'seafarer_id_number',
+                'seafarer_id_authority',
+                'seamans_book_series',
                 'seamans_book_number',
+                'seamans_book_authority',
                 'usa_visa_type',
                 'usa_visa_post',
                 'schengen_visa_number',
@@ -1176,6 +1186,7 @@ function normalize_seafarer_workspace_metadata(mixed $value): array {
                 'seafarer_id_issued',
                 'seafarer_id_expiry',
                 'seamans_book_issued',
+                'seamans_book_expiry',
                 'usa_visa_issued',
                 'usa_visa_expiry',
                 'schengen_visa_issued',
@@ -1524,6 +1535,441 @@ function cpg_pg_text_array_literal(array $items): string {
     return '{' . implode(',', $quoted) . '}';
 }
 
+function cpg_workspace_repeated_lines(mixed $value, int $maxRows = 30, int $maxLength = 1200): array {
+    if (is_array($value)) {
+        $rows = [];
+        foreach ($value as $item) {
+            if (is_array($item)) {
+                $rows[] = $item;
+                continue;
+            }
+            $line = normalize_optional_text($item, $maxLength);
+            if ($line !== null) {
+                $rows[] = $line;
+            }
+        }
+        return array_slice($rows, 0, $maxRows);
+    }
+
+    $text = normalize_optional_text($value, $maxLength);
+    if ($text === null) {
+        return [];
+    }
+
+    $rows = preg_split('/\r\n|\r|\n/', $text) ?: [];
+    $rows = array_values(array_filter(array_map(
+        static fn (string $line): ?string => normalize_optional_text($line, $maxLength),
+        $rows
+    )));
+
+    return array_slice($rows, 0, $maxRows);
+}
+
+function cpg_workspace_row_parts(string $line, int $maxParts): array {
+    $delimiter = str_contains($line, '|') ? '/\|/' : '/,/';
+    $parts = preg_split($delimiter, $line) ?: [];
+    $normalized = [];
+    foreach ($parts as $part) {
+        $normalized[] = normalize_optional_text($part, 240);
+    }
+    while (count($normalized) < $maxParts) {
+        $normalized[] = null;
+    }
+    return array_slice($normalized, 0, $maxParts);
+}
+
+function cpg_workspace_record_has_values(array $record, array $ignoredKeys = ['source_row', 'source_key', 'source_index', 'source_card']): bool {
+    foreach ($record as $key => $value) {
+        if (in_array((string) $key, $ignoredKeys, true)) {
+            continue;
+        }
+        if (is_array($value) && cpg_workspace_record_has_values($value, $ignoredKeys)) {
+            return true;
+        }
+        if (!is_array($value) && normalize_optional_text($value, 2000) !== null) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function cpg_workspace_clean_record(array $record): array {
+    $clean = [];
+    foreach ($record as $key => $value) {
+        if (is_array($value)) {
+            $nested = cpg_workspace_clean_record($value);
+            if ($nested !== []) {
+                $clean[$key] = $nested;
+            }
+            continue;
+        }
+        if ($value !== null && $value !== '') {
+            $clean[$key] = $value;
+        }
+    }
+    return $clean;
+}
+
+function cpg_normalize_children_records(array $familyDetails): array {
+    $records = [];
+    foreach (cpg_workspace_repeated_lines($familyDetails['children_records'] ?? null, 20, 1200) as $index => $line) {
+        if (!is_string($line)) {
+            continue;
+        }
+        $lowerLine = strtolower(trim($line));
+        if (in_array($lowerLine, ['no children', 'none', 'n/a', 'na'], true)) {
+            continue;
+        }
+        [$surname, $firstName, $middleName, $relation, $birthdate, $gender] = cpg_workspace_row_parts($line, 6);
+        $record = cpg_workspace_clean_record([
+            'source_key' => 'children_records',
+            'source_index' => $index + 1,
+            'source_card' => 'PERS-008',
+            'surname' => $surname,
+            'first_name' => $firstName,
+            'middle_name' => $middleName,
+            'relation' => $relation,
+            'birthdate' => normalize_date_value((string) ($birthdate ?? '')),
+            'birthdate_text' => normalize_date_value((string) ($birthdate ?? '')) === null ? $birthdate : null,
+            'gender' => $gender,
+            'source_row' => $line,
+        ]);
+        if (cpg_workspace_record_has_values($record)) {
+            $records[] = $record;
+        }
+    }
+    return $records;
+}
+
+function cpg_normalize_identity_document_records(array $identity): array {
+    $definitions = [
+        [
+            'document_kind' => 'civil_passport',
+            'source_card' => 'QUAL-001',
+            'series' => $identity['civil_passport_series'] ?? null,
+            'number' => $identity['civil_passport_number'] ?? null,
+            'issued_at' => $identity['civil_passport_issued'] ?? null,
+            'issuing_authority' => $identity['civil_passport_authority'] ?? null,
+        ],
+        [
+            'document_kind' => 'foreign_passport',
+            'source_card' => 'QUAL-001',
+            'series' => $identity['foreign_passport_series'] ?? null,
+            'number' => $identity['foreign_passport_number'] ?? null,
+            'issued_at' => $identity['foreign_passport_issued'] ?? null,
+            'expires_at' => $identity['foreign_passport_expiry'] ?? null,
+            'issuing_authority' => $identity['foreign_passport_authority'] ?? null,
+        ],
+        [
+            'document_kind' => 'seafarer_id',
+            'source_card' => 'QUAL-001',
+            'series' => $identity['seafarer_id_series'] ?? null,
+            'number' => $identity['seafarer_id_number'] ?? null,
+            'issued_at' => $identity['seafarer_id_issued'] ?? null,
+            'expires_at' => $identity['seafarer_id_expiry'] ?? null,
+            'issuing_authority' => $identity['seafarer_id_authority'] ?? null,
+        ],
+        [
+            'document_kind' => 'seamans_book',
+            'source_card' => 'QUAL-001',
+            'series' => $identity['seamans_book_series'] ?? null,
+            'number' => $identity['seamans_book_number'] ?? null,
+            'issued_at' => $identity['seamans_book_issued'] ?? null,
+            'expires_at' => $identity['seamans_book_expiry'] ?? null,
+            'issuing_authority' => $identity['seamans_book_authority'] ?? null,
+        ],
+        [
+            'document_kind' => 'usa_visa',
+            'source_card' => 'QUAL-001',
+            'visa_type' => $identity['usa_visa_type'] ?? null,
+            'issued_at' => $identity['usa_visa_issued'] ?? null,
+            'expires_at' => $identity['usa_visa_expiry'] ?? null,
+            'issuing_post' => $identity['usa_visa_post'] ?? null,
+        ],
+        [
+            'document_kind' => 'schengen_visa',
+            'source_card' => 'QUAL-001',
+            'number' => $identity['schengen_visa_number'] ?? null,
+            'issued_at' => $identity['schengen_visa_issued'] ?? null,
+            'expires_at' => $identity['schengen_visa_expiry'] ?? null,
+            'issuing_post' => $identity['schengen_visa_post'] ?? null,
+        ],
+    ];
+
+    return array_values(array_filter(array_map(
+        static fn (array $record): array => cpg_workspace_clean_record($record),
+        $definitions
+    ), static fn (array $record): bool => cpg_workspace_record_has_values($record, ['document_kind', 'source_card'])));
+}
+
+function cpg_normalize_education_records(array $qualifications, array $details): array {
+    $record = cpg_workspace_clean_record([
+        'source_key' => 'education_records',
+        'source_index' => 1,
+        'source_card' => 'QUAL-002',
+        'institution_name' => $qualifications['education_institution'] ?? null,
+        'start_date' => $details['education_from'] ?? null,
+        'completion_date' => $details['education_to'] ?? null,
+        'field_of_study' => $details['education_specialisation'] ?? null,
+        'grade_label' => $qualifications['education_grade'] ?? null,
+        'issued_at' => $details['education_issued_on'] ?? null,
+        'comments' => $details['education_comments'] ?? null,
+    ]);
+
+    return cpg_workspace_record_has_values($record) ? [$record] : [];
+}
+
+function cpg_normalize_coc_certificate_records(array $qualifications, array $details): array {
+    $record = cpg_workspace_clean_record([
+        'source_key' => 'coc_certificate_records',
+        'source_index' => 1,
+        'source_card' => 'QUAL-003',
+        'certificate_group' => 'competency',
+        'certificate_type_label' => $qualifications['coc_type'] ?? null,
+        'issuing_authority' => $details['coc_institute'] ?? null,
+        'certificate_number' => $qualifications['coc_number'] ?? null,
+        'issuing_country_code' => normalize_country_code($qualifications['coc_issuing_country'] ?? null),
+        'issued_at' => $details['coc_issued'] ?? null,
+        'expires_at' => $qualifications['coc_expiry'] ?? null,
+        'comments' => $details['coc_comments'] ?? null,
+    ]);
+
+    return cpg_workspace_record_has_values($record, ['source_key', 'source_index', 'source_card', 'certificate_group']) ? [$record] : [];
+}
+
+function cpg_normalize_endorsement_records(array $details): array {
+    $record = cpg_workspace_clean_record([
+        'source_key' => 'endorsement_records',
+        'source_index' => 1,
+        'source_card' => 'QUAL-004',
+        'certificate_group' => 'endorsement',
+        'certificate_type_label' => $details['endorsement_type'] ?? null,
+        'issuing_authority' => $details['endorsement_institute'] ?? null,
+        'certificate_number' => $details['endorsement_number'] ?? null,
+        'issued_at' => $details['endorsement_issued'] ?? null,
+        'expires_at' => $details['endorsement_expiry'] ?? null,
+        'comments' => $details['endorsement_comments'] ?? null,
+    ]);
+
+    return cpg_workspace_record_has_values($record, ['source_key', 'source_index', 'source_card', 'certificate_group']) ? [$record] : [];
+}
+
+function cpg_normalize_training_course_records(array $qualifications, array $details): array {
+    $courseLabels = normalize_csv_text_list($qualifications['training_courses'] ?? null, 40, 220);
+    $records = [];
+    foreach ($courseLabels as $index => $courseLabel) {
+        $record = cpg_workspace_clean_record([
+            'source_key' => 'training_course_records',
+            'source_index' => $index + 1,
+            'source_card' => 'QUAL-005',
+            'training_type_label' => $courseLabel,
+            'issuing_center' => $details['training_institute'] ?? null,
+            'certificate_number' => $details['training_number'] ?? null,
+            'issued_at' => $details['training_issued'] ?? null,
+            'expires_at' => $details['training_expiry'] ?? null,
+            'comments' => $details['training_comments'] ?? null,
+        ]);
+        if (cpg_workspace_record_has_values($record)) {
+            $records[] = $record;
+        }
+    }
+    return $records;
+}
+
+function cpg_normalize_sea_service_records(array $seaService, array $flatProfile): array {
+    $records = [];
+    $primary = cpg_workspace_clean_record([
+        'source_key' => 'latest_sea_service',
+        'source_index' => 1,
+        'source_card' => 'EXP-001',
+        'vessel_name' => $seaService['last_vessel_name'] ?? null,
+        'vessel_type_label' => $seaService['last_vessel_type'] ?? null,
+        'deadweight' => $seaService['deadweight'] ?? null,
+        'engine_type' => $seaService['engine_type'] ?? null,
+        'engine_power' => $seaService['engine_power'] ?? null,
+        'flag_country_code' => normalize_country_code($seaService['flag_country'] ?? null),
+        'management_company' => $seaService['management_company'] ?? null,
+        'rank_label' => $seaService['last_rank'] ?? null,
+        'department' => normalize_optional_text($flatProfile['department'] ?? null, 40),
+        'service_from' => $seaService['service_from'] ?? null,
+        'service_to' => $seaService['service_to'] ?? null,
+    ]);
+    if (cpg_workspace_record_has_values($primary, ['source_key', 'source_index', 'source_card', 'department'])) {
+        $records[] = $primary;
+    }
+
+    foreach (cpg_workspace_repeated_lines($seaService['sea_service_history'] ?? null, 30, 1600) as $index => $line) {
+        if (!is_string($line)) {
+            continue;
+        }
+        [$vesselName, $vesselType, $deadweight, $engineType, $enginePower, $flagCountry, $company, $rank, $from, $to] = cpg_workspace_row_parts($line, 10);
+        $record = cpg_workspace_clean_record([
+            'source_key' => 'sea_service_history',
+            'source_index' => $index + 1,
+            'source_card' => 'EXP-001',
+            'vessel_name' => $vesselName,
+            'vessel_type_label' => $vesselType,
+            'deadweight' => $deadweight,
+            'engine_type' => $engineType,
+            'engine_power' => $enginePower,
+            'flag_country_code' => normalize_country_code((string) ($flagCountry ?? '')),
+            'flag_country_label' => normalize_country_code((string) ($flagCountry ?? '')) === null ? $flagCountry : null,
+            'management_company' => $company,
+            'rank_label' => $rank,
+            'department' => normalize_optional_text($flatProfile['department'] ?? null, 40),
+            'service_from' => normalize_date_value((string) ($from ?? '')),
+            'service_from_text' => normalize_date_value((string) ($from ?? '')) === null ? $from : null,
+            'service_to' => normalize_date_value((string) ($to ?? '')),
+            'service_to_text' => normalize_date_value((string) ($to ?? '')) === null ? $to : null,
+            'source_row' => $line,
+        ]);
+        if (cpg_workspace_record_has_values($record)) {
+            $records[] = $record;
+        }
+    }
+
+    return $records;
+}
+
+function cpg_normalize_previous_employer_reference_records(array $references): array {
+    $records = [];
+    for ($index = 1; $index <= 2; $index++) {
+        $record = cpg_workspace_clean_record([
+            'source_key' => 'previous_employer_reference',
+            'source_index' => $index,
+            'source_card' => 'EXP-002',
+            'company_name' => $references["reference_company_{$index}"] ?? null,
+            'person_in_charge' => $references["reference_person_{$index}"] ?? null,
+            'telephone' => $references["reference_phone_{$index}"] ?? null,
+            'email' => $references["reference_email_{$index}"] ?? null,
+        ]);
+        if (cpg_workspace_record_has_values($record)) {
+            $records[] = $record;
+        }
+    }
+    return $records;
+}
+
+function cpg_normalize_medical_declaration_records(array $medical): array {
+    $definitions = [
+        [
+            'source_key' => 'signed_off_sick',
+            'source_index' => 1,
+            'source_card' => 'MED-001',
+            'question' => 'Signed off sick',
+            'answer' => $medical['signed_off_sick'] ?? null,
+            'details' => $medical['sick_details'] ?? null,
+        ],
+        [
+            'source_key' => 'injury_last_10_years',
+            'source_index' => 2,
+            'source_card' => 'MED-001',
+            'question' => 'Injury / health problem during last 10 years',
+            'details' => $medical['injury_details'] ?? null,
+        ],
+        [
+            'source_key' => 'operated',
+            'source_index' => 3,
+            'source_card' => 'MED-001',
+            'question' => 'Operated',
+            'answer' => $medical['operated'] ?? null,
+            'details' => $medical['surgery_details'] ?? null,
+        ],
+    ];
+
+    return array_values(array_filter(array_map(
+        static fn (array $record): array => cpg_workspace_clean_record($record),
+        $definitions
+    ), static fn (array $record): bool => cpg_workspace_record_has_values($record, ['source_key', 'source_index', 'source_card', 'question'])));
+}
+
+function cpg_source_card_document_type_map(): array {
+    return [
+        'passport_or_id' => ['QUAL-001'],
+        'seamans_book' => ['QUAL-001'],
+        'certificate_of_competency' => ['QUAL-003'],
+        'stcw_certificate' => ['QUAL-005'],
+        'training_certificate' => ['QUAL-005'],
+        'language_certificate' => ['QUAL-005'],
+        'experience_record' => ['EXP-001'],
+        'medical_certificate' => ['MED-001'],
+        'other_professional_evidence' => ['QUAL-004', 'QUAL-005'],
+        'maritime_cv' => ['EXP-001', 'EXP-002'],
+    ];
+}
+
+function cpg_seafarer_source_repeated_records(array $documentMetadata, array $flatProfile = []): array {
+    $workspace = isset($documentMetadata['seafarer_workspace']) && is_array($documentMetadata['seafarer_workspace'])
+        ? normalize_seafarer_workspace_metadata($documentMetadata['seafarer_workspace'])
+        : [];
+
+    $family = cpg_workspace_section($workspace, 'family_details');
+    $identity = cpg_workspace_section($workspace, 'identity_documents');
+    $qualifications = cpg_workspace_section($workspace, 'qualifications');
+    $qualificationDetails = cpg_workspace_section($workspace, 'qualification_details');
+    $seaService = cpg_workspace_section($workspace, 'sea_service');
+    $references = cpg_workspace_section($workspace, 'previous_employer_references');
+    $medical = cpg_workspace_section($workspace, 'medical_history');
+
+    return [
+        'children_records' => cpg_normalize_children_records($family),
+        'identity_documents_and_visas' => cpg_normalize_identity_document_records($identity),
+        'education_records' => cpg_normalize_education_records($qualifications, $qualificationDetails),
+        'coc_certificates' => cpg_normalize_coc_certificate_records($qualifications, $qualificationDetails),
+        'endorsements' => cpg_normalize_endorsement_records($qualificationDetails),
+        'training_courses' => cpg_normalize_training_course_records($qualifications, $qualificationDetails),
+        'sea_service_history' => cpg_normalize_sea_service_records($seaService, $flatProfile),
+        'previous_employer_references' => cpg_normalize_previous_employer_reference_records($references),
+        'medical_declarations' => cpg_normalize_medical_declaration_records($medical),
+    ];
+}
+
+function cpg_seafarer_source_card_document_links(string $userId): array {
+    $documentsByCard = [];
+    foreach (cpg_seafarer_review_card_codes() as $cardCode) {
+        if (preg_match('/^(PERS|QUAL|EXP|MED)-\d{3}$/', $cardCode) === 1) {
+            $documentsByCard[$cardCode] = [];
+        }
+    }
+
+    $typeMap = cpg_source_card_document_type_map();
+    $documents = cpg_fetch_all_assoc(
+        "SELECT document_id::text AS document_id,
+                document_type,
+                original_filename,
+                file_size_bytes,
+                scan_status,
+                review_status,
+                uploaded_at::text AS uploaded_at
+         FROM crewportglobal.uploaded_documents
+         WHERE draft_id = $1::uuid
+           AND form_type = 'seafarer'
+           AND hidden_from_user_at IS NULL
+         ORDER BY uploaded_at DESC",
+        [$userId]
+    );
+
+    foreach ($documents as $document) {
+        $cards = $typeMap[(string) ($document['document_type'] ?? '')] ?? [];
+        foreach ($cards as $cardCode) {
+            if (!isset($documentsByCard[$cardCode])) {
+                $documentsByCard[$cardCode] = [];
+            }
+            $documentsByCard[$cardCode][] = [
+                'document_id' => $document['document_id'],
+                'document_type' => $document['document_type'],
+                'original_filename' => $document['original_filename'],
+                'file_size_bytes' => isset($document['file_size_bytes']) ? (int) $document['file_size_bytes'] : null,
+                'scan_status' => $document['scan_status'],
+                'review_status' => $document['review_status'],
+                'uploaded_at' => $document['uploaded_at'],
+            ];
+        }
+    }
+
+    return $documentsByCard;
+}
+
 function cpg_sync_seafarer_workspace_from_metadata(string $userId, ?string $documentMetadataJson, array $flatProfile): void {
     if (!cpg_seafarer_workspace_tables_ready()) {
         return;
@@ -1553,9 +1999,15 @@ function cpg_sync_seafarer_workspace_from_metadata(string $userId, ?string $docu
     $draftId = $userId;
     $personal = cpg_workspace_section($workspace, 'personal_details');
     $contact = cpg_workspace_section($workspace, 'contact_and_addresses');
+    $family = cpg_workspace_section($workspace, 'family_details');
+    $identity = cpg_workspace_section($workspace, 'identity_documents');
     $qualifications = cpg_workspace_section($workspace, 'qualifications');
+    $qualificationDetails = cpg_workspace_section($workspace, 'qualification_details');
     $seaService = cpg_workspace_section($workspace, 'sea_service');
+    $previousEmployerReferences = cpg_workspace_section($workspace, 'previous_employer_references');
+    $medicalHistory = cpg_workspace_section($workspace, 'medical_history');
     $publication = cpg_workspace_section($workspace, 'matching_publication');
+    $sourceRepeatedRecords = cpg_seafarer_source_repeated_records($metadata, $flatProfile);
 
     if ($personal !== [] || $contact !== [] || isset($flatProfile['nationality_code']) || isset($flatProfile['residence_country_code'])) {
         $genderLabel = cpg_workspace_text($personal, 'gender', 160);
@@ -1679,19 +2131,15 @@ function cpg_sync_seafarer_workspace_from_metadata(string $userId, ?string $docu
         );
     }
 
-    $educationHasData = array_filter([
-        cpg_workspace_text($qualifications, 'education_institution', 240),
-        cpg_workspace_text($qualifications, 'education_grade', 160),
-    ]) !== [];
     api_query(
         "DELETE FROM crewportglobal.seafarer_education_records
          WHERE seafarer_profile_id = $1
            AND metadata->>'source_key' = 'workspace_primary_education'",
         [$profileId]
     );
-    if ($educationHasData) {
-        $institutionLabel = cpg_workspace_text($qualifications, 'education_institution', 240);
-        $gradeLabel = cpg_workspace_text($qualifications, 'education_grade', 160);
+    foreach ($sourceRepeatedRecords['education_records'] as $educationRecord) {
+        $institutionLabel = normalize_optional_text($educationRecord['institution_name'] ?? null, 240);
+        $gradeLabel = normalize_optional_text($educationRecord['grade_label'] ?? null, 160);
         api_query(
             'INSERT INTO crewportglobal.seafarer_education_records (
                seafarer_profile_id,
@@ -1701,11 +2149,14 @@ function cpg_sync_seafarer_workspace_from_metadata(string $userId, ?string $docu
                institution_name,
                grade_value_id,
                grade_label,
+               field_of_study,
+               start_date,
+               completion_date,
                record_state,
                review_status,
                metadata
              ) VALUES (
-               $1, $2, $3::uuid, $4::uuid, $5, $6::uuid, $7, $8, $9, $10::jsonb
+               $1, $2, $3::uuid, $4::uuid, $5, $6::uuid, $7, $8, $9::date, $10::date, $11, $12, $13::jsonb
              )',
             [
                 $profileId,
@@ -1715,9 +2166,17 @@ function cpg_sync_seafarer_workspace_from_metadata(string $userId, ?string $docu
                 $institutionLabel,
                 cpg_workspace_reference_value_id('education_grades', $gradeLabel),
                 $gradeLabel,
+                normalize_optional_text($educationRecord['field_of_study'] ?? null, 240),
+                normalize_date_value((string) ($educationRecord['start_date'] ?? '')),
+                normalize_date_value((string) ($educationRecord['completion_date'] ?? '')),
                 'submitted',
                 'pending_human_review',
-                cpg_workspace_json(['source_key' => 'workspace_primary_education']),
+                cpg_workspace_json([
+                    'source_key' => 'workspace_primary_education',
+                    'source_card' => 'QUAL-002',
+                    'issued_at' => $educationRecord['issued_at'] ?? null,
+                    'comments' => $educationRecord['comments'] ?? null,
+                ]),
             ]
         );
     }
@@ -1725,13 +2184,13 @@ function cpg_sync_seafarer_workspace_from_metadata(string $userId, ?string $docu
     api_query(
         "DELETE FROM crewportglobal.seafarer_certificates
          WHERE seafarer_profile_id = $1
-           AND metadata->>'source_key' = 'workspace_primary_coc'",
+           AND metadata->>'source_key' IN ('workspace_primary_coc', 'workspace_endorsement')",
         [$profileId]
     );
-    $cocTypeLabel = cpg_workspace_text($qualifications, 'coc_type', 240);
-    $cocNumber = cpg_workspace_text($qualifications, 'coc_number', 160);
-    $cocCountryCode = cpg_workspace_country_code($qualifications, 'coc_issuing_country');
-    if ($cocTypeLabel !== null || $cocNumber !== null || $cocCountryCode !== null || cpg_workspace_date($qualifications, 'coc_expiry') !== null) {
+    foreach (array_merge($sourceRepeatedRecords['coc_certificates'], $sourceRepeatedRecords['endorsements']) as $certificateRecord) {
+        $certificateTypeLabel = normalize_optional_text($certificateRecord['certificate_type_label'] ?? null, 240);
+        $certificateGroup = normalize_optional_text($certificateRecord['certificate_group'] ?? null, 80) ?? 'competency';
+        $certificateSourceKey = $certificateGroup === 'endorsement' ? 'workspace_endorsement' : 'workspace_primary_coc';
         api_query(
             'INSERT INTO crewportglobal.seafarer_certificates (
                seafarer_profile_id,
@@ -1741,27 +2200,38 @@ function cpg_sync_seafarer_workspace_from_metadata(string $userId, ?string $docu
                certificate_type_value_id,
                certificate_type_label,
                certificate_number,
+               issuing_authority,
                issuing_country_code,
+               issued_at,
                expires_at,
                record_state,
                review_status,
                metadata
              ) VALUES (
-               $1, $2, $3::uuid, $4, $5::uuid, $6, $7, $8, $9::date, $10, $11, $12::jsonb
+               $1, $2, $3::uuid, $4, $5::uuid, $6, $7, $8, $9, $10::date, $11::date, $12, $13, $14::jsonb
              )',
             [
                 $profileId,
                 $userId,
                 $draftId,
-                'competency',
-                cpg_workspace_reference_value_id('certificate_of_competence_types', $cocTypeLabel),
-                $cocTypeLabel,
-                $cocNumber,
-                $cocCountryCode,
-                cpg_workspace_date($qualifications, 'coc_expiry'),
+                $certificateGroup,
+                cpg_workspace_reference_value_id(
+                    $certificateGroup === 'endorsement' ? 'national_document_types' : 'certificate_of_competence_types',
+                    $certificateTypeLabel
+                ),
+                $certificateTypeLabel,
+                normalize_optional_text($certificateRecord['certificate_number'] ?? null, 160),
+                normalize_optional_text($certificateRecord['issuing_authority'] ?? null, 240),
+                normalize_country_code($certificateRecord['issuing_country_code'] ?? null),
+                normalize_date_value((string) ($certificateRecord['issued_at'] ?? '')),
+                normalize_date_value((string) ($certificateRecord['expires_at'] ?? '')),
                 'submitted',
                 'pending_human_review',
-                cpg_workspace_json(['source_key' => 'workspace_primary_coc']),
+                cpg_workspace_json([
+                    'source_key' => $certificateSourceKey,
+                    'source_card' => $certificateGroup === 'endorsement' ? 'QUAL-004' : 'QUAL-003',
+                    'comments' => $certificateRecord['comments'] ?? null,
+                ]),
             ]
         );
     }
@@ -1772,8 +2242,8 @@ function cpg_sync_seafarer_workspace_from_metadata(string $userId, ?string $docu
            AND metadata->>'source_key' = 'workspace_training_course'",
         [$profileId]
     );
-    $trainingCourses = normalize_csv_text_list($qualifications['training_courses'] ?? null, 20, 220);
-    foreach ($trainingCourses as $courseLabel) {
+    foreach ($sourceRepeatedRecords['training_courses'] as $trainingRecord) {
+        $courseLabel = normalize_optional_text($trainingRecord['training_type_label'] ?? null, 220);
         api_query(
             'INSERT INTO crewportglobal.seafarer_training_records (
                seafarer_profile_id,
@@ -1781,11 +2251,15 @@ function cpg_sync_seafarer_workspace_from_metadata(string $userId, ?string $docu
                source_draft_id,
                training_type_value_id,
                training_type_label,
+               certificate_number,
+               issuing_center,
+               issued_at,
+               expires_at,
                record_state,
                review_status,
                metadata
              ) VALUES (
-               $1, $2, $3::uuid, $4::uuid, $5, $6, $7, $8::jsonb
+               $1, $2, $3::uuid, $4::uuid, $5, $6, $7, $8::date, $9::date, $10, $11, $12::jsonb
              )',
             [
                 $profileId,
@@ -1793,9 +2267,18 @@ function cpg_sync_seafarer_workspace_from_metadata(string $userId, ?string $docu
                 $draftId,
                 cpg_workspace_reference_value_id('training_course_types', $courseLabel),
                 $courseLabel,
+                normalize_optional_text($trainingRecord['certificate_number'] ?? null, 160),
+                normalize_optional_text($trainingRecord['issuing_center'] ?? null, 240),
+                normalize_date_value((string) ($trainingRecord['issued_at'] ?? '')),
+                normalize_date_value((string) ($trainingRecord['expires_at'] ?? '')),
                 'submitted',
                 'pending_human_review',
-                cpg_workspace_json(['source_key' => 'workspace_training_course']),
+                cpg_workspace_json([
+                    'source_key' => 'workspace_training_course',
+                    'source_card' => 'QUAL-005',
+                    'source_index' => $trainingRecord['source_index'] ?? null,
+                    'comments' => $trainingRecord['comments'] ?? null,
+                ]),
             ]
         );
     }
@@ -1803,14 +2286,20 @@ function cpg_sync_seafarer_workspace_from_metadata(string $userId, ?string $docu
     api_query(
         "DELETE FROM crewportglobal.seafarer_sea_service_records
          WHERE seafarer_profile_id = $1
-           AND metadata->>'source_key' = 'workspace_latest_sea_service'",
+           AND metadata->>'source_key' IN ('workspace_latest_sea_service', 'workspace_sea_service_history')",
         [$profileId]
     );
-    $lastVesselName = cpg_workspace_text($seaService, 'last_vessel_name', 240);
-    $lastVesselTypeLabel = cpg_workspace_text($seaService, 'last_vessel_type', 240);
-    $lastRankLabel = cpg_workspace_text($seaService, 'last_rank', 240);
-    $flagCountryCode = cpg_workspace_country_code($seaService, 'flag_country');
-    if (array_filter([$lastVesselName, $lastVesselTypeLabel, $lastRankLabel, $flagCountryCode, cpg_workspace_date($seaService, 'service_from'), cpg_workspace_date($seaService, 'service_to')]) !== []) {
+    foreach ($sourceRepeatedRecords['sea_service_history'] as $seaServiceRecord) {
+        $vesselName = normalize_optional_text($seaServiceRecord['vessel_name'] ?? null, 240);
+        $vesselTypeLabel = normalize_optional_text($seaServiceRecord['vessel_type_label'] ?? null, 240);
+        $rankLabel = normalize_optional_text($seaServiceRecord['rank_label'] ?? null, 240);
+        $sourceKey = ($seaServiceRecord['source_key'] ?? null) === 'sea_service_history'
+            ? 'workspace_sea_service_history'
+            : 'workspace_latest_sea_service';
+        $department = normalize_optional_text($seaServiceRecord['department'] ?? null, 40);
+        if (!in_array($department, ['deck', 'engine', 'catering', 'other'], true)) {
+            $department = null;
+        }
         api_query(
             'INSERT INTO crewportglobal.seafarer_sea_service_records (
                seafarer_profile_id,
@@ -1839,21 +2328,84 @@ function cpg_sync_seafarer_workspace_from_metadata(string $userId, ?string $docu
                 $profileId,
                 $userId,
                 $draftId,
-                $lastVesselName,
-                cpg_workspace_reference_value_id('vessel_types', $lastVesselTypeLabel),
-                $lastVesselTypeLabel,
-                cpg_workspace_reference_value_id('seafarer_positions', $lastRankLabel),
-                $lastRankLabel,
-                normalize_optional_text($flatProfile['department'] ?? null, 40),
-                $flagCountryCode,
-                cpg_workspace_date($seaService, 'service_from'),
-                cpg_workspace_date($seaService, 'service_to'),
-                cpg_workspace_text($seaService, 'management_company', 240),
-                cpg_workspace_text($seaService, 'engine_type', 160),
-                cpg_workspace_text($seaService, 'deadweight', 160),
+                $vesselName,
+                cpg_workspace_reference_value_id('vessel_types', $vesselTypeLabel),
+                $vesselTypeLabel,
+                cpg_workspace_reference_value_id('seafarer_positions', $rankLabel),
+                $rankLabel,
+                $department,
+                normalize_country_code($seaServiceRecord['flag_country_code'] ?? null),
+                normalize_date_value((string) ($seaServiceRecord['service_from'] ?? '')),
+                normalize_date_value((string) ($seaServiceRecord['service_to'] ?? '')),
+                normalize_optional_text($seaServiceRecord['management_company'] ?? null, 240),
+                normalize_optional_text($seaServiceRecord['engine_type'] ?? null, 160),
+                normalize_optional_text($seaServiceRecord['deadweight'] ?? null, 160),
                 'submitted',
                 'pending_human_review',
-                cpg_workspace_json(['source_key' => 'workspace_latest_sea_service']),
+                cpg_workspace_json([
+                    'source_key' => $sourceKey,
+                    'source_card' => 'EXP-001',
+                    'source_index' => $seaServiceRecord['source_index'] ?? null,
+                    'engine_power' => $seaServiceRecord['engine_power'] ?? null,
+                    'source_row' => $seaServiceRecord['source_row'] ?? null,
+                    'service_from_text' => $seaServiceRecord['service_from_text'] ?? null,
+                    'service_to_text' => $seaServiceRecord['service_to_text'] ?? null,
+                ]),
+            ]
+        );
+    }
+
+    api_query(
+        "DELETE FROM crewportglobal.seafarer_medical_declarations
+         WHERE seafarer_profile_id = $1
+           AND declaration_scope = 'platform_readiness'
+           AND sensitive_payload->>'source_key' = 'workspace_medical_history'",
+        [$profileId]
+    );
+    $medicalDeclarations = $sourceRepeatedRecords['medical_declarations'];
+    if ($medicalDeclarations !== [] || isset($metadata['medical_expiry'])) {
+        $hasMedicalConcern = false;
+        foreach ($medicalDeclarations as $declaration) {
+            $answer = strtolower((string) ($declaration['answer'] ?? ''));
+            $details = normalize_optional_text($declaration['details'] ?? null, 1200);
+            if (in_array($answer, ['yes', 'true', '1'], true) || $details !== null) {
+                $hasMedicalConcern = true;
+                break;
+            }
+        }
+        $consentStatus = ($publication['data_processing_confirmation'] ?? null) === 'i_confirm'
+            ? 'granted'
+            : 'not_declared';
+        api_query(
+            'INSERT INTO crewportglobal.seafarer_medical_declarations (
+               seafarer_profile_id,
+               user_id,
+               source_draft_id,
+               declaration_scope,
+               medical_certificate_expires_at,
+               fitness_status,
+               consent_status,
+               sensitive_payload,
+               record_state,
+               review_status
+             ) VALUES (
+               $1, $2, $3::uuid, $4, $5::date, $6, $7, $8::jsonb, $9, $10
+             )',
+            [
+                $profileId,
+                $userId,
+                $draftId,
+                'platform_readiness',
+                normalize_date_value((string) ($metadata['medical_expiry'] ?? '')),
+                $hasMedicalConcern ? 'requires_review' : 'not_declared',
+                $consentStatus,
+                cpg_workspace_json([
+                    'source_key' => 'workspace_medical_history',
+                    'source_card' => 'MED-001',
+                    'declarations' => $medicalDeclarations,
+                ]),
+                'submitted',
+                'pending_human_review',
             ]
         );
     }
@@ -2011,6 +2563,10 @@ function cpg_read_seafarer_workspace_summary(string $userId): array {
     }
 
     $profileId = (string) $profile['seafarer_profile_id'];
+    $documentMetadata = cpg_decode_json_object($profile['document_metadata'] ?? null);
+    $flatProfile = [
+        'department' => $profile['department'] ?? null,
+    ];
     return [
         'schema_ready' => true,
         'has_profile' => true,
@@ -2022,6 +2578,8 @@ function cpg_read_seafarer_workspace_summary(string $userId): array {
         'contact_email' => $profile['contact_email'] ?? null,
         'review_status' => $profile['review_status'] ?? null,
         'card_review_states' => cpg_seafarer_workspace_card_review_states($profile['document_metadata'] ?? null),
+        'source_repeated_records' => cpg_seafarer_source_repeated_records($documentMetadata, $flatProfile),
+        'source_card_document_links' => cpg_seafarer_source_card_document_links((string) $profile['user_id']),
         'person_details' => cpg_fetch_one_assoc(
             'SELECT date_of_birth, place_of_birth, gender_label, civil_status_label,
                     nationality_code, residence_country_code, residence_city_label,

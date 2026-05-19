@@ -556,6 +556,8 @@
         'verify.field.emergencyContact': 'Emergency contact',
         'verify.field.cocNumber': 'COC number',
         'verify.field.trainingRecords': 'Training records',
+        'verify.field.sourceRepeatedRows': 'Excel repeated rows',
+        'verify.field.sourceDocumentLinks': 'Source card documents',
         'verify.field.seaService': 'Latest sea service',
         'verify.field.candidateSummary': 'Candidate summary',
         'verify.field.publicationChoice': 'Matching publication',
@@ -710,6 +712,8 @@
         'verify.field.emergencyContact': 'Экстренный контакт',
         'verify.field.cocNumber': 'Номер COC',
         'verify.field.trainingRecords': 'Тренинги',
+        'verify.field.sourceRepeatedRows': 'Повторяемые строки Excel',
+        'verify.field.sourceDocumentLinks': 'Документы source cards',
         'verify.field.seaService': 'Последняя работа в море',
         'verify.field.candidateSummary': 'Сводка кандидата',
         'verify.field.publicationChoice': 'Публикация для matching',
@@ -1069,6 +1073,34 @@
         return values.filter((value) => value !== null && value !== undefined && String(value).trim() !== '').join(' | ');
       }
 
+      function sourceRepeatedRecordSummary(workspace) {
+        const repeated = workspace && workspace.source_repeated_records && typeof workspace.source_repeated_records === 'object'
+          ? workspace.source_repeated_records
+          : {};
+        return [
+          ['children', repeated.children_records],
+          ['identity/visas', repeated.identity_documents_and_visas],
+          ['education', repeated.education_records],
+          ['COC', repeated.coc_certificates],
+          ['endorsements', repeated.endorsements],
+          ['training', repeated.training_courses],
+          ['sea service', repeated.sea_service_history],
+          ['employers', repeated.previous_employer_references],
+          ['medical', repeated.medical_declarations],
+        ].map(([label, records]) => (
+          Array.isArray(records) && records.length > 0 ? `${label}: ${records.length}` : ''
+        )).filter(Boolean);
+      }
+
+      function sourceDocumentLinkSummary(workspace) {
+        const links = workspace && workspace.source_card_document_links && typeof workspace.source_card_document_links === 'object'
+          ? workspace.source_card_document_links
+          : {};
+        return Object.entries(links)
+          .filter((entry) => Array.isArray(entry[1]) && entry[1].length > 0)
+          .map((entry) => `${entry[0]}: ${entry[1].length}`);
+      }
+
       function workspaceSummaryFields(workspace) {
         if (!workspace || workspace.schema_ready !== true || workspace.has_profile !== true) {
           return [];
@@ -1101,6 +1133,8 @@
             certificate.expires_at,
           ])),
           createDetailField('verify.field.trainingRecords', training),
+          createDetailField('verify.field.sourceRepeatedRows', sourceRepeatedRecordSummary(workspace)),
+          createDetailField('verify.field.sourceDocumentLinks', sourceDocumentLinkSummary(workspace)),
           createDetailField('verify.field.seaService', joinPresent([
             seaService.vessel_name,
             seaService.vessel_type_label,

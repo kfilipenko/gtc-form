@@ -802,6 +802,11 @@
         'cabinet.workspace.education': 'Education',
         'cabinet.workspace.certificates': 'Certificates',
         'cabinet.workspace.training': 'Training',
+        'cabinet.workspace.sourceChildren': 'Children records',
+        'cabinet.workspace.sourceIdentity': 'Identity documents and visas',
+        'cabinet.workspace.sourceEndorsements': 'Endorsements',
+        'cabinet.workspace.sourceReferences': 'Previous employer references',
+        'cabinet.workspace.sourceDocuments': 'Source card document links',
         'cabinet.workspace.seaService': 'Sea service',
         'cabinet.workspace.medical': 'Medical declarations',
         'cabinet.workspace.matching': 'Matching preferences',
@@ -826,6 +831,17 @@
         'cabinet.workspace.expires': 'Expires',
         'cabinet.workspace.trainingType': 'Training type',
         'cabinet.workspace.center': 'Training center',
+        'cabinet.workspace.sourceCard': 'Source card',
+        'cabinet.workspace.documentKind': 'Document kind',
+        'cabinet.workspace.series': 'Series',
+        'cabinet.workspace.issued': 'Issued',
+        'cabinet.workspace.authority': 'Authority',
+        'cabinet.workspace.question': 'Question',
+        'cabinet.workspace.answer': 'Answer',
+        'cabinet.workspace.details': 'Details',
+        'cabinet.workspace.companyName': 'Company name',
+        'cabinet.workspace.personInCharge': 'Person in charge',
+        'cabinet.workspace.telephone': 'Telephone',
         'cabinet.workspace.vessel': 'Vessel',
         'cabinet.workspace.vesselType': 'Vessel type',
         'cabinet.workspace.rank': 'Rank',
@@ -970,6 +986,11 @@
         'cabinet.workspace.education': 'Образование',
         'cabinet.workspace.certificates': 'Сертификаты',
         'cabinet.workspace.training': 'Подготовка',
+        'cabinet.workspace.sourceChildren': 'Данные детей',
+        'cabinet.workspace.sourceIdentity': 'Документы личности и визы',
+        'cabinet.workspace.sourceEndorsements': 'Endorsements',
+        'cabinet.workspace.sourceReferences': 'Предыдущие работодатели',
+        'cabinet.workspace.sourceDocuments': 'Документы source cards',
         'cabinet.workspace.seaService': 'Морской стаж',
         'cabinet.workspace.medical': 'Медицинские декларации',
         'cabinet.workspace.matching': 'Предпочтения для подбора',
@@ -994,6 +1015,17 @@
         'cabinet.workspace.expires': 'Действует до',
         'cabinet.workspace.trainingType': 'Тип подготовки',
         'cabinet.workspace.center': 'Учебный центр',
+        'cabinet.workspace.sourceCard': 'Source card',
+        'cabinet.workspace.documentKind': 'Тип документа',
+        'cabinet.workspace.series': 'Серия',
+        'cabinet.workspace.issued': 'Выдан',
+        'cabinet.workspace.authority': 'Орган выдачи',
+        'cabinet.workspace.question': 'Вопрос',
+        'cabinet.workspace.answer': 'Ответ',
+        'cabinet.workspace.details': 'Детали',
+        'cabinet.workspace.companyName': 'Название компании',
+        'cabinet.workspace.personInCharge': 'Ответственное лицо',
+        'cabinet.workspace.telephone': 'Телефон',
         'cabinet.workspace.vessel': 'Судно',
         'cabinet.workspace.vesselType': 'Тип судна',
         'cabinet.workspace.rank': 'Звание',
@@ -2050,6 +2082,17 @@
         const matching = workspace.matching_preferences && typeof workspace.matching_preferences === 'object'
           ? workspace.matching_preferences
           : {};
+        const repeated = workspace.source_repeated_records && typeof workspace.source_repeated_records === 'object'
+          ? workspace.source_repeated_records
+          : {};
+        const sourceDocumentLinks = workspace.source_card_document_links && typeof workspace.source_card_document_links === 'object'
+          ? workspace.source_card_document_links
+          : {};
+        const sourceDocumentRecords = Object.entries(sourceDocumentLinks).flatMap((entry) => (
+          Array.isArray(entry[1])
+            ? entry[1].map((record) => ({ ...record, source_card: entry[0] }))
+            : []
+        ));
 
         const sections = [
           workspaceSection('cabinet.workspace.personal', [
@@ -2091,6 +2134,30 @@
             { label: 'cabinet.workspace.expires', value: record.expires_at },
             { label: 'cabinet.workspace.review', value: reviewLabel(record.review_status) },
           ]),
+          workspaceRecordList('cabinet.workspace.sourceChildren', repeated.children_records, (record) => [
+            { label: 'cabinet.workspace.sourceCard', value: record.source_card },
+            { label: 'cabinet.user.fullName', value: [record.surname, record.first_name, record.middle_name].filter(Boolean).join(' ') },
+            { label: 'cabinet.workspace.relation', value: record.relation },
+            { label: 'cabinet.workspace.gender', value: record.gender },
+            { label: 'cabinet.workspace.dob', value: record.birthdate || record.birthdate_text },
+          ]),
+          workspaceRecordList('cabinet.workspace.sourceIdentity', repeated.identity_documents_and_visas, (record) => [
+            { label: 'cabinet.workspace.sourceCard', value: record.source_card },
+            { label: 'cabinet.workspace.documentKind', value: record.document_kind },
+            { label: 'cabinet.workspace.series', value: record.series },
+            { label: 'cabinet.workspace.certificateNumber', value: record.number || record.visa_type },
+            { label: 'cabinet.workspace.issued', value: record.issued_at },
+            { label: 'cabinet.workspace.expires', value: record.expires_at },
+            { label: 'cabinet.workspace.authority', value: record.issuing_authority || record.issuing_post },
+          ]),
+          workspaceRecordList('cabinet.workspace.sourceEndorsements', repeated.endorsements, (record) => [
+            { label: 'cabinet.workspace.sourceCard', value: record.source_card },
+            { label: 'cabinet.workspace.certificateType', value: record.certificate_type_label },
+            { label: 'cabinet.workspace.certificateNumber', value: record.certificate_number },
+            { label: 'cabinet.workspace.authority', value: record.issuing_authority },
+            { label: 'cabinet.workspace.issued', value: record.issued_at },
+            { label: 'cabinet.workspace.expires', value: record.expires_at },
+          ]),
           workspaceRecordList('cabinet.workspace.seaService', workspace.sea_service_records, (record) => [
             { label: 'cabinet.workspace.vessel', value: record.vessel_name },
             { label: 'cabinet.workspace.vesselType', value: record.vessel_type_label },
@@ -2102,10 +2169,29 @@
             { label: 'cabinet.workspace.deadweight', value: record.deadweight },
             { label: 'cabinet.workspace.review', value: reviewLabel(record.review_status) },
           ]),
+          workspaceRecordList('cabinet.workspace.sourceReferences', repeated.previous_employer_references, (record) => [
+            { label: 'cabinet.workspace.sourceCard', value: record.source_card },
+            { label: 'cabinet.workspace.companyName', value: record.company_name },
+            { label: 'cabinet.workspace.personInCharge', value: record.person_in_charge },
+            { label: 'cabinet.workspace.telephone', value: record.telephone },
+            { label: 'cabinet.user.email', value: record.email },
+          ]),
           workspaceRecordList('cabinet.workspace.medical', workspace.medical_declarations, (record) => [
             { label: 'cabinet.workspace.medicalExpiry', value: record.medical_certificate_expires_at },
             { label: 'cabinet.workspace.fitness', value: record.fitness_status },
             { label: 'cabinet.workspace.review', value: reviewLabel(record.review_status) },
+          ]),
+          workspaceRecordList('cabinet.workspace.medical', repeated.medical_declarations, (record) => [
+            { label: 'cabinet.workspace.sourceCard', value: record.source_card },
+            { label: 'cabinet.workspace.question', value: record.question },
+            { label: 'cabinet.workspace.answer', value: record.answer },
+            { label: 'cabinet.workspace.details', value: record.details },
+          ]),
+          workspaceRecordList('cabinet.workspace.sourceDocuments', sourceDocumentRecords, (record) => [
+            { label: 'cabinet.workspace.sourceCard', value: record.source_card },
+            { label: 'cabinet.documents.documentType', value: record.document_type },
+            { label: 'cabinet.documents.review', value: reviewLabel(record.review_status) },
+            { label: 'cabinet.documents.size', value: formatBytes(record.file_size_bytes) },
           ]),
           workspaceSection('cabinet.workspace.matching', [
             { label: 'cabinet.workspace.vesselPreferences', value: formatList(matching.preferred_vessel_type_labels) },
