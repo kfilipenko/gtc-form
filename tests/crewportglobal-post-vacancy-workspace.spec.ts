@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type APIRequestContext } from '@playwright/test';
 import { execSync } from 'node:child_process';
 
 function cleanupPostVacancyWorkspaceTestData(): void {
@@ -61,6 +61,24 @@ WHERE sp.user_id = u.user_id
 test.afterEach(() => {
   cleanupPostVacancyWorkspaceTestData();
 });
+
+async function acceptPresentationConsents(request: APIRequestContext, draftId: string): Promise<void> {
+  for (const consentType of ['matching_preparation', 'employer_sharing']) {
+    const response = await request.post('/api/v1/seafarer/consents', {
+      data: {
+        draft_id: draftId,
+        consent_type: consentType,
+        accepted: true,
+        text_version: 'cpg-seafarer-consent-2026-05-19-test',
+        source_page: '/create-profile/',
+        metadata: {
+          test_control: 'CPG-SEAFARER-018',
+        },
+      },
+    });
+    expect(response.status()).toBe(201);
+  }
+}
 
 test('post vacancy workspace saves, reloads and displays review publication status', async ({ page, request }) => {
   const unique = Date.now();
@@ -174,6 +192,7 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   });
   expect(seafarerCreate.ok()).toBeTruthy();
   const seafarer = await seafarerCreate.json();
+  await acceptPresentationConsents(request, seafarer.draft_id);
 
   const candidateNote = 'Ready for interview and available immediately.';
   const applicationResponse = await request.post(`/api/v1/vacancies/${vacancyId}/applications`, {
@@ -200,7 +219,7 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await expect(page.locator('#post-candidate-pipeline-status')).toContainText('1 presented candidate');
   await expect(page.locator('#post-candidate-list')).toContainText('Presented Candidate');
   await expect(page.locator('#post-candidate-list')).toContainText('Master');
-  await expect(page.locator('#post-candidate-list')).toContainText(seafarerEmail);
+  await expect(page.locator('#post-candidate-list')).not.toContainText(seafarerEmail);
   await expect(page.locator('#post-candidate-list')).toContainText('ready / ready / 2027-06-15 / 2029-02-02');
   await expect(page.locator('#post-candidate-list')).toContainText(candidateNote);
   const candidateCard = page.locator('.candidate-card', { hasText: 'Presented Candidate' }).first();

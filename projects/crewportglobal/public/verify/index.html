@@ -527,6 +527,7 @@
         'verify.section.vessel': 'Vessel',
         'verify.section.vacancy': 'Vacancy request',
         'verify.section.application': 'Vacancy application',
+        'verify.section.approvalGuard': 'Approval guard',
         'verify.field.draftId': 'Draft ID',
         'verify.field.role': 'Role',
         'verify.field.email': 'Email',
@@ -582,6 +583,11 @@
         'verify.field.contactEmail': 'Contact email',
         'verify.field.candidateNote': 'Candidate note',
         'verify.field.vacancyId': 'Vacancy ID',
+        'verify.field.approvalStatus': 'Approval status',
+        'verify.field.approvalBlockers': 'Blockers',
+        'verify.field.approvalWarnings': 'Warnings',
+        'verify.field.activeConsents': 'Active consents',
+        'verify.field.payloadGuard': 'Employer payload guard',
         'verify.value.complete': 'complete',
         'verify.value.incomplete': 'incomplete',
         'verify.value.missing': 'missing: {items}',
@@ -683,6 +689,7 @@
         'verify.section.vessel': 'Судно',
         'verify.section.vacancy': 'Заявка на вакансию',
         'verify.section.application': 'Отклик на вакансию',
+        'verify.section.approvalGuard': 'Approval guard',
         'verify.field.draftId': 'Draft ID',
         'verify.field.role': 'Роль',
         'verify.field.email': 'Email',
@@ -738,6 +745,11 @@
         'verify.field.contactEmail': 'Контактный email',
         'verify.field.candidateNote': 'Заметка кандидата',
         'verify.field.vacancyId': 'ID вакансии',
+        'verify.field.approvalStatus': 'Статус approval',
+        'verify.field.approvalBlockers': 'Блокеры',
+        'verify.field.approvalWarnings': 'Предупреждения',
+        'verify.field.activeConsents': 'Активные согласия',
+        'verify.field.payloadGuard': 'Контроль payload работодателя',
         'verify.value.complete': 'заполнено',
         'verify.value.incomplete': 'неполно',
         'verify.value.missing': 'не хватает: {items}',
@@ -1181,6 +1193,44 @@
         }).filter(Boolean);
       }
 
+      function approvalGuardFields(guard) {
+        if (!guard || typeof guard !== 'object') {
+          return [];
+        }
+
+        const blockerText = Array.isArray(guard.approval_blockers)
+          ? guard.approval_blockers.map((item) => (
+            item && typeof item === 'object'
+              ? [item.code, item.message].filter(Boolean).join(': ')
+              : ''
+          )).filter(Boolean)
+          : [];
+        const warningText = Array.isArray(guard.approval_warnings)
+          ? guard.approval_warnings.map((item) => (
+            item && typeof item === 'object'
+              ? [item.code, item.message].filter(Boolean).join(': ')
+              : ''
+          )).filter(Boolean)
+          : [];
+        const payloadProbe = guard.employer_payload_probe && typeof guard.employer_payload_probe === 'object'
+          ? guard.employer_payload_probe
+          : {};
+
+        return [
+          createDetailField('verify.field.approvalStatus', guard.approval_status),
+          createDetailField('verify.field.activeConsents', Array.isArray(guard.active_consent_types) ? guard.active_consent_types : []),
+          createDetailField('verify.field.approvalBlockers', blockerText.length ? blockerText : t('verify.value.empty'), {
+            muted: blockerText.length > 0,
+          }),
+          createDetailField('verify.field.approvalWarnings', warningText.length ? warningText : t('verify.value.empty'), {
+            muted: warningText.length > 0,
+          }),
+          createDetailField('verify.field.payloadGuard', payloadProbe.forbidden_fields_absent === true ? 'forbidden fields absent' : 'check required', {
+            muted: payloadProbe.forbidden_fields_absent !== true,
+          }),
+        ];
+      }
+
       function appendSeafarerStructuredSections(sections, payload) {
         const workspace = structuredWorkspace(payload);
         const readiness = reviewReadiness(payload);
@@ -1331,6 +1381,7 @@
         const vacancy = payload.vacancy && typeof payload.vacancy === 'object' ? payload.vacancy : null;
         const company = payload.company && typeof payload.company === 'object' ? payload.company : null;
         const vessel = payload.vessel && typeof payload.vessel === 'object' ? payload.vessel : null;
+        const approvalGuard = payload.approval_guard && typeof payload.approval_guard === 'object' ? payload.approval_guard : null;
         const documentMetadata = seafarer ? parseJsonish(seafarer.document_metadata, {}) : {};
 
         const seafarerName = seafarer
@@ -1348,6 +1399,10 @@
             createDetailField('verify.field.updated', application.updated_at),
           ]),
         ];
+
+        if (approvalGuard) {
+          sections.push(createDetailSection('verify.section.approvalGuard', approvalGuardFields(approvalGuard)));
+        }
 
         if (seafarer) {
           sections.push(
@@ -1754,6 +1809,14 @@
           if (isOperatorAccessFailure(response)) {
             showAccessPanel('verify.access.denied');
             status.textContent = t('verify.access.denied');
+            return;
+          }
+          if (response.status === 409 && payload && payload.error === 'approval_guard_blocked') {
+            const blockers = payload.approval_guard && Array.isArray(payload.approval_guard.approval_blockers)
+              ? payload.approval_guard.approval_blockers.map((item) => item && item.code).filter(Boolean).join(', ')
+              : 'approval guard';
+            status.textContent = `Approval guard blocked: ${blockers}`;
+            detailsJson.textContent = JSON.stringify(payload, null, 2);
             return;
           }
           if (!response.ok || !payload || payload.ok !== true) {

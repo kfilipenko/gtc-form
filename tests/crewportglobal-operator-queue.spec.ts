@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type APIRequestContext } from '@playwright/test';
 import { execSync } from 'node:child_process';
 
 const operatorAccessToken =
@@ -66,6 +66,24 @@ WHERE sp.user_id = u.user_id
 test.afterEach(() => {
   cleanupOperatorQueueTestData();
 });
+
+async function acceptPresentationConsents(request: APIRequestContext, draftId: string): Promise<void> {
+  for (const consentType of ['matching_preparation', 'employer_sharing']) {
+    const response = await request.post('/api/v1/seafarer/consents', {
+      data: {
+        draft_id: draftId,
+        consent_type: consentType,
+        accepted: true,
+        text_version: 'cpg-seafarer-consent-2026-05-19-test',
+        source_page: '/create-profile/',
+        metadata: {
+          test_control: 'CPG-SEAFARER-018',
+        },
+      },
+    });
+    expect(response.status()).toBe(201);
+  }
+}
 
 test('operator queue page renders submitted drafts from API', async ({ page, request }) => {
   const unique = Date.now();
@@ -256,6 +274,7 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
   });
   expect(seafarerCreate.ok()).toBeTruthy();
   const seafarer = await seafarerCreate.json();
+  await acceptPresentationConsents(request, seafarer.draft_id);
 
   const candidateNote = 'Available now. ETO documents are ready.';
   const applicationResponse = await request.post(`/api/v1/vacancies/${vacancyId}/applications`, {

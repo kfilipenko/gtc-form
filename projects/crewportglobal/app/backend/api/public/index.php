@@ -2047,16 +2047,14 @@ function cpg_seafarer_field_visibility_matrix(): array {
 
 function cpg_seafarer_consent_event_model(): array {
     return [
-        'implementation_status' => 'planned_migration_required',
-        'required_consent_types' => [
-            'profile_review',
-            'matching_preparation',
-            'employer_sharing',
-            'document_verification',
-            'sensitive_medical_processing',
-            'reference_contact_verification',
-        ],
+        'implementation_status' => cpg_seafarer_consent_table_ready()
+            ? 'implemented_additive_table_api'
+            : 'planned_migration_required',
+        'required_consent_types' => cpg_seafarer_consent_types(),
         'required_fields' => [
+            'consent_id',
+            'seafarer_profile_id',
+            'draft_id',
             'consent_type',
             'purpose',
             'legal_basis',
@@ -2069,6 +2067,281 @@ function cpg_seafarer_consent_event_model(): array {
         ],
         'current_boundary' => 'Current confirmation fields remain saved, but they are not treated as a final all-purpose consent event model.',
     ];
+}
+
+function cpg_seafarer_consent_types(): array {
+    return [
+        'profile_review',
+        'matching_preparation',
+        'employer_sharing',
+        'document_verification',
+        'sensitive_medical_processing',
+        'reference_contact_verification',
+    ];
+}
+
+function cpg_seafarer_required_presentation_consent_types(): array {
+    return ['matching_preparation', 'employer_sharing'];
+}
+
+function cpg_seafarer_consent_purpose(string $consentType): string {
+    return match ($consentType) {
+        'profile_review' => 'Human review of seafarer profile data',
+        'matching_preparation' => 'Preparation of a reviewed matching summary',
+        'employer_sharing' => 'Sharing an approved employer-safe candidate summary',
+        'document_verification' => 'Verification of uploaded document readiness',
+        'sensitive_medical_processing' => 'Restricted processing of medical declaration details',
+        'reference_contact_verification' => 'Verification of previous-employer reference contacts',
+        default => 'CrewPortGlobal seafarer consent event',
+    };
+}
+
+function cpg_normalize_seafarer_consent_type(mixed $value): ?string {
+    if (!is_string($value)) {
+        return null;
+    }
+
+    $type = trim($value);
+    return in_array($type, cpg_seafarer_consent_types(), true) ? $type : null;
+}
+
+function cpg_seafarer_consent_table_ready(): bool {
+    static $ready = null;
+    if (is_bool($ready)) {
+        return $ready;
+    }
+
+    $result = api_query("SELECT to_regclass('crewportglobal.seafarer_consent_events') AS table_name");
+    $row = pg_fetch_assoc($result);
+    $ready = is_array($row) && is_string($row['table_name'] ?? null) && $row['table_name'] !== '';
+    return $ready;
+}
+
+function cpg_seafarer_profile_id_for_user(string $userId): ?string {
+    $profile = cpg_fetch_one_assoc(
+        'SELECT seafarer_profile_id
+         FROM crewportglobal.seafarer_profiles
+         WHERE user_id = $1
+         LIMIT 1',
+        [$userId]
+    );
+
+    return $profile !== null && isset($profile['seafarer_profile_id'])
+        ? (string) $profile['seafarer_profile_id']
+        : null;
+}
+
+function cpg_seafarer_active_consent_events(string $userId): array {
+    if (!cpg_seafarer_consent_table_ready()) {
+        return [];
+    }
+
+    $result = api_query(
+        "SELECT DISTINCT ON (consent_type)
+                consent_id,
+                seafarer_profile_id,
+                draft_id,
+                consent_type,
+                purpose,
+                legal_basis,
+                text_version,
+                language,
+                accepted_at,
+                withdrawn_at,
+                source_page,
+                actor_user_id,
+                actor_type,
+                metadata,
+                created_at,
+                updated_at
+         FROM crewportglobal.seafarer_consent_events
+         WHERE draft_id = $1
+           AND accepted_at IS NOT NULL
+           AND withdrawn_at IS NULL
+         ORDER BY consent_type, accepted_at DESC, created_at DESC",
+        [$userId]
+    );
+
+    $events = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $events[(string) $row['consent_type']] = [
+            'consent_id' => $row['consent_id'],
+            'seafarer_profile_id' => $row['seafarer_profile_id'],
+            'draft_id' => $row['draft_id'],
+            'consent_type' => $row['consent_type'],
+            'purpose' => $row['purpose'],
+            'legal_basis' => $row['legal_basis'],
+            'text_version' => $row['text_version'],
+            'language' => $row['language'],
+            'accepted_at' => $row['accepted_at'],
+            'withdrawn_at' => $row['withdrawn_at'],
+            'source_page' => $row['source_page'],
+            'actor_user_id' => $row['actor_user_id'],
+            'actor_type' => $row['actor_type'],
+            'metadata' => cpg_decode_json_object($row['metadata'] ?? null),
+            'created_at' => $row['created_at'],
+            'updated_at' => $row['updated_at'],
+        ];
+    }
+
+    return $events;
+}
+
+function cpg_seafarer_consent_summary(string $userId): array {
+    $active = cpg_seafarer_active_consent_events($userId);
+    return [
+        'store_ready' => cpg_seafarer_consent_table_ready(),
+        'required_consent_types' => cpg_seafarer_consent_types(),
+        'required_for_employer_presentation' => cpg_seafarer_required_presentation_consent_types(),
+        'active_consent_types' => array_keys($active),
+        'active_consents' => array_values($active),
+    ];
+}
+
+function cpg_write_seafarer_consent_event(
+    string $userId,
+    string $consentType,
+    string $accessModel,
+    array $body
+): array {
+    if (!cpg_seafarer_consent_table_ready()) {
+        api_error(503, 'seafarer_consent_store_missing', 'Seafarer consent event table is not available');
+    }
+
+    $profileId = cpg_seafarer_profile_id_for_user($userId);
+    if ($profileId === null) {
+        api_error(404, 'seafarer_profile_not_found', 'Seafarer profile not found');
+    }
+
+    $purpose = normalize_optional_text($body['purpose'] ?? null, 500) ?? cpg_seafarer_consent_purpose($consentType);
+    $legalBasis = normalize_optional_text($body['legal_basis'] ?? null, 160) ?? 'explicit_consent';
+    $textVersion = normalize_optional_text($body['text_version'] ?? null, 120) ?? 'cpg-seafarer-consent-2026-05-19';
+    $language = normalize_optional_text($body['language'] ?? null, 16) ?? 'en';
+    if (!preg_match('/^[a-z]{2}(-[A-Z]{2})?$/', $language)) {
+        api_error(400, 'invalid_consent_language', 'language must use a short language tag such as en or ru');
+    }
+    $sourcePage = normalize_optional_text($body['source_page'] ?? null, 240) ?? 'api';
+    $metadata = isset($body['metadata']) && is_array($body['metadata']) ? $body['metadata'] : [];
+    $actorType = $accessModel === 'authenticated_session' ? 'owner' : 'transition_owner';
+
+    $result = api_query(
+        'INSERT INTO crewportglobal.seafarer_consent_events (
+             seafarer_profile_id,
+             draft_id,
+             consent_type,
+             purpose,
+             legal_basis,
+             text_version,
+             language,
+             accepted_at,
+             source_page,
+             actor_user_id,
+             actor_type,
+             metadata
+         ) VALUES (
+             $1,
+             $2,
+             $3,
+             $4,
+             $5,
+             $6,
+             $7,
+             now(),
+             $8,
+             $9,
+             $10,
+             $11::jsonb
+         )
+         RETURNING consent_id, consent_type, purpose, legal_basis, text_version, language, accepted_at, withdrawn_at, source_page, actor_type',
+        [
+            $profileId,
+            $userId,
+            $consentType,
+            $purpose,
+            $legalBasis,
+            $textVersion,
+            $language,
+            $sourcePage,
+            $userId,
+            $actorType,
+            cpg_workspace_json($metadata),
+        ]
+    );
+
+    $row = pg_fetch_assoc($result);
+    if (!is_array($row)) {
+        api_error(500, 'seafarer_consent_event_failed', 'Unable to record seafarer consent event');
+    }
+
+    write_audit_event('seafarer_consent_event_recorded', $userId, null, null, [
+        'consent_id' => $row['consent_id'],
+        'consent_type' => $consentType,
+        'purpose' => $purpose,
+        'legal_basis' => $legalBasis,
+        'text_version' => $textVersion,
+        'language' => $language,
+        'source_page' => $sourcePage,
+        'actor_type' => $actorType,
+        'access_model' => $accessModel,
+    ], 'seafarer_consent_events');
+
+    return [
+        'consent_id' => $row['consent_id'],
+        'consent_type' => $row['consent_type'],
+        'purpose' => $row['purpose'],
+        'legal_basis' => $row['legal_basis'],
+        'text_version' => $row['text_version'],
+        'language' => $row['language'],
+        'accepted_at' => $row['accepted_at'],
+        'withdrawn_at' => $row['withdrawn_at'],
+        'source_page' => $row['source_page'],
+        'actor_type' => $row['actor_type'],
+    ];
+}
+
+function cpg_withdraw_seafarer_consent(string $userId, string $consentType, string $accessModel, array $body): array {
+    if (!cpg_seafarer_consent_table_ready()) {
+        api_error(503, 'seafarer_consent_store_missing', 'Seafarer consent event table is not available');
+    }
+
+    $reason = normalize_optional_text($body['reason'] ?? null, 500);
+    $result = api_query(
+        "UPDATE crewportglobal.seafarer_consent_events
+         SET withdrawn_at = now(),
+             updated_at = now(),
+             metadata = metadata || $3::jsonb
+         WHERE draft_id = $1
+           AND consent_type = $2
+           AND accepted_at IS NOT NULL
+           AND withdrawn_at IS NULL
+         RETURNING consent_id, consent_type, withdrawn_at",
+        [
+            $userId,
+            $consentType,
+            cpg_workspace_json([
+                'withdraw_reason' => $reason,
+                'withdraw_access_model' => $accessModel,
+            ]),
+        ]
+    );
+
+    $withdrawn = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $withdrawn[] = [
+            'consent_id' => $row['consent_id'],
+            'consent_type' => $row['consent_type'],
+            'withdrawn_at' => $row['withdrawn_at'],
+        ];
+    }
+
+    write_audit_event('seafarer_consent_event_withdrawn', $userId, null, null, [
+        'consent_type' => $consentType,
+        'withdrawn_count' => count($withdrawn),
+        'reason' => $reason,
+        'access_model' => $accessModel,
+    ], 'seafarer_consent_events');
+
+    return $withdrawn;
 }
 
 function cpg_seafarer_document_metadata_for_scope(array $metadata, string $scope): array {
@@ -2093,6 +2366,244 @@ function cpg_seafarer_public_document_summary(mixed $metadata): array {
         ? cpg_decode_json_object($metadata)
         : (is_array($metadata) ? $metadata : []);
     return cpg_seafarer_document_metadata_for_scope($decoded, 'employer_candidate');
+}
+
+function cpg_approval_add_blocker(array &$blockers, string $code, string $message, array $details = []): void {
+    $blocker = [
+        'code' => $code,
+        'message' => $message,
+    ];
+    if ($details !== []) {
+        $blocker['details'] = $details;
+    }
+    $blockers[] = $blocker;
+}
+
+function cpg_employer_payload_forbidden_keys(): array {
+    return [
+        'document_metadata',
+        'seafarer_workspace',
+        'source_repeated_records',
+        'source_card_document_links',
+        'sensitive_payload',
+        'medical_history',
+        'children_records',
+        'religion',
+        'manager_notes',
+        'authorization_rank',
+        'authorization_type_of_ship',
+        'authorization_date',
+        'crewing_manager_name',
+        'crewing_manager_signature',
+        'previous_employer_references',
+        'reference_person_1',
+        'reference_phone_1',
+        'reference_email_1',
+        'contact_phone',
+        'seafarer_email',
+    ];
+}
+
+function cpg_payload_forbidden_key_hits(mixed $value, array $forbiddenKeys, string $path = ''): array {
+    if (!is_array($value)) {
+        return [];
+    }
+
+    $hits = [];
+    foreach ($value as $key => $child) {
+        $keyText = is_string($key) ? $key : (string) $key;
+        $childPath = $path === '' ? $keyText : $path . '.' . $keyText;
+        if (in_array($keyText, $forbiddenKeys, true)) {
+            $hits[] = $childPath;
+        }
+        foreach (cpg_payload_forbidden_key_hits($child, $forbiddenKeys, $childPath) as $hit) {
+            $hits[] = $hit;
+        }
+    }
+
+    return array_values(array_unique($hits));
+}
+
+function cpg_employer_candidate_payload_probe(array $row): array {
+    return [
+        'vacancy_application_id' => $row['vacancy_application_id'] ?? null,
+        'vacancy_request_id' => $row['vacancy_request_id'] ?? null,
+        'application_status' => $row['application_status'] ?? null,
+        'candidate_note' => $row['candidate_note'] ?? null,
+        'seafarer_user_id' => $row['seafarer_user_id'] ?? null,
+        'display_name' => $row['display_name'] ?? $row['seafarer_display_name'] ?? null,
+        'primary_rank' => $row['primary_rank'] ?? null,
+        'department' => $row['seafarer_department'] ?? $row['department'] ?? null,
+        'availability_status' => $row['availability_status'] ?? null,
+        'availability_date' => $row['availability_date'] ?? null,
+        'country_code' => $row['seafarer_country_code'] ?? $row['country_code'] ?? null,
+        'document_summary' => cpg_seafarer_public_document_summary($row['document_metadata'] ?? null),
+        'candidate_visibility_scope' => 'employer_after_candidate_consent',
+        'vacancy_title' => $row['vacancy_title'] ?? null,
+        'vacancy_rank' => $row['vacancy_rank'] ?? null,
+        'vacancy_department' => $row['vacancy_department'] ?? null,
+    ];
+}
+
+function cpg_seafarer_presentation_required_source_cards(): array {
+    return [
+        'PERS-002',
+        'PERS-003',
+        'PERS-006',
+        'QUAL-001',
+        'QUAL-003',
+        'QUAL-005',
+        'EXP-001',
+        'MED-003',
+        'document_readiness',
+        'matching_publication',
+    ];
+}
+
+function cpg_vacancy_application_approval_guard(string $applicationId): array {
+    $result = api_query(
+        "SELECT
+            va.vacancy_application_id,
+            va.vacancy_request_id,
+            va.seafarer_user_id,
+            va.candidate_note,
+            va.application_status,
+            su.display_name AS seafarer_display_name,
+            sp.seafarer_profile_id,
+            sp.primary_rank,
+            sp.department AS seafarer_department,
+            sp.availability_status,
+            sp.availability_date,
+            sp.country_code AS seafarer_country_code,
+            sp.review_status AS seafarer_review_status,
+            sp.document_metadata,
+            vr.vacancy_title,
+            vr.rank AS vacancy_rank,
+            vr.department AS vacancy_department,
+            vr.publication_status,
+            ec.verification_status
+         FROM crewportglobal.vacancy_applications va
+         JOIN crewportglobal.users su ON su.user_id = va.seafarer_user_id
+         LEFT JOIN crewportglobal.seafarer_profiles sp ON sp.user_id = su.user_id
+         JOIN crewportglobal.vacancy_requests vr ON vr.vacancy_request_id = va.vacancy_request_id
+         JOIN crewportglobal.employer_companies ec ON ec.company_id = vr.company_id
+         WHERE va.vacancy_application_id = $1
+         LIMIT 1",
+        [$applicationId]
+    );
+    $row = pg_fetch_assoc($result);
+    if (!is_array($row)) {
+        api_error(404, 'review_item_not_found', 'Vacancy application review item not found');
+    }
+
+    $blockers = [];
+    $warnings = [];
+    $documentMetadata = cpg_decode_json_object(is_string($row['document_metadata'] ?? null) ? $row['document_metadata'] : null);
+    $documentSummary = cpg_seafarer_public_document_summary($documentMetadata);
+    $cardReviewStates = cpg_seafarer_workspace_card_review_states($row['document_metadata'] ?? null);
+    $activeConsents = cpg_seafarer_active_consent_events((string) $row['seafarer_user_id']);
+    $activeConsentTypes = array_keys($activeConsents);
+
+    if (($row['verification_status'] ?? '') !== 'verified') {
+        cpg_approval_add_blocker($blockers, 'company_not_verified', 'Employer company must be verified before candidate presentation');
+    }
+    if (($row['publication_status'] ?? '') !== 'published') {
+        cpg_approval_add_blocker($blockers, 'vacancy_not_published', 'Vacancy request must be published before candidate presentation');
+    }
+
+    foreach ([
+        'primary_rank' => 'Candidate rank is required',
+        'seafarer_department' => 'Candidate department is required',
+        'availability_status' => 'Candidate availability status is required',
+    ] as $field => $message) {
+        if (!cpg_seafarer_workspace_value_present($row[$field] ?? null)) {
+            cpg_approval_add_blocker($blockers, 'critical_professional_data_missing', $message, ['field' => $field]);
+        }
+    }
+
+    foreach ([
+        'certificate_status' => 'COC / certificate readiness status must be ready',
+        'stcw_status' => 'STCW / training readiness status must be ready',
+    ] as $field => $message) {
+        if (!cpg_readiness_status_is_ready($documentSummary[$field] ?? null)) {
+            cpg_approval_add_blocker($blockers, 'document_readiness_not_ready', $message, ['field' => $field]);
+        }
+    }
+    foreach ([
+        'passport_expiry' => 'Passport expiry is required',
+        'medical_expiry' => 'Medical certificate expiry is required',
+        'visa_status' => 'Visa readiness is required',
+    ] as $field => $message) {
+        if (!cpg_seafarer_workspace_value_present($documentSummary[$field] ?? null)) {
+            cpg_approval_add_blocker($blockers, 'document_summary_missing', $message, ['field' => $field]);
+        }
+    }
+
+    if (!cpg_seafarer_consent_table_ready()) {
+        cpg_approval_add_blocker($blockers, 'consent_event_store_missing', 'Versioned consent event store is not available');
+    } else {
+        foreach (cpg_seafarer_required_presentation_consent_types() as $consentType) {
+            if (!isset($activeConsents[$consentType])) {
+                cpg_approval_add_blocker($blockers, 'missing_active_consent', 'Required consent is missing or withdrawn', [
+                    'consent_type' => $consentType,
+                ]);
+            }
+        }
+    }
+
+    foreach ($cardReviewStates as $cardCode => $state) {
+        if (($state['review_status'] ?? null) !== 'correction_requested') {
+            continue;
+        }
+        cpg_approval_add_blocker($blockers, 'unresolved_source_card_correction', 'Unresolved source-card correction blocks candidate presentation', [
+            'card_code' => $cardCode,
+            'card_name' => cpg_seafarer_review_card_name((string) $cardCode) ?? (string) $cardCode,
+        ]);
+    }
+
+    foreach (cpg_seafarer_presentation_required_source_cards() as $cardCode) {
+        if (!isset($cardReviewStates[$cardCode])) {
+            $warnings[] = [
+                'code' => 'source_card_not_individually_reviewed',
+                'message' => 'Source card has no explicit review event yet; current slice blocks unresolved corrections and requires operator presentation action',
+                'details' => [
+                    'card_code' => $cardCode,
+                    'card_name' => cpg_seafarer_review_card_name($cardCode) ?? $cardCode,
+                ],
+            ];
+        }
+    }
+
+    $payloadProbe = cpg_employer_candidate_payload_probe($row);
+    $forbiddenHits = cpg_payload_forbidden_key_hits($payloadProbe, cpg_employer_payload_forbidden_keys());
+    if ($forbiddenHits !== []) {
+        cpg_approval_add_blocker($blockers, 'unsafe_employer_payload', 'Employer-facing payload probe contains forbidden fields', [
+            'fields' => $forbiddenHits,
+        ]);
+    }
+
+    $status = $blockers === [] ? 'ready_for_operator_approval' : 'blocked';
+    return [
+        'approval_status' => $status,
+        'approval_blockers' => $blockers,
+        'approval_warnings' => $warnings,
+        'required_consent_types' => cpg_seafarer_required_presentation_consent_types(),
+        'active_consent_types' => $activeConsentTypes,
+        'required_source_cards' => cpg_seafarer_presentation_required_source_cards(),
+        'employer_payload_probe' => [
+            'visibility_scope' => 'employer_candidate',
+            'forbidden_fields_absent' => $forbiddenHits === [],
+            'document_summary_keys' => array_keys($documentSummary),
+        ],
+        'restricted_medical_access' => [
+            'general_operator_details_visible' => false,
+            'required_capabilities' => [
+                'seafarer.medical.read_restricted',
+                'seafarer.medical.request_correction',
+                'seafarer.medical.verify_restricted',
+            ],
+        ],
+    ];
 }
 
 function cpg_seafarer_mask_source_record(string $recordGroup, array $record, string $scope): array {
@@ -4075,6 +4586,7 @@ function build_draft_response(string $userId, string $visibilityScope = 'owner_f
         $payload['seafarer_profile'] = $profile;
         $payload['seafarer_workspace_structured'] = cpg_seafarer_workspace_summary_for_scope($workspaceSummary, $visibilityScope);
         $payload['seafarer_review_readiness'] = cpg_seafarer_workspace_review_readiness($workspaceSummary, $documentMetadata);
+        $payload['seafarer_consent_summary'] = cpg_seafarer_consent_summary($userId);
         if ($visibilityScope === 'owner_full' || $visibilityScope === 'cabinet_summary') {
             $payload['vacancy_applications'] = read_vacancy_applications_for_seafarer($userId);
         }
@@ -4537,12 +5049,18 @@ function handle_get_draft(string $draftId): void {
     }
 
     $visibilityScope = cpg_normalize_visibility_scope($_GET['visibility'] ?? null, 'owner_full');
+    if ($visibilityScope !== 'owner_full') {
+        require_operator_access();
+    }
     api_json(200, build_draft_response($uuid, $visibilityScope));
 }
 
 function handle_get_seafarer_workspace(): void {
     [$userId, $accessModel] = cpg_resolve_seafarer_workspace_user();
     $visibilityScope = cpg_normalize_visibility_scope($_GET['visibility'] ?? null, 'owner_full');
+    if ($visibilityScope !== 'owner_full') {
+        require_operator_access();
+    }
     $workspace = cpg_read_seafarer_workspace_summary($userId);
 
     api_json(200, [
@@ -4551,6 +5069,76 @@ function handle_get_seafarer_workspace(): void {
         'visibility_scope' => $visibilityScope,
         'draft_id' => $userId,
         'workspace' => cpg_seafarer_workspace_summary_for_scope($workspace, $visibilityScope),
+    ]);
+}
+
+function handle_get_seafarer_consents(): void {
+    [$userId, $accessModel] = cpg_resolve_seafarer_workspace_user();
+    api_json(200, [
+        'ok' => true,
+        'draft_id' => $userId,
+        'access_model' => $accessModel,
+        'consent_event_model' => cpg_seafarer_consent_event_model(),
+        'consent_summary' => cpg_seafarer_consent_summary($userId),
+    ]);
+}
+
+function handle_post_seafarer_consent(): void {
+    $body = api_decode_json_body();
+    $consentType = cpg_normalize_seafarer_consent_type($body['consent_type'] ?? null);
+    if ($consentType === null) {
+        api_error(400, 'invalid_consent_type', 'consent_type must be one of the approved seafarer consent types');
+    }
+    if (($body['accepted'] ?? true) !== true) {
+        api_error(400, 'consent_acceptance_required', 'accepted must be true to record a consent event');
+    }
+
+    [$userId, $accessModel] = cpg_resolve_seafarer_workspace_user($body);
+
+    api_tx_begin();
+    try {
+        $event = cpg_write_seafarer_consent_event($userId, $consentType, $accessModel, $body);
+        api_tx_commit();
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'seafarer_consent_event_failed', $error->getMessage());
+    }
+
+    api_json(201, [
+        'ok' => true,
+        'draft_id' => $userId,
+        'access_model' => $accessModel,
+        'consent' => $event,
+        'consent_summary' => cpg_seafarer_consent_summary($userId),
+    ]);
+}
+
+function handle_patch_seafarer_consent_withdraw(string $consentType): void {
+    $normalizedType = cpg_normalize_seafarer_consent_type($consentType);
+    if ($normalizedType === null) {
+        api_error(400, 'invalid_consent_type', 'consent_type must be one of the approved seafarer consent types');
+    }
+
+    $body = api_decode_json_body();
+    [$userId, $accessModel] = cpg_resolve_seafarer_workspace_user($body);
+
+    api_tx_begin();
+    try {
+        $withdrawn = cpg_withdraw_seafarer_consent($userId, $normalizedType, $accessModel, $body);
+        api_tx_commit();
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'seafarer_consent_withdraw_failed', $error->getMessage());
+    }
+
+    api_json(200, [
+        'ok' => true,
+        'draft_id' => $userId,
+        'access_model' => $accessModel,
+        'consent_type' => $normalizedType,
+        'withdrawn' => $withdrawn,
+        'withdrawn_count' => count($withdrawn),
+        'consent_summary' => cpg_seafarer_consent_summary($userId),
     ]);
 }
 
@@ -5653,6 +6241,7 @@ function read_operator_vacancy_application_detail(string $applicationId): ?array
     $documentMetadata = cpg_decode_json_object(is_string($row['document_metadata'] ?? null) ? $row['document_metadata'] : null);
     $workspaceSummary = cpg_read_seafarer_workspace_summary((string) $row['seafarer_user_id']);
     $operatorWorkspaceSummary = cpg_seafarer_workspace_summary_for_scope($workspaceSummary, 'operator_general');
+    $approvalGuard = cpg_vacancy_application_approval_guard($applicationId);
 
     return [
         'ok' => true,
@@ -5716,6 +6305,7 @@ function read_operator_vacancy_application_detail(string $applicationId): ?array
         ],
         'operator_review' => $history[0] ?? null,
         'operator_review_history' => $history,
+        'approval_guard' => $approvalGuard,
         'operator_access' => operator_queue_access_contract('vacancy_application'),
         'generated_at' => gmdate('c'),
     ];
@@ -5733,6 +6323,37 @@ function handle_get_operator_vacancy_application_detail(string $applicationId): 
     }
 
     api_json(200, $detail);
+}
+
+function handle_get_operator_restricted_medical(string $draftId): void {
+    $uuid = api_normalize_uuid($draftId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
+    }
+
+    $role = read_role_for_user($uuid);
+    if ($role !== 'seafarer') {
+        api_error(404, 'seafarer_profile_not_found', 'Seafarer profile not found');
+    }
+
+    write_audit_event('restricted_medical_access_denied', $uuid, null, null, [
+        'access_model' => 'temporary_operator_token',
+        'requested_capability' => 'seafarer.medical.read_restricted',
+        'reason' => 'temporary general operator token has no restricted medical capability',
+    ], 'operator_restricted_medical_access');
+
+    api_json(403, [
+        'ok' => false,
+        'error' => 'restricted_medical_capability_required',
+        'message' => 'Restricted medical declaration details require a dedicated medical reviewer capability',
+        'visibility_class' => 'restricted_medical',
+        'required_capabilities' => [
+            'seafarer.medical.read_restricted',
+            'seafarer.medical.request_correction',
+            'seafarer.medical.verify_restricted',
+        ],
+        'audit_recorded' => true,
+    ]);
 }
 
 function normalize_employer_shortlist_status(mixed $value): ?string {
@@ -5970,7 +6591,14 @@ function handle_patch_seafarer_vacancy_application_status(string $applicationId)
     }
 }
 
-function apply_operator_review_decision(string $draftId, string $decision, ?string $reviewNote, ?string $queueType = null, ?string $correctionCardCode = null): array {
+function apply_operator_review_decision(
+    string $draftId,
+    string $decision,
+    ?string $reviewNote,
+    ?string $queueType = null,
+    ?string $correctionCardCode = null,
+    ?array $approvalGuard = null
+): array {
     $correctionCardName = cpg_seafarer_review_card_name($correctionCardCode);
 
     if ($queueType === 'vacancy_application') {
@@ -6031,6 +6659,7 @@ function apply_operator_review_decision(string $draftId, string $decision, ?stri
             'correction_card_name' => $correctionCardName,
             'vacancy_request_id' => $vacancyRequestId,
             'vacancy_application_id' => $applicationId,
+            'approval_guard' => $approvalGuard,
         ], 'operator_review_queue');
 
         return [
@@ -6045,6 +6674,7 @@ function apply_operator_review_decision(string $draftId, string $decision, ?stri
             'review_note' => $reviewNote,
             'correction_card_code' => $correctionCardCode,
             'correction_card_name' => $correctionCardName,
+            'approval_guard' => $approvalGuard,
         ];
     }
 
@@ -6260,10 +6890,30 @@ function handle_patch_operator_review_queue_status(string $draftId): void {
     }
     $queueType = normalize_operator_queue_type($body['queue_type'] ?? null);
     $correctionCardCode = normalize_operator_correction_card_code($body['correction_card_code'] ?? $body['correction_card'] ?? null);
+    $approvalGuard = null;
+
+    if ($queueType === 'vacancy_application' && $decision === 'reviewed') {
+        $approvalGuard = cpg_vacancy_application_approval_guard($uuid);
+        if (($approvalGuard['approval_status'] ?? 'blocked') === 'blocked') {
+            api_json(409, [
+                'ok' => false,
+                'error' => 'approval_guard_blocked',
+                'message' => 'Candidate presentation is blocked by approval guard',
+                'approval_guard' => $approvalGuard,
+            ]);
+        }
+        $approvalGuard['approval_status'] = 'approved_for_employer_presentation';
+        $approvalGuard['approval_audit'] = [
+            'actor' => 'temporary_operator_token',
+            'action' => 'candidate_presentation_approved',
+            'timestamp' => gmdate('c'),
+            'reason' => $reviewNote,
+        ];
+    }
 
     api_tx_begin();
     try {
-        $result = apply_operator_review_decision($uuid, $decision, $reviewNote, $queueType, $correctionCardCode);
+        $result = apply_operator_review_decision($uuid, $decision, $reviewNote, $queueType, $correctionCardCode, $approvalGuard);
         api_tx_commit();
 
         api_json(200, [
@@ -6281,6 +6931,7 @@ function handle_patch_operator_review_queue_status(string $draftId): void {
             'review_note' => $result['review_note'],
             'correction_card_code' => $result['correction_card_code'] ?? null,
             'correction_card_name' => $result['correction_card_name'] ?? null,
+            'approval_guard' => $result['approval_guard'] ?? null,
             'updated_at' => gmdate('c'),
         ]);
     } catch (Throwable $error) {
@@ -6577,6 +7228,25 @@ if ($path === '/seafarer/workspace') {
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
 }
 
+if ($path === '/seafarer/consents') {
+    if ($method === 'GET') {
+        handle_get_seafarer_consents();
+    }
+    if ($method === 'POST') {
+        handle_post_seafarer_consent();
+    }
+    header('Allow: GET, POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET, POST');
+}
+
+if (preg_match('#^/seafarer/consents/([^/]+)/withdraw$#', $path, $matches) === 1) {
+    if ($method === 'PATCH') {
+        handle_patch_seafarer_consent_withdraw($matches[1]);
+    }
+    header('Allow: PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
+}
+
 if (preg_match('#^/seafarer/workspace/sections/([^/]+)$#', $path, $matches) === 1) {
     if ($method === 'PATCH') {
         handle_patch_seafarer_workspace_section($matches[1]);
@@ -6625,6 +7295,15 @@ if (preg_match('#^/operator/review-queue/vacancy-applications/([^/]+)$#', $path,
     if ($method === 'GET') {
         require_operator_access();
         handle_get_operator_vacancy_application_detail($matches[1]);
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if (preg_match('#^/operator/seafarer-medical/([^/]+)$#', $path, $matches) === 1) {
+    if ($method === 'GET') {
+        require_operator_access();
+        handle_get_operator_restricted_medical($matches[1]);
     }
     header('Allow: GET');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');

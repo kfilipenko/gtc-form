@@ -1121,14 +1121,13 @@
           card.className = 'candidate-card';
 
           const title = document.createElement('h3');
-          title.textContent = valueOrDash(candidate.display_name || candidate.contact_email || candidate.seafarer_email);
+          title.textContent = valueOrDash(candidate.display_name || candidate.primary_rank || candidate.vacancy_rank);
           card.appendChild(title);
 
           const meta = document.createElement('div');
           meta.className = 'candidate-card__meta';
           addCandidateMeta(meta, 'post.pipeline.rank', candidate.primary_rank || candidate.vacancy_rank);
           addCandidateMeta(meta, 'post.pipeline.availability', candidate.availability_status);
-          addCandidateMeta(meta, 'post.pipeline.email', candidate.contact_email || candidate.seafarer_email);
           addCandidateMeta(meta, 'post.pipeline.documents', documentSummary(candidate));
           addCandidateMeta(meta, 'post.pipeline.status', candidate.application_status);
           addCandidateMeta(meta, 'post.pipeline.shortlist', employerShortlistLabel(candidate.employer_shortlist_status));

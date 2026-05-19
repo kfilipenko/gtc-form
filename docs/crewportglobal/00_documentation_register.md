@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.38
+- Version: 1.39
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -237,6 +237,8 @@ docs/crewportglobal/
   147_cpg_seafarer_016_repeated_excel_source_rows_report.md
   148_cpg_seafarer_017_agent_execution_guide.md
   149_cpg_seafarer_017_data_minimization_visibility_report.md
+  151_cpg_seafarer_018_agent_execution_guide.md
+  152_cpg_seafarer_018_approval_consent_medical_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -443,6 +445,10 @@ Document 148 records the CPG-SEAFARER-017 agent execution guide for data minimiz
 
 Document 149 records the CPG-SEAFARER-017 data minimization and scoped visibility implementation, including backend visibility scopes, operator/cabinet/employer payload cleanup, source-card visibility matrix, consent-event boundary and focused verification.
 
+Document 151 records the CPG-SEAFARER-018 execution guide for approval guard, consent events and restricted medical access, including required pre-read sources, guard requirements, consent-event requirements, restricted medical capability rules, employer payload guard and acceptance criteria.
+
+Document 152 records the CPG-SEAFARER-018 implementation, including the additive consent-event migration, consent APIs, vacancy application approval guard, restricted medical access denial boundary, employer payload guard, UI changes, controlled gaps and focused verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -546,6 +552,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.39 | 2026-05-19 | GTC IT / AI Assistant | Added documents 151 and 152 for CPG-SEAFARER-018 covering approval guard, consent events, restricted medical access boundary, employer payload guard, additive migration and focused verification |
 | 1.38 | 2026-05-19 | GTC IT / AI Assistant | Added documents 148 and 149 plus source-card visibility matrix for CPG-SEAFARER-017 covering data minimization, scoped visibility, sensitive-field cleanup, employer-facing exclusions, consent-event boundary and focused verification |
 | 1.37 | 2026-05-19 | GTC IT / AI Assistant | Added document 147 as CPG-SEAFARER-016 repeated Excel source-row normalization report and source-card field coverage matrix covering missing source fields, repeated records, document links by source card and focused operator/cabinet verification |
 | 1.36 | 2026-05-19 | GTC IT / AI Assistant | Added document 146 as CPG-SEAFARER-015 Excel source review-card normalization report covering canonical source card codes, legacy fallback compatibility, operator/cabinet review behavior, source-card persistence and focused verification |

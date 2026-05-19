@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type APIRequestContext } from '@playwright/test';
 import { execSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs';
@@ -147,6 +147,24 @@ function readLatestOperatorAuditForDraft(draftId: string): {
     correctionCardCode: correctionCardCode || '',
     correctionCardName: correctionCardName || '',
   };
+}
+
+async function acceptPresentationConsents(request: APIRequestContext, draftId: string): Promise<void> {
+  for (const consentType of ['matching_preparation', 'employer_sharing']) {
+    const response = await request.post('/seafarer/consents', {
+      data: {
+        draft_id: draftId,
+        consent_type: consentType,
+        accepted: true,
+        text_version: 'cpg-seafarer-consent-2026-05-19-test',
+        source_page: '/create-profile/',
+        metadata: {
+          test_control: 'CPG-SEAFARER-018',
+        },
+      },
+    });
+    expect(response.status()).toBe(201);
+  }
 }
 
 function readLatestDocumentAudit(documentId: string, eventType: string): Record<string, string> {
@@ -971,10 +989,18 @@ test('employer vacancy request flows through review to public vacancy board', as
       rank: 'Chief Officer',
       department: 'deck',
       availability_status: 'available_now',
+      document_metadata: {
+        certificate_status: 'ready',
+        stcw_status: 'ready',
+        passport_expiry: '2029-12-31',
+        medical_expiry: '2027-12-31',
+        visa_status: 'ready',
+      },
     },
   });
   expect(seafarerCreate.status()).toBe(201);
   const seafarer = (await seafarerCreate.json()) as DraftResponse;
+  await acceptPresentationConsents(request, seafarer.draft_id);
 
   const applicationResponse = await request.post(`/vacancies/${vacancy.vacancy_request_id}/applications`, {
     data: {

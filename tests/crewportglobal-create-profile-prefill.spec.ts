@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type APIRequestContext } from '@playwright/test';
 import { execSync } from 'node:child_process';
 
 function cleanupCreateProfileUiTestData(): void {
@@ -71,6 +71,24 @@ WHERE ec.company_id = uc.company_id
 test.afterEach(() => {
   cleanupCreateProfileUiTestData();
 });
+
+async function acceptPresentationConsents(request: APIRequestContext, draftId: string): Promise<void> {
+  for (const consentType of ['matching_preparation', 'employer_sharing']) {
+    const response = await request.post('/api/v1/seafarer/consents', {
+      data: {
+        draft_id: draftId,
+        consent_type: consentType,
+        accepted: true,
+        text_version: 'cpg-seafarer-consent-2026-05-19-test',
+        source_page: '/create-profile/',
+        metadata: {
+          test_control: 'CPG-SEAFARER-018',
+        },
+      },
+    });
+    expect(response.status()).toBe(201);
+  }
+}
 
 test('create profile prefill from draft_id preserves patch flow', async ({ page }) => {
   await page.goto('/create-profile/');
@@ -305,10 +323,18 @@ test('create profile shows vacancy application history for existing draft', asyn
       availability_status: 'available_later',
       availability_date: '2026-09-30',
       contact_phone: '+971500004444',
+      document_metadata: {
+        certificate_status: 'ready',
+        stcw_status: 'ready',
+        passport_expiry: '2029-10-10',
+        medical_expiry: '2027-10-10',
+        visa_status: 'not_required',
+      },
     },
   });
   expect(seafarerCreate.ok()).toBeTruthy();
   const seafarer = await seafarerCreate.json();
+  await acceptPresentationConsents(request, seafarer.draft_id);
 
   const applicationResponse = await request.post(`/api/v1/vacancies/${vacancyId}/applications`, {
     data: {

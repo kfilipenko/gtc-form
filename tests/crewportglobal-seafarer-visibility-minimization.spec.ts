@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type APIRequestContext } from '@playwright/test';
 import { execSync } from 'node:child_process';
 
 const operatorAccessToken =
@@ -63,6 +63,24 @@ WHERE ec.company_id = cu.company_id
 test.afterEach(() => {
   cleanupVisibilityTestData();
 });
+
+async function acceptPresentationConsents(request: APIRequestContext, draftId: string): Promise<void> {
+  for (const consentType of ['matching_preparation', 'employer_sharing']) {
+    const response = await request.post('/api/v1/seafarer/consents', {
+      data: {
+        draft_id: draftId,
+        consent_type: consentType,
+        accepted: true,
+        text_version: 'cpg-seafarer-consent-2026-05-19-test',
+        source_page: '/create-profile/',
+        metadata: {
+          test_control: 'CPG-SEAFARER-018',
+        },
+      },
+    });
+    expect(response.status()).toBe(201);
+  }
+}
 
 test('sensitive seafarer fields are minimized for operator, cabinet summary and employer payloads', async ({ page, request }) => {
   const unique = Date.now();
@@ -179,6 +197,7 @@ test('sensitive seafarer fields are minimized for operator, cabinet summary and 
   });
   expect(seafarerResponse.status()).toBe(201);
   const seafarer = await seafarerResponse.json();
+  await acceptPresentationConsents(request, seafarer.draft_id);
 
   const ownerWorkspaceResponse = await request.get(`/api/v1/seafarer/workspace?draft_id=${seafarer.draft_id}`);
   expect(ownerWorkspaceResponse.status()).toBe(200);
