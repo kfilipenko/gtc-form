@@ -110,6 +110,21 @@ test('extended seafarer workspace cards persist through draft save and reload', 
   ]);
   expect(metadata.seafarer_workspace.matching_publication.publish_to_matching).toBe('yes');
 
+  const workspaceResponse = await request.get(`/api/v1/seafarer/workspace?draft_id=${draftId}`);
+  expect(workspaceResponse.ok()).toBeTruthy();
+  const workspaceBody = await workspaceResponse.json();
+  expect(workspaceBody.workspace.schema_ready).toBe(true);
+  expect(workspaceBody.workspace.person_details.date_of_birth).toBe('1990-04-12');
+  expect(workspaceBody.workspace.person_details.residence_city_label).toBe('Dubai');
+  expect(workspaceBody.workspace.emergency_contacts[0].contact_name).toBe('Maria Reyes');
+  expect(workspaceBody.workspace.certificates[0].certificate_number).toBe('COC-WS-123456');
+  expect(workspaceBody.workspace.training_records.map((item: { training_type_label: string }) => item.training_type_label)).toEqual([
+    'Basic Training',
+    'Advanced Fire Fighting',
+  ]);
+  expect(workspaceBody.workspace.sea_service_records[0].vessel_name).toBe('MV Test Horizon');
+  expect(workspaceBody.workspace.matching_preferences.publish_to_matching).toBe('yes');
+
   await page.evaluate(() => {
     window.localStorage.clear();
     window.localStorage.setItem('crewportglobal.language', 'en');

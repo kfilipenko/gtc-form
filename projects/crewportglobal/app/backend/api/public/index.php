@@ -1192,6 +1192,638 @@ function normalize_seafarer_document_metadata(array $body): ?string {
     return $json === false ? null : $json;
 }
 
+function cpg_seafarer_workspace_tables_ready(): bool {
+    static $ready = null;
+    if (is_bool($ready)) {
+        return $ready;
+    }
+
+    $result = api_query(
+        "SELECT count(*)::int AS table_count
+         FROM information_schema.tables
+         WHERE table_schema = 'crewportglobal'
+           AND table_name IN (
+             'seafarer_person_details',
+             'seafarer_emergency_contacts',
+             'seafarer_education_records',
+             'seafarer_certificates',
+             'seafarer_training_records',
+             'seafarer_sea_service_records',
+             'seafarer_medical_declarations',
+             'seafarer_matching_preferences',
+             'seafarer_publication_snapshots'
+           )"
+    );
+    $row = pg_fetch_assoc($result);
+    $ready = is_array($row) && (int) $row['table_count'] === 9;
+    return $ready;
+}
+
+function cpg_decode_json_object(?string $json): array {
+    if ($json === null || trim($json) === '') {
+        return [];
+    }
+    $decoded = json_decode($json, true);
+    return is_array($decoded) ? $decoded : [];
+}
+
+function cpg_workspace_section(array $workspace, string $key): array {
+    $value = $workspace[$key] ?? null;
+    return is_array($value) ? $value : [];
+}
+
+function cpg_workspace_text(array $source, string $key, int $maxLength = 500): ?string {
+    return normalize_optional_text($source[$key] ?? null, $maxLength);
+}
+
+function cpg_workspace_date(array $source, string $key): ?string {
+    return normalize_date_value($source[$key] ?? null);
+}
+
+function cpg_workspace_country_code(array $source, string $key): ?string {
+    return normalize_country_code($source[$key] ?? null);
+}
+
+function cpg_workspace_number(mixed $value): ?float {
+    if (!is_numeric($value)) {
+        return null;
+    }
+    $number = (float) $value;
+    return $number >= 0 ? $number : null;
+}
+
+function cpg_workspace_reference_value_id(?string $catalogCode, ?string $label): ?string {
+    if ($catalogCode === null || $label === null || trim($label) === '') {
+        return null;
+    }
+
+    $result = api_query(
+        "SELECT rv.reference_value_id
+         FROM crewportglobal.reference_catalog_values rv
+         JOIN crewportglobal.reference_catalogs rc ON rc.reference_catalog_id = rv.reference_catalog_id
+         WHERE rc.catalog_code = $1
+           AND rc.is_active = TRUE
+           AND rc.publication_state = 'published'
+           AND rv.is_active = TRUE
+           AND rv.publication_state = 'published'
+           AND (
+             lower(rv.display_name) = lower($2)
+             OR lower(rv.source_value) = lower($2)
+             OR lower(rv.value_code) = lower($2)
+           )
+         ORDER BY rv.sort_order ASC, rv.display_name ASC
+         LIMIT 1",
+        [$catalogCode, $label]
+    );
+    $row = pg_fetch_assoc($result);
+    return is_array($row) ? (string) $row['reference_value_id'] : null;
+}
+
+function cpg_workspace_json(array $payload): string {
+    $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    return $json === false ? '{}' : $json;
+}
+
+function cpg_pg_text_array_literal(array $items): string {
+    $quoted = [];
+    foreach ($items as $item) {
+        if (!is_string($item)) {
+            continue;
+        }
+        $quoted[] = '"' . str_replace(['\\', '"'], ['\\\\', '\\"'], $item) . '"';
+    }
+    return '{' . implode(',', $quoted) . '}';
+}
+
+function cpg_sync_seafarer_workspace_from_metadata(string $userId, ?string $documentMetadataJson, array $flatProfile): void {
+    if (!cpg_seafarer_workspace_tables_ready()) {
+        return;
+    }
+
+    $metadata = cpg_decode_json_object($documentMetadataJson);
+    $workspace = isset($metadata['seafarer_workspace']) && is_array($metadata['seafarer_workspace'])
+        ? $metadata['seafarer_workspace']
+        : [];
+    if ($workspace === []) {
+        return;
+    }
+
+    $profileResult = api_query(
+        'SELECT seafarer_profile_id
+         FROM crewportglobal.seafarer_profiles
+         WHERE user_id = $1
+         LIMIT 1',
+        [$userId]
+    );
+    $profileRow = pg_fetch_assoc($profileResult);
+    if (!is_array($profileRow)) {
+        return;
+    }
+
+    $profileId = (string) $profileRow['seafarer_profile_id'];
+    $draftId = $userId;
+    $personal = cpg_workspace_section($workspace, 'personal_details');
+    $contact = cpg_workspace_section($workspace, 'contact_and_addresses');
+    $qualifications = cpg_workspace_section($workspace, 'qualifications');
+    $seaService = cpg_workspace_section($workspace, 'sea_service');
+    $publication = cpg_workspace_section($workspace, 'matching_publication');
+
+    if ($personal !== [] || $contact !== [] || isset($flatProfile['nationality_code']) || isset($flatProfile['residence_country_code'])) {
+        $genderLabel = cpg_workspace_text($personal, 'gender', 160);
+        $civilStatusLabel = cpg_workspace_text($personal, 'civil_status', 160);
+        $residenceCityLabel = cpg_workspace_text($contact, 'residence_city', 240);
+        $nearestAirportLabel = cpg_workspace_text($contact, 'nearest_airport', 240);
+        $nationalityCode = normalize_country_code($flatProfile['nationality_code'] ?? null);
+        $residenceCountryCode = normalize_country_code($flatProfile['residence_country_code'] ?? null);
+
+        api_query(
+            'INSERT INTO crewportglobal.seafarer_person_details (
+               seafarer_profile_id,
+               user_id,
+               source_draft_id,
+               date_of_birth,
+               place_of_birth,
+               gender_value_id,
+               gender_label,
+               civil_status_value_id,
+               civil_status_label,
+               nationality_code,
+               residence_country_code,
+               residence_city_value_id,
+               residence_city_label,
+               permanent_address,
+               nearest_airport_value_id,
+               nearest_airport_label,
+               record_state,
+               review_status,
+               metadata
+             ) VALUES (
+               $1, $2, $3::uuid, $4::date, $5, $6::uuid, $7, $8::uuid, $9, $10, $11,
+               $12::uuid, $13, $14, $15::uuid, $16, $17, $18, $19::jsonb
+             )
+             ON CONFLICT (seafarer_profile_id)
+             DO UPDATE SET
+               source_draft_id = EXCLUDED.source_draft_id,
+               date_of_birth = EXCLUDED.date_of_birth,
+               place_of_birth = EXCLUDED.place_of_birth,
+               gender_value_id = EXCLUDED.gender_value_id,
+               gender_label = EXCLUDED.gender_label,
+               civil_status_value_id = EXCLUDED.civil_status_value_id,
+               civil_status_label = EXCLUDED.civil_status_label,
+               nationality_code = COALESCE(EXCLUDED.nationality_code, crewportglobal.seafarer_person_details.nationality_code),
+               residence_country_code = COALESCE(EXCLUDED.residence_country_code, crewportglobal.seafarer_person_details.residence_country_code),
+               residence_city_value_id = EXCLUDED.residence_city_value_id,
+               residence_city_label = EXCLUDED.residence_city_label,
+               permanent_address = EXCLUDED.permanent_address,
+               nearest_airport_value_id = EXCLUDED.nearest_airport_value_id,
+               nearest_airport_label = EXCLUDED.nearest_airport_label,
+               record_state = EXCLUDED.record_state,
+               review_status = EXCLUDED.review_status,
+               metadata = EXCLUDED.metadata,
+               updated_at = now()',
+            [
+                $profileId,
+                $userId,
+                $draftId,
+                cpg_workspace_date($personal, 'date_of_birth'),
+                cpg_workspace_text($personal, 'place_of_birth', 160),
+                cpg_workspace_reference_value_id('gender_values', $genderLabel),
+                $genderLabel,
+                cpg_workspace_reference_value_id('civil_status_values', $civilStatusLabel),
+                $civilStatusLabel,
+                $nationalityCode,
+                $residenceCountryCode,
+                cpg_workspace_reference_value_id('cities', $residenceCityLabel),
+                $residenceCityLabel,
+                cpg_workspace_text($contact, 'permanent_address', 500),
+                cpg_workspace_reference_value_id('airports', $nearestAirportLabel),
+                $nearestAirportLabel,
+                'submitted',
+                'pending_human_review',
+                cpg_workspace_json(['source_key' => 'workspace_person_details']),
+            ]
+        );
+    }
+
+    $emergencyName = cpg_workspace_text($contact, 'emergency_contact_name', 240);
+    if ($emergencyName !== null) {
+        $relationLabel = cpg_workspace_text($contact, 'emergency_contact_relation', 160);
+        api_query(
+            'INSERT INTO crewportglobal.seafarer_emergency_contacts (
+               seafarer_profile_id,
+               user_id,
+               source_draft_id,
+               contact_name,
+               relation_value_id,
+               relation_label,
+               contact_phone,
+               is_primary,
+               record_state,
+               review_status,
+               metadata
+             ) VALUES (
+               $1, $2, $3::uuid, $4, $5::uuid, $6, $7, TRUE, $8, $9, $10::jsonb
+             )
+             ON CONFLICT (seafarer_profile_id) WHERE is_primary
+             DO UPDATE SET
+               source_draft_id = EXCLUDED.source_draft_id,
+               contact_name = EXCLUDED.contact_name,
+               relation_value_id = EXCLUDED.relation_value_id,
+               relation_label = EXCLUDED.relation_label,
+               contact_phone = EXCLUDED.contact_phone,
+               record_state = EXCLUDED.record_state,
+               review_status = EXCLUDED.review_status,
+               metadata = EXCLUDED.metadata,
+               updated_at = now()',
+            [
+                $profileId,
+                $userId,
+                $draftId,
+                $emergencyName,
+                cpg_workspace_reference_value_id('relation_types', $relationLabel),
+                $relationLabel,
+                cpg_workspace_text($contact, 'emergency_contact_phone', 160),
+                'submitted',
+                'pending_human_review',
+                cpg_workspace_json(['source_key' => 'workspace_primary_emergency_contact']),
+            ]
+        );
+    }
+
+    $educationHasData = array_filter([
+        cpg_workspace_text($qualifications, 'education_institution', 240),
+        cpg_workspace_text($qualifications, 'education_grade', 160),
+    ]) !== [];
+    api_query(
+        "DELETE FROM crewportglobal.seafarer_education_records
+         WHERE seafarer_profile_id = $1
+           AND metadata->>'source_key' = 'workspace_primary_education'",
+        [$profileId]
+    );
+    if ($educationHasData) {
+        $institutionLabel = cpg_workspace_text($qualifications, 'education_institution', 240);
+        $gradeLabel = cpg_workspace_text($qualifications, 'education_grade', 160);
+        api_query(
+            'INSERT INTO crewportglobal.seafarer_education_records (
+               seafarer_profile_id,
+               user_id,
+               source_draft_id,
+               institution_value_id,
+               institution_name,
+               grade_value_id,
+               grade_label,
+               record_state,
+               review_status,
+               metadata
+             ) VALUES (
+               $1, $2, $3::uuid, $4::uuid, $5, $6::uuid, $7, $8, $9, $10::jsonb
+             )',
+            [
+                $profileId,
+                $userId,
+                $draftId,
+                cpg_workspace_reference_value_id('education_institutions', $institutionLabel),
+                $institutionLabel,
+                cpg_workspace_reference_value_id('education_grades', $gradeLabel),
+                $gradeLabel,
+                'submitted',
+                'pending_human_review',
+                cpg_workspace_json(['source_key' => 'workspace_primary_education']),
+            ]
+        );
+    }
+
+    api_query(
+        "DELETE FROM crewportglobal.seafarer_certificates
+         WHERE seafarer_profile_id = $1
+           AND metadata->>'source_key' = 'workspace_primary_coc'",
+        [$profileId]
+    );
+    $cocTypeLabel = cpg_workspace_text($qualifications, 'coc_type', 240);
+    $cocNumber = cpg_workspace_text($qualifications, 'coc_number', 160);
+    $cocCountryCode = cpg_workspace_country_code($qualifications, 'coc_issuing_country');
+    if ($cocTypeLabel !== null || $cocNumber !== null || $cocCountryCode !== null || cpg_workspace_date($qualifications, 'coc_expiry') !== null) {
+        api_query(
+            'INSERT INTO crewportglobal.seafarer_certificates (
+               seafarer_profile_id,
+               user_id,
+               source_draft_id,
+               certificate_group,
+               certificate_type_value_id,
+               certificate_type_label,
+               certificate_number,
+               issuing_country_code,
+               expires_at,
+               record_state,
+               review_status,
+               metadata
+             ) VALUES (
+               $1, $2, $3::uuid, $4, $5::uuid, $6, $7, $8, $9::date, $10, $11, $12::jsonb
+             )',
+            [
+                $profileId,
+                $userId,
+                $draftId,
+                'competency',
+                cpg_workspace_reference_value_id('certificate_of_competence_types', $cocTypeLabel),
+                $cocTypeLabel,
+                $cocNumber,
+                $cocCountryCode,
+                cpg_workspace_date($qualifications, 'coc_expiry'),
+                'submitted',
+                'pending_human_review',
+                cpg_workspace_json(['source_key' => 'workspace_primary_coc']),
+            ]
+        );
+    }
+
+    api_query(
+        "DELETE FROM crewportglobal.seafarer_training_records
+         WHERE seafarer_profile_id = $1
+           AND metadata->>'source_key' = 'workspace_training_course'",
+        [$profileId]
+    );
+    $trainingCourses = normalize_csv_text_list($qualifications['training_courses'] ?? null, 20, 220);
+    foreach ($trainingCourses as $courseLabel) {
+        api_query(
+            'INSERT INTO crewportglobal.seafarer_training_records (
+               seafarer_profile_id,
+               user_id,
+               source_draft_id,
+               training_type_value_id,
+               training_type_label,
+               record_state,
+               review_status,
+               metadata
+             ) VALUES (
+               $1, $2, $3::uuid, $4::uuid, $5, $6, $7, $8::jsonb
+             )',
+            [
+                $profileId,
+                $userId,
+                $draftId,
+                cpg_workspace_reference_value_id('training_course_types', $courseLabel),
+                $courseLabel,
+                'submitted',
+                'pending_human_review',
+                cpg_workspace_json(['source_key' => 'workspace_training_course']),
+            ]
+        );
+    }
+
+    api_query(
+        "DELETE FROM crewportglobal.seafarer_sea_service_records
+         WHERE seafarer_profile_id = $1
+           AND metadata->>'source_key' = 'workspace_latest_sea_service'",
+        [$profileId]
+    );
+    $lastVesselName = cpg_workspace_text($seaService, 'last_vessel_name', 240);
+    $lastVesselTypeLabel = cpg_workspace_text($seaService, 'last_vessel_type', 240);
+    $lastRankLabel = cpg_workspace_text($seaService, 'last_rank', 240);
+    $flagCountryCode = cpg_workspace_country_code($seaService, 'flag_country');
+    if (array_filter([$lastVesselName, $lastVesselTypeLabel, $lastRankLabel, $flagCountryCode, cpg_workspace_date($seaService, 'service_from'), cpg_workspace_date($seaService, 'service_to')]) !== []) {
+        api_query(
+            'INSERT INTO crewportglobal.seafarer_sea_service_records (
+               seafarer_profile_id,
+               user_id,
+               source_draft_id,
+               vessel_name,
+               vessel_type_value_id,
+               vessel_type_label,
+               rank_value_id,
+               rank_label,
+               department,
+               flag_country_code,
+               service_from,
+               service_to,
+               management_company,
+               engine_type,
+               deadweight,
+               record_state,
+               review_status,
+               metadata
+             ) VALUES (
+               $1, $2, $3::uuid, $4, $5::uuid, $6, $7::uuid, $8, $9, $10,
+               $11::date, $12::date, $13, $14, $15, $16, $17, $18::jsonb
+             )',
+            [
+                $profileId,
+                $userId,
+                $draftId,
+                $lastVesselName,
+                cpg_workspace_reference_value_id('vessel_types', $lastVesselTypeLabel),
+                $lastVesselTypeLabel,
+                cpg_workspace_reference_value_id('seafarer_positions', $lastRankLabel),
+                $lastRankLabel,
+                normalize_optional_text($flatProfile['department'] ?? null, 40),
+                $flagCountryCode,
+                cpg_workspace_date($seaService, 'service_from'),
+                cpg_workspace_date($seaService, 'service_to'),
+                cpg_workspace_text($seaService, 'management_company', 240),
+                cpg_workspace_text($seaService, 'engine_type', 160),
+                cpg_workspace_text($seaService, 'deadweight', 160),
+                'submitted',
+                'pending_human_review',
+                cpg_workspace_json(['source_key' => 'workspace_latest_sea_service']),
+            ]
+        );
+    }
+
+    $preferredVesselTypeLabels = [];
+    if (isset($flatProfile['preferred_vessel_types']) && is_array($flatProfile['preferred_vessel_types'])) {
+        foreach ($flatProfile['preferred_vessel_types'] as $label) {
+            $clean = normalize_optional_text($label, 160);
+            if ($clean !== null) {
+                $preferredVesselTypeLabels[] = $clean;
+            }
+        }
+    }
+    $preferredVesselTypeLabels = array_values(array_unique($preferredVesselTypeLabels));
+    $preferredVesselTypeValues = array_map(
+        fn (string $label): array => [
+            'label' => $label,
+            'reference_value_id' => cpg_workspace_reference_value_id('vessel_types', $label),
+        ],
+        $preferredVesselTypeLabels
+    );
+    $informationSourceLabel = cpg_workspace_text($publication, 'information_source', 240);
+    $publishToMatching = cpg_workspace_text($publication, 'publish_to_matching', 20) ?? 'unknown';
+    if (!in_array($publishToMatching, ['unknown', 'yes', 'no'], true)) {
+        $publishToMatching = 'unknown';
+    }
+    $dataProcessingConfirmation = cpg_workspace_text($publication, 'data_processing_confirmation', 40) ?? 'not_confirmed';
+    if (!in_array($dataProcessingConfirmation, ['not_confirmed', 'i_confirm', 'i_decline'], true)) {
+        $dataProcessingConfirmation = 'not_confirmed';
+    }
+
+    api_query(
+        'INSERT INTO crewportglobal.seafarer_matching_preferences (
+           seafarer_profile_id,
+           user_id,
+           source_draft_id,
+           preferred_vessel_type_values,
+           preferred_vessel_type_labels,
+           expected_compensation_usd,
+           availability_date,
+           availability_status,
+           candidate_summary,
+           information_source_value_id,
+           information_source_label,
+           publish_to_matching,
+           data_processing_confirmation,
+           record_state,
+           review_status,
+           metadata
+         ) VALUES (
+           $1, $2, $3::uuid, $4::jsonb, $5::text[], $6, $7::date, $8, $9, $10::uuid,
+           $11, $12, $13, $14, $15, $16::jsonb
+         )
+         ON CONFLICT (seafarer_profile_id)
+         DO UPDATE SET
+           source_draft_id = EXCLUDED.source_draft_id,
+           preferred_vessel_type_values = EXCLUDED.preferred_vessel_type_values,
+           preferred_vessel_type_labels = EXCLUDED.preferred_vessel_type_labels,
+           expected_compensation_usd = EXCLUDED.expected_compensation_usd,
+           availability_date = EXCLUDED.availability_date,
+           availability_status = EXCLUDED.availability_status,
+           candidate_summary = EXCLUDED.candidate_summary,
+           information_source_value_id = EXCLUDED.information_source_value_id,
+           information_source_label = EXCLUDED.information_source_label,
+           publish_to_matching = EXCLUDED.publish_to_matching,
+           data_processing_confirmation = EXCLUDED.data_processing_confirmation,
+           record_state = EXCLUDED.record_state,
+           review_status = EXCLUDED.review_status,
+           metadata = EXCLUDED.metadata,
+           updated_at = now()',
+        [
+            $profileId,
+            $userId,
+            $draftId,
+            cpg_workspace_json($preferredVesselTypeValues),
+            cpg_pg_text_array_literal($preferredVesselTypeLabels),
+            cpg_workspace_number($flatProfile['salary_expectation_usd'] ?? null),
+            normalize_date_value($flatProfile['availability_date'] ?? null),
+            in_array(($flatProfile['availability_status'] ?? 'unknown'), ['unknown', 'available_now', 'available_later'], true)
+                ? (string) ($flatProfile['availability_status'] ?? 'unknown')
+                : 'unknown',
+            cpg_workspace_text($publication, 'candidate_summary', 1200),
+            cpg_workspace_reference_value_id('information_source_values', $informationSourceLabel),
+            $informationSourceLabel,
+            $publishToMatching,
+            $dataProcessingConfirmation,
+            'submitted',
+            'pending_human_review',
+            cpg_workspace_json(['source_key' => 'workspace_matching_preferences']),
+        ]
+    );
+}
+
+function cpg_fetch_one_assoc(string $sql, array $params): ?array {
+    $result = api_query($sql, $params);
+    $row = pg_fetch_assoc($result);
+    return is_array($row) ? $row : null;
+}
+
+function cpg_fetch_all_assoc(string $sql, array $params): array {
+    $result = api_query($sql, $params);
+    $items = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $items[] = $row;
+    }
+    return $items;
+}
+
+function cpg_read_seafarer_workspace_summary(string $userId): array {
+    if (!cpg_seafarer_workspace_tables_ready()) {
+        return [
+            'schema_ready' => false,
+            'message' => 'Structured seafarer workspace tables are not available yet.',
+        ];
+    }
+
+    $profile = cpg_fetch_one_assoc(
+        'SELECT seafarer_profile_id, user_id, first_name, primary_rank, department, review_status, document_metadata
+         FROM crewportglobal.seafarer_profiles
+         WHERE user_id = $1
+         LIMIT 1',
+        [$userId]
+    );
+    if ($profile === null) {
+        return [
+            'schema_ready' => true,
+            'has_profile' => false,
+        ];
+    }
+
+    $profileId = (string) $profile['seafarer_profile_id'];
+    return [
+        'schema_ready' => true,
+        'has_profile' => true,
+        'profile_id' => $profileId,
+        'person_details' => cpg_fetch_one_assoc(
+            'SELECT date_of_birth, place_of_birth, gender_label, civil_status_label,
+                    nationality_code, residence_country_code, residence_city_label,
+                    permanent_address, nearest_airport_label, review_status, updated_at
+             FROM crewportglobal.seafarer_person_details
+             WHERE seafarer_profile_id = $1
+             LIMIT 1',
+            [$profileId]
+        ),
+        'emergency_contacts' => cpg_fetch_all_assoc(
+            'SELECT contact_name, relation_label, contact_phone, is_primary, review_status, updated_at
+             FROM crewportglobal.seafarer_emergency_contacts
+             WHERE seafarer_profile_id = $1
+             ORDER BY is_primary DESC, updated_at DESC',
+            [$profileId]
+        ),
+        'education_records' => cpg_fetch_all_assoc(
+            'SELECT institution_name, grade_label, field_of_study, country_code, completion_date, review_status, updated_at
+             FROM crewportglobal.seafarer_education_records
+             WHERE seafarer_profile_id = $1
+             ORDER BY completion_date DESC NULLS LAST, updated_at DESC',
+            [$profileId]
+        ),
+        'certificates' => cpg_fetch_all_assoc(
+            'SELECT certificate_group, certificate_type_label, certificate_number, issuing_country_code, expires_at, review_status, updated_at
+             FROM crewportglobal.seafarer_certificates
+             WHERE seafarer_profile_id = $1
+             ORDER BY certificate_group ASC, expires_at DESC NULLS LAST, updated_at DESC',
+            [$profileId]
+        ),
+        'training_records' => cpg_fetch_all_assoc(
+            'SELECT training_type_label, certificate_number, issuing_center, expires_at, review_status, updated_at
+             FROM crewportglobal.seafarer_training_records
+             WHERE seafarer_profile_id = $1
+             ORDER BY expires_at DESC NULLS LAST, updated_at DESC',
+            [$profileId]
+        ),
+        'sea_service_records' => cpg_fetch_all_assoc(
+            'SELECT vessel_name, vessel_type_label, rank_label, department, flag_country_code,
+                    service_from, service_to, management_company, engine_type, deadweight, review_status, updated_at
+             FROM crewportglobal.seafarer_sea_service_records
+             WHERE seafarer_profile_id = $1
+             ORDER BY service_to DESC NULLS LAST, service_from DESC NULLS LAST, updated_at DESC',
+            [$profileId]
+        ),
+        'medical_declarations' => cpg_fetch_all_assoc(
+            'SELECT declaration_scope, medical_certificate_expires_at, fitness_status, consent_status, review_status, updated_at
+             FROM crewportglobal.seafarer_medical_declarations
+             WHERE seafarer_profile_id = $1
+             ORDER BY updated_at DESC',
+            [$profileId]
+        ),
+        'matching_preferences' => cpg_fetch_one_assoc(
+            'SELECT preferred_vessel_type_values, preferred_vessel_type_labels, expected_compensation_usd,
+                    availability_date, availability_status, candidate_summary, information_source_label,
+                    publish_to_matching, data_processing_confirmation, review_status, updated_at
+             FROM crewportglobal.seafarer_matching_preferences
+             WHERE seafarer_profile_id = $1
+             LIMIT 1',
+            [$profileId]
+        ),
+    ];
+}
+
 function normalize_department_value(mixed $value): ?string {
     if (!is_string($value)) {
         return null;
@@ -1898,6 +2530,7 @@ function build_draft_response(string $userId): array {
         );
         $profile = pg_fetch_assoc($profileResult) ?: [];
         $payload['seafarer_profile'] = $profile;
+        $payload['seafarer_workspace_structured'] = cpg_read_seafarer_workspace_summary($userId);
         $payload['vacancy_applications'] = read_vacancy_applications_for_seafarer($userId);
     } else {
         $company = read_primary_company_for_user($userId);
@@ -2180,6 +2813,16 @@ function upsert_seafarer_profile(string $userId, array $body, string $email): vo
             'submitted_for_human_review',
         ]
     );
+
+    cpg_sync_seafarer_workspace_from_metadata($userId, $documentMetadataJson, [
+        'department' => $department,
+        'nationality_code' => $nationalityCode,
+        'residence_country_code' => $residenceCountryCode,
+        'availability_status' => $availability ?? 'unknown',
+        'availability_date' => $availabilityDate,
+        'preferred_vessel_types' => $preferredVesselTypes,
+        'salary_expectation_usd' => $salaryExpectationUsd,
+    ]);
 }
 
 function upsert_company_context(string $userId, string $role, array $body): array {
@@ -2347,6 +2990,39 @@ function handle_get_draft(string $draftId): void {
     }
 
     api_json(200, build_draft_response($uuid));
+}
+
+function handle_get_seafarer_workspace(): void {
+    $session = cpg_auth_find_active_session();
+    $userId = null;
+    $accessModel = 'none';
+
+    if ($session !== null) {
+        $userId = (string) $session['user_id'];
+        $accessModel = 'authenticated_session';
+    } else {
+        $draftId = isset($_GET['draft_id']) && is_string($_GET['draft_id']) ? $_GET['draft_id'] : '';
+        $userId = api_normalize_uuid($draftId);
+        if ($userId !== null) {
+            $accessModel = 'draft_id_transition';
+        }
+    }
+
+    if ($userId === null) {
+        api_error(401, 'seafarer_workspace_access_required', 'Authenticated session or draft_id is required');
+    }
+
+    $role = read_role_for_user($userId);
+    if ($role !== 'seafarer') {
+        api_error(403, 'seafarer_workspace_not_available', 'Seafarer workspace is available only for seafarer profiles');
+    }
+
+    api_json(200, [
+        'ok' => true,
+        'access_model' => $accessModel,
+        'draft_id' => $userId,
+        'workspace' => cpg_read_seafarer_workspace_summary($userId),
+    ]);
 }
 
 function handle_patch_draft(string $draftId): void {
@@ -3885,6 +4561,14 @@ if (preg_match('#^/registration/drafts/([^/]+)/documents$#', $path, $matches) ==
     }
     header('Allow: GET, POST');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET, POST');
+}
+
+if ($path === '/seafarer/workspace') {
+    if ($method === 'GET') {
+        handle_get_seafarer_workspace();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
 }
 
 if ($method === 'GET' && $path === '/operator/review-queue') {
