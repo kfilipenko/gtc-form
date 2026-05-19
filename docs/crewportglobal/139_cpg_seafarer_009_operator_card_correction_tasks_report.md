@@ -116,6 +116,7 @@ Executed:
 php -l projects/crewportglobal/app/backend/api/public/index.php
 git diff --check
 npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-operator-queue.spec.ts tests/crewportglobal-cabinet-dashboard.spec.ts
+npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-create-profile-prefill.spec.ts
 ```
 
 Expected verification coverage:
@@ -125,6 +126,7 @@ operator queue UI sends correction_card_code with needs_correction
 operator history shows the selected target card
 cabinet shows a card-level correction task
 cabinet Open card link targets the correct create-profile section
+create-profile still shows latest correction notes for rejected seafarer drafts
 existing document correction tasks still work
 ```
 
