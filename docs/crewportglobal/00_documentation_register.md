@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.19
+- Version: 1.20
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -217,6 +217,7 @@ docs/crewportglobal/
   127_cpg_ref_003_admin_reference_catalog_publication_console_report.md
   128_cpg_ref_004_full_reference_catalog_publication_report.md
   129_cpg_ref_005_public_form_reference_catalog_bindings_report.md
+  130_cpg_ref_006_seafarer_workspace_extended_form_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -380,6 +381,8 @@ Document 128 records the CPG-REF-004 full reference catalog publication, includi
 
 Document 129 records the CPG-REF-005 public form reference catalog bindings, including the shared frontend catalog helper, datalist bindings for seafarer rank/vessel preferences and employer vacancy rank/vessel type, public-only API usage, fallback behavior and form-binding verification.
 
+Document 130 records the CPG-REF-006 seafarer workspace extended form implementation, including additional collapsible `/create-profile/` cards, published reference catalog bindings, `document_metadata.seafarer_workspace` persistence, backend list normalization and the boundary that matching-publication preference does not automatically expose a candidate.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -483,6 +486,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.20 | 2026-05-19 | GTC IT / AI Assistant | Added document 130 as CPG-REF-006 seafarer workspace extended form report covering additional create-profile cards, reference catalog bindings, seafarer_workspace metadata persistence, backend list normalization and no automatic matching publication boundary |
 | 1.19 | 2026-05-18 | GTC IT / AI Assistant | Added document 129 as CPG-REF-005 public form reference catalog bindings report covering shared frontend catalog helper, create-profile/post-vacancy datalist bindings, public-only API usage and verification scope |
 | 1.18 | 2026-05-18 | GTC IT / AI Assistant | Added document 128 as CPG-REF-004 full reference catalog publication report covering all published reference catalogs, public API readiness, source Excel completeness verification and audit event |
 | 1.17 | 2026-05-18 | GTC IT / AI Assistant | Added document 127 as CPG-REF-003 admin reference catalog publication console report covering the /admin/access/ owner UI for catalog counts, value inspection and protected approve/publish/retire actions |

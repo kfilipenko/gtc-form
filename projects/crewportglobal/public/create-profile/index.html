@@ -361,6 +361,65 @@
       border-top: 1px solid var(--app-line);
     }
 
+    .profile-card-section {
+      padding: 0;
+      border: 1px solid var(--app-line);
+      border-radius: 8px;
+      background: var(--app-surface-2);
+    }
+
+    .profile-card-section + .profile-card-section,
+    .form-section + .profile-card-section,
+    .profile-card-section + .form-section {
+      padding-top: 0;
+      border-top: 1px solid var(--app-line);
+    }
+
+    .profile-card-section summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 54px;
+      padding: 14px 16px;
+      color: var(--app-ink);
+      font-weight: 800;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .profile-card-section summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .profile-card-section summary::after {
+      content: "+";
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--app-line);
+      border-radius: 999px;
+      color: var(--app-ocean-dark);
+      background: #fff;
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .profile-card-section[open] summary {
+      border-bottom: 1px solid var(--app-line);
+    }
+
+    .profile-card-section[open] summary::after {
+      content: "-";
+    }
+
+    .profile-card-section__body {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+    }
+
     .section-heading {
       display: grid;
       gap: 6px;
@@ -567,6 +626,10 @@
           </div>
           <nav class="section-tabs" aria-label="Profile sections">
             <button class="button secondary section-tab is-current" type="button" data-section-target="profile-section-cv" data-i18n="create.tab.cv">CV basics</button>
+            <button class="button secondary section-tab" type="button" data-section-target="profile-section-contact" data-i18n="create.tab.contact">Contact</button>
+            <button class="button secondary section-tab" type="button" data-section-target="profile-section-qualifications" data-i18n="create.tab.qualifications">Qualifications</button>
+            <button class="button secondary section-tab" type="button" data-section-target="profile-section-sea-service" data-i18n="create.tab.seaService">Sea service</button>
+            <button class="button secondary section-tab" type="button" data-section-target="profile-section-publication" data-i18n="create.tab.publication">Publication</button>
             <button class="button secondary section-tab" type="button" data-section-target="profile-section-documents" data-i18n="create.tab.documents">Documents</button>
             <button class="button secondary section-tab" type="button" data-section-target="profile-section-review" data-i18n="create.tab.review">Review</button>
             <button class="button secondary section-tab" type="button" data-section-target="profile-section-applications" data-i18n="create.tab.applications">Applications</button>
@@ -647,6 +710,194 @@
               </label>
             </div>
           </section>
+
+          <details id="profile-section-contact" class="form-section profile-card-section">
+            <summary data-i18n="create.section.contact.title">Personal contact and addresses</summary>
+            <div class="profile-card-section__body">
+              <div class="section-heading">
+                <p class="eyebrow" data-i18n="create.section.contact.eyebrow">Person card</p>
+                <p class="field-note" data-i18n="create.section.contact.copy">These fields prepare the physical-person and emergency-contact data for future verification.</p>
+              </div>
+              <div class="field-grid">
+                <label class="field-card">
+                  <strong data-i18n="create.form.dateOfBirth">Date of birth</strong>
+                  <input id="create-date-of-birth" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.placeOfBirth">Place of birth</strong>
+                  <input id="create-place-of-birth" type="text" data-i18n-placeholder="create.form.placeOfBirth.placeholder" placeholder="Manila">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.gender">Gender</strong>
+                  <input id="create-gender" type="text" list="create-gender-options" data-i18n-placeholder="create.form.gender.placeholder" placeholder="Male">
+                  <datalist id="create-gender-options"></datalist>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.civilStatus">Civil status</strong>
+                  <input id="create-civil-status" type="text" list="create-civil-status-options" data-i18n-placeholder="create.form.civilStatus.placeholder" placeholder="Single">
+                  <datalist id="create-civil-status-options"></datalist>
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.permanentAddress">Permanent address</strong>
+                  <textarea id="create-permanent-address" maxlength="500" data-i18n-placeholder="create.form.permanentAddress.placeholder" placeholder="Street, city, country"></textarea>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.residenceCity">Residence city</strong>
+                  <input id="create-residence-city" type="text" list="create-city-options" data-i18n-placeholder="create.form.residenceCity.placeholder" placeholder="Dubai">
+                  <datalist id="create-city-options"></datalist>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.nearestAirport">Nearest airport</strong>
+                  <input id="create-nearest-airport" type="text" list="create-airport-options" data-i18n-placeholder="create.form.nearestAirport.placeholder" placeholder="DXB">
+                  <datalist id="create-airport-options"></datalist>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.emergencyName">Emergency contact name</strong>
+                  <input id="create-emergency-contact-name" type="text" data-i18n-placeholder="create.form.emergencyName.placeholder" placeholder="Contact person">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.emergencyRelation">Emergency contact relation</strong>
+                  <input id="create-emergency-contact-relation" type="text" list="create-relation-options" data-i18n-placeholder="create.form.emergencyRelation.placeholder" placeholder="Spouse">
+                  <datalist id="create-relation-options"></datalist>
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.emergencyPhone">Emergency contact phone</strong>
+                  <input id="create-emergency-contact-phone" type="tel" data-i18n-placeholder="create.form.emergencyPhone.placeholder" placeholder="+639171112233">
+                </label>
+              </div>
+            </div>
+          </details>
+
+          <details id="profile-section-qualifications" class="form-section profile-card-section">
+            <summary data-i18n="create.section.qualifications.title">Certificates and education</summary>
+            <div class="profile-card-section__body">
+              <div class="section-heading">
+                <p class="eyebrow" data-i18n="create.section.qualifications.eyebrow">Qualification card</p>
+                <p class="field-note" data-i18n="create.section.qualifications.copy">Capture the main COC, education and training summary used for matching.</p>
+              </div>
+              <div class="field-grid">
+                <label class="field-card">
+                  <strong data-i18n="create.form.cocType">COC type</strong>
+                  <input id="create-coc-type" type="text" list="create-coc-type-options" data-i18n-placeholder="create.form.cocType.placeholder" placeholder="Officer in charge">
+                  <datalist id="create-coc-type-options"></datalist>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.cocNumber">COC number</strong>
+                  <input id="create-coc-number" type="text" data-i18n-placeholder="create.form.cocNumber.placeholder" placeholder="COC-123456">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.cocCountry">COC issuing country</strong>
+                  <input id="create-coc-issuing-country" type="text" list="create-country-options" data-i18n-placeholder="create.form.cocCountry.placeholder" placeholder="PH">
+                  <datalist id="create-country-options"></datalist>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.cocExpiry">COC expiry</strong>
+                  <input id="create-coc-expiry" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.educationInstitution">Education institution</strong>
+                  <input id="create-education-institution" type="text" list="create-education-institution-options" data-i18n-placeholder="create.form.educationInstitution.placeholder" placeholder="Maritime academy">
+                  <datalist id="create-education-institution-options"></datalist>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.educationGrade">Education grade</strong>
+                  <input id="create-education-grade" type="text" list="create-education-grade-options" data-i18n-placeholder="create.form.educationGrade.placeholder" placeholder="Bachelor">
+                  <datalist id="create-education-grade-options"></datalist>
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.trainingCourses">Training courses</strong>
+                  <input id="create-training-courses" type="text" list="create-training-course-options" data-i18n-placeholder="create.form.trainingCourses.placeholder" placeholder="Basic Training, Advanced Fire Fighting">
+                  <datalist id="create-training-course-options"></datalist>
+                </label>
+              </div>
+            </div>
+          </details>
+
+          <details id="profile-section-sea-service" class="form-section profile-card-section">
+            <summary data-i18n="create.section.seaService.title">Last sea service</summary>
+            <div class="profile-card-section__body">
+              <div class="section-heading">
+                <p class="eyebrow" data-i18n="create.section.seaService.eyebrow">Experience card</p>
+                <p class="field-note" data-i18n="create.section.seaService.copy">Record the latest vessel experience so operators can compare it with employer demand.</p>
+              </div>
+              <div class="field-grid">
+                <label class="field-card">
+                  <strong data-i18n="create.form.lastVesselName">Last vessel name</strong>
+                  <input id="create-last-vessel-name" type="text" data-i18n-placeholder="create.form.lastVesselName.placeholder" placeholder="MV Example">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.lastVesselType">Last vessel type</strong>
+                  <input id="create-last-vessel-type" type="text" list="create-vessel-type-options" data-i18n-placeholder="create.form.lastVesselType.placeholder" placeholder="BULK CARRIER">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.lastRank">Last rank</strong>
+                  <input id="create-last-rank" type="text" list="create-rank-options" data-i18n-placeholder="create.form.lastRank.placeholder" placeholder="Second Officer">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.flagCountry">Flag country</strong>
+                  <input id="create-flag-country" type="text" list="create-country-options" data-i18n-placeholder="create.form.flagCountry.placeholder" placeholder="PA">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.serviceFrom">Service from</strong>
+                  <input id="create-service-from" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.serviceTo">Service to</strong>
+                  <input id="create-service-to" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.managementCompany">Company / agent</strong>
+                  <input id="create-management-company" type="text" data-i18n-placeholder="create.form.managementCompany.placeholder" placeholder="Ship manager">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.engineType">Engine type</strong>
+                  <input id="create-engine-type" type="text" list="create-engine-type-options" data-i18n-placeholder="create.form.engineType.placeholder" placeholder="MAN B&W">
+                  <datalist id="create-engine-type-options"></datalist>
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.deadweight">Deadweight / tonnage note</strong>
+                  <input id="create-deadweight" type="text" data-i18n-placeholder="create.form.deadweight.placeholder" placeholder="50000 DWT">
+                </label>
+              </div>
+            </div>
+          </details>
+
+          <details id="profile-section-publication" class="form-section profile-card-section">
+            <summary data-i18n="create.section.publication.title">Matching publication request</summary>
+            <div class="profile-card-section__body">
+              <div class="section-heading">
+                <p class="eyebrow" data-i18n="create.section.publication.eyebrow">Controlled publication</p>
+                <p class="field-note" data-i18n="create.section.publication.copy">These settings record your request for reviewed matching. They do not publish your profile automatically.</p>
+              </div>
+              <div class="field-grid">
+                <label class="field-card">
+                  <strong data-i18n="create.form.informationSource">How did you hear about us?</strong>
+                  <input id="create-information-source" type="text" list="create-information-source-options" data-i18n-placeholder="create.form.informationSource.placeholder" placeholder="Referral">
+                  <datalist id="create-information-source-options"></datalist>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.publishToMatching">Request matching after review</strong>
+                  <select id="create-publish-to-matching">
+                    <option value="" data-i18n="create.form.publishToMatching.placeholder">Select</option>
+                    <option value="yes" data-i18n="create.boolean.yes">Yes</option>
+                    <option value="no" data-i18n="create.boolean.no">No</option>
+                  </select>
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.candidateSummary">Candidate summary</strong>
+                  <textarea id="create-candidate-summary" maxlength="1200" data-i18n-placeholder="create.form.candidateSummary.placeholder" placeholder="Short professional summary for human review"></textarea>
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.dataConfirmation">Data processing confirmation</strong>
+                  <select id="create-data-processing-confirmation">
+                    <option value="" data-i18n="create.form.dataConfirmation.placeholder">Select confirmation</option>
+                    <option value="i_confirm" data-i18n="create.form.dataConfirmation.confirm">I confirm that the submitted data may be processed for profile review and matching preparation.</option>
+                    <option value="i_decline" data-i18n="create.form.dataConfirmation.decline">I do not confirm yet.</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+          </details>
 
           <section id="profile-section-documents" class="form-section">
             <div class="section-heading">
@@ -816,12 +1067,28 @@
         'create.hero.secondaryCta': 'View Vacancies',
         'create.workspace.eyebrow': 'Workspace',
         'create.tab.cv': 'CV basics',
+        'create.tab.contact': 'Contact',
+        'create.tab.qualifications': 'Qualifications',
+        'create.tab.seaService': 'Sea service',
+        'create.tab.publication': 'Publication',
         'create.tab.documents': 'Documents',
         'create.tab.review': 'Review',
         'create.tab.applications': 'Applications',
         'create.section.cv.eyebrow': 'CV basics',
         'create.section.cv.title': 'Identity, rank and availability',
         'create.section.cv.copy': 'These fields make the profile searchable and useful for employer-side review.',
+        'create.section.contact.eyebrow': 'Person card',
+        'create.section.contact.title': 'Personal contact and addresses',
+        'create.section.contact.copy': 'These fields prepare the physical-person and emergency-contact data for future verification.',
+        'create.section.qualifications.eyebrow': 'Qualification card',
+        'create.section.qualifications.title': 'Certificates and education',
+        'create.section.qualifications.copy': 'Capture the main COC, education and training summary used for matching.',
+        'create.section.seaService.eyebrow': 'Experience card',
+        'create.section.seaService.title': 'Last sea service',
+        'create.section.seaService.copy': 'Record the latest vessel experience so operators can compare it with employer demand.',
+        'create.section.publication.eyebrow': 'Controlled publication',
+        'create.section.publication.title': 'Matching publication request',
+        'create.section.publication.copy': 'These settings record your request for reviewed matching. They do not publish your profile automatically.',
         'create.section.documents.eyebrow': 'Document readiness',
         'create.section.documents.title': 'Certificates, passport, medical and visas',
         'create.section.documents.copy': 'Save document metadata for manual review without uploading private files in this slice.',
@@ -874,6 +1141,66 @@
         'create.form.salary.placeholder': '4500',
         'create.form.vesselTypes': 'Preferred vessel types',
         'create.form.vesselTypes.placeholder': 'Bulk Carrier, Container, LNG',
+        'create.form.dateOfBirth': 'Date of birth',
+        'create.form.placeOfBirth': 'Place of birth',
+        'create.form.placeOfBirth.placeholder': 'Manila',
+        'create.form.gender': 'Gender',
+        'create.form.gender.placeholder': 'Male',
+        'create.form.civilStatus': 'Civil status',
+        'create.form.civilStatus.placeholder': 'Single',
+        'create.form.permanentAddress': 'Permanent address',
+        'create.form.permanentAddress.placeholder': 'Street, city, country',
+        'create.form.residenceCity': 'Residence city',
+        'create.form.residenceCity.placeholder': 'Dubai',
+        'create.form.nearestAirport': 'Nearest airport',
+        'create.form.nearestAirport.placeholder': 'DXB',
+        'create.form.emergencyName': 'Emergency contact name',
+        'create.form.emergencyName.placeholder': 'Contact person',
+        'create.form.emergencyRelation': 'Emergency contact relation',
+        'create.form.emergencyRelation.placeholder': 'Spouse',
+        'create.form.emergencyPhone': 'Emergency contact phone',
+        'create.form.emergencyPhone.placeholder': '+639171112233',
+        'create.form.cocType': 'COC type',
+        'create.form.cocType.placeholder': 'Officer in charge',
+        'create.form.cocNumber': 'COC number',
+        'create.form.cocNumber.placeholder': 'COC-123456',
+        'create.form.cocCountry': 'COC issuing country',
+        'create.form.cocCountry.placeholder': 'PH',
+        'create.form.cocExpiry': 'COC expiry',
+        'create.form.educationInstitution': 'Education institution',
+        'create.form.educationInstitution.placeholder': 'Maritime academy',
+        'create.form.educationGrade': 'Education grade',
+        'create.form.educationGrade.placeholder': 'Bachelor',
+        'create.form.trainingCourses': 'Training courses',
+        'create.form.trainingCourses.placeholder': 'Basic Training, Advanced Fire Fighting',
+        'create.form.lastVesselName': 'Last vessel name',
+        'create.form.lastVesselName.placeholder': 'MV Example',
+        'create.form.lastVesselType': 'Last vessel type',
+        'create.form.lastVesselType.placeholder': 'BULK CARRIER',
+        'create.form.lastRank': 'Last rank',
+        'create.form.lastRank.placeholder': 'Second Officer',
+        'create.form.flagCountry': 'Flag country',
+        'create.form.flagCountry.placeholder': 'PA',
+        'create.form.serviceFrom': 'Service from',
+        'create.form.serviceTo': 'Service to',
+        'create.form.managementCompany': 'Company / agent',
+        'create.form.managementCompany.placeholder': 'Ship manager',
+        'create.form.engineType': 'Engine type',
+        'create.form.engineType.placeholder': 'MAN B&W',
+        'create.form.deadweight': 'Deadweight / tonnage note',
+        'create.form.deadweight.placeholder': '50000 DWT',
+        'create.form.informationSource': 'How did you hear about us?',
+        'create.form.informationSource.placeholder': 'Referral',
+        'create.form.publishToMatching': 'Request matching after review',
+        'create.form.publishToMatching.placeholder': 'Select',
+        'create.boolean.yes': 'Yes',
+        'create.boolean.no': 'No',
+        'create.form.candidateSummary': 'Candidate summary',
+        'create.form.candidateSummary.placeholder': 'Short professional summary for human review',
+        'create.form.dataConfirmation': 'Data processing confirmation',
+        'create.form.dataConfirmation.placeholder': 'Select confirmation',
+        'create.form.dataConfirmation.confirm': 'I confirm that the submitted data may be processed for profile review and matching preparation.',
+        'create.form.dataConfirmation.decline': 'I do not confirm yet.',
         'create.form.certificateStatus': 'COC / endorsements',
         'create.form.stcwStatus': 'STCW / training records',
         'create.form.passportExpiry': 'Passport expiry',
@@ -1007,12 +1334,28 @@
         'create.hero.secondaryCta': 'Смотреть вакансии',
         'create.workspace.eyebrow': 'Workspace',
         'create.tab.cv': 'Основа CV',
+        'create.tab.contact': 'Контакты',
+        'create.tab.qualifications': 'Квалификация',
+        'create.tab.seaService': 'Sea service',
+        'create.tab.publication': 'Публикация',
         'create.tab.documents': 'Документы',
         'create.tab.review': 'Проверка',
         'create.tab.applications': 'Отклики',
         'create.section.cv.eyebrow': 'Основа CV',
         'create.section.cv.title': 'Личность, ранг и доступность',
         'create.section.cv.copy': 'Эти поля делают профиль пригодным для поиска и проверки работодателем.',
+        'create.section.contact.eyebrow': 'Карточка физического лица',
+        'create.section.contact.title': 'Контакты и адреса',
+        'create.section.contact.copy': 'Эти поля готовят данные физического лица и экстренного контакта для будущей проверки.',
+        'create.section.qualifications.eyebrow': 'Карточка квалификации',
+        'create.section.qualifications.title': 'Сертификаты и образование',
+        'create.section.qualifications.copy': 'Укажите основной COC, образование и краткую информацию по тренингам для сопоставления.',
+        'create.section.seaService.eyebrow': 'Карточка опыта',
+        'create.section.seaService.title': 'Последний морской опыт',
+        'create.section.seaService.copy': 'Запишите последний опыт на судне, чтобы оператор мог сравнить его с запросом работодателя.',
+        'create.section.publication.eyebrow': 'Контролируемая публикация',
+        'create.section.publication.title': 'Запрос на публикацию для matching',
+        'create.section.publication.copy': 'Эти настройки фиксируют ваш запрос на проверенный matching. Они не публикуют профиль автоматически.',
         'create.section.documents.eyebrow': 'Готовность документов',
         'create.section.documents.title': 'Сертификаты, паспорт, медицина и визы',
         'create.section.documents.copy': 'Сохраняйте метаданные документов для ручной проверки без загрузки приватных файлов на этом этапе.',
@@ -1065,6 +1408,66 @@
         'create.form.salary.placeholder': '4500',
         'create.form.vesselTypes': 'Предпочтительные типы судов',
         'create.form.vesselTypes.placeholder': 'Балкер, Контейнеровоз, LNG',
+        'create.form.dateOfBirth': 'Дата рождения',
+        'create.form.placeOfBirth': 'Место рождения',
+        'create.form.placeOfBirth.placeholder': 'Манила',
+        'create.form.gender': 'Пол',
+        'create.form.gender.placeholder': 'Мужской',
+        'create.form.civilStatus': 'Семейное положение',
+        'create.form.civilStatus.placeholder': 'Не женат / не замужем',
+        'create.form.permanentAddress': 'Постоянный адрес',
+        'create.form.permanentAddress.placeholder': 'Улица, город, страна',
+        'create.form.residenceCity': 'Город проживания',
+        'create.form.residenceCity.placeholder': 'Дубай',
+        'create.form.nearestAirport': 'Ближайший аэропорт',
+        'create.form.nearestAirport.placeholder': 'DXB',
+        'create.form.emergencyName': 'Имя экстренного контакта',
+        'create.form.emergencyName.placeholder': 'Контактное лицо',
+        'create.form.emergencyRelation': 'Связь с экстренным контактом',
+        'create.form.emergencyRelation.placeholder': 'Супруг / супруга',
+        'create.form.emergencyPhone': 'Телефон экстренного контакта',
+        'create.form.emergencyPhone.placeholder': '+639171112233',
+        'create.form.cocType': 'Тип COC',
+        'create.form.cocType.placeholder': 'Officer in charge',
+        'create.form.cocNumber': 'Номер COC',
+        'create.form.cocNumber.placeholder': 'COC-123456',
+        'create.form.cocCountry': 'Страна выдачи COC',
+        'create.form.cocCountry.placeholder': 'PH',
+        'create.form.cocExpiry': 'Срок COC',
+        'create.form.educationInstitution': 'Учебное заведение',
+        'create.form.educationInstitution.placeholder': 'Морская академия',
+        'create.form.educationGrade': 'Уровень образования',
+        'create.form.educationGrade.placeholder': 'Бакалавр',
+        'create.form.trainingCourses': 'Курсы и тренинги',
+        'create.form.trainingCourses.placeholder': 'Basic Training, Advanced Fire Fighting',
+        'create.form.lastVesselName': 'Название последнего судна',
+        'create.form.lastVesselName.placeholder': 'MV Example',
+        'create.form.lastVesselType': 'Тип последнего судна',
+        'create.form.lastVesselType.placeholder': 'BULK CARRIER',
+        'create.form.lastRank': 'Последняя должность',
+        'create.form.lastRank.placeholder': 'Second Officer',
+        'create.form.flagCountry': 'Флаг судна',
+        'create.form.flagCountry.placeholder': 'PA',
+        'create.form.serviceFrom': 'Работа с',
+        'create.form.serviceTo': 'Работа до',
+        'create.form.managementCompany': 'Компания / агент',
+        'create.form.managementCompany.placeholder': 'Ship manager',
+        'create.form.engineType': 'Тип двигателя',
+        'create.form.engineType.placeholder': 'MAN B&W',
+        'create.form.deadweight': 'DWT / тоннаж',
+        'create.form.deadweight.placeholder': '50000 DWT',
+        'create.form.informationSource': 'Как вы узнали о нас?',
+        'create.form.informationSource.placeholder': 'Рекомендация',
+        'create.form.publishToMatching': 'Запросить matching после проверки',
+        'create.form.publishToMatching.placeholder': 'Выбрать',
+        'create.boolean.yes': 'Да',
+        'create.boolean.no': 'Нет',
+        'create.form.candidateSummary': 'Краткое описание кандидата',
+        'create.form.candidateSummary.placeholder': 'Краткое профессиональное описание для ручной проверки',
+        'create.form.dataConfirmation': 'Подтверждение обработки данных',
+        'create.form.dataConfirmation.placeholder': 'Выберите подтверждение',
+        'create.form.dataConfirmation.confirm': 'Я подтверждаю, что переданные данные могут обрабатываться для проверки профиля и подготовки matching.',
+        'create.form.dataConfirmation.decline': 'Пока не подтверждаю.',
         'create.form.certificateStatus': 'COC / endorsements',
         'create.form.stcwStatus': 'STCW / тренинги',
         'create.form.passportExpiry': 'Срок паспорта',
@@ -1218,6 +1621,36 @@
       const medicalExpiry = document.getElementById('create-medical-expiry');
       const visaStatus = document.getElementById('create-visa-status');
       const documentNotes = document.getElementById('create-document-notes');
+      const dateOfBirth = document.getElementById('create-date-of-birth');
+      const placeOfBirth = document.getElementById('create-place-of-birth');
+      const gender = document.getElementById('create-gender');
+      const civilStatus = document.getElementById('create-civil-status');
+      const permanentAddress = document.getElementById('create-permanent-address');
+      const residenceCity = document.getElementById('create-residence-city');
+      const nearestAirport = document.getElementById('create-nearest-airport');
+      const emergencyContactName = document.getElementById('create-emergency-contact-name');
+      const emergencyContactRelation = document.getElementById('create-emergency-contact-relation');
+      const emergencyContactPhone = document.getElementById('create-emergency-contact-phone');
+      const cocType = document.getElementById('create-coc-type');
+      const cocNumber = document.getElementById('create-coc-number');
+      const cocIssuingCountry = document.getElementById('create-coc-issuing-country');
+      const cocExpiry = document.getElementById('create-coc-expiry');
+      const educationInstitution = document.getElementById('create-education-institution');
+      const educationGrade = document.getElementById('create-education-grade');
+      const trainingCourses = document.getElementById('create-training-courses');
+      const lastVesselName = document.getElementById('create-last-vessel-name');
+      const lastVesselType = document.getElementById('create-last-vessel-type');
+      const lastRank = document.getElementById('create-last-rank');
+      const flagCountry = document.getElementById('create-flag-country');
+      const serviceFrom = document.getElementById('create-service-from');
+      const serviceTo = document.getElementById('create-service-to');
+      const managementCompany = document.getElementById('create-management-company');
+      const engineType = document.getElementById('create-engine-type');
+      const deadweight = document.getElementById('create-deadweight');
+      const informationSource = document.getElementById('create-information-source');
+      const publishToMatching = document.getElementById('create-publish-to-matching');
+      const candidateSummary = document.getElementById('create-candidate-summary');
+      const dataProcessingConfirmation = document.getElementById('create-data-processing-confirmation');
       const uploadType = document.getElementById('create-document-upload-type');
       const uploadFile = document.getElementById('create-document-upload-file');
       const uploadSubmit = document.getElementById('create-document-upload-submit');
@@ -1268,6 +1701,50 @@
           {
             catalogCode: 'vessel_types',
             datalist: 'create-vessel-type-options'
+          },
+          {
+            catalogCode: 'gender_values',
+            datalist: 'create-gender-options'
+          },
+          {
+            catalogCode: 'civil_status_values',
+            datalist: 'create-civil-status-options'
+          },
+          {
+            catalogCode: 'cities',
+            datalist: 'create-city-options'
+          },
+          {
+            catalogCode: 'airports',
+            datalist: 'create-airport-options'
+          },
+          {
+            catalogCode: 'relation_types',
+            datalist: 'create-relation-options'
+          },
+          {
+            catalogCode: 'certificate_of_competence_types',
+            datalist: 'create-coc-type-options'
+          },
+          {
+            catalogCode: 'countries',
+            datalist: 'create-country-options'
+          },
+          {
+            catalogCode: 'education_institutions',
+            datalist: 'create-education-institution-options'
+          },
+          {
+            catalogCode: 'education_grades',
+            datalist: 'create-education-grade-options'
+          },
+          {
+            catalogCode: 'training_course_types',
+            datalist: 'create-training-course-options'
+          },
+          {
+            catalogCode: 'information_source_values',
+            datalist: 'create-information-source-options'
           }
         ]).catch((error) => {
           console.error(error);
@@ -1333,6 +1810,140 @@
         const normalized = typeof value === 'string' ? value.trim() : '';
         const option = Array.from(select.options).find((item) => item.value === normalized);
         select.value = option ? normalized : fallback;
+      }
+
+      function setFieldValue(input, value) {
+        if (!input || typeof value !== 'string') {
+          return;
+        }
+        input.value = value;
+      }
+
+      function workspaceSection(workspace, key) {
+        return workspace && typeof workspace[key] === 'object' && !Array.isArray(workspace[key])
+          ? workspace[key]
+          : {};
+      }
+
+      function compactObject(source) {
+        return Object.fromEntries(
+          Object.entries(source).filter((entry) => {
+            const value = entry[1];
+            if (Array.isArray(value)) {
+              return value.length > 0;
+            }
+            if (value && typeof value === 'object') {
+              return Object.keys(value).length > 0;
+            }
+            return value !== null && value !== undefined && String(value).trim() !== '';
+          })
+        );
+      }
+
+      function listFromInput(input) {
+        return input.value
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean)
+          .slice(0, 20);
+      }
+
+      function joinList(value) {
+        return Array.isArray(value)
+          ? value.filter((item) => typeof item === 'string' && item.trim()).join(', ')
+          : '';
+      }
+
+      function collectSeafarerWorkspaceMetadata() {
+        const workspace = {
+          personal_details: compactObject({
+            date_of_birth: dateOfBirth.value || null,
+            place_of_birth: placeOfBirth.value.trim(),
+            gender: gender.value.trim(),
+            civil_status: civilStatus.value.trim()
+          }),
+          contact_and_addresses: compactObject({
+            permanent_address: permanentAddress.value.trim(),
+            residence_city: residenceCity.value.trim(),
+            nearest_airport: nearestAirport.value.trim(),
+            emergency_contact_name: emergencyContactName.value.trim(),
+            emergency_contact_relation: emergencyContactRelation.value.trim(),
+            emergency_contact_phone: emergencyContactPhone.value.trim()
+          }),
+          qualifications: compactObject({
+            coc_type: cocType.value.trim(),
+            coc_number: cocNumber.value.trim(),
+            coc_issuing_country: cocIssuingCountry.value.trim(),
+            coc_expiry: cocExpiry.value || null,
+            education_institution: educationInstitution.value.trim(),
+            education_grade: educationGrade.value.trim(),
+            training_courses: listFromInput(trainingCourses)
+          }),
+          sea_service: compactObject({
+            last_vessel_name: lastVesselName.value.trim(),
+            last_vessel_type: lastVesselType.value.trim(),
+            last_rank: lastRank.value.trim(),
+            flag_country: flagCountry.value.trim(),
+            service_from: serviceFrom.value || null,
+            service_to: serviceTo.value || null,
+            management_company: managementCompany.value.trim(),
+            engine_type: engineType.value.trim(),
+            deadweight: deadweight.value.trim()
+          }),
+          matching_publication: compactObject({
+            information_source: informationSource.value.trim(),
+            publish_to_matching: publishToMatching.value,
+            candidate_summary: candidateSummary.value.trim(),
+            data_processing_confirmation: dataProcessingConfirmation.value
+          })
+        };
+
+        return compactObject(workspace);
+      }
+
+      function fillSeafarerWorkspaceMetadata(rawWorkspace) {
+        const workspace = rawWorkspace && typeof rawWorkspace === 'object' && !Array.isArray(rawWorkspace)
+          ? rawWorkspace
+          : {};
+        const personal = workspaceSection(workspace, 'personal_details');
+        setFieldValue(dateOfBirth, personal.date_of_birth);
+        setFieldValue(placeOfBirth, personal.place_of_birth);
+        setFieldValue(gender, personal.gender);
+        setFieldValue(civilStatus, personal.civil_status);
+
+        const contact = workspaceSection(workspace, 'contact_and_addresses');
+        setFieldValue(permanentAddress, contact.permanent_address);
+        setFieldValue(residenceCity, contact.residence_city);
+        setFieldValue(nearestAirport, contact.nearest_airport);
+        setFieldValue(emergencyContactName, contact.emergency_contact_name);
+        setFieldValue(emergencyContactRelation, contact.emergency_contact_relation);
+        setFieldValue(emergencyContactPhone, contact.emergency_contact_phone);
+
+        const qualifications = workspaceSection(workspace, 'qualifications');
+        setFieldValue(cocType, qualifications.coc_type);
+        setFieldValue(cocNumber, qualifications.coc_number);
+        setFieldValue(cocIssuingCountry, qualifications.coc_issuing_country);
+        setFieldValue(cocExpiry, qualifications.coc_expiry);
+        setFieldValue(educationInstitution, qualifications.education_institution);
+        setFieldValue(educationGrade, qualifications.education_grade);
+        trainingCourses.value = joinList(qualifications.training_courses);
+
+        const seaService = workspaceSection(workspace, 'sea_service');
+        setFieldValue(lastVesselName, seaService.last_vessel_name);
+        setFieldValue(lastVesselType, seaService.last_vessel_type);
+        setFieldValue(lastRank, seaService.last_rank);
+        setFieldValue(flagCountry, seaService.flag_country);
+        setFieldValue(serviceFrom, seaService.service_from);
+        setFieldValue(serviceTo, seaService.service_to);
+        setFieldValue(managementCompany, seaService.management_company);
+        setFieldValue(engineType, seaService.engine_type);
+        setFieldValue(deadweight, seaService.deadweight);
+
+        const publication = workspaceSection(workspace, 'matching_publication');
+        setFieldValue(informationSource, publication.information_source);
+        setSelectValue(publishToMatching, publication.publish_to_matching, '');
+        setFieldValue(candidateSummary, publication.candidate_summary);
+        setSelectValue(dataProcessingConfirmation, publication.data_processing_confirmation, '');
       }
 
       function labelForSelect(select) {
@@ -1829,6 +2440,7 @@
         if (typeof documentMetadata.notes === 'string') {
           documentNotes.value = documentMetadata.notes;
         }
+        fillSeafarerWorkspaceMetadata(documentMetadata.seafarer_workspace);
 
         renderWorkspace();
       }
@@ -2007,7 +2619,8 @@
               passport_expiry: passportExpiry.value || null,
               medical_expiry: medicalExpiry.value || null,
               visa_status: visaStatus.value,
-              notes: documentNotes.value.trim()
+              notes: documentNotes.value.trim(),
+              seafarer_workspace: collectSeafarerWorkspaceMetadata()
             }
           }, {
             draftId: getDraftIdFromUrl()
@@ -2041,6 +2654,9 @@
 
           document.querySelectorAll('.section-tab').forEach((item) => item.classList.remove('is-current'));
           button.classList.add('is-current');
+          if (target instanceof HTMLDetailsElement) {
+            target.open = true;
+          }
           target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
       });

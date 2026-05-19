@@ -1030,12 +1030,13 @@ function normalize_date_fields(array $source, array $fields): array {
 }
 
 function normalize_csv_text_list(mixed $value, int $maxItems = 12, int $maxItemLength = 160): array {
-    if (!is_string($value)) {
+    if (!is_string($value) && !is_array($value)) {
         return [];
     }
 
     $items = [];
-    foreach (explode(',', $value) as $item) {
+    $rawItems = is_array($value) ? $value : explode(',', $value);
+    foreach ($rawItems as $item) {
         $clean = normalize_optional_text($item, $maxItemLength);
         if ($clean !== null) {
             $items[] = $clean;
