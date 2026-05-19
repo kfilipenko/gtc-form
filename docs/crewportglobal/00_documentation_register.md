@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.31
+- Version: 1.32
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -229,6 +229,7 @@ docs/crewportglobal/
   139_cpg_seafarer_009_operator_card_correction_tasks_report.md
   140_cpg_seafarer_010_workspace_card_review_state_persistence_report.md
   141_cpg_seafarer_011_operator_per_card_review_actions_report.md
+  142_cpg_seafarer_011_operator_per_card_review_actions_test_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -416,6 +417,8 @@ Document 140 records the CPG-SEAFARER-010 workspace card review-state persistenc
 
 Document 141 records the CPG-SEAFARER-011 operator per-card review actions implementation, including the protected seafarer workspace card review endpoint, selected-card operator actions in `/verify/`, card status filtering in the review-readiness checklist, cabinet task derivation from persisted card states, audit events and the boundary that per-card verification does not approve or publish the full profile.
 
+Document 142 records the CPG-SEAFARER-011-TESTS verification closure, including actual GTC1 execution of API and Playwright tests for operator per-card review actions, persisted card state, card status filters, cabinet tasks from card state and remaining risks before CPG-SEAFARER-012.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -519,6 +522,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.32 | 2026-05-19 | GTC IT / AI Assistant | Added document 142 as CPG-SEAFARER-011-TESTS verification report covering actual GTC1 API and Playwright execution, pass counts, DB-backed card-state verification, cabinet task verification, filter verification and remaining risks before CPG-SEAFARER-012 |
 | 1.31 | 2026-05-19 | GTC IT / AI Assistant | Added document 141 as CPG-SEAFARER-011 operator per-card review actions report covering protected card review endpoint, selected-card operator actions, card status filtering, cabinet card-state tasks, audit events and no full-profile approval/publication boundary |
 | 1.30 | 2026-05-19 | GTC IT / AI Assistant | Added document 140 as CPG-SEAFARER-010 workspace card review-state persistence report covering persisted card review states, structured record status updates, operator checklist visibility, user resubmission reset and cabinet task suppression |
 | 1.29 | 2026-05-19 | GTC IT / AI Assistant | Added document 139 as CPG-SEAFARER-009 operator card-correction task report covering card-level correction targets, audit/history metadata, operator correction selector, cabinet task rendering and direct create-profile card links |
