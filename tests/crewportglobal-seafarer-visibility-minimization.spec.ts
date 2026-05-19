@@ -305,6 +305,7 @@ test('sensitive seafarer fields are minimized for operator, cabinet summary and 
   ));
   expect(presented).toBeTruthy();
   expect(presented.document_metadata).toBeUndefined();
+  expect(presented.contact_email).toBeUndefined();
   expect(presented.seafarer_email).toBeUndefined();
   expect(presented.contact_phone).toBeUndefined();
   expect(presented.document_summary.passport_expiry).toBe('2031-12-31');

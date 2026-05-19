@@ -2399,6 +2399,7 @@ function cpg_employer_payload_forbidden_keys(): array {
         'reference_person_1',
         'reference_phone_1',
         'reference_email_1',
+        'contact_email',
         'contact_phone',
         'seafarer_email',
     ];
@@ -4438,7 +4439,6 @@ function read_presented_candidates_for_employer(string $companyId, ?string $vaca
             'vacancy_application_id' => $row['vacancy_application_id'],
             'vacancy_request_id' => $row['vacancy_request_id'],
             'application_status' => $row['application_status'],
-            'contact_email' => $row['contact_email'],
             'candidate_note' => $row['candidate_note'],
             'created_at' => $row['created_at'],
             'updated_at' => $row['updated_at'],

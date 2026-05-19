@@ -264,6 +264,9 @@ test('approval guard blocks missing or withdrawn consent and unresolved source-c
   const employerSerialized = JSON.stringify(presented);
   expect(presented.document_metadata).toBeUndefined();
   expect(presented.seafarer_workspace).toBeUndefined();
+  expect(presented.contact_email).toBeUndefined();
+  expect(presented.seafarer_email).toBeUndefined();
+  expect(presented.contact_phone).toBeUndefined();
   expect(employerSerialized).not.toContain('Restricted medical detail');
   expect(employerSerialized).not.toContain('Restricted surgery detail');
 });
