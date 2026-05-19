@@ -1587,7 +1587,7 @@
         loading.textContent = t('verify.details.loading');
         detailsSections.appendChild(loading);
         try {
-          const response = await fetch(`/api/v1/registration/drafts/${encodeURIComponent(draftId)}`);
+          const response = await fetch(`/api/v1/registration/drafts/${encodeURIComponent(draftId)}?visibility=operator_general`);
           const payload = await response.json().catch(() => ({}));
           if (!response.ok || !payload || payload.ok !== true) {
             throw new Error('draft_details_load_failed');

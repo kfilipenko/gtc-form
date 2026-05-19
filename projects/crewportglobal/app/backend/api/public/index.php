@@ -1970,6 +1970,252 @@ function cpg_seafarer_source_card_document_links(string $userId): array {
     return $documentsByCard;
 }
 
+function cpg_normalize_visibility_scope(mixed $value, string $default = 'owner_full'): string {
+    if (!is_string($value)) {
+        return $default;
+    }
+
+    $scope = trim($value);
+    return in_array($scope, ['owner_full', 'operator_general', 'cabinet_summary', 'employer_candidate'], true)
+        ? $scope
+        : $default;
+}
+
+function cpg_seafarer_source_card_visibility_map(): array {
+    return [
+        'PERS-001' => 'system_only',
+        'PERS-002' => 'public_candidate_summary',
+        'PERS-003' => 'operator_review',
+        'PERS-004' => 'operator_review',
+        'PERS-005' => 'operator_review',
+        'PERS-006' => 'employer_after_candidate_consent',
+        'PERS-007' => 'internal_compliance',
+        'PERS-008' => 'internal_compliance',
+        'PERS-009' => 'operator_review',
+        'QUAL-001' => 'operator_review',
+        'QUAL-002' => 'operator_review',
+        'QUAL-003' => 'employer_after_candidate_consent',
+        'QUAL-004' => 'employer_after_candidate_consent',
+        'QUAL-005' => 'employer_after_candidate_consent',
+        'EXP-001' => 'employer_after_candidate_consent',
+        'EXP-002' => 'internal_compliance',
+        'MED-001' => 'restricted_medical',
+        'MED-002' => 'internal_compliance',
+        'MED-003' => 'internal_compliance',
+        'MED-004' => 'internal_compliance',
+        'MED-005' => 'system_only',
+    ];
+}
+
+function cpg_seafarer_field_visibility_matrix(): array {
+    return [
+        'name_components.surname' => 'operator_review',
+        'name_components.first_name' => 'operator_review',
+        'name_components.middle_name' => 'operator_review',
+        'name_components.citizenship' => 'public_candidate_summary',
+        'name_components.religion' => 'internal_compliance',
+        'contact_and_addresses.residence_country' => 'public_candidate_summary',
+        'contact_and_addresses.residence_city' => 'public_candidate_summary',
+        'contact_and_addresses.nearest_airport' => 'public_candidate_summary',
+        'contact_and_addresses.secondary_mobile_number' => 'operator_review',
+        'contact_and_addresses.home_phone' => 'operator_review',
+        'address_details.*' => 'operator_review',
+        'family_details.kin_*' => 'internal_compliance',
+        'family_details.children_records' => 'internal_compliance',
+        'physical_details.height_cm' => 'operator_review',
+        'physical_details.weight_kg' => 'operator_review',
+        'physical_details.hair_colour' => 'internal_compliance',
+        'physical_details.eyes_colour' => 'internal_compliance',
+        'physical_details.uniform_size' => 'operator_review',
+        'physical_details.shoes_size' => 'operator_review',
+        'identity_documents.*_number' => 'operator_review',
+        'identity_documents.*_series' => 'operator_review',
+        'identity_documents.*_authority' => 'operator_review',
+        'identity_documents.*_post' => 'operator_review',
+        'identity_documents.*_expiry' => 'employer_after_candidate_consent',
+        'qualifications.*' => 'employer_after_candidate_consent',
+        'qualification_details.*' => 'employer_after_candidate_consent',
+        'sea_service.*' => 'employer_after_candidate_consent',
+        'previous_employer_references.*' => 'internal_compliance',
+        'medical_history.*' => 'restricted_medical',
+        'matching_publication.candidate_summary' => 'employer_after_candidate_consent',
+        'matching_publication.publish_to_matching' => 'internal_compliance',
+        'matching_publication.data_processing_confirmation' => 'internal_compliance',
+        'consent_details.*' => 'internal_compliance',
+    ];
+}
+
+function cpg_seafarer_consent_event_model(): array {
+    return [
+        'implementation_status' => 'planned_migration_required',
+        'required_consent_types' => [
+            'profile_review',
+            'matching_preparation',
+            'employer_sharing',
+            'document_verification',
+            'sensitive_medical_processing',
+            'reference_contact_verification',
+        ],
+        'required_fields' => [
+            'consent_type',
+            'purpose',
+            'legal_basis',
+            'text_version',
+            'language',
+            'accepted_at',
+            'withdrawn_at',
+            'source_page',
+            'actor_user_id',
+        ],
+        'current_boundary' => 'Current confirmation fields remain saved, but they are not treated as a final all-purpose consent event model.',
+    ];
+}
+
+function cpg_seafarer_document_metadata_for_scope(array $metadata, string $scope): array {
+    if ($scope === 'owner_full') {
+        return $metadata;
+    }
+
+    $safeKeys = ['certificate_status', 'stcw_status', 'passport_expiry', 'medical_expiry', 'visa_status'];
+    $safe = [];
+    foreach ($safeKeys as $key) {
+        if (isset($metadata[$key]) && $metadata[$key] !== '') {
+            $safe[$key] = $metadata[$key];
+        }
+    }
+    $safe['visibility_scope'] = $scope;
+    $safe['sensitive_fields_redacted'] = true;
+    return $safe;
+}
+
+function cpg_seafarer_public_document_summary(mixed $metadata): array {
+    $decoded = is_string($metadata)
+        ? cpg_decode_json_object($metadata)
+        : (is_array($metadata) ? $metadata : []);
+    return cpg_seafarer_document_metadata_for_scope($decoded, 'employer_candidate');
+}
+
+function cpg_seafarer_mask_source_record(string $recordGroup, array $record, string $scope): array {
+    if ($scope === 'owner_full') {
+        return $record;
+    }
+
+    $base = [
+        'source_card' => $record['source_card'] ?? null,
+        'source_index' => $record['source_index'] ?? null,
+        'visibility_class' => cpg_seafarer_source_card_visibility_map()[(string) ($record['source_card'] ?? '')] ?? 'operator_review',
+        'restricted_summary' => true,
+    ];
+
+    return match ($recordGroup) {
+        'children_records' => cpg_workspace_clean_record($base + [
+            'record_type' => 'child_record',
+            'record_status' => 'restricted_family_record',
+        ]),
+        'identity_documents_and_visas' => cpg_workspace_clean_record($base + [
+            'document_kind' => $record['document_kind'] ?? null,
+            'issued_at' => $record['issued_at'] ?? null,
+            'expires_at' => $record['expires_at'] ?? null,
+        ]),
+        'previous_employer_references' => cpg_workspace_clean_record($base + [
+            'company_name' => $record['company_name'] ?? null,
+            'record_status' => 'reference_contact_details_restricted',
+        ]),
+        'medical_declarations' => cpg_workspace_clean_record($base + [
+            'record_type' => 'medical_declaration',
+            'record_status' => 'restricted_medical_details_hidden',
+        ]),
+        default => $record,
+    };
+}
+
+function cpg_seafarer_source_repeated_records_for_scope(array $records, string $scope): array {
+    if ($scope === 'owner_full') {
+        return $records;
+    }
+
+    $masked = [];
+    foreach ($records as $group => $items) {
+        if (!is_array($items)) {
+            $masked[$group] = [];
+            continue;
+        }
+        $masked[$group] = array_map(
+            static fn (array $record): array => cpg_seafarer_mask_source_record((string) $group, $record, $scope),
+            array_values(array_filter($items, 'is_array'))
+        );
+    }
+    return $masked;
+}
+
+function cpg_seafarer_source_card_document_links_for_scope(array $links, string $scope): array {
+    if ($scope === 'owner_full') {
+        return $links;
+    }
+
+    $safe = [];
+    foreach ($links as $cardCode => $documents) {
+        $safe[$cardCode] = [];
+        if (!is_array($documents)) {
+            continue;
+        }
+        foreach ($documents as $document) {
+            if (!is_array($document)) {
+                continue;
+            }
+            $safe[$cardCode][] = cpg_workspace_clean_record([
+                'document_type' => $document['document_type'] ?? null,
+                'file_size_bytes' => $document['file_size_bytes'] ?? null,
+                'scan_status' => $document['scan_status'] ?? null,
+                'review_status' => $document['review_status'] ?? null,
+                'uploaded_at' => $document['uploaded_at'] ?? null,
+                'visibility_class' => cpg_seafarer_source_card_visibility_map()[(string) $cardCode] ?? 'operator_review',
+            ]);
+        }
+    }
+    return $safe;
+}
+
+function cpg_seafarer_workspace_summary_for_scope(array $workspace, string $scope): array {
+    $scope = cpg_normalize_visibility_scope($scope);
+    $workspace['visibility_scope'] = $scope;
+    $workspace['source_card_visibility'] = cpg_seafarer_source_card_visibility_map();
+    $workspace['field_visibility'] = cpg_seafarer_field_visibility_matrix();
+    $workspace['consent_event_model'] = cpg_seafarer_consent_event_model();
+
+    if ($scope === 'owner_full') {
+        return $workspace;
+    }
+
+    if (isset($workspace['source_repeated_records']) && is_array($workspace['source_repeated_records'])) {
+        $workspace['source_repeated_records'] = cpg_seafarer_source_repeated_records_for_scope($workspace['source_repeated_records'], $scope);
+    }
+    if (isset($workspace['source_card_document_links']) && is_array($workspace['source_card_document_links'])) {
+        $workspace['source_card_document_links'] = cpg_seafarer_source_card_document_links_for_scope($workspace['source_card_document_links'], $scope);
+    }
+
+    if (isset($workspace['person_details']) && is_array($workspace['person_details'])) {
+        unset($workspace['person_details']['permanent_address']);
+    }
+    if (isset($workspace['emergency_contacts']) && is_array($workspace['emergency_contacts'])) {
+        $workspace['emergency_contacts'] = array_map(static function (array $contact): array {
+            return cpg_workspace_clean_record([
+                'relation_label' => $contact['relation_label'] ?? null,
+                'is_primary' => $contact['is_primary'] ?? null,
+                'review_status' => $contact['review_status'] ?? null,
+                'updated_at' => $contact['updated_at'] ?? null,
+                'visibility_class' => 'internal_compliance',
+                'restricted_summary' => true,
+            ]);
+        }, array_values(array_filter($workspace['emergency_contacts'], 'is_array')));
+    }
+    if (isset($workspace['matching_preferences']) && is_array($workspace['matching_preferences'])) {
+        unset($workspace['matching_preferences']['information_source_label']);
+    }
+
+    return $workspace;
+}
+
 function cpg_sync_seafarer_workspace_from_metadata(string $userId, ?string $documentMetadataJson, array $flatProfile): void {
     if (!cpg_seafarer_workspace_tables_ready()) {
         return;
@@ -3659,7 +3905,6 @@ function read_presented_candidates_for_employer(string $companyId, ?string $vaca
             sp.availability_status,
             sp.availability_date,
             sp.country_code,
-            sp.contact_phone,
             sp.document_metadata,
             vr.vacancy_title,
             vr.rank AS vacancy_rank,
@@ -3691,14 +3936,13 @@ function read_presented_candidates_for_employer(string $companyId, ?string $vaca
             'employer_action_at' => $row['employer_action_at'],
             'seafarer_user_id' => $row['seafarer_user_id'],
             'display_name' => $row['display_name'],
-            'seafarer_email' => $row['seafarer_email'],
             'primary_rank' => $row['primary_rank'],
             'department' => $row['department'],
             'availability_status' => $row['availability_status'],
             'availability_date' => $row['availability_date'],
             'country_code' => $row['country_code'],
-            'contact_phone' => $row['contact_phone'],
-            'document_metadata' => $row['document_metadata'],
+            'document_summary' => cpg_seafarer_public_document_summary($row['document_metadata'] ?? null),
+            'candidate_visibility_scope' => 'employer_after_candidate_consent',
             'vacancy_title' => $row['vacancy_title'],
             'vacancy_rank' => $row['vacancy_rank'],
             'vacancy_department' => $row['vacancy_department'],
@@ -3774,7 +4018,8 @@ function read_vacancy_applications_for_seafarer(string $userId): array {
     return $items;
 }
 
-function build_draft_response(string $userId): array {
+function build_draft_response(string $userId, string $visibilityScope = 'owner_full'): array {
+    $visibilityScope = cpg_normalize_visibility_scope($visibilityScope);
     $userResult = api_query(
         'SELECT user_id,
                 email,
@@ -3824,10 +4069,15 @@ function build_draft_response(string $userId): array {
         $profile = pg_fetch_assoc($profileResult) ?: [];
         $documentMetadata = cpg_decode_json_object(is_string($profile['document_metadata'] ?? null) ? $profile['document_metadata'] : null);
         $workspaceSummary = cpg_read_seafarer_workspace_summary($userId);
+        if ($visibilityScope !== 'owner_full') {
+            $profile['document_metadata'] = cpg_workspace_json(cpg_seafarer_document_metadata_for_scope($documentMetadata, $visibilityScope));
+        }
         $payload['seafarer_profile'] = $profile;
-        $payload['seafarer_workspace_structured'] = $workspaceSummary;
+        $payload['seafarer_workspace_structured'] = cpg_seafarer_workspace_summary_for_scope($workspaceSummary, $visibilityScope);
         $payload['seafarer_review_readiness'] = cpg_seafarer_workspace_review_readiness($workspaceSummary, $documentMetadata);
-        $payload['vacancy_applications'] = read_vacancy_applications_for_seafarer($userId);
+        if ($visibilityScope === 'owner_full' || $visibilityScope === 'cabinet_summary') {
+            $payload['vacancy_applications'] = read_vacancy_applications_for_seafarer($userId);
+        }
     } else {
         $company = read_primary_company_for_user($userId);
         if ($company !== null) {
@@ -3873,6 +4123,7 @@ function build_draft_response(string $userId): array {
         'status' => in_array($userRow['registration_status'], REG_DRAFT_STATUSES, true)
             ? $userRow['registration_status']
             : 'draft',
+        'visibility_scope' => $visibilityScope,
         'payload' => $payload,
         'created_at' => $userRow['created_at'],
         'updated_at' => $userRow['updated_at'],
@@ -4285,17 +4536,21 @@ function handle_get_draft(string $draftId): void {
         api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
     }
 
-    api_json(200, build_draft_response($uuid));
+    $visibilityScope = cpg_normalize_visibility_scope($_GET['visibility'] ?? null, 'owner_full');
+    api_json(200, build_draft_response($uuid, $visibilityScope));
 }
 
 function handle_get_seafarer_workspace(): void {
     [$userId, $accessModel] = cpg_resolve_seafarer_workspace_user();
+    $visibilityScope = cpg_normalize_visibility_scope($_GET['visibility'] ?? null, 'owner_full');
+    $workspace = cpg_read_seafarer_workspace_summary($userId);
 
     api_json(200, [
         'ok' => true,
         'access_model' => $accessModel,
+        'visibility_scope' => $visibilityScope,
         'draft_id' => $userId,
-        'workspace' => cpg_read_seafarer_workspace_summary($userId),
+        'workspace' => cpg_seafarer_workspace_summary_for_scope($workspace, $visibilityScope),
     ]);
 }
 
@@ -5397,6 +5652,7 @@ function read_operator_vacancy_application_detail(string $applicationId): ?array
     $history = read_operator_vacancy_application_review_history($applicationId);
     $documentMetadata = cpg_decode_json_object(is_string($row['document_metadata'] ?? null) ? $row['document_metadata'] : null);
     $workspaceSummary = cpg_read_seafarer_workspace_summary((string) $row['seafarer_user_id']);
+    $operatorWorkspaceSummary = cpg_seafarer_workspace_summary_for_scope($workspaceSummary, 'operator_general');
 
     return [
         'ok' => true,
@@ -5424,9 +5680,9 @@ function read_operator_vacancy_application_detail(string $applicationId): ?array
             'country_code' => $row['seafarer_country_code'],
             'contact_phone' => $row['contact_phone'],
             'review_status' => $row['seafarer_review_status'],
-            'document_metadata' => $row['document_metadata'],
+            'document_metadata' => cpg_workspace_json(cpg_seafarer_document_metadata_for_scope($documentMetadata, 'operator_general')),
         ],
-        'seafarer_workspace_structured' => $workspaceSummary,
+        'seafarer_workspace_structured' => $operatorWorkspaceSummary,
         'seafarer_review_readiness' => cpg_seafarer_workspace_review_readiness($workspaceSummary, $documentMetadata),
         'vacancy' => [
             'vacancy_request_id' => $row['vacancy_request_id'],

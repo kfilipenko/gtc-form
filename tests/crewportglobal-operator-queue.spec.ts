@@ -147,11 +147,12 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#details-sections')).toContainText(seafarerEmail);
   await expect(page.locator('#details-sections')).toContainText('Second Officer');
   await expect(page.locator('#details-sections')).toContainText('2028-02-20');
-  await expect(page.locator('#details-sections')).toContainText('Visa appointment scheduled.');
+  await expect(page.locator('#details-sections')).not.toContainText('Visa appointment scheduled.');
   await expect(page.locator('#details-sections')).toContainText('COC-VERIFY-001');
   await expect(page.locator('#details-sections')).toContainText('MV Verify Horizon');
   await expect(page.locator('#details-sections')).toContainText('QUAL-001 National identity documents / visa');
   await expect(page.locator('#details-json')).toContainText('seafarer_review_readiness');
+  await expect(page.locator('#details-json')).toContainText('sensitive_fields_redacted');
   await expect(page.locator('#details-json')).toContainText(seafarerEmail);
   await expect(page.locator('#details-json')).toContainText('seafarer_profile');
 

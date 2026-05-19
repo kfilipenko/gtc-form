@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.37
+- Version: 1.38
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -235,8 +235,11 @@ docs/crewportglobal/
   145_cpg_seafarer_014_excel_source_truth_precheck_report.md
   146_cpg_seafarer_015_excel_source_review_cards_report.md
   147_cpg_seafarer_016_repeated_excel_source_rows_report.md
+  148_cpg_seafarer_017_agent_execution_guide.md
+  149_cpg_seafarer_017_data_minimization_visibility_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
+    source_card_visibility_matrix.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -436,6 +439,10 @@ Document 146 records the CPG-SEAFARER-015 Excel source review-card normalization
 
 Document 147 records the CPG-SEAFARER-016 repeated Excel source-row normalization implementation, including source field drift corrections, normalized children/document/education/certificate/training/sea-service/reference/medical records, uploaded document links by source card, operator/cabinet visibility, the source-card field coverage matrix and focused GTC1 verification.
 
+Document 148 records the CPG-SEAFARER-017 agent execution guide for data minimization, scoped visibility, sensitive-field cleanup, approved visibility classes, employer-facing exclusions, consent event model requirements and implementation boundaries.
+
+Document 149 records the CPG-SEAFARER-017 data minimization and scoped visibility implementation, including backend visibility scopes, operator/cabinet/employer payload cleanup, source-card visibility matrix, consent-event boundary and focused verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -539,6 +546,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.38 | 2026-05-19 | GTC IT / AI Assistant | Added documents 148 and 149 plus source-card visibility matrix for CPG-SEAFARER-017 covering data minimization, scoped visibility, sensitive-field cleanup, employer-facing exclusions, consent-event boundary and focused verification |
 | 1.37 | 2026-05-19 | GTC IT / AI Assistant | Added document 147 as CPG-SEAFARER-016 repeated Excel source-row normalization report and source-card field coverage matrix covering missing source fields, repeated records, document links by source card and focused operator/cabinet verification |
 | 1.36 | 2026-05-19 | GTC IT / AI Assistant | Added document 146 as CPG-SEAFARER-015 Excel source review-card normalization report covering canonical source card codes, legacy fallback compatibility, operator/cabinet review behavior, source-card persistence and focused verification |
 | 1.35 | 2026-05-19 | GTC IT / AI Assistant | Added document 145 as CPG-SEAFARER-014 Excel source-of-truth pre-check covering source file confirmation, canonical card list, all 24 catalogs, current implementation drift and approval questions before continuing readiness logic |

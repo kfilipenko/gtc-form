@@ -1051,7 +1051,9 @@
       }
 
       function documentSummary(candidate) {
-        const metadata = parseJsonish(candidate.document_metadata, {});
+        const metadata = candidate.document_summary && typeof candidate.document_summary === 'object'
+          ? candidate.document_summary
+          : parseJsonish(candidate.document_metadata, {});
         const parts = [
           metadata.certificate_status,
           metadata.stcw_status,

@@ -120,7 +120,10 @@ test('Excel source review cards are primary while legacy cards remain fallback-c
   await page.goto(`/cabinet/?draft_id=${created.draft_id}`);
   await expect(page.locator('#cabinet-task-list')).toContainText('Action required: correct seafarer card');
   await expect(page.locator('#cabinet-task-list')).toContainText('Target card: PERS-007 Next of kin / beneficiary');
-  await expect(page.locator('#cabinet-task-list')).toContainText(correctionNote);
+  await expect(page.locator('#cabinet-task-list')).toContainText(
+    'Correction requested for a restricted source card. Open the relevant card and correct only the requested section.'
+  );
+  await expect(page.locator('#cabinet-task-list')).not.toContainText(correctionNote);
   await expect(page.locator('#cabinet-task-list').getByRole('link', { name: 'Open card' })).toHaveAttribute(
     'href',
     `/create-profile/?draft_id=${created.draft_id}#profile-section-family`

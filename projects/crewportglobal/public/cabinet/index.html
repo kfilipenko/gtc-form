@@ -747,6 +747,7 @@
         'cabinet.tasks.correctProfile.title': 'Action required: correct seafarer card',
         'cabinet.tasks.correctProfile.target': 'Target card',
         'cabinet.tasks.correctProfile.action': 'Open card',
+        'cabinet.tasks.correctProfile.restrictedReason': 'Correction requested for a restricted source card. Open the relevant card and correct only the requested section.',
         'cabinet.tasks.completeProfile.title': 'Action required: complete seafarer workspace',
         'cabinet.tasks.completeProfile.action': 'Open section',
         'cabinet.tasks.completeProfile.personal': 'Add personal/contact details and primary emergency contact.',
@@ -839,6 +840,9 @@
         'cabinet.workspace.question': 'Question',
         'cabinet.workspace.answer': 'Answer',
         'cabinet.workspace.details': 'Details',
+        'cabinet.workspace.restricted': 'Restricted details are stored for controlled review and are not shown in this summary.',
+        'cabinet.workspace.restrictedMedical': 'Medical details are restricted. Only certificate status, expiry and review state are shown here.',
+        'cabinet.workspace.restrictedFamily': 'Family and beneficiary details are restricted. Open the source form only when you need to correct this card.',
         'cabinet.workspace.companyName': 'Company name',
         'cabinet.workspace.personInCharge': 'Person in charge',
         'cabinet.workspace.telephone': 'Telephone',
@@ -931,6 +935,7 @@
         'cabinet.tasks.correctProfile.title': 'Требуется действие: исправьте карточку моряка',
         'cabinet.tasks.correctProfile.target': 'Целевая карточка',
         'cabinet.tasks.correctProfile.action': 'Открыть карточку',
+        'cabinet.tasks.correctProfile.restrictedReason': 'Исправление запрошено для ограниченной source card. Откройте нужную карточку и исправьте только запрошенный раздел.',
         'cabinet.tasks.completeProfile.title': 'Требуется действие: заполните рабочую карточку моряка',
         'cabinet.tasks.completeProfile.action': 'Открыть раздел',
         'cabinet.tasks.completeProfile.personal': 'Добавьте личные/контактные данные и основной экстренный контакт.',
@@ -1023,6 +1028,9 @@
         'cabinet.workspace.question': 'Вопрос',
         'cabinet.workspace.answer': 'Ответ',
         'cabinet.workspace.details': 'Детали',
+        'cabinet.workspace.restricted': 'Ограниченные детали сохранены для контролируемой проверки и не показываются в этой сводке.',
+        'cabinet.workspace.restrictedMedical': 'Медицинские детали ограничены. Здесь показаны только статус справки, срок и статус проверки.',
+        'cabinet.workspace.restrictedFamily': 'Данные семьи и бенефициаров ограничены. Откройте исходную форму только если нужно исправить эту карточку.',
         'cabinet.workspace.companyName': 'Название компании',
         'cabinet.workspace.personInCharge': 'Ответственное лицо',
         'cabinet.workspace.telephone': 'Телефон',
@@ -1497,6 +1505,26 @@
         return map[cardCode] || 'profile-section-review';
       }
 
+      function restrictedCorrectionCard(cardCode) {
+        return [
+          'PERS-007',
+          'PERS-008',
+          'EXP-002',
+          'MED-001',
+          'MED-002',
+          'MED-003',
+          'MED-004',
+          'MED-005'
+        ].includes(cardCode);
+      }
+
+      function safeCorrectionNote(cardCode, note) {
+        if (restrictedCorrectionCard(cardCode)) {
+          return t('cabinet.tasks.correctProfile.restrictedReason');
+        }
+        return typeof note === 'string' ? note.trim() : '';
+      }
+
       function profileCorrectionTask() {
         if (!cabinetDraft || cabinetDraft.role !== 'seafarer') {
           return null;
@@ -1521,7 +1549,7 @@
           }
           const activeCode = typeof activeState.card_code === 'string' ? activeState.card_code : '';
           return {
-            note: activeState.review_note.trim(),
+            note: safeCorrectionNote(activeCode, activeState.review_note),
             cardName: typeof activeState.card_name === 'string' && activeState.card_name.trim()
               ? activeState.card_name.trim()
               : t('cabinet.profile.seafarerReview'),
@@ -1552,7 +1580,7 @@
         }
 
         return {
-          note,
+          note: safeCorrectionNote(cardCode, note),
           cardName,
           sectionId: seafarerCorrectionSection(cardCode)
         };
@@ -2108,9 +2136,8 @@
             { label: 'cabinet.workspace.review', value: reviewLabel(person.review_status) },
           ]),
           workspaceRecordList('cabinet.workspace.emergency', workspace.emergency_contacts, (record) => [
-            { label: 'cabinet.workspace.contactName', value: record.contact_name },
             { label: 'cabinet.workspace.relation', value: record.relation_label },
-            { label: 'cabinet.workspace.phone', value: record.contact_phone },
+            { label: 'cabinet.workspace.details', value: t('cabinet.workspace.restrictedFamily') },
             { label: 'cabinet.workspace.review', value: reviewLabel(record.review_status) },
           ]),
           workspaceRecordList('cabinet.workspace.education', workspace.education_records, (record) => [
@@ -2136,19 +2163,14 @@
           ]),
           workspaceRecordList('cabinet.workspace.sourceChildren', repeated.children_records, (record) => [
             { label: 'cabinet.workspace.sourceCard', value: record.source_card },
-            { label: 'cabinet.user.fullName', value: [record.surname, record.first_name, record.middle_name].filter(Boolean).join(' ') },
-            { label: 'cabinet.workspace.relation', value: record.relation },
-            { label: 'cabinet.workspace.gender', value: record.gender },
-            { label: 'cabinet.workspace.dob', value: record.birthdate || record.birthdate_text },
+            { label: 'cabinet.workspace.details', value: t('cabinet.workspace.restrictedFamily') },
           ]),
           workspaceRecordList('cabinet.workspace.sourceIdentity', repeated.identity_documents_and_visas, (record) => [
             { label: 'cabinet.workspace.sourceCard', value: record.source_card },
             { label: 'cabinet.workspace.documentKind', value: record.document_kind },
-            { label: 'cabinet.workspace.series', value: record.series },
-            { label: 'cabinet.workspace.certificateNumber', value: record.number || record.visa_type },
             { label: 'cabinet.workspace.issued', value: record.issued_at },
             { label: 'cabinet.workspace.expires', value: record.expires_at },
-            { label: 'cabinet.workspace.authority', value: record.issuing_authority || record.issuing_post },
+            { label: 'cabinet.workspace.details', value: t('cabinet.workspace.restricted') },
           ]),
           workspaceRecordList('cabinet.workspace.sourceEndorsements', repeated.endorsements, (record) => [
             { label: 'cabinet.workspace.sourceCard', value: record.source_card },
@@ -2172,9 +2194,7 @@
           workspaceRecordList('cabinet.workspace.sourceReferences', repeated.previous_employer_references, (record) => [
             { label: 'cabinet.workspace.sourceCard', value: record.source_card },
             { label: 'cabinet.workspace.companyName', value: record.company_name },
-            { label: 'cabinet.workspace.personInCharge', value: record.person_in_charge },
-            { label: 'cabinet.workspace.telephone', value: record.telephone },
-            { label: 'cabinet.user.email', value: record.email },
+            { label: 'cabinet.workspace.details', value: t('cabinet.workspace.restricted') },
           ]),
           workspaceRecordList('cabinet.workspace.medical', workspace.medical_declarations, (record) => [
             { label: 'cabinet.workspace.medicalExpiry', value: record.medical_certificate_expires_at },
@@ -2183,9 +2203,7 @@
           ]),
           workspaceRecordList('cabinet.workspace.medical', repeated.medical_declarations, (record) => [
             { label: 'cabinet.workspace.sourceCard', value: record.source_card },
-            { label: 'cabinet.workspace.question', value: record.question },
-            { label: 'cabinet.workspace.answer', value: record.answer },
-            { label: 'cabinet.workspace.details', value: record.details },
+            { label: 'cabinet.workspace.details', value: t('cabinet.workspace.restrictedMedical') },
           ]),
           workspaceRecordList('cabinet.workspace.sourceDocuments', sourceDocumentRecords, (record) => [
             { label: 'cabinet.workspace.sourceCard', value: record.source_card },
