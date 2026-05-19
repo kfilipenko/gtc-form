@@ -76,6 +76,7 @@
 
     .inline-actions,
     .section-actions,
+    .section-save-row,
     .section-tabs {
       display: flex;
       flex-wrap: wrap;
@@ -418,6 +419,17 @@
       display: grid;
       gap: 14px;
       padding: 16px;
+    }
+
+    .section-save-row {
+      justify-content: space-between;
+      padding-top: 2px;
+    }
+
+    .section-save-status {
+      margin: 0;
+      min-height: 22px;
+      font-size: 14px;
     }
 
     .section-heading {
@@ -765,6 +777,10 @@
                   <input id="create-emergency-contact-phone" type="tel" data-i18n-placeholder="create.form.emergencyPhone.placeholder" placeholder="+639171112233">
                 </label>
               </div>
+              <div class="section-save-row">
+                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="personal_details contact_and_addresses" data-workspace-status="create-contact-save-status" data-i18n="create.section.save">Save section</button>
+                <p id="create-contact-save-status" class="status-note section-save-status" aria-live="polite"></p>
+              </div>
             </div>
           </details>
 
@@ -809,6 +825,10 @@
                   <input id="create-training-courses" type="text" list="create-training-course-options" data-i18n-placeholder="create.form.trainingCourses.placeholder" placeholder="Basic Training, Advanced Fire Fighting">
                   <datalist id="create-training-course-options"></datalist>
                 </label>
+              </div>
+              <div class="section-save-row">
+                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="qualifications" data-workspace-status="create-qualifications-save-status" data-i18n="create.section.save">Save section</button>
+                <p id="create-qualifications-save-status" class="status-note section-save-status" aria-live="polite"></p>
               </div>
             </div>
           </details>
@@ -859,6 +879,10 @@
                   <input id="create-deadweight" type="text" data-i18n-placeholder="create.form.deadweight.placeholder" placeholder="50000 DWT">
                 </label>
               </div>
+              <div class="section-save-row">
+                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="sea_service" data-workspace-status="create-sea-service-save-status" data-i18n="create.section.save">Save section</button>
+                <p id="create-sea-service-save-status" class="status-note section-save-status" aria-live="polite"></p>
+              </div>
             </div>
           </details>
 
@@ -895,6 +919,10 @@
                     <option value="i_decline" data-i18n="create.form.dataConfirmation.decline">I do not confirm yet.</option>
                   </select>
                 </label>
+              </div>
+              <div class="section-save-row">
+                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="matching_publication" data-workspace-status="create-publication-save-status" data-i18n="create.section.save">Save section</button>
+                <p id="create-publication-save-status" class="status-note section-save-status" aria-live="polite"></p>
               </div>
             </div>
           </details>
@@ -1089,6 +1117,11 @@
         'create.section.publication.eyebrow': 'Controlled publication',
         'create.section.publication.title': 'Matching publication request',
         'create.section.publication.copy': 'These settings record your request for reviewed matching. They do not publish your profile automatically.',
+        'create.section.save': 'Save section',
+        'create.section.saveFirst': 'Save the draft first, then save this section.',
+        'create.section.saving': 'Saving section...',
+        'create.section.saved': 'Section saved.',
+        'create.section.error': 'Could not save this section. Please try again.',
         'create.section.documents.eyebrow': 'Document readiness',
         'create.section.documents.title': 'Certificates, passport, medical and visas',
         'create.section.documents.copy': 'Save document metadata for manual review without uploading private files in this slice.',
@@ -1356,6 +1389,11 @@
         'create.section.publication.eyebrow': 'Контролируемая публикация',
         'create.section.publication.title': 'Запрос на публикацию для matching',
         'create.section.publication.copy': 'Эти настройки фиксируют ваш запрос на проверенный matching. Они не публикуют профиль автоматически.',
+        'create.section.save': 'Сохранить секцию',
+        'create.section.saveFirst': 'Сначала сохраните черновик, затем сохраните эту секцию.',
+        'create.section.saving': 'Сохраняем секцию...',
+        'create.section.saved': 'Секция сохранена.',
+        'create.section.error': 'Не удалось сохранить секцию. Попробуйте ещё раз.',
         'create.section.documents.eyebrow': 'Готовность документов',
         'create.section.documents.title': 'Сертификаты, паспорт, медицина и визы',
         'create.section.documents.copy': 'Сохраняйте метаданные документов для ручной проверки без загрузки приватных файлов на этом этапе.',
@@ -1671,6 +1709,7 @@
       const reviewStatusChip = document.getElementById('create-review-status-chip');
       const applicationsStatus = document.getElementById('create-applications-status');
       const applicationList = document.getElementById('create-application-list');
+      const sectionSaveButtons = Array.from(document.querySelectorAll('.workspace-section-save'));
       let latestReviewStatusLabel = '';
       let latestApplications = [];
 
@@ -1899,6 +1938,88 @@
         };
 
         return compactObject(workspace);
+      }
+
+      function collectSeafarerWorkspaceSection(section) {
+        const workspace = collectSeafarerWorkspaceMetadata();
+        const value = workspaceSection(workspace, section);
+        return compactObject(value);
+      }
+
+      async function saveWorkspaceSection(button) {
+        const draftId = currentDraftId();
+        const statusId = button.getAttribute('data-workspace-status') || '';
+        const statusNode = statusId ? document.getElementById(statusId) : null;
+        const sections = (button.getAttribute('data-workspace-section-save') || '')
+          .split(/\s+/)
+          .map((item) => item.trim())
+          .filter(Boolean);
+
+        if (!draftId) {
+          if (statusNode) {
+            statusNode.textContent = t('create.section.saveFirst');
+          }
+          return;
+        }
+
+        if (sections.length === 0) {
+          return;
+        }
+
+        button.disabled = true;
+        if (statusNode) {
+          statusNode.textContent = t('create.section.saving');
+        }
+
+        try {
+          let latestResponse = null;
+          let savedAny = false;
+          for (const section of sections) {
+            const payload = collectSeafarerWorkspaceSection(section);
+            if (Object.keys(payload).length === 0) {
+              continue;
+            }
+            const response = await fetch(`/api/v1/seafarer/workspace/sections/${encodeURIComponent(section)}`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              credentials: 'same-origin',
+              body: JSON.stringify({
+                draft_id: draftId,
+                data: payload
+              })
+            });
+
+            const json = await response.json().catch(() => null);
+            if (!response.ok) {
+              throw new Error(json && json.error ? json.error : 'section_save_failed');
+            }
+            latestResponse = json;
+            savedAny = true;
+          }
+
+          if (!savedAny) {
+            throw new Error('section_data_required');
+          }
+
+          if (statusNode) {
+            statusNode.textContent = t('create.section.saved');
+          }
+          status.textContent = t('create.section.saved');
+
+          if (latestResponse && latestResponse.workspace) {
+            renderWorkspace();
+          }
+        } catch (error) {
+          if (statusNode) {
+            statusNode.textContent = t('create.section.error');
+          }
+          status.textContent = t('create.section.error');
+          console.error(error);
+        } finally {
+          button.disabled = false;
+        }
       }
 
       function fillSeafarerWorkspaceMetadata(rawWorkspace) {
@@ -2643,6 +2764,12 @@
       });
 
       uploadSubmit.addEventListener('click', uploadSelectedDocument);
+
+      sectionSaveButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          saveWorkspaceSection(button);
+        });
+      });
 
       document.querySelectorAll('.section-tab').forEach((button) => {
         button.addEventListener('click', () => {

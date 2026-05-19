@@ -135,6 +135,14 @@ test('extended seafarer workspace cards persist through draft save and reload', 
   await page.locator('#profile-section-contact > summary').click();
   await expect(page.locator('#create-date-of-birth')).toHaveValue('1990-04-12');
   await expect(page.locator('#create-emergency-contact-name')).toHaveValue('Maria Reyes');
+  await page.locator('#create-residence-city').fill('Sharjah');
+  await page.locator('#profile-section-contact .workspace-section-save').click();
+  await expect(page.locator('#create-contact-save-status')).toContainText('Section saved.');
+
+  const sectionSavedWorkspaceResponse = await request.get(`/api/v1/seafarer/workspace?draft_id=${draftId}`);
+  expect(sectionSavedWorkspaceResponse.ok()).toBeTruthy();
+  const sectionSavedWorkspaceBody = await sectionSavedWorkspaceResponse.json();
+  expect(sectionSavedWorkspaceBody.workspace.person_details.residence_city_label).toBe('Sharjah');
 
   await page.locator('#profile-section-qualifications > summary').click();
   await expect(page.locator('#create-coc-number')).toHaveValue('COC-WS-123456');
@@ -156,7 +164,7 @@ test('extended seafarer workspace cards persist through draft save and reload', 
   await workspaceCard.locator('> summary').click();
   await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Personal and contact details');
   await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('1990-04-12');
-  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Dubai');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Sharjah');
   await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Emergency contact');
   await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Maria Reyes');
   await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Certificates');
