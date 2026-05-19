@@ -168,3 +168,45 @@ test('extended seafarer workspace cards persist through draft save and reload', 
   await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Matching preferences');
   await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('yes');
 });
+
+test('cabinet derives seafarer completeness tasks from partial structured workspace', async ({ page, request }) => {
+  const email = `ui.workspace.partial.${Date.now()}@example.com`;
+
+  const createResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Partial Workspace Seafarer',
+      rank: 'Second Officer',
+      department: 'deck',
+      document_metadata: {
+        seafarer_workspace: {
+          personal_details: {
+            date_of_birth: '1991-02-03',
+          },
+          matching_publication: {
+            data_processing_confirmation: 'not_confirmed',
+          },
+        },
+      },
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = await createResponse.json();
+
+  await page.goto(`/cabinet/?draft_id=${created.draft_id}`);
+  await expect(page.locator('#cabinet-summary-user')).toHaveText(email);
+  await expect(page.locator('#cabinet-summary-tasks')).toHaveText('5');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: complete seafarer workspace');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Add personal/contact details and primary emergency contact.');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Add certificate of competency and training details.');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Add the latest sea-service record.');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Add candidate summary and data processing confirmation for reviewed matching.');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: upload supporting documents');
+
+  const contactLink = page.locator('#cabinet-task-list').getByRole('link', { name: 'Open section' }).first();
+  await expect(contactLink).toHaveAttribute('href', `/create-profile/?draft_id=${created.draft_id}#profile-section-contact`);
+  await contactLink.click();
+  await expect(page).toHaveURL(new RegExp(`/create-profile/\\?draft_id=${created.draft_id}#profile-section-contact`));
+  await expect(page.locator('#profile-section-contact')).toHaveAttribute('open', '');
+});

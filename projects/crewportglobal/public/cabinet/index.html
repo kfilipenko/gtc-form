@@ -744,6 +744,12 @@
         'cabinet.tasks.correctDocument.reason': 'Reason',
         'cabinet.tasks.correctDocument.action': 'Upload replacement',
         'cabinet.tasks.correctDocument.file': 'Replacement file',
+        'cabinet.tasks.completeProfile.title': 'Action required: complete seafarer workspace',
+        'cabinet.tasks.completeProfile.action': 'Open section',
+        'cabinet.tasks.completeProfile.personal': 'Add personal/contact details and primary emergency contact.',
+        'cabinet.tasks.completeProfile.qualifications': 'Add certificate of competency and training details.',
+        'cabinet.tasks.completeProfile.seaService': 'Add the latest sea-service record.',
+        'cabinet.tasks.completeProfile.matching': 'Add candidate summary and data processing confirmation for reviewed matching.',
         'cabinet.tasks.waiting.title': 'Waiting for team review',
         'cabinet.tasks.waiting.copy': 'Your clean document has been uploaded and is waiting for human review.',
         'cabinet.tasks.ready.title': 'No immediate action required',
@@ -903,6 +909,12 @@
         'cabinet.tasks.correctDocument.reason': 'Причина',
         'cabinet.tasks.correctDocument.action': 'Загрузить новую версию',
         'cabinet.tasks.correctDocument.file': 'Файл замены',
+        'cabinet.tasks.completeProfile.title': 'Требуется действие: заполните рабочую карточку моряка',
+        'cabinet.tasks.completeProfile.action': 'Открыть раздел',
+        'cabinet.tasks.completeProfile.personal': 'Добавьте личные/контактные данные и основной экстренный контакт.',
+        'cabinet.tasks.completeProfile.qualifications': 'Добавьте COC / квалификацию и данные о подготовке.',
+        'cabinet.tasks.completeProfile.seaService': 'Добавьте последнюю запись морского стажа.',
+        'cabinet.tasks.completeProfile.matching': 'Добавьте описание кандидата и подтверждение обработки данных для проверенного matching.',
         'cabinet.tasks.waiting.title': 'Ожидает проверки команды',
         'cabinet.tasks.waiting.copy': 'Чистый документ загружен и ожидает ручной проверки.',
         'cabinet.tasks.ready.title': 'Срочных действий нет',
@@ -1145,15 +1157,23 @@
         return valueOrEmpty(value);
       }
 
+      function hasValue(value) {
+        return value !== null && value !== undefined && String(value).trim() !== '';
+      }
+
       function workspaceValue(record, keys) {
         const source = record && typeof record === 'object' ? record : {};
         for (const key of keys) {
           const value = source[key];
-          if (value !== null && value !== undefined && String(value).trim() !== '') {
+          if (hasValue(value)) {
             return value;
           }
         }
         return null;
+      }
+
+      function workspaceRecords(records) {
+        return Array.isArray(records) ? records : [];
       }
 
       function detailItem(label, value) {
@@ -1173,6 +1193,13 @@
         link.href = href;
         link.textContent = label;
         return link;
+      }
+
+      function createProfileSectionHref(sectionId) {
+        if (!cabinetDraft || !cabinetDraft.draft_id) {
+          return '/create-profile/';
+        }
+        return `/create-profile/?draft_id=${encodeURIComponent(cabinetDraft.draft_id)}#${encodeURIComponent(sectionId)}`;
       }
 
       function workspaceSection(titleKey, items) {
@@ -1414,6 +1441,80 @@
         ));
       }
 
+      function workspaceHasStarted(workspace) {
+        if (!workspace || workspace.schema_ready !== true) {
+          return false;
+        }
+
+        const person = workspace.person_details && typeof workspace.person_details === 'object'
+          ? workspace.person_details
+          : {};
+        const matching = workspace.matching_preferences && typeof workspace.matching_preferences === 'object'
+          ? workspace.matching_preferences
+          : {};
+        return Object.values(person).some(hasValue)
+          || workspaceRecords(workspace.emergency_contacts).length > 0
+          || workspaceRecords(workspace.education_records).length > 0
+          || workspaceRecords(workspace.certificates).length > 0
+          || workspaceRecords(workspace.training_records).length > 0
+          || workspaceRecords(workspace.sea_service_records).length > 0
+          || workspaceRecords(workspace.medical_declarations).length > 0
+          || Object.values(matching).some((value) => Array.isArray(value) ? value.length > 0 : hasValue(value));
+      }
+
+      function seafarerCompletenessTasks() {
+        const workspace = cabinetSeafarerWorkspace && typeof cabinetSeafarerWorkspace === 'object'
+          ? cabinetSeafarerWorkspace
+          : null;
+        if (!cabinetDraft || cabinetDraft.role !== 'seafarer' || !workspaceHasStarted(workspace)) {
+          return [];
+        }
+
+        const person = workspace.person_details && typeof workspace.person_details === 'object'
+          ? workspace.person_details
+          : {};
+        const matching = workspace.matching_preferences && typeof workspace.matching_preferences === 'object'
+          ? workspace.matching_preferences
+          : {};
+        const emergencyContacts = workspaceRecords(workspace.emergency_contacts);
+        const certificates = workspaceRecords(workspace.certificates);
+        const trainingRecords = workspaceRecords(workspace.training_records);
+        const seaServiceRecords = workspaceRecords(workspace.sea_service_records);
+        const tasks = [];
+
+        const hasEmergencyContact = emergencyContacts.some((record) => hasValue(record.contact_name) && hasValue(record.contact_phone));
+        if (!hasValue(person.date_of_birth) || !hasValue(person.residence_city_label) || !hasEmergencyContact) {
+          tasks.push({
+            copyKey: 'cabinet.tasks.completeProfile.personal',
+            sectionId: 'profile-section-contact',
+          });
+        }
+
+        const hasCertificate = certificates.some((record) => hasValue(record.certificate_number) || hasValue(record.certificate_type_label));
+        if (!hasCertificate || trainingRecords.length === 0) {
+          tasks.push({
+            copyKey: 'cabinet.tasks.completeProfile.qualifications',
+            sectionId: 'profile-section-qualifications',
+          });
+        }
+
+        if (seaServiceRecords.length === 0) {
+          tasks.push({
+            copyKey: 'cabinet.tasks.completeProfile.seaService',
+            sectionId: 'profile-section-sea-service',
+          });
+        }
+
+        if (!hasValue(matching.candidate_summary) || matching.data_processing_confirmation !== 'i_confirm') {
+          tasks.push({
+            copyKey: 'cabinet.tasks.completeProfile.matching',
+            sectionId: 'profile-section-publication',
+          });
+        }
+
+        return tasks;
+      }
+
       function setSummary(taskCount) {
         summaryUser.textContent = cabinetDraft ? valueOrEmpty(cabinetDraft.email) : t('cabinet.value.empty');
         summaryRole.textContent = cabinetDraft ? roleLabel(cabinetDraft.role) : t('cabinet.value.empty');
@@ -1540,12 +1641,34 @@
         taskList.append(task);
       }
 
+      function renderCompletenessTask(taskInfo) {
+        const task = document.createElement('article');
+        task.className = 'task-item is-action';
+        const title = document.createElement('h3');
+        title.textContent = t('cabinet.tasks.completeProfile.title');
+        const meta = document.createElement('div');
+        meta.className = 'meta-row';
+        const chip = document.createElement('span');
+        chip.className = 'chip action';
+        chip.textContent = `${t('cabinet.tasks.correctDocument.reason')}: ${t(taskInfo.copyKey)}`;
+        meta.append(chip);
+        const actions = document.createElement('div');
+        actions.className = 'meta-row';
+        actions.append(actionLink(
+          t('cabinet.tasks.completeProfile.action'),
+          createProfileSectionHref(taskInfo.sectionId)
+        ));
+        task.append(title, meta, actions);
+        taskList.append(task);
+      }
+
       function renderTasks() {
         taskList.replaceChildren();
         const corrections = taskDocuments();
         const waiting = waitingDocuments();
         const needsEmailVerification = emailVerificationRequired();
-        let taskCount = corrections.length + (needsEmailVerification ? 1 : 0);
+        const completenessTasks = seafarerCompletenessTasks();
+        let taskCount = corrections.length + completenessTasks.length + (needsEmailVerification ? 1 : 0);
 
         if (!cabinetDraft) {
           const task = document.createElement('article');
@@ -1593,6 +1716,8 @@
           taskList.append(task);
         });
 
+        completenessTasks.forEach(renderCompletenessTask);
+
         if (corrections.length === 0 && waiting.length > 0) {
           const task = document.createElement('article');
           task.className = 'task-item is-waiting';
@@ -1627,7 +1752,7 @@
           taskList.append(task);
         }
 
-        if (corrections.length === 0 && waiting.length === 0 && cabinetDocuments.length > 0) {
+        if (corrections.length === 0 && completenessTasks.length === 0 && waiting.length === 0 && cabinetDocuments.length > 0) {
           const task = document.createElement('article');
           task.className = 'task-item is-waiting';
           const title = document.createElement('h3');

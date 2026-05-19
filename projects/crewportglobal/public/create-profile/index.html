@@ -2661,6 +2661,29 @@
         });
       });
 
+      function openSectionFromHash() {
+        const targetId = decodeURIComponent((window.location.hash || '').replace(/^#/, ''));
+        if (!targetId) {
+          return;
+        }
+        const target = document.getElementById(targetId);
+        if (!target) {
+          return;
+        }
+        document.querySelectorAll('.section-tab').forEach((item) => {
+          item.classList.toggle('is-current', item.getAttribute('data-section-target') === targetId);
+        });
+        if (target instanceof HTMLDetailsElement) {
+          target.open = true;
+        }
+        window.setTimeout(() => {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 120);
+      }
+
+      window.addEventListener('hashchange', openSectionFromHash);
+      openSectionFromHash();
+
       applicationList.addEventListener('click', (event) => {
         const target = event.target instanceof Element ? event.target.closest('.application-action') : null;
         if (!target) {

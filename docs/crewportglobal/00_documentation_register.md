@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.23
+- Version: 1.24
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -221,6 +221,7 @@ docs/crewportglobal/
   131_cpg_seafarer_001_structured_workspace_schema_report.md
   132_cpg_seafarer_002_workspace_json_to_structured_bridge_report.md
   133_cpg_seafarer_003_cabinet_structured_workspace_view_report.md
+  134_cpg_seafarer_004_cabinet_completeness_tasks_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -392,6 +393,8 @@ Document 132 records the CPG-SEAFARER-002 seafarer workspace JSON-to-structured-
 
 Document 133 records the CPG-SEAFARER-003 cabinet structured seafarer workspace view, including the collapsed-by-default `Seafarer workspace` cabinet card, structured section rendering, draft-payload/API fallback data source, English/Russian i18n keys and no-publication boundary.
 
+Document 134 records the CPG-SEAFARER-004 cabinet seafarer completeness tasks implementation, including task derivation from structured workspace gaps, direct `/create-profile/` section links with hashes, hash-based section opening and the frontend-derived task boundary before a future persisted task engine.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -495,6 +498,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.24 | 2026-05-19 | GTC IT / AI Assistant | Added document 134 as CPG-SEAFARER-004 cabinet completeness tasks report covering missing structured workspace task derivation, direct create-profile section links, hash-based section opening and frontend-derived task boundary |
 | 1.23 | 2026-05-19 | GTC IT / AI Assistant | Added document 133 as CPG-SEAFARER-003 cabinet structured workspace view report covering the collapsed Seafarer workspace card, structured record rendering, API/draft fallback source, i18n coverage and no-publication boundary |
 | 1.22 | 2026-05-19 | GTC IT / AI Assistant | Added document 132 as CPG-SEAFARER-002 workspace JSON-to-structured bridge report covering structured sync on seafarer draft save, workspace summary endpoint, migration readiness guard, reference catalog value resolution and no automatic candidate-publication boundary |
 | 1.21 | 2026-05-19 | GTC IT / AI Assistant | Added document 131 as CPG-SEAFARER-001 structured seafarer workspace schema report covering migration 012, normalized seafarer card tables, catalog/document links, review-state fields and controlled publication snapshot boundaries |
