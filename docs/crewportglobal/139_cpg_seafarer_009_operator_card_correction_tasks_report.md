@@ -115,13 +115,12 @@ Executed:
 ```text
 php -l projects/crewportglobal/app/backend/api/public/index.php
 git diff --check
-npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-registration-api.spec.ts tests/crewportglobal-operator-queue.spec.ts tests/crewportglobal-cabinet-dashboard.spec.ts
+npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-operator-queue.spec.ts tests/crewportglobal-cabinet-dashboard.spec.ts
 ```
 
 Expected verification coverage:
 
 ```text
-operator API stores card-level correction target in audit payload
 operator queue UI sends correction_card_code with needs_correction
 operator history shows the selected target card
 cabinet shows a card-level correction task
