@@ -1824,6 +1824,101 @@ function cpg_read_seafarer_workspace_summary(string $userId): array {
     ];
 }
 
+function cpg_seafarer_workspace_allowed_sections(): array {
+    return [
+        'personal_details',
+        'contact_and_addresses',
+        'qualifications',
+        'sea_service',
+        'matching_publication',
+    ];
+}
+
+function cpg_normalize_seafarer_workspace_section(string $section, mixed $payload): array {
+    if (!in_array($section, cpg_seafarer_workspace_allowed_sections(), true) || !is_array($payload)) {
+        return [];
+    }
+
+    $normalized = normalize_seafarer_workspace_metadata([$section => $payload]);
+    return isset($normalized[$section]) && is_array($normalized[$section]) ? $normalized[$section] : [];
+}
+
+function cpg_decode_json_array_field(mixed $value): array {
+    if (is_array($value)) {
+        return $value;
+    }
+    if (!is_string($value) || trim($value) === '') {
+        return [];
+    }
+    $decoded = json_decode($value, true);
+    return is_array($decoded) ? $decoded : [];
+}
+
+function cpg_seafarer_profile_sync_context(string $userId): array {
+    $result = api_query(
+        'SELECT department,
+                nationality_code,
+                residence_country_code,
+                availability_status,
+                availability_date,
+                preferred_vessel_types,
+                salary_expectation_usd,
+                document_metadata
+         FROM crewportglobal.seafarer_profiles
+         WHERE user_id = $1
+         LIMIT 1',
+        [$userId]
+    );
+    $row = pg_fetch_assoc($result);
+    if (!is_array($row)) {
+        api_error(404, 'seafarer_profile_not_found', 'Seafarer profile not found');
+    }
+
+    return [
+        'department' => $row['department'] ?? null,
+        'nationality_code' => $row['nationality_code'] ?? null,
+        'residence_country_code' => $row['residence_country_code'] ?? null,
+        'availability_status' => $row['availability_status'] ?? 'unknown',
+        'availability_date' => $row['availability_date'] ?? null,
+        'preferred_vessel_types' => cpg_decode_json_array_field($row['preferred_vessel_types'] ?? null),
+        'salary_expectation_usd' => $row['salary_expectation_usd'] ?? null,
+        'document_metadata' => $row['document_metadata'] ?? null,
+    ];
+}
+
+function cpg_resolve_seafarer_workspace_user(array $body = []): array {
+    $session = cpg_auth_find_active_session();
+    $userId = null;
+    $accessModel = 'none';
+
+    if ($session !== null) {
+        $userId = (string) $session['user_id'];
+        $accessModel = 'authenticated_session';
+    } else {
+        $draftId = '';
+        if (isset($body['draft_id']) && is_string($body['draft_id'])) {
+            $draftId = $body['draft_id'];
+        } elseif (isset($_GET['draft_id']) && is_string($_GET['draft_id'])) {
+            $draftId = $_GET['draft_id'];
+        }
+        $userId = api_normalize_uuid($draftId);
+        if ($userId !== null) {
+            $accessModel = 'draft_id_transition';
+        }
+    }
+
+    if ($userId === null) {
+        api_error(401, 'seafarer_workspace_access_required', 'Authenticated session or draft_id is required');
+    }
+
+    $role = read_role_for_user($userId);
+    if ($role !== 'seafarer') {
+        api_error(403, 'seafarer_workspace_not_available', 'Seafarer workspace is available only for seafarer profiles');
+    }
+
+    return [$userId, $accessModel];
+}
+
 function normalize_department_value(mixed $value): ?string {
     if (!is_string($value)) {
         return null;
@@ -2993,34 +3088,82 @@ function handle_get_draft(string $draftId): void {
 }
 
 function handle_get_seafarer_workspace(): void {
-    $session = cpg_auth_find_active_session();
-    $userId = null;
-    $accessModel = 'none';
+    [$userId, $accessModel] = cpg_resolve_seafarer_workspace_user();
 
-    if ($session !== null) {
-        $userId = (string) $session['user_id'];
-        $accessModel = 'authenticated_session';
-    } else {
-        $draftId = isset($_GET['draft_id']) && is_string($_GET['draft_id']) ? $_GET['draft_id'] : '';
-        $userId = api_normalize_uuid($draftId);
-        if ($userId !== null) {
-            $accessModel = 'draft_id_transition';
-        }
+    api_json(200, [
+        'ok' => true,
+        'access_model' => $accessModel,
+        'draft_id' => $userId,
+        'workspace' => cpg_read_seafarer_workspace_summary($userId),
+    ]);
+}
+
+function handle_patch_seafarer_workspace_section(string $section): void {
+    $section = trim($section);
+    if (!in_array($section, cpg_seafarer_workspace_allowed_sections(), true)) {
+        api_error(400, 'invalid_workspace_section', 'section must be one of personal_details, contact_and_addresses, qualifications, sea_service, matching_publication');
     }
 
-    if ($userId === null) {
-        api_error(401, 'seafarer_workspace_access_required', 'Authenticated session or draft_id is required');
+    $body = api_decode_json_body();
+    $sectionPayload = isset($body['data']) && is_array($body['data'])
+        ? $body['data']
+        : [];
+    if ($sectionPayload === []) {
+        api_error(400, 'workspace_section_data_required', 'data object is required');
     }
 
-    $role = read_role_for_user($userId);
-    if ($role !== 'seafarer') {
-        api_error(403, 'seafarer_workspace_not_available', 'Seafarer workspace is available only for seafarer profiles');
+    $normalizedSection = cpg_normalize_seafarer_workspace_section($section, $sectionPayload);
+    if ($normalizedSection === []) {
+        api_error(400, 'workspace_section_data_invalid', 'data does not contain valid fields for this section');
+    }
+
+    [$userId, $accessModel] = cpg_resolve_seafarer_workspace_user($body);
+    $context = cpg_seafarer_profile_sync_context($userId);
+    $metadata = cpg_decode_json_object(is_string($context['document_metadata']) ? $context['document_metadata'] : null);
+    $workspace = isset($metadata['seafarer_workspace']) && is_array($metadata['seafarer_workspace'])
+        ? $metadata['seafarer_workspace']
+        : [];
+    $workspace[$section] = $normalizedSection;
+    $metadata['seafarer_workspace'] = $workspace;
+    $documentMetadataJson = cpg_workspace_json($metadata);
+
+    api_tx_begin();
+    try {
+        api_query(
+            'UPDATE crewportglobal.seafarer_profiles
+             SET document_metadata = $2::jsonb,
+                 review_status = $3,
+                 updated_at = now()
+             WHERE user_id = $1',
+            [$userId, $documentMetadataJson, 'submitted_for_human_review']
+        );
+
+        cpg_sync_seafarer_workspace_from_metadata($userId, $documentMetadataJson, [
+            'department' => $context['department'] ?? null,
+            'nationality_code' => $context['nationality_code'] ?? null,
+            'residence_country_code' => $context['residence_country_code'] ?? null,
+            'availability_status' => $context['availability_status'] ?? 'unknown',
+            'availability_date' => $context['availability_date'] ?? null,
+            'preferred_vessel_types' => $context['preferred_vessel_types'] ?? [],
+            'salary_expectation_usd' => $context['salary_expectation_usd'] ?? null,
+        ]);
+
+        write_audit_event('seafarer_workspace_section_updated', $userId, null, null, [
+            'section' => $section,
+            'access_model' => $accessModel,
+        ]);
+
+        api_tx_commit();
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'seafarer_workspace_section_update_failed', $error->getMessage());
     }
 
     api_json(200, [
         'ok' => true,
         'access_model' => $accessModel,
         'draft_id' => $userId,
+        'section' => $section,
         'workspace' => cpg_read_seafarer_workspace_summary($userId),
     ]);
 }
@@ -4569,6 +4712,14 @@ if ($path === '/seafarer/workspace') {
     }
     header('Allow: GET');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if (preg_match('#^/seafarer/workspace/sections/([^/]+)$#', $path, $matches) === 1) {
+    if ($method === 'PATCH') {
+        handle_patch_seafarer_workspace_section($matches[1]);
+    }
+    header('Allow: PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
 }
 
 if ($method === 'GET' && $path === '/operator/review-queue') {

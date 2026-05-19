@@ -210,3 +210,76 @@ test('cabinet derives seafarer completeness tasks from partial structured worksp
   await expect(page).toHaveURL(new RegExp(`/create-profile/\\?draft_id=${created.draft_id}#profile-section-contact`));
   await expect(page.locator('#profile-section-contact')).toHaveAttribute('open', '');
 });
+
+test('seafarer workspace section endpoint updates JSON fallback and structured records', async ({ request }) => {
+  const email = `ui.workspace.section.${Date.now()}@example.com`;
+
+  const createResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Section Contract Seafarer',
+      rank: 'Chief Engineer',
+      department: 'engine',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = await createResponse.json();
+
+  const contactResponse = await request.patch('/api/v1/seafarer/workspace/sections/contact_and_addresses', {
+    data: {
+      draft_id: created.draft_id,
+      data: {
+        residence_city: 'Limassol',
+        permanent_address: 'Harbor Road 7',
+        emergency_contact_name: 'Nina Section',
+        emergency_contact_relation: 'Spouse',
+        emergency_contact_phone: '+35799111222',
+      },
+    },
+  });
+  expect(contactResponse.status()).toBe(200);
+  const contactBody = await contactResponse.json();
+  expect(contactBody.access_model).toBe('draft_id_transition');
+  expect(contactBody.workspace.person_details.residence_city_label).toBe('Limassol');
+  expect(contactBody.workspace.emergency_contacts[0].contact_name).toBe('Nina Section');
+
+  const qualificationResponse = await request.patch('/api/v1/seafarer/workspace/sections/qualifications', {
+    data: {
+      draft_id: created.draft_id,
+      data: {
+        coc_type: 'Chief Engineer',
+        coc_number: 'COC-SECTION-001',
+        coc_issuing_country: 'CY',
+        coc_expiry: '2029-12-31',
+        training_courses: ['Basic Training', 'Engine Resource Management'],
+      },
+    },
+  });
+  expect(qualificationResponse.status()).toBe(200);
+  const qualificationBody = await qualificationResponse.json();
+  expect(qualificationBody.workspace.certificates[0].certificate_number).toBe('COC-SECTION-001');
+  expect(qualificationBody.workspace.training_records.map((item: { training_type_label: string }) => item.training_type_label)).toEqual([
+    'Basic Training',
+    'Engine Resource Management',
+  ]);
+
+  const invalidResponse = await request.patch('/api/v1/seafarer/workspace/sections/unknown_section', {
+    data: {
+      draft_id: created.draft_id,
+      data: {
+        value: 'ignored',
+      },
+    },
+  });
+  expect(invalidResponse.status()).toBe(400);
+
+  const draftResponse = await request.get(`/api/v1/registration/drafts/${created.draft_id}`);
+  expect(draftResponse.status()).toBe(200);
+  const draftBody = await draftResponse.json();
+  const metadata = typeof draftBody.payload.seafarer_profile.document_metadata === 'string'
+    ? JSON.parse(draftBody.payload.seafarer_profile.document_metadata)
+    : draftBody.payload.seafarer_profile.document_metadata;
+  expect(metadata.seafarer_workspace.contact_and_addresses.residence_city).toBe('Limassol');
+  expect(metadata.seafarer_workspace.qualifications.coc_number).toBe('COC-SECTION-001');
+});
