@@ -639,8 +639,14 @@
           <nav class="section-tabs" aria-label="Profile sections">
             <button class="button secondary section-tab is-current" type="button" data-section-target="profile-section-cv" data-i18n="create.tab.cv">CV basics</button>
             <button class="button secondary section-tab" type="button" data-section-target="profile-section-contact" data-i18n="create.tab.contact">Contact</button>
+            <button class="button secondary section-tab" type="button" data-section-target="profile-section-addresses" data-i18n="create.tab.addresses">Addresses</button>
+            <button class="button secondary section-tab" type="button" data-section-target="profile-section-family" data-i18n="create.tab.family">Family</button>
+            <button class="button secondary section-tab" type="button" data-section-target="profile-section-physical" data-i18n="create.tab.physical">Physical</button>
+            <button class="button secondary section-tab" type="button" data-section-target="profile-section-identity-documents" data-i18n="create.tab.identityDocuments">ID / visas</button>
             <button class="button secondary section-tab" type="button" data-section-target="profile-section-qualifications" data-i18n="create.tab.qualifications">Qualifications</button>
             <button class="button secondary section-tab" type="button" data-section-target="profile-section-sea-service" data-i18n="create.tab.seaService">Sea service</button>
+            <button class="button secondary section-tab" type="button" data-section-target="profile-section-references" data-i18n="create.tab.references">References</button>
+            <button class="button secondary section-tab" type="button" data-section-target="profile-section-medical" data-i18n="create.tab.medical">Medical</button>
             <button class="button secondary section-tab" type="button" data-section-target="profile-section-publication" data-i18n="create.tab.publication">Publication</button>
             <button class="button secondary section-tab" type="button" data-section-target="profile-section-documents" data-i18n="create.tab.documents">Documents</button>
             <button class="button secondary section-tab" type="button" data-section-target="profile-section-review" data-i18n="create.tab.review">Review</button>
@@ -776,10 +782,295 @@
                   <strong data-i18n="create.form.emergencyPhone">Emergency contact phone</strong>
                   <input id="create-emergency-contact-phone" type="tel" data-i18n-placeholder="create.form.emergencyPhone.placeholder" placeholder="+639171112233">
                 </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.surname">Surname</strong>
+                  <input id="create-surname" type="text" data-i18n-placeholder="create.form.surname.placeholder" placeholder="Surname">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.firstName">First name</strong>
+                  <input id="create-first-name" type="text" data-i18n-placeholder="create.form.firstName.placeholder" placeholder="First name">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.middleName">Middle name</strong>
+                  <input id="create-middle-name" type="text" data-i18n-placeholder="create.form.middleName.placeholder" placeholder="Middle name">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.citizenship">Citizenship</strong>
+                  <input id="create-citizenship" type="text" list="create-country-options" data-i18n-placeholder="create.form.citizenship.placeholder" placeholder="RUSSIAN FEDERATION">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.religion">Religion</strong>
+                  <input id="create-religion" type="text" list="create-religion-options" data-i18n-placeholder="create.form.religion.placeholder" placeholder="Optional">
+                  <datalist id="create-religion-options"></datalist>
+                </label>
               </div>
               <div class="section-save-row">
-                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="personal_details contact_and_addresses" data-workspace-status="create-contact-save-status" data-i18n="create.section.save">Save section</button>
+                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="personal_details contact_and_addresses name_components" data-workspace-status="create-contact-save-status" data-i18n="create.section.save">Save section</button>
                 <p id="create-contact-save-status" class="status-note section-save-status" aria-live="polite"></p>
+              </div>
+            </div>
+          </details>
+
+          <details id="profile-section-addresses" class="form-section profile-card-section">
+            <summary data-i18n="create.section.addresses.title">Permanent and registration addresses</summary>
+            <div class="profile-card-section__body">
+              <div class="section-heading">
+                <p class="eyebrow" data-i18n="create.section.addresses.eyebrow">PERS address cards</p>
+                <p class="field-note" data-i18n="create.section.addresses.copy">Source-aligned address fields from the seafarer workbook.</p>
+              </div>
+              <div class="field-grid">
+                <label class="field-card">
+                  <strong data-i18n="create.form.permanentStreet">Permanent street</strong>
+                  <input id="create-permanent-street" type="text" data-i18n-placeholder="create.form.permanentStreet.placeholder" placeholder="Street">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.permanentHouse">Permanent house</strong>
+                  <input id="create-permanent-house" type="text" data-i18n-placeholder="create.form.permanentHouse.placeholder" placeholder="House">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.permanentFlat">Permanent flat</strong>
+                  <input id="create-permanent-flat" type="text" data-i18n-placeholder="create.form.permanentFlat.placeholder" placeholder="Flat">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.permanentPostCode">Permanent post code</strong>
+                  <input id="create-permanent-post-code" type="text" data-i18n-placeholder="create.form.permanentPostCode.placeholder" placeholder="Post code">
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.permanentComments">Permanent address comments</strong>
+                  <textarea id="create-permanent-comments" maxlength="500" data-i18n-placeholder="create.form.permanentComments.placeholder" placeholder="Address comments"></textarea>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.registrationStreet">Registration street</strong>
+                  <input id="create-registration-street" type="text" data-i18n-placeholder="create.form.registrationStreet.placeholder" placeholder="Street">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.registrationHouse">Registration house</strong>
+                  <input id="create-registration-house" type="text" data-i18n-placeholder="create.form.registrationHouse.placeholder" placeholder="House">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.registrationFlat">Registration flat</strong>
+                  <input id="create-registration-flat" type="text" data-i18n-placeholder="create.form.registrationFlat.placeholder" placeholder="Flat">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.registrationCity">Registration city</strong>
+                  <input id="create-registration-city" type="text" list="create-city-options" data-i18n-placeholder="create.form.registrationCity.placeholder" placeholder="City">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.registrationCountry">Registration country</strong>
+                  <input id="create-registration-country" type="text" list="create-country-options" data-i18n-placeholder="create.form.registrationCountry.placeholder" placeholder="Country">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.registrationPostCode">Registration post code</strong>
+                  <input id="create-registration-post-code" type="text" data-i18n-placeholder="create.form.registrationPostCode.placeholder" placeholder="Post code">
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.registrationComments">Registration address comments</strong>
+                  <textarea id="create-registration-comments" maxlength="500" data-i18n-placeholder="create.form.registrationComments.placeholder" placeholder="Address comments"></textarea>
+                </label>
+              </div>
+              <div class="section-save-row">
+                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="address_details" data-workspace-status="create-addresses-save-status" data-i18n="create.section.save">Save section</button>
+                <p id="create-addresses-save-status" class="status-note section-save-status" aria-live="polite"></p>
+              </div>
+            </div>
+          </details>
+
+          <details id="profile-section-family" class="form-section profile-card-section">
+            <summary data-i18n="create.section.family.title">Next of kin, beneficiary and children</summary>
+            <div class="profile-card-section__body">
+              <div class="section-heading">
+                <p class="eyebrow" data-i18n="create.section.family.eyebrow">PERS family cards</p>
+                <p class="field-note" data-i18n="create.section.family.copy">Full next-of-kin and child records from the source form. Children are collected only where legally or operationally required.</p>
+              </div>
+              <div class="field-grid">
+                <label class="field-card">
+                  <strong data-i18n="create.form.kinSurname">Kin surname</strong>
+                  <input id="create-kin-surname" type="text" data-i18n-placeholder="create.form.kinSurname.placeholder" placeholder="Surname">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.kinFirstName">Kin first name</strong>
+                  <input id="create-kin-first-name" type="text" data-i18n-placeholder="create.form.kinFirstName.placeholder" placeholder="First name">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.kinMiddleName">Kin middle name</strong>
+                  <input id="create-kin-middle-name" type="text" data-i18n-placeholder="create.form.kinMiddleName.placeholder" placeholder="Middle name">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.kinBirthdate">Kin birthdate</strong>
+                  <input id="create-kin-birthdate" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.kinGender">Kin gender</strong>
+                  <input id="create-kin-gender" type="text" list="create-gender-options" data-i18n-placeholder="create.form.kinGender.placeholder" placeholder="Gender">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.kinRelation">Kin relation</strong>
+                  <input id="create-kin-relation" type="text" list="create-relation-options" data-i18n-placeholder="create.form.kinRelation.placeholder" placeholder="Relation">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.kinHomePhone">Kin home phone</strong>
+                  <input id="create-kin-home-phone" type="tel" data-i18n-placeholder="create.form.kinHomePhone.placeholder" placeholder="Home phone">
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.kinEmail">Kin email</strong>
+                  <input id="create-kin-email" type="email" data-i18n-placeholder="create.form.kinEmail.placeholder" placeholder="kin@example.com">
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.kinAddress">Kin address</strong>
+                  <textarea id="create-kin-address" maxlength="600" data-i18n-placeholder="create.form.kinAddress.placeholder" placeholder="Street, house, city, country"></textarea>
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.childrenRecords">Children records</strong>
+                  <textarea id="create-children-records" maxlength="1200" data-i18n-placeholder="create.form.childrenRecords.placeholder" placeholder="Child surname, first name, middle name, relation, birthdate, gender. One child per line."></textarea>
+                </label>
+              </div>
+              <div class="section-save-row">
+                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="family_details" data-workspace-status="create-family-save-status" data-i18n="create.section.save">Save section</button>
+                <p id="create-family-save-status" class="status-note section-save-status" aria-live="polite"></p>
+              </div>
+            </div>
+          </details>
+
+          <details id="profile-section-physical" class="form-section profile-card-section">
+            <summary data-i18n="create.section.physical.title">Physical details</summary>
+            <div class="profile-card-section__body">
+              <div class="section-heading">
+                <p class="eyebrow" data-i18n="create.section.physical.eyebrow">PERS physical card</p>
+                <p class="field-note" data-i18n="create.section.physical.copy">Operational physical details from the source form.</p>
+              </div>
+              <div class="field-grid">
+                <label class="field-card">
+                  <strong data-i18n="create.form.heightCm">Height, cm</strong>
+                  <input id="create-height-cm" type="number" min="0" step="1" data-i18n-placeholder="create.form.heightCm.placeholder" placeholder="180">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.weightKg">Weight, kg</strong>
+                  <input id="create-weight-kg" type="number" min="0" step="1" data-i18n-placeholder="create.form.weightKg.placeholder" placeholder="80">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.hairColour">Hair colour</strong>
+                  <input id="create-hair-colour" type="text" data-i18n-placeholder="create.form.hairColour.placeholder" placeholder="Hair colour">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.eyesColour">Eyes colour</strong>
+                  <input id="create-eyes-colour" type="text" data-i18n-placeholder="create.form.eyesColour.placeholder" placeholder="Eyes colour">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.uniformSize">Uniform size</strong>
+                  <input id="create-uniform-size" type="text" data-i18n-placeholder="create.form.uniformSize.placeholder" placeholder="Uniform size">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.shoesSize">Shoes size</strong>
+                  <input id="create-shoes-size" type="text" data-i18n-placeholder="create.form.shoesSize.placeholder" placeholder="Shoes size">
+                </label>
+              </div>
+              <div class="section-save-row">
+                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="physical_details" data-workspace-status="create-physical-save-status" data-i18n="create.section.save">Save section</button>
+                <p id="create-physical-save-status" class="status-note section-save-status" aria-live="polite"></p>
+              </div>
+            </div>
+          </details>
+
+          <details id="profile-section-identity-documents" class="form-section profile-card-section">
+            <summary data-i18n="create.section.identityDocuments.title">Identity documents and visas</summary>
+            <div class="profile-card-section__body">
+              <div class="section-heading">
+                <p class="eyebrow" data-i18n="create.section.identityDocuments.eyebrow">QUAL document card</p>
+                <p class="field-note" data-i18n="create.section.identityDocuments.copy">Document metadata follows the source workbook. File uploads remain protected and separate.</p>
+              </div>
+              <div class="field-grid">
+                <label class="field-card">
+                  <strong data-i18n="create.form.civilPassportSeries">Civil passport series</strong>
+                  <input id="create-civil-passport-series" type="text" data-i18n-placeholder="create.form.civilPassportSeries.placeholder" placeholder="Series">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.civilPassportNumber">Civil passport number</strong>
+                  <input id="create-civil-passport-number" type="text" data-i18n-placeholder="create.form.civilPassportNumber.placeholder" placeholder="Number">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.civilPassportIssued">Civil passport issued</strong>
+                  <input id="create-civil-passport-issued" type="date">
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.civilPassportAuthority">Civil passport authority</strong>
+                  <input id="create-civil-passport-authority" type="text" data-i18n-placeholder="create.form.civilPassportAuthority.placeholder" placeholder="Authority">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.foreignPassportSeries">Foreign passport series</strong>
+                  <input id="create-foreign-passport-series" type="text" data-i18n-placeholder="create.form.foreignPassportSeries.placeholder" placeholder="Series">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.foreignPassportNumber">Foreign passport number</strong>
+                  <input id="create-foreign-passport-number" type="text" data-i18n-placeholder="create.form.foreignPassportNumber.placeholder" placeholder="Number">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.foreignPassportIssued">Foreign passport issued</strong>
+                  <input id="create-foreign-passport-issued" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.foreignPassportExpiry">Foreign passport expiry</strong>
+                  <input id="create-foreign-passport-expiry" type="date">
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.foreignPassportAuthority">Foreign passport authority</strong>
+                  <input id="create-foreign-passport-authority" type="text" data-i18n-placeholder="create.form.foreignPassportAuthority.placeholder" placeholder="Authority">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.seafarerIdNumber">Seafarer's ID number</strong>
+                  <input id="create-seafarer-id-number" type="text" data-i18n-placeholder="create.form.seafarerIdNumber.placeholder" placeholder="Number">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.seafarerIdIssued">Seafarer's ID issued</strong>
+                  <input id="create-seafarer-id-issued" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.seafarerIdExpiry">Seafarer's ID expiry</strong>
+                  <input id="create-seafarer-id-expiry" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.seamansBookNumber">Seaman's book number</strong>
+                  <input id="create-seamans-book-number" type="text" data-i18n-placeholder="create.form.seamansBookNumber.placeholder" placeholder="Number">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.seamansBookIssued">Seaman's book issued</strong>
+                  <input id="create-seamans-book-issued" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.usaVisaType">USA visa type</strong>
+                  <input id="create-usa-visa-type" type="text" data-i18n-placeholder="create.form.usaVisaType.placeholder" placeholder="Visa type">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.usaVisaIssued">USA visa issued</strong>
+                  <input id="create-usa-visa-issued" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.usaVisaExpiry">USA visa expiry</strong>
+                  <input id="create-usa-visa-expiry" type="date">
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.usaVisaPost">USA visa issuing post</strong>
+                  <input id="create-usa-visa-post" type="text" data-i18n-placeholder="create.form.usaVisaPost.placeholder" placeholder="Issuing post">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.schengenVisaNumber">Schengen visa number</strong>
+                  <input id="create-schengen-visa-number" type="text" data-i18n-placeholder="create.form.schengenVisaNumber.placeholder" placeholder="Number">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.schengenVisaIssued">Schengen visa issued</strong>
+                  <input id="create-schengen-visa-issued" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.schengenVisaExpiry">Schengen visa expiry</strong>
+                  <input id="create-schengen-visa-expiry" type="date">
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.schengenVisaPost">Schengen visa issuing post</strong>
+                  <input id="create-schengen-visa-post" type="text" data-i18n-placeholder="create.form.schengenVisaPost.placeholder" placeholder="Issuing post">
+                </label>
+              </div>
+              <div class="section-save-row">
+                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="identity_documents" data-workspace-status="create-identity-documents-save-status" data-i18n="create.section.save">Save section</button>
+                <p id="create-identity-documents-save-status" class="status-note section-save-status" aria-live="polite"></p>
               </div>
             </div>
           </details>
@@ -807,6 +1098,15 @@
                   <datalist id="create-country-options"></datalist>
                 </label>
                 <label class="field-card">
+                  <strong data-i18n="create.form.cocInstitute">COC institute</strong>
+                  <input id="create-coc-institute" type="text" list="create-endorsement-institute-options" data-i18n-placeholder="create.form.cocInstitute.placeholder" placeholder="Institute">
+                  <datalist id="create-endorsement-institute-options"></datalist>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.cocIssued">COC issued</strong>
+                  <input id="create-coc-issued" type="date">
+                </label>
+                <label class="field-card">
                   <strong data-i18n="create.form.cocExpiry">COC expiry</strong>
                   <input id="create-coc-expiry" type="date">
                 </label>
@@ -820,14 +1120,79 @@
                   <input id="create-education-grade" type="text" list="create-education-grade-options" data-i18n-placeholder="create.form.educationGrade.placeholder" placeholder="Bachelor">
                   <datalist id="create-education-grade-options"></datalist>
                 </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.educationFrom">Education from</strong>
+                  <input id="create-education-from" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.educationTo">Education to</strong>
+                  <input id="create-education-to" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.educationSpecialisation">Education specialisation</strong>
+                  <input id="create-education-specialisation" type="text" data-i18n-placeholder="create.form.educationSpecialisation.placeholder" placeholder="Specialisation">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.educationIssuedOn">Education issued on</strong>
+                  <input id="create-education-issued-on" type="date">
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.educationComments">Education comments</strong>
+                  <textarea id="create-education-comments" maxlength="500" data-i18n-placeholder="create.form.educationComments.placeholder" placeholder="Education comments"></textarea>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.endorsementType">Endorsement type</strong>
+                  <input id="create-endorsement-type" type="text" list="create-national-document-type-options" data-i18n-placeholder="create.form.endorsementType.placeholder" placeholder="Endorsement type">
+                  <datalist id="create-national-document-type-options"></datalist>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.endorsementInstitute">Endorsement institute</strong>
+                  <input id="create-endorsement-institute" type="text" list="create-endorsement-institute-options" data-i18n-placeholder="create.form.endorsementInstitute.placeholder" placeholder="Institute">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.endorsementNumber">Endorsement number</strong>
+                  <input id="create-endorsement-number" type="text" data-i18n-placeholder="create.form.endorsementNumber.placeholder" placeholder="Number">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.endorsementIssued">Endorsement issued</strong>
+                  <input id="create-endorsement-issued" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.endorsementExpiry">Endorsement expiry</strong>
+                  <input id="create-endorsement-expiry" type="date">
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.endorsementComments">Endorsement comments</strong>
+                  <textarea id="create-endorsement-comments" maxlength="500" data-i18n-placeholder="create.form.endorsementComments.placeholder" placeholder="Endorsement comments"></textarea>
+                </label>
                 <label class="field-card full">
                   <strong data-i18n="create.form.trainingCourses">Training courses</strong>
                   <input id="create-training-courses" type="text" list="create-training-course-options" data-i18n-placeholder="create.form.trainingCourses.placeholder" placeholder="Basic Training, Advanced Fire Fighting">
                   <datalist id="create-training-course-options"></datalist>
                 </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.trainingInstitute">Training institute</strong>
+                  <input id="create-training-institute" type="text" data-i18n-placeholder="create.form.trainingInstitute.placeholder" placeholder="Institute">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.trainingNumber">Training certificate number</strong>
+                  <input id="create-training-number" type="text" data-i18n-placeholder="create.form.trainingNumber.placeholder" placeholder="Number">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.trainingIssued">Training issued</strong>
+                  <input id="create-training-issued" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.trainingExpiry">Training expiry</strong>
+                  <input id="create-training-expiry" type="date">
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.trainingComments">Training comments</strong>
+                  <textarea id="create-training-comments" maxlength="500" data-i18n-placeholder="create.form.trainingComments.placeholder" placeholder="Training comments"></textarea>
+                </label>
               </div>
               <div class="section-save-row">
-                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="qualifications" data-workspace-status="create-qualifications-save-status" data-i18n="create.section.save">Save section</button>
+                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="qualifications qualification_details" data-workspace-status="create-qualifications-save-status" data-i18n="create.section.save">Save section</button>
                 <p id="create-qualifications-save-status" class="status-note section-save-status" aria-live="polite"></p>
               </div>
             </div>
@@ -874,14 +1239,114 @@
                   <input id="create-engine-type" type="text" list="create-engine-type-options" data-i18n-placeholder="create.form.engineType.placeholder" placeholder="MAN B&W">
                   <datalist id="create-engine-type-options"></datalist>
                 </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.enginePower">Engine power (kW)</strong>
+                  <input id="create-engine-power" type="text" data-i18n-placeholder="create.form.enginePower.placeholder" placeholder="13350">
+                </label>
                 <label class="field-card full">
                   <strong data-i18n="create.form.deadweight">Deadweight / tonnage note</strong>
                   <input id="create-deadweight" type="text" data-i18n-placeholder="create.form.deadweight.placeholder" placeholder="50000 DWT">
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.seaServiceHistory">Additional sea service records</strong>
+                  <textarea id="create-sea-service-history" maxlength="1600" data-i18n-placeholder="create.form.seaServiceHistory.placeholder" placeholder="One sea-service row per line: vessel, type, DWT, engine, power, flag, company, rank, from, to"></textarea>
                 </label>
               </div>
               <div class="section-save-row">
                 <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="sea_service" data-workspace-status="create-sea-service-save-status" data-i18n="create.section.save">Save section</button>
                 <p id="create-sea-service-save-status" class="status-note section-save-status" aria-live="polite"></p>
+              </div>
+            </div>
+          </details>
+
+          <details id="profile-section-references" class="form-section profile-card-section">
+            <summary data-i18n="create.section.references.title">Previous employer references</summary>
+            <div class="profile-card-section__body">
+              <div class="section-heading">
+                <p class="eyebrow" data-i18n="create.section.references.eyebrow">EXPERIENCE references</p>
+                <p class="field-note" data-i18n="create.section.references.copy">Previous employer reference contacts from the source workbook.</p>
+              </div>
+              <div class="field-grid">
+                <label class="field-card">
+                  <strong data-i18n="create.form.referenceCompany1">Reference company 1</strong>
+                  <input id="create-reference-company-1" type="text" data-i18n-placeholder="create.form.referenceCompany1.placeholder" placeholder="Company">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.referencePerson1">Person in charge 1</strong>
+                  <input id="create-reference-person-1" type="text" data-i18n-placeholder="create.form.referencePerson1.placeholder" placeholder="Person in charge">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.referencePhone1">Telephone 1</strong>
+                  <input id="create-reference-phone-1" type="tel" data-i18n-placeholder="create.form.referencePhone1.placeholder" placeholder="Telephone">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.referenceEmail1">E-mail 1</strong>
+                  <input id="create-reference-email-1" type="email" data-i18n-placeholder="create.form.referenceEmail1.placeholder" placeholder="email@example.com">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.referenceCompany2">Reference company 2</strong>
+                  <input id="create-reference-company-2" type="text" data-i18n-placeholder="create.form.referenceCompany2.placeholder" placeholder="Company">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.referencePerson2">Person in charge 2</strong>
+                  <input id="create-reference-person-2" type="text" data-i18n-placeholder="create.form.referencePerson2.placeholder" placeholder="Person in charge">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.referencePhone2">Telephone 2</strong>
+                  <input id="create-reference-phone-2" type="tel" data-i18n-placeholder="create.form.referencePhone2.placeholder" placeholder="Telephone">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.referenceEmail2">E-mail 2</strong>
+                  <input id="create-reference-email-2" type="email" data-i18n-placeholder="create.form.referenceEmail2.placeholder" placeholder="email@example.com">
+                </label>
+              </div>
+              <div class="section-save-row">
+                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="previous_employer_references" data-workspace-status="create-references-save-status" data-i18n="create.section.save">Save section</button>
+                <p id="create-references-save-status" class="status-note section-save-status" aria-live="polite"></p>
+              </div>
+            </div>
+          </details>
+
+          <details id="profile-section-medical" class="form-section profile-card-section">
+            <summary data-i18n="create.section.medical.title">Medical history and sensitive declarations</summary>
+            <div class="profile-card-section__body">
+              <div class="section-heading">
+                <p class="eyebrow" data-i18n="create.section.medical.eyebrow">MEDICAL card</p>
+                <p class="field-note" data-i18n="create.section.medical.copy">Sensitive medical fields are stored for controlled review only and must not be broadly visible.</p>
+              </div>
+              <div class="field-grid">
+                <label class="field-card">
+                  <strong data-i18n="create.form.signedOffSick">Ever signed off sick?</strong>
+                  <select id="create-signed-off-sick">
+                    <option value="" data-i18n="create.form.select">Select</option>
+                    <option value="yes" data-i18n="create.boolean.yes">Yes</option>
+                    <option value="no" data-i18n="create.boolean.no">No</option>
+                  </select>
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.sickDetails">Sick-off details</strong>
+                  <textarea id="create-sick-details" maxlength="1000" data-i18n-placeholder="create.form.sickDetails.placeholder" placeholder="Vessel, date, brief description"></textarea>
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.injuryDetails">Injury / health problem details</strong>
+                  <textarea id="create-injury-details" maxlength="1000" data-i18n-placeholder="create.form.injuryDetails.placeholder" placeholder="Details of injury or health problem during last 10 years"></textarea>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.operated">Ever operated?</strong>
+                  <select id="create-operated">
+                    <option value="" data-i18n="create.form.select">Select</option>
+                    <option value="yes" data-i18n="create.boolean.yes">Yes</option>
+                    <option value="no" data-i18n="create.boolean.no">No</option>
+                  </select>
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.surgeryDetails">Surgery details</strong>
+                  <textarea id="create-surgery-details" maxlength="1000" data-i18n-placeholder="create.form.surgeryDetails.placeholder" placeholder="Date and brief description of surgery"></textarea>
+                </label>
+              </div>
+              <div class="section-save-row">
+                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="medical_history" data-workspace-status="create-medical-save-status" data-i18n="create.section.save">Save section</button>
+                <p id="create-medical-save-status" class="status-note section-save-status" aria-live="polite"></p>
               </div>
             </div>
           </details>
@@ -919,9 +1384,41 @@
                     <option value="i_decline" data-i18n="create.form.dataConfirmation.decline">I do not confirm yet.</option>
                   </select>
                 </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.obligationDate">Seafarer obligation date</strong>
+                  <input id="create-obligation-date" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.obligationPlace">Seafarer obligation place</strong>
+                  <input id="create-obligation-place" type="text" data-i18n-placeholder="create.form.obligationPlace.placeholder" placeholder="Place">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.obligationConfirmation">Obligation confirmation</strong>
+                  <select id="create-obligation-confirmation">
+                    <option value="" data-i18n="create.form.select">Select</option>
+                    <option value="i_confirm" data-i18n="create.form.confirmation.confirm">I confirm</option>
+                    <option value="i_decline" data-i18n="create.form.confirmation.decline">I decline</option>
+                  </select>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.agreementDate">Agreement date</strong>
+                  <input id="create-agreement-date" type="date">
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="create.form.agreementValue">Agreement</strong>
+                  <select id="create-agreement-value">
+                    <option value="" data-i18n="create.form.select">Select</option>
+                    <option value="i_agree" data-i18n="create.form.agreement.agree">I agree</option>
+                    <option value="i_disagree" data-i18n="create.form.agreement.disagree">I disagree</option>
+                  </select>
+                </label>
+                <label class="field-card full">
+                  <strong data-i18n="create.form.sourceComments">Source / consent comments</strong>
+                  <textarea id="create-source-comments" maxlength="1000" data-i18n-placeholder="create.form.sourceComments.placeholder" placeholder="Comments"></textarea>
+                </label>
               </div>
               <div class="section-save-row">
-                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="matching_publication" data-workspace-status="create-publication-save-status" data-i18n="create.section.save">Save section</button>
+                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="matching_publication consent_details" data-workspace-status="create-publication-save-status" data-i18n="create.section.save">Save section</button>
                 <p id="create-publication-save-status" class="status-note section-save-status" aria-live="polite"></p>
               </div>
             </div>
@@ -1100,8 +1597,14 @@
         'create.workspace.eyebrow': 'Workspace',
         'create.tab.cv': 'CV basics',
         'create.tab.contact': 'Contact',
+        'create.tab.addresses': 'Addresses',
+        'create.tab.family': 'Family',
+        'create.tab.physical': 'Physical',
+        'create.tab.identityDocuments': 'ID / visas',
         'create.tab.qualifications': 'Qualifications',
         'create.tab.seaService': 'Sea service',
+        'create.tab.references': 'References',
+        'create.tab.medical': 'Medical',
         'create.tab.publication': 'Publication',
         'create.tab.documents': 'Documents',
         'create.tab.review': 'Review',
@@ -1112,12 +1615,30 @@
         'create.section.contact.eyebrow': 'Person card',
         'create.section.contact.title': 'Personal contact and addresses',
         'create.section.contact.copy': 'These fields prepare the physical-person and emergency-contact data for future verification.',
+        'create.section.addresses.eyebrow': 'PERS address cards',
+        'create.section.addresses.title': 'Permanent and registration addresses',
+        'create.section.addresses.copy': 'Source-aligned address fields from the seafarer workbook.',
+        'create.section.family.eyebrow': 'PERS family cards',
+        'create.section.family.title': 'Next of kin, beneficiary and children',
+        'create.section.family.copy': 'Full next-of-kin and child records from the source form. Children are collected only where legally or operationally required.',
+        'create.section.physical.eyebrow': 'PERS physical card',
+        'create.section.physical.title': 'Physical details',
+        'create.section.physical.copy': 'Operational physical details from the source form.',
+        'create.section.identityDocuments.eyebrow': 'QUAL document card',
+        'create.section.identityDocuments.title': 'Identity documents and visas',
+        'create.section.identityDocuments.copy': 'Document metadata follows the source workbook. File uploads remain protected and separate.',
         'create.section.qualifications.eyebrow': 'Qualification card',
         'create.section.qualifications.title': 'Certificates and education',
         'create.section.qualifications.copy': 'Capture the main COC, education and training summary used for matching.',
         'create.section.seaService.eyebrow': 'Experience card',
         'create.section.seaService.title': 'Last sea service',
         'create.section.seaService.copy': 'Record the latest vessel experience so operators can compare it with employer demand.',
+        'create.section.references.eyebrow': 'EXPERIENCE references',
+        'create.section.references.title': 'Previous employer references',
+        'create.section.references.copy': 'Previous employer reference contacts from the source workbook.',
+        'create.section.medical.eyebrow': 'MEDICAL card',
+        'create.section.medical.title': 'Medical history and sensitive declarations',
+        'create.section.medical.copy': 'Sensitive medical fields are stored for controlled review only and must not be broadly visible.',
         'create.section.publication.eyebrow': 'Controlled publication',
         'create.section.publication.title': 'Matching publication request',
         'create.section.publication.copy': 'These settings record your request for reviewed matching. They do not publish your profile automatically.',
@@ -1197,19 +1718,146 @@
         'create.form.emergencyRelation.placeholder': 'Spouse',
         'create.form.emergencyPhone': 'Emergency contact phone',
         'create.form.emergencyPhone.placeholder': '+639171112233',
+        'create.form.surname': 'Surname',
+        'create.form.surname.placeholder': 'Surname',
+        'create.form.firstName': 'First name',
+        'create.form.firstName.placeholder': 'First name',
+        'create.form.middleName': 'Middle name',
+        'create.form.middleName.placeholder': 'Middle name',
+        'create.form.citizenship': 'Citizenship',
+        'create.form.citizenship.placeholder': 'RUSSIAN FEDERATION',
+        'create.form.religion': 'Religion',
+        'create.form.religion.placeholder': 'Optional',
+        'create.form.permanentStreet': 'Permanent street',
+        'create.form.permanentStreet.placeholder': 'Street',
+        'create.form.permanentHouse': 'Permanent house',
+        'create.form.permanentHouse.placeholder': 'House',
+        'create.form.permanentFlat': 'Permanent flat',
+        'create.form.permanentFlat.placeholder': 'Flat',
+        'create.form.permanentPostCode': 'Permanent post code',
+        'create.form.permanentPostCode.placeholder': 'Post code',
+        'create.form.permanentComments': 'Permanent address comments',
+        'create.form.permanentComments.placeholder': 'Address comments',
+        'create.form.registrationStreet': 'Registration street',
+        'create.form.registrationStreet.placeholder': 'Street',
+        'create.form.registrationHouse': 'Registration house',
+        'create.form.registrationHouse.placeholder': 'House',
+        'create.form.registrationFlat': 'Registration flat',
+        'create.form.registrationFlat.placeholder': 'Flat',
+        'create.form.registrationCity': 'Registration city',
+        'create.form.registrationCity.placeholder': 'City',
+        'create.form.registrationCountry': 'Registration country',
+        'create.form.registrationCountry.placeholder': 'Country',
+        'create.form.registrationPostCode': 'Registration post code',
+        'create.form.registrationPostCode.placeholder': 'Post code',
+        'create.form.registrationComments': 'Registration address comments',
+        'create.form.registrationComments.placeholder': 'Address comments',
+        'create.form.kinSurname': 'Kin surname',
+        'create.form.kinSurname.placeholder': 'Surname',
+        'create.form.kinFirstName': 'Kin first name',
+        'create.form.kinFirstName.placeholder': 'First name',
+        'create.form.kinMiddleName': 'Kin middle name',
+        'create.form.kinMiddleName.placeholder': 'Middle name',
+        'create.form.kinBirthdate': 'Kin birthdate',
+        'create.form.kinGender': 'Kin gender',
+        'create.form.kinGender.placeholder': 'Gender',
+        'create.form.kinRelation': 'Kin relation',
+        'create.form.kinRelation.placeholder': 'Relation',
+        'create.form.kinHomePhone': 'Kin home phone',
+        'create.form.kinHomePhone.placeholder': 'Home phone',
+        'create.form.kinEmail': 'Kin email',
+        'create.form.kinEmail.placeholder': 'kin@example.com',
+        'create.form.kinAddress': 'Kin address',
+        'create.form.kinAddress.placeholder': 'Street, house, city, country',
+        'create.form.childrenRecords': 'Children records',
+        'create.form.childrenRecords.placeholder': 'Child surname, first name, middle name, relation, birthdate, gender. One child per line.',
+        'create.form.heightCm': 'Height, cm',
+        'create.form.heightCm.placeholder': '180',
+        'create.form.weightKg': 'Weight, kg',
+        'create.form.weightKg.placeholder': '80',
+        'create.form.hairColour': 'Hair colour',
+        'create.form.hairColour.placeholder': 'Hair colour',
+        'create.form.eyesColour': 'Eyes colour',
+        'create.form.eyesColour.placeholder': 'Eyes colour',
+        'create.form.uniformSize': 'Uniform size',
+        'create.form.uniformSize.placeholder': 'Uniform size',
+        'create.form.shoesSize': 'Shoes size',
+        'create.form.shoesSize.placeholder': 'Shoes size',
+        'create.form.civilPassportSeries': 'Civil passport series',
+        'create.form.civilPassportSeries.placeholder': 'Series',
+        'create.form.civilPassportNumber': 'Civil passport number',
+        'create.form.civilPassportNumber.placeholder': 'Number',
+        'create.form.civilPassportIssued': 'Civil passport issued',
+        'create.form.civilPassportAuthority': 'Civil passport authority',
+        'create.form.civilPassportAuthority.placeholder': 'Authority',
+        'create.form.foreignPassportSeries': 'Foreign passport series',
+        'create.form.foreignPassportSeries.placeholder': 'Series',
+        'create.form.foreignPassportNumber': 'Foreign passport number',
+        'create.form.foreignPassportNumber.placeholder': 'Number',
+        'create.form.foreignPassportIssued': 'Foreign passport issued',
+        'create.form.foreignPassportExpiry': 'Foreign passport expiry',
+        'create.form.foreignPassportAuthority': 'Foreign passport authority',
+        'create.form.foreignPassportAuthority.placeholder': 'Authority',
+        'create.form.seafarerIdNumber': "Seafarer's ID number",
+        'create.form.seafarerIdNumber.placeholder': 'Number',
+        'create.form.seafarerIdIssued': "Seafarer's ID issued",
+        'create.form.seafarerIdExpiry': "Seafarer's ID expiry",
+        'create.form.seamansBookNumber': "Seaman's book number",
+        'create.form.seamansBookNumber.placeholder': 'Number',
+        'create.form.seamansBookIssued': "Seaman's book issued",
+        'create.form.usaVisaType': 'USA visa type',
+        'create.form.usaVisaType.placeholder': 'Visa type',
+        'create.form.usaVisaIssued': 'USA visa issued',
+        'create.form.usaVisaExpiry': 'USA visa expiry',
+        'create.form.usaVisaPost': 'USA visa issuing post',
+        'create.form.usaVisaPost.placeholder': 'Issuing post',
+        'create.form.schengenVisaNumber': 'Schengen visa number',
+        'create.form.schengenVisaNumber.placeholder': 'Number',
+        'create.form.schengenVisaIssued': 'Schengen visa issued',
+        'create.form.schengenVisaExpiry': 'Schengen visa expiry',
+        'create.form.schengenVisaPost': 'Schengen visa issuing post',
+        'create.form.schengenVisaPost.placeholder': 'Issuing post',
         'create.form.cocType': 'COC type',
         'create.form.cocType.placeholder': 'Officer in charge',
         'create.form.cocNumber': 'COC number',
         'create.form.cocNumber.placeholder': 'COC-123456',
         'create.form.cocCountry': 'COC issuing country',
         'create.form.cocCountry.placeholder': 'PH',
+        'create.form.cocInstitute': 'COC institute',
+        'create.form.cocInstitute.placeholder': 'Institute',
+        'create.form.cocIssued': 'COC issued',
         'create.form.cocExpiry': 'COC expiry',
         'create.form.educationInstitution': 'Education institution',
         'create.form.educationInstitution.placeholder': 'Maritime academy',
         'create.form.educationGrade': 'Education grade',
         'create.form.educationGrade.placeholder': 'Bachelor',
+        'create.form.educationFrom': 'Education from',
+        'create.form.educationTo': 'Education to',
+        'create.form.educationSpecialisation': 'Education specialisation',
+        'create.form.educationSpecialisation.placeholder': 'Specialisation',
+        'create.form.educationIssuedOn': 'Education issued on',
+        'create.form.educationComments': 'Education comments',
+        'create.form.educationComments.placeholder': 'Education comments',
+        'create.form.endorsementType': 'Endorsement type',
+        'create.form.endorsementType.placeholder': 'Endorsement type',
+        'create.form.endorsementInstitute': 'Endorsement institute',
+        'create.form.endorsementInstitute.placeholder': 'Institute',
+        'create.form.endorsementNumber': 'Endorsement number',
+        'create.form.endorsementNumber.placeholder': 'Number',
+        'create.form.endorsementIssued': 'Endorsement issued',
+        'create.form.endorsementExpiry': 'Endorsement expiry',
+        'create.form.endorsementComments': 'Endorsement comments',
+        'create.form.endorsementComments.placeholder': 'Endorsement comments',
         'create.form.trainingCourses': 'Training courses',
         'create.form.trainingCourses.placeholder': 'Basic Training, Advanced Fire Fighting',
+        'create.form.trainingInstitute': 'Training institute',
+        'create.form.trainingInstitute.placeholder': 'Institute',
+        'create.form.trainingNumber': 'Training certificate number',
+        'create.form.trainingNumber.placeholder': 'Number',
+        'create.form.trainingIssued': 'Training issued',
+        'create.form.trainingExpiry': 'Training expiry',
+        'create.form.trainingComments': 'Training comments',
+        'create.form.trainingComments.placeholder': 'Training comments',
         'create.form.lastVesselName': 'Last vessel name',
         'create.form.lastVesselName.placeholder': 'MV Example',
         'create.form.lastVesselType': 'Last vessel type',
@@ -1224,8 +1872,37 @@
         'create.form.managementCompany.placeholder': 'Ship manager',
         'create.form.engineType': 'Engine type',
         'create.form.engineType.placeholder': 'MAN B&W',
+        'create.form.enginePower': 'Engine power (kW)',
+        'create.form.enginePower.placeholder': '13350',
         'create.form.deadweight': 'Deadweight / tonnage note',
         'create.form.deadweight.placeholder': '50000 DWT',
+        'create.form.seaServiceHistory': 'Additional sea service records',
+        'create.form.seaServiceHistory.placeholder': 'One sea-service row per line: vessel, type, DWT, engine, power, flag, company, rank, from, to',
+        'create.form.referenceCompany1': 'Reference company 1',
+        'create.form.referenceCompany1.placeholder': 'Company',
+        'create.form.referencePerson1': 'Person in charge 1',
+        'create.form.referencePerson1.placeholder': 'Person in charge',
+        'create.form.referencePhone1': 'Telephone 1',
+        'create.form.referencePhone1.placeholder': 'Telephone',
+        'create.form.referenceEmail1': 'E-mail 1',
+        'create.form.referenceEmail1.placeholder': 'email@example.com',
+        'create.form.referenceCompany2': 'Reference company 2',
+        'create.form.referenceCompany2.placeholder': 'Company',
+        'create.form.referencePerson2': 'Person in charge 2',
+        'create.form.referencePerson2.placeholder': 'Person in charge',
+        'create.form.referencePhone2': 'Telephone 2',
+        'create.form.referencePhone2.placeholder': 'Telephone',
+        'create.form.referenceEmail2': 'E-mail 2',
+        'create.form.referenceEmail2.placeholder': 'email@example.com',
+        'create.form.select': 'Select',
+        'create.form.signedOffSick': 'Ever signed off sick?',
+        'create.form.sickDetails': 'Sick-off details',
+        'create.form.sickDetails.placeholder': 'Vessel, date, brief description',
+        'create.form.injuryDetails': 'Injury / health problem details',
+        'create.form.injuryDetails.placeholder': 'Details of injury or health problem during last 10 years',
+        'create.form.operated': 'Ever operated?',
+        'create.form.surgeryDetails': 'Surgery details',
+        'create.form.surgeryDetails.placeholder': 'Date and brief description of surgery',
         'create.form.informationSource': 'How did you hear about us?',
         'create.form.informationSource.placeholder': 'Referral',
         'create.form.publishToMatching': 'Request matching after review',
@@ -1238,6 +1915,18 @@
         'create.form.dataConfirmation.placeholder': 'Select confirmation',
         'create.form.dataConfirmation.confirm': 'I confirm that the submitted data may be processed for profile review and matching preparation.',
         'create.form.dataConfirmation.decline': 'I do not confirm yet.',
+        'create.form.obligationDate': 'Seafarer obligation date',
+        'create.form.obligationPlace': 'Seafarer obligation place',
+        'create.form.obligationPlace.placeholder': 'Place',
+        'create.form.obligationConfirmation': 'Obligation confirmation',
+        'create.form.confirmation.confirm': 'I confirm',
+        'create.form.confirmation.decline': 'I decline',
+        'create.form.agreementDate': 'Agreement date',
+        'create.form.agreementValue': 'Agreement',
+        'create.form.agreement.agree': 'I agree',
+        'create.form.agreement.disagree': 'I disagree',
+        'create.form.sourceComments': 'Source / consent comments',
+        'create.form.sourceComments.placeholder': 'Comments',
         'create.form.certificateStatus': 'COC / endorsements',
         'create.form.stcwStatus': 'STCW / training records',
         'create.form.passportExpiry': 'Passport expiry',
@@ -1373,8 +2062,14 @@
         'create.workspace.eyebrow': 'Workspace',
         'create.tab.cv': 'Основа CV',
         'create.tab.contact': 'Контакты',
+        'create.tab.addresses': 'Адреса',
+        'create.tab.family': 'Семья',
+        'create.tab.physical': 'Физические данные',
+        'create.tab.identityDocuments': 'ID / визы',
         'create.tab.qualifications': 'Квалификация',
         'create.tab.seaService': 'Sea service',
+        'create.tab.references': 'Рекомендации',
+        'create.tab.medical': 'Медицина',
         'create.tab.publication': 'Публикация',
         'create.tab.documents': 'Документы',
         'create.tab.review': 'Проверка',
@@ -1385,12 +2080,30 @@
         'create.section.contact.eyebrow': 'Карточка физического лица',
         'create.section.contact.title': 'Контакты и адреса',
         'create.section.contact.copy': 'Эти поля готовят данные физического лица и экстренного контакта для будущей проверки.',
+        'create.section.addresses.eyebrow': 'Адресные карточки PERS',
+        'create.section.addresses.title': 'Постоянный и регистрационный адрес',
+        'create.section.addresses.copy': 'Адресные поля приведены к исходной форме моряка.',
+        'create.section.family.eyebrow': 'Семейные карточки PERS',
+        'create.section.family.title': 'Ближайший родственник, бенефициар и дети',
+        'create.section.family.copy': 'Полные данные ближайшего родственника и детей из исходной формы. Дети указываются только когда это требуется юридически или операционно.',
+        'create.section.physical.eyebrow': 'Физическая карточка PERS',
+        'create.section.physical.title': 'Физические данные',
+        'create.section.physical.copy': 'Операционные физические данные из исходной формы.',
+        'create.section.identityDocuments.eyebrow': 'Карточка документов QUAL',
+        'create.section.identityDocuments.title': 'Документы личности и визы',
+        'create.section.identityDocuments.copy': 'Метаданные документов соответствуют исходной форме. Файлы загружаются отдельно и защищённо.',
         'create.section.qualifications.eyebrow': 'Карточка квалификации',
         'create.section.qualifications.title': 'Сертификаты и образование',
         'create.section.qualifications.copy': 'Укажите основной COC, образование и краткую информацию по тренингам для сопоставления.',
         'create.section.seaService.eyebrow': 'Карточка опыта',
         'create.section.seaService.title': 'Последний морской опыт',
         'create.section.seaService.copy': 'Запишите последний опыт на судне, чтобы оператор мог сравнить его с запросом работодателя.',
+        'create.section.references.eyebrow': 'Рекомендации EXPERIENCE',
+        'create.section.references.title': 'Предыдущие работодатели для рекомендаций',
+        'create.section.references.copy': 'Контакты предыдущих работодателей из исходной формы.',
+        'create.section.medical.eyebrow': 'Медицинская карточка',
+        'create.section.medical.title': 'Медицинская история и чувствительные декларации',
+        'create.section.medical.copy': 'Чувствительные медицинские поля хранятся только для контролируемой проверки и не должны быть широко видимы.',
         'create.section.publication.eyebrow': 'Контролируемая публикация',
         'create.section.publication.title': 'Запрос на публикацию для matching',
         'create.section.publication.copy': 'Эти настройки фиксируют ваш запрос на проверенный matching. Они не публикуют профиль автоматически.',
@@ -1470,19 +2183,146 @@
         'create.form.emergencyRelation.placeholder': 'Супруг / супруга',
         'create.form.emergencyPhone': 'Телефон экстренного контакта',
         'create.form.emergencyPhone.placeholder': '+639171112233',
+        'create.form.surname': 'Фамилия',
+        'create.form.surname.placeholder': 'Фамилия',
+        'create.form.firstName': 'Имя',
+        'create.form.firstName.placeholder': 'Имя',
+        'create.form.middleName': 'Отчество / второе имя',
+        'create.form.middleName.placeholder': 'Отчество',
+        'create.form.citizenship': 'Гражданство',
+        'create.form.citizenship.placeholder': 'RUSSIAN FEDERATION',
+        'create.form.religion': 'Религия',
+        'create.form.religion.placeholder': 'Необязательно',
+        'create.form.permanentStreet': 'Улица постоянного адреса',
+        'create.form.permanentStreet.placeholder': 'Улица',
+        'create.form.permanentHouse': 'Дом постоянного адреса',
+        'create.form.permanentHouse.placeholder': 'Дом',
+        'create.form.permanentFlat': 'Квартира постоянного адреса',
+        'create.form.permanentFlat.placeholder': 'Квартира',
+        'create.form.permanentPostCode': 'Почтовый индекс постоянного адреса',
+        'create.form.permanentPostCode.placeholder': 'Индекс',
+        'create.form.permanentComments': 'Комментарии к постоянному адресу',
+        'create.form.permanentComments.placeholder': 'Комментарии к адресу',
+        'create.form.registrationStreet': 'Улица регистрационного адреса',
+        'create.form.registrationStreet.placeholder': 'Улица',
+        'create.form.registrationHouse': 'Дом регистрационного адреса',
+        'create.form.registrationHouse.placeholder': 'Дом',
+        'create.form.registrationFlat': 'Квартира регистрационного адреса',
+        'create.form.registrationFlat.placeholder': 'Квартира',
+        'create.form.registrationCity': 'Город регистрации',
+        'create.form.registrationCity.placeholder': 'Город',
+        'create.form.registrationCountry': 'Страна регистрации',
+        'create.form.registrationCountry.placeholder': 'Страна',
+        'create.form.registrationPostCode': 'Почтовый индекс регистрации',
+        'create.form.registrationPostCode.placeholder': 'Индекс',
+        'create.form.registrationComments': 'Комментарии к регистрационному адресу',
+        'create.form.registrationComments.placeholder': 'Комментарии к адресу',
+        'create.form.kinSurname': 'Фамилия родственника',
+        'create.form.kinSurname.placeholder': 'Фамилия',
+        'create.form.kinFirstName': 'Имя родственника',
+        'create.form.kinFirstName.placeholder': 'Имя',
+        'create.form.kinMiddleName': 'Отчество родственника',
+        'create.form.kinMiddleName.placeholder': 'Отчество',
+        'create.form.kinBirthdate': 'Дата рождения родственника',
+        'create.form.kinGender': 'Пол родственника',
+        'create.form.kinGender.placeholder': 'Пол',
+        'create.form.kinRelation': 'Родственная связь',
+        'create.form.kinRelation.placeholder': 'Степень родства',
+        'create.form.kinHomePhone': 'Домашний телефон родственника',
+        'create.form.kinHomePhone.placeholder': 'Домашний телефон',
+        'create.form.kinEmail': 'Email родственника',
+        'create.form.kinEmail.placeholder': 'kin@example.com',
+        'create.form.kinAddress': 'Адрес родственника',
+        'create.form.kinAddress.placeholder': 'Улица, дом, город, страна',
+        'create.form.childrenRecords': 'Данные детей',
+        'create.form.childrenRecords.placeholder': 'Фамилия, имя, отчество, отношение, дата рождения, пол. Один ребенок на строку.',
+        'create.form.heightCm': 'Рост, см',
+        'create.form.heightCm.placeholder': '180',
+        'create.form.weightKg': 'Вес, кг',
+        'create.form.weightKg.placeholder': '80',
+        'create.form.hairColour': 'Цвет волос',
+        'create.form.hairColour.placeholder': 'Цвет волос',
+        'create.form.eyesColour': 'Цвет глаз',
+        'create.form.eyesColour.placeholder': 'Цвет глаз',
+        'create.form.uniformSize': 'Размер формы',
+        'create.form.uniformSize.placeholder': 'Размер формы',
+        'create.form.shoesSize': 'Размер обуви',
+        'create.form.shoesSize.placeholder': 'Размер обуви',
+        'create.form.civilPassportSeries': 'Серия гражданского паспорта',
+        'create.form.civilPassportSeries.placeholder': 'Серия',
+        'create.form.civilPassportNumber': 'Номер гражданского паспорта',
+        'create.form.civilPassportNumber.placeholder': 'Номер',
+        'create.form.civilPassportIssued': 'Дата выдачи гражданского паспорта',
+        'create.form.civilPassportAuthority': 'Кем выдан гражданский паспорт',
+        'create.form.civilPassportAuthority.placeholder': 'Орган выдачи',
+        'create.form.foreignPassportSeries': 'Серия загранпаспорта',
+        'create.form.foreignPassportSeries.placeholder': 'Серия',
+        'create.form.foreignPassportNumber': 'Номер загранпаспорта',
+        'create.form.foreignPassportNumber.placeholder': 'Номер',
+        'create.form.foreignPassportIssued': 'Дата выдачи загранпаспорта',
+        'create.form.foreignPassportExpiry': 'Срок загранпаспорта',
+        'create.form.foreignPassportAuthority': 'Кем выдан загранпаспорт',
+        'create.form.foreignPassportAuthority.placeholder': 'Орган выдачи',
+        'create.form.seafarerIdNumber': 'Номер Seafarer ID',
+        'create.form.seafarerIdNumber.placeholder': 'Номер',
+        'create.form.seafarerIdIssued': 'Дата выдачи Seafarer ID',
+        'create.form.seafarerIdExpiry': 'Срок Seafarer ID',
+        'create.form.seamansBookNumber': 'Номер мореходной книжки',
+        'create.form.seamansBookNumber.placeholder': 'Номер',
+        'create.form.seamansBookIssued': 'Дата выдачи мореходной книжки',
+        'create.form.usaVisaType': 'Тип визы США',
+        'create.form.usaVisaType.placeholder': 'Тип визы',
+        'create.form.usaVisaIssued': 'Дата выдачи визы США',
+        'create.form.usaVisaExpiry': 'Срок визы США',
+        'create.form.usaVisaPost': 'Место выдачи визы США',
+        'create.form.usaVisaPost.placeholder': 'Место выдачи',
+        'create.form.schengenVisaNumber': 'Номер Schengen visa',
+        'create.form.schengenVisaNumber.placeholder': 'Номер',
+        'create.form.schengenVisaIssued': 'Дата выдачи Schengen visa',
+        'create.form.schengenVisaExpiry': 'Срок Schengen visa',
+        'create.form.schengenVisaPost': 'Место выдачи Schengen visa',
+        'create.form.schengenVisaPost.placeholder': 'Место выдачи',
         'create.form.cocType': 'Тип COC',
         'create.form.cocType.placeholder': 'Officer in charge',
         'create.form.cocNumber': 'Номер COC',
         'create.form.cocNumber.placeholder': 'COC-123456',
         'create.form.cocCountry': 'Страна выдачи COC',
         'create.form.cocCountry.placeholder': 'PH',
+        'create.form.cocInstitute': 'Организация выдачи COC',
+        'create.form.cocInstitute.placeholder': 'Институт',
+        'create.form.cocIssued': 'Дата выдачи COC',
         'create.form.cocExpiry': 'Срок COC',
         'create.form.educationInstitution': 'Учебное заведение',
         'create.form.educationInstitution.placeholder': 'Морская академия',
         'create.form.educationGrade': 'Уровень образования',
         'create.form.educationGrade.placeholder': 'Бакалавр',
+        'create.form.educationFrom': 'Обучение с',
+        'create.form.educationTo': 'Обучение до',
+        'create.form.educationSpecialisation': 'Специализация',
+        'create.form.educationSpecialisation.placeholder': 'Специализация',
+        'create.form.educationIssuedOn': 'Документ об образовании выдан',
+        'create.form.educationComments': 'Комментарии к образованию',
+        'create.form.educationComments.placeholder': 'Комментарии к образованию',
+        'create.form.endorsementType': 'Тип endorsement',
+        'create.form.endorsementType.placeholder': 'Тип endorsement',
+        'create.form.endorsementInstitute': 'Организация endorsement',
+        'create.form.endorsementInstitute.placeholder': 'Институт',
+        'create.form.endorsementNumber': 'Номер endorsement',
+        'create.form.endorsementNumber.placeholder': 'Номер',
+        'create.form.endorsementIssued': 'Дата выдачи endorsement',
+        'create.form.endorsementExpiry': 'Срок endorsement',
+        'create.form.endorsementComments': 'Комментарии к endorsement',
+        'create.form.endorsementComments.placeholder': 'Комментарии к endorsement',
         'create.form.trainingCourses': 'Курсы и тренинги',
         'create.form.trainingCourses.placeholder': 'Basic Training, Advanced Fire Fighting',
+        'create.form.trainingInstitute': 'Учебный центр',
+        'create.form.trainingInstitute.placeholder': 'Институт',
+        'create.form.trainingNumber': 'Номер сертификата обучения',
+        'create.form.trainingNumber.placeholder': 'Номер',
+        'create.form.trainingIssued': 'Дата выдачи обучения',
+        'create.form.trainingExpiry': 'Срок обучения',
+        'create.form.trainingComments': 'Комментарии к обучению',
+        'create.form.trainingComments.placeholder': 'Комментарии к обучению',
         'create.form.lastVesselName': 'Название последнего судна',
         'create.form.lastVesselName.placeholder': 'MV Example',
         'create.form.lastVesselType': 'Тип последнего судна',
@@ -1497,8 +2337,37 @@
         'create.form.managementCompany.placeholder': 'Ship manager',
         'create.form.engineType': 'Тип двигателя',
         'create.form.engineType.placeholder': 'MAN B&W',
+        'create.form.enginePower': 'Мощность двигателя (kW)',
+        'create.form.enginePower.placeholder': '13350',
         'create.form.deadweight': 'DWT / тоннаж',
         'create.form.deadweight.placeholder': '50000 DWT',
+        'create.form.seaServiceHistory': 'Дополнительные записи морского опыта',
+        'create.form.seaServiceHistory.placeholder': 'Одна строка на запись: судно, тип, DWT, двигатель, мощность, флаг, компания, должность, с, по',
+        'create.form.referenceCompany1': 'Компания для рекомендации 1',
+        'create.form.referenceCompany1.placeholder': 'Компания',
+        'create.form.referencePerson1': 'Контактное лицо 1',
+        'create.form.referencePerson1.placeholder': 'Контактное лицо',
+        'create.form.referencePhone1': 'Телефон 1',
+        'create.form.referencePhone1.placeholder': 'Телефон',
+        'create.form.referenceEmail1': 'E-mail 1',
+        'create.form.referenceEmail1.placeholder': 'email@example.com',
+        'create.form.referenceCompany2': 'Компания для рекомендации 2',
+        'create.form.referenceCompany2.placeholder': 'Компания',
+        'create.form.referencePerson2': 'Контактное лицо 2',
+        'create.form.referencePerson2.placeholder': 'Контактное лицо',
+        'create.form.referencePhone2': 'Телефон 2',
+        'create.form.referencePhone2.placeholder': 'Телефон',
+        'create.form.referenceEmail2': 'E-mail 2',
+        'create.form.referenceEmail2.placeholder': 'email@example.com',
+        'create.form.select': 'Выбрать',
+        'create.form.signedOffSick': 'Были списаны по болезни?',
+        'create.form.sickDetails': 'Детали списания по болезни',
+        'create.form.sickDetails.placeholder': 'Судно, дата, краткое описание',
+        'create.form.injuryDetails': 'Травмы / проблемы со здоровьем',
+        'create.form.injuryDetails.placeholder': 'Детали травм или проблем со здоровьем за последние 10 лет',
+        'create.form.operated': 'Были операции?',
+        'create.form.surgeryDetails': 'Детали операции',
+        'create.form.surgeryDetails.placeholder': 'Дата и краткое описание операции',
         'create.form.informationSource': 'Как вы узнали о нас?',
         'create.form.informationSource.placeholder': 'Рекомендация',
         'create.form.publishToMatching': 'Запросить matching после проверки',
@@ -1511,6 +2380,18 @@
         'create.form.dataConfirmation.placeholder': 'Выберите подтверждение',
         'create.form.dataConfirmation.confirm': 'Я подтверждаю, что переданные данные могут обрабатываться для проверки профиля и подготовки matching.',
         'create.form.dataConfirmation.decline': 'Пока не подтверждаю.',
+        'create.form.obligationDate': 'Дата обязательства моряка',
+        'create.form.obligationPlace': 'Место обязательства моряка',
+        'create.form.obligationPlace.placeholder': 'Место',
+        'create.form.obligationConfirmation': 'Подтверждение обязательства',
+        'create.form.confirmation.confirm': 'Подтверждаю',
+        'create.form.confirmation.decline': 'Отклоняю',
+        'create.form.agreementDate': 'Дата согласия',
+        'create.form.agreementValue': 'Согласие',
+        'create.form.agreement.agree': 'Согласен',
+        'create.form.agreement.disagree': 'Не согласен',
+        'create.form.sourceComments': 'Комментарии к источнику / согласию',
+        'create.form.sourceComments.placeholder': 'Комментарии',
         'create.form.certificateStatus': 'COC / endorsements',
         'create.form.stcwStatus': 'STCW / тренинги',
         'create.form.passportExpiry': 'Срок паспорта',
@@ -1669,19 +2550,92 @@
       const placeOfBirth = document.getElementById('create-place-of-birth');
       const gender = document.getElementById('create-gender');
       const civilStatus = document.getElementById('create-civil-status');
+      const surname = document.getElementById('create-surname');
+      const firstName = document.getElementById('create-first-name');
+      const middleName = document.getElementById('create-middle-name');
+      const citizenship = document.getElementById('create-citizenship');
+      const religion = document.getElementById('create-religion');
       const permanentAddress = document.getElementById('create-permanent-address');
       const residenceCity = document.getElementById('create-residence-city');
       const nearestAirport = document.getElementById('create-nearest-airport');
       const emergencyContactName = document.getElementById('create-emergency-contact-name');
       const emergencyContactRelation = document.getElementById('create-emergency-contact-relation');
       const emergencyContactPhone = document.getElementById('create-emergency-contact-phone');
+      const permanentStreet = document.getElementById('create-permanent-street');
+      const permanentHouse = document.getElementById('create-permanent-house');
+      const permanentFlat = document.getElementById('create-permanent-flat');
+      const permanentPostCode = document.getElementById('create-permanent-post-code');
+      const permanentComments = document.getElementById('create-permanent-comments');
+      const registrationStreet = document.getElementById('create-registration-street');
+      const registrationHouse = document.getElementById('create-registration-house');
+      const registrationFlat = document.getElementById('create-registration-flat');
+      const registrationCity = document.getElementById('create-registration-city');
+      const registrationCountry = document.getElementById('create-registration-country');
+      const registrationPostCode = document.getElementById('create-registration-post-code');
+      const registrationComments = document.getElementById('create-registration-comments');
+      const kinSurname = document.getElementById('create-kin-surname');
+      const kinFirstName = document.getElementById('create-kin-first-name');
+      const kinMiddleName = document.getElementById('create-kin-middle-name');
+      const kinBirthdate = document.getElementById('create-kin-birthdate');
+      const kinGender = document.getElementById('create-kin-gender');
+      const kinRelation = document.getElementById('create-kin-relation');
+      const kinHomePhone = document.getElementById('create-kin-home-phone');
+      const kinEmail = document.getElementById('create-kin-email');
+      const kinAddress = document.getElementById('create-kin-address');
+      const childrenRecords = document.getElementById('create-children-records');
+      const heightCm = document.getElementById('create-height-cm');
+      const weightKg = document.getElementById('create-weight-kg');
+      const hairColour = document.getElementById('create-hair-colour');
+      const eyesColour = document.getElementById('create-eyes-colour');
+      const uniformSize = document.getElementById('create-uniform-size');
+      const shoesSize = document.getElementById('create-shoes-size');
+      const civilPassportSeries = document.getElementById('create-civil-passport-series');
+      const civilPassportNumber = document.getElementById('create-civil-passport-number');
+      const civilPassportIssued = document.getElementById('create-civil-passport-issued');
+      const civilPassportAuthority = document.getElementById('create-civil-passport-authority');
+      const foreignPassportSeries = document.getElementById('create-foreign-passport-series');
+      const foreignPassportNumber = document.getElementById('create-foreign-passport-number');
+      const foreignPassportIssued = document.getElementById('create-foreign-passport-issued');
+      const foreignPassportExpiry = document.getElementById('create-foreign-passport-expiry');
+      const foreignPassportAuthority = document.getElementById('create-foreign-passport-authority');
+      const seafarerIdNumber = document.getElementById('create-seafarer-id-number');
+      const seafarerIdIssued = document.getElementById('create-seafarer-id-issued');
+      const seafarerIdExpiry = document.getElementById('create-seafarer-id-expiry');
+      const seamansBookNumber = document.getElementById('create-seamans-book-number');
+      const seamansBookIssued = document.getElementById('create-seamans-book-issued');
+      const usaVisaType = document.getElementById('create-usa-visa-type');
+      const usaVisaIssued = document.getElementById('create-usa-visa-issued');
+      const usaVisaExpiry = document.getElementById('create-usa-visa-expiry');
+      const usaVisaPost = document.getElementById('create-usa-visa-post');
+      const schengenVisaNumber = document.getElementById('create-schengen-visa-number');
+      const schengenVisaIssued = document.getElementById('create-schengen-visa-issued');
+      const schengenVisaExpiry = document.getElementById('create-schengen-visa-expiry');
+      const schengenVisaPost = document.getElementById('create-schengen-visa-post');
       const cocType = document.getElementById('create-coc-type');
       const cocNumber = document.getElementById('create-coc-number');
       const cocIssuingCountry = document.getElementById('create-coc-issuing-country');
+      const cocInstitute = document.getElementById('create-coc-institute');
+      const cocIssued = document.getElementById('create-coc-issued');
       const cocExpiry = document.getElementById('create-coc-expiry');
       const educationInstitution = document.getElementById('create-education-institution');
       const educationGrade = document.getElementById('create-education-grade');
+      const educationFrom = document.getElementById('create-education-from');
+      const educationTo = document.getElementById('create-education-to');
+      const educationSpecialisation = document.getElementById('create-education-specialisation');
+      const educationIssuedOn = document.getElementById('create-education-issued-on');
+      const educationComments = document.getElementById('create-education-comments');
+      const endorsementType = document.getElementById('create-endorsement-type');
+      const endorsementInstitute = document.getElementById('create-endorsement-institute');
+      const endorsementNumber = document.getElementById('create-endorsement-number');
+      const endorsementIssued = document.getElementById('create-endorsement-issued');
+      const endorsementExpiry = document.getElementById('create-endorsement-expiry');
+      const endorsementComments = document.getElementById('create-endorsement-comments');
       const trainingCourses = document.getElementById('create-training-courses');
+      const trainingInstitute = document.getElementById('create-training-institute');
+      const trainingNumber = document.getElementById('create-training-number');
+      const trainingIssued = document.getElementById('create-training-issued');
+      const trainingExpiry = document.getElementById('create-training-expiry');
+      const trainingComments = document.getElementById('create-training-comments');
       const lastVesselName = document.getElementById('create-last-vessel-name');
       const lastVesselType = document.getElementById('create-last-vessel-type');
       const lastRank = document.getElementById('create-last-rank');
@@ -1690,11 +2644,32 @@
       const serviceTo = document.getElementById('create-service-to');
       const managementCompany = document.getElementById('create-management-company');
       const engineType = document.getElementById('create-engine-type');
+      const enginePower = document.getElementById('create-engine-power');
       const deadweight = document.getElementById('create-deadweight');
+      const seaServiceHistory = document.getElementById('create-sea-service-history');
+      const referenceCompany1 = document.getElementById('create-reference-company-1');
+      const referencePerson1 = document.getElementById('create-reference-person-1');
+      const referencePhone1 = document.getElementById('create-reference-phone-1');
+      const referenceEmail1 = document.getElementById('create-reference-email-1');
+      const referenceCompany2 = document.getElementById('create-reference-company-2');
+      const referencePerson2 = document.getElementById('create-reference-person-2');
+      const referencePhone2 = document.getElementById('create-reference-phone-2');
+      const referenceEmail2 = document.getElementById('create-reference-email-2');
+      const signedOffSick = document.getElementById('create-signed-off-sick');
+      const sickDetails = document.getElementById('create-sick-details');
+      const injuryDetails = document.getElementById('create-injury-details');
+      const operated = document.getElementById('create-operated');
+      const surgeryDetails = document.getElementById('create-surgery-details');
       const informationSource = document.getElementById('create-information-source');
       const publishToMatching = document.getElementById('create-publish-to-matching');
       const candidateSummary = document.getElementById('create-candidate-summary');
       const dataProcessingConfirmation = document.getElementById('create-data-processing-confirmation');
+      const obligationDate = document.getElementById('create-obligation-date');
+      const obligationPlace = document.getElementById('create-obligation-place');
+      const obligationConfirmation = document.getElementById('create-obligation-confirmation');
+      const agreementDate = document.getElementById('create-agreement-date');
+      const agreementValue = document.getElementById('create-agreement-value');
+      const sourceComments = document.getElementById('create-source-comments');
       const uploadType = document.getElementById('create-document-upload-type');
       const uploadFile = document.getElementById('create-document-upload-file');
       const uploadSubmit = document.getElementById('create-document-upload-submit');
@@ -1770,8 +2745,20 @@
             datalist: 'create-relation-options'
           },
           {
+            catalogCode: 'religion_values',
+            datalist: 'create-religion-options'
+          },
+          {
             catalogCode: 'certificate_of_competence_types',
             datalist: 'create-coc-type-options'
+          },
+          {
+            catalogCode: 'national_document_types',
+            datalist: 'create-national-document-type-options'
+          },
+          {
+            catalogCode: 'endorsement_institutions',
+            datalist: 'create-endorsement-institute-options'
           },
           {
             catalogCode: 'countries',
@@ -1909,6 +2896,13 @@
             gender: gender.value.trim(),
             civil_status: civilStatus.value.trim()
           }),
+          name_components: compactObject({
+            surname: surname.value.trim(),
+            first_name: firstName.value.trim(),
+            middle_name: middleName.value.trim(),
+            citizenship: citizenship.value.trim(),
+            religion: religion.value.trim()
+          }),
           contact_and_addresses: compactObject({
             permanent_address: permanentAddress.value.trim(),
             residence_city: residenceCity.value.trim(),
@@ -1916,6 +2910,64 @@
             emergency_contact_name: emergencyContactName.value.trim(),
             emergency_contact_relation: emergencyContactRelation.value.trim(),
             emergency_contact_phone: emergencyContactPhone.value.trim()
+          }),
+          address_details: compactObject({
+            permanent_street: permanentStreet.value.trim(),
+            permanent_house: permanentHouse.value.trim(),
+            permanent_flat: permanentFlat.value.trim(),
+            permanent_post_code: permanentPostCode.value.trim(),
+            permanent_comments: permanentComments.value.trim(),
+            registration_street: registrationStreet.value.trim(),
+            registration_house: registrationHouse.value.trim(),
+            registration_flat: registrationFlat.value.trim(),
+            registration_city: registrationCity.value.trim(),
+            registration_country: registrationCountry.value.trim(),
+            registration_post_code: registrationPostCode.value.trim(),
+            registration_comments: registrationComments.value.trim()
+          }),
+          family_details: compactObject({
+            kin_surname: kinSurname.value.trim(),
+            kin_first_name: kinFirstName.value.trim(),
+            kin_middle_name: kinMiddleName.value.trim(),
+            kin_birthdate: kinBirthdate.value || null,
+            kin_gender: kinGender.value.trim(),
+            kin_relation: kinRelation.value.trim(),
+            kin_home_phone: kinHomePhone.value.trim(),
+            kin_email: kinEmail.value.trim(),
+            kin_address: kinAddress.value.trim(),
+            children_records: childrenRecords.value.trim()
+          }),
+          physical_details: compactObject({
+            height_cm: heightCm.value.trim(),
+            weight_kg: weightKg.value.trim(),
+            hair_colour: hairColour.value.trim(),
+            eyes_colour: eyesColour.value.trim(),
+            uniform_size: uniformSize.value.trim(),
+            shoes_size: shoesSize.value.trim()
+          }),
+          identity_documents: compactObject({
+            civil_passport_series: civilPassportSeries.value.trim(),
+            civil_passport_number: civilPassportNumber.value.trim(),
+            civil_passport_issued: civilPassportIssued.value || null,
+            civil_passport_authority: civilPassportAuthority.value.trim(),
+            foreign_passport_series: foreignPassportSeries.value.trim(),
+            foreign_passport_number: foreignPassportNumber.value.trim(),
+            foreign_passport_issued: foreignPassportIssued.value || null,
+            foreign_passport_expiry: foreignPassportExpiry.value || null,
+            foreign_passport_authority: foreignPassportAuthority.value.trim(),
+            seafarer_id_number: seafarerIdNumber.value.trim(),
+            seafarer_id_issued: seafarerIdIssued.value || null,
+            seafarer_id_expiry: seafarerIdExpiry.value || null,
+            seamans_book_number: seamansBookNumber.value.trim(),
+            seamans_book_issued: seamansBookIssued.value || null,
+            usa_visa_type: usaVisaType.value.trim(),
+            usa_visa_issued: usaVisaIssued.value || null,
+            usa_visa_expiry: usaVisaExpiry.value || null,
+            usa_visa_post: usaVisaPost.value.trim(),
+            schengen_visa_number: schengenVisaNumber.value.trim(),
+            schengen_visa_issued: schengenVisaIssued.value || null,
+            schengen_visa_expiry: schengenVisaExpiry.value || null,
+            schengen_visa_post: schengenVisaPost.value.trim()
           }),
           qualifications: compactObject({
             coc_type: cocType.value.trim(),
@@ -1926,6 +2978,26 @@
             education_grade: educationGrade.value.trim(),
             training_courses: listFromInput(trainingCourses)
           }),
+          qualification_details: compactObject({
+            coc_institute: cocInstitute.value.trim(),
+            coc_issued: cocIssued.value || null,
+            education_from: educationFrom.value || null,
+            education_to: educationTo.value || null,
+            education_specialisation: educationSpecialisation.value.trim(),
+            education_issued_on: educationIssuedOn.value || null,
+            education_comments: educationComments.value.trim(),
+            endorsement_type: endorsementType.value.trim(),
+            endorsement_institute: endorsementInstitute.value.trim(),
+            endorsement_number: endorsementNumber.value.trim(),
+            endorsement_issued: endorsementIssued.value || null,
+            endorsement_expiry: endorsementExpiry.value || null,
+            endorsement_comments: endorsementComments.value.trim(),
+            training_institute: trainingInstitute.value.trim(),
+            training_number: trainingNumber.value.trim(),
+            training_issued: trainingIssued.value || null,
+            training_expiry: trainingExpiry.value || null,
+            training_comments: trainingComments.value.trim()
+          }),
           sea_service: compactObject({
             last_vessel_name: lastVesselName.value.trim(),
             last_vessel_type: lastVesselType.value.trim(),
@@ -1935,13 +3007,40 @@
             service_to: serviceTo.value || null,
             management_company: managementCompany.value.trim(),
             engine_type: engineType.value.trim(),
-            deadweight: deadweight.value.trim()
+            engine_power: enginePower.value.trim(),
+            deadweight: deadweight.value.trim(),
+            sea_service_history: seaServiceHistory.value.trim()
+          }),
+          previous_employer_references: compactObject({
+            reference_company_1: referenceCompany1.value.trim(),
+            reference_person_1: referencePerson1.value.trim(),
+            reference_phone_1: referencePhone1.value.trim(),
+            reference_email_1: referenceEmail1.value.trim(),
+            reference_company_2: referenceCompany2.value.trim(),
+            reference_person_2: referencePerson2.value.trim(),
+            reference_phone_2: referencePhone2.value.trim(),
+            reference_email_2: referenceEmail2.value.trim()
+          }),
+          medical_history: compactObject({
+            signed_off_sick: signedOffSick.value,
+            sick_details: sickDetails.value.trim(),
+            injury_details: injuryDetails.value.trim(),
+            operated: operated.value,
+            surgery_details: surgeryDetails.value.trim()
           }),
           matching_publication: compactObject({
             information_source: informationSource.value.trim(),
             publish_to_matching: publishToMatching.value,
             candidate_summary: candidateSummary.value.trim(),
             data_processing_confirmation: dataProcessingConfirmation.value
+          }),
+          consent_details: compactObject({
+            obligation_date: obligationDate.value || null,
+            obligation_place: obligationPlace.value.trim(),
+            obligation_confirmation: obligationConfirmation.value,
+            agreement_date: agreementDate.value || null,
+            agreement_value: agreementValue.value,
+            source_comments: sourceComments.value.trim()
           })
         };
 
@@ -2091,6 +3190,13 @@
         setFieldValue(gender, personal.gender);
         setFieldValue(civilStatus, personal.civil_status);
 
+        const nameParts = workspaceSection(workspace, 'name_components');
+        setFieldValue(surname, nameParts.surname);
+        setFieldValue(firstName, nameParts.first_name);
+        setFieldValue(middleName, nameParts.middle_name);
+        setFieldValue(citizenship, nameParts.citizenship);
+        setFieldValue(religion, nameParts.religion);
+
         const contact = workspaceSection(workspace, 'contact_and_addresses');
         setFieldValue(permanentAddress, contact.permanent_address);
         setFieldValue(residenceCity, contact.residence_city);
@@ -2098,6 +3204,64 @@
         setFieldValue(emergencyContactName, contact.emergency_contact_name);
         setFieldValue(emergencyContactRelation, contact.emergency_contact_relation);
         setFieldValue(emergencyContactPhone, contact.emergency_contact_phone);
+
+        const addresses = workspaceSection(workspace, 'address_details');
+        setFieldValue(permanentStreet, addresses.permanent_street);
+        setFieldValue(permanentHouse, addresses.permanent_house);
+        setFieldValue(permanentFlat, addresses.permanent_flat);
+        setFieldValue(permanentPostCode, addresses.permanent_post_code);
+        setFieldValue(permanentComments, addresses.permanent_comments);
+        setFieldValue(registrationStreet, addresses.registration_street);
+        setFieldValue(registrationHouse, addresses.registration_house);
+        setFieldValue(registrationFlat, addresses.registration_flat);
+        setFieldValue(registrationCity, addresses.registration_city);
+        setFieldValue(registrationCountry, addresses.registration_country);
+        setFieldValue(registrationPostCode, addresses.registration_post_code);
+        setFieldValue(registrationComments, addresses.registration_comments);
+
+        const family = workspaceSection(workspace, 'family_details');
+        setFieldValue(kinSurname, family.kin_surname);
+        setFieldValue(kinFirstName, family.kin_first_name);
+        setFieldValue(kinMiddleName, family.kin_middle_name);
+        setFieldValue(kinBirthdate, family.kin_birthdate);
+        setFieldValue(kinGender, family.kin_gender);
+        setFieldValue(kinRelation, family.kin_relation);
+        setFieldValue(kinHomePhone, family.kin_home_phone);
+        setFieldValue(kinEmail, family.kin_email);
+        setFieldValue(kinAddress, family.kin_address);
+        setFieldValue(childrenRecords, family.children_records);
+
+        const physical = workspaceSection(workspace, 'physical_details');
+        setFieldValue(heightCm, physical.height_cm);
+        setFieldValue(weightKg, physical.weight_kg);
+        setFieldValue(hairColour, physical.hair_colour);
+        setFieldValue(eyesColour, physical.eyes_colour);
+        setFieldValue(uniformSize, physical.uniform_size);
+        setFieldValue(shoesSize, physical.shoes_size);
+
+        const identity = workspaceSection(workspace, 'identity_documents');
+        setFieldValue(civilPassportSeries, identity.civil_passport_series);
+        setFieldValue(civilPassportNumber, identity.civil_passport_number);
+        setFieldValue(civilPassportIssued, identity.civil_passport_issued);
+        setFieldValue(civilPassportAuthority, identity.civil_passport_authority);
+        setFieldValue(foreignPassportSeries, identity.foreign_passport_series);
+        setFieldValue(foreignPassportNumber, identity.foreign_passport_number);
+        setFieldValue(foreignPassportIssued, identity.foreign_passport_issued);
+        setFieldValue(foreignPassportExpiry, identity.foreign_passport_expiry);
+        setFieldValue(foreignPassportAuthority, identity.foreign_passport_authority);
+        setFieldValue(seafarerIdNumber, identity.seafarer_id_number);
+        setFieldValue(seafarerIdIssued, identity.seafarer_id_issued);
+        setFieldValue(seafarerIdExpiry, identity.seafarer_id_expiry);
+        setFieldValue(seamansBookNumber, identity.seamans_book_number);
+        setFieldValue(seamansBookIssued, identity.seamans_book_issued);
+        setFieldValue(usaVisaType, identity.usa_visa_type);
+        setFieldValue(usaVisaIssued, identity.usa_visa_issued);
+        setFieldValue(usaVisaExpiry, identity.usa_visa_expiry);
+        setFieldValue(usaVisaPost, identity.usa_visa_post);
+        setFieldValue(schengenVisaNumber, identity.schengen_visa_number);
+        setFieldValue(schengenVisaIssued, identity.schengen_visa_issued);
+        setFieldValue(schengenVisaExpiry, identity.schengen_visa_expiry);
+        setFieldValue(schengenVisaPost, identity.schengen_visa_post);
 
         const qualifications = workspaceSection(workspace, 'qualifications');
         setFieldValue(cocType, qualifications.coc_type);
@@ -2108,6 +3272,26 @@
         setFieldValue(educationGrade, qualifications.education_grade);
         trainingCourses.value = joinList(qualifications.training_courses);
 
+        const qualificationDetails = workspaceSection(workspace, 'qualification_details');
+        setFieldValue(cocInstitute, qualificationDetails.coc_institute);
+        setFieldValue(cocIssued, qualificationDetails.coc_issued);
+        setFieldValue(educationFrom, qualificationDetails.education_from);
+        setFieldValue(educationTo, qualificationDetails.education_to);
+        setFieldValue(educationSpecialisation, qualificationDetails.education_specialisation);
+        setFieldValue(educationIssuedOn, qualificationDetails.education_issued_on);
+        setFieldValue(educationComments, qualificationDetails.education_comments);
+        setFieldValue(endorsementType, qualificationDetails.endorsement_type);
+        setFieldValue(endorsementInstitute, qualificationDetails.endorsement_institute);
+        setFieldValue(endorsementNumber, qualificationDetails.endorsement_number);
+        setFieldValue(endorsementIssued, qualificationDetails.endorsement_issued);
+        setFieldValue(endorsementExpiry, qualificationDetails.endorsement_expiry);
+        setFieldValue(endorsementComments, qualificationDetails.endorsement_comments);
+        setFieldValue(trainingInstitute, qualificationDetails.training_institute);
+        setFieldValue(trainingNumber, qualificationDetails.training_number);
+        setFieldValue(trainingIssued, qualificationDetails.training_issued);
+        setFieldValue(trainingExpiry, qualificationDetails.training_expiry);
+        setFieldValue(trainingComments, qualificationDetails.training_comments);
+
         const seaService = workspaceSection(workspace, 'sea_service');
         setFieldValue(lastVesselName, seaService.last_vessel_name);
         setFieldValue(lastVesselType, seaService.last_vessel_type);
@@ -2117,13 +3301,40 @@
         setFieldValue(serviceTo, seaService.service_to);
         setFieldValue(managementCompany, seaService.management_company);
         setFieldValue(engineType, seaService.engine_type);
+        setFieldValue(enginePower, seaService.engine_power);
         setFieldValue(deadweight, seaService.deadweight);
+        setFieldValue(seaServiceHistory, seaService.sea_service_history);
+
+        const references = workspaceSection(workspace, 'previous_employer_references');
+        setFieldValue(referenceCompany1, references.reference_company_1);
+        setFieldValue(referencePerson1, references.reference_person_1);
+        setFieldValue(referencePhone1, references.reference_phone_1);
+        setFieldValue(referenceEmail1, references.reference_email_1);
+        setFieldValue(referenceCompany2, references.reference_company_2);
+        setFieldValue(referencePerson2, references.reference_person_2);
+        setFieldValue(referencePhone2, references.reference_phone_2);
+        setFieldValue(referenceEmail2, references.reference_email_2);
+
+        const medical = workspaceSection(workspace, 'medical_history');
+        setSelectValue(signedOffSick, medical.signed_off_sick, '');
+        setFieldValue(sickDetails, medical.sick_details);
+        setFieldValue(injuryDetails, medical.injury_details);
+        setSelectValue(operated, medical.operated, '');
+        setFieldValue(surgeryDetails, medical.surgery_details);
 
         const publication = workspaceSection(workspace, 'matching_publication');
         setFieldValue(informationSource, publication.information_source);
         setSelectValue(publishToMatching, publication.publish_to_matching, '');
         setFieldValue(candidateSummary, publication.candidate_summary);
         setSelectValue(dataProcessingConfirmation, publication.data_processing_confirmation, '');
+
+        const consent = workspaceSection(workspace, 'consent_details');
+        setFieldValue(obligationDate, consent.obligation_date);
+        setFieldValue(obligationPlace, consent.obligation_place);
+        setSelectValue(obligationConfirmation, consent.obligation_confirmation, '');
+        setFieldValue(agreementDate, consent.agreement_date);
+        setSelectValue(agreementValue, consent.agreement_value, '');
+        setFieldValue(sourceComments, consent.source_comments);
       }
 
       function labelForSelect(select) {

@@ -1064,6 +1064,20 @@ function normalize_seafarer_workspace_metadata(mixed $value): array {
         }
     }
 
+    $nameComponents = $value['name_components'] ?? null;
+    if (is_array($nameComponents)) {
+        $nameData = normalize_text_fields($nameComponents, [
+            'surname',
+            'first_name',
+            'middle_name',
+            'citizenship',
+            'religion',
+        ], 240);
+        if ($nameData !== []) {
+            $workspace['name_components'] = $nameData;
+        }
+    }
+
     $contact = $value['contact_and_addresses'] ?? null;
     if (is_array($contact)) {
         $contactData = array_merge(
@@ -1078,6 +1092,98 @@ function normalize_seafarer_workspace_metadata(mixed $value): array {
         );
         if ($contactData !== []) {
             $workspace['contact_and_addresses'] = $contactData;
+        }
+    }
+
+    $addressDetails = $value['address_details'] ?? null;
+    if (is_array($addressDetails)) {
+        $addressData = normalize_text_fields($addressDetails, [
+            'permanent_street',
+            'permanent_house',
+            'permanent_flat',
+            'permanent_post_code',
+            'permanent_comments',
+            'registration_street',
+            'registration_house',
+            'registration_flat',
+            'registration_city',
+            'registration_country',
+            'registration_post_code',
+            'registration_comments',
+        ], 500);
+        if ($addressData !== []) {
+            $workspace['address_details'] = $addressData;
+        }
+    }
+
+    $familyDetails = $value['family_details'] ?? null;
+    if (is_array($familyDetails)) {
+        $familyData = array_merge(
+            normalize_text_fields($familyDetails, [
+                'kin_surname',
+                'kin_first_name',
+                'kin_middle_name',
+                'kin_gender',
+                'kin_relation',
+                'kin_home_phone',
+                'kin_email',
+                'kin_address',
+                'children_records',
+            ], 1200),
+            normalize_date_fields($familyDetails, ['kin_birthdate'])
+        );
+        if ($familyData !== []) {
+            $workspace['family_details'] = $familyData;
+        }
+    }
+
+    $physicalDetails = $value['physical_details'] ?? null;
+    if (is_array($physicalDetails)) {
+        $physicalData = normalize_text_fields($physicalDetails, [
+            'height_cm',
+            'weight_kg',
+            'hair_colour',
+            'eyes_colour',
+            'uniform_size',
+            'shoes_size',
+        ], 160);
+        if ($physicalData !== []) {
+            $workspace['physical_details'] = $physicalData;
+        }
+    }
+
+    $identityDocuments = $value['identity_documents'] ?? null;
+    if (is_array($identityDocuments)) {
+        $identityData = array_merge(
+            normalize_text_fields($identityDocuments, [
+                'civil_passport_series',
+                'civil_passport_number',
+                'civil_passport_authority',
+                'foreign_passport_series',
+                'foreign_passport_number',
+                'foreign_passport_authority',
+                'seafarer_id_number',
+                'seamans_book_number',
+                'usa_visa_type',
+                'usa_visa_post',
+                'schengen_visa_number',
+                'schengen_visa_post',
+            ], 500),
+            normalize_date_fields($identityDocuments, [
+                'civil_passport_issued',
+                'foreign_passport_issued',
+                'foreign_passport_expiry',
+                'seafarer_id_issued',
+                'seafarer_id_expiry',
+                'seamans_book_issued',
+                'usa_visa_issued',
+                'usa_visa_expiry',
+                'schengen_visa_issued',
+                'schengen_visa_expiry',
+            ])
+        );
+        if ($identityData !== []) {
+            $workspace['identity_documents'] = $identityData;
         }
     }
 
@@ -1102,6 +1208,37 @@ function normalize_seafarer_workspace_metadata(mixed $value): array {
         }
     }
 
+    $qualificationDetails = $value['qualification_details'] ?? null;
+    if (is_array($qualificationDetails)) {
+        $qualificationDetailsData = array_merge(
+            normalize_text_fields($qualificationDetails, [
+                'coc_institute',
+                'education_specialisation',
+                'education_comments',
+                'endorsement_type',
+                'endorsement_institute',
+                'endorsement_number',
+                'endorsement_comments',
+                'training_institute',
+                'training_number',
+                'training_comments',
+            ], 500),
+            normalize_date_fields($qualificationDetails, [
+                'coc_issued',
+                'education_from',
+                'education_to',
+                'education_issued_on',
+                'endorsement_issued',
+                'endorsement_expiry',
+                'training_issued',
+                'training_expiry',
+            ])
+        );
+        if ($qualificationDetailsData !== []) {
+            $workspace['qualification_details'] = $qualificationDetailsData;
+        }
+    }
+
     $seaService = $value['sea_service'] ?? null;
     if (is_array($seaService)) {
         $seaServiceData = array_merge(
@@ -1112,12 +1249,45 @@ function normalize_seafarer_workspace_metadata(mixed $value): array {
                 'flag_country',
                 'management_company',
                 'engine_type',
+                'engine_power',
                 'deadweight',
+                'sea_service_history',
             ], 240),
             normalize_date_fields($seaService, ['service_from', 'service_to'])
         );
         if ($seaServiceData !== []) {
             $workspace['sea_service'] = $seaServiceData;
+        }
+    }
+
+    $references = $value['previous_employer_references'] ?? null;
+    if (is_array($references)) {
+        $referenceData = normalize_text_fields($references, [
+            'reference_company_1',
+            'reference_person_1',
+            'reference_phone_1',
+            'reference_email_1',
+            'reference_company_2',
+            'reference_person_2',
+            'reference_phone_2',
+            'reference_email_2',
+        ], 320);
+        if ($referenceData !== []) {
+            $workspace['previous_employer_references'] = $referenceData;
+        }
+    }
+
+    $medicalHistory = $value['medical_history'] ?? null;
+    if (is_array($medicalHistory)) {
+        $medicalData = normalize_text_fields($medicalHistory, [
+            'signed_off_sick',
+            'sick_details',
+            'injury_details',
+            'operated',
+            'surgery_details',
+        ], 1200);
+        if ($medicalData !== []) {
+            $workspace['medical_history'] = $medicalData;
         }
     }
 
@@ -1131,6 +1301,25 @@ function normalize_seafarer_workspace_metadata(mixed $value): array {
         ], 1200);
         if ($publicationData !== []) {
             $workspace['matching_publication'] = $publicationData;
+        }
+    }
+
+    $consentDetails = $value['consent_details'] ?? null;
+    if (is_array($consentDetails)) {
+        $consentData = array_merge(
+            normalize_text_fields($consentDetails, [
+                'obligation_place',
+                'obligation_confirmation',
+                'agreement_value',
+                'source_comments',
+            ], 1000),
+            normalize_date_fields($consentDetails, [
+                'obligation_date',
+                'agreement_date',
+            ])
+        );
+        if ($consentData !== []) {
+            $workspace['consent_details'] = $consentData;
         }
     }
 
@@ -2008,10 +2197,19 @@ function cpg_seafarer_workspace_review_readiness(array $workspace, array $docume
 function cpg_seafarer_workspace_allowed_sections(): array {
     return [
         'personal_details',
+        'name_components',
         'contact_and_addresses',
+        'address_details',
+        'family_details',
+        'physical_details',
+        'identity_documents',
         'qualifications',
+        'qualification_details',
         'sea_service',
+        'previous_employer_references',
+        'medical_history',
         'matching_publication',
+        'consent_details',
     ];
 }
 
@@ -4080,10 +4278,11 @@ function cpg_seafarer_review_status_for_decision(string $decision): ?string {
 
 function cpg_seafarer_workspace_section_review_card(string $section): ?string {
     return match ($section) {
-        'personal_details', 'contact_and_addresses' => 'personal_contact',
-        'qualifications' => 'qualifications',
-        'sea_service' => 'sea_service',
-        'matching_publication' => 'matching_publication',
+        'personal_details', 'name_components', 'contact_and_addresses', 'address_details', 'family_details', 'physical_details' => 'personal_contact',
+        'identity_documents', 'qualifications', 'qualification_details' => 'qualifications',
+        'sea_service', 'previous_employer_references' => 'sea_service',
+        'medical_history' => 'document_readiness',
+        'matching_publication', 'consent_details' => 'matching_publication',
         default => null,
     };
 }
