@@ -147,4 +147,24 @@ test('extended seafarer workspace cards persist through draft save and reload', 
   await page.locator('#profile-section-publication > summary').click();
   await expect(page.locator('#create-publish-to-matching')).toHaveValue('yes');
   await expect(page.locator('#create-data-processing-confirmation')).toHaveValue('i_confirm');
+
+  await page.goto(`/cabinet/?draft_id=${draftId}`);
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: upload supporting documents');
+  const workspaceCard = page.locator('#cabinet-seafarer-workspace-card');
+  await expect(workspaceCard).toBeVisible();
+  await expect(workspaceCard).not.toHaveAttribute('open', '');
+  await workspaceCard.locator('> summary').click();
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Personal and contact details');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('1990-04-12');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Dubai');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Emergency contact');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Maria Reyes');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Certificates');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('COC-WS-123456');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Training');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Advanced Fire Fighting');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Sea service');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('MV Test Horizon');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Matching preferences');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('yes');
 });

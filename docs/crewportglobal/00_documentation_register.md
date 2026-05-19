@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.22
+- Version: 1.23
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -220,6 +220,7 @@ docs/crewportglobal/
   130_cpg_ref_006_seafarer_workspace_extended_form_report.md
   131_cpg_seafarer_001_structured_workspace_schema_report.md
   132_cpg_seafarer_002_workspace_json_to_structured_bridge_report.md
+  133_cpg_seafarer_003_cabinet_structured_workspace_view_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -389,6 +390,8 @@ Document 131 records the CPG-SEAFARER-001 structured seafarer workspace schema i
 
 Document 132 records the CPG-SEAFARER-002 seafarer workspace JSON-to-structured-records bridge, including backend sync from `document_metadata.seafarer_workspace`, structured workspace API summary, migration readiness guard, reference catalog value resolution and the no-automatic-publication boundary.
 
+Document 133 records the CPG-SEAFARER-003 cabinet structured seafarer workspace view, including the collapsed-by-default `Seafarer workspace` cabinet card, structured section rendering, draft-payload/API fallback data source, English/Russian i18n keys and no-publication boundary.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -492,6 +495,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.23 | 2026-05-19 | GTC IT / AI Assistant | Added document 133 as CPG-SEAFARER-003 cabinet structured workspace view report covering the collapsed Seafarer workspace card, structured record rendering, API/draft fallback source, i18n coverage and no-publication boundary |
 | 1.22 | 2026-05-19 | GTC IT / AI Assistant | Added document 132 as CPG-SEAFARER-002 workspace JSON-to-structured bridge report covering structured sync on seafarer draft save, workspace summary endpoint, migration readiness guard, reference catalog value resolution and no automatic candidate-publication boundary |
 | 1.21 | 2026-05-19 | GTC IT / AI Assistant | Added document 131 as CPG-SEAFARER-001 structured seafarer workspace schema report covering migration 012, normalized seafarer card tables, catalog/document links, review-state fields and controlled publication snapshot boundaries |
 | 1.20 | 2026-05-19 | GTC IT / AI Assistant | Added document 130 as CPG-REF-006 seafarer workspace extended form report covering additional create-profile cards, reference catalog bindings, seafarer_workspace metadata persistence, backend list normalization and no automatic matching publication boundary |

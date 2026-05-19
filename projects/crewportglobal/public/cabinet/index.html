@@ -268,13 +268,41 @@
     .task-list,
     .document-list,
     .service-list,
-    .profile-grid {
+    .profile-grid,
+    .workspace-grid {
       display: grid;
       gap: 10px;
     }
 
     .profile-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .workspace-section {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--cabinet-line);
+      border-radius: 8px;
+      background: var(--cabinet-soft);
+    }
+
+    .workspace-section h3 {
+      margin-bottom: 0;
+      color: var(--cabinet-ink);
+      font-size: 16px;
+      line-height: 1.3;
+    }
+
+    .workspace-section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .workspace-record-list {
+      display: grid;
+      gap: 8px;
     }
 
     .profile-identity-card {
@@ -485,6 +513,7 @@
       .cabinet-header,
       .cabinet-status,
       .profile-grid,
+      .workspace-section-grid,
       .profile-photo-tools,
       .task-upload,
       .profile-identity-card {
@@ -642,6 +671,19 @@
       </div>
     </details>
 
+    <details class="cabinet-card" id="cabinet-seafarer-workspace-card" hidden>
+      <summary class="card-header">
+        <span class="card-title">
+          <strong data-i18n="cabinet.workspace.title">Seafarer workspace</strong>
+          <span id="cabinet-seafarer-workspace-status" data-i18n="cabinet.workspace.status">Structured seafarer card records</span>
+        </span>
+        <span class="card-indicator" aria-hidden="true">+</span>
+      </summary>
+      <div class="card-body">
+        <div id="cabinet-seafarer-workspace-summary" class="workspace-grid"></div>
+      </div>
+    </details>
+
     <details class="cabinet-card" id="cabinet-services-card">
       <summary class="card-header">
         <span class="card-title">
@@ -742,6 +784,55 @@
         'cabinet.profile.companyStatus': 'Company status',
         'cabinet.profile.vacancyStatus': 'Crew request status',
         'cabinet.profile.vacancy': 'Crew request',
+        'cabinet.workspace.title': 'Seafarer workspace',
+        'cabinet.workspace.status': 'Structured seafarer card records',
+        'cabinet.workspace.schemaPending': 'Structured workspace schema is not available yet. The public form data remains saved in the registration draft.',
+        'cabinet.workspace.empty': 'Structured seafarer records are not filled yet. Open the seafarer workspace and complete the relevant sections.',
+        'cabinet.workspace.personal': 'Personal and contact details',
+        'cabinet.workspace.emergency': 'Emergency contact',
+        'cabinet.workspace.education': 'Education',
+        'cabinet.workspace.certificates': 'Certificates',
+        'cabinet.workspace.training': 'Training',
+        'cabinet.workspace.seaService': 'Sea service',
+        'cabinet.workspace.medical': 'Medical declarations',
+        'cabinet.workspace.matching': 'Matching preferences',
+        'cabinet.workspace.dob': 'Date of birth',
+        'cabinet.workspace.birthPlace': 'Place of birth',
+        'cabinet.workspace.gender': 'Gender',
+        'cabinet.workspace.civilStatus': 'Civil status',
+        'cabinet.workspace.nationality': 'Nationality',
+        'cabinet.workspace.residenceCountry': 'Residence country',
+        'cabinet.workspace.residenceCity': 'Residence city',
+        'cabinet.workspace.address': 'Permanent address',
+        'cabinet.workspace.airport': 'Nearest airport',
+        'cabinet.workspace.contactName': 'Contact name',
+        'cabinet.workspace.relation': 'Relation',
+        'cabinet.workspace.phone': 'Phone',
+        'cabinet.workspace.institution': 'Institution',
+        'cabinet.workspace.grade': 'Grade',
+        'cabinet.workspace.country': 'Country',
+        'cabinet.workspace.completed': 'Completed',
+        'cabinet.workspace.certificateType': 'Certificate type',
+        'cabinet.workspace.certificateNumber': 'Certificate number',
+        'cabinet.workspace.expires': 'Expires',
+        'cabinet.workspace.trainingType': 'Training type',
+        'cabinet.workspace.center': 'Training center',
+        'cabinet.workspace.vessel': 'Vessel',
+        'cabinet.workspace.vesselType': 'Vessel type',
+        'cabinet.workspace.rank': 'Rank',
+        'cabinet.workspace.department': 'Department',
+        'cabinet.workspace.period': 'Service period',
+        'cabinet.workspace.management': 'Management company',
+        'cabinet.workspace.engine': 'Engine type',
+        'cabinet.workspace.deadweight': 'Deadweight',
+        'cabinet.workspace.fitness': 'Fitness status',
+        'cabinet.workspace.medicalExpiry': 'Medical certificate expiry',
+        'cabinet.workspace.vesselPreferences': 'Preferred vessel types',
+        'cabinet.workspace.compensation': 'Expected compensation',
+        'cabinet.workspace.availability': 'Availability',
+        'cabinet.workspace.summary': 'Candidate summary',
+        'cabinet.workspace.publication': 'Matching publication',
+        'cabinet.workspace.review': 'Review status',
         'cabinet.services.title': 'My services',
         'cabinet.services.status': 'Available service areas and capability requests',
         'cabinet.services.currentSeafarer': 'Seafarer / specialist workspace',
@@ -852,6 +943,55 @@
         'cabinet.profile.companyStatus': 'Статус компании',
         'cabinet.profile.vacancyStatus': 'Статус запроса экипажа',
         'cabinet.profile.vacancy': 'Запрос экипажа',
+        'cabinet.workspace.title': 'Рабочая карточка моряка',
+        'cabinet.workspace.status': 'Структурированные записи карточки моряка',
+        'cabinet.workspace.schemaPending': 'Структурированная схема рабочего пространства пока недоступна. Данные публичной формы остаются сохраненными в регистрационном черновике.',
+        'cabinet.workspace.empty': 'Структурированные записи моряка пока не заполнены. Откройте рабочее пространство моряка и заполните нужные разделы.',
+        'cabinet.workspace.personal': 'Личные и контактные данные',
+        'cabinet.workspace.emergency': 'Экстренный контакт',
+        'cabinet.workspace.education': 'Образование',
+        'cabinet.workspace.certificates': 'Сертификаты',
+        'cabinet.workspace.training': 'Подготовка',
+        'cabinet.workspace.seaService': 'Морской стаж',
+        'cabinet.workspace.medical': 'Медицинские декларации',
+        'cabinet.workspace.matching': 'Предпочтения для подбора',
+        'cabinet.workspace.dob': 'Дата рождения',
+        'cabinet.workspace.birthPlace': 'Место рождения',
+        'cabinet.workspace.gender': 'Пол',
+        'cabinet.workspace.civilStatus': 'Семейное положение',
+        'cabinet.workspace.nationality': 'Гражданство',
+        'cabinet.workspace.residenceCountry': 'Страна проживания',
+        'cabinet.workspace.residenceCity': 'Город проживания',
+        'cabinet.workspace.address': 'Постоянный адрес',
+        'cabinet.workspace.airport': 'Ближайший аэропорт',
+        'cabinet.workspace.contactName': 'Контактное лицо',
+        'cabinet.workspace.relation': 'Связь',
+        'cabinet.workspace.phone': 'Телефон',
+        'cabinet.workspace.institution': 'Учебное заведение',
+        'cabinet.workspace.grade': 'Степень / уровень',
+        'cabinet.workspace.country': 'Страна',
+        'cabinet.workspace.completed': 'Дата завершения',
+        'cabinet.workspace.certificateType': 'Тип сертификата',
+        'cabinet.workspace.certificateNumber': 'Номер сертификата',
+        'cabinet.workspace.expires': 'Действует до',
+        'cabinet.workspace.trainingType': 'Тип подготовки',
+        'cabinet.workspace.center': 'Учебный центр',
+        'cabinet.workspace.vessel': 'Судно',
+        'cabinet.workspace.vesselType': 'Тип судна',
+        'cabinet.workspace.rank': 'Звание',
+        'cabinet.workspace.department': 'Отделение',
+        'cabinet.workspace.period': 'Период службы',
+        'cabinet.workspace.management': 'Управляющая компания',
+        'cabinet.workspace.engine': 'Тип двигателя',
+        'cabinet.workspace.deadweight': 'Дедвейт',
+        'cabinet.workspace.fitness': 'Годность',
+        'cabinet.workspace.medicalExpiry': 'Срок мед. сертификата',
+        'cabinet.workspace.vesselPreferences': 'Предпочтительные типы судов',
+        'cabinet.workspace.compensation': 'Ожидаемая компенсация',
+        'cabinet.workspace.availability': 'Доступность',
+        'cabinet.workspace.summary': 'Краткое описание кандидата',
+        'cabinet.workspace.publication': 'Публикация для подбора',
+        'cabinet.workspace.review': 'Статус проверки',
         'cabinet.services.title': 'Мои сервисы',
         'cabinet.services.status': 'Доступные направления и запросы полномочий',
         'cabinet.services.currentSeafarer': 'Рабочее пространство моряка / специалиста',
@@ -907,12 +1047,15 @@
       const userSummary = document.getElementById('cabinet-user-summary');
       const documentList = document.getElementById('cabinet-document-list');
       const profileSummary = document.getElementById('cabinet-profile-summary');
+      const seafarerWorkspaceCard = document.getElementById('cabinet-seafarer-workspace-card');
+      const seafarerWorkspaceSummary = document.getElementById('cabinet-seafarer-workspace-summary');
       const serviceList = document.getElementById('cabinet-service-list');
       const supportSummary = document.getElementById('cabinet-support-summary');
 
       let cabinetDraft = null;
       let cabinetAuthUser = null;
       let cabinetDocuments = [];
+      let cabinetSeafarerWorkspace = null;
       let activeFormType = '';
 
       function lang() {
@@ -995,6 +1138,24 @@
         return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
       }
 
+      function formatList(value) {
+        if (Array.isArray(value)) {
+          return value.map((item) => String(item || '').trim()).filter(Boolean).join(', ');
+        }
+        return valueOrEmpty(value);
+      }
+
+      function workspaceValue(record, keys) {
+        const source = record && typeof record === 'object' ? record : {};
+        for (const key of keys) {
+          const value = source[key];
+          if (value !== null && value !== undefined && String(value).trim() !== '') {
+            return value;
+          }
+        }
+        return null;
+      }
+
       function detailItem(label, value) {
         const item = document.createElement('div');
         item.className = 'status-tile';
@@ -1012,6 +1173,55 @@
         link.href = href;
         link.textContent = label;
         return link;
+      }
+
+      function workspaceSection(titleKey, items) {
+        const visibleItems = items.filter((item) => valueOrEmpty(item.value) !== t('cabinet.value.empty'));
+        if (visibleItems.length === 0) {
+          return null;
+        }
+
+        const section = document.createElement('article');
+        section.className = 'workspace-section';
+        const title = document.createElement('h3');
+        title.textContent = t(titleKey);
+        const grid = document.createElement('div');
+        grid.className = 'workspace-section-grid';
+        visibleItems.forEach((item) => {
+          grid.append(detailItem(t(item.label), item.value));
+        });
+        section.append(title, grid);
+        return section;
+      }
+
+      function workspaceRecordList(titleKey, records, builder) {
+        if (!Array.isArray(records) || records.length === 0) {
+          return null;
+        }
+
+        const section = document.createElement('article');
+        section.className = 'workspace-section';
+        const title = document.createElement('h3');
+        title.textContent = t(titleKey);
+        const list = document.createElement('div');
+        list.className = 'workspace-record-list';
+        records.forEach((record) => {
+          const values = builder(record).filter((item) => valueOrEmpty(item.value) !== t('cabinet.value.empty'));
+          if (values.length === 0) {
+            return;
+          }
+          const grid = document.createElement('div');
+          grid.className = 'workspace-section-grid';
+          values.forEach((item) => {
+            grid.append(detailItem(t(item.label), item.value));
+          });
+          list.append(grid);
+        });
+        if (list.childElementCount === 0) {
+          return null;
+        }
+        section.append(title, list);
+        return section;
       }
 
       function initialsFromName(name, email) {
@@ -1525,6 +1735,144 @@
         );
       }
 
+      function workspaceFromDraftPayload() {
+        const payload = cabinetDraft && cabinetDraft.payload && typeof cabinetDraft.payload === 'object'
+          ? cabinetDraft.payload
+          : {};
+        const workspace = payload.seafarer_workspace_structured;
+        return workspace && typeof workspace === 'object' ? workspace : null;
+      }
+
+      async function loadSeafarerWorkspace() {
+        cabinetSeafarerWorkspace = null;
+        if (!cabinetDraft || cabinetDraft.role !== 'seafarer') {
+          return;
+        }
+
+        const fromDraft = workspaceFromDraftPayload();
+        if (fromDraft) {
+          cabinetSeafarerWorkspace = fromDraft;
+          return;
+        }
+
+        const draftId = cabinetDraft.draft_id ? String(cabinetDraft.draft_id) : '';
+        const url = draftId
+          ? `/api/v1/seafarer/workspace?draft_id=${encodeURIComponent(draftId)}`
+          : '/api/v1/seafarer/workspace';
+        const response = await fetch(url, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        if (!response.ok) {
+          return;
+        }
+        const body = await response.json().catch(() => ({}));
+        cabinetSeafarerWorkspace = body.workspace && typeof body.workspace === 'object' ? body.workspace : null;
+      }
+
+      function renderSeafarerWorkspace() {
+        seafarerWorkspaceSummary.replaceChildren();
+        const shouldShow = cabinetDraft && cabinetDraft.role === 'seafarer';
+        seafarerWorkspaceCard.hidden = !shouldShow;
+        if (!shouldShow) {
+          return;
+        }
+
+        const workspace = cabinetSeafarerWorkspace && typeof cabinetSeafarerWorkspace === 'object'
+          ? cabinetSeafarerWorkspace
+          : {};
+        if (workspace.schema_ready !== true) {
+          const empty = document.createElement('p');
+          empty.className = 'empty-state';
+          empty.textContent = t('cabinet.workspace.schemaPending');
+          seafarerWorkspaceSummary.append(empty);
+          return;
+        }
+
+        const person = workspace.person_details && typeof workspace.person_details === 'object'
+          ? workspace.person_details
+          : {};
+        const matching = workspace.matching_preferences && typeof workspace.matching_preferences === 'object'
+          ? workspace.matching_preferences
+          : {};
+
+        const sections = [
+          workspaceSection('cabinet.workspace.personal', [
+            { label: 'cabinet.workspace.dob', value: person.date_of_birth },
+            { label: 'cabinet.workspace.birthPlace', value: person.place_of_birth },
+            { label: 'cabinet.workspace.gender', value: person.gender_label },
+            { label: 'cabinet.workspace.civilStatus', value: person.civil_status_label },
+            { label: 'cabinet.workspace.nationality', value: person.nationality_code },
+            { label: 'cabinet.workspace.residenceCountry', value: person.residence_country_code },
+            { label: 'cabinet.workspace.residenceCity', value: person.residence_city_label },
+            { label: 'cabinet.workspace.address', value: person.permanent_address },
+            { label: 'cabinet.workspace.airport', value: person.nearest_airport_label },
+            { label: 'cabinet.workspace.review', value: reviewLabel(person.review_status) },
+          ]),
+          workspaceRecordList('cabinet.workspace.emergency', workspace.emergency_contacts, (record) => [
+            { label: 'cabinet.workspace.contactName', value: record.contact_name },
+            { label: 'cabinet.workspace.relation', value: record.relation_label },
+            { label: 'cabinet.workspace.phone', value: record.contact_phone },
+            { label: 'cabinet.workspace.review', value: reviewLabel(record.review_status) },
+          ]),
+          workspaceRecordList('cabinet.workspace.education', workspace.education_records, (record) => [
+            { label: 'cabinet.workspace.institution', value: record.institution_name },
+            { label: 'cabinet.workspace.grade', value: record.grade_label },
+            { label: 'cabinet.workspace.country', value: record.country_code },
+            { label: 'cabinet.workspace.completed', value: record.completion_date },
+            { label: 'cabinet.workspace.review', value: reviewLabel(record.review_status) },
+          ]),
+          workspaceRecordList('cabinet.workspace.certificates', workspace.certificates, (record) => [
+            { label: 'cabinet.workspace.certificateType', value: workspaceValue(record, ['certificate_type_label', 'certificate_group']) },
+            { label: 'cabinet.workspace.certificateNumber', value: record.certificate_number },
+            { label: 'cabinet.workspace.country', value: record.issuing_country_code },
+            { label: 'cabinet.workspace.expires', value: record.expires_at },
+            { label: 'cabinet.workspace.review', value: reviewLabel(record.review_status) },
+          ]),
+          workspaceRecordList('cabinet.workspace.training', workspace.training_records, (record) => [
+            { label: 'cabinet.workspace.trainingType', value: record.training_type_label },
+            { label: 'cabinet.workspace.certificateNumber', value: record.certificate_number },
+            { label: 'cabinet.workspace.center', value: record.issuing_center },
+            { label: 'cabinet.workspace.expires', value: record.expires_at },
+            { label: 'cabinet.workspace.review', value: reviewLabel(record.review_status) },
+          ]),
+          workspaceRecordList('cabinet.workspace.seaService', workspace.sea_service_records, (record) => [
+            { label: 'cabinet.workspace.vessel', value: record.vessel_name },
+            { label: 'cabinet.workspace.vesselType', value: record.vessel_type_label },
+            { label: 'cabinet.workspace.rank', value: record.rank_label },
+            { label: 'cabinet.workspace.department', value: record.department },
+            { label: 'cabinet.workspace.period', value: [record.service_from, record.service_to].filter(Boolean).join(' - ') },
+            { label: 'cabinet.workspace.management', value: record.management_company },
+            { label: 'cabinet.workspace.engine', value: record.engine_type },
+            { label: 'cabinet.workspace.deadweight', value: record.deadweight },
+            { label: 'cabinet.workspace.review', value: reviewLabel(record.review_status) },
+          ]),
+          workspaceRecordList('cabinet.workspace.medical', workspace.medical_declarations, (record) => [
+            { label: 'cabinet.workspace.medicalExpiry', value: record.medical_certificate_expires_at },
+            { label: 'cabinet.workspace.fitness', value: record.fitness_status },
+            { label: 'cabinet.workspace.review', value: reviewLabel(record.review_status) },
+          ]),
+          workspaceSection('cabinet.workspace.matching', [
+            { label: 'cabinet.workspace.vesselPreferences', value: formatList(matching.preferred_vessel_type_labels) },
+            { label: 'cabinet.workspace.compensation', value: matching.expected_compensation_usd },
+            { label: 'cabinet.workspace.availability', value: [matching.availability_status, matching.availability_date].filter(Boolean).join(' / ') },
+            { label: 'cabinet.workspace.summary', value: matching.candidate_summary },
+            { label: 'cabinet.workspace.publication', value: matching.publish_to_matching },
+            { label: 'cabinet.workspace.review', value: reviewLabel(matching.review_status) },
+          ]),
+        ].filter(Boolean);
+
+        if (sections.length === 0) {
+          const empty = document.createElement('p');
+          empty.className = 'empty-state';
+          empty.textContent = t('cabinet.workspace.empty');
+          seafarerWorkspaceSummary.append(empty);
+          return;
+        }
+
+        seafarerWorkspaceSummary.append(...sections);
+      }
+
       function renderServices() {
         serviceList.replaceChildren();
         const current = document.createElement('article');
@@ -1595,6 +1943,7 @@
           activeFormType = formTypeForRole(cabinetDraft.role);
           const documentsResponse = await window.CPGDrafts.listDocuments(cabinetDraft.draft_id, activeFormType);
           cabinetDocuments = Array.isArray(documentsResponse.documents) ? documentsResponse.documents : [];
+          await loadSeafarerWorkspace();
           const correctionCount = taskDocuments().length;
           const taskCount = correctionCount
             + (emailVerificationRequired() ? 1 : 0)
@@ -1604,6 +1953,7 @@
           renderUserSummary();
           renderDocuments();
           renderProfileStatus();
+          renderSeafarerWorkspace();
           renderServices();
           renderSupport(taskCount);
           return;
@@ -1614,11 +1964,13 @@
           cabinetDraft = null;
           cabinetAuthUser = null;
           cabinetDocuments = [];
+          cabinetSeafarerWorkspace = null;
           activeFormType = 'seafarer';
           renderTasks();
           renderUserSummary();
           renderDocuments();
           renderProfileStatus();
+          renderSeafarerWorkspace();
           renderServices();
           renderSupport(1);
           return;
@@ -1629,6 +1981,7 @@
         activeFormType = formTypeForRole(cabinetDraft.role);
         const documentsResponse = await window.CPGDrafts.listDocuments(cabinetDraft.draft_id, activeFormType);
         cabinetDocuments = Array.isArray(documentsResponse.documents) ? documentsResponse.documents : [];
+        await loadSeafarerWorkspace();
         const correctionCount = taskDocuments().length;
         const taskCount = correctionCount || (cabinetDocuments.length === 0 ? 1 : 0);
 
@@ -1636,6 +1989,7 @@
         renderUserSummary();
         renderDocuments();
         renderProfileStatus();
+        renderSeafarerWorkspace();
         renderServices();
         renderSupport(taskCount);
       }
@@ -1645,11 +1999,13 @@
         cabinetDraft = null;
         cabinetAuthUser = null;
         cabinetDocuments = [];
+        cabinetSeafarerWorkspace = null;
         activeFormType = 'seafarer';
         renderTasks();
         renderUserSummary();
         renderDocuments();
         renderProfileStatus();
+        renderSeafarerWorkspace();
         renderServices();
         renderSupport(1);
       });
