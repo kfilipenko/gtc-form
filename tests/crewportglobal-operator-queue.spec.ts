@@ -161,6 +161,10 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
 
   const note = 'Missing certificate details and availability date.';
   await page.locator('#review-target').selectOption('qualifications');
+  await page.locator('.review-card-action[data-card-decision="start_review"]').click();
+  await expect(page.locator('#review-note-feedback')).toContainText('Qualifications and training -> under_review');
+  await expect(page.locator('#details-sections')).toContainText('review: under_review');
+
   await page.locator('#review-note').fill(note);
   await queueRow.locator('.queue-decision[data-decision="needs_correction"]').click();
   await expect(page.locator('#queue-status')).toContainText('rejected');
@@ -170,6 +174,10 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#review-history-list')).toContainText(note);
   await expect(page.locator('#review-history-list')).toContainText('Target: Qualifications and training');
   await expect(page.locator('#details-sections')).toContainText('review: correction_requested');
+  await page.locator('#review-card-status-filter').selectOption('correction_requested');
+  await expect(page.locator('#details-sections')).toContainText('Qualifications and training');
+  await page.locator('#review-card-status-filter').selectOption('verified');
+  await expect(page.locator('#details-sections')).not.toContainText('Qualifications and training');
 });
 
 test('operator queue page renders and reviews vacancy applications', async ({ page, request }) => {

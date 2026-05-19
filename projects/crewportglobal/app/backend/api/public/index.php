@@ -4027,6 +4027,10 @@ function normalize_operator_decision(mixed $value): ?string {
     return in_array($decision, ['start_review', 'needs_correction', 'reviewed'], true) ? $decision : null;
 }
 
+function normalize_operator_card_review_decision(mixed $value): ?string {
+    return normalize_operator_decision($value);
+}
+
 function normalize_operator_review_note(mixed $value): ?string {
     if ($value === null) {
         return null;
@@ -4944,6 +4948,76 @@ function handle_patch_operator_review_queue_status(string $draftId): void {
     }
 }
 
+function handle_patch_operator_seafarer_workspace_card_review(string $draftId): void {
+    $uuid = api_normalize_uuid($draftId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
+    }
+
+    $body = api_decode_json_body();
+    $decision = normalize_operator_card_review_decision($body['decision'] ?? $body['action'] ?? null);
+    if ($decision === null) {
+        api_error(400, 'invalid_decision', 'decision must be one of start_review, needs_correction, reviewed');
+    }
+
+    $cardCode = normalize_operator_correction_card_code($body['card_code'] ?? $body['correction_card_code'] ?? null);
+    if ($cardCode === null) {
+        api_error(400, 'card_code_required', 'card_code is required');
+    }
+
+    $reviewNote = normalize_operator_review_note($body['note'] ?? $body['review_note'] ?? null);
+    if ($decision === 'needs_correction' && $reviewNote === null) {
+        api_error(400, 'review_note_required', 'note is required for needs_correction');
+    }
+
+    $role = read_role_for_user($uuid);
+    if ($role !== 'seafarer') {
+        api_error(404, 'seafarer_review_item_not_found', 'Seafarer review item not found');
+    }
+
+    $reviewStatus = cpg_seafarer_review_status_for_decision($decision);
+    if ($reviewStatus === null) {
+        api_error(400, 'invalid_decision', 'decision must be one of start_review, needs_correction, reviewed');
+    }
+
+    api_tx_begin();
+    try {
+        cpg_set_seafarer_workspace_card_review_state(
+            $uuid,
+            $cardCode,
+            $reviewStatus,
+            $reviewNote,
+            $decision,
+            'operator_seafarer_workspace_card_review'
+        );
+
+        write_audit_event('operator_seafarer_workspace_card_review_recorded', $uuid, null, null, [
+            'card_code' => $cardCode,
+            'card_name' => cpg_seafarer_review_card_name($cardCode),
+            'decision' => $decision,
+            'review_status' => $reviewStatus,
+            'review_note' => $reviewNote,
+        ], 'operator_seafarer_workspace_card_review');
+
+        api_tx_commit();
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'seafarer_workspace_card_review_failed', $error->getMessage());
+    }
+
+    api_json(200, [
+        'ok' => true,
+        'draft_id' => $uuid,
+        'card_code' => $cardCode,
+        'card_name' => cpg_seafarer_review_card_name($cardCode),
+        'decision' => $decision,
+        'review_status' => $reviewStatus,
+        'review_note' => $reviewNote,
+        'workspace' => cpg_read_seafarer_workspace_summary($uuid),
+        'updated_at' => gmdate('c'),
+    ]);
+}
+
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = request_path();
 
@@ -5255,6 +5329,15 @@ if (preg_match('#^/operator/review-queue/([^/]+)/status$#', $path, $matches) ===
     if ($method === 'PATCH') {
         require_operator_access();
         handle_patch_operator_review_queue_status($matches[1]);
+    }
+    header('Allow: PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
+}
+
+if (preg_match('#^/operator/seafarer-workspace-cards/([^/]+)/review$#', $path, $matches) === 1) {
+    if ($method === 'PATCH') {
+        require_operator_access();
+        handle_patch_operator_seafarer_workspace_card_review($matches[1]);
     }
     header('Allow: PATCH');
     api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');

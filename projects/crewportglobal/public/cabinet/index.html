@@ -1449,28 +1449,48 @@
           return null;
         }
         const payload = cabinetDraft.payload && typeof cabinetDraft.payload === 'object' ? cabinetDraft.payload : {};
-        const review = payload.operator_review && typeof payload.operator_review === 'object' ? payload.operator_review : null;
-        if (!review) {
-          return null;
-        }
-        const decision = typeof review.decision === 'string' ? review.decision : '';
-        const newStatus = typeof review.new_status === 'string' ? review.new_status : '';
-        const queueType = typeof review.queue_type === 'string' ? review.queue_type : '';
-        const note = typeof review.review_note === 'string' ? review.review_note.trim() : '';
-        if (decision !== 'needs_correction' || newStatus !== 'rejected' || queueType !== 'seafarer_profile' || !note) {
-          return null;
-        }
-
-        const cardCode = typeof review.correction_card_code === 'string' ? review.correction_card_code : '';
-        const cardName = typeof review.correction_card_name === 'string' && review.correction_card_name.trim()
-          ? review.correction_card_name.trim()
-          : t('cabinet.profile.seafarerReview');
         const workspace = payload.seafarer_workspace_structured && typeof payload.seafarer_workspace_structured === 'object'
           ? payload.seafarer_workspace_structured
           : {};
         const cardStates = workspace.card_review_states && typeof workspace.card_review_states === 'object'
           ? workspace.card_review_states
           : {};
+        const activeCardStateCorrection = () => {
+          const activeState = Object.values(cardStates).find((state) => (
+            state
+            && typeof state === 'object'
+            && state.review_status === 'correction_requested'
+            && typeof state.review_note === 'string'
+            && state.review_note.trim() !== ''
+          ));
+          if (!activeState || typeof activeState !== 'object') {
+            return null;
+          }
+          const activeCode = typeof activeState.card_code === 'string' ? activeState.card_code : '';
+          return {
+            note: activeState.review_note.trim(),
+            cardName: typeof activeState.card_name === 'string' && activeState.card_name.trim()
+              ? activeState.card_name.trim()
+              : t('cabinet.profile.seafarerReview'),
+            sectionId: seafarerCorrectionSection(activeCode)
+          };
+        };
+        const review = payload.operator_review && typeof payload.operator_review === 'object' ? payload.operator_review : null;
+        if (!review) {
+          return activeCardStateCorrection();
+        }
+        const decision = typeof review.decision === 'string' ? review.decision : '';
+        const newStatus = typeof review.new_status === 'string' ? review.new_status : '';
+        const queueType = typeof review.queue_type === 'string' ? review.queue_type : '';
+        const note = typeof review.review_note === 'string' ? review.review_note.trim() : '';
+        if (decision !== 'needs_correction' || newStatus !== 'rejected' || queueType !== 'seafarer_profile' || !note) {
+          return activeCardStateCorrection();
+        }
+
+        const cardCode = typeof review.correction_card_code === 'string' ? review.correction_card_code : '';
+        const cardName = typeof review.correction_card_name === 'string' && review.correction_card_name.trim()
+          ? review.correction_card_name.trim()
+          : t('cabinet.profile.seafarerReview');
         const cardState = cardCode && cardStates[cardCode] && typeof cardStates[cardCode] === 'object'
           ? cardStates[cardCode]
           : null;

@@ -190,6 +190,15 @@
       color: var(--text-on-dark);
       font: inherit;
     }
+    .review-card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .review-card-action[disabled] {
+      cursor: not-allowed;
+      opacity: 0.52;
+    }
     .review-note-feedback {
       margin: 0;
       color: #f4b942;
@@ -386,12 +395,25 @@
             <p class="details-empty" data-i18n="verify.details.empty">Select a queue item to load full draft details.</p>
           </div>
           <div class="review-note-block">
-            <label class="review-note-label" for="review-target" data-i18n="verify.note.target">Correction target</label>
+            <label class="review-note-label" for="review-target" data-i18n="verify.note.target">Review target</label>
             <select id="review-target" class="review-note-select">
               <option value="" data-i18n="verify.note.target.general">General review item</option>
             </select>
+            <label class="review-note-label" for="review-card-status-filter" data-i18n="verify.card.filter">Card status filter</label>
+            <select id="review-card-status-filter" class="review-note-select">
+              <option value="all" data-i18n="verify.filter.all">All</option>
+              <option value="pending_human_review">pending_human_review</option>
+              <option value="under_review">under_review</option>
+              <option value="correction_requested">correction_requested</option>
+              <option value="verified">verified</option>
+            </select>
             <label class="review-note-label" for="review-note" data-i18n="verify.note.label">Review note (optional)</label>
             <textarea id="review-note" class="review-note-textarea" maxlength="1000" placeholder="Add note for review action. Required for Needs correction."></textarea>
+            <div class="review-card-actions" aria-label="Selected card review actions">
+              <button class="button secondary review-card-action" type="button" data-card-decision="start_review" data-i18n="verify.card.start" disabled>Start card review</button>
+              <button class="button secondary review-card-action" type="button" data-card-decision="needs_correction" data-i18n="verify.card.needsCorrection" disabled>Card needs correction</button>
+              <button class="button secondary review-card-action" type="button" data-card-decision="reviewed" data-i18n="verify.card.verified" disabled>Verify card</button>
+            </div>
             <p id="review-note-feedback" class="review-note-feedback"></p>
             <p id="latest-review-note" class="latest-note" data-i18n="verify.note.latest.empty">Latest review note: -</p>
             <div class="history-panel">
@@ -480,6 +502,12 @@
         'verify.note.latest': 'Latest review note: {note}',
         'verify.note.latestWithTarget': 'Latest review note for {target}: {note}',
         'verify.note.latest.empty': 'Latest review note: -',
+        'verify.card.filter': 'Card status filter',
+        'verify.card.start': 'Start card review',
+        'verify.card.needsCorrection': 'Card needs correction',
+        'verify.card.verified': 'Verify card',
+        'verify.card.selectRequired': 'Select a review target card first.',
+        'verify.card.saved': 'Card review saved: {target} -> {status}',
         'verify.history.title': 'Review history',
         'verify.history.empty': 'No operator review history yet.',
         'verify.history.item': '{created_at} | {decision} | {previous_status} -> {new_status} | {queue_type} | {role} | {source}',
@@ -628,6 +656,12 @@
         'verify.note.latest': 'Последний комментарий проверки: {note}',
         'verify.note.latestWithTarget': 'Последний комментарий проверки для {target}: {note}',
         'verify.note.latest.empty': 'Последний комментарий проверки: -',
+        'verify.card.filter': 'Фильтр статуса карточек',
+        'verify.card.start': 'Начать проверку карточки',
+        'verify.card.needsCorrection': 'Карточка требует исправления',
+        'verify.card.verified': 'Подтвердить карточку',
+        'verify.card.selectRequired': 'Сначала выберите карточку для проверки.',
+        'verify.card.saved': 'Проверка карточки сохранена: {target} -> {status}',
         'verify.history.title': 'История проверки',
         'verify.history.empty': 'История проверки оператором пока пуста.',
         'verify.history.item': '{created_at} | {decision} | {previous_status} -> {new_status} | {queue_type} | {role} | {source}',
@@ -717,6 +751,8 @@
       const detailsSections = document.getElementById('details-sections');
       const detailsJson = document.getElementById('details-json');
       const reviewTargetSelect = document.getElementById('review-target');
+      const reviewCardStatusFilter = document.getElementById('review-card-status-filter');
+      const reviewCardActionButtons = Array.from(document.querySelectorAll('.review-card-action'));
       const reviewNoteInput = document.getElementById('review-note');
       const reviewNoteFeedback = document.getElementById('review-note-feedback');
       const latestReviewNote = document.getElementById('latest-review-note');
@@ -1076,7 +1112,13 @@
       }
 
       function readinessFields(items) {
-        return items.map((item) => {
+        const filterValue = reviewCardStatusFilter ? reviewCardStatusFilter.value : 'all';
+        return items.filter((item) => {
+          if (filterValue === 'all') {
+            return true;
+          }
+          return item && typeof item === 'object' && item.review_status === filterValue;
+        }).map((item) => {
           if (!item || typeof item !== 'object') {
             return null;
           }
@@ -1472,6 +1514,15 @@
         reviewTargetSelect.value = Array.from(reviewTargetSelect.options).some((option) => option.value === currentValue)
           ? currentValue
           : '';
+        updateCardActionState();
+      }
+
+      function updateCardActionState() {
+        const disabled = currentDetailType !== 'draft' || !reviewTargetSelect.value;
+        reviewCardActionButtons.forEach((button) => {
+          button.disabled = disabled;
+          button.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+        });
       }
 
       function filteredQueue() {
@@ -1578,6 +1629,57 @@
           return;
         }
         await loadDraftDetails(itemId);
+      }
+
+      async function applyCardReview(decision) {
+        const draftId = currentDraftPayload && typeof currentDraftPayload.draft_id === 'string'
+          ? currentDraftPayload.draft_id
+          : '';
+        const cardCode = (reviewTargetSelect.value || '').trim();
+        const note = (reviewNoteInput.value || '').trim();
+
+        clearNoteFeedback();
+        if (!draftId || currentDetailType !== 'draft' || !cardCode) {
+          reviewNoteFeedback.textContent = t('verify.card.selectRequired');
+          return;
+        }
+        if (decision === 'needs_correction' && !note) {
+          reviewNoteFeedback.textContent = t('verify.action.noteRequired');
+          return;
+        }
+
+        status.textContent = t('verify.action.saving');
+        try {
+          const response = await fetch(`/api/v1/operator/seafarer-workspace-cards/${encodeURIComponent(draftId)}/review`, {
+            method: 'PATCH',
+            headers: operatorHeaders({
+              'Content-Type': 'application/json',
+            }),
+            body: JSON.stringify({
+              decision,
+              card_code: cardCode,
+              note: note || undefined,
+            }),
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (isOperatorAccessFailure(response)) {
+            showAccessPanel('verify.access.denied');
+            status.textContent = t('verify.access.denied');
+            return;
+          }
+          if (!response.ok || !payload || payload.ok !== true) {
+            throw new Error('operator_card_review_failed');
+          }
+
+          const target = typeof payload.card_name === 'string' ? payload.card_name : cardCode;
+          const reviewStatus = typeof payload.review_status === 'string' ? payload.review_status : decision;
+          reviewNoteFeedback.textContent = t('verify.card.saved', { target, status: reviewStatus });
+          await loadDraftDetails(draftId);
+          status.textContent = t('verify.card.saved', { target, status: reviewStatus });
+        } catch (error) {
+          status.textContent = t('verify.action.error');
+          console.error(error);
+        }
       }
 
       async function applyDecision(draftId, decision, queueType) {
@@ -1746,6 +1848,23 @@
       [filterType, filterRole, filterStatus, sortOrder].forEach((control) => {
         control.addEventListener('change', () => {
           renderQueue();
+        });
+      });
+
+      reviewTargetSelect.addEventListener('change', updateCardActionState);
+      reviewCardStatusFilter.addEventListener('change', () => {
+        if (currentDetailType === 'vacancy_application') {
+          renderApplicationDetails(currentDraftPayload);
+        } else {
+          renderDraftDetails(currentDraftPayload);
+        }
+      });
+      reviewCardActionButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          if (button.disabled) {
+            return;
+          }
+          applyCardReview(button.getAttribute('data-card-decision') || '');
         });
       });
 

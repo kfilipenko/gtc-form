@@ -294,6 +294,48 @@ test('cabinet shows card-level seafarer correction task from operator review', a
   await expect(page.locator('#cabinet-task-list')).not.toContainText('Action required: correct seafarer card');
 });
 
+test('cabinet shows correction task from persisted card review state without full-profile rejection', async ({ page, request }) => {
+  const unique = Date.now();
+  const email = `ui.cabinet.card.state.${unique}@example.com`;
+
+  const createResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Cabinet Card State Seafarer',
+      rank: 'Chief Officer',
+      department: 'deck',
+      document_metadata: {
+        seafarer_workspace: {
+          qualifications: {
+            coc_type: 'Chief Officer',
+            coc_number: 'COC-CARD-STATE-001'
+          }
+        }
+      }
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = await createResponse.json();
+
+  const note = 'Please upload updated COC evidence before card verification.';
+  const cardReviewResponse = await request.patch(`/api/v1/operator/seafarer-workspace-cards/${created.draft_id}/review`, {
+    data: {
+      decision: 'needs_correction',
+      card_code: 'qualifications',
+      note,
+    },
+  });
+  expect(cardReviewResponse.status()).toBe(200);
+  const cardReview = await cardReviewResponse.json();
+  expect(cardReview.review_status).toBe('correction_requested');
+
+  await page.goto(`/cabinet/?draft_id=${created.draft_id}`);
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: correct seafarer card');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Target card: Qualifications and training');
+  await expect(page.locator('#cabinet-task-list')).toContainText(note);
+});
+
 test('cabinet supports employer-side correction task and service area', async ({ page, request }) => {
   const unique = Date.now();
   const email = `ui.cabinet.employer.${unique}@example.com`;
