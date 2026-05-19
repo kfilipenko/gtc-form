@@ -1864,6 +1864,109 @@ function cpg_read_seafarer_workspace_summary(string $userId): array {
     ];
 }
 
+function cpg_seafarer_workspace_value_present(mixed $value): bool {
+    if (is_array($value)) {
+        return count($value) > 0;
+    }
+
+    return $value !== null && trim((string) $value) !== '';
+}
+
+function cpg_seafarer_workspace_review_card(string $code, string $name, array $missing): array {
+    $missing = array_values(array_unique(array_filter($missing, static fn ($item) => is_string($item) && $item !== '')));
+
+    return [
+        'card_code' => $code,
+        'card_name' => $name,
+        'status' => count($missing) === 0 ? 'complete' : 'incomplete',
+        'missing' => $missing,
+    ];
+}
+
+function cpg_readiness_status_is_ready(mixed $value): bool {
+    return is_string($value) && strtolower(trim($value)) === 'ready';
+}
+
+function cpg_seafarer_workspace_review_readiness(array $workspace, array $documentMetadata): array {
+    if (($workspace['schema_ready'] ?? false) !== true || ($workspace['has_profile'] ?? false) !== true) {
+        return [];
+    }
+
+    $personDetails = is_array($workspace['person_details'] ?? null) ? $workspace['person_details'] : [];
+    $emergencyContacts = is_array($workspace['emergency_contacts'] ?? null) ? $workspace['emergency_contacts'] : [];
+    $certificates = is_array($workspace['certificates'] ?? null) ? $workspace['certificates'] : [];
+    $trainingRecords = is_array($workspace['training_records'] ?? null) ? $workspace['training_records'] : [];
+    $seaServiceRecords = is_array($workspace['sea_service_records'] ?? null) ? $workspace['sea_service_records'] : [];
+    $matchingPreferences = is_array($workspace['matching_preferences'] ?? null) ? $workspace['matching_preferences'] : [];
+
+    $primaryEmergency = $emergencyContacts[0] ?? [];
+    $primaryCertificate = $certificates[0] ?? [];
+    $latestSeaService = $seaServiceRecords[0] ?? [];
+
+    $personalMissing = [];
+    if (!cpg_seafarer_workspace_value_present($personDetails['date_of_birth'] ?? null)) {
+        $personalMissing[] = 'date_of_birth';
+    }
+    if (!cpg_seafarer_workspace_value_present($personDetails['residence_city_label'] ?? null)) {
+        $personalMissing[] = 'residence_city';
+    }
+    if (!is_array($primaryEmergency)
+        || !cpg_seafarer_workspace_value_present($primaryEmergency['contact_name'] ?? null)
+        || !cpg_seafarer_workspace_value_present($primaryEmergency['contact_phone'] ?? null)
+    ) {
+        $personalMissing[] = 'primary_emergency_contact';
+    }
+
+    $qualificationMissing = [];
+    if (!is_array($primaryCertificate) || !cpg_seafarer_workspace_value_present($primaryCertificate['certificate_number'] ?? null)) {
+        $qualificationMissing[] = 'certificate_of_competency';
+    }
+    if (count($trainingRecords) === 0) {
+        $qualificationMissing[] = 'training_records';
+    }
+
+    $seaServiceMissing = [];
+    if (!is_array($latestSeaService) || !cpg_seafarer_workspace_value_present($latestSeaService['vessel_name'] ?? null)) {
+        $seaServiceMissing[] = 'latest_sea_service_record';
+    }
+
+    $matchingMissing = [];
+    if (!cpg_seafarer_workspace_value_present($matchingPreferences['candidate_summary'] ?? null)) {
+        $matchingMissing[] = 'candidate_summary';
+    }
+    if (($matchingPreferences['data_processing_confirmation'] ?? null) !== 'i_confirm') {
+        $matchingMissing[] = 'data_processing_confirmation';
+    }
+    if (!cpg_seafarer_workspace_value_present($matchingPreferences['publish_to_matching'] ?? null)) {
+        $matchingMissing[] = 'matching_publication_choice';
+    }
+
+    $documentMissing = [];
+    if (!cpg_readiness_status_is_ready($documentMetadata['certificate_status'] ?? null)) {
+        $documentMissing[] = 'coc_document_status_ready';
+    }
+    if (!cpg_readiness_status_is_ready($documentMetadata['stcw_status'] ?? null)) {
+        $documentMissing[] = 'stcw_training_status_ready';
+    }
+    if (!cpg_seafarer_workspace_value_present($documentMetadata['passport_expiry'] ?? null)) {
+        $documentMissing[] = 'passport_expiry';
+    }
+    if (!cpg_seafarer_workspace_value_present($documentMetadata['medical_expiry'] ?? null)) {
+        $documentMissing[] = 'medical_expiry';
+    }
+    if (!cpg_seafarer_workspace_value_present($documentMetadata['visa_status'] ?? null)) {
+        $documentMissing[] = 'visa_readiness';
+    }
+
+    return [
+        cpg_seafarer_workspace_review_card('personal_contact', 'Personal and contact details', $personalMissing),
+        cpg_seafarer_workspace_review_card('qualifications', 'Qualifications and training', $qualificationMissing),
+        cpg_seafarer_workspace_review_card('sea_service', 'Sea-service record', $seaServiceMissing),
+        cpg_seafarer_workspace_review_card('matching_publication', 'Matching and publication consent', $matchingMissing),
+        cpg_seafarer_workspace_review_card('document_readiness', 'Document readiness metadata', $documentMissing),
+    ];
+}
+
 function cpg_seafarer_workspace_allowed_sections(): array {
     return [
         'personal_details',
@@ -2664,8 +2767,11 @@ function build_draft_response(string $userId): array {
             [$userId]
         );
         $profile = pg_fetch_assoc($profileResult) ?: [];
+        $documentMetadata = cpg_decode_json_object(is_string($profile['document_metadata'] ?? null) ? $profile['document_metadata'] : null);
+        $workspaceSummary = cpg_read_seafarer_workspace_summary($userId);
         $payload['seafarer_profile'] = $profile;
-        $payload['seafarer_workspace_structured'] = cpg_read_seafarer_workspace_summary($userId);
+        $payload['seafarer_workspace_structured'] = $workspaceSummary;
+        $payload['seafarer_review_readiness'] = cpg_seafarer_workspace_review_readiness($workspaceSummary, $documentMetadata);
         $payload['vacancy_applications'] = read_vacancy_applications_for_seafarer($userId);
     } else {
         $company = read_primary_company_for_user($userId);
@@ -3987,6 +4093,8 @@ function read_operator_vacancy_application_detail(string $applicationId): ?array
     }
 
     $history = read_operator_vacancy_application_review_history($applicationId);
+    $documentMetadata = cpg_decode_json_object(is_string($row['document_metadata'] ?? null) ? $row['document_metadata'] : null);
+    $workspaceSummary = cpg_read_seafarer_workspace_summary((string) $row['seafarer_user_id']);
 
     return [
         'ok' => true,
@@ -4016,6 +4124,8 @@ function read_operator_vacancy_application_detail(string $applicationId): ?array
             'review_status' => $row['seafarer_review_status'],
             'document_metadata' => $row['document_metadata'],
         ],
+        'seafarer_workspace_structured' => $workspaceSummary,
+        'seafarer_review_readiness' => cpg_seafarer_workspace_review_readiness($workspaceSummary, $documentMetadata),
         'vacancy' => [
             'vacancy_request_id' => $row['vacancy_request_id'],
             'vacancy_title' => $row['vacancy_title'],

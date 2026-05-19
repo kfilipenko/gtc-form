@@ -81,11 +81,39 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
       availability_status: 'available_now',
       document_metadata: {
         certificate_status: 'ready',
-        stcw_status: 'collecting',
+        stcw_status: 'ready',
         passport_expiry: '2028-02-20',
         medical_expiry: '2027-03-15',
         visa_status: 'required',
         notes: 'Visa appointment scheduled.',
+        seafarer_workspace: {
+          personal_details: {
+            date_of_birth: '1992-06-15',
+          },
+          contact_and_addresses: {
+            residence_city: 'Batumi',
+            emergency_contact_name: 'Nino Queue',
+            emergency_contact_relation: 'Sister',
+            emergency_contact_phone: '+995555000111',
+          },
+          qualifications: {
+            coc_type: 'Second Officer',
+            coc_number: 'COC-VERIFY-001',
+            coc_expiry: '2029-09-30',
+            training_courses: ['Basic Training', 'ECDIS'],
+          },
+          sea_service: {
+            last_vessel_name: 'MV Verify Horizon',
+            last_vessel_type: 'Container Ship',
+            last_rank: 'Third Officer',
+            service_to: '2026-01-20',
+          },
+          matching_publication: {
+            candidate_summary: 'Second Officer ready for reviewed matching after document verification.',
+            publish_to_matching: 'yes',
+            data_processing_confirmation: 'i_confirm',
+          },
+        },
       },
     },
   });
@@ -114,10 +142,16 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#details-sections')).toContainText('Registration');
   await expect(page.locator('#details-sections')).toContainText('Seafarer profile');
   await expect(page.locator('#details-sections')).toContainText('Document readiness');
+  await expect(page.locator('#details-sections')).toContainText('Structured seafarer workspace');
+  await expect(page.locator('#details-sections')).toContainText('Review readiness checklist');
   await expect(page.locator('#details-sections')).toContainText(seafarerEmail);
   await expect(page.locator('#details-sections')).toContainText('Second Officer');
   await expect(page.locator('#details-sections')).toContainText('2028-02-20');
   await expect(page.locator('#details-sections')).toContainText('Visa appointment scheduled.');
+  await expect(page.locator('#details-sections')).toContainText('COC-VERIFY-001');
+  await expect(page.locator('#details-sections')).toContainText('MV Verify Horizon');
+  await expect(page.locator('#details-sections')).toContainText('Document readiness metadata | complete');
+  await expect(page.locator('#details-json')).toContainText('seafarer_review_readiness');
   await expect(page.locator('#details-json')).toContainText(seafarerEmail);
   await expect(page.locator('#details-json')).toContainText('seafarer_profile');
 

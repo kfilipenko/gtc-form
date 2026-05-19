@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.27
+- Version: 1.28
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -225,6 +225,7 @@ docs/crewportglobal/
   135_cpg_seafarer_005_structured_workspace_section_api_contract_report.md
   136_cpg_seafarer_006_create_profile_section_save_frontend_report.md
   137_cpg_seafarer_007_document_readiness_section_save_report.md
+  138_cpg_seafarer_008_operator_structured_workspace_visibility_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -404,6 +405,8 @@ Document 136 records the CPG-SEAFARER-006 create-profile frontend section-save i
 
 Document 137 records the CPG-SEAFARER-007 document-readiness section-save implementation, including the seafarer document-readiness PATCH endpoint, frontend Save section action for passport/medical/visa/readiness notes, metadata merge behavior, audit event and protected-upload boundary.
 
+Document 138 records the CPG-SEAFARER-008 operator structured workspace visibility implementation, including structured seafarer workspace data in operator draft/application details, review-readiness checklist cards, `/verify/` detail rendering and the boundary that no candidate publication, matching decision or access-right expansion is introduced.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -507,6 +510,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.28 | 2026-05-19 | GTC IT / AI Assistant | Added document 138 as CPG-SEAFARER-008 operator structured workspace visibility report covering operator detail structured seafarer workspace rendering, document-readiness metadata, review-readiness checklist, focused verification and no automatic publication/matching boundary |
 | 1.27 | 2026-05-19 | GTC IT / AI Assistant | Added document 137 as CPG-SEAFARER-007 document-readiness section-save report covering seafarer document-readiness PATCH endpoint, frontend card save action, metadata merge behavior, audit event and protected-upload boundary |
 | 1.26 | 2026-05-19 | GTC IT / AI Assistant | Added document 136 as CPG-SEAFARER-006 create-profile section-save frontend report covering local workspace card save actions, section-level feedback, draft-first guard, i18n coverage, section PATCH API integration and no-publication boundary |
 | 1.25 | 2026-05-19 | GTC IT / AI Assistant | Added document 135 as CPG-SEAFARER-005 structured workspace section API contract report covering section-level PATCH endpoint, JSON fallback preservation, structured table sync, draft/session access modes, audit event and no-publication boundary |
