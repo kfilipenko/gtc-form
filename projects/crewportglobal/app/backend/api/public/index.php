@@ -1997,7 +1997,7 @@ function cpg_read_seafarer_workspace_summary(string $userId): array {
     }
 
     $profile = cpg_fetch_one_assoc(
-        'SELECT seafarer_profile_id, user_id, first_name, primary_rank, department, review_status, document_metadata
+        'SELECT seafarer_profile_id, user_id, first_name, primary_rank, department, contact_phone, contact_email, review_status, document_metadata
          FROM crewportglobal.seafarer_profiles
          WHERE user_id = $1
          LIMIT 1',
@@ -2015,6 +2015,12 @@ function cpg_read_seafarer_workspace_summary(string $userId): array {
         'schema_ready' => true,
         'has_profile' => true,
         'profile_id' => $profileId,
+        'first_name' => $profile['first_name'] ?? null,
+        'primary_rank' => $profile['primary_rank'] ?? null,
+        'department' => $profile['department'] ?? null,
+        'contact_phone' => $profile['contact_phone'] ?? null,
+        'contact_email' => $profile['contact_email'] ?? null,
+        'review_status' => $profile['review_status'] ?? null,
         'card_review_states' => cpg_seafarer_workspace_card_review_states($profile['document_metadata'] ?? null),
         'person_details' => cpg_fetch_one_assoc(
             'SELECT date_of_birth, place_of_birth, gender_label, civil_status_label,
@@ -2088,7 +2094,32 @@ function cpg_seafarer_workspace_value_present(mixed $value): bool {
     return $value !== null && trim((string) $value) !== '';
 }
 
-function cpg_seafarer_workspace_review_card(string $code, string $name, array $missing, array $reviewState = []): array {
+function cpg_workspace_section_data(array $workspace, string $section): array {
+    return isset($workspace[$section]) && is_array($workspace[$section]) ? $workspace[$section] : [];
+}
+
+function cpg_workspace_combined_data(array $workspace, array $sections): array {
+    $combined = [];
+    foreach ($sections as $section) {
+        $data = cpg_workspace_section_data($workspace, $section);
+        if ($data !== []) {
+            $combined = array_merge($combined, $data);
+        }
+    }
+    return $combined;
+}
+
+function cpg_seafarer_missing_source_fields(array $data, array $fieldLabels): array {
+    $missing = [];
+    foreach ($fieldLabels as $field => $label) {
+        if (!cpg_seafarer_workspace_value_present($data[$field] ?? null)) {
+            $missing[] = is_string($label) ? $label : (string) $field;
+        }
+    }
+    return $missing;
+}
+
+function cpg_seafarer_workspace_review_card(string $code, string $name, array $missing, array $reviewState = [], array $extra = []): array {
     $missing = array_values(array_unique(array_filter($missing, static fn ($item) => is_string($item) && $item !== '')));
 
     $card = [
@@ -2102,6 +2133,10 @@ function cpg_seafarer_workspace_review_card(string $code, string $name, array $m
         if (isset($reviewState[$key]) && $reviewState[$key] !== '') {
             $card[$key] = $reviewState[$key];
         }
+    }
+
+    foreach ($extra as $key => $value) {
+        $card[$key] = $value;
     }
 
     return $card;
@@ -2125,10 +2160,222 @@ function cpg_seafarer_workspace_review_readiness(array $workspace, array $docume
     $trainingRecords = is_array($workspace['training_records'] ?? null) ? $workspace['training_records'] : [];
     $seaServiceRecords = is_array($workspace['sea_service_records'] ?? null) ? $workspace['sea_service_records'] : [];
     $matchingPreferences = is_array($workspace['matching_preferences'] ?? null) ? $workspace['matching_preferences'] : [];
+    $sourceWorkspace = isset($documentMetadata['seafarer_workspace']) && is_array($documentMetadata['seafarer_workspace'])
+        ? normalize_seafarer_workspace_metadata($documentMetadata['seafarer_workspace'])
+        : [];
 
     $primaryEmergency = $emergencyContacts[0] ?? [];
     $primaryCertificate = $certificates[0] ?? [];
     $latestSeaService = $seaServiceRecords[0] ?? [];
+    $personalSource = cpg_workspace_combined_data($sourceWorkspace, ['personal_details', 'name_components']);
+    $contactSource = cpg_workspace_section_data($sourceWorkspace, 'contact_and_addresses');
+    $addressSource = cpg_workspace_section_data($sourceWorkspace, 'address_details');
+    $familySource = cpg_workspace_section_data($sourceWorkspace, 'family_details');
+    $physicalSource = cpg_workspace_section_data($sourceWorkspace, 'physical_details');
+    $identitySource = cpg_workspace_section_data($sourceWorkspace, 'identity_documents');
+    $qualificationSource = cpg_workspace_combined_data($sourceWorkspace, ['qualifications', 'qualification_details']);
+    $seaServiceSource = cpg_workspace_section_data($sourceWorkspace, 'sea_service');
+    $previousEmployerSource = cpg_workspace_section_data($sourceWorkspace, 'previous_employer_references');
+    $medicalSource = cpg_workspace_section_data($sourceWorkspace, 'medical_history');
+    $publicationSource = cpg_workspace_section_data($sourceWorkspace, 'matching_publication');
+    $consentSource = cpg_workspace_section_data($sourceWorkspace, 'consent_details');
+
+    $card = static function (string $code, array $missing, array $extra = []) use ($cardReviewStates): array {
+        return cpg_seafarer_workspace_review_card(
+            $code,
+            cpg_seafarer_review_card_name($code) ?? $code,
+            $missing,
+            $cardReviewStates[$code] ?? [],
+            $extra
+        );
+    };
+
+    $sourceCardExtra = static function (string $sheet, string $section, bool $userActionable = true): array {
+        return [
+            'source_model' => 'standard_excel',
+            'source_sheet' => $sheet,
+            'source_section' => $section,
+            'user_actionable' => $userActionable,
+        ];
+    };
+
+    $sourceCards = [
+        $card('PERS-001', cpg_seafarer_missing_source_fields($sourceWorkspace, [
+            'employee_id_number' => 'Employee ID Number',
+        ]), $sourceCardExtra('PERS', 'Employee ID number', false)),
+        $card('PERS-002', array_values(array_filter([
+            cpg_seafarer_workspace_value_present($workspace['primary_rank'] ?? null) ? null : 'Position apply for',
+            cpg_seafarer_workspace_value_present($matchingPreferences['preferred_vessel_type_labels'] ?? null) ? null : 'Type of Vessel',
+        ])), $sourceCardExtra('PERS', 'Position request')),
+        $card('PERS-003', cpg_seafarer_missing_source_fields($personalSource, [
+            'surname' => 'Surname',
+            'first_name' => 'First Name',
+            'middle_name' => 'Middle Name',
+            'place_of_birth' => 'Place of birth',
+            'date_of_birth' => 'Date of birth',
+            'citizenship' => 'Citizenship',
+            'gender' => 'Gender',
+            'civil_status' => 'Civil status',
+            'religion' => 'Religion',
+        ]), $sourceCardExtra('PERS', 'Personal details')),
+        $card('PERS-004', cpg_seafarer_missing_source_fields(array_merge($contactSource, $addressSource), [
+            'permanent_street' => 'Street',
+            'permanent_house' => 'House',
+            'permanent_flat' => 'Flat',
+            'permanent_comments' => 'Comments',
+            'residence_city' => 'City',
+            'residence_country' => 'Country',
+            'permanent_region' => 'Region',
+            'nearest_airport' => 'Airport',
+            'permanent_post_code' => 'Post code',
+        ]), $sourceCardExtra('PERS', 'Permanent address')),
+        $card('PERS-005', cpg_seafarer_missing_source_fields($addressSource, [
+            'registration_street' => 'Street',
+            'registration_house' => 'House',
+            'registration_flat' => 'Flat',
+            'registration_comments' => 'Comments',
+            'registration_city' => 'City',
+            'registration_country' => 'Country',
+            'registration_region' => 'Region',
+        ]), $sourceCardExtra('PERS', 'Registration address')),
+        $card('PERS-006', array_values(array_filter([
+            cpg_seafarer_workspace_value_present($workspace['contact_phone'] ?? null) ? null : 'Primary Mobile Number',
+            cpg_seafarer_workspace_value_present($contactSource['secondary_mobile_number'] ?? null) ? null : 'Secondary Mobile Number',
+            cpg_seafarer_workspace_value_present($contactSource['home_phone'] ?? null) ? null : 'Home Phone',
+            cpg_seafarer_workspace_value_present($workspace['contact_email'] ?? null) ? null : 'E-mail',
+        ])), $sourceCardExtra('PERS', 'Contact details')),
+        $card('PERS-007', cpg_seafarer_missing_source_fields($familySource, [
+            'kin_surname' => 'Surname',
+            'kin_first_name' => 'First name',
+            'kin_middle_name' => 'Middle name',
+            'kin_birthdate' => 'Birthdate',
+            'kin_gender' => 'Gender',
+            'kin_address' => 'Street / house / flat / city / country',
+            'kin_relation' => 'Relation',
+            'kin_mobile' => 'Mobile',
+            'kin_home_phone' => 'Home Phone',
+            'kin_email' => 'E-mail',
+        ]), $sourceCardExtra('PERS', 'Next of kin / beneficiary')),
+        $card('PERS-008', cpg_seafarer_missing_source_fields($familySource, [
+            'children_records' => 'Repeated child rows',
+        ]), $sourceCardExtra('PERS', 'Children records')),
+        $card('PERS-009', cpg_seafarer_missing_source_fields($physicalSource, [
+            'height_cm' => 'Height',
+            'weight_kg' => 'Weight',
+            'hair_colour' => 'Hair colour',
+            'eyes_colour' => 'Eyes colour',
+            'uniform_size' => 'Uniform size',
+            'shoes_size' => 'Shoes size',
+        ]), $sourceCardExtra('PERS', 'Physical details')),
+        $card('QUAL-001', cpg_seafarer_missing_source_fields($identitySource, [
+            'civil_passport_series' => 'Civil Passport Series',
+            'civil_passport_number' => 'Civil Passport No',
+            'civil_passport_issued' => 'Civil Passport Issued',
+            'civil_passport_authority' => 'Civil Passport Authority',
+            'foreign_passport_series' => 'Foreign Passport Series',
+            'foreign_passport_number' => 'Foreign Passport No',
+            'foreign_passport_issued' => 'Foreign Passport Issued',
+            'foreign_passport_expiry' => 'Foreign Passport Expiry',
+            'foreign_passport_authority' => 'Foreign Passport Authority',
+            'seafarer_id_series' => "Seafarer's ID Series",
+            'seafarer_id_number' => "Seafarer's ID No",
+            'seafarer_id_issued' => "Seafarer's ID Issued",
+            'seafarer_id_expiry' => "Seafarer's ID Expiry",
+            'seafarer_id_authority' => "Seafarer's ID Authority",
+            'seamans_book_series' => "Seaman's Book Series",
+            'seamans_book_number' => "Seaman's Book No",
+            'seamans_book_issued' => "Seaman's Book Issued",
+            'seamans_book_authority' => "Seaman's Book Authority",
+            'usa_visa_type' => 'USA VISA type',
+            'usa_visa_issued' => 'USA VISA Issued',
+            'usa_visa_expiry' => 'USA VISA Expiry',
+            'usa_visa_post' => 'USA VISA Issuing Post Name',
+            'schengen_visa_number' => 'Schengen VISA No. of Visa',
+            'schengen_visa_issued' => 'Schengen VISA Issued',
+            'schengen_visa_expiry' => 'Schengen VISA Expiry',
+            'schengen_visa_post' => 'Schengen VISA Issuing Post Name',
+        ]), $sourceCardExtra('QUAL', 'National identity documents / visa')),
+        $card('QUAL-002', cpg_seafarer_missing_source_fields($qualificationSource, [
+            'education_institution' => 'Name of maritime educational institution',
+            'education_from' => 'Period From',
+            'education_to' => 'Period To',
+            'education_specialisation' => 'Specialisation',
+            'education_grade' => 'Grade',
+            'education_issued_on' => 'Issued On',
+            'education_comments' => 'Comments',
+        ]), $sourceCardExtra('QUAL', 'Education')),
+        $card('QUAL-003', cpg_seafarer_missing_source_fields($qualificationSource, [
+            'coc_type' => 'Type',
+            'coc_institute' => 'Institute',
+            'coc_number' => 'Number',
+            'coc_issued' => 'Issued',
+            'coc_expiry' => 'Expiry',
+            'coc_comments' => 'Comments',
+        ]), $sourceCardExtra('QUAL', 'Certificate of competence')),
+        $card('QUAL-004', cpg_seafarer_missing_source_fields($qualificationSource, [
+            'endorsement_type' => 'Type',
+            'endorsement_institute' => 'Authority',
+            'endorsement_number' => 'Number',
+            'endorsement_issued' => 'Issued',
+            'endorsement_expiry' => 'Expiry',
+            'endorsement_comments' => 'Comments',
+        ]), $sourceCardExtra('QUAL', 'National documents / endorsements')),
+        $card('QUAL-005', cpg_seafarer_missing_source_fields($qualificationSource, [
+            'training_courses' => 'Type',
+            'training_institute' => 'Institute',
+            'training_number' => 'Number',
+            'training_issued' => 'Issued',
+            'training_expiry' => 'Expiry',
+            'training_comments' => 'Comments',
+        ]), $sourceCardExtra('QUAL', 'Training courses')),
+        $card('EXP-001', cpg_seafarer_missing_source_fields($seaServiceSource, [
+            'last_vessel_name' => 'Name of vessel',
+            'last_vessel_type' => 'Vessel Type',
+            'deadweight' => 'Deadweight',
+            'engine_type' => 'Engine Type',
+            'engine_power' => 'Engine Power (kW)',
+            'flag_country' => 'Flag',
+            'management_company' => 'Management Company or Crew Agent',
+            'last_rank' => 'Rank',
+            'service_from' => 'From',
+            'service_to' => 'To',
+        ]), $sourceCardExtra('EXPERIENCE', 'Sea service')),
+        $card('EXP-002', cpg_seafarer_missing_source_fields($previousEmployerSource, [
+            'reference_company_1' => 'Company Name',
+            'reference_person_1' => 'Person in charge',
+            'reference_phone_1' => 'Telephone',
+            'reference_email_1' => 'E-mail',
+        ]), $sourceCardExtra('EXPERIENCE', 'Previous employer details for reference')),
+        $card('MED-001', cpg_seafarer_missing_source_fields($medicalSource, [
+            'signed_off_sick' => 'Signed off sick',
+            'sick_details' => 'Illness / injury / accident details',
+            'injury_details' => 'Injury / health problem during last 10 years',
+            'operated' => 'Operated',
+            'surgery_details' => 'Surgery details',
+        ]), $sourceCardExtra('MEDICAL', 'Medical history')),
+        $card('MED-002', cpg_seafarer_missing_source_fields($consentSource, [
+            'obligation_date' => 'Date',
+            'obligation_place' => 'Place',
+            'obligation_confirmation' => 'Confirmation',
+        ]), $sourceCardExtra('MEDICAL', "Seafarer's obligation")),
+        $card('MED-003', cpg_seafarer_missing_source_fields(array_merge($publicationSource, $consentSource), [
+            'agreement_date' => 'Date',
+            'agreement_value' => 'Agreement',
+            'data_processing_confirmation' => 'Personal data processing confirmation',
+        ]), $sourceCardExtra('MEDICAL', 'Personal data processing agreement')),
+        $card('MED-004', cpg_seafarer_missing_source_fields(array_merge($publicationSource, $consentSource), [
+            'information_source' => 'How you heard about company',
+            'source_comments' => 'Comments',
+        ]), $sourceCardExtra('MEDICAL', 'Information source and comments')),
+        $card('MED-005', cpg_seafarer_missing_source_fields($sourceWorkspace, [
+            'manager_notes' => "Manager's notes",
+            'authorization_rank' => 'Rank',
+            'authorization_type_of_ship' => 'Type of ship',
+            'authorization_date' => 'Date',
+            'crewing_manager_name' => 'Name of Crewing manager',
+            'crewing_manager_signature' => 'Signature of Crewing manager',
+        ]), $sourceCardExtra('MEDICAL', 'Authorization for pre-employment process', false)),
+    ];
 
     $personalMissing = [];
     if (!cpg_seafarer_workspace_value_present($personDetails['date_of_birth'] ?? null)) {
@@ -2185,13 +2432,21 @@ function cpg_seafarer_workspace_review_readiness(array $workspace, array $docume
         $documentMissing[] = 'visa_readiness';
     }
 
-    return [
-        cpg_seafarer_workspace_review_card('personal_contact', 'Personal and contact details', $personalMissing, $cardReviewStates['personal_contact'] ?? []),
-        cpg_seafarer_workspace_review_card('qualifications', 'Qualifications and training', $qualificationMissing, $cardReviewStates['qualifications'] ?? []),
-        cpg_seafarer_workspace_review_card('sea_service', 'Sea-service record', $seaServiceMissing, $cardReviewStates['sea_service'] ?? []),
-        cpg_seafarer_workspace_review_card('matching_publication', 'Matching and publication consent', $matchingMissing, $cardReviewStates['matching_publication'] ?? []),
-        cpg_seafarer_workspace_review_card('document_readiness', 'Document readiness metadata', $documentMissing, $cardReviewStates['document_readiness'] ?? []),
+    $legacyExtra = [
+        'legacy_fallback' => true,
+        'source_model' => 'legacy_aggregated_fallback',
+        'user_actionable' => true,
     ];
+
+    $legacyCards = [
+        cpg_seafarer_workspace_review_card('personal_contact', 'Personal and contact details', $personalMissing, $cardReviewStates['personal_contact'] ?? [], $legacyExtra),
+        cpg_seafarer_workspace_review_card('qualifications', 'Qualifications and training', $qualificationMissing, $cardReviewStates['qualifications'] ?? [], $legacyExtra),
+        cpg_seafarer_workspace_review_card('sea_service', 'Sea-service record', $seaServiceMissing, $cardReviewStates['sea_service'] ?? [], $legacyExtra),
+        cpg_seafarer_workspace_review_card('matching_publication', 'Matching and publication consent', $matchingMissing, $cardReviewStates['matching_publication'] ?? [], $legacyExtra),
+        cpg_seafarer_workspace_review_card('document_readiness', 'Document readiness metadata', $documentMissing, $cardReviewStates['document_readiness'] ?? [], $legacyExtra),
+    ];
+
+    return array_merge($sourceCards, $legacyCards);
 }
 
 function cpg_seafarer_workspace_allowed_sections(): array {
@@ -3536,8 +3791,7 @@ function handle_patch_seafarer_workspace_section(string $section): void {
             'salary_expectation_usd' => $context['salary_expectation_usd'] ?? null,
         ]);
 
-        $cardCode = cpg_seafarer_workspace_section_review_card($section);
-        if ($cardCode !== null) {
+        foreach (cpg_seafarer_workspace_section_review_cards($section) as $cardCode) {
             cpg_set_seafarer_workspace_card_review_state(
                 $userId,
                 $cardCode,
@@ -3601,14 +3855,16 @@ function handle_patch_seafarer_document_readiness(): void {
             [$userId, $documentMetadataJson, 'submitted_for_human_review']
         );
 
-        cpg_set_seafarer_workspace_card_review_state(
-            $userId,
-            'document_readiness',
-            'pending_human_review',
-            null,
-            'user_resubmitted',
-            'seafarer_document_readiness_updated'
-        );
+        foreach (['QUAL-001', 'document_readiness'] as $cardCode) {
+            cpg_set_seafarer_workspace_card_review_state(
+                $userId,
+                $cardCode,
+                'pending_human_review',
+                null,
+                'user_resubmitted',
+                'seafarer_document_readiness_updated'
+            );
+        }
 
         write_audit_event('seafarer_document_readiness_updated', $userId, null, null, [
             'fields' => array_keys($documentReadiness),
@@ -4246,6 +4502,36 @@ function normalize_operator_review_note(mixed $value): ?string {
 }
 
 function cpg_seafarer_review_card_codes(): array {
+    return array_merge(cpg_seafarer_excel_review_card_codes(), cpg_seafarer_legacy_review_card_codes());
+}
+
+function cpg_seafarer_excel_review_card_codes(): array {
+    return [
+        'PERS-001',
+        'PERS-002',
+        'PERS-003',
+        'PERS-004',
+        'PERS-005',
+        'PERS-006',
+        'PERS-007',
+        'PERS-008',
+        'PERS-009',
+        'QUAL-001',
+        'QUAL-002',
+        'QUAL-003',
+        'QUAL-004',
+        'QUAL-005',
+        'EXP-001',
+        'EXP-002',
+        'MED-001',
+        'MED-002',
+        'MED-003',
+        'MED-004',
+        'MED-005',
+    ];
+}
+
+function cpg_seafarer_legacy_review_card_codes(): array {
     return [
         'personal_contact',
         'qualifications',
@@ -4257,6 +4543,27 @@ function cpg_seafarer_review_card_codes(): array {
 
 function cpg_seafarer_review_card_name(?string $code): ?string {
     $names = [
+        'PERS-001' => 'PERS-001 Employee ID number',
+        'PERS-002' => 'PERS-002 Position request',
+        'PERS-003' => 'PERS-003 Personal details',
+        'PERS-004' => 'PERS-004 Permanent address',
+        'PERS-005' => 'PERS-005 Registration address',
+        'PERS-006' => 'PERS-006 Contact details',
+        'PERS-007' => 'PERS-007 Next of kin / beneficiary',
+        'PERS-008' => 'PERS-008 Children records',
+        'PERS-009' => 'PERS-009 Physical details',
+        'QUAL-001' => 'QUAL-001 National identity documents / visa',
+        'QUAL-002' => 'QUAL-002 Education',
+        'QUAL-003' => 'QUAL-003 Certificate of competence',
+        'QUAL-004' => 'QUAL-004 National documents / endorsements',
+        'QUAL-005' => 'QUAL-005 Training courses',
+        'EXP-001' => 'EXP-001 Sea service',
+        'EXP-002' => 'EXP-002 Previous employer details for reference',
+        'MED-001' => 'MED-001 Medical history',
+        'MED-002' => "MED-002 Seafarer's obligation",
+        'MED-003' => 'MED-003 Personal data processing agreement',
+        'MED-004' => 'MED-004 Information source and comments',
+        'MED-005' => 'MED-005 Authorization for pre-employment process',
         'personal_contact' => 'Personal and contact details',
         'qualifications' => 'Qualifications and training',
         'sea_service' => 'Sea-service record',
@@ -4277,13 +4584,26 @@ function cpg_seafarer_review_status_for_decision(string $decision): ?string {
 }
 
 function cpg_seafarer_workspace_section_review_card(string $section): ?string {
+    $cards = cpg_seafarer_workspace_section_review_cards($section);
+    return $cards[0] ?? null;
+}
+
+function cpg_seafarer_workspace_section_review_cards(string $section): array {
     return match ($section) {
-        'personal_details', 'name_components', 'contact_and_addresses', 'address_details', 'family_details', 'physical_details' => 'personal_contact',
-        'identity_documents', 'qualifications', 'qualification_details' => 'qualifications',
-        'sea_service', 'previous_employer_references' => 'sea_service',
-        'medical_history' => 'document_readiness',
-        'matching_publication', 'consent_details' => 'matching_publication',
-        default => null,
+        'personal_details', 'name_components' => ['PERS-003', 'personal_contact'],
+        'contact_and_addresses' => ['PERS-004', 'PERS-006', 'personal_contact'],
+        'address_details' => ['PERS-004', 'PERS-005', 'personal_contact'],
+        'family_details' => ['PERS-007', 'PERS-008', 'personal_contact'],
+        'physical_details' => ['PERS-009', 'personal_contact'],
+        'identity_documents' => ['QUAL-001', 'qualifications'],
+        'qualifications' => ['QUAL-002', 'QUAL-003', 'QUAL-005', 'qualifications'],
+        'qualification_details' => ['QUAL-002', 'QUAL-003', 'QUAL-004', 'QUAL-005', 'qualifications'],
+        'sea_service' => ['EXP-001', 'sea_service'],
+        'previous_employer_references' => ['EXP-002', 'sea_service'],
+        'medical_history' => ['MED-001', 'document_readiness'],
+        'matching_publication' => ['MED-003', 'MED-004', 'matching_publication'],
+        'consent_details' => ['MED-002', 'MED-003', 'MED-004', 'matching_publication'],
+        default => [],
     };
 }
 
@@ -4352,6 +4672,14 @@ function cpg_update_seafarer_workspace_card_record_status(string $userId, string
     }
 
     $tables = match ($cardCode) {
+        'PERS-003', 'PERS-004', 'PERS-005', 'PERS-006', 'PERS-009' => ['seafarer_person_details'],
+        'PERS-007', 'PERS-008' => ['seafarer_emergency_contacts'],
+        'QUAL-002' => ['seafarer_education_records'],
+        'QUAL-003', 'QUAL-004' => ['seafarer_certificates'],
+        'QUAL-005' => ['seafarer_training_records'],
+        'EXP-001' => ['seafarer_sea_service_records'],
+        'MED-001' => ['seafarer_medical_declarations'],
+        'MED-002', 'MED-003', 'MED-004' => ['seafarer_matching_preferences'],
         'personal_contact' => ['seafarer_person_details', 'seafarer_emergency_contacts'],
         'qualifications' => ['seafarer_education_records', 'seafarer_certificates', 'seafarer_training_records'],
         'sea_service' => ['seafarer_sea_service_records'],

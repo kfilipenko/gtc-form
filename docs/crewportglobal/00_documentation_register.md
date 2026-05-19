@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.35
+- Version: 1.36
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -233,6 +233,7 @@ docs/crewportglobal/
   143_cpg_seafarer_012_excel_card_field_alignment_audit_report.md
   144_cpg_seafarer_013_excel_aligned_form_cards_report.md
   145_cpg_seafarer_014_excel_source_truth_precheck_report.md
+  146_cpg_seafarer_015_excel_source_review_cards_report.md
   business_processes/
     00_business_process_register.md
     01_business_declaration_client_lifecycle_and_operating_model.md
@@ -428,6 +429,8 @@ Document 144 records the CPG-SEAFARER-013 Excel-aligned seafarer form card expan
 
 Document 145 records the CPG-SEAFARER-014 Excel source-of-truth pre-check and canonical card list, including source file confirmation, formatted sheet dimensions, source-defined PERS/QUAL/EXPERIENCE/MEDICAL sections, all 24 DROPDOWN_LISTS catalogs, implementation drift against the current form and the Project Owner approval questions required before further readiness logic.
 
+Document 146 records the CPG-SEAFARER-015 Excel source review-card normalization implementation, including canonical PERS/QUAL/EXPERIENCE/MEDICAL card codes as primary operator/cabinet review records, legacy aggregated card fallback compatibility, source-card status persistence, operator target/filter behavior, cabinet task links and focused GTC1 verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -531,6 +534,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.36 | 2026-05-19 | GTC IT / AI Assistant | Added document 146 as CPG-SEAFARER-015 Excel source review-card normalization report covering canonical source card codes, legacy fallback compatibility, operator/cabinet review behavior, source-card persistence and focused verification |
 | 1.35 | 2026-05-19 | GTC IT / AI Assistant | Added document 145 as CPG-SEAFARER-014 Excel source-of-truth pre-check covering source file confirmation, canonical card list, all 24 catalogs, current implementation drift and approval questions before continuing readiness logic |
 | 1.34 | 2026-05-19 | GTC IT / AI Assistant | Added document 144 as CPG-SEAFARER-013 Excel-aligned seafarer form card expansion report covering new source-aligned create-profile cards, metadata persistence, catalog bindings, review-card mapping and focused save/reload verification |
 | 1.33 | 2026-05-19 | GTC IT / AI Assistant | Added document 143 as CPG-SEAFARER-012 Excel-to-form alignment audit covering source workbook inventory, card-by-card current implementation comparison, full reference catalog count verification, missing source cards/fields and next field-alignment implementation recommendations |

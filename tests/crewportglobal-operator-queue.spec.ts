@@ -150,7 +150,7 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#details-sections')).toContainText('Visa appointment scheduled.');
   await expect(page.locator('#details-sections')).toContainText('COC-VERIFY-001');
   await expect(page.locator('#details-sections')).toContainText('MV Verify Horizon');
-  await expect(page.locator('#details-sections')).toContainText('Document readiness metadata | complete');
+  await expect(page.locator('#details-sections')).toContainText('QUAL-001 National identity documents / visa');
   await expect(page.locator('#details-json')).toContainText('seafarer_review_readiness');
   await expect(page.locator('#details-json')).toContainText(seafarerEmail);
   await expect(page.locator('#details-json')).toContainText('seafarer_profile');
@@ -160,24 +160,24 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#review-note-feedback')).toContainText('requires a review note');
 
   const note = 'Missing certificate details and availability date.';
-  await page.locator('#review-target').selectOption('qualifications');
+  await page.locator('#review-target').selectOption('QUAL-003');
   await page.locator('.review-card-action[data-card-decision="start_review"]').click();
-  await expect(page.locator('#review-note-feedback')).toContainText('Qualifications and training -> under_review');
+  await expect(page.locator('#review-note-feedback')).toContainText('QUAL-003 Certificate of competence -> under_review');
   await expect(page.locator('#details-sections')).toContainText('review: under_review');
 
   await page.locator('#review-note').fill(note);
   await queueRow.locator('.queue-decision[data-decision="needs_correction"]').click();
   await expect(page.locator('#queue-status')).toContainText('rejected');
   await expect(page.locator('#latest-review-note')).toContainText(note);
-  await expect(page.locator('#latest-review-note')).toContainText('Qualifications and training');
+  await expect(page.locator('#latest-review-note')).toContainText('QUAL-003 Certificate of competence');
   await expect(page.locator('#review-history-list')).toContainText('needs_correction');
   await expect(page.locator('#review-history-list')).toContainText(note);
-  await expect(page.locator('#review-history-list')).toContainText('Target: Qualifications and training');
+  await expect(page.locator('#review-history-list')).toContainText('Target: QUAL-003 Certificate of competence');
   await expect(page.locator('#details-sections')).toContainText('review: correction_requested');
   await page.locator('#review-card-status-filter').selectOption('correction_requested');
-  await expect(page.locator('#details-sections')).toContainText('Qualifications and training');
+  await expect(page.locator('#details-sections')).toContainText('QUAL-003 Certificate of competence');
   await page.locator('#review-card-status-filter').selectOption('verified');
-  await expect(page.locator('#details-sections')).not.toContainText('Qualifications and training');
+  await expect(page.locator('#details-sections')).not.toContainText('QUAL-003 Certificate of competence');
 });
 
 test('operator queue page renders and reviews vacancy applications', async ({ page, request }) => {

@@ -1052,9 +1052,11 @@
       }
 
       function reviewReadiness(payload) {
-        return payload && Array.isArray(payload.seafarer_review_readiness)
+        const readiness = payload && Array.isArray(payload.seafarer_review_readiness)
           ? payload.seafarer_review_readiness
           : [];
+        const sourceCards = readiness.filter((item) => item && typeof item === 'object' && item.legacy_fallback !== true);
+        return sourceCards.length > 0 ? sourceCards : readiness;
       }
 
       function firstItem(items) {
