@@ -436,24 +436,23 @@ npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-
 Result:
 
 ```text
-17 passed
-1 failed
+18 passed
 ```
 
-The failure is in:
+Test-maintenance update on 2026-05-22:
 
 ```text
 tests/crewportglobal-seafarer-workspace-form.spec.ts
 extended seafarer workspace cards persist through draft save and reload
 ```
 
-The failing assertion expects the cabinet workspace summary to display a synthetic next-of-kin/family contact name. Current UI behavior instead shows the CPG-SEAFARER-017 restricted family/beneficiary summary:
+The stale cabinet-summary assertion was updated to match the approved CPG-SEAFARER-017 data-minimization behavior. The test now verifies that restricted next-of-kin/family contact values are not displayed in the cabinet summary and that the restricted family/beneficiary summary wording is shown instead:
 
 ```text
 Family and beneficiary details are restricted. Open the source form only when you need to correct this card.
 ```
 
-Audit conclusion: this is a test expectation drift against the newer data-minimization rule, not evidence that the restricted-field hiding failed. The same test passed earlier owner/API checks for raw owner workspace persistence and failed only when expecting restricted family detail in the cabinet summary.
+Audit conclusion: the previous failure was test expectation drift, not product behavior drift. The focused test and focused suite now pass without product-code changes.
 
 ### 13.3 Test-To-Control Traceability
 
@@ -466,7 +465,7 @@ Audit conclusion: this is a test expectation drift against the newer data-minimi
 | `crewportglobal-cabinet-dashboard.spec.ts` | Cabinet tasks, correction tasks, document replacement flow | Passed |
 | `crewportglobal-post-vacancy-workspace.spec.ts` | Employer vacancy draft save/reload/review publication status | Passed |
 | `crewportglobal-create-profile-prefill.spec.ts` | Draft prefill, patch flow, correction status, application history | Passed |
-| `crewportglobal-seafarer-workspace-form.spec.ts` | Owner workspace save/reload, cabinet summary, section endpoint | Partially passed; first test has restricted-family expectation drift, two later tests passed. |
+| `crewportglobal-seafarer-workspace-form.spec.ts` | Owner workspace save/reload, cabinet restricted-summary behavior, section endpoint | Passed after test-maintenance update; restricted family contact name/phone are asserted absent from cabinet summary. |
 
 ## 14. Safe Synthetic End-To-End Trace
 
@@ -486,11 +485,10 @@ Current flow using safe synthetic data:
 
 ## 15. Remaining Gaps
 
-1. `tests/crewportglobal-seafarer-workspace-form.spec.ts` contains a stale cabinet-summary expectation for restricted next-of-kin display. It should be updated in a future test-maintenance slice to expect the CPG-SEAFARER-017 restricted summary instead of a family contact name.
-2. The restricted medical detail workflow is still capability-denied for general operators. A future role/capability model is required before any medical-detail review route can be activated.
-3. `seafarer_publication_snapshots` exists as a future publication model, but full public/employer profile publication remains blocked until a later approved slice.
-4. Employer-facing data is currently minimized; future reviewed candidate summaries must continue to use explicit allow lists and consent/approval guard checks.
-5. The private Excel source remains outside Git and public web root. Any future field additions must be traced through BP-011 and the source-card coverage/visibility matrices.
+1. The restricted medical detail workflow is still capability-denied for general operators. A future role/capability model is required before any medical-detail review route can be activated.
+2. `seafarer_publication_snapshots` exists as a future publication model, but full public/employer profile publication remains blocked until a later approved slice.
+3. Employer-facing data is currently minimized; future reviewed candidate summaries must continue to use explicit allow lists and consent/approval guard checks.
+4. The private Excel source remains outside Git and public web root. Any future field additions must be traced through BP-011 and the source-card coverage/visibility matrices.
 
 ## 16. Final Checklist
 
@@ -505,6 +503,6 @@ Current flow using safe synthetic data:
 | DB/JSON storage location included | Met |
 | API endpoints included | Met |
 | Role visibility and employer payload rules included | Met |
-| Tests run and reported | Met, with one documented stale-test failure |
+| Tests run and reported | Met; stale cabinet-summary test drift resolved and focused suite passed |
 | Remaining gaps documented | Met |
 | Generated Playwright/test artifacts excluded from intended final changes | Met during final cleanup |

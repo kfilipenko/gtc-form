@@ -184,7 +184,9 @@ test('extended seafarer workspace cards persist through draft save and reload', 
   await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('1990-04-12');
   await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Sharjah');
   await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Emergency contact');
-  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Maria Reyes');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Family and beneficiary details are restricted');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).not.toContainText('Maria Reyes');
+  await expect(page.locator('#cabinet-seafarer-workspace-summary')).not.toContainText('+639171112233');
   await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Certificates');
   await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('COC-WS-123456');
   await expect(page.locator('#cabinet-seafarer-workspace-summary')).toContainText('Training');
