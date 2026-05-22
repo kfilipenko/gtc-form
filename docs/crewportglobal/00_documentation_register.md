@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.44
+- Version: 1.45
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -248,6 +248,8 @@ docs/crewportglobal/
   159_cpg_seafarer_021_agent_execution_guide.md
   160_cpg_demand_001_canonical_field_contract.md
   161_cpg_demand_001_agent_execution_guide.md
+  162_cpg_demand_002_schema_api_implementation_plan.md
+  163_cpg_demand_002_agent_execution_guide.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -476,6 +478,10 @@ Document 160 records the CPG-DEMAND-001 canonical demand field contract, includi
 
 Document 161 records the CPG-DEMAND-001 agent execution guide for the canonical demand field contract, including required sources, naming conventions, canonical field table requirements, reference catalog planning, validation planning, visibility planning, compatibility mapping, future storage/API mapping and no-implementation boundaries.
 
+Document 162 records the CPG-DEMAND-002 additive demand schema and API implementation plan, including existing demand-side schema inventory, target additive schema categories, proposed migration sequence, table/column plan by demand object, reference catalog storage, JSONB compatibility, future API contracts, validation/error model, visibility scopes, backfill mapping, future test plan, rollback strategy and next implementation issues.
+
+Document 163 records the CPG-DEMAND-002 agent execution guide for converting the canonical demand field contract into a low-risk additive schema/API planning report, including required source documents, current schema/API inspection, required matrices, future API contracts, validation/error planning, visibility/access-control planning, backfill compatibility and rollback boundaries.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -579,6 +585,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.45 | 2026-05-22 | GTC IT / AI Assistant | Added documents 162 and 163 for CPG-DEMAND-002 covering additive demand schema/API planning, existing schema inventory, migration sequence, demand object storage categories, reference catalogs, JSONB compatibility, validation/error codes, visibility scopes, backfill mapping and rollback strategy |
 | 1.44 | 2026-05-22 | GTC IT / AI Assistant | Added documents 160 and 161 for CPG-DEMAND-001 covering the canonical demand field contract, field-key conventions, catalog and validation plans, visibility scopes, compatibility mapping and future storage/API expectations |
 | 1.43 | 2026-05-22 | GTC IT / AI Assistant | Added documents 158 and 159 for CPG-SEAFARER-021 covering demand-side normalization across employer/company, vessel, crew request, contract and operational/legal/risk objects with field type, evidence, visibility, MVP priority and implementation-sequence matrices |
 | 1.42 | 2026-05-22 | GTC IT / AI Assistant | Added documents 156 and 157 for CPG-SEAFARER-020 covering the supply-demand matching model, field gap analysis, blocker/score classification, field-type recommendations, visibility ownership, readiness levels and next implementation sequence |
