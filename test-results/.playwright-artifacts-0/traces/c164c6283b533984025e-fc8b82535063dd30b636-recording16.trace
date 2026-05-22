@@ -1,0 +1,160 @@
+{"version":8,"type":"context-options","origin":"library","browserName":"","options":{},"platform":"linux","wallTime":1779462930271,"monotonicTime":34810.508,"sdkLanguage":"javascript","contextId":"request-context@3d5b08a7b44de20b738a42849b8b1c02","title":"crewportglobal-seafarer-visibility-minimization.spec.ts:85 › sensitive seafarer fields are minimized for operator, cabinet summary and employer payloads"}
+{"type":"before","callId":"call@646","startTime":34818.518,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/v1/registration/drafts","method":"POST","jsonData":"{\"role\":\"seafarer\",\"email\":\"ui.visibility.seafarer.1779462930274@example.com\",\"full_name\":\"Visibility Test Seafarer\",\"rank\":\"Chief Officer\",\"department\":\"deck\",\"availability_status\":\"available_now\",\"nationality_code\":\"GE\",\"residence_country_code\":\"AE\",\"contact_phone\":\"+971509990001\",\"document_metadata\":{\"certificate_status\":\"ready\",\"stcw_status\":\"ready\",\"passport_expiry\":\"2031-12-31\",\"medical_expiry\":\"2028-05-20\",\"visa_status\":\"ready\",\"seafarer_workspace\":{\"personal_details\":{\"date_of_birth\":\"1988-01-02\",\"place_of_birth\":\"Batumi\",\"gender\":\"Male\",\"civil_status\":\"Married\"},\"name_components\":{\"surname\":\"Visibility\",\"first_name\":\"Sensitive\",\"middle_name\":\"Scope\",\"citizenship\":\"GEORGIA\",\"religion\":\"Restricted Religion Value\"},\"contact_and_addresses\":{\"residence_country\":\"AE\",\"residence_city\":\"Dubai\",\"nearest_airport\":\"DXB\",\"secondary_mobile_number\":\"+971509990002\",\"home_phone\":\"+995422990002\",\"emergency_contact_name\":\"Restricted Kin Name\",\"emergency_contact_relation\":\"Spouse\",\"emergency_contact_phone\":\"+995555990001\"},\"family_details\":{\"kin_surname\":\"Restricted\",\"kin_first_name\":\"Kin\",\"kin_relation\":\"Spouse\",\"kin_mobile\":\"+995555990001\",\"kin_email\":\"restricted.kin@example.com\",\"kin_address\":\"Restricted family address\",\"children_records\":\"Child, Sensitive, Scope, Daughter, 2019-05-01, Female\"},\"identity_documents\":{\"civil_passport_series\":\"CP\",\"civil_passport_number\":\"PASS-SECRET-999\",\"civil_passport_issued\":\"2020-01-10\",\"civil_passport_authority\":\"Restricted Passport Authority\",\"foreign_passport_number\":\"FOREIGN-SECRET-777\",\"foreign_passport_expiry\":\"2031-02-11\",\"seafarer_id_number\":\"SID-SECRET-555\",\"seafarer_id_expiry\":\"2027-03-12\",\"seamans_book_number\":\"BOOK-SECRET-444\",\"seamans_book_expiry\":\"2027-04-13\",\"schengen_visa_number\":\"VISA-SECRET-333\",\"schengen_visa_expiry\":\"2026-06-15\"},\"qualifications\":{\"coc_type\":\"Chief Officer\",\"coc_number\":\"COC-VIS-001\",\"coc_expiry\":\"2029-09-30\",\"training_courses\":[\"Basic Training\"]},\"sea_service\":{\"last_vessel_name\":\"MV Visible Experience\",\"last_vessel_type\":\"Bulk Carrier\",\"last_rank\":\"Chief Officer\",\"service_from\":\"2024-01-01\",\"service_to\":\"2024-08-01\"},\"previous_employer_references\":{\"reference_company_1\":\"Restricted Previous Employer\",\"reference_person_1\":\"Captain Restricted\",\"reference_phone_1\":\"+995555999111\",\"reference_email_1\":\"captain.restricted@example.com\"},\"medical_history\":{\"signed_off_sick\":\"yes\",\"sick_details\":\"Severe illness details for minimization test.\",\"injury_details\":\"Restricted injury details for minimization test.\",\"operated\":\"yes\",\"surgery_details\":\"Orthopedic surgery details for minimization test.\"},\"matching_publication\":{\"information_source\":\"Referral\",\"candidate_summary\":\"Experienced Chief Officer available for reviewed matching.\",\"publish_to_matching\":\"yes\",\"data_processing_confirmation\":\"i_confirm\"},\"consent_details\":{\"obligation_date\":\"2026-05-19\",\"obligation_place\":\"Dubai\",\"obligation_confirmation\":\"i_confirm\",\"agreement_date\":\"2026-05-19\",\"agreement_value\":\"i_agree\",\"source_comments\":\"Consent source comment stays internal.\"}}}}","timeout":0},"stepId":"pw:api@30","beforeSnapshot":"before@call@646"}
+{"type":"log","callId":"call@646","time":34819.231,"message":"→ POST http://127.0.0.1:38123/api/v1/registration/drafts"}
+{"type":"log","callId":"call@646","time":34819.25,"message":"  user-agent: Playwright/1.56.1 (x64; ubuntu 22.04) node/22.16"}
+{"type":"log","callId":"call@646","time":34819.254,"message":"  accept: */*"}
+{"type":"log","callId":"call@646","time":34819.259,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@646","time":34819.263,"message":"  X-CPG-Operator-Token: crewportglobal-local-operator"}
+{"type":"log","callId":"call@646","time":34819.266,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@646","time":34819.27,"message":"  content-length: 3044"}
+{"type":"log","callId":"call@646","time":35045.351,"message":"← 201 Created"}
+{"type":"log","callId":"call@646","time":35045.392,"message":"  host: 127.0.0.1:38123"}
+{"type":"log","callId":"call@646","time":35045.397,"message":"  date: Fri, 22 May 2026 15:15:30 GMT"}
+{"type":"log","callId":"call@646","time":35045.401,"message":"  connection: close"}
+{"type":"log","callId":"call@646","time":35045.405,"message":"  x-powered-by: PHP/8.1.2-1ubuntu2.23"}
+{"type":"log","callId":"call@646","time":35045.408,"message":"  content-type: application/json; charset=utf-8"}
+{"type":"after","callId":"call@646","endTime":35048.304,"result":{"response":{"url":"http://127.0.0.1:38123/api/v1/registration/drafts","status":201,"statusText":"Created","headers":[{"name":"Host","value":"127.0.0.1:38123"},{"name":"Date","value":"Fri, 22 May 2026 15:15:30 GMT"},{"name":"Connection","value":"close"},{"name":"X-Powered-By","value":"PHP/8.1.2-1ubuntu2.23"},{"name":"Content-Type","value":"application/json; charset=utf-8"}],"fetchUid":"6ec7026dbc78e1a8def6f5638a3185c8"}},"afterSnapshot":"after@call@646"}
+{"type":"before","callId":"call@649","startTime":35062.006,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/v1/seafarer/consents","method":"POST","jsonData":"{\"draft_id\":\"c31c667f-cc80-4fe1-9409-8e5b95860ca5\",\"consent_type\":\"matching_preparation\",\"accepted\":true,\"text_version\":\"cpg-seafarer-consent-2026-05-19-test\",\"source_page\":\"/create-profile/\",\"metadata\":{\"test_control\":\"CPG-SEAFARER-018\"}}","timeout":0},"stepId":"pw:api@32","beforeSnapshot":"before@call@649"}
+{"type":"log","callId":"call@649","time":35062.766,"message":"→ POST http://127.0.0.1:38123/api/v1/seafarer/consents"}
+{"type":"log","callId":"call@649","time":35062.785,"message":"  user-agent: Playwright/1.56.1 (x64; ubuntu 22.04) node/22.16"}
+{"type":"log","callId":"call@649","time":35062.79,"message":"  accept: */*"}
+{"type":"log","callId":"call@649","time":35062.794,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@649","time":35062.798,"message":"  X-CPG-Operator-Token: crewportglobal-local-operator"}
+{"type":"log","callId":"call@649","time":35062.802,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@649","time":35062.806,"message":"  content-length: 239"}
+{"type":"log","callId":"call@649","time":35141.944,"message":"← 201 Created"}
+{"type":"log","callId":"call@649","time":35141.986,"message":"  host: 127.0.0.1:38123"}
+{"type":"log","callId":"call@649","time":35141.991,"message":"  date: Fri, 22 May 2026 15:15:30 GMT"}
+{"type":"log","callId":"call@649","time":35141.995,"message":"  connection: close"}
+{"type":"log","callId":"call@649","time":35141.999,"message":"  x-powered-by: PHP/8.1.2-1ubuntu2.23"}
+{"type":"log","callId":"call@649","time":35142.003,"message":"  content-type: application/json; charset=utf-8"}
+{"type":"after","callId":"call@649","endTime":35142.68,"result":{"response":{"url":"http://127.0.0.1:38123/api/v1/seafarer/consents","status":201,"statusText":"Created","headers":[{"name":"Host","value":"127.0.0.1:38123"},{"name":"Date","value":"Fri, 22 May 2026 15:15:30 GMT"},{"name":"Connection","value":"close"},{"name":"X-Powered-By","value":"PHP/8.1.2-1ubuntu2.23"},{"name":"Content-Type","value":"application/json; charset=utf-8"}],"fetchUid":"4f416c6c4a01ee4c58da769276dbdeee"}},"afterSnapshot":"after@call@649"}
+{"type":"before","callId":"call@651","startTime":35151.428,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/v1/seafarer/consents","method":"POST","jsonData":"{\"draft_id\":\"c31c667f-cc80-4fe1-9409-8e5b95860ca5\",\"consent_type\":\"employer_sharing\",\"accepted\":true,\"text_version\":\"cpg-seafarer-consent-2026-05-19-test\",\"source_page\":\"/create-profile/\",\"metadata\":{\"test_control\":\"CPG-SEAFARER-018\"}}","timeout":0},"stepId":"pw:api@34","beforeSnapshot":"before@call@651"}
+{"type":"log","callId":"call@651","time":35152.093,"message":"→ POST http://127.0.0.1:38123/api/v1/seafarer/consents"}
+{"type":"log","callId":"call@651","time":35152.113,"message":"  user-agent: Playwright/1.56.1 (x64; ubuntu 22.04) node/22.16"}
+{"type":"log","callId":"call@651","time":35153.104,"message":"  accept: */*"}
+{"type":"log","callId":"call@651","time":35153.13,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@651","time":35153.136,"message":"  X-CPG-Operator-Token: crewportglobal-local-operator"}
+{"type":"log","callId":"call@651","time":35153.14,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@651","time":35153.145,"message":"  content-length: 235"}
+{"type":"log","callId":"call@651","time":35200.945,"message":"← 201 Created"}
+{"type":"log","callId":"call@651","time":35200.984,"message":"  host: 127.0.0.1:38123"}
+{"type":"log","callId":"call@651","time":35200.989,"message":"  date: Fri, 22 May 2026 15:15:30 GMT"}
+{"type":"log","callId":"call@651","time":35200.993,"message":"  connection: close"}
+{"type":"log","callId":"call@651","time":35200.997,"message":"  x-powered-by: PHP/8.1.2-1ubuntu2.23"}
+{"type":"log","callId":"call@651","time":35201,"message":"  content-type: application/json; charset=utf-8"}
+{"type":"after","callId":"call@651","endTime":35201.633,"result":{"response":{"url":"http://127.0.0.1:38123/api/v1/seafarer/consents","status":201,"statusText":"Created","headers":[{"name":"Host","value":"127.0.0.1:38123"},{"name":"Date","value":"Fri, 22 May 2026 15:15:30 GMT"},{"name":"Connection","value":"close"},{"name":"X-Powered-By","value":"PHP/8.1.2-1ubuntu2.23"},{"name":"Content-Type","value":"application/json; charset=utf-8"}],"fetchUid":"82cb6016ba4544169ada74a896ef21d8"}},"afterSnapshot":"after@call@651"}
+{"type":"before","callId":"call@653","startTime":35213.215,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/v1/seafarer/workspace?draft_id=c31c667f-cc80-4fe1-9409-8e5b95860ca5","method":"GET","timeout":0},"stepId":"pw:api@36","beforeSnapshot":"before@call@653"}
+{"type":"log","callId":"call@653","time":35213.803,"message":"→ GET http://127.0.0.1:38123/api/v1/seafarer/workspace?draft_id=c31c667f-cc80-4fe1-9409-8e5b95860ca5"}
+{"type":"log","callId":"call@653","time":35213.822,"message":"  user-agent: Playwright/1.56.1 (x64; ubuntu 22.04) node/22.16"}
+{"type":"log","callId":"call@653","time":35213.827,"message":"  accept: */*"}
+{"type":"log","callId":"call@653","time":35213.831,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@653","time":35213.835,"message":"  X-CPG-Operator-Token: crewportglobal-local-operator"}
+{"type":"log","callId":"call@653","time":35278.906,"message":"← 200 OK"}
+{"type":"log","callId":"call@653","time":35278.943,"message":"  host: 127.0.0.1:38123"}
+{"type":"log","callId":"call@653","time":35278.949,"message":"  date: Fri, 22 May 2026 15:15:30 GMT"}
+{"type":"log","callId":"call@653","time":35278.953,"message":"  connection: close"}
+{"type":"log","callId":"call@653","time":35278.956,"message":"  x-powered-by: PHP/8.1.2-1ubuntu2.23"}
+{"type":"log","callId":"call@653","time":35278.96,"message":"  content-type: application/json; charset=utf-8"}
+{"type":"after","callId":"call@653","endTime":35285.758,"result":{"response":{"url":"http://127.0.0.1:38123/api/v1/seafarer/workspace?draft_id=c31c667f-cc80-4fe1-9409-8e5b95860ca5","status":200,"statusText":"OK","headers":[{"name":"Host","value":"127.0.0.1:38123"},{"name":"Date","value":"Fri, 22 May 2026 15:15:30 GMT"},{"name":"Connection","value":"close"},{"name":"X-Powered-By","value":"PHP/8.1.2-1ubuntu2.23"},{"name":"Content-Type","value":"application/json; charset=utf-8"}],"fetchUid":"8335868f2b63197dd9567cfc47e0879c"}},"afterSnapshot":"after@call@653"}
+{"type":"before","callId":"call@656","startTime":35293.416,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/v1/registration/drafts/c31c667f-cc80-4fe1-9409-8e5b95860ca5?visibility=operator_general","method":"GET","timeout":0},"stepId":"pw:api@41","beforeSnapshot":"before@call@656"}
+{"type":"log","callId":"call@656","time":35294.025,"message":"→ GET http://127.0.0.1:38123/api/v1/registration/drafts/c31c667f-cc80-4fe1-9409-8e5b95860ca5?visibility=operator_general"}
+{"type":"log","callId":"call@656","time":35294.052,"message":"  user-agent: Playwright/1.56.1 (x64; ubuntu 22.04) node/22.16"}
+{"type":"log","callId":"call@656","time":35294.058,"message":"  accept: */*"}
+{"type":"log","callId":"call@656","time":35294.061,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@656","time":35294.065,"message":"  X-CPG-Operator-Token: crewportglobal-local-operator"}
+{"type":"log","callId":"call@656","time":35330.662,"message":"← 200 OK"}
+{"type":"log","callId":"call@656","time":35330.699,"message":"  host: 127.0.0.1:38123"}
+{"type":"log","callId":"call@656","time":35330.704,"message":"  date: Fri, 22 May 2026 15:15:30 GMT"}
+{"type":"log","callId":"call@656","time":35330.708,"message":"  connection: close"}
+{"type":"log","callId":"call@656","time":35330.712,"message":"  x-powered-by: PHP/8.1.2-1ubuntu2.23"}
+{"type":"log","callId":"call@656","time":35330.715,"message":"  content-type: application/json; charset=utf-8"}
+{"type":"after","callId":"call@656","endTime":35335.066,"result":{"response":{"url":"http://127.0.0.1:38123/api/v1/registration/drafts/c31c667f-cc80-4fe1-9409-8e5b95860ca5?visibility=operator_general","status":200,"statusText":"OK","headers":[{"name":"Host","value":"127.0.0.1:38123"},{"name":"Date","value":"Fri, 22 May 2026 15:15:30 GMT"},{"name":"Connection","value":"close"},{"name":"X-Powered-By","value":"PHP/8.1.2-1ubuntu2.23"},{"name":"Content-Type","value":"application/json; charset=utf-8"}],"fetchUid":"427e1fcbe8d13282a3aaf64f97c67bfc"}},"afterSnapshot":"after@call@656"}
+{"type":"before","callId":"call@677","startTime":36909.379,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/v1/registration/drafts","method":"POST","jsonData":"{\"role\":\"employer\",\"role_in_company\":\"recruiter\",\"email\":\"ui.visibility.employer.1779462930274@example.com\",\"full_name\":\"Visibility Employer\",\"company_name\":\"Visibility Marine Employer\",\"country_code\":\"AE\",\"registration_number\":\"VIS-1779462930274\",\"vacancy\":{\"vacancy_title\":\"Chief Officer\",\"rank\":\"Chief Officer\",\"department\":\"deck\",\"vessel_type\":\"Bulk Carrier\",\"join_date\":\"2026-08-15\",\"contract_duration\":\"4 months\",\"salary_min_usd\":6500,\"salary_max_usd\":7200,\"currency\":\"USD\",\"employer_country_code\":\"AE\",\"requirements\":\"COC, bulk carrier experience and valid medical certificate.\"}}","timeout":0},"stepId":"pw:api@61","beforeSnapshot":"before@call@677"}
+{"type":"log","callId":"call@677","time":36910.213,"message":"→ POST http://127.0.0.1:38123/api/v1/registration/drafts"}
+{"type":"log","callId":"call@677","time":36910.237,"message":"  user-agent: Playwright/1.56.1 (x64; ubuntu 22.04) node/22.16"}
+{"type":"log","callId":"call@677","time":36910.242,"message":"  accept: */*"}
+{"type":"log","callId":"call@677","time":36910.247,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@677","time":36910.252,"message":"  X-CPG-Operator-Token: crewportglobal-local-operator"}
+{"type":"log","callId":"call@677","time":36910.255,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@677","time":36910.26,"message":"  content-length: 587"}
+{"type":"log","callId":"call@677","time":36963.57,"message":"← 201 Created"}
+{"type":"log","callId":"call@677","time":36963.61,"message":"  host: 127.0.0.1:38123"}
+{"type":"log","callId":"call@677","time":36963.615,"message":"  date: Fri, 22 May 2026 15:15:32 GMT"}
+{"type":"log","callId":"call@677","time":36963.62,"message":"  connection: close"}
+{"type":"log","callId":"call@677","time":36963.625,"message":"  x-powered-by: PHP/8.1.2-1ubuntu2.23"}
+{"type":"log","callId":"call@677","time":36963.629,"message":"  content-type: application/json; charset=utf-8"}
+{"type":"after","callId":"call@677","endTime":36964.296,"result":{"response":{"url":"http://127.0.0.1:38123/api/v1/registration/drafts","status":201,"statusText":"Created","headers":[{"name":"Host","value":"127.0.0.1:38123"},{"name":"Date","value":"Fri, 22 May 2026 15:15:32 GMT"},{"name":"Connection","value":"close"},{"name":"X-Powered-By","value":"PHP/8.1.2-1ubuntu2.23"},{"name":"Content-Type","value":"application/json; charset=utf-8"}],"fetchUid":"270c333b400c353914359ff6f8bbbc12"}},"afterSnapshot":"after@call@677"}
+{"type":"before","callId":"call@680","startTime":36980.367,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/v1/operator/review-queue/c589c453-6de6-4c32-aadc-3c1c2e2b6264/status","method":"PATCH","jsonData":"{\"decision\":\"reviewed\",\"queue_type\":\"company_verification\"}","timeout":0},"stepId":"pw:api@63","beforeSnapshot":"before@call@680"}
+{"type":"log","callId":"call@680","time":36981.085,"message":"→ PATCH http://127.0.0.1:38123/api/v1/operator/review-queue/c589c453-6de6-4c32-aadc-3c1c2e2b6264/status"}
+{"type":"log","callId":"call@680","time":36981.106,"message":"  user-agent: Playwright/1.56.1 (x64; ubuntu 22.04) node/22.16"}
+{"type":"log","callId":"call@680","time":36981.11,"message":"  accept: */*"}
+{"type":"log","callId":"call@680","time":36981.114,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@680","time":36982.278,"message":"  X-CPG-Operator-Token: crewportglobal-local-operator"}
+{"type":"log","callId":"call@680","time":36982.292,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@680","time":36982.297,"message":"  content-length: 59"}
+{"type":"log","callId":"call@680","time":37033.012,"message":"← 200 OK"}
+{"type":"log","callId":"call@680","time":37033.047,"message":"  host: 127.0.0.1:38123"}
+{"type":"log","callId":"call@680","time":37033.053,"message":"  date: Fri, 22 May 2026 15:15:32 GMT"}
+{"type":"log","callId":"call@680","time":37033.057,"message":"  connection: close"}
+{"type":"log","callId":"call@680","time":37033.061,"message":"  x-powered-by: PHP/8.1.2-1ubuntu2.23"}
+{"type":"log","callId":"call@680","time":37033.065,"message":"  content-type: application/json; charset=utf-8"}
+{"type":"after","callId":"call@680","endTime":37033.682,"result":{"response":{"url":"http://127.0.0.1:38123/api/v1/operator/review-queue/c589c453-6de6-4c32-aadc-3c1c2e2b6264/status","status":200,"statusText":"OK","headers":[{"name":"Host","value":"127.0.0.1:38123"},{"name":"Date","value":"Fri, 22 May 2026 15:15:32 GMT"},{"name":"Connection","value":"close"},{"name":"X-Powered-By","value":"PHP/8.1.2-1ubuntu2.23"},{"name":"Content-Type","value":"application/json; charset=utf-8"}],"fetchUid":"315866cd90477eb5742a2bc03bfa5383"}},"afterSnapshot":"after@call@680"}
+{"type":"before","callId":"call@682","startTime":37039.712,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/v1/operator/review-queue/c589c453-6de6-4c32-aadc-3c1c2e2b6264/status","method":"PATCH","jsonData":"{\"decision\":\"reviewed\",\"queue_type\":\"vacancy_request\"}","timeout":0},"stepId":"pw:api@65","beforeSnapshot":"before@call@682"}
+{"type":"log","callId":"call@682","time":37040.407,"message":"→ PATCH http://127.0.0.1:38123/api/v1/operator/review-queue/c589c453-6de6-4c32-aadc-3c1c2e2b6264/status"}
+{"type":"log","callId":"call@682","time":37040.427,"message":"  user-agent: Playwright/1.56.1 (x64; ubuntu 22.04) node/22.16"}
+{"type":"log","callId":"call@682","time":37040.431,"message":"  accept: */*"}
+{"type":"log","callId":"call@682","time":37040.435,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@682","time":37040.438,"message":"  X-CPG-Operator-Token: crewportglobal-local-operator"}
+{"type":"log","callId":"call@682","time":37040.442,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@682","time":37040.446,"message":"  content-length: 54"}
+{"type":"log","callId":"call@682","time":37085.38,"message":"← 200 OK"}
+{"type":"log","callId":"call@682","time":37085.414,"message":"  host: 127.0.0.1:38123"}
+{"type":"log","callId":"call@682","time":37085.42,"message":"  date: Fri, 22 May 2026 15:15:32 GMT"}
+{"type":"log","callId":"call@682","time":37085.425,"message":"  connection: close"}
+{"type":"log","callId":"call@682","time":37085.429,"message":"  x-powered-by: PHP/8.1.2-1ubuntu2.23"}
+{"type":"log","callId":"call@682","time":37085.433,"message":"  content-type: application/json; charset=utf-8"}
+{"type":"after","callId":"call@682","endTime":37089.765,"result":{"response":{"url":"http://127.0.0.1:38123/api/v1/operator/review-queue/c589c453-6de6-4c32-aadc-3c1c2e2b6264/status","status":200,"statusText":"OK","headers":[{"name":"Host","value":"127.0.0.1:38123"},{"name":"Date","value":"Fri, 22 May 2026 15:15:32 GMT"},{"name":"Connection","value":"close"},{"name":"X-Powered-By","value":"PHP/8.1.2-1ubuntu2.23"},{"name":"Content-Type","value":"application/json; charset=utf-8"}],"fetchUid":"67f5d76a6a4a149cf9abe9cf98f830d7"}},"afterSnapshot":"after@call@682"}
+{"type":"before","callId":"call@684","startTime":37097.014,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/v1/vacancies/96093d15-7024-429a-8d24-4ecc6247375a/applications","method":"POST","jsonData":"{\"seafarer_draft_id\":\"c31c667f-cc80-4fe1-9409-8e5b95860ca5\",\"email\":\"ui.visibility.seafarer.1779462930274@example.com\",\"note\":\"Please review this candidate without exposing restricted fields.\"}","timeout":0},"stepId":"pw:api@67","beforeSnapshot":"before@call@684"}
+{"type":"log","callId":"call@684","time":37097.744,"message":"→ POST http://127.0.0.1:38123/api/v1/vacancies/96093d15-7024-429a-8d24-4ecc6247375a/applications"}
+{"type":"log","callId":"call@684","time":37097.828,"message":"  user-agent: Playwright/1.56.1 (x64; ubuntu 22.04) node/22.16"}
+{"type":"log","callId":"call@684","time":37097.834,"message":"  accept: */*"}
+{"type":"log","callId":"call@684","time":37097.839,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@684","time":37097.843,"message":"  X-CPG-Operator-Token: crewportglobal-local-operator"}
+{"type":"log","callId":"call@684","time":37097.847,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@684","time":37097.853,"message":"  content-length: 193"}
+{"type":"log","callId":"call@684","time":37157.609,"message":"← 201 Created"}
+{"type":"log","callId":"call@684","time":37157.641,"message":"  host: 127.0.0.1:38123"}
+{"type":"log","callId":"call@684","time":37157.646,"message":"  date: Fri, 22 May 2026 15:15:32 GMT"}
+{"type":"log","callId":"call@684","time":37157.65,"message":"  connection: close"}
+{"type":"log","callId":"call@684","time":37157.653,"message":"  x-powered-by: PHP/8.1.2-1ubuntu2.23"}
+{"type":"log","callId":"call@684","time":37157.658,"message":"  content-type: application/json; charset=utf-8"}
+{"type":"after","callId":"call@684","endTime":37158.299,"result":{"response":{"url":"http://127.0.0.1:38123/api/v1/vacancies/96093d15-7024-429a-8d24-4ecc6247375a/applications","status":201,"statusText":"Created","headers":[{"name":"Host","value":"127.0.0.1:38123"},{"name":"Date","value":"Fri, 22 May 2026 15:15:32 GMT"},{"name":"Connection","value":"close"},{"name":"X-Powered-By","value":"PHP/8.1.2-1ubuntu2.23"},{"name":"Content-Type","value":"application/json; charset=utf-8"}],"fetchUid":"4e3bd16cc547d9b260c2f2776a0b691d"}},"afterSnapshot":"after@call@684"}
+{"type":"before","callId":"call@687","startTime":37164.802,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/v1/operator/review-queue/b8578501-fd3b-4281-b27e-aaa6e3fe6371/status","method":"PATCH","jsonData":"{\"decision\":\"reviewed\",\"queue_type\":\"vacancy_application\",\"note\":\"Candidate can be presented with minimized employer payload.\"}","timeout":0},"stepId":"pw:api@69","beforeSnapshot":"before@call@687"}
+{"type":"log","callId":"call@687","time":37165.492,"message":"→ PATCH http://127.0.0.1:38123/api/v1/operator/review-queue/b8578501-fd3b-4281-b27e-aaa6e3fe6371/status"}
+{"type":"log","callId":"call@687","time":37165.511,"message":"  user-agent: Playwright/1.56.1 (x64; ubuntu 22.04) node/22.16"}
+{"type":"log","callId":"call@687","time":37165.515,"message":"  accept: */*"}
+{"type":"log","callId":"call@687","time":37165.518,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@687","time":37165.521,"message":"  X-CPG-Operator-Token: crewportglobal-local-operator"}
+{"type":"log","callId":"call@687","time":37165.525,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@687","time":37165.528,"message":"  content-length: 127"}
+{"type":"log","callId":"call@687","time":37219.478,"message":"← 200 OK"}
+{"type":"log","callId":"call@687","time":37219.512,"message":"  host: 127.0.0.1:38123"}
+{"type":"log","callId":"call@687","time":37219.518,"message":"  date: Fri, 22 May 2026 15:15:32 GMT"}
+{"type":"log","callId":"call@687","time":37219.523,"message":"  connection: close"}
+{"type":"log","callId":"call@687","time":37219.527,"message":"  x-powered-by: PHP/8.1.2-1ubuntu2.23"}
+{"type":"log","callId":"call@687","time":37219.531,"message":"  content-type: application/json; charset=utf-8"}
+{"type":"after","callId":"call@687","endTime":37223.719,"result":{"response":{"url":"http://127.0.0.1:38123/api/v1/operator/review-queue/b8578501-fd3b-4281-b27e-aaa6e3fe6371/status","status":200,"statusText":"OK","headers":[{"name":"Host","value":"127.0.0.1:38123"},{"name":"Date","value":"Fri, 22 May 2026 15:15:32 GMT"},{"name":"Connection","value":"close"},{"name":"X-Powered-By","value":"PHP/8.1.2-1ubuntu2.23"},{"name":"Content-Type","value":"application/json; charset=utf-8"}],"fetchUid":"69125c3367d5be4ae8fccf9d3eb3be2b"}},"afterSnapshot":"after@call@687"}
+{"type":"before","callId":"call@689","startTime":37236.553,"class":"APIRequestContext","method":"fetch","params":{"url":"/api/v1/registration/drafts/c589c453-6de6-4c32-aadc-3c1c2e2b6264","method":"GET","timeout":0},"stepId":"pw:api@71","beforeSnapshot":"before@call@689"}
+{"type":"log","callId":"call@689","time":37237.213,"message":"→ GET http://127.0.0.1:38123/api/v1/registration/drafts/c589c453-6de6-4c32-aadc-3c1c2e2b6264"}
+{"type":"log","callId":"call@689","time":37237.235,"message":"  user-agent: Playwright/1.56.1 (x64; ubuntu 22.04) node/22.16"}
+{"type":"log","callId":"call@689","time":37237.24,"message":"  accept: */*"}
+{"type":"log","callId":"call@689","time":37237.245,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@689","time":37237.248,"message":"  X-CPG-Operator-Token: crewportglobal-local-operator"}
+{"type":"log","callId":"call@689","time":37322.587,"message":"← 200 OK"}
+{"type":"log","callId":"call@689","time":37322.656,"message":"  host: 127.0.0.1:38123"}
+{"type":"log","callId":"call@689","time":37322.67,"message":"  date: Fri, 22 May 2026 15:15:32 GMT"}
+{"type":"log","callId":"call@689","time":37322.682,"message":"  connection: close"}
+{"type":"log","callId":"call@689","time":37322.693,"message":"  x-powered-by: PHP/8.1.2-1ubuntu2.23"}
+{"type":"log","callId":"call@689","time":37322.707,"message":"  content-type: application/json; charset=utf-8"}
+{"type":"after","callId":"call@689","endTime":37326.36,"result":{"response":{"url":"http://127.0.0.1:38123/api/v1/registration/drafts/c589c453-6de6-4c32-aadc-3c1c2e2b6264","status":200,"statusText":"OK","headers":[{"name":"Host","value":"127.0.0.1:38123"},{"name":"Date","value":"Fri, 22 May 2026 15:15:32 GMT"},{"name":"Connection","value":"close"},{"name":"X-Powered-By","value":"PHP/8.1.2-1ubuntu2.23"},{"name":"Content-Type","value":"application/json; charset=utf-8"}],"fetchUid":"3fe656b9ab1152246079c0492a5dbae3"}},"afterSnapshot":"after@call@689"}

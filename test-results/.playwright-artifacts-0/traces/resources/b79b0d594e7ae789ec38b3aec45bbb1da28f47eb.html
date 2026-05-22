@@ -1,0 +1,1613 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Post vacancy</title>
+  <meta name="description" content="CrewPortGlobal employer entry page for company details, vacancy requests and human-reviewed candidate presentation.">
+  <link rel="canonical" href="https://crewportglobal.com/post-vacancy/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../assets/crewportglobal-docs.css">
+  <style>
+    .flow-grid,
+    .step-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .flow-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.6fr);
+      align-items: start;
+    }
+
+    .hero-card,
+    .step-card,
+    .status-card {
+      padding: 28px;
+    }
+
+    .step-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .step-card,
+    .status-box {
+      display: grid;
+      gap: 12px;
+      padding: 20px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .lead-copy,
+    .status-box,
+    .step-card p,
+    .step-card li {
+      color: var(--muted-on-dark);
+      line-height: 1.6;
+    }
+
+    .step-card ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .inline-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .vacancy-form {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field-card {
+      display: grid;
+      gap: 8px;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .field-card.full {
+      grid-column: 1 / -1;
+    }
+
+    .field-card input,
+    .field-card select,
+    .field-card textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-on-dark);
+      font: inherit;
+    }
+
+    .field-card textarea {
+      min-height: 118px;
+      resize: vertical;
+    }
+
+    .document-upload-panel {
+      display: grid;
+      gap: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .document-upload-grid {
+      display: grid;
+      grid-template-columns: minmax(180px, 0.38fr) minmax(220px, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .document-upload-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .document-action-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .document-action-task {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 189, 89, 0.72);
+      background: rgba(255, 189, 89, 0.14);
+    }
+
+    .document-action-task strong {
+      color: var(--text-on-dark);
+      overflow-wrap: anywhere;
+    }
+
+    .document-action-task p {
+      margin: 0;
+      color: var(--muted-on-dark);
+      line-height: 1.5;
+    }
+
+    .document-action-task__meta {
+      display: grid;
+      gap: 4px;
+    }
+
+    .document-action-task__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .document-upload-item {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(0, 102, 128, 0.1);
+    }
+
+    .document-upload-item strong {
+      color: var(--text-on-dark);
+      overflow-wrap: anywhere;
+    }
+
+    .document-upload-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted-on-dark);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .document-upload-meta span {
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .workspace-status-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .workspace-status-card {
+      display: grid;
+      gap: 6px;
+      min-height: 86px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(0, 102, 128, 0.12);
+    }
+
+    .workspace-status-card span {
+      color: var(--muted-on-dark);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .workspace-status-card strong {
+      color: var(--text-on-dark);
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .workspace-next-action {
+      grid-column: 1 / -1;
+      display: grid;
+      gap: 6px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .workspace-next-action span {
+      color: var(--muted-on-dark);
+      font-size: 12px;
+    }
+
+    .workspace-next-action strong {
+      color: var(--text-on-dark);
+      line-height: 1.5;
+    }
+
+    .candidate-pipeline {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .candidate-pipeline__head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .candidate-pipeline__head span,
+    .candidate-pipeline__copy,
+    .candidate-card__meta,
+    .candidate-card__note {
+      color: var(--muted-on-dark);
+      line-height: 1.55;
+    }
+
+    .candidate-pipeline__head span {
+      font-size: 12px;
+    }
+
+    .candidate-pipeline__head strong,
+    .candidate-card h3 {
+      color: var(--text-on-dark);
+    }
+
+    .candidate-pipeline__copy {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .candidate-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .candidate-card {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(0, 102, 128, 0.1);
+    }
+
+    .candidate-card h3,
+    .candidate-card p {
+      margin: 0;
+    }
+
+    .candidate-card__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .candidate-card__meta span {
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .candidate-card__note {
+      font-size: 14px;
+    }
+
+    .candidate-card__followup {
+      display: grid;
+      gap: 6px;
+    }
+
+    .candidate-card__followup strong {
+      color: var(--text-on-dark);
+      font-size: 13px;
+    }
+
+    .candidate-card__followup textarea {
+      width: 100%;
+      min-height: 82px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-on-dark);
+      font: inherit;
+      resize: vertical;
+    }
+
+    .candidate-card__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .candidate-card__actions .button {
+      min-height: 36px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      .flow-grid,
+      .step-grid,
+      .field-grid,
+      .document-upload-grid,
+      .workspace-status-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="../assets/crewportglobal-app.css">
+</head>
+<body class="doc-body cpg-app-page">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+    </header>
+
+    <div data-cpg-navigation="application" data-cpg-nav-active="/post-vacancy/"></div>
+    <script src="../assets/crewportglobal-navigation.js"></script>
+
+    <main class="doc-main">
+      <section class="flow-grid app-market-grid">
+        <article class="card hero-card app-panel">
+          <p class="eyebrow" data-i18n="post.hero.eyebrow">Post vacancy</p>
+          <h1 data-i18n="post.hero.title">Start an employer vacancy request.</h1>
+          <p class="lead-copy" data-i18n="post.hero.copy">Add company profile, vessel, rank, salary, joining date, contract duration and key requirements before public publication.</p>
+          <div class="inline-actions">
+            <a class="button primary" href="https://crewportglobal.com/register/" data-i18n="post.hero.primaryCta">Choose Role / Register</a>
+            <a class="button secondary" href="https://crewportglobal.com/vacancies/" data-i18n="post.hero.secondaryCta">Open Vacancy Board</a>
+          </div>
+
+          <form id="post-vacancy-form" class="vacancy-form" novalidate>
+            <div class="field-grid">
+              <label class="field-card">
+                <strong data-i18n="post.form.email">Work email</strong>
+                <input id="post-email" type="email" data-i18n-placeholder="post.form.email.placeholder" placeholder="manager@company.com" required>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.fullName">Primary contact name</strong>
+                <input id="post-full-name" type="text" data-i18n-placeholder="post.form.fullName.placeholder" placeholder="Operations Manager">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.role">Employer role</strong>
+                <select id="post-role">
+                  <option value="employer" data-i18n="post.form.role.employer">Employer</option>
+                  <option value="shipowner" data-i18n="post.form.role.shipowner">Shipowner</option>
+                  <option value="crewing_manager" data-i18n="post.form.role.manager">Crewing Manager</option>
+                </select>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.companyRole">Role in company</strong>
+                <select id="post-role-in-company">
+                  <option value="manager" data-i18n="post.form.companyRole.manager">Manager</option>
+                  <option value="owner" data-i18n="post.form.companyRole.owner">Owner</option>
+                  <option value="recruiter" data-i18n="post.form.companyRole.recruiter">Recruiter</option>
+                  <option value="viewer" data-i18n="post.form.companyRole.viewer">Viewer</option>
+                </select>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.company">Company name</strong>
+                <input id="post-company" type="text" data-i18n-placeholder="post.form.company.placeholder" placeholder="Blue Horizon Shipping" required>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.country">Country code</strong>
+                <input id="post-country" type="text" maxlength="2" data-i18n-placeholder="post.form.country.placeholder" placeholder="SG">
+              </label>
+              <label class="field-card full">
+                <strong data-i18n="post.form.regNumber">Registration number</strong>
+                <input id="post-registration-number" type="text" data-i18n-placeholder="post.form.regNumber.placeholder" placeholder="SG-REG-9001">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.vesselName">Vessel name</strong>
+                <input id="post-vessel-name" type="text" data-i18n-placeholder="post.form.vesselName.placeholder" placeholder="MV Aurora">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.vesselType">Vessel type</strong>
+                <input id="post-vessel-type" type="text" list="post-vessel-type-options" data-i18n-placeholder="post.form.vesselType.placeholder" placeholder="Bulk Carrier">
+                <datalist id="post-vessel-type-options"></datalist>
+              </label>
+              <label class="field-card full">
+                <strong data-i18n="post.form.imo">IMO number</strong>
+                <input id="post-imo" type="text" data-i18n-placeholder="post.form.imo.placeholder" placeholder="IMO9001234">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.vacancyTitle">Vacancy title / rank</strong>
+                <input id="post-vacancy-title" type="text" list="post-rank-options" data-i18n-placeholder="post.form.vacancyTitle.placeholder" placeholder="Chief Officer">
+                <datalist id="post-rank-options"></datalist>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.department">Department</strong>
+                <select id="post-department">
+                  <option value="" data-i18n="post.form.department.any">Select department</option>
+                  <option value="deck" data-i18n="post.form.department.deck">Deck</option>
+                  <option value="engine" data-i18n="post.form.department.engine">Engine</option>
+                  <option value="catering" data-i18n="post.form.department.catering">Catering</option>
+                  <option value="hotel" data-i18n="post.form.department.hotel">Hotel</option>
+                  <option value="other" data-i18n="post.form.department.other">Other</option>
+                </select>
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.joinDate">Joining date</strong>
+                <input id="post-join-date" type="date">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.duration">Contract duration</strong>
+                <input id="post-duration" type="text" data-i18n-placeholder="post.form.duration.placeholder" placeholder="4 months +/- 1">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.salaryMin">Salary min USD</strong>
+                <input id="post-salary-min" type="number" min="0" step="100" data-i18n-placeholder="post.form.salaryMin.placeholder" placeholder="6500">
+              </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.salaryMax">Salary max USD</strong>
+                <input id="post-salary-max" type="number" min="0" step="100" data-i18n-placeholder="post.form.salaryMax.placeholder" placeholder="7200">
+              </label>
+              <label class="field-card full">
+                <strong data-i18n="post.form.requirements">Key requirements</strong>
+                <textarea id="post-requirements" maxlength="4000" data-i18n-placeholder="post.form.requirements.placeholder" placeholder="COC, tanker endorsement, Schengen readiness, mixed crew experience"></textarea>
+              </label>
+            </div>
+            <div class="inline-actions">
+              <button id="post-submit" class="button primary" type="submit" data-i18n="post.form.submit">Save Vacancy Request</button>
+            </div>
+            <p id="post-status" class="status-note" data-i18n="post.form.status">This form saves employer, company, vessel and vacancy request context in backend.</p>
+            <p id="post-status-detail" class="status-note"></p>
+            <div class="workspace-status-grid" aria-label="Employer workspace status">
+              <div class="workspace-status-card">
+                <span data-i18n="post.workspace.company">Company verification</span>
+                <strong id="post-company-status" data-i18n="post.workspace.empty">Not saved yet</strong>
+              </div>
+              <div class="workspace-status-card">
+                <span data-i18n="post.workspace.vacancy">Vacancy request</span>
+                <strong id="post-vacancy-status" data-i18n="post.workspace.empty">Not saved yet</strong>
+              </div>
+              <div class="workspace-status-card">
+                <span data-i18n="post.workspace.publication">Public vacancy board</span>
+                <strong id="post-publication-status" data-i18n="post.workspace.notPublic">Not public</strong>
+              </div>
+              <div class="workspace-status-card">
+                <span data-i18n="post.workspace.draft">Draft reference</span>
+                <strong id="post-draft-reference">-</strong>
+              </div>
+              <div class="workspace-next-action">
+                <span data-i18n="post.workspace.next">Next step</span>
+                <strong id="post-next-action" data-i18n="post.workspace.next.initial">Save company and vacancy details to submit them for human review.</strong>
+              </div>
+            </div>
+            <section class="document-upload-panel" aria-labelledby="post-document-upload-title">
+              <div>
+                <p class="eyebrow" data-i18n="post.upload.eyebrow">Protected upload</p>
+                <h2 id="post-document-upload-title" data-i18n="post.upload.title">Upload authority evidence after saving</h2>
+                <p class="status-note" data-i18n="post.upload.copy">Company and representative documents are stored outside the public site, scanned for malware and then marked pending human review.</p>
+              </div>
+              <div class="document-upload-grid">
+                <label class="field-card">
+                  <strong data-i18n="post.upload.type">Document type</strong>
+                  <select id="post-document-upload-type">
+                    <option value="company_registration" data-i18n="post.upload.type.company_registration">Company registration</option>
+                    <option value="company_license" data-i18n="post.upload.type.company_license">Company license</option>
+                    <option value="representative_id" data-i18n="post.upload.type.representative_id">Representative ID</option>
+                    <option value="authorization_letter" data-i18n="post.upload.type.authorization_letter">Authorization letter</option>
+                    <option value="power_of_attorney" data-i18n="post.upload.type.power_of_attorney">Power of attorney</option>
+                    <option value="employment_or_management_proof" data-i18n="post.upload.type.employment_or_management_proof">Employment / management proof</option>
+                    <option value="crew_request_brief" data-i18n="post.upload.type.crew_request_brief">Crew request brief</option>
+                    <option value="service_request_document" data-i18n="post.upload.type.service_request_document">Service request document</option>
+                    <option value="billing_or_commercial_evidence" data-i18n="post.upload.type.billing_or_commercial_evidence">Billing / commercial evidence</option>
+                    <option value="other_authority_evidence" data-i18n="post.upload.type.other_authority_evidence">Other authority evidence</option>
+                  </select>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="post.upload.file">File</strong>
+                  <input id="post-document-upload-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp">
+                </label>
+                <button id="post-document-upload-submit" class="button secondary" type="button" data-i18n="post.upload.submit">Upload</button>
+              </div>
+              <p id="post-document-upload-status" class="status-note" data-i18n="post.upload.status.initial">Save the vacancy request first, then upload PDF, JPG, PNG or WEBP evidence.</p>
+              <div id="post-document-action-list" class="document-action-list" aria-live="polite"></div>
+              <div id="post-document-upload-list" class="document-upload-list" aria-live="polite"></div>
+            </section>
+            <section class="candidate-pipeline" aria-labelledby="post-candidate-pipeline-title">
+              <div class="candidate-pipeline__head">
+                <span id="post-candidate-pipeline-title" data-i18n="post.pipeline.title">Presented candidates</span>
+                <strong id="post-candidate-pipeline-status" data-i18n="post.pipeline.empty">No presented candidates yet</strong>
+              </div>
+              <p id="post-candidate-pipeline-copy" class="candidate-pipeline__copy" data-i18n="post.pipeline.emptyCopy">Candidates appear here only after operator review.</p>
+              <div id="post-candidate-list" class="candidate-list"></div>
+            </section>
+          </form>
+        </article>
+        <aside class="card status-card app-panel">
+          <div class="status-box">
+            <strong data-i18n="post.side.process.title">Candidate review</strong>
+            <p data-i18n="post.side.process.copy">CrewPortGlobal does not imply automatic shortlist delivery or uncontrolled direct outreach. Candidate presentation remains human-guided.</p>
+          </div>
+          <div class="status-box">
+            <strong data-i18n="post.side.verification.title">Employer verification</strong>
+            <p data-i18n="post.side.verification.copy">Company details are reviewed before wider access or live vacancy publication.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="step-grid app-pipeline-grid">
+        <article class="card step-card">
+          <p class="eyebrow" data-i18n="post.step1.eyebrow">Step 1</p>
+          <h2 data-i18n="post.step1.title">Set up company profile</h2>
+          <ul>
+            <li data-i18n="post.step1.item1">Employer, shipowner or crewing manager role</li>
+            <li data-i18n="post.step1.item2">Company identity and operating context</li>
+            <li data-i18n="post.step1.item3">Responsible contact details</li>
+          </ul>
+        </article>
+        <article class="card step-card">
+          <p class="eyebrow" data-i18n="post.step2.eyebrow">Step 2</p>
+          <h2 data-i18n="post.step2.title">Add vacancy details</h2>
+          <ul>
+            <li data-i18n="post.step2.item1">Position, rank and vessel type</li>
+            <li data-i18n="post.step2.item2">Salary band, joining date and duration</li>
+            <li data-i18n="post.step2.item3">Requirements, employer country and operating notes</li>
+          </ul>
+        </article>
+        <article class="card step-card">
+          <p class="eyebrow" data-i18n="post.step3.eyebrow">Step 3</p>
+          <h2 data-i18n="post.step3.title">Review candidates through human review</h2>
+          <ul>
+            <li data-i18n="post.step3.item1">Prepared seafarer profiles only</li>
+            <li data-i18n="post.step3.item2">Human-reviewed candidate presentation</li>
+            <li data-i18n="post.step3.item3">No automatic shortlist or hiring claim</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+  </div>
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'post.hero.eyebrow': 'Post vacancy',
+        'post.hero.title': 'Start an employer vacancy request.',
+        'post.hero.copy': 'Add company profile, vessel, rank, salary, joining date, contract duration and key requirements before public publication.',
+        'post.hero.primaryCta': 'Choose Role / Register',
+        'post.hero.secondaryCta': 'Open Vacancy Board',
+        'post.form.email': 'Work email',
+        'post.form.email.placeholder': 'manager@company.com',
+        'post.form.fullName': 'Primary contact name',
+        'post.form.fullName.placeholder': 'Operations Manager',
+        'post.form.role': 'Employer role',
+        'post.form.role.employer': 'Employer',
+        'post.form.role.shipowner': 'Shipowner',
+        'post.form.role.manager': 'Crewing Manager',
+        'post.form.companyRole': 'Role in company',
+        'post.form.companyRole.owner': 'Owner',
+        'post.form.companyRole.manager': 'Manager',
+        'post.form.companyRole.recruiter': 'Recruiter',
+        'post.form.companyRole.viewer': 'Viewer',
+        'post.form.company': 'Company name',
+        'post.form.company.placeholder': 'Blue Horizon Shipping',
+        'post.form.country': 'Country code',
+        'post.form.country.placeholder': 'SG',
+        'post.form.regNumber': 'Registration number',
+        'post.form.regNumber.placeholder': 'SG-REG-9001',
+        'post.form.vesselName': 'Vessel name',
+        'post.form.vesselName.placeholder': 'MV Aurora',
+        'post.form.vesselType': 'Vessel type',
+        'post.form.vesselType.placeholder': 'Bulk Carrier',
+        'post.form.imo': 'IMO number',
+        'post.form.imo.placeholder': 'IMO9001234',
+        'post.form.vacancyTitle': 'Vacancy title / rank',
+        'post.form.vacancyTitle.placeholder': 'Chief Officer',
+        'post.form.department': 'Department',
+        'post.form.department.any': 'Select department',
+        'post.form.department.deck': 'Deck',
+        'post.form.department.engine': 'Engine',
+        'post.form.department.catering': 'Catering',
+        'post.form.department.hotel': 'Hotel',
+        'post.form.department.other': 'Other',
+        'post.form.joinDate': 'Joining date',
+        'post.form.duration': 'Contract duration',
+        'post.form.duration.placeholder': '4 months +/- 1',
+        'post.form.salaryMin': 'Salary min USD',
+        'post.form.salaryMin.placeholder': '6500',
+        'post.form.salaryMax': 'Salary max USD',
+        'post.form.salaryMax.placeholder': '7200',
+        'post.form.requirements': 'Key requirements',
+        'post.form.requirements.placeholder': 'COC, tanker endorsement, Schengen readiness, mixed crew experience',
+        'post.upload.eyebrow': 'Protected upload',
+        'post.upload.title': 'Upload authority evidence after saving',
+        'post.upload.copy': 'Company and representative documents are stored outside the public site, scanned for malware and then marked pending human review.',
+        'post.upload.type': 'Document type',
+        'post.upload.type.company_registration': 'Company registration',
+        'post.upload.type.company_license': 'Company license',
+        'post.upload.type.representative_id': 'Representative ID',
+        'post.upload.type.authorization_letter': 'Authorization letter',
+        'post.upload.type.power_of_attorney': 'Power of attorney',
+        'post.upload.type.employment_or_management_proof': 'Employment / management proof',
+        'post.upload.type.crew_request_brief': 'Crew request brief',
+        'post.upload.type.service_request_document': 'Service request document',
+        'post.upload.type.billing_or_commercial_evidence': 'Billing / commercial evidence',
+        'post.upload.type.other_authority_evidence': 'Other authority evidence',
+        'post.upload.file': 'File',
+        'post.upload.submit': 'Upload',
+        'post.upload.status.initial': 'Save the vacancy request first, then upload PDF, JPG, PNG or WEBP evidence.',
+        'post.upload.status.saveFirst': 'Save the vacancy request first, then upload documents.',
+        'post.upload.status.chooseFile': 'Choose a file to upload.',
+        'post.upload.status.uploading': 'Uploading and scanning document...',
+        'post.upload.status.uploaded': 'Document uploaded and scanned.',
+        'post.upload.status.error': 'Document upload failed. Please check file type and size.',
+        'post.upload.status.empty': 'No uploaded documents yet.',
+        'post.upload.meta.scan': 'Scan',
+        'post.upload.meta.review': 'Review',
+        'post.upload.meta.size': 'Size',
+        'post.upload.meta.cleanReady': 'Pending human review',
+        'post.upload.task.title': 'Action required: upload corrected document',
+        'post.upload.task.document': 'Document',
+        'post.upload.task.status': 'Status',
+        'post.upload.task.reason': 'Reason',
+        'post.upload.task.uploadReplacement': 'Upload replacement',
+        'post.upload.task.replacementHint': 'Choose a corrected replacement file for {document}.',
+        'post.upload.review.pending_human_review': 'Waiting for team review',
+        'post.upload.review.under_review': 'Under review',
+        'post.upload.review.correction_requested': 'Correction requested',
+        'post.upload.review.rejected': 'Rejected',
+        'post.upload.review.verified': 'Verified',
+        'post.form.submit': 'Save Vacancy Request',
+        'post.form.status': 'This form saves employer, company, vessel and vacancy request context in backend.',
+        'post.form.validation': 'Work email and company name are required.',
+        'post.form.saving': 'Saving vacancy request...',
+        'post.form.saved': 'Vacancy request saved successfully.',
+        'post.form.error': 'Could not save vacancy request. Please try again.',
+        'post.form.prefilling': 'Loading saved employer workspace...',
+        'post.form.prefilled': 'Saved employer workspace loaded.',
+        'post.form.prefillError': 'Could not load saved employer workspace. You can continue with a new request.',
+        'post.form.savedDetail': 'Draft ID: {draftId} | Company type: {companyType} | Verification: {verificationStatus} | Contact role: {roleInCompany} | Vacancy: {vacancyStatus}',
+        'post.workspace.company': 'Company verification',
+        'post.workspace.vacancy': 'Vacancy request',
+        'post.workspace.publication': 'Public vacancy board',
+        'post.workspace.draft': 'Draft reference',
+        'post.workspace.next': 'Next step',
+        'post.workspace.empty': 'Not saved yet',
+        'post.workspace.notPublic': 'Not public',
+        'post.workspace.public': 'Published',
+        'post.workspace.next.initial': 'Save company and vacancy details to submit them for human review.',
+        'post.workspace.next.company': 'Company verification is waiting for operator review.',
+        'post.workspace.next.vacancy': 'Vacancy request is waiting for operator review.',
+        'post.workspace.next.published': 'Vacancy is reviewed and visible on the public board.',
+        'post.workspace.next.correction': 'Operator requested correction. Update the details and save again.',
+        'post.workspace.next.complete': 'Company and vacancy are saved. Operator review controls public publication.',
+        'post.pipeline.title': 'Presented candidates',
+        'post.pipeline.empty': 'No presented candidates yet',
+        'post.pipeline.emptyCopy': 'Candidates appear here only after operator review.',
+        'post.pipeline.count': '{count} presented candidate(s)',
+        'post.pipeline.copy': 'These candidates were checked by the operator and marked ready to present for this vacancy.',
+        'post.pipeline.rank': 'Rank',
+        'post.pipeline.availability': 'Availability',
+        'post.pipeline.email': 'Email',
+        'post.pipeline.documents': 'Documents',
+        'post.pipeline.note': 'Candidate note',
+        'post.pipeline.status': 'Status',
+        'post.pipeline.shortlist': 'Employer status',
+        'post.pipeline.employerNote': 'Employer note',
+        'post.pipeline.followupNote': 'Follow-up note',
+        'post.pipeline.followupNote.placeholder': 'Add interview window, contact result or rejection reason',
+        'post.pipeline.action.contacted': 'Mark contacted',
+        'post.pipeline.action.interview': 'Request interview',
+        'post.pipeline.action.notSuitable': 'Not suitable',
+        'post.pipeline.action.saving': 'Updating candidate status...',
+        'post.pipeline.action.saved': 'Candidate status updated.',
+        'post.pipeline.action.error': 'Could not update candidate status. Please try again.',
+        'post.shortlist.presented': 'Presented',
+        'post.shortlist.contacted': 'Contacted',
+        'post.shortlist.interview_requested': 'Interview requested',
+        'post.shortlist.not_suitable': 'Not suitable',
+        'post.side.process.title': 'Candidate review',
+        'post.side.process.copy': 'CrewPortGlobal does not imply automatic shortlist delivery or uncontrolled direct outreach. Candidate presentation remains human-guided.',
+        'post.side.verification.title': 'Employer verification',
+        'post.side.verification.copy': 'Company details are reviewed before wider access or live vacancy publication.',
+        'post.step1.eyebrow': 'Step 1',
+        'post.step1.title': 'Set up company profile',
+        'post.step1.item1': 'Employer, shipowner or crewing manager role',
+        'post.step1.item2': 'Company identity and operating context',
+        'post.step1.item3': 'Responsible contact details',
+        'post.step2.eyebrow': 'Step 2',
+        'post.step2.title': 'Add vacancy details',
+        'post.step2.item1': 'Position, rank and vessel type',
+        'post.step2.item2': 'Salary band, joining date and duration',
+        'post.step2.item3': 'Requirements, employer country and operating notes',
+        'post.step3.eyebrow': 'Step 3',
+        'post.step3.title': 'Review candidates through human review',
+        'post.step3.item1': 'Prepared seafarer profiles only',
+        'post.step3.item2': 'Human-reviewed candidate presentation',
+        'post.step3.item3': 'No automatic shortlist or hiring claim'
+      },
+      ru: {
+        'post.hero.eyebrow': 'Разместить вакансию',
+        'post.hero.title': 'Начните запрос работодателя на вакансию.',
+        'post.hero.copy': 'Добавьте профиль компании, судно, должность, зарплату, дату посадки, длительность контракта и ключевые требования до публичной публикации.',
+        'post.hero.primaryCta': 'Выбрать роль / зарегистрироваться',
+        'post.hero.secondaryCta': 'Открыть доску вакансий',
+        'post.form.email': 'Рабочий email',
+        'post.form.email.placeholder': 'manager@company.com',
+        'post.form.fullName': 'Имя основного контакта',
+        'post.form.fullName.placeholder': 'Operations Manager',
+        'post.form.role': 'Роль работодателя',
+        'post.form.role.employer': 'Работодатель',
+        'post.form.role.shipowner': 'Судовладелец',
+        'post.form.role.manager': 'Crewing Manager',
+        'post.form.companyRole': 'Роль в компании',
+        'post.form.companyRole.owner': 'Владелец',
+        'post.form.companyRole.manager': 'Менеджер',
+        'post.form.companyRole.recruiter': 'Рекрутер',
+        'post.form.companyRole.viewer': 'Наблюдатель',
+        'post.form.company': 'Название компании',
+        'post.form.company.placeholder': 'Blue Horizon Shipping',
+        'post.form.country': 'Код страны',
+        'post.form.country.placeholder': 'SG',
+        'post.form.regNumber': 'Регистрационный номер',
+        'post.form.regNumber.placeholder': 'SG-REG-9001',
+        'post.form.vesselName': 'Название судна',
+        'post.form.vesselName.placeholder': 'MV Aurora',
+        'post.form.vesselType': 'Тип судна',
+        'post.form.vesselType.placeholder': 'Bulk Carrier',
+        'post.form.imo': 'Номер IMO',
+        'post.form.imo.placeholder': 'IMO9001234',
+        'post.form.vacancyTitle': 'Вакансия / должность',
+        'post.form.vacancyTitle.placeholder': 'Chief Officer',
+        'post.form.department': 'Департамент',
+        'post.form.department.any': 'Выберите департамент',
+        'post.form.department.deck': 'Палуба',
+        'post.form.department.engine': 'Машина',
+        'post.form.department.catering': 'Камбуз',
+        'post.form.department.hotel': 'Отель',
+        'post.form.department.other': 'Другое',
+        'post.form.joinDate': 'Дата посадки',
+        'post.form.duration': 'Длительность контракта',
+        'post.form.duration.placeholder': '4 месяца +/- 1',
+        'post.form.salaryMin': 'Зарплата от, USD',
+        'post.form.salaryMin.placeholder': '6500',
+        'post.form.salaryMax': 'Зарплата до, USD',
+        'post.form.salaryMax.placeholder': '7200',
+        'post.form.requirements': 'Ключевые требования',
+        'post.form.requirements.placeholder': 'COC, tanker endorsement, готовность к Schengen, опыт mixed crew',
+        'post.upload.eyebrow': 'Защищенная загрузка',
+        'post.upload.title': 'Загрузите подтверждение полномочий после сохранения',
+        'post.upload.copy': 'Документы компании и представителя хранятся вне публичного сайта, проходят проверку на вредоносный код и затем отмечаются как ожидающие ручной проверки.',
+        'post.upload.type': 'Тип документа',
+        'post.upload.type.company_registration': 'Регистрация компании',
+        'post.upload.type.company_license': 'Лицензия компании',
+        'post.upload.type.representative_id': 'ID представителя',
+        'post.upload.type.authorization_letter': 'Письмо о полномочиях',
+        'post.upload.type.power_of_attorney': 'Доверенность',
+        'post.upload.type.employment_or_management_proof': 'Подтверждение работы / управления',
+        'post.upload.type.crew_request_brief': 'Краткий запрос на экипаж',
+        'post.upload.type.service_request_document': 'Документ сервисного запроса',
+        'post.upload.type.billing_or_commercial_evidence': 'Платежное / коммерческое подтверждение',
+        'post.upload.type.other_authority_evidence': 'Другое подтверждение полномочий',
+        'post.upload.file': 'Файл',
+        'post.upload.submit': 'Загрузить',
+        'post.upload.status.initial': 'Сначала сохраните заявку, затем загрузите PDF, JPG, PNG или WEBP.',
+        'post.upload.status.saveFirst': 'Сначала сохраните заявку, затем загрузите документы.',
+        'post.upload.status.chooseFile': 'Выберите файл для загрузки.',
+        'post.upload.status.uploading': 'Загружаем и сканируем документ...',
+        'post.upload.status.uploaded': 'Документ загружен и просканирован.',
+        'post.upload.status.error': 'Не удалось загрузить документ. Проверьте тип и размер файла.',
+        'post.upload.status.empty': 'Пока нет загруженных документов.',
+        'post.upload.meta.scan': 'Сканирование',
+        'post.upload.meta.review': 'Проверка',
+        'post.upload.meta.size': 'Размер',
+        'post.upload.meta.cleanReady': 'Ожидает ручной проверки',
+        'post.upload.task.title': 'Требуется действие: загрузите исправленный документ',
+        'post.upload.task.document': 'Документ',
+        'post.upload.task.status': 'Статус',
+        'post.upload.task.reason': 'Причина',
+        'post.upload.task.uploadReplacement': 'Загрузить новую версию',
+        'post.upload.task.replacementHint': 'Выберите исправленный файл для документа: {document}.',
+        'post.upload.review.pending_human_review': 'Ожидает проверки команды',
+        'post.upload.review.under_review': 'На проверке',
+        'post.upload.review.correction_requested': 'Требуется исправление',
+        'post.upload.review.rejected': 'Отклонен',
+        'post.upload.review.verified': 'Проверен',
+        'post.form.submit': 'Сохранить заявку на вакансию',
+        'post.form.status': 'Эта форма сохраняет работодателя, компанию, судно и заявку на вакансию в backend.',
+        'post.form.validation': 'Укажите рабочий email и название компании.',
+        'post.form.saving': 'Сохраняем заявку на вакансию...',
+        'post.form.saved': 'Заявка на вакансию успешно сохранена.',
+        'post.form.error': 'Не удалось сохранить заявку на вакансию. Попробуйте ещё раз.',
+        'post.form.prefilling': 'Загружаем сохраненное рабочее пространство работодателя...',
+        'post.form.prefilled': 'Сохраненное рабочее пространство работодателя загружено.',
+        'post.form.prefillError': 'Не удалось загрузить сохраненное рабочее пространство. Можно продолжить с новой заявкой.',
+        'post.form.savedDetail': 'Draft ID: {draftId} | Тип компании: {companyType} | Верификация: {verificationStatus} | Роль контакта: {roleInCompany} | Вакансия: {vacancyStatus}',
+        'post.workspace.company': 'Проверка компании',
+        'post.workspace.vacancy': 'Заявка на вакансию',
+        'post.workspace.publication': 'Публичная доска вакансий',
+        'post.workspace.draft': 'Ссылка на черновик',
+        'post.workspace.next': 'Следующий шаг',
+        'post.workspace.empty': 'Еще не сохранено',
+        'post.workspace.notPublic': 'Не опубликовано',
+        'post.workspace.public': 'Опубликовано',
+        'post.workspace.next.initial': 'Сохраните данные компании и вакансии, чтобы отправить их на ручную проверку.',
+        'post.workspace.next.company': 'Проверка компании ожидает решения оператора.',
+        'post.workspace.next.vacancy': 'Заявка на вакансию ожидает решения оператора.',
+        'post.workspace.next.published': 'Вакансия проверена и видна на публичной доске.',
+        'post.workspace.next.correction': 'Оператор запросил исправления. Обновите данные и сохраните снова.',
+        'post.workspace.next.complete': 'Компания и вакансия сохранены. Публикация зависит от проверки оператором.',
+        'post.pipeline.title': 'Представленные кандидаты',
+        'post.pipeline.empty': 'Пока нет представленных кандидатов',
+        'post.pipeline.emptyCopy': 'Кандидаты появляются здесь только после проверки оператором.',
+        'post.pipeline.count': 'Представлено кандидатов: {count}',
+        'post.pipeline.copy': 'Эти кандидаты проверены оператором и отмечены как готовые к представлению по этой вакансии.',
+        'post.pipeline.rank': 'Ранг',
+        'post.pipeline.availability': 'Готовность',
+        'post.pipeline.email': 'Email',
+        'post.pipeline.documents': 'Документы',
+        'post.pipeline.note': 'Заметка кандидата',
+        'post.pipeline.status': 'Статус',
+        'post.pipeline.shortlist': 'Статус работодателя',
+        'post.pipeline.employerNote': 'Заметка работодателя',
+        'post.pipeline.followupNote': 'Заметка по кандидату',
+        'post.pipeline.followupNote.placeholder': 'Добавьте окно интервью, результат контакта или причину отказа',
+        'post.pipeline.action.contacted': 'Отмечен контакт',
+        'post.pipeline.action.interview': 'Запросить интервью',
+        'post.pipeline.action.notSuitable': 'Не подходит',
+        'post.pipeline.action.saving': 'Обновляем статус кандидата...',
+        'post.pipeline.action.saved': 'Статус кандидата обновлён.',
+        'post.pipeline.action.error': 'Не удалось обновить статус кандидата. Попробуйте ещё раз.',
+        'post.shortlist.presented': 'Представлен',
+        'post.shortlist.contacted': 'Контакт установлен',
+        'post.shortlist.interview_requested': 'Интервью запрошено',
+        'post.shortlist.not_suitable': 'Не подходит',
+        'post.side.process.title': 'Рассмотрение кандидатов',
+        'post.side.process.copy': 'CrewPortGlobal не обещает автоматическую выдачу шорт-листа или неконтролируемые прямые контакты. Представление кандидатов остаётся процессом с участием человека.',
+        'post.side.verification.title': 'Проверка работодателя',
+        'post.side.verification.copy': 'Данные компании проверяются до более широкого доступа или живой публикации вакансии.',
+        'post.step1.eyebrow': 'Шаг 1',
+        'post.step1.title': 'Настройте профиль компании',
+        'post.step1.item1': 'Роль работодателя, судовладельца или crewing manager',
+        'post.step1.item2': 'Идентичность компании и операционный контекст',
+        'post.step1.item3': 'Контакты ответственного лица',
+        'post.step2.eyebrow': 'Шаг 2',
+        'post.step2.title': 'Добавьте детали вакансии',
+        'post.step2.item1': 'Должность, ранг и тип судна',
+        'post.step2.item2': 'Диапазон зарплаты, дата посадки и длительность',
+        'post.step2.item3': 'Требования, страна работодателя и рабочие примечания',
+        'post.step3.eyebrow': 'Шаг 3',
+        'post.step3.title': 'Рассматривайте кандидатов через ручную проверку',
+        'post.step3.item1': 'Только подготовленные профили моряков',
+        'post.step3.item2': 'Представление кандидатов после ручной проверки',
+        'post.step3.item3': 'Без обещаний автоматического шорт-листа или найма'
+      }
+    };
+  </script>
+  <script src="../assets/crewportglobal-registration-drafts.js"></script>
+  <script src="../assets/crewportglobal-reference-catalogs.js"></script>
+  <script src="../assets/crewportglobal-public-i18n.js" defer></script>
+  <script>
+    (function () {
+      const form = document.getElementById('post-vacancy-form');
+      const status = document.getElementById('post-status');
+      const statusDetail = document.getElementById('post-status-detail');
+      const submit = document.getElementById('post-submit');
+      const email = document.getElementById('post-email');
+      const fullName = document.getElementById('post-full-name');
+      const role = document.getElementById('post-role');
+      const roleInCompany = document.getElementById('post-role-in-company');
+      const company = document.getElementById('post-company');
+      const country = document.getElementById('post-country');
+      const registrationNumber = document.getElementById('post-registration-number');
+      const vesselName = document.getElementById('post-vessel-name');
+      const vesselType = document.getElementById('post-vessel-type');
+      const imo = document.getElementById('post-imo');
+      const vacancyTitle = document.getElementById('post-vacancy-title');
+      const department = document.getElementById('post-department');
+      const joinDate = document.getElementById('post-join-date');
+      const duration = document.getElementById('post-duration');
+      const salaryMin = document.getElementById('post-salary-min');
+      const salaryMax = document.getElementById('post-salary-max');
+      const requirements = document.getElementById('post-requirements');
+      const companyStatus = document.getElementById('post-company-status');
+      const vacancyStatus = document.getElementById('post-vacancy-status');
+      const publicationStatus = document.getElementById('post-publication-status');
+      const draftReference = document.getElementById('post-draft-reference');
+      const nextAction = document.getElementById('post-next-action');
+      const pipelineStatus = document.getElementById('post-candidate-pipeline-status');
+      const pipelineCopy = document.getElementById('post-candidate-pipeline-copy');
+      const candidateList = document.getElementById('post-candidate-list');
+      const uploadType = document.getElementById('post-document-upload-type');
+      const uploadFile = document.getElementById('post-document-upload-file');
+      const uploadSubmit = document.getElementById('post-document-upload-submit');
+      const uploadStatus = document.getElementById('post-document-upload-status');
+      const documentActionList = document.getElementById('post-document-action-list');
+      const uploadList = document.getElementById('post-document-upload-list');
+      let currentWorkspaceResponse = null;
+
+      function getLanguage() {
+        const lang = document.documentElement.lang || 'en';
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang] ? lang : 'en';
+      }
+
+      function t(key) {
+        const lang = getLanguage();
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang][key] || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key] || key;
+      }
+
+      function tp(key, values) {
+        return Object.entries(values).reduce((result, [token, value]) => {
+          return result.replace(`{${token}}`, String(value));
+        }, t(key));
+      }
+
+      function loadReferenceCatalogBindings() {
+        if (!window.CPGReferenceCatalogs) {
+          return Promise.resolve([]);
+        }
+        return window.CPGReferenceCatalogs.bindCatalogs([
+          {
+            catalogCode: 'vessel_types',
+            datalist: 'post-vessel-type-options'
+          },
+          {
+            catalogCode: 'seafarer_positions',
+            datalist: 'post-rank-options'
+          }
+        ]).catch((error) => {
+          console.error(error);
+          return [];
+        });
+      }
+
+      function getDraftIdFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        return (params.get('draft_id') || '').trim();
+      }
+
+      function setValue(input, value) {
+        if (!input || value === null || value === undefined) {
+          return;
+        }
+        input.value = String(value);
+      }
+
+      function setSelectValue(input, value) {
+        if (!input || value === null || value === undefined) {
+          return;
+        }
+        const normalized = String(value);
+        if (Array.from(input.options).some((option) => option.value === normalized)) {
+          input.value = normalized;
+        }
+      }
+
+      function valueOrDash(value) {
+        return value === null || value === undefined || String(value).trim() === '' ? '-' : String(value);
+      }
+
+      function parseJsonish(value, fallback) {
+        if (value && typeof value === 'object') {
+          return value;
+        }
+        if (typeof value !== 'string' || !value.trim()) {
+          return fallback;
+        }
+        try {
+          return JSON.parse(value);
+        } catch (error) {
+          return fallback;
+        }
+      }
+
+      function addCandidateMeta(row, labelKey, value) {
+        if (value === null || value === undefined || String(value).trim() === '') {
+          return;
+        }
+        const span = document.createElement('span');
+        span.textContent = `${t(labelKey)}: ${value}`;
+        row.appendChild(span);
+      }
+
+      function documentSummary(candidate) {
+        const metadata = candidate.document_summary && typeof candidate.document_summary === 'object'
+          ? candidate.document_summary
+          : parseJsonish(candidate.document_metadata, {});
+        const parts = [
+          metadata.certificate_status,
+          metadata.stcw_status,
+          metadata.medical_expiry,
+          metadata.passport_expiry
+        ].filter((value) => value !== null && value !== undefined && String(value).trim() !== '');
+        return parts.join(' / ');
+      }
+
+      function employerShortlistLabel(statusValue) {
+        const normalized = typeof statusValue === 'string' && statusValue.trim()
+          ? statusValue.trim()
+          : 'presented';
+        const key = `post.shortlist.${normalized}`;
+        const translated = t(key);
+        return translated === key ? valueOrDash(normalized) : translated;
+      }
+
+      function createCandidateAction(applicationId, action, labelKey, isCurrent) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'button secondary candidate-action';
+        button.dataset.applicationId = applicationId;
+        button.dataset.shortlistStatus = action;
+        button.textContent = t(labelKey);
+        button.disabled = isCurrent;
+        return button;
+      }
+
+      function createCandidateFollowup(applicationId, noteValue) {
+        const label = document.createElement('label');
+        label.className = 'candidate-card__followup';
+
+        const title = document.createElement('strong');
+        title.textContent = t('post.pipeline.followupNote');
+        label.appendChild(title);
+
+        const textarea = document.createElement('textarea');
+        textarea.className = 'candidate-note-input';
+        textarea.dataset.applicationId = applicationId;
+        textarea.maxLength = 1200;
+        textarea.placeholder = t('post.pipeline.followupNote.placeholder');
+        textarea.value = typeof noteValue === 'string' ? noteValue : '';
+        label.appendChild(textarea);
+
+        return label;
+      }
+
+      function renderPresentedCandidates(response) {
+        const payload = response && response.payload && typeof response.payload === 'object' ? response.payload : {};
+        const candidates = Array.isArray(payload.presented_candidates) ? payload.presented_candidates : [];
+        candidateList.innerHTML = '';
+
+        if (candidates.length === 0) {
+          pipelineStatus.textContent = t('post.pipeline.empty');
+          pipelineCopy.textContent = t('post.pipeline.emptyCopy');
+          return;
+        }
+
+        pipelineStatus.textContent = tp('post.pipeline.count', { count: candidates.length });
+        pipelineCopy.textContent = t('post.pipeline.copy');
+
+        candidates.forEach((candidate) => {
+          const card = document.createElement('article');
+          card.className = 'candidate-card';
+
+          const title = document.createElement('h3');
+          title.textContent = valueOrDash(candidate.display_name || candidate.primary_rank || candidate.vacancy_rank);
+          card.appendChild(title);
+
+          const meta = document.createElement('div');
+          meta.className = 'candidate-card__meta';
+          addCandidateMeta(meta, 'post.pipeline.rank', candidate.primary_rank || candidate.vacancy_rank);
+          addCandidateMeta(meta, 'post.pipeline.availability', candidate.availability_status);
+          addCandidateMeta(meta, 'post.pipeline.documents', documentSummary(candidate));
+          addCandidateMeta(meta, 'post.pipeline.status', candidate.application_status);
+          addCandidateMeta(meta, 'post.pipeline.shortlist', employerShortlistLabel(candidate.employer_shortlist_status));
+          card.appendChild(meta);
+
+          if (candidate.candidate_note) {
+            const note = document.createElement('p');
+            note.className = 'candidate-card__note';
+            note.textContent = `${t('post.pipeline.note')}: ${candidate.candidate_note}`;
+            card.appendChild(note);
+          }
+
+          if (candidate.vacancy_application_id) {
+            const currentShortlistStatus = typeof candidate.employer_shortlist_status === 'string' && candidate.employer_shortlist_status.trim()
+              ? candidate.employer_shortlist_status.trim()
+              : 'presented';
+            card.appendChild(createCandidateFollowup(candidate.vacancy_application_id, candidate.employer_action_note));
+            const actions = document.createElement('div');
+            actions.className = 'candidate-card__actions';
+            actions.appendChild(createCandidateAction(candidate.vacancy_application_id, 'contacted', 'post.pipeline.action.contacted', currentShortlistStatus === 'contacted'));
+            actions.appendChild(createCandidateAction(candidate.vacancy_application_id, 'interview_requested', 'post.pipeline.action.interview', currentShortlistStatus === 'interview_requested'));
+            actions.appendChild(createCandidateAction(candidate.vacancy_application_id, 'not_suitable', 'post.pipeline.action.notSuitable', currentShortlistStatus === 'not_suitable'));
+            card.appendChild(actions);
+          }
+
+          candidateList.appendChild(card);
+        });
+      }
+
+      function candidateNoteFor(applicationId) {
+        const input = Array.from(candidateList.querySelectorAll('.candidate-note-input'))
+          .find((item) => item instanceof HTMLTextAreaElement && item.dataset.applicationId === applicationId);
+        return input instanceof HTMLTextAreaElement ? input.value.trim() : '';
+      }
+
+      function formatBytes(value) {
+        const bytes = Number(value);
+        if (!Number.isFinite(bytes) || bytes <= 0) {
+          return '-';
+        }
+        if (bytes < 1024 * 1024) {
+          return `${Math.ceil(bytes / 1024)} KB`;
+        }
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+      }
+
+      function currentDraftId() {
+        return currentWorkspaceResponse && currentWorkspaceResponse.draft_id
+          ? currentWorkspaceResponse.draft_id
+          : getDraftIdFromUrl();
+      }
+
+      function documentTypeLabel(value) {
+        const option = Array.from(uploadType.options).find((item) => item.value === value);
+        return option ? option.textContent.trim() : valueOrDash(value);
+      }
+
+      function reviewStatusLabel(value) {
+        const normalized = typeof value === 'string' ? value.trim() : '';
+        return normalized ? t(`post.upload.review.${normalized}`) : '-';
+      }
+
+      function documentsNeedingAction(documents) {
+        return Array.isArray(documents)
+          ? documents.filter((documentRecord) => (
+            ['correction_requested', 'rejected'].includes(documentRecord.review_status)
+            && typeof documentRecord.review_note === 'string'
+            && documentRecord.review_note.trim() !== ''
+          ))
+          : [];
+      }
+
+      function renderDocumentActionTasks(documents) {
+        documentActionList.innerHTML = '';
+        const tasks = documentsNeedingAction(documents);
+        documentActionList.hidden = tasks.length === 0;
+        tasks.forEach((documentRecord) => {
+          const task = document.createElement('article');
+          task.className = 'document-action-task';
+
+          const title = document.createElement('strong');
+          title.textContent = t('post.upload.task.title');
+          task.appendChild(title);
+
+          const meta = document.createElement('div');
+          meta.className = 'document-action-task__meta';
+          [
+            `${t('post.upload.task.document')}: ${documentTypeLabel(documentRecord.document_type)}`,
+            `${t('post.upload.task.status')}: ${reviewStatusLabel(documentRecord.review_status)}`,
+            `${t('post.upload.task.reason')}: ${documentRecord.review_note.trim()}`
+          ].forEach((text) => {
+            const line = document.createElement('p');
+            line.textContent = text;
+            meta.appendChild(line);
+          });
+          task.appendChild(meta);
+
+          const actions = document.createElement('div');
+          actions.className = 'document-action-task__actions';
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'button primary document-replacement-action';
+          button.textContent = t('post.upload.task.uploadReplacement');
+          button.addEventListener('click', () => {
+            if (documentRecord.document_type) {
+              uploadType.value = documentRecord.document_type;
+            }
+            uploadStatus.textContent = tp('post.upload.task.replacementHint', {
+              document: documentTypeLabel(documentRecord.document_type)
+            });
+            uploadFile.focus();
+          });
+          actions.appendChild(button);
+          task.appendChild(actions);
+
+          documentActionList.appendChild(task);
+        });
+      }
+
+      function renderUploadedDocuments(documents) {
+        renderDocumentActionTasks(documents);
+        uploadList.innerHTML = '';
+        if (!Array.isArray(documents) || documents.length === 0) {
+          const empty = document.createElement('p');
+          empty.className = 'status-note';
+          empty.textContent = t('post.upload.status.empty');
+          uploadList.appendChild(empty);
+          return;
+        }
+
+        documents.forEach((documentRecord) => {
+          const item = document.createElement('article');
+          item.className = 'document-upload-item';
+
+          const title = document.createElement('strong');
+          title.textContent = documentRecord.original_filename || documentRecord.document_type || '-';
+          item.appendChild(title);
+
+          const meta = document.createElement('div');
+          meta.className = 'document-upload-meta';
+          [
+            `${t('post.upload.type')}: ${valueOrDash(documentRecord.document_type)}`,
+            `${t('post.upload.meta.scan')}: ${valueOrDash(documentRecord.scan_status)}`,
+            `${t('post.upload.meta.review')}: ${valueOrDash(documentRecord.review_status)}`,
+            `${t('post.upload.meta.size')}: ${formatBytes(documentRecord.file_size_bytes)}`
+          ].forEach((text) => {
+            const chip = document.createElement('span');
+            chip.textContent = text;
+            meta.appendChild(chip);
+          });
+          item.appendChild(meta);
+
+          if (documentRecord.review_note && ['correction_requested', 'rejected'].includes(documentRecord.review_status)) {
+            const reason = document.createElement('p');
+            reason.className = 'status-note';
+            reason.textContent = `${t('post.upload.task.reason')}: ${documentRecord.review_note}`;
+            item.appendChild(reason);
+          }
+
+          if (documentRecord.scan_status === 'clean' && documentRecord.review_status === 'pending_human_review') {
+            const note = document.createElement('p');
+            note.className = 'status-note';
+            note.textContent = t('post.upload.meta.cleanReady');
+            item.appendChild(note);
+          }
+
+          uploadList.appendChild(item);
+        });
+      }
+
+      async function refreshUploadedDocuments() {
+        const draftId = currentDraftId();
+        if (!draftId) {
+          renderUploadedDocuments([]);
+          return;
+        }
+
+        try {
+          const response = await window.CPGDrafts.listDocuments(draftId, 'employer');
+          renderUploadedDocuments(response.documents || []);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      async function uploadSelectedDocument() {
+        const draftId = currentDraftId();
+        if (!draftId) {
+          uploadStatus.textContent = t('post.upload.status.saveFirst');
+          return;
+        }
+
+        const file = uploadFile.files && uploadFile.files[0] ? uploadFile.files[0] : null;
+        if (!file) {
+          uploadStatus.textContent = t('post.upload.status.chooseFile');
+          return;
+        }
+
+        uploadSubmit.disabled = true;
+        uploadStatus.textContent = t('post.upload.status.uploading');
+
+        try {
+          const response = await window.CPGDrafts.uploadDocument(draftId, {
+            formType: 'employer',
+            documentType: uploadType.value,
+            file
+          });
+          uploadFile.value = '';
+          uploadStatus.textContent = response.document && response.document.scan_status === 'clean'
+            ? t('post.upload.status.uploaded')
+            : `${t('post.upload.meta.scan')}: ${valueOrDash(response.document && response.document.scan_status)}`;
+          await refreshUploadedDocuments();
+        } catch (error) {
+          uploadStatus.textContent = t('post.upload.status.error');
+          console.error(error);
+        } finally {
+          uploadSubmit.disabled = false;
+        }
+      }
+
+      function setCandidateActionsDisabled(disabled) {
+        candidateList.querySelectorAll('.candidate-action').forEach((button) => {
+          button.disabled = disabled;
+        });
+        candidateList.querySelectorAll('.candidate-note-input').forEach((input) => {
+          input.disabled = disabled;
+        });
+      }
+
+      async function updateCandidateShortlist(applicationId, shortlistStatus, employerNote) {
+        const draftId = currentDraftId();
+        if (!draftId) {
+          status.textContent = t('post.pipeline.action.error');
+          return;
+        }
+
+        setCandidateActionsDisabled(true);
+        status.textContent = t('post.pipeline.action.saving');
+        statusDetail.textContent = '';
+
+        try {
+          const response = await fetch(`/api/v1/employer/vacancy-applications/${encodeURIComponent(applicationId)}/shortlist`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              employer_draft_id: draftId,
+              shortlist_status: shortlistStatus,
+              note: employerNote
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error(`Candidate action failed with status ${response.status}`);
+          }
+
+          const refreshed = await window.CPGDrafts.getDraft(draftId);
+          renderWorkspaceStatus(refreshed);
+          status.textContent = t('post.pipeline.action.saved');
+        } catch (error) {
+          status.textContent = t('post.pipeline.action.error');
+          console.error(error);
+          setCandidateActionsDisabled(false);
+        }
+      }
+
+      function nextActionKey(companyPayload, vacancyPayload, operatorReview) {
+        const companyReview = valueOrDash(companyPayload.verification_status);
+        const vacancyReview = valueOrDash(vacancyPayload.publication_status);
+        const latestDecision = operatorReview && typeof operatorReview.decision === 'string'
+          ? operatorReview.decision
+          : '';
+
+        if (latestDecision === 'needs_correction' || companyReview === 'rejected' || vacancyReview === 'rejected') {
+          return 'post.workspace.next.correction';
+        }
+        if (companyReview === 'verified' && vacancyReview === 'published') {
+          return 'post.workspace.next.published';
+        }
+        if (companyReview === 'unverified' || companyReview === 'submitted') {
+          return 'post.workspace.next.company';
+        }
+        if (vacancyReview === 'submitted_for_human_review' || vacancyReview === 'in_review') {
+          return 'post.workspace.next.vacancy';
+        }
+        if (companyPayload.company_id || vacancyPayload.vacancy_request_id) {
+          return 'post.workspace.next.complete';
+        }
+        return 'post.workspace.next.initial';
+      }
+
+      function renderWorkspaceStatus(response) {
+        currentWorkspaceResponse = response || null;
+        const payload = response && response.payload && typeof response.payload === 'object' ? response.payload : {};
+        const companyPayload = payload.company && typeof payload.company === 'object' ? payload.company : {};
+        const vacancyPayload = payload.vacancy_request && typeof payload.vacancy_request === 'object' ? payload.vacancy_request : {};
+        const operatorReview = payload.operator_review && typeof payload.operator_review === 'object' ? payload.operator_review : null;
+        const isPublished = companyPayload.verification_status === 'verified' && vacancyPayload.publication_status === 'published';
+
+        companyStatus.textContent = companyPayload.verification_status || t('post.workspace.empty');
+        vacancyStatus.textContent = vacancyPayload.publication_status || t('post.workspace.empty');
+        publicationStatus.textContent = isPublished ? t('post.workspace.public') : t('post.workspace.notPublic');
+        draftReference.textContent = response && response.draft_id ? response.draft_id : '-';
+        nextAction.textContent = t(nextActionKey(companyPayload, vacancyPayload, operatorReview));
+        renderPresentedCandidates(response);
+      }
+
+      function prefillFromDraft(response) {
+        if (!response || typeof response !== 'object') {
+          return;
+        }
+
+        const payload = response.payload && typeof response.payload === 'object' ? response.payload : {};
+        const companyPayload = payload.company && typeof payload.company === 'object' ? payload.company : {};
+        const vesselPayload = payload.vessel && typeof payload.vessel === 'object' ? payload.vessel : {};
+        const vacancyPayload = payload.vacancy_request && typeof payload.vacancy_request === 'object' ? payload.vacancy_request : {};
+        const roleValue = response.role === 'crewing_manager' ? 'crewing_manager' : response.role;
+
+        setValue(email, response.email);
+        setSelectValue(role, roleValue);
+        setValue(company, companyPayload.company_name);
+        setValue(country, companyPayload.country_code);
+        setValue(registrationNumber, companyPayload.registration_number);
+        setSelectValue(roleInCompany, companyPayload.role_in_company);
+        setValue(vesselName, vesselPayload.vessel_name);
+        setValue(vesselType, vacancyPayload.vessel_type || vesselPayload.vessel_type);
+        setValue(imo, vesselPayload.imo_number);
+        setValue(vacancyTitle, vacancyPayload.vacancy_title || vacancyPayload.rank);
+        setSelectValue(department, vacancyPayload.department);
+        setValue(joinDate, vacancyPayload.join_date);
+        setValue(duration, vacancyPayload.contract_duration);
+        setValue(salaryMin, vacancyPayload.salary_min_usd);
+        setValue(salaryMax, vacancyPayload.salary_max_usd);
+        setValue(requirements, vacancyPayload.requirements);
+        renderWorkspaceStatus(response);
+      }
+
+      async function loadExistingDraft() {
+        const draftId = getDraftIdFromUrl();
+        if (!draftId) {
+          if (stored.lastResponse && stored.role && stored.role !== 'seafarer') {
+            prefillFromDraft(stored.lastResponse);
+            refreshUploadedDocuments();
+          }
+          return;
+        }
+
+        status.textContent = t('post.form.prefilling');
+        try {
+          const response = await window.CPGDrafts.getDraft(draftId);
+          prefillFromDraft(response);
+          refreshUploadedDocuments();
+          status.textContent = t('post.form.prefilled');
+        } catch (error) {
+          status.textContent = t('post.form.prefillError');
+          console.error(error);
+        }
+      }
+
+      const stored = window.CPGDrafts.getStoredDraft();
+      if (stored.email && stored.role && stored.role !== 'seafarer') {
+        email.value = stored.email;
+      }
+      if (stored.role === 'shipowner' || stored.role === 'crewing-manager' || stored.role === 'employer') {
+        role.value = stored.role === 'crewing-manager' ? 'crewing_manager' : stored.role;
+      }
+
+      loadReferenceCatalogBindings();
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (!email.value.trim() || !company.value.trim()) {
+          status.textContent = t('post.form.validation');
+          return;
+        }
+
+        submit.disabled = true;
+        status.textContent = t('post.form.saving');
+        statusDetail.textContent = '';
+
+        try {
+          const payload = {
+            role: role.value,
+            email: email.value.trim(),
+            full_name: fullName.value.trim(),
+            role_in_company: roleInCompany.value,
+            company_name: company.value.trim(),
+            country_code: country.value.trim().toUpperCase(),
+            registration_number: registrationNumber.value.trim(),
+            vessel: {
+              vessel_name: vesselName.value.trim(),
+              vessel_type: vesselType.value.trim(),
+              imo_number: imo.value.trim()
+            }
+          };
+
+          if (!payload.vessel.vessel_name) {
+            delete payload.vessel;
+          }
+
+          const vacancyPayload = {
+            vacancy_title: vacancyTitle.value.trim(),
+            rank: vacancyTitle.value.trim(),
+            department: department.value,
+            vessel_type: vesselType.value.trim(),
+            join_date: joinDate.value,
+            contract_duration: duration.value.trim(),
+            salary_min_usd: salaryMin.value,
+            salary_max_usd: salaryMax.value,
+            currency: 'USD',
+            employer_country_code: country.value.trim().toUpperCase(),
+            requirements: requirements.value.trim()
+          };
+          const hasVacancyData = Object.keys(vacancyPayload).some((key) => {
+            if (key === 'currency' || key === 'employer_country_code' || key === 'vessel_type') {
+              return false;
+            }
+            return String(vacancyPayload[key] || '').trim() !== '';
+          });
+          if (hasVacancyData) {
+            payload.vacancy = vacancyPayload;
+          }
+
+          const response = await window.CPGDrafts.createOrUpdateDraft(payload, {
+            draftId: getDraftIdFromUrl()
+          });
+
+          status.textContent = t('post.form.saved');
+          const companyPayload = response && response.payload && response.payload.company ? response.payload.company : {};
+          const vacancyResponse = response && response.payload && response.payload.vacancy_request ? response.payload.vacancy_request : {};
+          renderWorkspaceStatus(response);
+          statusDetail.textContent = tp('post.form.savedDetail', {
+            draftId: response.draft_id || '-',
+            companyType: companyPayload.company_type || '-',
+            verificationStatus: companyPayload.verification_status || '-',
+            roleInCompany: companyPayload.role_in_company || roleInCompany.value,
+            vacancyStatus: vacancyResponse.publication_status || '-'
+          });
+          window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
+          window.localStorage.setItem('crewportglobal.registration.role', role.value === 'crewing_manager' ? 'crewing-manager' : role.value);
+          window.history.replaceState(null, '', `?draft_id=${encodeURIComponent(response.draft_id)}`);
+          refreshUploadedDocuments();
+        } catch (error) {
+          status.textContent = t('post.form.error');
+          statusDetail.textContent = '';
+          console.error(error);
+        } finally {
+          submit.disabled = false;
+        }
+      });
+
+      candidateList.addEventListener('click', (event) => {
+        const target = event.target instanceof Element ? event.target.closest('.candidate-action') : null;
+        if (!target) {
+          return;
+        }
+
+        const applicationId = target.getAttribute('data-application-id') || '';
+        const shortlistStatus = target.getAttribute('data-shortlist-status') || '';
+        if (!applicationId || !shortlistStatus) {
+          return;
+        }
+
+        updateCandidateShortlist(applicationId, shortlistStatus, candidateNoteFor(applicationId));
+      });
+
+      uploadSubmit.addEventListener('click', uploadSelectedDocument);
+
+      window.addEventListener('crewportglobal:languagechange', () => {
+        renderWorkspaceStatus(currentWorkspaceResponse);
+        refreshUploadedDocuments();
+      });
+
+      renderWorkspaceStatus(null);
+      loadExistingDraft().finally(() => {
+        refreshUploadedDocuments();
+      });
+    })();
+  </script>
+</body>
+</html>

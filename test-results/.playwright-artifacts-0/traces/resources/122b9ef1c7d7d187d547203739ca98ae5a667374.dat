@@ -1,0 +1,20 @@
+------WebKitFormBoundaryQGqD0jXmTpBhMhbk
+content-disposition: form-data; name="form_type"
+
+seafarer
+------WebKitFormBoundaryQGqD0jXmTpBhMhbk
+content-disposition: form-data; name="document_type"
+
+medical_certificate
+------WebKitFormBoundaryQGqD0jXmTpBhMhbk
+content-disposition: form-data; name="file"; filename="cabinet-old-medical.pdf"
+content-type: application/pdf
+
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog >>
+endobj
+Cabinet old medical certificate.
+%%EOF
+
+------WebKitFormBoundaryQGqD0jXmTpBhMhbk--

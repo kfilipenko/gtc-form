@@ -1,0 +1,20 @@
+------WebKitFormBoundaryuQbkVfOB7psK6wNo
+content-disposition: form-data; name="form_type"
+
+employer
+------WebKitFormBoundaryuQbkVfOB7psK6wNo
+content-disposition: form-data; name="document_type"
+
+authorization_letter
+------WebKitFormBoundaryuQbkVfOB7psK6wNo
+content-disposition: form-data; name="file"; filename="cabinet-old-authorization.pdf"
+content-type: application/pdf
+
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog >>
+endobj
+Cabinet old authorization.
+%%EOF
+
+------WebKitFormBoundaryuQbkVfOB7psK6wNo--
