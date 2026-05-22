@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.40
+- Version: 1.41
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -240,6 +240,8 @@ docs/crewportglobal/
   151_cpg_seafarer_018_agent_execution_guide.md
   152_cpg_seafarer_018_approval_consent_medical_report.md
   153_cpg_seafarer_018_endpoint_guard_consent_addendum.md
+  154_cpg_seafarer_019_forms_fields_database_inventory_report.md
+  155_cpg_seafarer_019_agent_execution_guide.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -452,6 +454,10 @@ Document 152 records the CPG-SEAFARER-018 implementation, including the additive
 
 Document 153 records the CPG-SEAFARER-018 endpoint, guard and consent addendum, including changed-file matrix, migration 013 columns/indexes/constraints, consent API matrix, consent types, exact approval blocker codes, vacancy application transition behavior, restricted medical access, page/API impact, employer payload allow/deny proof, test traceability and final acceptance checklist.
 
+Document 154 records the CPG-SEAFARER-019 forms, fields, database inventory and test report, including page/form inventory, UI ids and backend keys, source-card mapping, read-only database schema/count/JSON-key inspection, API and visibility inventories, consent and approval guard state, test execution results and remaining gaps.
+
+Document 155 records the CPG-SEAFARER-019 agent execution guide for the forms, fields, database inventory and test report, including required sources, audit boundaries, read-only database inspection rules, report structure and acceptance criteria.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -555,6 +561,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.41 | 2026-05-22 | GTC IT / AI Assistant | Added documents 154 and 155 for CPG-SEAFARER-019 covering forms, fields, database inventory, read-only schema/count/JSON-key inspection, API and visibility inventory, test execution and remaining gaps |
 | 1.40 | 2026-05-19 | GTC IT / AI Assistant | Added document 153 as the CPG-SEAFARER-018 endpoint, guard and consent addendum covering changed files, migration 013 details, consent APIs, exact approval blocker codes, vacancy application transition behavior, restricted medical access and employer payload proof |
 | 1.39 | 2026-05-19 | GTC IT / AI Assistant | Added documents 151 and 152 for CPG-SEAFARER-018 covering approval guard, consent events, restricted medical access boundary, employer payload guard, additive migration and focused verification |
 | 1.38 | 2026-05-19 | GTC IT / AI Assistant | Added documents 148 and 149 plus source-card visibility matrix for CPG-SEAFARER-017 covering data minimization, scoped visibility, sensitive-field cleanup, employer-facing exclusions, consent-event boundary and focused verification |
