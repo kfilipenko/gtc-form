@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.43
+- Version: 1.44
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -246,6 +246,8 @@ docs/crewportglobal/
   157_cpg_seafarer_020_supply_demand_matching_model_report.md
   158_cpg_seafarer_021_demand_side_normalization_plan.md
   159_cpg_seafarer_021_agent_execution_guide.md
+  160_cpg_demand_001_canonical_field_contract.md
+  161_cpg_demand_001_agent_execution_guide.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -470,6 +472,10 @@ Document 158 records the CPG-SEAFARER-021 demand-side normalization plan, includ
 
 Document 159 records the CPG-SEAFARER-021 agent execution guide for demand-side normalization planning, including required sources, demand object separation, field groups, required matrices, publication/visibility principles and no-implementation boundaries.
 
+Document 160 records the CPG-DEMAND-001 canonical demand field contract, including demand object naming conventions, canonical field keys for company, vessel, crew request, contract and operational/risk sections, catalog requirements, validation rules, visibility scopes, current-field compatibility mapping and future storage/API expectations.
+
+Document 161 records the CPG-DEMAND-001 agent execution guide for the canonical demand field contract, including required sources, naming conventions, canonical field table requirements, reference catalog planning, validation planning, visibility planning, compatibility mapping, future storage/API mapping and no-implementation boundaries.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -573,6 +579,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.44 | 2026-05-22 | GTC IT / AI Assistant | Added documents 160 and 161 for CPG-DEMAND-001 covering the canonical demand field contract, field-key conventions, catalog and validation plans, visibility scopes, compatibility mapping and future storage/API expectations |
 | 1.43 | 2026-05-22 | GTC IT / AI Assistant | Added documents 158 and 159 for CPG-SEAFARER-021 covering demand-side normalization across employer/company, vessel, crew request, contract and operational/legal/risk objects with field type, evidence, visibility, MVP priority and implementation-sequence matrices |
 | 1.42 | 2026-05-22 | GTC IT / AI Assistant | Added documents 156 and 157 for CPG-SEAFARER-020 covering the supply-demand matching model, field gap analysis, blocker/score classification, field-type recommendations, visibility ownership, readiness levels and next implementation sequence |
 | 1.41 | 2026-05-22 | GTC IT / AI Assistant | Added documents 154 and 155 for CPG-SEAFARER-019 covering forms, fields, database inventory, read-only schema/count/JSON-key inspection, API and visibility inventory, test execution and remaining gaps |
