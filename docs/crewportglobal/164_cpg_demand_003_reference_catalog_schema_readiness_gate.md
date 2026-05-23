@@ -3,23 +3,46 @@
 - Project: CrewPortGlobal.com
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
-- Document type: Readiness gate / catalog and schema audit report
+- Document type: Narrow readiness gate / catalog alignment report
 - Source task: #33 - CPG-DEMAND-003
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-05-23
 - Status: Documentation-only readiness decision; no implementation changes
 
-## 1. Purpose And Boundaries
+## 1. Purpose And Project Owner Clarification
 
-This report records the readiness gate before the first demand-side implementation slice.
+This document is a narrow readiness gate before demand-side implementation.
 
-The purpose is to decide whether CrewPortGlobal can safely move from the CPG-DEMAND-001 and CPG-DEMAND-002 planning documents into additive database/API work.
+It does not repeat the schema/API design from document 162. Document 162 remains the accepted schema/API plan.
 
-The main risk is creating structured demand fields that point to incomplete, ambiguous or demand-incompatible reference catalogs. This report therefore evaluates catalog readiness first, then schema/API block readiness.
+The only question answered here is:
+
+```text
+Can the first demand-side implementation slice start safely on the current Excel field dictionary and current reference catalogs,
+or must a catalog cleanup/seed task happen first?
+```
+
+The answer is:
+
+```text
+Catalog cleanup/seed is required before the first catalog-backed demand implementation slice.
+```
+
+A very small compatibility-only implementation slice could start without catalog cleanup, but it would not be a reliable matching foundation. Any first slice that adds catalog-backed fields, reference relations, strict blockers or matching-ready demand requirements should wait for a dedicated demand catalog cleanup/seed task.
 
 This task did not change UI, database schema, migrations, backend/API behavior, tests, runtime behavior, matching/scoring, publication behavior or employment-decision logic.
 
-## 2. Sources Inspected
+## 2. Readiness Scope
+
+This gate compares three already-approved inputs:
+
+1. The existing Excel field dictionary and the published reference catalogs imported from it.
+2. The current catalog database/API state.
+3. The canonical demand fields from document 160.
+
+This gate does not decide table design. Schema/API implementation sequencing remains governed by document 162.
+
+## 3. Sources Inspected
 
 Approved documents:
 
@@ -36,23 +59,20 @@ Approved documents:
 11. `docs/crewportglobal/business_processes/11_seafarer_field_dictionary_and_reference_catalog_alignment.md`
 12. `docs/crewportglobal/00_documentation_register.md`
 
-Read-only files inspected:
+Read-only implementation files inspected only to confirm current bindings and storage, not to redesign them:
 
 1. `projects/crewportglobal/app/backend/db/migrations/011_create_reference_catalogs.sql`
-2. `projects/crewportglobal/app/backend/db/migrations/001_create_registration_foundation.sql`
-3. `projects/crewportglobal/app/backend/db/migrations/003_create_vacancy_requests.sql`
-4. `projects/crewportglobal/app/backend/db/migrations/007_create_uploaded_documents.sql`
-5. `projects/crewportglobal/app/backend/db/migrations/012_create_seafarer_workspace_records.sql`
-6. `projects/crewportglobal/app/backend/api/lib/reference_catalogs.php`
-7. `projects/crewportglobal/app/backend/api/public/index.php`
-8. `projects/crewportglobal/public/post-vacancy/index.html`
-9. `projects/crewportglobal/public/vacancies/index.html`
-10. `projects/crewportglobal/public/assets/crewportglobal-reference-catalogs.js`
+2. `projects/crewportglobal/app/backend/db/migrations/003_create_vacancy_requests.sql`
+3. `projects/crewportglobal/app/backend/api/lib/reference_catalogs.php`
+4. `projects/crewportglobal/app/backend/api/public/index.php`
+5. `projects/crewportglobal/public/post-vacancy/index.html`
+6. `projects/crewportglobal/public/vacancies/index.html`
+7. `projects/crewportglobal/public/assets/crewportglobal-reference-catalogs.js`
 
-Read-only database inspection:
+Read-only database inspection was limited to:
 
 ```text
-reference_catalogs / reference_catalog_values catalog code, scope, publication state and value counts only
+reference_catalogs / reference_catalog_values catalog code, scope, publication state and value counts
 ```
 
 No personal data, names, emails, document contents, candidate data or employer private values were selected.
@@ -69,23 +89,11 @@ Result:
 main fast-forwarded to origin/main and included document 165 before this report was prepared.
 ```
 
-## 3. Current Reference Catalog Inventory
+## 4. Current Excel/Catalog Baseline
 
-The reference catalog foundation is implemented through:
+The current reference catalog foundation contains the 24 published catalogs imported from the existing source dictionary process.
 
-```text
-crewportglobal.reference_catalogs
-crewportglobal.reference_catalog_values
-```
-
-The public catalog endpoint returns only active published catalogs and values:
-
-```text
-GET /api/v1/reference-catalogs
-GET /api/v1/reference-catalogs?catalog_code=...
-```
-
-Read-only inspection confirmed the current database has:
+Read-only inspection confirmed:
 
 ```text
 published catalogs: 24
@@ -94,45 +102,73 @@ pending_owner_review catalogs: 0
 pending_owner_review values: 0
 ```
 
-Current published catalogs:
+Published catalog inventory:
 
 | Catalog code | Scope | Values | Demand relevance |
 |---|---|---:|---|
 | `agreement_values` | system | 2 | Consent/confirmation compatibility, not direct demand matching. |
 | `airports` | global | 155 | Possible logistics support; not a port catalog. |
-| `certificate_of_competence_types` | seafarer | 27 | Required COC demand matching. |
-| `child_relation_types` | global | 2 | Seafarer family data only; not demand matching. |
+| `certificate_of_competence_types` | seafarer | 27 | Demand COC requirement candidate. |
+| `child_relation_types` | global | 2 | Seafarer family data only. |
 | `cities` | global | 228 | Possible location support; not a port catalog. |
-| `civil_status_values` | global | 4 | Seafarer-only personal data. |
-| `confirmation_values` | system | 2 | Consent/confirmation compatibility. |
-| `countries` | global | 248 | Company jurisdiction and vessel flag support. |
-| `education_grades` | seafarer | 6 | Supply side; not demand MVP. |
-| `education_institutions` | seafarer | 139 | Supply side; not demand MVP. |
-| `endorsement_institutions` | seafarer | 40 | Institution catalog, not enough for required endorsement type matching. |
-| `gender_values` | global | 2 | Seafarer personal data; not demand matching. |
-| `harbourmasters` | seafarer | 27 | Seafarer document authority context; not a route/port catalog. |
-| `information_source_values` | seafarer | 14 | Internal/source tracking; not demand matching. |
-| `national_document_types` | seafarer | 17 | Identity/document context; not visa category by itself. |
-| `nationalities` | global | 2 | Seafarer personal data; insufficient for countries but separate from demand. |
-| `relation_types` | global | 16 | Seafarer family/contact data; not demand matching. |
+| `civil_status_values` | global | 4 | Seafarer personal data only. |
+| `confirmation_values` | system | 2 | Confirmation compatibility. |
+| `countries` | global | 248 | Company jurisdiction, vessel flag and route support. |
+| `education_grades` | seafarer | 6 | Supply-side education only. |
+| `education_institutions` | seafarer | 139 | Supply-side education only. |
+| `endorsement_institutions` | seafarer | 40 | Issuing institution context, not endorsement requirement type. |
+| `gender_values` | global | 2 | Seafarer personal data only. |
+| `harbourmasters` | seafarer | 27 | Document authority context, not route/port catalog. |
+| `information_source_values` | seafarer | 14 | Internal source tracking. |
+| `national_document_types` | seafarer | 17 | Identity/document context, not visa category. |
+| `nationalities` | global | 2 | Seafarer personal data; not a country catalog substitute. |
+| `relation_types` | global | 16 | Seafarer family/contact data only. |
 | `religion_values` | seafarer | 12 | Sensitive seafarer data; excluded from matching. |
-| `schengen_countries` | global | 26 | Partial route/visa support, not visa category catalog. |
-| `seafarer_positions` | seafarer | 48 | Rank/position matching. |
-| `training_course_types` | seafarer | 130 | Required STCW/training demand matching. |
-| `vessel_type_matching_categories` | vessel | 9 | Possible vessel category grouping; overlaps with `vessel_types`. |
-| `vessel_types` | vessel | 22 | Vessel type and vessel-type experience matching. |
+| `schengen_countries` | global | 26 | Partial visa/route support, not visa category. |
+| `seafarer_positions` | seafarer | 48 | Rank/position matching candidate. |
+| `training_course_types` | seafarer | 130 | STCW/training requirement candidate. |
+| `vessel_type_matching_categories` | vessel | 9 | Possible matching grouping; overlaps with `vessel_types`. |
+| `vessel_types` | vessel | 22 | Vessel type and vessel experience matching candidate. |
 | `yes_no_values` | global | 2 | Boolean compatibility only. |
 
 Current demand-side frontend catalog bindings:
 
-| Page | Control | Catalog |
-|---|---|---|
-| `/post-vacancy/` | `post-vessel-type` | `vessel_types` |
-| `/post-vacancy/` | `post-vacancy-title` | `seafarer_positions` |
+| Page | Control | Catalog | Binding strength |
+|---|---|---|---|
+| `/post-vacancy/` | `post-vessel-type` | `vessel_types` | Datalist suggestion only. |
+| `/post-vacancy/` | `post-vacancy-title` | `seafarer_positions` | Datalist suggestion only. |
 
-These bindings are datalist suggestions only. They do not yet store catalog value IDs.
+These bindings do not yet store catalog value IDs.
 
-## 4. Catalog Readiness Matrix
+## 5. Demand Canonical Field Alignment Matrix
+
+This matrix checks document 160 canonical demand fields against the current Excel/catalog baseline.
+
+| Demand object | Canonical field/group from document 160 | Current Excel/catalog support | Readiness | First-slice implication |
+|---|---|---|---|---|
+| Employer / Company Profile | Company jurisdiction country | `countries` exists and is published | ready | Can be supported by current catalog/code validation. |
+| Employer / Company Profile | Company verification status | Status exists as workflow/state concept, not reference catalog | partial | Do not create new catalog relation until status model is approved. |
+| Employer / Company Profile | Billing/payment terms | No relevant Excel reference catalog | missing | Not a catalog-backed MVP matching field. |
+| Vessel Profile | Vessel type | `vessel_types` and `vessel_type_matching_categories` both exist | partial | Needs cleanup/owner decision on exact demand catalog. |
+| Vessel Profile | Vessel flag country | `countries` exists | ready | Can be supported by current catalog/code validation. |
+| Vessel Profile | Ports/trading area | `airports`, `cities`, `harbourmasters`, `schengen_countries` exist but no port catalog | missing | Port/trading-area relation blocked. |
+| Vessel Profile | Cargo type | No cargo catalog | missing | Requires seed task before structured matching. |
+| Crew Request / Vacancy Requirement | Required rank | `seafarer_positions` exists | ready | Ready as a catalog candidate, but current demand UI stores text. |
+| Crew Request / Vacancy Requirement | Department | Existing enum/hard-coded values, no catalog | partial | Usable for MVP as enum; not ready as reference catalog. |
+| Crew Request / Vacancy Requirement | Required vessel type | `vessel_types` / `vessel_type_matching_categories` exist with overlap | partial | Requires cleanup decision before strict matching. |
+| Crew Request / Vacancy Requirement | Required COC | `certificate_of_competence_types` exists | ready | Ready as catalog candidate. |
+| Crew Request / Vacancy Requirement | Required endorsement | Only `endorsement_institutions` exists | partial | Not enough; endorsement type seed/cleanup required. |
+| Crew Request / Vacancy Requirement | Required STCW/training | `training_course_types` exists | ready | Ready as catalog candidate. |
+| Crew Request / Vacancy Requirement | Required visa | `national_document_types` and `schengen_countries` are partial only | partial | Visa category/status seed required. |
+| Crew Request / Vacancy Requirement | Required language/level | No language/level catalogs | missing | Seed required before matching. |
+| Contract Terms | Currency | Existing ISO-style field validation, no catalog needed for MVP | ready | Safe as code-level scalar. |
+| Contract Terms | Contract duration unit | No unit catalog | missing | Seed required before structured duration matching. |
+| Contract Terms | Rotation pattern | No catalog | missing | Later-stage seed required. |
+| Operational / Legal / Risk Requirements | Special operation tags | No catalog | missing | Seed required before operational matching. |
+| Operational / Legal / Risk Requirements | Risk status | No approved internal risk catalog | blocked | Requires Project Owner compliance decision. |
+| Operational / Legal / Risk Requirements | Verification status | Existing review/status concepts, no unified demand catalog | partial | Can stay workflow-level; catalog relation requires decision. |
+
+## 6. Catalog Readiness Matrix
 
 Readiness values:
 
@@ -144,189 +180,144 @@ blocked
 unknown
 ```
 
-| Catalog | Current source/status | Used by seafarer supply? | Needed by demand side? | Readiness | Cleanup needed | Seed data needed | MVP matching ready? | Notes |
+| Catalog need | Current source/status | Used by seafarer supply? | Needed by demand side? | Readiness | Cleanup needed | Seed data needed | MVP matching ready? | Notes |
 |---|---|---:|---:|---|---|---|---:|---|
-| Rank | `seafarer_positions`, published, 48 values | Yes | Yes | ready | Minor taxonomy review only | No | Yes | Ready for required-rank selection, but vacancy title must be split from rank. |
-| Department | Hard-coded enum in UI/DB; no reference catalog | Yes, partially | Yes | partial | Yes | Maybe | Yes, limited | Current values are usable for MVP, but supply/demand taxonomy needs cleanup around `hotel`, `catering`, `other`. |
-| Vessel type | `vessel_types` published 22 values; `vessel_type_matching_categories` published 9 values | Yes | Yes | partial | Yes | No initial seed | Yes, limited | Ready for MVP label guidance, but overlapping VESSELTYPE/VESSELTYPE2 needs owner decision before strict matching. |
-| Country | `countries` published 248 values; current DB also uses ISO alpha-2 codes | Yes | Yes | ready | Minor code/label mapping review | No | Yes | Existing country-code validation can support MVP demand fields. |
-| Port | Missing dedicated port catalog | No | Yes | missing | Yes | Yes | No | Airports, cities and harbourmasters do not replace joining/sign-off ports. |
-| COC | `certificate_of_competence_types` published 27 values | Yes | Yes | ready | Minor equivalence review later | No | Yes | Ready for required COC demand rows after demand binding. |
-| Endorsement | `endorsement_institutions` published 40 values | Yes, as institution/source context | Yes | partial | Yes | Yes | No | Demand requires endorsement types, not only issuing institutions. |
-| STCW/training | `training_course_types` published 130 values | Yes | Yes | ready | Possible duplicate/label cleanup later | No | Yes | Ready for required training demand rows after demand binding. |
-| Visa category | `national_document_types` and `schengen_countries` exist, but no visa-category catalog | Partially | Yes | partial | Yes | Yes | No | Needs dedicated visa/status categories before route-based matching. |
-| Language/level | Missing language and level catalog | No | Yes | missing | Yes | Yes | No | Required before Maritime English/language matching. |
-| Currency | Existing `vacancy_requests.currency` ISO-style validation; no catalog | No | Yes | ready | No for MVP | No | Yes | ISO 4217 validation is enough for MVP; catalog can be later. |
-| Contract duration unit | Missing catalog/enum table; current duration is free text | No | Yes | missing | Yes | Yes | No | Need `day`, `week`, `month` or approved units before structured duration matching. |
-| Rotation pattern | Missing | No | Yes | missing | Yes | Yes | No | Required for rotation fit; not needed for first MVP blocker slice. |
-| Special operation tags | Missing | No | Yes | missing | Yes | Yes | No | Needed for tanker/offshore/passenger/DP/polar/crane/hazardous cargo. |
-| Cargo type | Missing | No | Yes | missing | Yes | Yes | No | Needed for cargo-specific demand matching later. |
-| Risk status | Missing internal/system catalog | No | Yes, internal only | blocked | Yes | Yes | No | Requires Project Owner decision on internal compliance visibility and values. |
-| Verification status | Company and document statuses exist as DB constraints; no general catalog | Yes, through review statuses | Yes | partial | Yes | Maybe | Yes, limited | Company status is ready; vessel/evidence status needs additive contract. |
+| Rank | `seafarer_positions`, published, 48 values | Yes | Yes | ready | Minor taxonomy review only | No | Yes | Current catalog is usable, but demand must separate vacancy title from rank. |
+| Department | Hard-coded enum; no reference catalog | Partial | Yes | partial | Yes | Maybe | Limited | Existing values can support UI continuity, not final catalog-backed matching. |
+| Vessel type | `vessel_types` 22 and `vessel_type_matching_categories` 9 | Yes | Yes | partial | Yes | No initial seed | Limited | Owner must decide exact matching semantics. |
+| Country | `countries`, published, 248 values | Yes | Yes | ready | Minor code/label mapping review | No | Yes | Good enough for company/vessel country fields. |
+| Port | Missing dedicated port catalog | No | Yes | missing | Yes | Yes | No | Current airports/cities/harbourmasters are not a joining/sign-off port catalog. |
+| COC | `certificate_of_competence_types`, published, 27 values | Yes | Yes | ready | Minor equivalence review later | No | Yes | Good enough for first COC requirement model after implementation starts. |
+| Endorsement type | Only `endorsement_institutions`, published, 40 values | Partial | Yes | partial | Yes | Yes | No | Institution is not endorsement requirement type. |
+| STCW/training | `training_course_types`, published, 130 values | Yes | Yes | ready | Possible duplicate/label cleanup later | No | Yes | Good enough for training requirement model. |
+| Visa category/status | No dedicated catalog | Partial | Yes | partial | Yes | Yes | No | Needs explicit category/status model. |
+| Language/level | Missing | No | Yes | missing | Yes | Yes | No | Required before language matching. |
+| Currency | ISO-style field validation, no catalog | No | Yes | ready | No for MVP | No | Yes | Catalog is optional for MVP. |
+| Contract duration unit | Missing | No | Yes | missing | Yes | Yes | No | Needs small system catalog or approved enum. |
+| Rotation pattern | Missing | No | Yes | missing | Yes | Yes | No | Later-stage readiness gap. |
+| Special operation tags | Missing | No | Yes | missing | Yes | Yes | No | Later-stage readiness gap. |
+| Cargo type | Missing | No | Yes | missing | Yes | Yes | No | Later-stage readiness gap. |
+| Risk status | Missing and compliance-sensitive | No | Internal only | blocked | Yes | Yes | No | Requires Project Owner decision before any implementation. |
+| Verification status | Workflow/status concepts exist, no unified demand catalog | Partial | Yes | partial | Yes | Maybe | Limited | Keep as workflow/status first; catalogize later only if approved. |
 
-## 5. Catalog-To-Demand-Field Dependency Matrix
+## 7. Supply-Demand Compatibility Matrix
 
-| Demand field/group | Required catalog | Current catalog readiness | Implementation impact | Recommended action |
-|---|---|---|---|---|
-| `crew_request.required_rank_value_id` | `seafarer_positions` | ready | Can implement reference relation when demand schema starts | Use in first structured demand field slice. |
-| `crew_request.crew_department` | Department enum/catalog | partial | Can reuse current enum, but not ideal as catalog relation | Keep enum for MVP; create cleanup issue for supply/demand alignment. |
-| `vessel.vessel_type_value_id` | `vessel_types` | partial | Can implement value ID, but strict matching should wait for overlap decision | Use as label/value relation with `vessel_type_matching_categories` decision recorded. |
-| `crew_request.required_vessel_type_values` | `vessel_types` / matching categories | partial | Child table can be created later but blocker semantics need cleanup | Defer child table until catalog decision. |
-| `company.jurisdiction_country`, `vessel.flag_country_code` | `countries` or ISO alpha-2 | ready | Safe as code validation / optional reference mapping | Use current code validation first. |
-| `crew_request.joining_port`, `crew_request.sign_off_port` | Port catalog | missing | Reference relation blocked | Keep text/JSONB compatibility only until port catalog exists. |
-| `crew_request.required_coc_values` | `certificate_of_competence_types` | ready | Ready for requirement child rows | Can be part of first real requirement table after framework exists. |
-| `crew_request.required_endorsement_values` | Endorsement type catalog | partial | Current catalog is institution, not requirement type | Create/seed endorsement-type catalog before implementation. |
-| `crew_request.required_training_values` | `training_course_types` | ready | Ready for requirement child rows | Can be part of first real requirement table after framework exists. |
-| `crew_request.required_visa_values` | Visa category/status catalog | partial | Blocked for structured matching | Create visa category/status seed plan first. |
-| `crew_request.required_language_levels` | Language and level catalogs | missing | Blocked for structured matching | Create language/level catalog before field implementation. |
-| `contract_terms.currency` | ISO currency code or currency catalog | ready | Existing field is usable | Keep existing code validation; catalog later optional. |
-| `contract_terms.contract_duration_unit` | Duration unit catalog | missing | Structured duration blocked | Seed small system catalog before structured duration field. |
-| `contract_terms.rotation_pattern` | Rotation pattern catalog | missing | Rotation matching blocked | Later-stage catalog; not first slice. |
-| `operational_risk.special_operation_tags` | Special operation tag catalog | missing | Operational blocker rows blocked | Later-stage seed issue. |
-| `operational_risk.cargo_type_values` | Cargo type catalog | missing | Cargo matching blocked | Later-stage seed issue. |
-| `operational_risk.trading_area_risk_status` | Risk status catalog | blocked | Internal risk implementation blocked | Requires Project Owner compliance decision. |
-| Company/vessel/evidence status fields | Verification/evidence status catalog or constraints | partial | Company/document status usable; vessel status missing | Add vessel/evidence statuses only after owner-approved values. |
-
-## 6. Catalog-To-Seafarer-Supply Compatibility Matrix
-
-| Catalog | Seafarer-side use | Demand-side use | Compatible now? | Gap | Required action |
+| Matching dimension | Supply-side catalog/source | Demand-side canonical field | Compatible now? | Gap | Gate decision |
 |---|---|---|---:|---|---|
-| Rank / `seafarer_positions` | Profile primary rank, sea-service rank, post-vacancy datalist | Required rank | Yes | Demand still stores rank text, not value ID | Add demand value ID relation later; keep label snapshot. |
-| Department | Profile department and demand department enums | Required department | Partial | Supply/demand values are close but not catalog-backed | Decide whether department remains enum or becomes catalog. |
-| Vessel type / `vessel_types` | Seafarer preferences and sea-service vessel labels | Vessel profile type and required vessel type | Partial | `vessel_type_matching_categories` overlaps with `vessel_types` | Project Owner must choose strict vs category matching model. |
-| Country / `countries` | Nationality/residence/country fields, issuing countries | Company jurisdiction, vessel flag, route context | Yes | Current production often uses two-letter code rather than catalog value ID | Keep code validation; catalog relation optional later. |
-| COC / `certificate_of_competence_types` | Seafarer certificates | Required COC | Yes | Demand rows not implemented | Ready for future required COC child rows. |
-| Endorsement | Seafarer endorsement records can exist; current catalog is institution | Required endorsements | No | Missing endorsement type catalog | Create endorsement-type catalog before demand blocker use. |
-| STCW/training / `training_course_types` | Seafarer training records | Required training | Yes | Demand rows not implemented | Ready for future required training child rows. |
-| Visa category | Identity/visa data and Schengen country support | Required visa / route eligibility | Partial | No canonical visa category/status catalog | Create visa category/status catalog before matching. |
-| Language/level | Not currently structured as matching catalog | Required language/Maritime English | No | Missing both sides | Add supply/demand language model later. |
-| Currency | Seafarer salary expectation and demand salary offer | Salary fit | Yes, code-level | Currency conversion not implemented | Keep USD/code validation for MVP; no scoring until policy exists. |
-| Contract duration unit | Seafarer preference text and demand duration text | Duration fit | No | Missing structured duration on both sides | Add unit catalog and parsing rules before scoring. |
-| Risk status | Not supply-side ordinary data | Internal risk/compliance gates | No | Internal-only taxonomy missing | Project Owner compliance decision required. |
+| Rank | `seafarer_positions` | Required rank | Yes | Demand stores text today | Can be first MVP catalog candidate. |
+| Department | Hard-coded/profile values | Crew department | Partial | No catalog; taxonomy drift possible | Keep enum for continuity; cleanup before catalog relation. |
+| Vessel type | `vessel_types` and sea-service vessel data | Vessel type / required vessel type | Partial | Two vessel catalog concepts overlap | Needs owner cleanup decision before strict matching. |
+| Country | `countries` and code fields | Company jurisdiction / vessel flag | Yes | Code vs catalog value ID mapping | Safe for MVP with code validation. |
+| COC | `certificate_of_competence_types` | Required COC | Yes | Demand relation not implemented | Ready after implementation starts. |
+| Endorsement | Endorsement records and institution catalog | Required endorsement | No | Missing endorsement type catalog | Seed/cleanup required first. |
+| STCW/training | `training_course_types` | Required training | Yes | Demand relation not implemented | Ready after implementation starts. |
+| Visa | Identity/visa source fields, Schengen support | Required visa | Partial | Missing visa category/status catalog | Seed/cleanup required first. |
+| Language | Not catalog-backed | Required language/level | No | Missing both supply and demand catalogs | Seed later; not first MVP. |
+| Contract fit | Salary/currency/duration text | Salary/currency/duration/rotation | Partial | Currency ready; duration/rotation not structured | Use currency only for MVP; defer scoring. |
+| Risk/operation | Not ordinary supply matching data | Operational/risk requirements | No | Missing internal taxonomy and visibility rules | Blocked until owner decision. |
 
-## 7. Schema Block Readiness Matrix
+## 8. Implementation Readiness Gate Against Document 162
 
-Readiness statuses:
+This section does not redesign the schema/API plan. It only gates whether the accepted plan in document 162 can begin safely with the current catalog baseline.
 
-```text
-ready_to_implement
-needs_catalog_cleanup
-needs_owner_decision
-blocked
-```
+| Document 162 implementation area | Catalog dependency status | Start now? | Gate result |
+|---|---|---:|---|
+| Existing field/backfill inventory | No new catalog dependency | Yes | Safe as documentation/static analysis only. |
+| Compatibility JSON/workspace shape | No strict catalog dependency if disabled/compatibility-only | Conditional | Can start only if explicitly not treated as final matching source. |
+| Parent scalar fields using current text/code values | Low catalog dependency | Conditional | Safe only for non-catalog scalar continuity fields. |
+| Catalog-backed reference fields | Mixed: rank/COC/training/country ready; vessel/endorsement/visa/language/port not ready | No | Needs catalog cleanup/seed first. |
+| Child requirement tables | Depends on several partial/missing catalogs | No | Do not start before catalog cleanup/seed. |
+| Demand readiness projection | Depends on normalized fields and blocker policy | No | Premature before catalog-backed model exists. |
+| Matching-safe payload | Depends on normalized fields, catalog alignment and visibility allow-list | No | Blocked until demand data model and publication guard are implemented. |
+| Internal risk/compliance fields | Depends on owner-approved taxonomy and access rules | No | Blocked. |
 
-| Schema/API block | Depends on | Readiness status | Risk | Can be first slice? | Notes |
-|---|---|---|---|---:|---|
-| Existing column reuse | Existing `employer_companies`, `company_users`, `vessels`, `vacancy_requests` | ready_to_implement | Low | Yes | Safe for API projection and compatibility mapping. |
-| New scalar column additions | Parent demand tables and owner-approved field list | needs_owner_decision | Low/medium | Not first | Some fields are safe, but choosing which first without catalog cleanup could create misleading structure. |
-| New child table for demand requirements | Rank, vessel type, COC, endorsement, training, visa, language catalogs | needs_catalog_cleanup | Medium/high | No | COC/training are ready, but endorsement/visa/language are not. |
-| Reference relation to catalogs | Published catalog values and approved exact mapping rules | needs_catalog_cleanup | Medium | No | Ready only for rank, country, COC, training and partial vessel type. |
-| JSONB compatibility field | Existing parent records | ready_to_implement | Low | Yes | Safe as compatibility/staging if explicitly not used as final matching source. |
-| Calculated/read-only demand projections | Existing columns, future normalized fields, visibility plan | needs_owner_decision | Medium | No | Useful after JSONB/scalar/catalog model exists. |
-| Document-backed evidence statuses | `uploaded_documents` and document review statuses | ready_to_implement | Low/medium | Possible, not first | Company evidence can be projected; vessel/safe manning evidence needs document-type decisions. |
-| Internal compliance/risk records | Compliance taxonomy, access control, risk status catalog | blocked | High | No | Requires Project Owner and compliance decision before schema work. |
-| Matching-safe demand payload | Normalized fields, readiness levels, allow-list, blocker policy | blocked | High | No | Must wait for structured demand fields and catalog decisions. |
-| Operator demand review payload | Existing fields plus future normalized projections | needs_owner_decision | Medium | No | Should follow schema/API skeleton, not precede it. |
-| Employer demand workspace payload | Existing fields, optional JSONB compatibility, validation model | ready_to_implement | Medium | Possible | Safe only if disabled-by-default or compatibility-only. |
+## 9. First Slice Decision
 
-## 8. First Implementation Slice Options
+| Possible first slice | Can start from current Excel/catalog baseline? | Recommended? | Reason |
+|---|---:|---:|---|
+| Reference catalog cleanup/seed readiness | Yes | Yes | Directly resolves the current blocker without changing product behavior. |
+| Compatibility-only demand workspace | Conditional | Not first | Technically low-risk, but it does not solve catalog readiness and could create false confidence. |
+| Demand scalar fields | Conditional | No | Safe only for a narrow subset; premature before catalog decisions. |
+| Catalog-backed demand fields | No | No | Existing catalogs are too mixed for first implementation. |
+| Demand requirement child tables | No | No | Endorsement, visa, language, port and operation catalogs are not ready. |
+| Demand readiness projection / matching-safe payload | No | No | Requires normalized demand fields and guard policy first. |
 
-| Option | Benefit | Risk | Dependencies | Safe as first slice? | Recommended? | Reason |
-|---|---|---|---|---:|---:|---|
-| Option A - Reference catalogs first | Prevents bad references and false matching blockers | Low if documentation/seed-review first | Existing catalog API/admin publication workflow | Yes | Yes | This directly addresses the main risk before schema fields reference catalogs. |
-| Option B - `demand_workspace` JSONB compatibility first | Low-risk staged storage and compatibility layer | Medium if treated as final source | Existing parent records and feature flags | Yes | Conditional | Safe as second or paired minimal slice after catalog readiness decision. |
-| Option C - vessel/vacancy scalar fields first | Adds useful structured data quickly | Medium; may create fields before catalog choices are ready | Owner-approved field list and validation | Maybe | No | Safe technically, but premature for matching-oriented work. |
-| Option D - child requirement tables first | Creates future blocker/score foundation | High; several required catalogs missing/partial | Rank, vessel type, COC, endorsement, training, visa, language catalogs | No | No | Too much catalog debt remains. |
-| Option E - demand readiness projection first | Helps operators see readiness | High if based on incomplete fields/catalogs | Structured data and blocker policy | No | No | Projection should summarize real normalized state, not legacy text. |
-
-## 9. Recommended First Implementation Slice
-
-Recommended first implementation slice:
+Final first-slice recommendation:
 
 ```text
 CPG-DEMAND-004 - Demand reference catalog cleanup and seed readiness
 ```
 
-Scope:
+## 10. Required Catalog Cleanup/Seed Scope
 
-1. Confirm which existing published catalogs are approved for demand use.
-2. Decide vessel type strategy: `vessel_types` vs `vessel_type_matching_categories` vs both.
-3. Create owner-approved seed plans for missing demand catalogs:
-   - port / route location strategy;
-   - endorsement type;
-   - visa category/status;
-   - language and level;
-   - contract duration unit;
-   - rotation pattern;
-   - special operation tags;
-   - cargo type;
-   - risk/verification statuses where approved.
-4. Define exact catalog codes for demand-specific catalogs.
-5. Define which catalogs are MVP required and which are later-stage.
-6. Keep UI/API/schema behavior unchanged unless a later implementation issue is approved.
+The next task should not create demand schema yet. It should produce an approved catalog decision pack.
 
-Secondary implementation slice after CPG-DEMAND-004:
+| Catalog decision | Recommended treatment | Reason |
+|---|---|---|
+| Rank | Approve `seafarer_positions` for demand rank use | Already published and supply-compatible. |
+| Department | Decide enum vs catalog | Current enum can continue, but matching taxonomy needs control. |
+| Vessel type | Decide `vessel_types` vs `vessel_type_matching_categories` usage | Current overlap blocks strict matching semantics. |
+| Country | Approve code/catalog use rules | Current catalog is ready; code/value mapping must be explicit. |
+| Port | Decide source strategy, likely later UN/LOCODE or controlled seed | Current catalogs do not represent ports. |
+| COC | Approve `certificate_of_competence_types` for demand requirements | Ready and supply-compatible. |
+| Endorsement type | Create/approve endorsement type catalog | Existing institution catalog is not enough. |
+| STCW/training | Approve `training_course_types` for demand requirements | Ready and supply-compatible. |
+| Visa category/status | Create/approve dedicated catalog | Current document/country catalogs are not enough. |
+| Language/level | Create/approve minimal language and level catalogs | Required before language matching. |
+| Currency | Keep ISO code validation for MVP | No catalog needed before first implementation. |
+| Contract duration unit | Create small system catalog or enum decision | Required before structured duration. |
+| Rotation pattern | Seed later-stage catalog | Not first MVP blocker. |
+| Special operation tags | Seed later-stage catalog | Needed before operational matching. |
+| Cargo type | Seed later-stage catalog | Needed before cargo-specific matching. |
+| Risk status | Require Project Owner compliance decision | Sensitive internal classification. |
+| Verification status | Keep workflow/status first; catalogize only if approved | Avoid creating unnecessary catalog layer. |
 
-```text
-CPG-DEMAND-005 - Minimal demand_workspace JSONB compatibility and disabled API skeleton
-```
+## 11. Project Owner Decisions Required
 
-Reason:
+| Decision | Options | Recommended option | Required before demand implementation? |
+|---|---|---|---:|
+| Can implementation begin with current catalogs? | Yes for compatibility-only; no for catalog-backed fields | Start catalog cleanup/seed first | Yes |
+| First implementation slice | Catalog cleanup/seed; JSONB compatibility; scalar fields; child tables | Catalog cleanup/seed | Yes |
+| Vessel type semantics | Use `vessel_types`; use `vessel_type_matching_categories`; use both with defined roles | Define roles before strict matching | Yes |
+| Endorsement model | Reuse institutions; create type catalog | Create endorsement type catalog | Yes for endorsement requirements |
+| Visa model | Reuse national docs/Schengen; create visa category/status | Create visa category/status | Yes for visa requirements |
+| Language model | Defer; seed Maritime English only; seed full language/level | Defer from first slice or seed minimal later | No for first catalog cleanup, yes before language matching |
+| Port source | Internal seed now; UN/LOCODE later; free text compatibility | Decide source strategy, but do not block non-port MVP fields | No for catalog cleanup; yes before port relation |
+| Risk statuses | Include in MVP; defer; system-only later | Defer and require compliance decision | Yes before risk implementation |
 
-`demand_workspace` compatibility is low-risk, but it should not become the first step until catalog readiness and naming decisions are recorded. The first implementation should prevent bad catalog dependencies; the second can introduce compatibility storage.
-
-## 10. Blockers And Project Owner Decisions
-
-| Decision | Options | Recommended option | Reason | Required before implementation? |
-|---|---|---|---|---:|
-| MVP demand catalogs | Use only ready catalogs; include partial/missing catalogs; defer all catalogs | Use ready catalogs for rank/country/COC/training/currency and explicitly defer missing catalogs | Avoid false blockers and keep MVP small | Yes |
-| Vessel type model | Use `vessel_types`; use `vessel_type_matching_categories`; use both | Use `vessel_types` for labels and review `vessel_type_matching_categories` for matching categories | Existing overlap is known and must be resolved | Yes |
-| Department model | Keep enum; create catalog; use free text | Keep enum for MVP and create cleanup task for supply/demand taxonomy | Low-risk and already constrained | Yes |
-| Port catalog source | Internal seed; UN/LOCODE later; use free text only | Use text/JSONB compatibility now, decide UN/LOCODE or internal seed later | Avoid large seed work before MVP | No for JSONB; yes for port reference relation |
-| Endorsement catalog | Reuse institutions; create endorsement-type catalog | Create endorsement-type catalog | Institutions are not requirement types | Yes before endorsement blocker rows |
-| Visa catalog | Use national docs/Schengen countries; create visa category/status catalog | Create dedicated visa category/status catalog | Route and visa fit needs explicit categories | Yes before visa matching |
-| Language/level catalog | Defer; seed Maritime English only; seed full language/level | Seed minimal Maritime English + level scale later | Useful but not required before first schema slice | No for first slice |
-| Internal risk/compliance fields | Include in MVP; defer; system-only only | Defer from MVP and require owner compliance decision | High visibility/compliance risk | Yes before internal risk schema |
-| First implementation slice | Catalog cleanup; JSONB compatibility; scalar columns; child tables | Catalog cleanup/readiness first | Prevents structured fields pointing to bad catalogs | Yes |
-
-## 11. Future Issue Sequence
+## 12. Future Issue Sequence
 
 | Future issue | Scope | Depends on | Output | Priority |
 |---|---|---|---|---|
-| CPG-DEMAND-004 - Demand reference catalog cleanup and seed readiness | Decide existing catalog reuse, missing catalog codes, MVP/later catalog list and owner approvals | CPG-DEMAND-003 | Approved demand catalog readiness pack | P0 |
-| CPG-DEMAND-005 - Minimal demand workspace compatibility contract | Additive/disabled plan or implementation for `demand_workspace` compatibility and section shape | CPG-DEMAND-004 decisions | Safe compatibility storage/API skeleton path | P0 |
-| CPG-DEMAND-006 - Demand scalar field additive migration draft | Parent table scalar columns for safe low-risk fields | CPG-DEMAND-004/005 | Idempotent migration draft and static review | P1 |
-| CPG-DEMAND-007 - Demand requirement child-table design | Requirement rows for rank, COC, training and later endorsement/visa/language | Catalog readiness pack | Child-table DDL/API contract | P1 |
-| CPG-DEMAND-008 - Operator demand review projection | Operator view of demand sections and compatibility notes | Minimal schema/API skeleton | Review payload contract | P1 |
-| CPG-DEMAND-009 - Public/applicant demand summary v2 | Allow-listed published demand summary | Visibility decisions and scalar fields | Public/applicant projection contract | P2 |
-| CPG-DEMAND-010 - Matching-safe demand payload | Read-only demand payload for future matching workbench/service | Structured demand fields and readiness projection | Matching input contract only, no scoring | P2 |
+| CPG-DEMAND-004 - Demand reference catalog cleanup and seed readiness | Approve reusable catalogs, define missing catalog codes and decide MVP/later catalog list | CPG-DEMAND-003 | Owner-approved demand catalog decision pack | P0 |
+| CPG-DEMAND-005 - Minimal demand workspace compatibility | Compatibility storage/API shape only, explicitly not final matching source | CPG-DEMAND-004 decisions | Safe compatibility implementation path | P0 |
+| CPG-DEMAND-006 - Demand scalar/reference implementation slice | First additive implementation using only approved ready catalogs | CPG-DEMAND-004/005 | Narrow implementation ticket | P1 |
+| CPG-DEMAND-007 - Demand requirement child tables | Rank/COC/training first, then endorsement/visa/language after catalogs are approved | Catalog readiness pack | Requirement-table implementation plan | P1 |
+| CPG-DEMAND-008 - Demand readiness projection | Read-only projection after normalized fields exist | Approved schema implementation | Operator/internal readiness contract | P1 |
+| CPG-DEMAND-009 - Matching-safe demand payload | Allow-listed demand payload only, no scoring | Normalized fields and visibility guard | Matching input contract | P2 |
 
-## 12. Final Readiness Decision
+## 13. Final Gate Decision
 
-| Area | Decision | Reason |
-|---|---|---|
-| Existing catalog foundation | Ready | Reference catalog tables/API/admin publication flow exist and all imported catalogs are published. |
-| Demand MVP catalog base | Partial | Rank, country, COC, training, currency and limited department/vessel type support are usable; several demand-specific catalogs are missing. |
-| First schema migration | Not recommended yet | Schema could be additive, but catalog dependencies are not ready enough for requirement child tables or strict reference relations. |
-| First implementation slice | Reference catalog cleanup/readiness first | This prevents false confidence from structured fields that point to incomplete catalogs. |
-| JSONB compatibility | Safe after catalog decision | Useful as second slice or minimal paired slice, but not a substitute for catalog readiness. |
-| Child requirement tables | Blocked for first slice | Endorsement, visa, language, port, operation and risk catalogs are missing/partial. |
-| Matching-safe payload | Blocked | Matching payload must wait for normalized demand fields and explicit visibility/allow-list rules. |
+| Question | Decision |
+|---|---|
+| Can a first demand-side implementation slice start immediately on current catalogs? | Not if it creates catalog-backed fields, requirement child tables, blocker logic or matching-ready payloads. |
+| Is the current Excel/catalog baseline useless? | No. It already supports rank, country, COC, STCW/training and limited vessel type usage. |
+| What blocks implementation? | Vessel type overlap, missing port catalog, missing endorsement type catalog, missing visa category/status, missing language/level, missing duration/rotation/operation/cargo catalogs and blocked risk taxonomy. |
+| What should happen first? | Demand reference catalog cleanup/seed readiness task. |
+| Does document 162 remain valid? | Yes. This gate only determines that catalog cleanup should precede the first catalog-backed implementation slice. |
 
-## 13. Acceptance Checklist
+## 14. Acceptance Checklist
 
 | Requirement | Status |
 |---|---|
-| Purpose and boundaries included | Met |
-| Current reference catalog inventory included | Met |
+| Narrow readiness gate scope applied | Met |
+| Document 162 not re-designed or replaced | Met |
+| Existing Excel/current catalog baseline checked | Met |
+| Demand canonical fields from document 160 checked | Met |
 | Catalog readiness matrix included | Met |
-| Catalog-to-demand-field dependency matrix included | Met |
-| Catalog-to-seafarer-supply compatibility matrix included | Met |
-| Schema block readiness matrix included | Met |
-| First implementation slice options included | Met |
-| Recommended first implementation slice included | Met |
-| Blockers and Project Owner decisions included | Met |
-| Future issue sequence included | Met |
+| Supply-demand catalog compatibility checked | Met |
+| First-slice go/no-go decision included | Met |
+| Catalog cleanup/seed recommendation included | Met |
 | No UI changes | Met |
 | No DB migrations applied | Met |
 | No backend/API changes | Met |

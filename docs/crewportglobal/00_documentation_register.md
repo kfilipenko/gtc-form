@@ -484,7 +484,7 @@ Document 162 records the CPG-DEMAND-002 additive demand schema and API implement
 
 Document 163 records the CPG-DEMAND-002 agent execution guide for converting the canonical demand field contract into a low-risk additive schema/API planning report, including required source documents, current schema/API inspection, required matrices, future API contracts, validation/error planning, visibility/access-control planning, backfill compatibility and rollback boundaries.
 
-Document 164 records the CPG-DEMAND-003 reference catalog and schema readiness gate, including current catalog inventory, demand catalog readiness, catalog-to-demand-field dependencies, catalog-to-seafarer compatibility, schema block readiness, first implementation slice options, Project Owner decisions and the recommendation to start with demand reference catalog cleanup/readiness before schema/API implementation.
+Document 164 records the CPG-DEMAND-003 narrow readiness gate, comparing the existing Excel/current reference catalog baseline against document 160 demand canonical fields, confirming that document 162 remains the accepted schema/API plan, identifying which catalogs are ready/partial/missing/blocked and recommending demand reference catalog cleanup/seed readiness before the first catalog-backed implementation slice.
 
 Document 165 records the CPG-DEMAND-003 agent execution guide for the reference catalog and schema readiness gate, including required source documents, catalog audit requirements, schema block readiness requirements, first-slice option comparison, recommendation rules, Project Owner decision table and no-implementation boundaries.
 
@@ -591,7 +591,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
-| 1.46 | 2026-05-23 | GTC IT / AI Assistant | Added documents 164 and 165 for CPG-DEMAND-003 covering reference catalog readiness, schema block readiness, first-slice implementation options, Project Owner decisions and the recommended catalog cleanup/readiness gate before demand schema/API changes |
+| 1.46 | 2026-05-23 | GTC IT / AI Assistant | Added documents 164 and 165 for CPG-DEMAND-003 covering the narrow readiness gate between the existing Excel/current reference catalog baseline and document 160 demand canonical fields, Project Owner go/no-go decisions and the recommended catalog cleanup/seed task before catalog-backed demand implementation |
 | 1.45 | 2026-05-22 | GTC IT / AI Assistant | Added documents 162 and 163 for CPG-DEMAND-002 covering additive demand schema/API planning, existing schema inventory, migration sequence, demand object storage categories, reference catalogs, JSONB compatibility, validation/error codes, visibility scopes, backfill mapping and rollback strategy |
 | 1.44 | 2026-05-22 | GTC IT / AI Assistant | Added documents 160 and 161 for CPG-DEMAND-001 covering the canonical demand field contract, field-key conventions, catalog and validation plans, visibility scopes, compatibility mapping and future storage/API expectations |
 | 1.43 | 2026-05-22 | GTC IT / AI Assistant | Added documents 158 and 159 for CPG-SEAFARER-021 covering demand-side normalization across employer/company, vessel, crew request, contract and operational/legal/risk objects with field type, evidence, visibility, MVP priority and implementation-sequence matrices |
