@@ -453,6 +453,20 @@ api_vacancies AS (
   FROM crewportglobal.vacancy_requests vr
   JOIN api_users au ON au.user_id = vr.created_by_user_id
 )
+DELETE FROM crewportglobal.operator_shortlist_drafts osd
+WHERE to_regclass('crewportglobal.operator_shortlist_drafts') IS NOT NULL
+  AND osd.vacancy_request_id IN (SELECT vacancy_request_id FROM api_vacancies);
+
+WITH api_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'api.%@example.com'
+),
+api_vacancies AS (
+  SELECT vacancy_request_id
+  FROM crewportglobal.vacancy_requests vr
+  JOIN api_users au ON au.user_id = vr.created_by_user_id
+)
 DELETE FROM crewportglobal.vacancy_applications va
 WHERE va.seafarer_user_id IN (SELECT user_id FROM api_users)
    OR va.vacancy_request_id IN (SELECT vacancy_request_id FROM api_vacancies);
@@ -1557,6 +1571,7 @@ test('operator candidate search returns read-only exact matches and blockers', a
     },
   });
   expect(exactApproval.status()).toBe(200);
+  await acceptPresentationConsents(request, exact.draft_id);
   insertCandidateSearchStructuredEvidence(exact.draft_id);
 
   const mismatchCreate = await request.post('/registration/drafts', {
@@ -1745,6 +1760,110 @@ test('operator candidate search returns read-only exact matches and blockers', a
   expect(serialized).not.toContain('contact_email');
   expect(serialized).not.toContain('contact_phone');
   expect(serialized).not.toContain('document_metadata');
+
+  const blockedShortlistResponse = await request.post(`/operator/vacancies/${vacancyId}/shortlist-drafts`, {
+    data: {
+      candidates: [
+        {
+          candidate_user_id: mismatch.draft_id,
+          operator_decision: 'include',
+          operator_note: 'Attempting to include a blocked candidate must fail.',
+        },
+      ],
+    },
+  });
+  expect(blockedShortlistResponse.status()).toBe(409);
+  const blockedShortlist = (await blockedShortlistResponse.json()) as Record<string, unknown>;
+  expect(blockedShortlist).toEqual(
+    expect.objectContaining({
+      ok: false,
+      error: 'shortlist_guard_blocked',
+      side_effects: expect.objectContaining({
+        created_internal_shortlist_draft: false,
+        changes_statuses: false,
+        employer_visible: false,
+      }),
+    })
+  );
+  expect(JSON.stringify(blockedShortlist)).toContain('candidate_search_blocked');
+  expect(JSON.stringify(blockedShortlist)).toContain('structured_requirement_unmatched');
+
+  const shortlistResponse = await request.post(`/operator/vacancies/${vacancyId}/shortlist-drafts`, {
+    data: {
+      candidates: [
+        {
+          candidate_user_id: exact.draft_id,
+          operator_decision: 'include',
+          operator_note: 'Structured evidence satisfies current demand requirements.',
+        },
+        {
+          candidate_user_id: mismatch.draft_id,
+          operator_decision: 'hold',
+          operator_note: 'Keep visible internally as a blocked comparison candidate.',
+        },
+      ],
+    },
+  });
+  expect(shortlistResponse.status()).toBe(201);
+  const shortlist = (await shortlistResponse.json()) as {
+    ok: boolean;
+    shortlist_draft: Record<string, unknown>;
+    side_effects: Record<string, unknown>;
+  };
+  expect(shortlist.ok).toBe(true);
+  expect(shortlist.side_effects).toEqual(
+    expect.objectContaining({
+      created_internal_shortlist_draft: true,
+      creates_vacancy_applications: false,
+      changes_statuses: false,
+      employer_visible: false,
+    })
+  );
+  expect(shortlist.shortlist_draft).toEqual(
+    expect.objectContaining({
+      vacancy_request_id: vacancyId,
+      search_model: 'cpg-demand-010-structured-requirement-evaluator',
+      draft_status: 'needs_review',
+      employer_visible: false,
+    })
+  );
+  const shortlistCandidates = shortlist.shortlist_draft.candidates as Array<Record<string, unknown>>;
+  expect(shortlistCandidates).toHaveLength(2);
+  const includedShortlistCandidate = shortlistCandidates.find((candidate) => candidate.candidate_user_id === exact.draft_id);
+  const heldShortlistCandidate = shortlistCandidates.find((candidate) => candidate.candidate_user_id === mismatch.draft_id);
+  expect(includedShortlistCandidate).toEqual(
+    expect.objectContaining({
+      operator_decision: 'include',
+      employer_visible: false,
+      approval_guard_result: expect.objectContaining({
+        approval_status: 'ready_for_internal_shortlist',
+      }),
+    })
+  );
+  expect(heldShortlistCandidate).toEqual(
+    expect.objectContaining({
+      operator_decision: 'hold',
+      employer_visible: false,
+      approval_guard_result: expect.objectContaining({
+        approval_status: 'blocked',
+      }),
+    })
+  );
+  expect(JSON.stringify(heldShortlistCandidate)).toContain('candidate_search_blocked');
+
+  const shortlistDraftId = shortlist.shortlist_draft.shortlist_draft_id as string;
+  const shortlistReadResponse = await request.get(`/operator/shortlist-drafts/${shortlistDraftId}`);
+  expect(shortlistReadResponse.status()).toBe(200);
+  const shortlistRead = await shortlistReadResponse.json();
+  expect(shortlistRead.shortlist_draft.shortlist_draft_id).toBe(shortlistDraftId);
+
+  const serializedShortlist = JSON.stringify(shortlistRead);
+  expect(serializedShortlist).not.toContain(exactEmail);
+  expect(serializedShortlist).not.toContain(mismatchEmail);
+  expect(serializedShortlist).not.toContain(documentBlockedEmail);
+  expect(serializedShortlist).not.toContain('contact_email');
+  expect(serializedShortlist).not.toContain('contact_phone');
+  expect(serializedShortlist).not.toContain('document_metadata');
 
   const employerDraftResponse = await request.get(`/registration/drafts/${employer.draft_id}`);
   expect(employerDraftResponse.status()).toBe(200);

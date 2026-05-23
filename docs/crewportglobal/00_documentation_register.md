@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.55
+- Version: 1.56
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -262,6 +262,7 @@ docs/crewportglobal/
   173_cpg_demand_010_structured_requirement_candidate_search_report.md
   174_cpg_demand_011_operator_structured_blocker_ui_report.md
   175_cpg_demand_012_internal_shortlist_draft_design.md
+  176_cpg_demand_013_internal_shortlist_draft_storage_guard_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -518,6 +519,8 @@ Document 174 records the CPG-DEMAND-011 operator structured blocker UI implement
 
 Document 175 records the CPG-DEMAND-012 internal shortlist draft and approval guard design, including proposed additive internal draft storage, candidate-level guard blocker codes, future operator-only API contracts, no-employer-visibility state rules, payload minimization and the recommended next implementation sequence.
 
+Document 176 records the CPG-DEMAND-013 internal shortlist draft storage and guard implementation, including migration 016, operator-only shortlist draft endpoints, include/hold guard behavior, consent/source-card/search blocker checks, employer-visible false constraints, minimized snapshots and focused verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -621,6 +624,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.56 | 2026-05-23 | GTC IT / AI Assistant | Added document 176 for CPG-DEMAND-013 covering internal shortlist draft storage, migration 016, operator-only endpoints, guard blocker behavior, no-employer-visibility constraints, minimized snapshots and focused verification |
 | 1.55 | 2026-05-23 | GTC IT / AI Assistant | Added document 175 for CPG-DEMAND-012 covering internal shortlist draft design, approval guard blocker codes, future API contracts, no-employer-visibility state rules, payload minimization and implementation sequence |
 | 1.54 | 2026-05-23 | GTC IT / AI Assistant | Added document 174 for CPG-DEMAND-011 covering `/verify/` candidate-search structured blocker UI, matched/blocked requirement summaries, safe missing labels, sensitive-field exclusion and focused UI verification |
 | 1.53 | 2026-05-23 | GTC IT / AI Assistant | Added document 173 for CPG-DEMAND-010 covering read-only structured requirement candidate search, COC/endorsement/training/sea-service checks, blocker codes, manual-review warnings, data-minimized payloads and no-shortlist verification |

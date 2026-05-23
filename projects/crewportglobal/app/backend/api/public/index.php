@@ -5485,6 +5485,495 @@ function handle_get_operator_vacancy_candidate_search(string $vacancyId): void {
     api_json(200, $search);
 }
 
+function cpg_operator_shortlist_tables_ready(): bool {
+    static $ready = null;
+    if (is_bool($ready)) {
+        return $ready;
+    }
+
+    $result = api_query(
+        "SELECT to_regclass('crewportglobal.operator_shortlist_drafts') AS drafts_table,
+                to_regclass('crewportglobal.operator_shortlist_candidates') AS candidates_table"
+    );
+    $row = pg_fetch_assoc($result);
+    $ready = is_array($row)
+        && is_string($row['drafts_table'] ?? null)
+        && $row['drafts_table'] !== ''
+        && is_string($row['candidates_table'] ?? null)
+        && $row['candidates_table'] !== '';
+    return $ready;
+}
+
+function cpg_operator_shortlist_decision(mixed $value): ?string {
+    if (!is_string($value) || trim($value) === '') {
+        return 'include';
+    }
+
+    $decision = trim($value);
+    return in_array($decision, ['include', 'hold', 'exclude'], true) ? $decision : null;
+}
+
+function cpg_operator_shortlist_candidate_requests(array $body): array {
+    $raw = $body['candidates'] ?? null;
+    if (!is_array($raw) || $raw === []) {
+        api_error(400, 'shortlist_candidates_required', 'candidates must be a non-empty array');
+    }
+
+    $items = [];
+    foreach ($raw as $index => $item) {
+        $candidateId = null;
+        $decisionValue = null;
+        $noteValue = null;
+        if (is_string($item)) {
+            $candidateId = $item;
+        } elseif (is_array($item)) {
+            $candidateId = is_string($item['candidate_user_id'] ?? null) ? $item['candidate_user_id'] : null;
+            $decisionValue = $item['operator_decision'] ?? $item['decision'] ?? null;
+            $noteValue = $item['operator_note'] ?? $item['note'] ?? null;
+        }
+
+        $uuid = $candidateId !== null ? api_normalize_uuid($candidateId) : null;
+        if ($uuid === null) {
+            api_json(400, [
+                'ok' => false,
+                'error' => 'invalid_shortlist_candidate_id',
+                'message' => 'candidate_user_id must be a valid UUID',
+                'index' => $index,
+            ]);
+        }
+
+        $decision = cpg_operator_shortlist_decision($decisionValue);
+        if ($decision === null) {
+            api_json(400, [
+                'ok' => false,
+                'error' => 'invalid_shortlist_candidate_decision',
+                'message' => 'operator_decision must be include, hold or exclude',
+                'candidate_user_id' => $uuid,
+            ]);
+        }
+
+        $items[$uuid] = [
+            'candidate_user_id' => $uuid,
+            'operator_decision' => $decision,
+            'operator_note' => normalize_optional_text($noteValue, 1000),
+        ];
+    }
+
+    return array_values($items);
+}
+
+function cpg_operator_shortlist_issue_codes(array $issues): array {
+    $codes = [];
+    foreach ($issues as $issue) {
+        if (is_array($issue) && is_string($issue['code'] ?? null) && trim($issue['code']) !== '') {
+            $codes[] = trim($issue['code']);
+        }
+    }
+    return array_values(array_unique($codes));
+}
+
+function cpg_operator_shortlist_candidate_snapshot(array $candidate): array {
+    return cpg_workspace_clean_record([
+        'candidate_user_id' => $candidate['candidate_user_id'] ?? null,
+        'display_name' => $candidate['display_name'] ?? null,
+        'primary_rank' => $candidate['primary_rank'] ?? null,
+        'department' => $candidate['department'] ?? null,
+        'availability_status' => $candidate['availability_status'] ?? null,
+        'availability_date' => $candidate['availability_date'] ?? null,
+        'review_status' => $candidate['review_status'] ?? null,
+        'document_summary' => is_array($candidate['document_summary'] ?? null) ? $candidate['document_summary'] : [],
+        'match_level' => $candidate['match_level'] ?? null,
+        'matched_dimensions' => is_array($candidate['matched_dimensions'] ?? null) ? $candidate['matched_dimensions'] : [],
+        'blockers' => is_array($candidate['blockers'] ?? null) ? $candidate['blockers'] : [],
+        'warnings' => is_array($candidate['warnings'] ?? null) ? $candidate['warnings'] : [],
+        'dimension_results' => is_array($candidate['dimension_results'] ?? null) ? $candidate['dimension_results'] : [],
+        'side_effects' => is_array($candidate['side_effects'] ?? null) ? $candidate['side_effects'] : [],
+    ]);
+}
+
+function cpg_operator_shortlist_add_blocker(array &$blockers, string $code, string $message, array $details = []): void {
+    cpg_approval_add_blocker($blockers, $code, $message, $details);
+}
+
+function cpg_operator_shortlist_candidate_guard(array $candidate): array {
+    $blockers = [];
+    $warnings = [];
+    $candidateId = is_string($candidate['candidate_user_id'] ?? null) ? (string) $candidate['candidate_user_id'] : '';
+    $searchBlockerCodes = cpg_operator_shortlist_issue_codes(is_array($candidate['blockers'] ?? null) ? $candidate['blockers'] : []);
+    if ($searchBlockerCodes !== []) {
+        cpg_operator_shortlist_add_blocker($blockers, 'candidate_search_blocked', 'Candidate search returned hard blockers', [
+            'blocker_codes' => $searchBlockerCodes,
+        ]);
+    }
+
+    $dimensionResults = is_array($candidate['dimension_results'] ?? null) ? $candidate['dimension_results'] : [];
+    foreach ([
+        'coc_requirements',
+        'endorsement_requirements',
+        'training_requirements',
+        'sea_service_requirements',
+    ] as $dimension) {
+        $result = is_array($dimensionResults[$dimension] ?? null) ? $dimensionResults[$dimension] : [];
+        if (($result['required'] ?? false) !== true || ($result['matched'] ?? null) === true) {
+            continue;
+        }
+        cpg_operator_shortlist_add_blocker($blockers, 'structured_requirement_unmatched', 'Required structured demand dimension is not matched', [
+            'dimension' => $dimension,
+            'missing' => is_array($result['missing'] ?? null) ? $result['missing'] : [],
+        ]);
+    }
+
+    if ($candidateId !== '') {
+        if (!cpg_seafarer_consent_table_ready()) {
+            cpg_operator_shortlist_add_blocker($blockers, 'consent_event_store_missing', 'Versioned consent event store is not available');
+        } else {
+            $activeConsents = cpg_seafarer_active_consent_events($candidateId);
+            if (!isset($activeConsents['matching_preparation'])) {
+                cpg_operator_shortlist_add_blocker($blockers, 'missing_matching_preparation_consent', 'Candidate matching-preparation consent is missing or withdrawn');
+            }
+            if (!isset($activeConsents['employer_sharing'])) {
+                cpg_operator_shortlist_add_blocker($blockers, 'missing_employer_sharing_consent', 'Candidate employer-sharing consent is missing or withdrawn');
+            }
+        }
+
+        $profile = cpg_fetch_one_assoc(
+            'SELECT document_metadata
+             FROM crewportglobal.seafarer_profiles
+             WHERE user_id = $1
+             LIMIT 1',
+            [$candidateId]
+        );
+        if ($profile !== null) {
+            $cardReviewStates = cpg_seafarer_workspace_card_review_states($profile['document_metadata'] ?? null);
+            foreach ($cardReviewStates as $cardCode => $state) {
+                if (($state['review_status'] ?? null) !== 'correction_requested') {
+                    continue;
+                }
+                cpg_operator_shortlist_add_blocker($blockers, 'source_card_correction_open', 'Unresolved source-card correction blocks shortlist inclusion', [
+                    'card_code' => (string) $cardCode,
+                    'card_name' => cpg_seafarer_review_card_name((string) $cardCode) ?? (string) $cardCode,
+                ]);
+            }
+        }
+    }
+
+    $snapshot = cpg_operator_shortlist_candidate_snapshot($candidate);
+    $forbiddenHits = cpg_payload_forbidden_key_hits($snapshot, cpg_employer_payload_forbidden_keys());
+    if ($forbiddenHits !== []) {
+        cpg_operator_shortlist_add_blocker($blockers, 'employer_payload_forbidden_field_risk', 'Shortlist candidate snapshot contains forbidden employer-facing fields', [
+            'fields' => $forbiddenHits,
+        ]);
+    }
+
+    $warnings[] = [
+        'code' => 'restricted_medical_not_requested',
+        'message' => 'General operator shortlist guard does not require restricted medical details',
+    ];
+
+    return [
+        'approval_status' => $blockers === [] ? 'ready_for_internal_shortlist' : 'blocked',
+        'approval_blockers' => $blockers,
+        'approval_warnings' => $warnings,
+        'required_consent_types' => cpg_seafarer_required_presentation_consent_types(),
+        'restricted_medical_access' => [
+            'general_operator_details_visible' => false,
+            'required_for_this_guard' => false,
+        ],
+        'employer_visibility' => false,
+    ];
+}
+
+function cpg_operator_shortlist_draft_status(array $candidateRows): string {
+    foreach ($candidateRows as $row) {
+        if (($row['operator_decision'] ?? 'hold') !== 'include') {
+            return 'needs_review';
+        }
+        if (($row['approval_guard_result']['approval_status'] ?? 'blocked') !== 'ready_for_internal_shortlist') {
+            return 'needs_review';
+        }
+    }
+
+    return 'draft';
+}
+
+function cpg_operator_shortlist_read(string $shortlistDraftId): ?array {
+    $draft = cpg_fetch_one_assoc(
+        'SELECT
+            shortlist_draft_id,
+            vacancy_request_id,
+            created_by_operator_context,
+            search_model,
+            search_snapshot,
+            approval_guard_snapshot,
+            draft_status,
+            employer_visible,
+            created_at,
+            updated_at,
+            archived_at
+         FROM crewportglobal.operator_shortlist_drafts
+         WHERE shortlist_draft_id = $1
+         LIMIT 1',
+        [$shortlistDraftId]
+    );
+    if ($draft === null) {
+        return null;
+    }
+
+    $candidateRows = cpg_fetch_all_assoc(
+        'SELECT
+            shortlist_candidate_id,
+            shortlist_draft_id,
+            candidate_user_id,
+            candidate_search_result,
+            match_level,
+            blocker_codes,
+            approval_guard_result,
+            operator_decision,
+            operator_note,
+            employer_visible,
+            created_at,
+            updated_at
+         FROM crewportglobal.operator_shortlist_candidates
+         WHERE shortlist_draft_id = $1
+         ORDER BY created_at ASC, shortlist_candidate_id ASC',
+        [$shortlistDraftId]
+    );
+
+    return [
+        'shortlist_draft_id' => $draft['shortlist_draft_id'],
+        'vacancy_request_id' => $draft['vacancy_request_id'],
+        'created_by_operator_context' => cpg_decode_json_object($draft['created_by_operator_context'] ?? null),
+        'search_model' => $draft['search_model'],
+        'search_snapshot' => cpg_decode_json_object($draft['search_snapshot'] ?? null),
+        'approval_guard_snapshot' => cpg_decode_json_object($draft['approval_guard_snapshot'] ?? null),
+        'draft_status' => $draft['draft_status'],
+        'employer_visible' => cpg_pg_bool($draft['employer_visible'] ?? null),
+        'created_at' => $draft['created_at'],
+        'updated_at' => $draft['updated_at'],
+        'archived_at' => $draft['archived_at'],
+        'candidates' => array_map(static function (array $row): array {
+            return [
+                'shortlist_candidate_id' => $row['shortlist_candidate_id'],
+                'shortlist_draft_id' => $row['shortlist_draft_id'],
+                'candidate_user_id' => $row['candidate_user_id'],
+                'candidate_search_result' => cpg_decode_json_object($row['candidate_search_result'] ?? null),
+                'match_level' => $row['match_level'],
+                'blocker_codes' => cpg_decode_json_array_field($row['blocker_codes'] ?? null),
+                'approval_guard_result' => cpg_decode_json_object($row['approval_guard_result'] ?? null),
+                'operator_decision' => $row['operator_decision'],
+                'operator_note' => $row['operator_note'],
+                'employer_visible' => cpg_pg_bool($row['employer_visible'] ?? null),
+                'created_at' => $row['created_at'],
+                'updated_at' => $row['updated_at'],
+            ];
+        }, $candidateRows),
+    ];
+}
+
+function handle_post_operator_vacancy_shortlist_draft(string $vacancyId): void {
+    $uuid = api_normalize_uuid($vacancyId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_vacancy_request_id', 'vacancy_request_id must be a valid UUID');
+    }
+    if (!cpg_operator_shortlist_tables_ready()) {
+        api_error(503, 'operator_shortlist_store_missing', 'Operator shortlist draft tables are not available');
+    }
+
+    $body = api_decode_json_body();
+    $candidateRequests = cpg_operator_shortlist_candidate_requests($body);
+    $search = read_operator_vacancy_candidate_search($uuid, cpg_candidate_search_limit());
+    if ($search === null) {
+        api_error(404, 'vacancy_request_not_found', 'Vacancy request not found');
+    }
+
+    $candidateById = [];
+    foreach (($search['candidates'] ?? []) as $candidate) {
+        if (is_array($candidate) && is_string($candidate['candidate_user_id'] ?? null)) {
+            $candidateById[(string) $candidate['candidate_user_id']] = $candidate;
+        }
+    }
+
+    $candidateRows = [];
+    $includeBlockers = [];
+    foreach ($candidateRequests as $request) {
+        $candidateId = $request['candidate_user_id'];
+        if (!isset($candidateById[$candidateId])) {
+            api_json(404, [
+                'ok' => false,
+                'error' => 'shortlist_candidate_not_in_search_results',
+                'message' => 'Candidate is not available in current candidate-search results',
+                'candidate_user_id' => $candidateId,
+            ]);
+        }
+        $candidate = $candidateById[$candidateId];
+        $guard = cpg_operator_shortlist_candidate_guard($candidate);
+        if ($request['operator_decision'] === 'include' && ($guard['approval_status'] ?? 'blocked') !== 'ready_for_internal_shortlist') {
+            $includeBlockers[] = [
+                'candidate_user_id' => $candidateId,
+                'approval_guard_result' => $guard,
+            ];
+        }
+        $candidateRows[] = [
+            'candidate_user_id' => $candidateId,
+            'candidate_search_result' => cpg_operator_shortlist_candidate_snapshot($candidate),
+            'match_level' => $candidate['match_level'] ?? null,
+            'blocker_codes' => cpg_operator_shortlist_issue_codes(is_array($candidate['blockers'] ?? null) ? $candidate['blockers'] : []),
+            'approval_guard_result' => $guard,
+            'operator_decision' => $request['operator_decision'],
+            'operator_note' => $request['operator_note'],
+        ];
+    }
+
+    if ($includeBlockers !== []) {
+        api_json(409, [
+            'ok' => false,
+            'error' => 'shortlist_guard_blocked',
+            'message' => 'One or more requested include decisions are blocked by the internal shortlist guard',
+            'blocked_candidates' => $includeBlockers,
+            'side_effects' => [
+                'created_internal_shortlist_draft' => false,
+                'creates_vacancy_applications' => false,
+                'changes_statuses' => false,
+                'employer_visible' => false,
+            ],
+        ]);
+    }
+
+    $draftStatus = cpg_operator_shortlist_draft_status($candidateRows);
+    $approvalGuardSnapshot = [
+        'candidate_count' => count($candidateRows),
+        'blocked_candidate_count' => count(array_filter($candidateRows, static function (array $row): bool {
+            return ($row['approval_guard_result']['approval_status'] ?? 'blocked') !== 'ready_for_internal_shortlist';
+        })),
+        'included_candidate_count' => count(array_filter($candidateRows, static function (array $row): bool {
+            return ($row['operator_decision'] ?? null) === 'include';
+        })),
+        'employer_visible' => false,
+    ];
+    $searchSnapshot = [
+        'search_model' => $search['search_model'] ?? null,
+        'search_scope' => $search['search_scope'] ?? null,
+        'demand' => $search['demand'] ?? [],
+        'demand_readiness' => $search['demand_readiness'] ?? [],
+        'total_considered' => $search['total_considered'] ?? null,
+        'generated_at' => $search['generated_at'] ?? null,
+    ];
+
+    api_tx_begin();
+    try {
+        $result = api_query(
+            'INSERT INTO crewportglobal.operator_shortlist_drafts (
+                vacancy_request_id,
+                created_by_operator_context,
+                search_model,
+                search_snapshot,
+                approval_guard_snapshot,
+                draft_status,
+                employer_visible
+             ) VALUES (
+                $1,
+                $2::jsonb,
+                $3,
+                $4::jsonb,
+                $5::jsonb,
+                $6,
+                false
+             )
+             RETURNING shortlist_draft_id',
+            [
+                $uuid,
+                cpg_workspace_json([
+                    'access_model' => 'temporary_operator_token',
+                    'actor_label' => 'operator_candidate_search',
+                ]),
+                (string) ($search['search_model'] ?? 'unknown'),
+                cpg_workspace_json($searchSnapshot),
+                cpg_workspace_json($approvalGuardSnapshot),
+                $draftStatus,
+            ]
+        );
+        $draftRow = pg_fetch_assoc($result);
+        if (!is_array($draftRow) || !is_string($draftRow['shortlist_draft_id'] ?? null)) {
+            api_tx_rollback();
+            api_error(500, 'shortlist_draft_create_failed', 'Unable to create internal shortlist draft');
+        }
+        $shortlistDraftId = (string) $draftRow['shortlist_draft_id'];
+
+        foreach ($candidateRows as $row) {
+            api_query(
+                'INSERT INTO crewportglobal.operator_shortlist_candidates (
+                    shortlist_draft_id,
+                    candidate_user_id,
+                    candidate_search_result,
+                    match_level,
+                    blocker_codes,
+                    approval_guard_result,
+                    operator_decision,
+                    operator_note,
+                    employer_visible
+                 ) VALUES (
+                    $1,
+                    $2,
+                    $3::jsonb,
+                    $4,
+                    $5::jsonb,
+                    $6::jsonb,
+                    $7,
+                    $8,
+                    false
+                 )',
+                [
+                    $shortlistDraftId,
+                    $row['candidate_user_id'],
+                    cpg_workspace_json($row['candidate_search_result']),
+                    $row['match_level'],
+                    cpg_workspace_json(array_values($row['blocker_codes'])),
+                    cpg_workspace_json($row['approval_guard_result']),
+                    $row['operator_decision'],
+                    $row['operator_note'],
+                ]
+            );
+        }
+
+        api_tx_commit();
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'shortlist_draft_create_failed', $error->getMessage());
+    }
+
+    $draft = cpg_operator_shortlist_read($shortlistDraftId);
+    api_json(201, [
+        'ok' => true,
+        'shortlist_draft' => $draft,
+        'side_effects' => [
+            'created_internal_shortlist_draft' => true,
+            'creates_vacancy_applications' => false,
+            'changes_statuses' => false,
+            'employer_visible' => false,
+        ],
+    ]);
+}
+
+function handle_get_operator_shortlist_draft(string $shortlistDraftId): void {
+    $uuid = api_normalize_uuid($shortlistDraftId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_shortlist_draft_id', 'shortlist_draft_id must be a valid UUID');
+    }
+    if (!cpg_operator_shortlist_tables_ready()) {
+        api_error(503, 'operator_shortlist_store_missing', 'Operator shortlist draft tables are not available');
+    }
+
+    $draft = cpg_operator_shortlist_read($uuid);
+    if ($draft === null) {
+        api_error(404, 'shortlist_draft_not_found', 'Internal shortlist draft not found');
+    }
+
+    api_json(200, [
+        'ok' => true,
+        'shortlist_draft' => $draft,
+    ]);
+}
+
 function upsert_vacancy_request(string $userId, string $companyId, ?string $vesselId, array $body): ?string {
     $vacancy = normalize_vacancy_payload($body);
     if ($vacancy === null) {
@@ -8906,6 +9395,24 @@ if (preg_match('#^/operator/vacancies/([^/]+)/candidate-search$#', $path, $match
     if ($method === 'GET') {
         require_operator_access();
         handle_get_operator_vacancy_candidate_search($matches[1]);
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if (preg_match('#^/operator/vacancies/([^/]+)/shortlist-drafts$#', $path, $matches) === 1) {
+    if ($method === 'POST') {
+        require_operator_access();
+        handle_post_operator_vacancy_shortlist_draft($matches[1]);
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if (preg_match('#^/operator/shortlist-drafts/([^/]+)$#', $path, $matches) === 1) {
+    if ($method === 'GET') {
+        require_operator_access();
+        handle_get_operator_shortlist_draft($matches[1]);
     }
     header('Allow: GET');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
