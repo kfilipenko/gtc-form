@@ -1186,6 +1186,7 @@ test('operator candidate search returns read-only exact matches and blockers', a
   const employerEmail = `api.match.employer.${unique}@example.com`;
   const exactEmail = `api.match.exact.${unique}@example.com`;
   const mismatchEmail = `api.match.mismatch.${unique}@example.com`;
+  const documentBlockedEmail = `api.match.document.blocked.${unique}@example.com`;
 
   const employerCreate = await request.post('/registration/drafts', {
     data: {
@@ -1212,6 +1213,8 @@ test('operator candidate search returns read-only exact matches and blockers', a
         salary_max_usd: 7200,
         currency: 'USD',
         employer_country_code: 'AE',
+        required_passport_validity_days: 180,
+        required_medical_validity_days: 90,
         requirements: 'COC, bulk carrier experience and valid medical certificate.',
       },
     },
@@ -1295,6 +1298,34 @@ test('operator candidate search returns read-only exact matches and blockers', a
   });
   expect(mismatchApproval.status()).toBe(200);
 
+  const documentBlockedCreate = await request.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email: documentBlockedEmail,
+      full_name: `Document Blocked Candidate ${unique}`,
+      rank: 'Chief Officer',
+      department: 'deck',
+      availability_status: 'available_now',
+      preferred_vessel_types: ['Bulk Carrier'],
+      document_metadata: {
+        certificate_status: 'ready',
+        stcw_status: 'ready',
+        passport_expiry: '2026-09-15',
+        medical_expiry: '2026-09-01',
+        visa_status: 'ready',
+      },
+    },
+  });
+  expect(documentBlockedCreate.status()).toBe(201);
+  const documentBlocked = (await documentBlockedCreate.json()) as DraftResponse;
+
+  const documentBlockedApproval = await request.patch(`/operator/review-queue/${documentBlocked.draft_id}/status`, {
+    data: {
+      decision: 'reviewed',
+    },
+  });
+  expect(documentBlockedApproval.status()).toBe(200);
+
   const searchResponse = await request.get(`/operator/vacancies/${vacancyId}/candidate-search?limit=100`);
   expect(searchResponse.status()).toBe(200);
   const search = (await searchResponse.json()) as {
@@ -1306,7 +1337,7 @@ test('operator candidate search returns read-only exact matches and blockers', a
   };
 
   expect(search.ok).toBe(true);
-  expect(search.search_model).toBe('cpg-demand-006-read-only-exact-foundation');
+  expect(search.search_model).toBe('cpg-demand-008-read-only-input-expanded');
   expect(search.side_effects).toEqual(
     expect.objectContaining({
       creates_vacancy_applications: false,
@@ -1329,7 +1360,7 @@ test('operator candidate search returns read-only exact matches and blockers', a
       display_name: `Exact Candidate ${unique}`,
       primary_rank: 'Chief Officer',
       match_level: 'match_ready',
-      matched_dimensions: ['rank', 'vessel_type', 'availability'],
+      matched_dimensions: ['rank', 'vessel_type', 'availability', 'department', 'passport_validity', 'medical_validity'],
       blockers: [],
     })
   );
@@ -1345,6 +1376,20 @@ test('operator candidate search returns read-only exact matches and blockers', a
       availability: expect.objectContaining({
         matched: true,
       }),
+      department: expect.objectContaining({
+        required: true,
+        matched: true,
+      }),
+      passport_validity: expect.objectContaining({
+        required: true,
+        matched: true,
+        minimum_validity_days: 180,
+      }),
+      medical_validity: expect.objectContaining({
+        required: true,
+        matched: true,
+        minimum_validity_days: 90,
+      }),
     })
   );
 
@@ -1355,9 +1400,31 @@ test('operator candidate search returns read-only exact matches and blockers', a
   expect(mismatchBlockerCodes).toContain('rank_mismatch');
   expect(mismatchBlockerCodes).toContain('vessel_type_mismatch');
 
+  const documentBlockedCandidate = search.candidates.find((candidate) => candidate.candidate_user_id === documentBlocked.draft_id);
+  expect(documentBlockedCandidate).toBeTruthy();
+  expect(documentBlockedCandidate?.match_level).toBe('blocked');
+  const documentBlockerCodes = ((documentBlockedCandidate?.blockers || []) as Array<Record<string, unknown>>).map((blocker) => blocker.code);
+  expect(documentBlockerCodes).toContain('passport_validity_below_requirement');
+  expect(documentBlockerCodes).toContain('medical_validity_below_requirement');
+  expect(documentBlockedCandidate?.dimension_results).toEqual(
+    expect.objectContaining({
+      passport_validity: expect.objectContaining({
+        required: true,
+        matched: false,
+        minimum_validity_days: 180,
+      }),
+      medical_validity: expect.objectContaining({
+        required: true,
+        matched: false,
+        minimum_validity_days: 90,
+      }),
+    })
+  );
+
   const serialized = JSON.stringify(search);
   expect(serialized).not.toContain(exactEmail);
   expect(serialized).not.toContain(mismatchEmail);
+  expect(serialized).not.toContain(documentBlockedEmail);
   expect(serialized).not.toContain('contact_email');
   expect(serialized).not.toContain('contact_phone');
   expect(serialized).not.toContain('document_metadata');

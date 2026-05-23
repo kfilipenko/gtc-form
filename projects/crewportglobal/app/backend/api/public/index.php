@@ -4313,7 +4313,7 @@ function cpg_candidate_search_normalized_text(mixed $value): ?string {
         return null;
     }
     $normalized = trim($value);
-    return $normalized === '' ? null : mb_strtolower($normalized);
+    return $normalized === '' ? null : strtolower($normalized);
 }
 
 function cpg_candidate_search_expiry_validity(?string $expiryDate, ?string $anchorDate, mixed $requiredDays): array {
