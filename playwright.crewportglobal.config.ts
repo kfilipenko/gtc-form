@@ -52,6 +52,8 @@ export default defineConfig({
       'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/012_create_seafarer_workspace_records.sql',
       '&& PGHOST=${PGHOST:-127.0.0.1} PGUSER=${PGUSER:-gtc_user} PGPASSWORD=${PGPASSWORD:-gtc_pass} PGDATABASE=${PGDATABASE:-gtc_db}',
       'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/013_create_seafarer_consent_events.sql',
+      '&& PGHOST=${PGHOST:-127.0.0.1} PGUSER=${PGUSER:-gtc_user} PGPASSWORD=${PGPASSWORD:-gtc_pass} PGDATABASE=${PGDATABASE:-gtc_db}',
+      'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/014_demand_matching_foundation.sql',
       '&& export CREWPORTGLOBAL_ENV="${CREWPORTGLOBAL_ENV:-test}"',
       '&& export CREWPORTGLOBAL_REGISTRATION_EMAIL_ENABLED="${CREWPORTGLOBAL_REGISTRATION_EMAIL_ENABLED:-true}"',
       '&& export CREWPORTGLOBAL_REGISTRATION_EMAIL_DELIVERY_MODE="${CREWPORTGLOBAL_REGISTRATION_EMAIL_DELIVERY_MODE:-capture}"',

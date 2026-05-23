@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.47
+- Version: 1.50
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -254,6 +254,9 @@ docs/crewportglobal/
   165_cpg_demand_003_agent_execution_guide.md
   166_cpg_demand_004_existing_db_excel_catalog_reconciliation.md
   167_cpg_demand_004_agent_execution_guide.md
+  168_cpg_demand_005_additive_matching_foundation_report.md
+  169_cpg_demand_006_read_only_candidate_search_report.md
+  170_cpg_demand_007_operator_candidate_search_ui_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -494,6 +497,12 @@ Document 166 records the CPG-DEMAND-004 read-only reconciliation of the existing
 
 Document 167 records the CPG-DEMAND-004 agent execution guide for practical DB and Excel catalog reconciliation, including required source documents, read-only DB inspection commands, Excel/import artifact reconciliation, demand-required catalog coverage checks, matching sufficiency assessment, additive completion boundaries and no-DDL/DML-before-approval controls.
 
+Document 168 records the CPG-DEMAND-005 additive demand matching foundation implementation, including migration 014, demand-side catalog links for rank and vessel type, `demand_workspace` compatibility storage, structured duration and validity threshold fields, minimal `demand_requirement_items`, backend save/read behavior, GTC1 backfill counts and focused verification.
+
+Document 169 records the CPG-DEMAND-006 read-only internal candidate search prototype, including the operator-only candidate-search endpoint, exact catalog-backed rank/vessel/availability matching dimensions, match levels, blocker codes, data-minimized candidate payload, no-side-effect boundary and focused verification.
+
+Document 170 records the CPG-DEMAND-007 operator candidate-search UI implementation, including the `/verify/` vacancy-detail search panel, manual read-only candidate search action, safe match-summary rendering, sensitive candidate contact exclusion and focused UI verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -597,6 +606,9 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.50 | 2026-05-23 | GTC IT / AI Assistant | Added document 170 for CPG-DEMAND-007 covering the operator candidate-search UI panel on `/verify/`, manual read-only search, safe match summaries, sensitive candidate contact exclusion and focused UI verification |
+| 1.49 | 2026-05-23 | GTC IT / AI Assistant | Added document 169 for CPG-DEMAND-006 covering the read-only internal candidate search prototype, operator-only endpoint, exact catalog-backed matching dimensions, match levels, blocker codes, data-minimized payloads and no-side-effect verification |
+| 1.48 | 2026-05-23 | GTC IT / AI Assistant | Added document 168 for CPG-DEMAND-005 covering additive demand matching foundation implementation, migration 014, demand catalog links, demand workspace compatibility, structured duration fields, requirement items, backend/API behavior, GTC1 backfill counts and focused verification |
 | 1.47 | 2026-05-23 | GTC IT / AI Assistant | Added documents 166 and 167 for CPG-DEMAND-004 covering read-only PostgreSQL/Excel catalog reconciliation, current DB and import completeness evidence, demand-required catalog coverage, matching sufficiency, missed demand fields, additive completion scope and go/no-go recommendation |
 | 1.46 | 2026-05-23 | GTC IT / AI Assistant | Added documents 164 and 165 for CPG-DEMAND-003 covering the narrow readiness gate between the existing Excel/current reference catalog baseline and document 160 demand canonical fields, Project Owner go/no-go decisions and the recommended catalog cleanup/seed task before catalog-backed demand implementation |
 | 1.45 | 2026-05-22 | GTC IT / AI Assistant | Added documents 162 and 163 for CPG-DEMAND-002 covering additive demand schema/API planning, existing schema inventory, migration sequence, demand object storage categories, reference catalogs, JSONB compatibility, validation/error codes, visibility scopes, backfill mapping and rollback strategy |

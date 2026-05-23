@@ -326,3 +326,133 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
   await expect(page.locator('#review-history-list')).toContainText('vacancy_application');
   await expect(page.locator('#review-history-list')).toContainText(note);
 });
+
+test('operator vacancy detail runs read-only candidate search without sensitive candidate contacts', async ({ page, request }) => {
+  const unique = Date.now();
+  const employerEmail = `ui.queue.search.employer.${unique}@example.com`;
+  const exactEmail = `ui.queue.search.exact.${unique}@example.com`;
+  const mismatchEmail = `ui.queue.search.mismatch.${unique}@example.com`;
+  const vacancyTitle = `Chief Officer Search ${unique}`;
+
+  const employerCreate = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'employer',
+      role_in_company: 'recruiter',
+      email: employerEmail,
+      full_name: 'Operator Search Employer',
+      company_name: `Operator Search Marine ${unique}`,
+      country_code: 'AE',
+      registration_number: `AE-OQS-${unique}`,
+      vessel: {
+        vessel_name: `MV Operator Search ${unique}`,
+        vessel_type: 'Bulk Carrier',
+        imo_number: `IMO${9400000 + (unique % 400000)}`,
+      },
+      vacancy: {
+        vacancy_title: vacancyTitle,
+        rank: 'Chief Officer',
+        department: 'deck',
+        vessel_type: 'Bulk Carrier',
+        join_date: '2026-08-15',
+        contract_duration: '4 months +/- 1',
+        salary_min_usd: 6500,
+        salary_max_usd: 7200,
+        currency: 'USD',
+        employer_country_code: 'AE',
+        requirements: 'COC, bulk carrier experience and valid medical certificate.',
+      },
+    },
+  });
+  expect(employerCreate.ok()).toBeTruthy();
+
+  const exactCreate = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email: exactEmail,
+      full_name: `UI Exact Candidate ${unique}`,
+      rank: 'Chief Officer',
+      department: 'deck',
+      availability_status: 'available_now',
+      preferred_vessel_types: ['Bulk Carrier'],
+      document_metadata: {
+        certificate_status: 'ready',
+        stcw_status: 'ready',
+        passport_expiry: '2029-12-31',
+        medical_expiry: '2027-12-31',
+        visa_status: 'ready',
+      },
+    },
+  });
+  expect(exactCreate.ok()).toBeTruthy();
+  const exact = await exactCreate.json();
+
+  const exactApproval = await request.patch(`/api/v1/operator/review-queue/${exact.draft_id}/status`, {
+    data: {
+      decision: 'reviewed',
+    },
+  });
+  expect(exactApproval.ok()).toBeTruthy();
+
+  const mismatchCreate = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email: mismatchEmail,
+      full_name: `UI Mismatch Candidate ${unique}`,
+      rank: 'Master',
+      department: 'deck',
+      availability_status: 'available_now',
+      preferred_vessel_types: ['Oil/Chemical Tanker'],
+      document_metadata: {
+        certificate_status: 'ready',
+        stcw_status: 'ready',
+        passport_expiry: '2029-12-31',
+        medical_expiry: '2027-12-31',
+        visa_status: 'ready',
+      },
+    },
+  });
+  expect(mismatchCreate.ok()).toBeTruthy();
+  const mismatch = await mismatchCreate.json();
+
+  const mismatchApproval = await request.patch(`/api/v1/operator/review-queue/${mismatch.draft_id}/status`, {
+    data: {
+      decision: 'reviewed',
+    },
+  });
+  expect(mismatchApproval.ok()).toBeTruthy();
+
+  await page.addInitScript((token) => {
+    window.sessionStorage.setItem('crewportglobal.operatorAccessToken', token);
+  }, operatorAccessToken);
+  await page.goto('/verify/');
+
+  await expect(page.locator('#queue-status')).toContainText('Queue loaded');
+  await page.locator('.operator-lane-button[data-operator-lane="reviewer"]').click();
+  await page.locator('#filter-type').selectOption('vacancy_request');
+  await expect(page.locator('#queue-body')).toContainText(employerEmail);
+  await expect(page.locator('#queue-body')).toContainText(vacancyTitle);
+
+  const vacancyRow = page.locator('#queue-body tr', { hasText: employerEmail }).first();
+  await vacancyRow.locator('.queue-open').click();
+
+  const candidateSearch = page.locator('.candidate-search-panel');
+  await expect(candidateSearch).toContainText('Candidate search');
+  await expect(candidateSearch).toContainText('No side effects');
+  await candidateSearch.getByRole('button', { name: 'Run candidate search' }).click();
+
+  await expect(candidateSearch).toContainText('Candidate search loaded');
+  await expect(candidateSearch).toContainText(`UI Exact Candidate ${unique}`);
+  await expect(candidateSearch).toContainText('match_ready');
+  await expect(candidateSearch).toContainText('rank, vessel_type, availability');
+  await expect(candidateSearch).toContainText(`UI Mismatch Candidate ${unique}`);
+  await expect(candidateSearch).toContainText('blocked');
+  await expect(candidateSearch).toContainText('rank_mismatch');
+  await expect(candidateSearch).toContainText('vessel_type_mismatch');
+  await expect(candidateSearch).toContainText('COC ready');
+
+  await expect(candidateSearch).not.toContainText(exactEmail);
+  await expect(candidateSearch).not.toContainText(mismatchEmail);
+  await expect(candidateSearch).not.toContainText('contact_email');
+  await expect(candidateSearch).not.toContainText('contact_phone');
+  await expect(candidateSearch).not.toContainText('document_metadata');
+});

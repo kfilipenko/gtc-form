@@ -141,6 +141,73 @@
       color: var(--muted-on-dark);
       font-weight: 500;
     }
+    .candidate-search-panel {
+      gap: 14px;
+    }
+    .candidate-search-copy {
+      margin: 0;
+      color: var(--muted-on-dark);
+      line-height: 1.55;
+    }
+    .candidate-search-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    .candidate-search-status {
+      margin: 0;
+      color: var(--muted-on-dark);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .candidate-search-results {
+      display: grid;
+      gap: 10px;
+    }
+    .candidate-search-card {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .candidate-search-card__header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: start;
+    }
+    .candidate-search-card__name {
+      margin: 0;
+      color: var(--text-on-dark);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .candidate-search-badge {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 10px;
+      color: var(--text-on-dark);
+      font-size: 12px;
+      line-height: 1.3;
+      white-space: nowrap;
+      background: rgba(0, 102, 128, 0.16);
+    }
+    .candidate-search-card__meta,
+    .candidate-search-card__issues {
+      display: grid;
+      gap: 5px;
+      margin: 0;
+      color: var(--muted-on-dark);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .candidate-search-card__issues strong {
+      color: var(--text-on-dark);
+    }
     .raw-details {
       margin-top: 12px;
       border: 1px solid var(--line);
@@ -528,6 +595,19 @@
         'verify.section.vacancy': 'Vacancy request',
         'verify.section.application': 'Vacancy application',
         'verify.section.approvalGuard': 'Approval guard',
+        'verify.section.candidateSearch': 'Candidate search',
+        'verify.candidateSearch.copy': 'Read-only internal search. It does not create applications, change statuses or present candidates to employers.',
+        'verify.candidateSearch.run': 'Run candidate search',
+        'verify.candidateSearch.loading': 'Running read-only candidate search...',
+        'verify.candidateSearch.loaded': 'Candidate search loaded: {count} candidates considered.',
+        'verify.candidateSearch.empty': 'No candidate rows returned for this vacancy.',
+        'verify.candidateSearch.error': 'Could not load candidate search.',
+        'verify.candidateSearch.matchLevel': 'Match level: {level}',
+        'verify.candidateSearch.matched': 'Matched dimensions: {dimensions}',
+        'verify.candidateSearch.blockers': 'Blockers: {items}',
+        'verify.candidateSearch.warnings': 'Warnings: {items}',
+        'verify.candidateSearch.documents': 'Documents: {items}',
+        'verify.candidateSearch.sideEffects': 'No side effects: no applications, no status changes, no employer visibility.',
         'verify.field.draftId': 'Draft ID',
         'verify.field.role': 'Role',
         'verify.field.email': 'Email',
@@ -690,6 +770,19 @@
         'verify.section.vacancy': 'Заявка на вакансию',
         'verify.section.application': 'Отклик на вакансию',
         'verify.section.approvalGuard': 'Approval guard',
+        'verify.section.candidateSearch': 'Поиск кандидатов',
+        'verify.candidateSearch.copy': 'Внутренний read-only поиск. Он не создает отклики, не меняет статусы и не показывает кандидатов работодателю.',
+        'verify.candidateSearch.run': 'Запустить поиск кандидатов',
+        'verify.candidateSearch.loading': 'Выполняем read-only поиск кандидатов...',
+        'verify.candidateSearch.loaded': 'Поиск кандидатов загружен: рассмотрено кандидатов: {count}.',
+        'verify.candidateSearch.empty': 'Для этой вакансии кандидаты не вернулись.',
+        'verify.candidateSearch.error': 'Не удалось загрузить поиск кандидатов.',
+        'verify.candidateSearch.matchLevel': 'Уровень совпадения: {level}',
+        'verify.candidateSearch.matched': 'Совпавшие измерения: {dimensions}',
+        'verify.candidateSearch.blockers': 'Блокеры: {items}',
+        'verify.candidateSearch.warnings': 'Предупреждения: {items}',
+        'verify.candidateSearch.documents': 'Документы: {items}',
+        'verify.candidateSearch.sideEffects': 'Без побочных эффектов: нет откликов, нет смены статуса, нет видимости работодателю.',
         'verify.field.draftId': 'Draft ID',
         'verify.field.role': 'Роль',
         'verify.field.email': 'Email',
@@ -1060,6 +1153,179 @@
         return section;
       }
 
+      function candidateIssueText(issue) {
+        if (!issue || typeof issue !== 'object') {
+          return String(issue || '').trim();
+        }
+        return [
+          issue.code,
+          issue.message,
+          issue.dimension,
+          issue.expected,
+          issue.actual,
+        ].filter((value) => value !== null && value !== undefined && String(value).trim() !== '').join(': ');
+      }
+
+      function candidateDocumentSummary(candidate) {
+        const summary = candidate && candidate.document_summary && typeof candidate.document_summary === 'object'
+          ? candidate.document_summary
+          : {};
+        return [
+          summary.certificate_status ? `COC ${summary.certificate_status}` : '',
+          summary.stcw_status ? `STCW ${summary.stcw_status}` : '',
+          summary.passport_expiry ? `passport ${summary.passport_expiry}` : '',
+          summary.medical_expiry ? `medical ${summary.medical_expiry}` : '',
+          summary.visa_status ? `visa ${summary.visa_status}` : '',
+        ].filter(Boolean);
+      }
+
+      function renderCandidateSearchResults(container, payload) {
+        container.innerHTML = '';
+        const candidates = payload && Array.isArray(payload.candidates) ? payload.candidates : [];
+        if (candidates.length === 0) {
+          const empty = document.createElement('p');
+          empty.className = 'details-empty';
+          empty.textContent = t('verify.candidateSearch.empty');
+          container.appendChild(empty);
+          return;
+        }
+
+        candidates.forEach((candidate) => {
+          const card = document.createElement('article');
+          card.className = 'candidate-search-card';
+
+          const header = document.createElement('div');
+          header.className = 'candidate-search-card__header';
+
+          const name = document.createElement('p');
+          name.className = 'candidate-search-card__name';
+          name.textContent = normalizeDisplayValue(candidate.display_name || candidate.primary_rank);
+
+          const badge = document.createElement('span');
+          badge.className = 'candidate-search-badge';
+          badge.textContent = candidate.match_level || emptyValue();
+
+          header.append(name, badge);
+
+          const meta = document.createElement('p');
+          meta.className = 'candidate-search-card__meta';
+          meta.textContent = joinPresent([
+            candidate.primary_rank,
+            candidate.department,
+            candidate.availability_status,
+            candidate.availability_date,
+            Array.isArray(candidate.matched_dimensions) && candidate.matched_dimensions.length
+              ? t('verify.candidateSearch.matched', { dimensions: candidate.matched_dimensions.join(', ') })
+              : '',
+          ]);
+
+          const issueLines = document.createElement('div');
+          issueLines.className = 'candidate-search-card__issues';
+
+          const matchLine = document.createElement('span');
+          matchLine.textContent = t('verify.candidateSearch.matchLevel', { level: candidate.match_level || emptyValue() });
+          issueLines.appendChild(matchLine);
+
+          const blockers = Array.isArray(candidate.blockers)
+            ? candidate.blockers.map(candidateIssueText).filter(Boolean)
+            : [];
+          if (blockers.length > 0) {
+            const line = document.createElement('span');
+            const strong = document.createElement('strong');
+            strong.textContent = t('verify.candidateSearch.blockers', { items: blockers.join(', ') });
+            line.appendChild(strong);
+            issueLines.appendChild(line);
+          }
+
+          const warnings = Array.isArray(candidate.warnings)
+            ? candidate.warnings.map(candidateIssueText).filter(Boolean)
+            : [];
+          if (warnings.length > 0) {
+            const line = document.createElement('span');
+            line.textContent = t('verify.candidateSearch.warnings', { items: warnings.join(', ') });
+            issueLines.appendChild(line);
+          }
+
+          const documents = candidateDocumentSummary(candidate);
+          if (documents.length > 0) {
+            const line = document.createElement('span');
+            line.textContent = t('verify.candidateSearch.documents', { items: documents.join(', ') });
+            issueLines.appendChild(line);
+          }
+
+          card.append(header, meta, issueLines);
+          container.appendChild(card);
+        });
+      }
+
+      function createCandidateSearchSection(vacancy) {
+        const vacancyId = vacancy && vacancy.vacancy_request_id ? String(vacancy.vacancy_request_id) : '';
+        if (!vacancyId) {
+          return null;
+        }
+
+        const section = document.createElement('section');
+        section.className = 'detail-section candidate-search-panel';
+
+        const title = document.createElement('h3');
+        title.textContent = t('verify.section.candidateSearch');
+
+        const copy = document.createElement('p');
+        copy.className = 'candidate-search-copy';
+        copy.textContent = t('verify.candidateSearch.copy');
+
+        const actions = document.createElement('div');
+        actions.className = 'candidate-search-actions';
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'button secondary';
+        button.textContent = t('verify.candidateSearch.run');
+
+        const statusNode = document.createElement('p');
+        statusNode.className = 'candidate-search-status';
+        statusNode.textContent = t('verify.candidateSearch.sideEffects');
+
+        const results = document.createElement('div');
+        results.className = 'candidate-search-results';
+
+        button.addEventListener('click', async () => {
+          button.disabled = true;
+          statusNode.textContent = t('verify.candidateSearch.loading');
+          results.innerHTML = '';
+          try {
+            const response = await fetch(`/api/v1/operator/vacancies/${encodeURIComponent(vacancyId)}/candidate-search?limit=25`, {
+              headers: operatorHeaders(),
+            });
+            if (isOperatorAccessFailure(response)) {
+              showAccessPanel('verify.access.denied');
+              throw new Error('operator access required');
+            }
+            if (!response.ok) {
+              throw new Error('candidate search request failed');
+            }
+            const payload = await response.json();
+            renderCandidateSearchResults(results, payload);
+            const total = payload && typeof payload.total_considered === 'number'
+              ? payload.total_considered
+              : (payload && typeof payload.count === 'number' ? payload.count : 0);
+            statusNode.textContent = t('verify.candidateSearch.loaded', { count: total });
+          } catch (error) {
+            if (error && error.message === 'operator access required') {
+              statusNode.textContent = t('verify.access.denied');
+            } else {
+              statusNode.textContent = t('verify.candidateSearch.error');
+            }
+          } finally {
+            button.disabled = false;
+          }
+        });
+
+        actions.append(button, statusNode);
+        section.append(title, copy, actions, results);
+        return section;
+      }
+
       function structuredWorkspace(payload) {
         return payload && typeof payload === 'object' && payload.seafarer_workspace_structured
           && typeof payload.seafarer_workspace_structured === 'object'
@@ -1360,6 +1626,7 @@
             createDetailField('verify.field.status', vacancy.publication_status),
             createDetailField('verify.field.requirements', vacancy.requirements),
           ]));
+          sections.push(createCandidateSearchSection(vacancy));
         }
 
         sections.filter(Boolean).forEach((section) => detailsSections.appendChild(section));

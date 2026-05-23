@@ -924,6 +924,53 @@ test('employer vacancy request flows through review to public vacancy board', as
   expect(vacancy.vacancy_title).toBe('Chief Officer');
   expect(vacancy.department).toBe('deck');
   expect(vacancy.publication_status).toBe('submitted_for_human_review');
+  expect(vacancy.required_rank_label).toBe('Chief Officer');
+  expect(typeof vacancy.required_rank_value_id).toBe('string');
+  expect(vacancy.vessel_type_label).toBe('Bulk Carrier');
+  expect(typeof vacancy.vessel_type_value_id).toBe('string');
+  expect(Number(vacancy.contract_duration_value)).toBe(4);
+  expect(vacancy.contract_duration_unit).toBe('month');
+  expect(vacancy.demand_workspace).toEqual(
+    expect.objectContaining({
+      legacy: expect.objectContaining({
+        rank_text: 'Chief Officer',
+        vessel_type_text: 'Bulk Carrier',
+        contract_duration_text: '4 months +/- 1',
+      }),
+      matching_foundation: expect.objectContaining({
+        required_rank_catalog_linked: true,
+        vessel_type_catalog_linked: true,
+        contract_duration_structured: true,
+      }),
+    })
+  );
+  expect(vacancy.demand_matching_foundation).toEqual(
+    expect.objectContaining({
+      required_rank_catalog_linked: true,
+      vessel_type_catalog_linked: true,
+      contract_duration_structured: true,
+    })
+  );
+
+  const demandRequirementItems = created.payload.demand_requirement_items as Array<Record<string, unknown>>;
+  const rankRequirement = demandRequirementItems.find((item) => item.requirement_group === 'rank');
+  const vesselTypeRequirement = demandRequirementItems.find((item) => item.requirement_group === 'vessel_type');
+  expect(rankRequirement).toEqual(
+    expect.objectContaining({
+      reference_catalog_code: 'seafarer_positions',
+      requirement_label: 'Chief Officer',
+      source: 'legacy_mapping',
+    })
+  );
+  expect(typeof rankRequirement?.reference_value_id).toBe('string');
+  expect(vesselTypeRequirement).toEqual(
+    expect.objectContaining({
+      reference_catalog_code: 'vessel_types',
+      requirement_label: 'Bulk Carrier',
+      source: 'legacy_mapping',
+    })
+  );
+  expect(typeof vesselTypeRequirement?.reference_value_id).toBe('string');
 
   const queueResponse = await request.get('/operator/review-queue');
   expect(queueResponse.status()).toBe(200);
@@ -969,6 +1016,19 @@ test('employer vacancy request flows through review to public vacancy board', as
   expect(publicVacancy).toBeTruthy();
   expect(publicVacancy?.company_name).toBe('Verified Vacancy Marine');
   expect(publicVacancy?.vessel_type).toBe('Bulk Carrier');
+  expect(publicVacancy?.required_rank_label).toBe('Chief Officer');
+  expect(typeof publicVacancy?.required_rank_value_id).toBe('string');
+  expect(publicVacancy?.vessel_type_label).toBe('Bulk Carrier');
+  expect(typeof publicVacancy?.vessel_type_value_id).toBe('string');
+  expect(Number(publicVacancy?.contract_duration_value)).toBe(4);
+  expect(publicVacancy?.contract_duration_unit).toBe('month');
+  expect(publicVacancy?.demand_matching_foundation).toEqual(
+    expect.objectContaining({
+      required_rank_catalog_linked: true,
+      vessel_type_catalog_linked: true,
+      contract_duration_structured: true,
+    })
+  );
   expect(publicVacancy?.salary_min_usd).toBe('6500.00');
   expect(publicVacancy?.salary_max_usd).toBe('7200.00');
 
@@ -980,6 +1040,7 @@ test('employer vacancy request flows through review to public vacancy board', as
   };
   expect(publicVacancyDetail.ok).toBe(true);
   expect(publicVacancyDetail.vacancy.vacancy_title).toBe('Chief Officer');
+  expect(publicVacancyDetail.vacancy.demand_workspace).toBeUndefined();
 
   const seafarerCreate = await request.post('/registration/drafts', {
     data: {
@@ -1118,6 +1179,194 @@ test('employer vacancy request flows through review to public vacancy board', as
     },
   });
   expect(mismatchedEmailResponse.status()).toBe(400);
+});
+
+test('operator candidate search returns read-only exact matches and blockers', async ({ request }) => {
+  const unique = Date.now();
+  const employerEmail = `api.match.employer.${unique}@example.com`;
+  const exactEmail = `api.match.exact.${unique}@example.com`;
+  const mismatchEmail = `api.match.mismatch.${unique}@example.com`;
+
+  const employerCreate = await request.post('/registration/drafts', {
+    data: {
+      role: 'employer',
+      role_in_company: 'recruiter',
+      email: employerEmail,
+      full_name: 'Candidate Search Employer',
+      company_name: `Candidate Search Marine ${unique}`,
+      country_code: 'AE',
+      registration_number: `AE-MATCH-${unique}`,
+      vessel: {
+        vessel_name: `MV Search ${unique}`,
+        vessel_type: 'Bulk Carrier',
+        imo_number: `IMO${9300000 + (unique % 600000)}`,
+      },
+      vacancy: {
+        vacancy_title: 'Chief Officer',
+        rank: 'Chief Officer',
+        department: 'deck',
+        vessel_type: 'Bulk Carrier',
+        join_date: '2026-08-15',
+        contract_duration: '4 months +/- 1',
+        salary_min_usd: 6500,
+        salary_max_usd: 7200,
+        currency: 'USD',
+        employer_country_code: 'AE',
+        requirements: 'COC, bulk carrier experience and valid medical certificate.',
+      },
+    },
+  });
+  expect(employerCreate.status()).toBe(201);
+  const employer = (await employerCreate.json()) as DraftResponse;
+  const vacancy = employer.payload.vacancy_request as Record<string, unknown>;
+  const vacancyId = vacancy.vacancy_request_id as string;
+  expect(typeof vacancy.required_rank_value_id).toBe('string');
+  expect(typeof vacancy.vessel_type_value_id).toBe('string');
+
+  const companyDecision = await request.patch(`/operator/review-queue/${employer.draft_id}/status`, {
+    data: {
+      decision: 'reviewed',
+      queue_type: 'company_verification',
+    },
+  });
+  expect(companyDecision.status()).toBe(200);
+
+  const vacancyDecision = await request.patch(`/operator/review-queue/${employer.draft_id}/status`, {
+    data: {
+      decision: 'reviewed',
+      queue_type: 'vacancy_request',
+    },
+  });
+  expect(vacancyDecision.status()).toBe(200);
+
+  const exactCreate = await request.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email: exactEmail,
+      full_name: `Exact Candidate ${unique}`,
+      rank: 'Chief Officer',
+      department: 'deck',
+      availability_status: 'available_now',
+      preferred_vessel_types: ['Bulk Carrier'],
+      document_metadata: {
+        certificate_status: 'ready',
+        stcw_status: 'ready',
+        passport_expiry: '2029-12-31',
+        medical_expiry: '2027-12-31',
+        visa_status: 'ready',
+      },
+    },
+  });
+  expect(exactCreate.status()).toBe(201);
+  const exact = (await exactCreate.json()) as DraftResponse;
+
+  const exactApproval = await request.patch(`/operator/review-queue/${exact.draft_id}/status`, {
+    data: {
+      decision: 'reviewed',
+    },
+  });
+  expect(exactApproval.status()).toBe(200);
+
+  const mismatchCreate = await request.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email: mismatchEmail,
+      full_name: `Mismatch Candidate ${unique}`,
+      rank: 'Master',
+      department: 'deck',
+      availability_status: 'available_now',
+      preferred_vessel_types: ['Oil/Chemical Tanker'],
+      document_metadata: {
+        certificate_status: 'ready',
+        stcw_status: 'ready',
+        passport_expiry: '2029-12-31',
+        medical_expiry: '2027-12-31',
+        visa_status: 'ready',
+      },
+    },
+  });
+  expect(mismatchCreate.status()).toBe(201);
+  const mismatch = (await mismatchCreate.json()) as DraftResponse;
+
+  const mismatchApproval = await request.patch(`/operator/review-queue/${mismatch.draft_id}/status`, {
+    data: {
+      decision: 'reviewed',
+    },
+  });
+  expect(mismatchApproval.status()).toBe(200);
+
+  const searchResponse = await request.get(`/operator/vacancies/${vacancyId}/candidate-search?limit=100`);
+  expect(searchResponse.status()).toBe(200);
+  const search = (await searchResponse.json()) as {
+    ok: boolean;
+    search_model: string;
+    side_effects: Record<string, unknown>;
+    demand_readiness: Record<string, unknown>;
+    candidates: Array<Record<string, unknown>>;
+  };
+
+  expect(search.ok).toBe(true);
+  expect(search.search_model).toBe('cpg-demand-006-read-only-exact-foundation');
+  expect(search.side_effects).toEqual(
+    expect.objectContaining({
+      creates_vacancy_applications: false,
+      changes_statuses: false,
+      employer_visible: false,
+      writes_audit_events: false,
+    })
+  );
+  expect(search.demand_readiness).toEqual(
+    expect.objectContaining({
+      status: 'search_ready',
+      blockers: [],
+    })
+  );
+
+  const exactCandidate = search.candidates.find((candidate) => candidate.candidate_user_id === exact.draft_id);
+  expect(exactCandidate).toBeTruthy();
+  expect(exactCandidate).toEqual(
+    expect.objectContaining({
+      display_name: `Exact Candidate ${unique}`,
+      primary_rank: 'Chief Officer',
+      match_level: 'match_ready',
+      matched_dimensions: ['rank', 'vessel_type', 'availability'],
+      blockers: [],
+    })
+  );
+  expect(exactCandidate?.dimension_results).toEqual(
+    expect.objectContaining({
+      rank: expect.objectContaining({
+        matched: true,
+        match_source: 'catalog_exact',
+      }),
+      vessel_type: expect.objectContaining({
+        matched: true,
+      }),
+      availability: expect.objectContaining({
+        matched: true,
+      }),
+    })
+  );
+
+  const mismatchCandidate = search.candidates.find((candidate) => candidate.candidate_user_id === mismatch.draft_id);
+  expect(mismatchCandidate).toBeTruthy();
+  expect(mismatchCandidate?.match_level).toBe('blocked');
+  const mismatchBlockerCodes = ((mismatchCandidate?.blockers || []) as Array<Record<string, unknown>>).map((blocker) => blocker.code);
+  expect(mismatchBlockerCodes).toContain('rank_mismatch');
+  expect(mismatchBlockerCodes).toContain('vessel_type_mismatch');
+
+  const serialized = JSON.stringify(search);
+  expect(serialized).not.toContain(exactEmail);
+  expect(serialized).not.toContain(mismatchEmail);
+  expect(serialized).not.toContain('contact_email');
+  expect(serialized).not.toContain('contact_phone');
+  expect(serialized).not.toContain('document_metadata');
+
+  const employerDraftResponse = await request.get(`/registration/drafts/${employer.draft_id}`);
+  expect(employerDraftResponse.status()).toBe(200);
+  const employerDraft = (await employerDraftResponse.json()) as DraftResponse;
+  const presentedCandidates = employerDraft.payload.presented_candidates as Array<Record<string, unknown>>;
+  expect(presentedCandidates).toEqual([]);
 });
 
 test('operator review queue returns submitted seafarer and company drafts', async ({ request }) => {
