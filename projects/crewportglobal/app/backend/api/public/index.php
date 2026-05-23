@@ -4308,6 +4308,66 @@ function cpg_candidate_search_date_lte(?string $candidateDate, ?string $targetDa
     return $candidateTime <= $targetTime;
 }
 
+function cpg_candidate_search_normalized_text(mixed $value): ?string {
+    if (!is_string($value)) {
+        return null;
+    }
+    $normalized = trim($value);
+    return $normalized === '' ? null : mb_strtolower($normalized);
+}
+
+function cpg_candidate_search_expiry_validity(?string $expiryDate, ?string $anchorDate, mixed $requiredDays): array {
+    if ($requiredDays === null || $requiredDays === '') {
+        return [
+            'required' => false,
+            'matched' => null,
+        ];
+    }
+
+    $minimumDays = max(0, (int) $requiredDays);
+    $anchorText = is_string($anchorDate) && trim($anchorDate) !== '' ? trim($anchorDate) : gmdate('Y-m-d');
+    $expiryText = is_string($expiryDate) && trim($expiryDate) !== '' ? trim($expiryDate) : null;
+    if ($expiryText === null) {
+        return [
+            'required' => true,
+            'matched' => false,
+            'expiry_date' => null,
+            'anchor_date' => $anchorText,
+            'minimum_validity_days' => $minimumDays,
+            'remaining_days' => null,
+            'failure_reason' => 'expiry_missing',
+        ];
+    }
+
+    try {
+        $expiry = new DateTimeImmutable($expiryText);
+        $anchor = new DateTimeImmutable($anchorText);
+    } catch (Exception) {
+        return [
+            'required' => true,
+            'matched' => false,
+            'expiry_date' => $expiryText,
+            'anchor_date' => $anchorText,
+            'minimum_validity_days' => $minimumDays,
+            'remaining_days' => null,
+            'failure_reason' => 'expiry_invalid',
+        ];
+    }
+
+    $remainingDays = (int) floor(($expiry->getTimestamp() - $anchor->getTimestamp()) / 86400);
+    $matched = $remainingDays >= $minimumDays;
+
+    return [
+        'required' => true,
+        'matched' => $matched,
+        'expiry_date' => $expiryText,
+        'anchor_date' => $anchorText,
+        'minimum_validity_days' => $minimumDays,
+        'remaining_days' => $remainingDays,
+        'failure_reason' => $matched ? null : 'validity_below_requirement',
+    ];
+}
+
 function cpg_candidate_search_match_level(array $blockers, bool $rankMatched, bool $vesselTypeMatched, bool $availabilityMatched): string {
     if ($blockers !== []) {
         return 'blocked';
@@ -4344,6 +4404,8 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
             vr.join_date,
             vr.contract_duration_value,
             vr.contract_duration_unit,
+            vr.required_passport_validity_days,
+            vr.required_medical_validity_days,
             vr.publication_status,
             ec.company_name,
             ec.verification_status,
@@ -4477,11 +4539,65 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
             $matchedDimensions[] = 'availability';
         }
 
+        $demandDepartment = cpg_candidate_search_normalized_text($vacancy['department'] ?? null);
+        $candidateDepartment = cpg_candidate_search_normalized_text($row['department'] ?? null);
+        $departmentMatched = null;
+        if ($demandDepartment !== null) {
+            $departmentMatched = $candidateDepartment !== null && $candidateDepartment === $demandDepartment;
+            if ($departmentMatched) {
+                $matchedDimensions[] = 'department';
+            } elseif ($candidateDepartment === null) {
+                cpg_candidate_search_add_issue($blockers, 'candidate_department_missing', 'Candidate department is missing for a department-specific vacancy');
+            } else {
+                cpg_candidate_search_add_issue($blockers, 'department_mismatch', 'Candidate department does not match the vacancy department');
+            }
+        }
+
         if (($row['review_status'] ?? '') !== 'approved') {
             cpg_candidate_search_add_issue($blockers, 'candidate_not_approved', 'Candidate profile is not approved for matching review');
         }
 
         $documentSummary = cpg_seafarer_public_document_summary($row['document_metadata'] ?? null);
+        $passportValidity = cpg_candidate_search_expiry_validity(
+            $documentSummary['passport_expiry'] ?? null,
+            $vacancy['join_date'] ?? null,
+            $vacancy['required_passport_validity_days'] ?? null
+        );
+        if (($passportValidity['required'] ?? false) === true) {
+            if (($passportValidity['matched'] ?? false) === true) {
+                $matchedDimensions[] = 'passport_validity';
+            } elseif (($passportValidity['failure_reason'] ?? '') === 'expiry_missing' || ($passportValidity['failure_reason'] ?? '') === 'expiry_invalid') {
+                cpg_candidate_search_add_issue($blockers, 'passport_expiry_missing', 'Candidate passport expiry is missing or invalid for the vacancy validity threshold', [
+                    'minimum_validity_days' => $passportValidity['minimum_validity_days'] ?? null,
+                ]);
+            } else {
+                cpg_candidate_search_add_issue($blockers, 'passport_validity_below_requirement', 'Candidate passport validity is below the vacancy requirement', [
+                    'minimum_validity_days' => $passportValidity['minimum_validity_days'] ?? null,
+                    'remaining_days' => $passportValidity['remaining_days'] ?? null,
+                ]);
+            }
+        }
+
+        $medicalValidity = cpg_candidate_search_expiry_validity(
+            $documentSummary['medical_expiry'] ?? null,
+            $vacancy['join_date'] ?? null,
+            $vacancy['required_medical_validity_days'] ?? null
+        );
+        if (($medicalValidity['required'] ?? false) === true) {
+            if (($medicalValidity['matched'] ?? false) === true) {
+                $matchedDimensions[] = 'medical_validity';
+            } elseif (($medicalValidity['failure_reason'] ?? '') === 'expiry_missing' || ($medicalValidity['failure_reason'] ?? '') === 'expiry_invalid') {
+                cpg_candidate_search_add_issue($blockers, 'medical_expiry_missing', 'Candidate medical expiry is missing or invalid for the vacancy validity threshold', [
+                    'minimum_validity_days' => $medicalValidity['minimum_validity_days'] ?? null,
+                ]);
+            } else {
+                cpg_candidate_search_add_issue($blockers, 'medical_validity_below_requirement', 'Candidate medical validity is below the vacancy requirement', [
+                    'minimum_validity_days' => $medicalValidity['minimum_validity_days'] ?? null,
+                    'remaining_days' => $medicalValidity['remaining_days'] ?? null,
+                ]);
+            }
+        }
+
         foreach (['certificate_status', 'stcw_status'] as $documentField) {
             if (!cpg_readiness_status_is_ready($documentSummary[$documentField] ?? null)) {
                 cpg_candidate_search_add_issue($warnings, 'document_readiness_not_ready', 'Candidate document readiness should be reviewed before presentation', [
@@ -4536,6 +4652,14 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
                     'candidate_date' => $row['availability_date'],
                     'vacancy_join_date' => $vacancy['join_date'],
                 ],
+                'department' => [
+                    'required' => $demandDepartment !== null,
+                    'matched' => $departmentMatched,
+                    'demand_department' => $vacancy['department'] ?? null,
+                    'candidate_department' => $row['department'] ?? null,
+                ],
+                'passport_validity' => $passportValidity,
+                'medical_validity' => $medicalValidity,
             ],
             'side_effects' => [
                 'vacancy_application_created' => false,
@@ -4559,7 +4683,7 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
         'ok' => true,
         'vacancy_request_id' => $vacancyRequestId,
         'access_model' => 'temporary_operator_token',
-        'search_model' => 'cpg-demand-006-read-only-exact-foundation',
+        'search_model' => 'cpg-demand-008-read-only-input-expanded',
         'search_scope' => 'operator_internal_only',
         'side_effects' => [
             'creates_vacancy_applications' => false,
@@ -4578,6 +4702,8 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
             'vessel_type_value_id' => $vacancy['vessel_type_value_id'],
             'vessel_type_label' => $vacancy['vessel_type_label'],
             'join_date' => $vacancy['join_date'],
+            'required_passport_validity_days' => $vacancy['required_passport_validity_days'] ?? null,
+            'required_medical_validity_days' => $vacancy['required_medical_validity_days'] ?? null,
             'publication_status' => $vacancy['publication_status'],
             'company_name' => $vacancy['company_name'],
             'company_verification_status' => $vacancy['verification_status'],
