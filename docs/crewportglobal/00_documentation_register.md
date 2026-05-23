@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.50
+- Version: 1.51
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -257,6 +257,7 @@ docs/crewportglobal/
   168_cpg_demand_005_additive_matching_foundation_report.md
   169_cpg_demand_006_read_only_candidate_search_report.md
   170_cpg_demand_007_operator_candidate_search_ui_report.md
+  171_cpg_demand_008_candidate_search_input_expansion_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -503,6 +504,8 @@ Document 169 records the CPG-DEMAND-006 read-only internal candidate search prot
 
 Document 170 records the CPG-DEMAND-007 operator candidate-search UI implementation, including the `/verify/` vacancy-detail search panel, manual read-only candidate search action, safe match-summary rendering, sensitive candidate contact exclusion and focused UI verification.
 
+Document 171 records the CPG-DEMAND-008 read-only candidate-search input expansion, including department matching, passport and medical validity threshold checks, new blocker codes, data-minimized document-summary use, no-side-effect boundary and focused verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -606,6 +609,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.51 | 2026-05-23 | GTC IT / AI Assistant | Added document 171 for CPG-DEMAND-008 covering read-only candidate-search input expansion with department matching, passport/medical validity thresholds, new blocker codes, data-minimized document-summary use and no-side-effect verification |
 | 1.50 | 2026-05-23 | GTC IT / AI Assistant | Added document 170 for CPG-DEMAND-007 covering the operator candidate-search UI panel on `/verify/`, manual read-only search, safe match summaries, sensitive candidate contact exclusion and focused UI verification |
 | 1.49 | 2026-05-23 | GTC IT / AI Assistant | Added document 169 for CPG-DEMAND-006 covering the read-only internal candidate search prototype, operator-only endpoint, exact catalog-backed matching dimensions, match levels, blocker codes, data-minimized payloads and no-side-effect verification |
 | 1.48 | 2026-05-23 | GTC IT / AI Assistant | Added document 168 for CPG-DEMAND-005 covering additive demand matching foundation implementation, migration 014, demand catalog links, demand workspace compatibility, structured duration fields, requirement items, backend/API behavior, GTC1 backfill counts and focused verification |
