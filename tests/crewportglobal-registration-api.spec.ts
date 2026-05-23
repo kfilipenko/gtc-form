@@ -273,6 +273,172 @@ INSERT INTO crewportglobal.uploaded_documents (
   );
 }
 
+function insertCandidateSearchStructuredEvidence(draftId: string): void {
+  const safeDraftId = draftId.replace(/'/g, "''");
+  const sql = `
+WITH profile AS (
+  SELECT seafarer_profile_id, user_id
+  FROM crewportglobal.seafarer_profiles
+  WHERE user_id = '${safeDraftId}'::uuid
+  LIMIT 1
+),
+coc_value AS (
+  SELECT rv.reference_value_id
+  FROM crewportglobal.reference_catalog_values rv
+  JOIN crewportglobal.reference_catalogs rc ON rc.reference_catalog_id = rv.reference_catalog_id
+  WHERE rc.catalog_code = 'certificate_of_competence_types'
+    AND lower(rv.display_name) = lower('Chief Officer')
+  LIMIT 1
+),
+training_value AS (
+  SELECT rv.reference_value_id
+  FROM crewportglobal.reference_catalog_values rv
+  JOIN crewportglobal.reference_catalogs rc ON rc.reference_catalog_id = rv.reference_catalog_id
+  WHERE rc.catalog_code = 'training_course_types'
+    AND lower(rv.display_name) = lower('Basic Safety Training')
+  LIMIT 1
+),
+rank_value AS (
+  SELECT rv.reference_value_id
+  FROM crewportglobal.reference_catalog_values rv
+  JOIN crewportglobal.reference_catalogs rc ON rc.reference_catalog_id = rv.reference_catalog_id
+  WHERE rc.catalog_code = 'seafarer_positions'
+    AND lower(rv.display_name) = lower('Chief Officer')
+  LIMIT 1
+),
+vessel_type_value AS (
+  SELECT rv.reference_value_id
+  FROM crewportglobal.reference_catalog_values rv
+  JOIN crewportglobal.reference_catalogs rc ON rc.reference_catalog_id = rv.reference_catalog_id
+  WHERE rc.catalog_code = 'vessel_types'
+    AND lower(rv.display_name) = lower('Bulk Carrier')
+  LIMIT 1
+)
+INSERT INTO crewportglobal.seafarer_certificates (
+  seafarer_profile_id,
+  user_id,
+  source_draft_id,
+  certificate_group,
+  certificate_type_value_id,
+  certificate_type_label,
+  certificate_number,
+  expires_at,
+  record_state,
+  review_status,
+  metadata
+)
+SELECT profile.seafarer_profile_id,
+       profile.user_id,
+       profile.user_id,
+       'competency',
+       coc_value.reference_value_id,
+       'Chief Officer',
+       'TEST-COC-STRUCTURED',
+       '2029-12-31'::date,
+       'active',
+       'verified',
+       '{"test_control":"CPG-DEMAND-010"}'::jsonb
+FROM profile, coc_value;
+
+WITH profile AS (
+  SELECT seafarer_profile_id, user_id
+  FROM crewportglobal.seafarer_profiles
+  WHERE user_id = '${safeDraftId}'::uuid
+  LIMIT 1
+),
+training_value AS (
+  SELECT rv.reference_value_id
+  FROM crewportglobal.reference_catalog_values rv
+  JOIN crewportglobal.reference_catalogs rc ON rc.reference_catalog_id = rv.reference_catalog_id
+  WHERE rc.catalog_code = 'training_course_types'
+    AND lower(rv.display_name) = lower('Basic Safety Training')
+  LIMIT 1
+)
+INSERT INTO crewportglobal.seafarer_training_records (
+  seafarer_profile_id,
+  user_id,
+  source_draft_id,
+  training_type_value_id,
+  training_type_label,
+  certificate_number,
+  expires_at,
+  record_state,
+  review_status,
+  metadata
+)
+SELECT profile.seafarer_profile_id,
+       profile.user_id,
+       profile.user_id,
+       training_value.reference_value_id,
+       'Basic Safety Training',
+       'TEST-TRAINING-STRUCTURED',
+       '2029-12-31'::date,
+       'active',
+       'verified',
+       '{"test_control":"CPG-DEMAND-010"}'::jsonb
+FROM profile, training_value;
+
+WITH profile AS (
+  SELECT seafarer_profile_id, user_id
+  FROM crewportglobal.seafarer_profiles
+  WHERE user_id = '${safeDraftId}'::uuid
+  LIMIT 1
+),
+rank_value AS (
+  SELECT rv.reference_value_id
+  FROM crewportglobal.reference_catalog_values rv
+  JOIN crewportglobal.reference_catalogs rc ON rc.reference_catalog_id = rv.reference_catalog_id
+  WHERE rc.catalog_code = 'seafarer_positions'
+    AND lower(rv.display_name) = lower('Chief Officer')
+  LIMIT 1
+),
+vessel_type_value AS (
+  SELECT rv.reference_value_id
+  FROM crewportglobal.reference_catalog_values rv
+  JOIN crewportglobal.reference_catalogs rc ON rc.reference_catalog_id = rv.reference_catalog_id
+  WHERE rc.catalog_code = 'vessel_types'
+    AND lower(rv.display_name) = lower('Bulk Carrier')
+  LIMIT 1
+)
+INSERT INTO crewportglobal.seafarer_sea_service_records (
+  seafarer_profile_id,
+  user_id,
+  source_draft_id,
+  vessel_name,
+  vessel_type_value_id,
+  vessel_type_label,
+  rank_value_id,
+  rank_label,
+  department,
+  service_from,
+  service_to,
+  record_state,
+  review_status,
+  metadata
+)
+SELECT profile.seafarer_profile_id,
+       profile.user_id,
+       profile.user_id,
+       'MV Structured Evidence',
+       vessel_type_value.reference_value_id,
+       'Bulk Carrier',
+       rank_value.reference_value_id,
+       'Chief Officer',
+       'deck',
+       '2024-01-01'::date,
+       '2026-02-01'::date,
+       'active',
+       'verified',
+       '{"test_control":"CPG-DEMAND-010"}'::jsonb
+FROM profile, rank_value, vessel_type_value;
+`;
+
+  execSync(
+    'PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -v ON_ERROR_STOP=1 -q',
+    { input: sql, encoding: 'utf8' }
+  );
+}
+
 function cleanupApiTestData(): void {
   cleanupUploadedApiDocuments();
 
@@ -1334,6 +1500,9 @@ test('operator candidate search returns read-only exact matches and blockers', a
         employer_country_code: 'AE',
         required_passport_validity_days: 180,
         required_medical_validity_days: 90,
+        required_coc_values: ['Chief Officer'],
+        required_training_values: ['Basic Safety Training'],
+        required_sea_service_months: [{ months: 12, rank: 'Chief Officer', vessel_type: 'Bulk Carrier' }],
         requirements: 'COC, bulk carrier experience and valid medical certificate.',
       },
     },
@@ -1388,6 +1557,7 @@ test('operator candidate search returns read-only exact matches and blockers', a
     },
   });
   expect(exactApproval.status()).toBe(200);
+  insertCandidateSearchStructuredEvidence(exact.draft_id);
 
   const mismatchCreate = await request.post('/registration/drafts', {
     data: {
@@ -1456,7 +1626,7 @@ test('operator candidate search returns read-only exact matches and blockers', a
   };
 
   expect(search.ok).toBe(true);
-  expect(search.search_model).toBe('cpg-demand-008-read-only-input-expanded');
+  expect(search.search_model).toBe('cpg-demand-010-structured-requirement-evaluator');
   expect(search.side_effects).toEqual(
     expect.objectContaining({
       creates_vacancy_applications: false,
@@ -1479,7 +1649,17 @@ test('operator candidate search returns read-only exact matches and blockers', a
       display_name: `Exact Candidate ${unique}`,
       primary_rank: 'Chief Officer',
       match_level: 'match_ready',
-      matched_dimensions: ['rank', 'vessel_type', 'availability', 'department', 'passport_validity', 'medical_validity'],
+      matched_dimensions: [
+        'rank',
+        'vessel_type',
+        'availability',
+        'department',
+        'coc_requirements',
+        'training_requirements',
+        'sea_service_requirements',
+        'passport_validity',
+        'medical_validity',
+      ],
       blockers: [],
     })
   );
@@ -1498,6 +1678,24 @@ test('operator candidate search returns read-only exact matches and blockers', a
       department: expect.objectContaining({
         required: true,
         matched: true,
+      }),
+      coc_requirements: expect.objectContaining({
+        required: true,
+        matched: true,
+        required_count: 1,
+        matched_count: 1,
+      }),
+      training_requirements: expect.objectContaining({
+        required: true,
+        matched: true,
+        required_count: 1,
+        matched_count: 1,
+      }),
+      sea_service_requirements: expect.objectContaining({
+        required: true,
+        matched: true,
+        required_count: 1,
+        matched_count: 1,
       }),
       passport_validity: expect.objectContaining({
         required: true,

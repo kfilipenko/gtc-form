@@ -4681,7 +4681,7 @@ function cpg_candidate_search_add_issue(array &$issues, string $code, string $me
     $issues[] = $issue;
 }
 
-function cpg_operator_candidate_search_readiness(array $vacancy): array {
+function cpg_operator_candidate_search_readiness(array $vacancy, array $requirementItems = []): array {
     $blockers = [];
     $warnings = [];
 
@@ -4712,6 +4712,24 @@ function cpg_operator_candidate_search_readiness(array $vacancy): array {
             'vacancy_not_published',
             'Vacancy is not published; search results must remain internal'
         );
+    }
+
+    foreach ($requirementItems as $item) {
+        if (!is_array($item) || ($item['requirement_kind'] ?? null) !== 'must_have') {
+            continue;
+        }
+        $group = $item['requirement_group'] ?? null;
+        if (in_array($group, ['visa', 'language', 'general'], true)) {
+            cpg_candidate_search_add_issue(
+                $warnings,
+                'structured_requirement_manual_review_required',
+                'Some structured demand requirements are captured but not yet used as automatic blockers',
+                [
+                    'requirement_group' => $group,
+                    'requirement_key' => $item['requirement_key'] ?? null,
+                ]
+            );
+        }
     }
 
     return [
@@ -4795,6 +4813,198 @@ function cpg_candidate_search_expiry_validity(?string $expiryDate, ?string $anch
     ];
 }
 
+function cpg_candidate_search_requirement_items(array $items, string $group, string $kind = 'must_have'): array {
+    return array_values(array_filter($items, static function (array $item) use ($group, $kind): bool {
+        return ($item['requirement_group'] ?? null) === $group
+            && ($item['requirement_kind'] ?? null) === $kind
+            && ($item['record_state'] ?? 'active') === 'active';
+    }));
+}
+
+function cpg_candidate_search_text_matches(mixed $left, mixed $right): bool {
+    $leftText = cpg_candidate_search_normalized_text($left);
+    $rightText = cpg_candidate_search_normalized_text($right);
+    return $leftText !== null && $rightText !== null && $leftText === $rightText;
+}
+
+function cpg_candidate_search_value_matches(?string $requiredValueId, ?string $requiredLabel, array $candidateItem): bool {
+    $candidateValueId = is_string($candidateItem['value_id'] ?? null) ? (string) $candidateItem['value_id'] : null;
+    if ($requiredValueId !== null && $candidateValueId !== null && strcasecmp($requiredValueId, $candidateValueId) === 0) {
+        return true;
+    }
+
+    return cpg_candidate_search_text_matches($requiredLabel, $candidateItem['label'] ?? null);
+}
+
+function cpg_candidate_search_catalog_requirements(array $requiredItems, array $candidateItems): array {
+    if ($requiredItems === []) {
+        return [
+            'required' => false,
+            'matched' => null,
+            'required_count' => 0,
+            'matched_count' => 0,
+            'missing' => [],
+        ];
+    }
+
+    $missing = [];
+    $matched = [];
+    foreach ($requiredItems as $requiredItem) {
+        $requiredValueId = is_string($requiredItem['reference_value_id'] ?? null) ? (string) $requiredItem['reference_value_id'] : null;
+        $requiredLabel = is_string($requiredItem['requirement_label'] ?? null) ? (string) $requiredItem['requirement_label'] : null;
+        $hasMatch = false;
+        foreach ($candidateItems as $candidateItem) {
+            if (!is_array($candidateItem)) {
+                continue;
+            }
+            if (cpg_candidate_search_value_matches($requiredValueId, $requiredLabel, $candidateItem)) {
+                $hasMatch = true;
+                break;
+            }
+        }
+        if ($hasMatch) {
+            $matched[] = [
+                'requirement_key' => $requiredItem['requirement_key'] ?? null,
+                'requirement_label' => $requiredLabel,
+                'reference_value_id' => $requiredValueId,
+            ];
+        } else {
+            $missing[] = [
+                'requirement_key' => $requiredItem['requirement_key'] ?? null,
+                'requirement_label' => $requiredLabel,
+                'reference_catalog_code' => $requiredItem['reference_catalog_code'] ?? null,
+                'reference_value_id' => $requiredValueId,
+            ];
+        }
+    }
+
+    return [
+        'required' => true,
+        'matched' => $missing === [],
+        'required_count' => count($requiredItems),
+        'matched_count' => count($matched),
+        'missing' => $missing,
+        'matched_requirements' => $matched,
+    ];
+}
+
+function cpg_candidate_search_service_months(mixed $serviceFrom, mixed $serviceTo): int {
+    if (!is_string($serviceFrom) || !is_string($serviceTo) || trim($serviceFrom) === '' || trim($serviceTo) === '') {
+        return 0;
+    }
+
+    try {
+        $from = new DateTimeImmutable($serviceFrom);
+        $to = new DateTimeImmutable($serviceTo);
+    } catch (Exception) {
+        return 0;
+    }
+
+    if ($to < $from) {
+        return 0;
+    }
+
+    $diff = $from->diff($to);
+    $months = ($diff->y * 12) + $diff->m;
+    if ($diff->d >= 15) {
+        $months++;
+    }
+
+    return max(0, $months);
+}
+
+function cpg_candidate_search_sea_service_record_matches(array $requiredItem, array $candidateItem): bool {
+    $metadata = is_array($requiredItem['metadata'] ?? null) ? $requiredItem['metadata'] : [];
+
+    $requiredRankValueId = is_string($metadata['rank_value_id'] ?? null) ? (string) $metadata['rank_value_id'] : null;
+    $requiredRankLabel = is_string($metadata['rank'] ?? null) ? (string) $metadata['rank'] : null;
+    if ($requiredRankValueId !== null || $requiredRankLabel !== null) {
+        if (!cpg_candidate_search_value_matches($requiredRankValueId, $requiredRankLabel, [
+            'value_id' => $candidateItem['rank_value_id'] ?? null,
+            'label' => $candidateItem['rank_label'] ?? null,
+        ])) {
+            return false;
+        }
+    }
+
+    $requiredVesselTypeValueId = is_string($metadata['vessel_type_value_id'] ?? null) ? (string) $metadata['vessel_type_value_id'] : null;
+    $requiredVesselTypeLabel = is_string($metadata['vessel_type'] ?? null) ? (string) $metadata['vessel_type'] : null;
+    if ($requiredVesselTypeValueId !== null || $requiredVesselTypeLabel !== null) {
+        if (!cpg_candidate_search_value_matches($requiredVesselTypeValueId, $requiredVesselTypeLabel, [
+            'value_id' => $candidateItem['vessel_type_value_id'] ?? null,
+            'label' => $candidateItem['vessel_type_label'] ?? null,
+        ])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function cpg_candidate_search_sea_service_requirements(array $requiredItems, array $candidateItems): array {
+    if ($requiredItems === []) {
+        return [
+            'required' => false,
+            'matched' => null,
+            'required_count' => 0,
+            'matched_count' => 0,
+            'missing' => [],
+        ];
+    }
+
+    $missing = [];
+    $matched = [];
+    foreach ($requiredItems as $requiredItem) {
+        $metadata = is_array($requiredItem['metadata'] ?? null) ? $requiredItem['metadata'] : [];
+        $minimumMonths = normalize_nonnegative_integer_value($metadata['minimum_months'] ?? null);
+        if ($minimumMonths === null) {
+            $missing[] = [
+                'requirement_key' => $requiredItem['requirement_key'] ?? null,
+                'requirement_label' => $requiredItem['requirement_label'] ?? null,
+                'reason' => 'minimum_months_missing',
+            ];
+            continue;
+        }
+
+        $matchedMonths = 0;
+        foreach ($candidateItems as $candidateItem) {
+            if (!is_array($candidateItem) || !cpg_candidate_search_sea_service_record_matches($requiredItem, $candidateItem)) {
+                continue;
+            }
+            $matchedMonths += cpg_candidate_search_service_months(
+                $candidateItem['service_from'] ?? null,
+                $candidateItem['service_to'] ?? null
+            );
+        }
+
+        if ($matchedMonths >= $minimumMonths) {
+            $matched[] = [
+                'requirement_key' => $requiredItem['requirement_key'] ?? null,
+                'requirement_label' => $requiredItem['requirement_label'] ?? null,
+                'minimum_months' => $minimumMonths,
+                'matched_months' => $matchedMonths,
+            ];
+        } else {
+            $missing[] = [
+                'requirement_key' => $requiredItem['requirement_key'] ?? null,
+                'requirement_label' => $requiredItem['requirement_label'] ?? null,
+                'minimum_months' => $minimumMonths,
+                'matched_months' => $matchedMonths,
+                'reason' => 'matched_months_below_requirement',
+            ];
+        }
+    }
+
+    return [
+        'required' => true,
+        'matched' => $missing === [],
+        'required_count' => count($requiredItems),
+        'matched_count' => count($matched),
+        'missing' => $missing,
+        'matched_requirements' => $matched,
+    ];
+}
+
 function cpg_candidate_search_match_level(array $blockers, bool $rankMatched, bool $vesselTypeMatched, bool $availabilityMatched): string {
     if ($blockers !== []) {
         return 'blocked';
@@ -4848,7 +5058,12 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
         return null;
     }
 
-    $demandReadiness = cpg_operator_candidate_search_readiness($vacancy);
+    $requirementItems = read_demand_requirement_items($vacancyRequestId);
+    $cocRequirements = cpg_candidate_search_requirement_items($requirementItems, 'coc');
+    $endorsementRequirements = cpg_candidate_search_requirement_items($requirementItems, 'endorsement');
+    $trainingRequirements = cpg_candidate_search_requirement_items($requirementItems, 'training');
+    $seaServiceRequirements = cpg_candidate_search_requirement_items($requirementItems, 'sea_service');
+    $demandReadiness = cpg_operator_candidate_search_readiness($vacancy, $requirementItems);
     $result = api_query(
         "SELECT
             sp.user_id,
@@ -4863,6 +5078,9 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
             rank_ref.reference_value_id AS primary_rank_value_id,
             rank_ref.value_code AS primary_rank_value_code,
             rank_ref.display_name AS primary_rank_catalog_display,
+            COALESCE(certificates.certificate_items, '[]'::jsonb) AS certificate_items,
+            COALESCE(training.training_items, '[]'::jsonb) AS training_items,
+            COALESCE(service_records.sea_service_items, '[]'::jsonb) AS sea_service_items,
             COALESCE(preferred_vessel.preferred_vessel_type_match, FALSE) AS preferred_vessel_type_match,
             COALESCE(sea_service.sea_service_vessel_type_match, FALSE) AS sea_service_vessel_type_match,
             existing_application.application_status AS existing_application_status
@@ -4879,6 +5097,55 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
              ORDER BY rv.sort_order ASC, rv.display_name ASC
              LIMIT 1
          ) rank_ref ON TRUE
+         LEFT JOIN LATERAL (
+             SELECT jsonb_agg(
+                 jsonb_build_object(
+                   'group', sc.certificate_group,
+                   'value_id', sc.certificate_type_value_id,
+                   'label', sc.certificate_type_label,
+                   'expires_at', sc.expires_at,
+                   'review_status', sc.review_status
+                 )
+                 ORDER BY sc.certificate_group ASC, sc.expires_at DESC NULLS LAST, sc.updated_at DESC
+             ) AS certificate_items
+             FROM crewportglobal.seafarer_certificates sc
+             WHERE sc.user_id = sp.user_id
+               AND sc.record_state IN ('submitted', 'active', 'draft')
+               AND sc.review_status <> 'rejected'
+         ) certificates ON TRUE
+         LEFT JOIN LATERAL (
+             SELECT jsonb_agg(
+                 jsonb_build_object(
+                   'value_id', str.training_type_value_id,
+                   'label', str.training_type_label,
+                   'expires_at', str.expires_at,
+                   'review_status', str.review_status
+                 )
+                 ORDER BY str.expires_at DESC NULLS LAST, str.updated_at DESC
+             ) AS training_items
+             FROM crewportglobal.seafarer_training_records str
+             WHERE str.user_id = sp.user_id
+               AND str.record_state IN ('submitted', 'active', 'draft')
+               AND str.review_status <> 'rejected'
+         ) training ON TRUE
+         LEFT JOIN LATERAL (
+             SELECT jsonb_agg(
+                 jsonb_build_object(
+                   'vessel_type_value_id', ssr.vessel_type_value_id,
+                   'vessel_type_label', ssr.vessel_type_label,
+                   'rank_value_id', ssr.rank_value_id,
+                   'rank_label', ssr.rank_label,
+                   'service_from', ssr.service_from,
+                   'service_to', ssr.service_to,
+                   'review_status', ssr.review_status
+                 )
+                 ORDER BY ssr.service_to DESC NULLS LAST, ssr.service_from DESC NULLS LAST, ssr.updated_at DESC
+             ) AS sea_service_items
+             FROM crewportglobal.seafarer_sea_service_records ssr
+             WHERE ssr.user_id = sp.user_id
+               AND ssr.record_state IN ('submitted', 'active', 'draft')
+               AND ssr.review_status <> 'rejected'
+         ) service_records ON TRUE
          LEFT JOIN LATERAL (
              SELECT TRUE AS preferred_vessel_type_match
              FROM jsonb_array_elements_text(
@@ -4985,6 +5252,60 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
         }
 
         $documentSummary = cpg_seafarer_public_document_summary($row['document_metadata'] ?? null);
+        $certificateItems = cpg_decode_json_array_field($row['certificate_items'] ?? null);
+        $competencyItems = array_values(array_filter($certificateItems, static function (array $item): bool {
+            return ($item['group'] ?? null) !== 'endorsement';
+        }));
+        $endorsementItems = array_values(array_filter($certificateItems, static function (array $item): bool {
+            return ($item['group'] ?? null) === 'endorsement';
+        }));
+        $trainingItems = cpg_decode_json_array_field($row['training_items'] ?? null);
+        $seaServiceItems = cpg_decode_json_array_field($row['sea_service_items'] ?? null);
+
+        $cocRequirementResult = cpg_candidate_search_catalog_requirements($cocRequirements, $competencyItems);
+        if (($cocRequirementResult['required'] ?? false) === true) {
+            if (($cocRequirementResult['matched'] ?? false) === true) {
+                $matchedDimensions[] = 'coc_requirements';
+            } else {
+                cpg_candidate_search_add_issue($blockers, 'coc_requirement_missing', 'Candidate does not satisfy one or more required COC requirements', [
+                    'missing' => $cocRequirementResult['missing'] ?? [],
+                ]);
+            }
+        }
+
+        $endorsementRequirementResult = cpg_candidate_search_catalog_requirements($endorsementRequirements, $endorsementItems);
+        if (($endorsementRequirementResult['required'] ?? false) === true) {
+            if (($endorsementRequirementResult['matched'] ?? false) === true) {
+                $matchedDimensions[] = 'endorsement_requirements';
+            } else {
+                cpg_candidate_search_add_issue($blockers, 'endorsement_requirement_missing', 'Candidate does not satisfy one or more required endorsement requirements', [
+                    'missing' => $endorsementRequirementResult['missing'] ?? [],
+                ]);
+            }
+        }
+
+        $trainingRequirementResult = cpg_candidate_search_catalog_requirements($trainingRequirements, $trainingItems);
+        if (($trainingRequirementResult['required'] ?? false) === true) {
+            if (($trainingRequirementResult['matched'] ?? false) === true) {
+                $matchedDimensions[] = 'training_requirements';
+            } else {
+                cpg_candidate_search_add_issue($blockers, 'training_requirement_missing', 'Candidate does not satisfy one or more required training requirements', [
+                    'missing' => $trainingRequirementResult['missing'] ?? [],
+                ]);
+            }
+        }
+
+        $seaServiceRequirementResult = cpg_candidate_search_sea_service_requirements($seaServiceRequirements, $seaServiceItems);
+        if (($seaServiceRequirementResult['required'] ?? false) === true) {
+            if (($seaServiceRequirementResult['matched'] ?? false) === true) {
+                $matchedDimensions[] = 'sea_service_requirements';
+            } else {
+                cpg_candidate_search_add_issue($blockers, 'sea_service_months_below_requirement', 'Candidate sea-service evidence is below the structured demand requirement', [
+                    'missing' => $seaServiceRequirementResult['missing'] ?? [],
+                ]);
+            }
+        }
+
         $passportValidity = cpg_candidate_search_expiry_validity(
             $documentSummary['passport_expiry'] ?? null,
             $vacancy['join_date'] ?? null,
@@ -5085,6 +5406,10 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
                     'demand_department' => $vacancy['department'] ?? null,
                     'candidate_department' => $row['department'] ?? null,
                 ],
+                'coc_requirements' => $cocRequirementResult,
+                'endorsement_requirements' => $endorsementRequirementResult,
+                'training_requirements' => $trainingRequirementResult,
+                'sea_service_requirements' => $seaServiceRequirementResult,
                 'passport_validity' => $passportValidity,
                 'medical_validity' => $medicalValidity,
             ],
@@ -5110,7 +5435,7 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
         'ok' => true,
         'vacancy_request_id' => $vacancyRequestId,
         'access_model' => 'temporary_operator_token',
-        'search_model' => 'cpg-demand-008-read-only-input-expanded',
+        'search_model' => 'cpg-demand-010-structured-requirement-evaluator',
         'search_scope' => 'operator_internal_only',
         'side_effects' => [
             'creates_vacancy_applications' => false,
@@ -5138,7 +5463,7 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
             'demand_matching_foundation' => demand_matching_foundation_summary($vacancy),
         ],
         'demand_readiness' => $demandReadiness,
-        'requirement_items' => read_demand_requirement_items($vacancyRequestId),
+        'requirement_items' => $requirementItems,
         'candidates' => $limitedCandidates,
         'count' => count($limitedCandidates),
         'total_considered' => count($candidates),
