@@ -3988,6 +3988,362 @@ function normalize_json_object_payload(mixed $value): array {
     return is_array($value) ? $value : [];
 }
 
+function normalize_demand_requirement_kind(mixed $value): string {
+    if (!is_string($value)) {
+        return 'must_have';
+    }
+
+    $kind = strtolower(trim(str_replace('-', '_', $value)));
+    return match ($kind) {
+        'nice_to_have', 'nice', 'optional', 'preferred' => 'nice_to_have',
+        'disqualifying', 'disqualifier', 'exclude', 'blocked' => 'disqualifying',
+        default => 'must_have',
+    };
+}
+
+function demand_requirement_catalog_for_group(string $group): ?string {
+    return match ($group) {
+        'rank' => 'seafarer_positions',
+        'vessel_type' => 'vessel_types',
+        'coc' => 'certificate_of_competence_types',
+        'endorsement' => 'national_document_types',
+        'training' => 'training_course_types',
+        'visa' => 'national_document_types',
+        default => null,
+    };
+}
+
+function demand_requirement_key_slug(?string $value): string {
+    if ($value === null || trim($value) === '') {
+        return '';
+    }
+
+    $slug = strtolower(trim($value));
+    $slug = preg_replace('/[^a-z0-9]+/', '_', $slug) ?? '';
+    $slug = trim($slug, '_');
+    return substr($slug, 0, 80);
+}
+
+function normalize_demand_requirement_key(
+    string $group,
+    string $kind,
+    ?string $label,
+    array $metadata,
+    int $index
+): string {
+    $slugSource = $label;
+    if (($slugSource === null || trim($slugSource) === '') && isset($metadata['language'])) {
+        $slugSource = (string) $metadata['language'];
+    }
+    if (($slugSource === null || trim($slugSource) === '') && isset($metadata['minimum_months'])) {
+        $slugSource = (string) $metadata['minimum_months'] . '_months';
+    }
+
+    $slug = demand_requirement_key_slug($slugSource);
+    if ($slug === '') {
+        $slug = 'item_' . (string) $index;
+    }
+
+    return substr($group . '_' . $kind . '_' . $slug, 0, 120);
+}
+
+function normalize_requirement_metadata_value(mixed $value): mixed {
+    if (is_string($value)) {
+        return normalize_optional_text($value, 500);
+    }
+    if (is_int($value) || is_float($value) || is_bool($value)) {
+        return $value;
+    }
+    if (is_array($value)) {
+        $normalized = [];
+        foreach ($value as $key => $item) {
+            if (!is_string($key)) {
+                continue;
+            }
+            $normalizedValue = normalize_requirement_metadata_value($item);
+            if ($normalizedValue !== null && $normalizedValue !== '') {
+                $normalized[$key] = $normalizedValue;
+            }
+        }
+        return $normalized;
+    }
+    return null;
+}
+
+function normalize_requirement_metadata(array $source): array {
+    $metadata = [];
+    foreach ($source as $key => $value) {
+        if (!is_string($key)) {
+            continue;
+        }
+        $normalizedValue = normalize_requirement_metadata_value($value);
+        if ($normalizedValue !== null && $normalizedValue !== '' && $normalizedValue !== []) {
+            $metadata[$key] = $normalizedValue;
+        }
+    }
+    return $metadata;
+}
+
+function normalize_demand_requirement_item(
+    string $group,
+    string $kind,
+    ?string $label,
+    array $metadata,
+    string $sourceColumn,
+    int $index
+): ?array {
+    $label = normalize_optional_text($label, 500);
+    if ($label === null && $metadata === []) {
+        return null;
+    }
+
+    $catalogCode = demand_requirement_catalog_for_group($group);
+    $referenceValueId = $catalogCode !== null && $label !== null
+        ? cpg_workspace_reference_value_id($catalogCode, $label)
+        : null;
+
+    return [
+        'requirement_group' => $group,
+        'requirement_kind' => $kind,
+        'requirement_key' => normalize_demand_requirement_key($group, $kind, $label, $metadata, $index),
+        'reference_catalog_code' => $catalogCode,
+        'reference_value_id' => $referenceValueId,
+        'requirement_label' => $label,
+        'minimum_validity_days' => normalize_nonnegative_integer_value($metadata['minimum_validity_days'] ?? null),
+        'source_column' => $sourceColumn,
+        'metadata' => $metadata,
+    ];
+}
+
+function normalize_demand_requirement_list(mixed $value): array {
+    if ($value === null || $value === '') {
+        return [];
+    }
+
+    if (is_array($value)) {
+        if ($value === []) {
+            return [];
+        }
+        $isList = array_keys($value) === range(0, count($value) - 1);
+        return $isList ? $value : [$value];
+    }
+
+    return [$value];
+}
+
+function normalize_labeled_demand_requirements(
+    mixed $value,
+    string $group,
+    string $kind,
+    string $sourceColumn
+): array {
+    $items = [];
+    $index = 0;
+    foreach (normalize_demand_requirement_list($value) as $rawItem) {
+        $index++;
+        $metadata = ['source_column' => $sourceColumn];
+        $label = null;
+        $itemKind = $kind;
+
+        if (is_string($rawItem) || is_numeric($rawItem)) {
+            $label = (string) $rawItem;
+        } elseif (is_array($rawItem)) {
+            $metadata = array_merge($metadata, normalize_requirement_metadata($rawItem));
+            foreach (['requirement_label', 'label', 'display_name', 'name', 'value', 'title'] as $labelKey) {
+                $candidate = normalize_optional_text($rawItem[$labelKey] ?? null, 500);
+                if ($candidate !== null) {
+                    $label = $candidate;
+                    break;
+                }
+            }
+            $itemKind = normalize_demand_requirement_kind($rawItem['requirement_kind'] ?? $rawItem['kind'] ?? $kind);
+        }
+
+        $item = normalize_demand_requirement_item($group, $itemKind, $label, $metadata, $sourceColumn, $index);
+        if ($item !== null) {
+            $items[] = $item;
+        }
+    }
+
+    return $items;
+}
+
+function normalize_language_demand_requirements(mixed $value, string $sourceColumn): array {
+    $items = [];
+    $index = 0;
+    foreach (normalize_demand_requirement_list($value) as $rawItem) {
+        $index++;
+        $metadata = ['source_column' => $sourceColumn];
+        $label = null;
+        $kind = 'must_have';
+
+        if (is_string($rawItem)) {
+            $label = $rawItem;
+            $metadata['language'] = $rawItem;
+        } elseif (is_array($rawItem)) {
+            $metadata = array_merge($metadata, normalize_requirement_metadata($rawItem));
+            $language = normalize_optional_text($rawItem['language'] ?? $rawItem['name'] ?? $rawItem['value'] ?? null, 120);
+            $level = normalize_optional_text($rawItem['level'] ?? $rawItem['required_level'] ?? null, 120);
+            $kind = normalize_demand_requirement_kind($rawItem['requirement_kind'] ?? $rawItem['kind'] ?? null);
+            if ($language !== null) {
+                $metadata['language'] = $language;
+            }
+            if ($level !== null) {
+                $metadata['level'] = $level;
+            }
+            $label = trim(implode(' ', array_filter([$language, $level], static fn ($part): bool => $part !== null && $part !== '')));
+        }
+
+        $item = normalize_demand_requirement_item('language', $kind, $label, $metadata, $sourceColumn, $index);
+        if ($item !== null) {
+            $items[] = $item;
+        }
+    }
+
+    return $items;
+}
+
+function normalize_sea_service_demand_requirements(mixed $value, string $sourceColumn): array {
+    $items = [];
+    $index = 0;
+    foreach (normalize_demand_requirement_list($value) as $rawItem) {
+        $index++;
+        $metadata = ['source_column' => $sourceColumn];
+        $kind = 'must_have';
+        $months = null;
+        $rank = null;
+        $vesselType = null;
+
+        if (is_numeric($rawItem)) {
+            $months = normalize_nonnegative_integer_value($rawItem);
+        } elseif (is_array($rawItem)) {
+            $metadata = array_merge($metadata, normalize_requirement_metadata($rawItem));
+            $kind = normalize_demand_requirement_kind($rawItem['requirement_kind'] ?? $rawItem['kind'] ?? null);
+            $months = normalize_nonnegative_integer_value($rawItem['months'] ?? $rawItem['minimum_months'] ?? $rawItem['required_months'] ?? null);
+            $rank = normalize_optional_text($rawItem['rank'] ?? null, 160);
+            $vesselType = normalize_optional_text($rawItem['vessel_type'] ?? null, 160);
+        }
+
+        if ($months !== null) {
+            $metadata['minimum_months'] = $months;
+        }
+        if ($rank !== null) {
+            $metadata['rank'] = $rank;
+            $metadata['rank_value_id'] = cpg_workspace_reference_value_id('seafarer_positions', $rank);
+        }
+        if ($vesselType !== null) {
+            $metadata['vessel_type'] = $vesselType;
+            $metadata['vessel_type_value_id'] = cpg_workspace_reference_value_id('vessel_types', $vesselType);
+        }
+
+        $labelParts = [];
+        if ($months !== null) {
+            $labelParts[] = (string) $months . ' months';
+        }
+        if ($rank !== null) {
+            $labelParts[] = $rank;
+        }
+        if ($vesselType !== null) {
+            $labelParts[] = $vesselType;
+        }
+        $labelParts[] = 'sea service';
+
+        $item = normalize_demand_requirement_item(
+            'sea_service',
+            $kind,
+            implode(' ', $labelParts),
+            $metadata,
+            $sourceColumn,
+            $index
+        );
+        if ($item !== null) {
+            $items[] = $item;
+        }
+    }
+
+    return $items;
+}
+
+function normalize_direct_demand_requirement_items(mixed $value, string $sourceColumn): array {
+    $items = [];
+    $index = 0;
+    foreach (normalize_demand_requirement_list($value) as $rawItem) {
+        if (!is_array($rawItem)) {
+            continue;
+        }
+        $index++;
+        $group = normalize_optional_text($rawItem['requirement_group'] ?? $rawItem['group'] ?? null, 80);
+        if ($group === null || !in_array($group, ['coc', 'endorsement', 'training', 'visa', 'language', 'sea_service', 'general'], true)) {
+            continue;
+        }
+        $kind = normalize_demand_requirement_kind($rawItem['requirement_kind'] ?? $rawItem['kind'] ?? null);
+        $label = normalize_optional_text(
+            $rawItem['requirement_label'] ?? $rawItem['label'] ?? $rawItem['display_name'] ?? $rawItem['value'] ?? null,
+            500
+        );
+        $metadata = array_merge(['source_column' => $sourceColumn], normalize_requirement_metadata($rawItem));
+        $item = normalize_demand_requirement_item($group, $kind, $label, $metadata, $sourceColumn, $index);
+        if ($item !== null) {
+            $items[] = $item;
+        }
+    }
+
+    return $items;
+}
+
+function normalize_demand_requirement_payload_items(array $vacancyBody): array {
+    $fieldMap = [
+        'required_coc_values' => ['coc', 'must_have'],
+        'required_endorsement_values' => ['endorsement', 'must_have'],
+        'required_training_values' => ['training', 'must_have'],
+        'required_visa_values' => ['visa', 'must_have'],
+        'must_have_requirements' => ['general', 'must_have'],
+        'nice_to_have_requirements' => ['general', 'nice_to_have'],
+        'disqualifying_requirements' => ['general', 'disqualifying'],
+    ];
+
+    $provided = false;
+    $items = [];
+    foreach ($fieldMap as $fieldName => [$group, $kind]) {
+        if (array_key_exists($fieldName, $vacancyBody)) {
+            $provided = true;
+            $items = array_merge(
+                $items,
+                normalize_labeled_demand_requirements($vacancyBody[$fieldName], $group, $kind, 'vacancy.' . $fieldName)
+            );
+        }
+    }
+
+    if (array_key_exists('required_language_levels', $vacancyBody)) {
+        $provided = true;
+        $items = array_merge(
+            $items,
+            normalize_language_demand_requirements($vacancyBody['required_language_levels'], 'vacancy.required_language_levels')
+        );
+    }
+
+    if (array_key_exists('required_sea_service_months', $vacancyBody)) {
+        $provided = true;
+        $items = array_merge(
+            $items,
+            normalize_sea_service_demand_requirements($vacancyBody['required_sea_service_months'], 'vacancy.required_sea_service_months')
+        );
+    }
+
+    if (array_key_exists('demand_requirement_items', $vacancyBody)) {
+        $provided = true;
+        $items = array_merge(
+            $items,
+            normalize_direct_demand_requirement_items($vacancyBody['demand_requirement_items'], 'vacancy.demand_requirement_items')
+        );
+    }
+
+    return [
+        'provided' => $provided,
+        'items' => $items,
+    ];
+}
+
 function normalize_vacancy_payload(array $body): ?array {
     $vacancyBody = $body['vacancy'] ?? null;
     if (!is_array($vacancyBody)) {
@@ -4032,6 +4388,9 @@ function normalize_vacancy_payload(array $body): ?array {
     $passportValidityDays = normalize_nonnegative_integer_value($vacancyBody['required_passport_validity_days'] ?? null);
     $seamanBookValidityDays = normalize_nonnegative_integer_value($vacancyBody['required_seaman_book_validity_days'] ?? null);
     $medicalValidityDays = normalize_nonnegative_integer_value($vacancyBody['required_medical_validity_days'] ?? null);
+    $structuredRequirementPayload = normalize_demand_requirement_payload_items($vacancyBody);
+    $structuredRequirementItems = $structuredRequirementPayload['items'];
+    $structuredRequirementsProvided = (bool) $structuredRequirementPayload['provided'];
     $demandWorkspace = normalize_json_object_payload($vacancyBody['demand_workspace'] ?? null);
     $demandWorkspace['legacy'] = array_filter([
         'rank_text' => $rank,
@@ -4039,10 +4398,14 @@ function normalize_vacancy_payload(array $body): ?array {
         'contract_duration_text' => $contractDuration,
         'requirements_text' => $requirements,
     ], static fn ($value): bool => $value !== null && $value !== '');
+    if ($structuredRequirementsProvided) {
+        $demandWorkspace['structured_requirements'] = $structuredRequirementItems;
+    }
     $demandWorkspace['matching_foundation'] = array_filter([
         'required_rank_catalog_linked' => $requiredRankValueId !== null,
         'vessel_type_catalog_linked' => $vesselTypeValueId !== null,
         'contract_duration_structured' => $durationValue !== null && $durationUnit !== null,
+        'structured_requirements_ready' => count($structuredRequirementItems) > 0,
     ], static fn ($value): bool => $value !== null);
 
     $meaningfulValues = [
@@ -4056,6 +4419,7 @@ function normalize_vacancy_payload(array $body): ?array {
         $salaryMaxUsd,
         $salaryText,
         $requirements,
+        count($structuredRequirementItems) > 0 ? 'structured_requirements' : null,
     ];
 
     $hasMeaningfulVacancyData = false;
@@ -4092,11 +4456,16 @@ function normalize_vacancy_payload(array $body): ?array {
         'required_passport_validity_days' => $passportValidityDays,
         'required_seaman_book_validity_days' => $seamanBookValidityDays,
         'required_medical_validity_days' => $medicalValidityDays,
+        'structured_requirements_provided' => $structuredRequirementsProvided,
+        'structured_requirement_items' => $structuredRequirementItems,
         'demand_workspace' => $demandWorkspace,
     ];
 }
 
 function demand_matching_foundation_summary(array $vacancy): array {
+    $demandWorkspace = is_array($vacancy['demand_workspace'] ?? null) ? $vacancy['demand_workspace'] : [];
+    $structuredRequirements = $demandWorkspace['structured_requirements'] ?? null;
+
     return [
         'required_rank_catalog_linked' => !empty($vacancy['required_rank_value_id']),
         'vessel_type_catalog_linked' => !empty($vacancy['vessel_type_value_id']),
@@ -4105,56 +4474,74 @@ function demand_matching_foundation_summary(array $vacancy): array {
         'validity_thresholds_ready' => ($vacancy['required_passport_validity_days'] ?? null) !== null
             || ($vacancy['required_seaman_book_validity_days'] ?? null) !== null
             || ($vacancy['required_medical_validity_days'] ?? null) !== null,
+        'structured_requirements_ready' => is_array($structuredRequirements) && count($structuredRequirements) > 0,
     ];
 }
 
 function upsert_demand_requirement_item(
     string $vacancyRequestId,
     string $requirementGroup,
-    string $catalogCode,
+    ?string $catalogCode,
     ?string $referenceValueId,
     ?string $requirementLabel,
-    string $sourceColumn
+    string $sourceColumn,
+    string $requirementKey = 'primary',
+    string $requirementKind = 'must_have',
+    ?int $minimumValidityDays = null,
+    string $source = 'legacy_mapping',
+    array $metadataExtra = []
 ): void {
     if ($referenceValueId === null && ($requirementLabel === null || trim($requirementLabel) === '')) {
         return;
     }
 
+    $metadata = array_merge(['source_column' => $sourceColumn], $metadataExtra);
+
     api_query(
         "INSERT INTO crewportglobal.demand_requirement_items (
            vacancy_request_id,
            requirement_group,
+           requirement_key,
            requirement_kind,
            reference_catalog_code,
            reference_value_id,
            requirement_label,
+           minimum_validity_days,
            source,
            metadata
          ) VALUES (
            $1,
            $2,
-           'must_have',
            $3,
-           $4::uuid,
+           $4,
            $5,
-           'legacy_mapping',
-           jsonb_build_object('source_column', $6::text)
+           $6::uuid,
+           $7,
+           $8,
+           $9,
+           $10::jsonb
          )
-         ON CONFLICT (vacancy_request_id, requirement_group, source)
+         ON CONFLICT (vacancy_request_id, requirement_group, source, requirement_key)
          WHERE record_state = 'active'
          DO UPDATE SET
+           requirement_kind = EXCLUDED.requirement_kind,
            reference_catalog_code = EXCLUDED.reference_catalog_code,
            reference_value_id = EXCLUDED.reference_value_id,
            requirement_label = EXCLUDED.requirement_label,
+           minimum_validity_days = EXCLUDED.minimum_validity_days,
            metadata = EXCLUDED.metadata,
            updated_at = now()",
         [
             $vacancyRequestId,
             $requirementGroup,
+            $requirementKey,
+            $requirementKind,
             $catalogCode,
             $referenceValueId,
             $requirementLabel,
-            $sourceColumn,
+            $minimumValidityDays,
+            $source,
+            cpg_workspace_json($metadata),
         ]
     );
 }
@@ -4177,6 +4564,39 @@ function sync_demand_requirement_items(string $vacancyRequestId, array $vacancy)
         $vacancy['vessel_type_label'],
         'vacancy_requests.vessel_type'
     );
+
+    if (!($vacancy['structured_requirements_provided'] ?? false)) {
+        return;
+    }
+
+    api_query(
+        "UPDATE crewportglobal.demand_requirement_items
+         SET record_state = 'archived',
+             updated_at = now()
+         WHERE vacancy_request_id = $1
+           AND source = 'operator_structured'
+           AND record_state = 'active'",
+        [$vacancyRequestId]
+    );
+
+    foreach (($vacancy['structured_requirement_items'] ?? []) as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+        upsert_demand_requirement_item(
+            $vacancyRequestId,
+            (string) $item['requirement_group'],
+            is_string($item['reference_catalog_code'] ?? null) ? (string) $item['reference_catalog_code'] : null,
+            is_string($item['reference_value_id'] ?? null) ? (string) $item['reference_value_id'] : null,
+            is_string($item['requirement_label'] ?? null) ? (string) $item['requirement_label'] : null,
+            is_string($item['source_column'] ?? null) ? (string) $item['source_column'] : 'vacancy.structured_requirements',
+            is_string($item['requirement_key'] ?? null) ? (string) $item['requirement_key'] : 'item',
+            normalize_demand_requirement_kind($item['requirement_kind'] ?? null),
+            normalize_nonnegative_integer_value($item['minimum_validity_days'] ?? null),
+            'operator_structured',
+            is_array($item['metadata'] ?? null) ? $item['metadata'] : []
+        );
+    }
 }
 
 function read_demand_requirement_items(string $vacancyRequestId): array {
@@ -4185,6 +4605,7 @@ function read_demand_requirement_items(string $vacancyRequestId): array {
             dri.demand_requirement_item_id,
             dri.vacancy_request_id,
             dri.requirement_group,
+            dri.requirement_key,
             dri.requirement_kind,
             dri.reference_catalog_code,
             dri.reference_value_id,
@@ -4206,9 +4627,15 @@ function read_demand_requirement_items(string $vacancyRequestId): array {
              WHEN 'rank' THEN 1
              WHEN 'vessel_type' THEN 2
              WHEN 'coc' THEN 3
-             WHEN 'training' THEN 4
+             WHEN 'endorsement' THEN 4
+             WHEN 'training' THEN 5
+             WHEN 'visa' THEN 6
+             WHEN 'language' THEN 7
+             WHEN 'sea_service' THEN 8
+             WHEN 'general' THEN 9
              ELSE 99
            END,
+           dri.requirement_kind ASC,
            dri.created_at ASC",
         [$vacancyRequestId]
     );

@@ -154,9 +154,20 @@ CREATE INDEX IF NOT EXISTS demand_requirement_items_group_idx
 CREATE INDEX IF NOT EXISTS demand_requirement_items_reference_value_idx
   ON crewportglobal.demand_requirement_items (reference_value_id);
 
-CREATE UNIQUE INDEX IF NOT EXISTS demand_requirement_items_active_source_uidx
-  ON crewportglobal.demand_requirement_items (vacancy_request_id, requirement_group, source)
-  WHERE record_state = 'active';
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'crewportglobal'
+      AND table_name = 'demand_requirement_items'
+      AND column_name = 'requirement_key'
+  ) THEN
+    CREATE UNIQUE INDEX IF NOT EXISTS demand_requirement_items_active_source_uidx
+      ON crewportglobal.demand_requirement_items (vacancy_request_id, requirement_group, source)
+      WHERE record_state = 'active';
+  END IF;
+END $$;
 
 DROP TRIGGER IF EXISTS demand_requirement_items_set_updated_at ON crewportglobal.demand_requirement_items;
 CREATE TRIGGER demand_requirement_items_set_updated_at
@@ -301,13 +312,7 @@ SELECT vr.vacancy_request_id,
        jsonb_build_object('source_column', 'vacancy_requests.rank')
 FROM crewportglobal.vacancy_requests vr
 WHERE vr.required_rank_value_id IS NOT NULL
-ON CONFLICT (vacancy_request_id, requirement_group, source)
-WHERE record_state = 'active'
-DO UPDATE SET
-  reference_value_id = EXCLUDED.reference_value_id,
-  requirement_label = EXCLUDED.requirement_label,
-  metadata = EXCLUDED.metadata,
-  updated_at = now();
+ON CONFLICT DO NOTHING;
 
 INSERT INTO crewportglobal.demand_requirement_items (
   vacancy_request_id,
@@ -329,12 +334,6 @@ SELECT vr.vacancy_request_id,
        jsonb_build_object('source_column', 'vacancy_requests.vessel_type')
 FROM crewportglobal.vacancy_requests vr
 WHERE vr.vessel_type_value_id IS NOT NULL
-ON CONFLICT (vacancy_request_id, requirement_group, source)
-WHERE record_state = 'active'
-DO UPDATE SET
-  reference_value_id = EXCLUDED.reference_value_id,
-  requirement_label = EXCLUDED.requirement_label,
-  metadata = EXCLUDED.metadata,
-  updated_at = now();
+ON CONFLICT DO NOTHING;
 
 COMMIT;

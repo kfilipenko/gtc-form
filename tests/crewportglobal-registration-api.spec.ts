@@ -912,6 +912,15 @@ test('employer vacancy request flows through review to public vacancy board', as
         currency: 'USD',
         employer_country_code: 'AE',
         requirements: 'COC, bulk carrier experience and valid medical certificate.',
+        required_coc_values: ['Chief Officer'],
+        required_endorsement_values: ['GMDSS Endorsment'],
+        required_training_values: ['Basic Safety Training', 'Advanced Fire Fighting'],
+        required_visa_values: ['Schengen visa'],
+        required_language_levels: [{ language: 'English', level: 'operational' }],
+        required_sea_service_months: [{ months: 12, rank: 'Chief Officer', vessel_type: 'Bulk Carrier' }],
+        must_have_requirements: ['Bulk carrier experience'],
+        nice_to_have_requirements: ['ECDIS type-specific experience'],
+        disqualifying_requirements: ['No valid medical certificate'],
       },
     },
   });
@@ -941,7 +950,22 @@ test('employer vacancy request flows through review to public vacancy board', as
         required_rank_catalog_linked: true,
         vessel_type_catalog_linked: true,
         contract_duration_structured: true,
+        structured_requirements_ready: true,
       }),
+      structured_requirements: expect.arrayContaining([
+        expect.objectContaining({
+          requirement_group: 'coc',
+          requirement_label: 'Chief Officer',
+        }),
+        expect.objectContaining({
+          requirement_group: 'training',
+          requirement_label: 'Basic Safety Training',
+        }),
+        expect.objectContaining({
+          requirement_group: 'language',
+          requirement_label: 'English operational',
+        }),
+      ]),
     })
   );
   expect(vacancy.demand_matching_foundation).toEqual(
@@ -949,12 +973,30 @@ test('employer vacancy request flows through review to public vacancy board', as
       required_rank_catalog_linked: true,
       vessel_type_catalog_linked: true,
       contract_duration_structured: true,
+      structured_requirements_ready: true,
     })
   );
 
   const demandRequirementItems = created.payload.demand_requirement_items as Array<Record<string, unknown>>;
   const rankRequirement = demandRequirementItems.find((item) => item.requirement_group === 'rank');
   const vesselTypeRequirement = demandRequirementItems.find((item) => item.requirement_group === 'vessel_type');
+  const cocRequirement = demandRequirementItems.find((item) => item.requirement_group === 'coc');
+  const endorsementRequirement = demandRequirementItems.find((item) => item.requirement_group === 'endorsement');
+  const basicTrainingRequirement = demandRequirementItems.find((item) => {
+    return item.requirement_group === 'training' && item.requirement_label === 'Basic Safety Training';
+  });
+  const visaRequirement = demandRequirementItems.find((item) => item.requirement_group === 'visa');
+  const languageRequirement = demandRequirementItems.find((item) => item.requirement_group === 'language');
+  const seaServiceRequirement = demandRequirementItems.find((item) => item.requirement_group === 'sea_service');
+  const mustHaveGeneralRequirement = demandRequirementItems.find((item) => {
+    return item.requirement_group === 'general' && item.requirement_kind === 'must_have';
+  });
+  const niceToHaveGeneralRequirement = demandRequirementItems.find((item) => {
+    return item.requirement_group === 'general' && item.requirement_kind === 'nice_to_have';
+  });
+  const disqualifyingGeneralRequirement = demandRequirementItems.find((item) => {
+    return item.requirement_group === 'general' && item.requirement_kind === 'disqualifying';
+  });
   expect(rankRequirement).toEqual(
     expect.objectContaining({
       reference_catalog_code: 'seafarer_positions',
@@ -971,6 +1013,83 @@ test('employer vacancy request flows through review to public vacancy board', as
     })
   );
   expect(typeof vesselTypeRequirement?.reference_value_id).toBe('string');
+  expect(cocRequirement).toEqual(
+    expect.objectContaining({
+      requirement_key: 'coc_must_have_chief_officer',
+      reference_catalog_code: 'certificate_of_competence_types',
+      requirement_label: 'Chief Officer',
+      source: 'operator_structured',
+    })
+  );
+  expect(typeof cocRequirement?.reference_value_id).toBe('string');
+  expect(endorsementRequirement).toEqual(
+    expect.objectContaining({
+      reference_catalog_code: 'national_document_types',
+      requirement_label: 'GMDSS Endorsment',
+      source: 'operator_structured',
+    })
+  );
+  expect(typeof endorsementRequirement?.reference_value_id).toBe('string');
+  expect(basicTrainingRequirement).toEqual(
+    expect.objectContaining({
+      reference_catalog_code: 'training_course_types',
+      requirement_label: 'Basic Safety Training',
+      source: 'operator_structured',
+    })
+  );
+  expect(typeof basicTrainingRequirement?.reference_value_id).toBe('string');
+  expect(visaRequirement).toEqual(
+    expect.objectContaining({
+      reference_catalog_code: 'national_document_types',
+      requirement_label: 'Schengen visa',
+      source: 'operator_structured',
+    })
+  );
+  expect(visaRequirement?.reference_value_id).toBeNull();
+  expect(languageRequirement).toEqual(
+    expect.objectContaining({
+      requirement_label: 'English operational',
+      source: 'operator_structured',
+    })
+  );
+  expect(languageRequirement?.reference_catalog_code).toBeNull();
+  expect(languageRequirement?.metadata).toEqual(
+    expect.objectContaining({
+      language: 'English',
+      level: 'operational',
+    })
+  );
+  expect(seaServiceRequirement).toEqual(
+    expect.objectContaining({
+      requirement_label: '12 months Chief Officer Bulk Carrier sea service',
+      source: 'operator_structured',
+    })
+  );
+  expect(seaServiceRequirement?.metadata).toEqual(
+    expect.objectContaining({
+      minimum_months: 12,
+      rank: 'Chief Officer',
+      vessel_type: 'Bulk Carrier',
+    })
+  );
+  expect(mustHaveGeneralRequirement).toEqual(
+    expect.objectContaining({
+      requirement_label: 'Bulk carrier experience',
+      source: 'operator_structured',
+    })
+  );
+  expect(niceToHaveGeneralRequirement).toEqual(
+    expect.objectContaining({
+      requirement_label: 'ECDIS type-specific experience',
+      source: 'operator_structured',
+    })
+  );
+  expect(disqualifyingGeneralRequirement).toEqual(
+    expect.objectContaining({
+      requirement_label: 'No valid medical certificate',
+      source: 'operator_structured',
+    })
+  );
 
   const queueResponse = await request.get('/operator/review-queue');
   expect(queueResponse.status()).toBe(200);
