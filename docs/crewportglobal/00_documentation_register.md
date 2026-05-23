@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.53
+- Version: 1.55
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -260,6 +260,8 @@ docs/crewportglobal/
   171_cpg_demand_008_candidate_search_input_expansion_report.md
   172_cpg_demand_009_structured_demand_requirements_report.md
   173_cpg_demand_010_structured_requirement_candidate_search_report.md
+  174_cpg_demand_011_operator_structured_blocker_ui_report.md
+  175_cpg_demand_012_internal_shortlist_draft_design.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -512,6 +514,10 @@ Document 172 records the CPG-DEMAND-009 structured demand requirements implement
 
 Document 173 records the CPG-DEMAND-010 structured requirement candidate-search evaluator, including read-only COC, endorsement, training and sea-service requirement checks, blocker codes, manual-review warnings for visa/language/general requirements, data-minimized payloads, no-shortlist boundary and focused verification.
 
+Document 174 records the CPG-DEMAND-011 operator structured blocker UI implementation, including `/verify/` candidate-search structured requirement summaries, matched/blocked counts, safe missing-label display, sensitive-field exclusion and focused UI verification before any shortlist draft object is introduced.
+
+Document 175 records the CPG-DEMAND-012 internal shortlist draft and approval guard design, including proposed additive internal draft storage, candidate-level guard blocker codes, future operator-only API contracts, no-employer-visibility state rules, payload minimization and the recommended next implementation sequence.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -615,6 +621,8 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.55 | 2026-05-23 | GTC IT / AI Assistant | Added document 175 for CPG-DEMAND-012 covering internal shortlist draft design, approval guard blocker codes, future API contracts, no-employer-visibility state rules, payload minimization and implementation sequence |
+| 1.54 | 2026-05-23 | GTC IT / AI Assistant | Added document 174 for CPG-DEMAND-011 covering `/verify/` candidate-search structured blocker UI, matched/blocked requirement summaries, safe missing labels, sensitive-field exclusion and focused UI verification |
 | 1.53 | 2026-05-23 | GTC IT / AI Assistant | Added document 173 for CPG-DEMAND-010 covering read-only structured requirement candidate search, COC/endorsement/training/sea-service checks, blocker codes, manual-review warnings, data-minimized payloads and no-shortlist verification |
 | 1.52 | 2026-05-23 | GTC IT / AI Assistant | Added document 172 for CPG-DEMAND-009 covering structured demand requirement rows, migration 015, repeatable COC/training/endorsement/visa/language/sea-service/general constraints, legacy compatibility and verification |
 | 1.51 | 2026-05-23 | GTC IT / AI Assistant | Added document 171 for CPG-DEMAND-008 covering read-only candidate-search input expansion with department matching, passport/medical validity thresholds, new blocker codes, data-minimized document-summary use and no-side-effect verification |

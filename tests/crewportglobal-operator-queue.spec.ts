@@ -85,6 +85,148 @@ async function acceptPresentationConsents(request: APIRequestContext, draftId: s
   }
 }
 
+function insertUiCandidateStructuredEvidence(draftId: string): void {
+  const safeDraftId = draftId.replace(/'/g, "''");
+  const sql = `
+WITH profile AS (
+  SELECT seafarer_profile_id, user_id
+  FROM crewportglobal.seafarer_profiles
+  WHERE user_id = '${safeDraftId}'::uuid
+  LIMIT 1
+),
+coc_value AS (
+  SELECT rv.reference_value_id
+  FROM crewportglobal.reference_catalog_values rv
+  JOIN crewportglobal.reference_catalogs rc ON rc.reference_catalog_id = rv.reference_catalog_id
+  WHERE rc.catalog_code = 'certificate_of_competence_types'
+    AND lower(rv.display_name) = lower('Chief Officer')
+  LIMIT 1
+)
+INSERT INTO crewportglobal.seafarer_certificates (
+  seafarer_profile_id,
+  user_id,
+  source_draft_id,
+  certificate_group,
+  certificate_type_value_id,
+  certificate_type_label,
+  certificate_number,
+  expires_at,
+  record_state,
+  review_status,
+  metadata
+)
+SELECT profile.seafarer_profile_id,
+       profile.user_id,
+       profile.user_id,
+       'competency',
+       coc_value.reference_value_id,
+       'Chief Officer',
+       'UI-STRUCTURED-COC',
+       '2029-12-31'::date,
+       'active',
+       'verified',
+       '{"test_control":"CPG-DEMAND-011"}'::jsonb
+FROM profile, coc_value;
+
+WITH profile AS (
+  SELECT seafarer_profile_id, user_id
+  FROM crewportglobal.seafarer_profiles
+  WHERE user_id = '${safeDraftId}'::uuid
+  LIMIT 1
+),
+training_value AS (
+  SELECT rv.reference_value_id
+  FROM crewportglobal.reference_catalog_values rv
+  JOIN crewportglobal.reference_catalogs rc ON rc.reference_catalog_id = rv.reference_catalog_id
+  WHERE rc.catalog_code = 'training_course_types'
+    AND lower(rv.display_name) = lower('Basic Safety Training')
+  LIMIT 1
+)
+INSERT INTO crewportglobal.seafarer_training_records (
+  seafarer_profile_id,
+  user_id,
+  source_draft_id,
+  training_type_value_id,
+  training_type_label,
+  certificate_number,
+  expires_at,
+  record_state,
+  review_status,
+  metadata
+)
+SELECT profile.seafarer_profile_id,
+       profile.user_id,
+       profile.user_id,
+       training_value.reference_value_id,
+       'Basic Safety Training',
+       'UI-STRUCTURED-TRAINING',
+       '2029-12-31'::date,
+       'active',
+       'verified',
+       '{"test_control":"CPG-DEMAND-011"}'::jsonb
+FROM profile, training_value;
+
+WITH profile AS (
+  SELECT seafarer_profile_id, user_id
+  FROM crewportglobal.seafarer_profiles
+  WHERE user_id = '${safeDraftId}'::uuid
+  LIMIT 1
+),
+rank_value AS (
+  SELECT rv.reference_value_id
+  FROM crewportglobal.reference_catalog_values rv
+  JOIN crewportglobal.reference_catalogs rc ON rc.reference_catalog_id = rv.reference_catalog_id
+  WHERE rc.catalog_code = 'seafarer_positions'
+    AND lower(rv.display_name) = lower('Chief Officer')
+  LIMIT 1
+),
+vessel_type_value AS (
+  SELECT rv.reference_value_id
+  FROM crewportglobal.reference_catalog_values rv
+  JOIN crewportglobal.reference_catalogs rc ON rc.reference_catalog_id = rv.reference_catalog_id
+  WHERE rc.catalog_code = 'vessel_types'
+    AND lower(rv.display_name) = lower('Bulk Carrier')
+  LIMIT 1
+)
+INSERT INTO crewportglobal.seafarer_sea_service_records (
+  seafarer_profile_id,
+  user_id,
+  source_draft_id,
+  vessel_name,
+  vessel_type_value_id,
+  vessel_type_label,
+  rank_value_id,
+  rank_label,
+  department,
+  service_from,
+  service_to,
+  record_state,
+  review_status,
+  metadata
+)
+SELECT profile.seafarer_profile_id,
+       profile.user_id,
+       profile.user_id,
+       'MV UI Structured Evidence',
+       vessel_type_value.reference_value_id,
+       'Bulk Carrier',
+       rank_value.reference_value_id,
+       'Chief Officer',
+       'deck',
+       '2024-01-01'::date,
+       '2026-02-01'::date,
+       'active',
+       'verified',
+       '{"test_control":"CPG-DEMAND-011"}'::jsonb
+FROM profile, rank_value, vessel_type_value;
+`;
+
+  execSync(
+    'PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -v ON_ERROR_STOP=1 -q',
+    { input: sql, encoding: 'utf8' }
+  );
+}
+
 test('operator queue page renders submitted drafts from API', async ({ page, request }) => {
   const unique = Date.now();
   const seafarerEmail = `ui.queue.seafarer.${unique}@example.com`;
@@ -360,6 +502,15 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
         currency: 'USD',
         employer_country_code: 'AE',
         requirements: 'COC, bulk carrier experience and valid medical certificate.',
+        required_coc_values: ['Chief Officer'],
+        required_training_values: ['Basic Safety Training'],
+        required_sea_service_months: [
+          {
+            months: 12,
+            rank: 'Chief Officer',
+            vessel_type: 'Bulk Carrier',
+          },
+        ],
       },
     },
   });
@@ -392,6 +543,7 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
     },
   });
   expect(exactApproval.ok()).toBeTruthy();
+  insertUiCandidateStructuredEvidence(exact.draft_id);
 
   const mismatchCreate = await request.post('/api/v1/registration/drafts', {
     data: {
@@ -444,10 +596,20 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
   await expect(candidateSearch).toContainText(`UI Exact Candidate ${unique}`);
   await expect(candidateSearch).toContainText('match_ready');
   await expect(candidateSearch).toContainText('rank, vessel_type, availability');
+  await expect(candidateSearch).toContainText('Structured requirements');
+  await expect(candidateSearch).toContainText('COC requirements: matched 1/1');
+  await expect(candidateSearch).toContainText('Training requirements: matched 1/1');
+  await expect(candidateSearch).toContainText('Sea service requirements: matched 1/1');
   await expect(candidateSearch).toContainText(`UI Mismatch Candidate ${unique}`);
   await expect(candidateSearch).toContainText('blocked');
   await expect(candidateSearch).toContainText('rank_mismatch');
   await expect(candidateSearch).toContainText('vessel_type_mismatch');
+  await expect(candidateSearch).toContainText('coc_requirement_missing');
+  await expect(candidateSearch).toContainText('training_requirement_missing');
+  await expect(candidateSearch).toContainText('sea_service_months_below_requirement');
+  await expect(candidateSearch).toContainText('COC requirements: blocked 0/1');
+  await expect(candidateSearch).toContainText('Training requirements: blocked 0/1');
+  await expect(candidateSearch).toContainText('Sea service requirements: blocked 0/1');
   await expect(candidateSearch).toContainText('COC ready');
 
   await expect(candidateSearch).not.toContainText(exactEmail);

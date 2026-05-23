@@ -617,6 +617,15 @@
         'verify.candidateSearch.matched': 'Matched dimensions: {dimensions}',
         'verify.candidateSearch.blockers': 'Blockers: {items}',
         'verify.candidateSearch.warnings': 'Warnings: {items}',
+        'verify.candidateSearch.structured': 'Structured requirements: {items}',
+        'verify.candidateSearch.structuredItem': '{label}: {status} {matched}/{required}',
+        'verify.candidateSearch.structuredMatched': 'matched',
+        'verify.candidateSearch.structuredBlocked': 'blocked',
+        'verify.candidateSearch.structuredMissing': 'missing: {items}',
+        'verify.candidateSearch.dimension.coc': 'COC requirements',
+        'verify.candidateSearch.dimension.endorsement': 'Endorsement requirements',
+        'verify.candidateSearch.dimension.training': 'Training requirements',
+        'verify.candidateSearch.dimension.seaService': 'Sea service requirements',
         'verify.candidateSearch.documents': 'Documents: {items}',
         'verify.candidateSearch.sideEffects': 'No side effects: no applications, no status changes, no employer visibility.',
         'verify.field.draftId': 'Draft ID',
@@ -792,6 +801,15 @@
         'verify.candidateSearch.matched': 'Совпавшие измерения: {dimensions}',
         'verify.candidateSearch.blockers': 'Блокеры: {items}',
         'verify.candidateSearch.warnings': 'Предупреждения: {items}',
+        'verify.candidateSearch.structured': 'Структурированные требования: {items}',
+        'verify.candidateSearch.structuredItem': '{label}: {status} {matched}/{required}',
+        'verify.candidateSearch.structuredMatched': 'совпало',
+        'verify.candidateSearch.structuredBlocked': 'блокирует',
+        'verify.candidateSearch.structuredMissing': 'не хватает: {items}',
+        'verify.candidateSearch.dimension.coc': 'Требования COC',
+        'verify.candidateSearch.dimension.endorsement': 'Требования endorsement',
+        'verify.candidateSearch.dimension.training': 'Требования training',
+        'verify.candidateSearch.dimension.seaService': 'Требования sea service',
         'verify.candidateSearch.documents': 'Документы: {items}',
         'verify.candidateSearch.sideEffects': 'Без побочных эффектов: нет откликов, нет смены статуса, нет видимости работодателю.',
         'verify.field.draftId': 'Draft ID',
@@ -1190,6 +1208,56 @@
         ].filter(Boolean);
       }
 
+      function candidateStructuredRequirementLabel(item) {
+        if (!item || typeof item !== 'object') {
+          return '';
+        }
+        return String(
+          item.requirement_label ||
+          item.reference_catalog_code ||
+          item.requirement_key ||
+          item.reason ||
+          ''
+        ).trim();
+      }
+
+      function candidateStructuredRequirementSummary(candidate) {
+        const dimensionResults = candidate && candidate.dimension_results && typeof candidate.dimension_results === 'object'
+          ? candidate.dimension_results
+          : {};
+        const dimensions = [
+          ['coc_requirements', t('verify.candidateSearch.dimension.coc')],
+          ['endorsement_requirements', t('verify.candidateSearch.dimension.endorsement')],
+          ['training_requirements', t('verify.candidateSearch.dimension.training')],
+          ['sea_service_requirements', t('verify.candidateSearch.dimension.seaService')],
+        ];
+
+        return dimensions.map(([key, label]) => {
+          const result = dimensionResults[key];
+          if (!result || typeof result !== 'object' || result.required !== true) {
+            return '';
+          }
+          const required = Number.isFinite(Number(result.required_count)) ? Number(result.required_count) : 0;
+          const matched = Number.isFinite(Number(result.matched_count)) ? Number(result.matched_count) : 0;
+          const status = result.matched === true
+            ? t('verify.candidateSearch.structuredMatched')
+            : t('verify.candidateSearch.structuredBlocked');
+          const missing = Array.isArray(result.missing)
+            ? result.missing.map(candidateStructuredRequirementLabel).filter(Boolean)
+            : [];
+          const item = t('verify.candidateSearch.structuredItem', {
+            label,
+            status,
+            matched,
+            required,
+          });
+          if (missing.length === 0) {
+            return item;
+          }
+          return `${item} (${t('verify.candidateSearch.structuredMissing', { items: missing.join(', ') })})`;
+        }).filter(Boolean);
+      }
+
       function renderCandidateSearchResults(container, payload) {
         container.innerHTML = '';
         const candidates = payload && Array.isArray(payload.candidates) ? payload.candidates : [];
@@ -1254,6 +1322,16 @@
           if (warnings.length > 0) {
             const line = document.createElement('span');
             line.textContent = t('verify.candidateSearch.warnings', { items: warnings.join(', ') });
+            issueLines.appendChild(line);
+          }
+
+          const structuredRequirements = candidateStructuredRequirementSummary(candidate);
+          if (structuredRequirements.length > 0) {
+            const line = document.createElement('p');
+            line.className = 'candidate-search-card__structured';
+            const strong = document.createElement('strong');
+            strong.textContent = t('verify.candidateSearch.structured', { items: structuredRequirements.join(' | ') });
+            line.appendChild(strong);
             issueLines.appendChild(line);
           }
 
