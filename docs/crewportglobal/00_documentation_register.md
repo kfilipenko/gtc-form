@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.46
+- Version: 1.47
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -252,6 +252,8 @@ docs/crewportglobal/
   163_cpg_demand_002_agent_execution_guide.md
   164_cpg_demand_003_reference_catalog_schema_readiness_gate.md
   165_cpg_demand_003_agent_execution_guide.md
+  166_cpg_demand_004_existing_db_excel_catalog_reconciliation.md
+  167_cpg_demand_004_agent_execution_guide.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -488,6 +490,10 @@ Document 164 records the CPG-DEMAND-003 narrow readiness gate, comparing the exi
 
 Document 165 records the CPG-DEMAND-003 agent execution guide for the reference catalog and schema readiness gate, including required source documents, catalog audit requirements, schema block readiness requirements, first-slice option comparison, recommendation rules, Project Owner decision table and no-implementation boundaries.
 
+Document 166 records the CPG-DEMAND-004 read-only reconciliation of the existing PostgreSQL database, Excel-derived import artifacts and reference catalogs against demand matching needs, including DB table/count evidence, Excel-to-DB catalog completeness, demand-required catalog coverage, supply/demand matching sufficiency, missed employer/vessel/vacancy fields, additive completion scope and go/no-go recommendation for automated request-offer matching.
+
+Document 167 records the CPG-DEMAND-004 agent execution guide for practical DB and Excel catalog reconciliation, including required source documents, read-only DB inspection commands, Excel/import artifact reconciliation, demand-required catalog coverage checks, matching sufficiency assessment, additive completion boundaries and no-DDL/DML-before-approval controls.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -591,6 +597,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.47 | 2026-05-23 | GTC IT / AI Assistant | Added documents 166 and 167 for CPG-DEMAND-004 covering read-only PostgreSQL/Excel catalog reconciliation, current DB and import completeness evidence, demand-required catalog coverage, matching sufficiency, missed demand fields, additive completion scope and go/no-go recommendation |
 | 1.46 | 2026-05-23 | GTC IT / AI Assistant | Added documents 164 and 165 for CPG-DEMAND-003 covering the narrow readiness gate between the existing Excel/current reference catalog baseline and document 160 demand canonical fields, Project Owner go/no-go decisions and the recommended catalog cleanup/seed task before catalog-backed demand implementation |
 | 1.45 | 2026-05-22 | GTC IT / AI Assistant | Added documents 162 and 163 for CPG-DEMAND-002 covering additive demand schema/API planning, existing schema inventory, migration sequence, demand object storage categories, reference catalogs, JSONB compatibility, validation/error codes, visibility scopes, backfill mapping and rollback strategy |
 | 1.44 | 2026-05-22 | GTC IT / AI Assistant | Added documents 160 and 161 for CPG-DEMAND-001 covering the canonical demand field contract, field-key conventions, catalog and validation plans, visibility scopes, compatibility mapping and future storage/API expectations |
