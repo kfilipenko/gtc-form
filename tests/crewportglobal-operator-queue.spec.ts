@@ -18,6 +18,19 @@ ui_vacancies AS (
   FROM crewportglobal.vacancy_requests vr
   JOIN ui_users uu ON uu.user_id = vr.created_by_user_id
 )
+DELETE FROM crewportglobal.operator_shortlist_drafts osd
+WHERE osd.vacancy_request_id IN (SELECT vacancy_request_id FROM ui_vacancies);
+
+WITH ui_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'ui.queue.%@example.com'
+),
+ui_vacancies AS (
+  SELECT vacancy_request_id
+  FROM crewportglobal.vacancy_requests vr
+  JOIN ui_users uu ON uu.user_id = vr.created_by_user_id
+)
 DELETE FROM crewportglobal.vacancy_applications va
 WHERE va.seafarer_user_id IN (SELECT user_id FROM ui_users)
    OR va.vacancy_request_id IN (SELECT vacancy_request_id FROM ui_vacancies);
@@ -543,6 +556,7 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
     },
   });
   expect(exactApproval.ok()).toBeTruthy();
+  await acceptPresentationConsents(request, exact.draft_id);
   insertUiCandidateStructuredEvidence(exact.draft_id);
 
   const mismatchCreate = await request.post('/api/v1/registration/drafts', {
@@ -611,6 +625,15 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
   await expect(candidateSearch).toContainText('Training requirements: blocked 0/1');
   await expect(candidateSearch).toContainText('Sea service requirements: blocked 0/1');
   await expect(candidateSearch).toContainText('COC ready');
+
+  await candidateSearch.getByRole('button', { name: 'Create internal shortlist draft' }).click();
+  await expect(candidateSearch).toContainText('Internal shortlist draft created');
+  await expect(candidateSearch).toContainText('Employer visible: false');
+  await expect(candidateSearch).toContainText('needs_review');
+  await expect(candidateSearch).toContainText(`UI Exact Candidate ${unique}: include; guard ready_for_internal_shortlist`);
+  await expect(candidateSearch).toContainText(`UI Mismatch Candidate ${unique}: hold; guard blocked`);
+  await expect(candidateSearch).toContainText('candidate_search_blocked');
+  await expect(candidateSearch).toContainText('structured_requirement_unmatched');
 
   await expect(candidateSearch).not.toContainText(exactEmail);
   await expect(candidateSearch).not.toContainText(mismatchEmail);

@@ -219,6 +219,66 @@
     .candidate-search-card__structured strong {
       color: var(--text-on-dark);
     }
+    .candidate-shortlist-controls {
+      display: grid;
+      grid-template-columns: minmax(160px, 220px) minmax(220px, 1fr);
+      gap: 8px;
+      align-items: end;
+      padding-top: 4px;
+    }
+    .candidate-shortlist-field {
+      display: grid;
+      gap: 4px;
+    }
+    .candidate-shortlist-label {
+      color: var(--muted-on-dark);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .candidate-shortlist-select,
+    .candidate-shortlist-note {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 9px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-on-dark);
+      font: inherit;
+    }
+    .candidate-shortlist-note::placeholder {
+      color: var(--muted-on-dark);
+    }
+    .candidate-shortlist-result {
+      display: grid;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .candidate-shortlist-summary {
+      margin: 0;
+      color: var(--text-on-dark);
+      font-weight: 700;
+      line-height: 1.4;
+    }
+    .candidate-shortlist-candidate {
+      display: grid;
+      gap: 4px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(0, 102, 128, 0.12);
+      color: var(--muted-on-dark);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .candidate-shortlist-candidate strong {
+      color: var(--text-on-dark);
+    }
+    @media (max-width: 720px) {
+      .candidate-shortlist-controls {
+        grid-template-columns: 1fr;
+      }
+    }
     .raw-details {
       margin-top: 12px;
       border: 1px solid var(--line);
@@ -628,6 +688,19 @@
         'verify.candidateSearch.dimension.seaService': 'Sea service requirements',
         'verify.candidateSearch.documents': 'Documents: {items}',
         'verify.candidateSearch.sideEffects': 'No side effects: no applications, no status changes, no employer visibility.',
+        'verify.candidateSearch.shortlistDecision': 'Internal shortlist decision',
+        'verify.candidateSearch.shortlistNote': 'Operator note',
+        'verify.candidateSearch.shortlistNotePlaceholder': 'Optional internal note',
+        'verify.candidateSearch.shortlistInclude': 'Include',
+        'verify.candidateSearch.shortlistHold': 'Hold',
+        'verify.candidateSearch.shortlistExclude': 'Exclude',
+        'verify.candidateSearch.createDraft': 'Create internal shortlist draft',
+        'verify.candidateSearch.createDraftDisabled': 'Run candidate search before creating an internal shortlist draft.',
+        'verify.candidateSearch.creatingDraft': 'Creating internal shortlist draft...',
+        'verify.candidateSearch.draftCreated': 'Internal shortlist draft created: {status}. Employer visible: {visible}.',
+        'verify.candidateSearch.draftBlocked': 'Internal shortlist guard blocked: {items}',
+        'verify.candidateSearch.draftError': 'Could not create internal shortlist draft.',
+        'verify.candidateSearch.draftCandidate': '{name}: {decision}; guard {status}; blockers {blockers}',
         'verify.field.draftId': 'Draft ID',
         'verify.field.role': 'Role',
         'verify.field.email': 'Email',
@@ -812,6 +885,19 @@
         'verify.candidateSearch.dimension.seaService': 'Требования sea service',
         'verify.candidateSearch.documents': 'Документы: {items}',
         'verify.candidateSearch.sideEffects': 'Без побочных эффектов: нет откликов, нет смены статуса, нет видимости работодателю.',
+        'verify.candidateSearch.shortlistDecision': 'Решение внутреннего shortlist',
+        'verify.candidateSearch.shortlistNote': 'Заметка оператора',
+        'verify.candidateSearch.shortlistNotePlaceholder': 'Необязательная внутренняя заметка',
+        'verify.candidateSearch.shortlistInclude': 'Включить',
+        'verify.candidateSearch.shortlistHold': 'Удержать',
+        'verify.candidateSearch.shortlistExclude': 'Исключить',
+        'verify.candidateSearch.createDraft': 'Создать внутренний shortlist draft',
+        'verify.candidateSearch.createDraftDisabled': 'Сначала запустите поиск кандидатов.',
+        'verify.candidateSearch.creatingDraft': 'Создаём внутренний shortlist draft...',
+        'verify.candidateSearch.draftCreated': 'Внутренний shortlist draft создан: {status}. Видимость работодателю: {visible}.',
+        'verify.candidateSearch.draftBlocked': 'Internal shortlist guard заблокировал: {items}',
+        'verify.candidateSearch.draftError': 'Не удалось создать внутренний shortlist draft.',
+        'verify.candidateSearch.draftCandidate': '{name}: {decision}; guard {status}; блокеры {blockers}',
         'verify.field.draftId': 'Draft ID',
         'verify.field.role': 'Роль',
         'verify.field.email': 'Email',
@@ -1258,6 +1344,140 @@
         }).filter(Boolean);
       }
 
+      function candidateSearchCandidateId(candidate) {
+        return candidate && typeof candidate.candidate_user_id === 'string'
+          ? candidate.candidate_user_id
+          : '';
+      }
+
+      function candidateSearchHasHardBlockers(candidate) {
+        return candidate && Array.isArray(candidate.blockers) && candidate.blockers.length > 0;
+      }
+
+      function candidateShortlistDefaultDecision(candidate) {
+        return candidateSearchHasHardBlockers(candidate) || (candidate && candidate.match_level === 'blocked')
+          ? 'hold'
+          : 'include';
+      }
+
+      function appendCandidateShortlistControls(card, candidate) {
+        const candidateId = candidateSearchCandidateId(candidate);
+        if (!candidateId) {
+          return;
+        }
+
+        const controls = document.createElement('div');
+        controls.className = 'candidate-shortlist-controls';
+
+        const decisionField = document.createElement('label');
+        decisionField.className = 'candidate-shortlist-field';
+        const decisionLabel = document.createElement('span');
+        decisionLabel.className = 'candidate-shortlist-label';
+        decisionLabel.textContent = t('verify.candidateSearch.shortlistDecision');
+        const decisionSelect = document.createElement('select');
+        decisionSelect.className = 'candidate-shortlist-select candidate-shortlist-decision';
+        decisionSelect.dataset.candidateId = candidateId;
+
+        [
+          ['include', t('verify.candidateSearch.shortlistInclude')],
+          ['hold', t('verify.candidateSearch.shortlistHold')],
+          ['exclude', t('verify.candidateSearch.shortlistExclude')],
+        ].forEach(([value, label]) => {
+          const option = document.createElement('option');
+          option.value = value;
+          option.textContent = label;
+          if (value === 'include' && candidateSearchHasHardBlockers(candidate)) {
+            option.disabled = true;
+          }
+          decisionSelect.appendChild(option);
+        });
+        decisionSelect.value = candidateShortlistDefaultDecision(candidate);
+        decisionField.append(decisionLabel, decisionSelect);
+
+        const noteField = document.createElement('label');
+        noteField.className = 'candidate-shortlist-field';
+        const noteLabel = document.createElement('span');
+        noteLabel.className = 'candidate-shortlist-label';
+        noteLabel.textContent = t('verify.candidateSearch.shortlistNote');
+        const noteInput = document.createElement('input');
+        noteInput.className = 'candidate-shortlist-note';
+        noteInput.type = 'text';
+        noteInput.placeholder = t('verify.candidateSearch.shortlistNotePlaceholder');
+        noteInput.dataset.candidateId = candidateId;
+        noteField.append(noteLabel, noteInput);
+
+        controls.append(decisionField, noteField);
+        card.appendChild(controls);
+      }
+
+      function collectCandidateShortlistRequests(results) {
+        return Array.from(results.querySelectorAll('.candidate-shortlist-decision')).map((select) => {
+          const candidateId = select.getAttribute('data-candidate-id') || '';
+          const card = select.closest('.candidate-search-card');
+          const note = card ? card.querySelector('.candidate-shortlist-note') : null;
+          const operatorNote = note && typeof note.value === 'string' ? note.value.trim() : '';
+          const item = {
+            candidate_user_id: candidateId,
+            operator_decision: select.value || 'hold',
+          };
+          if (operatorNote) {
+            item.operator_note = operatorNote;
+          }
+          return item;
+        }).filter((item) => item.candidate_user_id);
+      }
+
+      function shortlistGuardBlockerCodes(guard) {
+        return guard && Array.isArray(guard.approval_blockers)
+          ? guard.approval_blockers.map((item) => item && item.code).filter(Boolean)
+          : [];
+      }
+
+      function shortlistBlockedItems(payload) {
+        const blocked = payload && Array.isArray(payload.blocked_candidates) ? payload.blocked_candidates : [];
+        return blocked.map((item) => {
+          const codes = shortlistGuardBlockerCodes(item && item.approval_guard_result);
+          return [item && item.candidate_user_id, codes.join(', ')].filter(Boolean).join(': ');
+        }).filter(Boolean);
+      }
+
+      function renderShortlistDraftResult(container, draft) {
+        container.innerHTML = '';
+        if (!draft || typeof draft !== 'object') {
+          return;
+        }
+
+        const summary = document.createElement('p');
+        summary.className = 'candidate-shortlist-summary';
+        summary.textContent = t('verify.candidateSearch.draftCreated', {
+          status: draft.draft_status || emptyValue(),
+          visible: String(draft.employer_visible === true),
+        });
+        container.appendChild(summary);
+
+        const candidates = Array.isArray(draft.candidates) ? draft.candidates : [];
+        candidates.forEach((candidate) => {
+          const searchResult = candidate && candidate.candidate_search_result && typeof candidate.candidate_search_result === 'object'
+            ? candidate.candidate_search_result
+            : {};
+          const guard = candidate && candidate.approval_guard_result && typeof candidate.approval_guard_result === 'object'
+            ? candidate.approval_guard_result
+            : {};
+          const blockerCodes = shortlistGuardBlockerCodes(guard);
+          const line = document.createElement('div');
+          line.className = 'candidate-shortlist-candidate';
+          const strong = document.createElement('strong');
+          strong.textContent = t('verify.candidateSearch.draftCandidate', {
+            name: normalizeDisplayValue(searchResult.display_name || searchResult.primary_rank || candidate.candidate_user_id),
+            decision: candidate.operator_decision || emptyValue(),
+            status: guard.approval_status || emptyValue(),
+            blockers: blockerCodes.length ? blockerCodes.join(', ') : emptyValue(),
+          });
+          line.appendChild(strong);
+          container.appendChild(line);
+        });
+      }
+
       function renderCandidateSearchResults(container, payload) {
         container.innerHTML = '';
         const candidates = payload && Array.isArray(payload.candidates) ? payload.candidates : [];
@@ -1343,6 +1563,7 @@
           }
 
           card.append(header, meta, issueLines);
+          appendCandidateShortlistControls(card, candidate);
           container.appendChild(card);
         });
       }
@@ -1371,6 +1592,13 @@
         button.className = 'button secondary';
         button.textContent = t('verify.candidateSearch.run');
 
+        const shortlistButton = document.createElement('button');
+        shortlistButton.type = 'button';
+        shortlistButton.className = 'button secondary';
+        shortlistButton.textContent = t('verify.candidateSearch.createDraft');
+        shortlistButton.disabled = true;
+        shortlistButton.title = t('verify.candidateSearch.createDraftDisabled');
+
         const statusNode = document.createElement('p');
         statusNode.className = 'candidate-search-status';
         statusNode.textContent = t('verify.candidateSearch.sideEffects');
@@ -1378,10 +1606,15 @@
         const results = document.createElement('div');
         results.className = 'candidate-search-results';
 
+        const shortlistResult = document.createElement('div');
+        shortlistResult.className = 'candidate-shortlist-result';
+
         button.addEventListener('click', async () => {
           button.disabled = true;
+          shortlistButton.disabled = true;
           statusNode.textContent = t('verify.candidateSearch.loading');
           results.innerHTML = '';
+          shortlistResult.innerHTML = '';
           try {
             const response = await fetch(`/api/v1/operator/vacancies/${encodeURIComponent(vacancyId)}/candidate-search?limit=25`, {
               headers: operatorHeaders(),
@@ -1399,6 +1632,7 @@
               ? payload.total_considered
               : (payload && typeof payload.count === 'number' ? payload.count : 0);
             statusNode.textContent = t('verify.candidateSearch.loaded', { count: total });
+            shortlistButton.disabled = !(payload && Array.isArray(payload.candidates) && payload.candidates.length > 0);
           } catch (error) {
             if (error && error.message === 'operator access required') {
               statusNode.textContent = t('verify.access.denied');
@@ -1410,8 +1644,59 @@
           }
         });
 
-        actions.append(button, statusNode);
-        section.append(title, copy, actions, results);
+        shortlistButton.addEventListener('click', async () => {
+          const candidates = collectCandidateShortlistRequests(results);
+          if (candidates.length === 0) {
+            statusNode.textContent = t('verify.candidateSearch.createDraftDisabled');
+            return;
+          }
+
+          shortlistButton.disabled = true;
+          button.disabled = true;
+          statusNode.textContent = t('verify.candidateSearch.creatingDraft');
+          shortlistResult.innerHTML = '';
+          try {
+            const response = await fetch(`/api/v1/operator/vacancies/${encodeURIComponent(vacancyId)}/shortlist-drafts`, {
+              method: 'POST',
+              headers: operatorHeaders({
+                'Content-Type': 'application/json',
+              }),
+              body: JSON.stringify({ candidates }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (isOperatorAccessFailure(response)) {
+              showAccessPanel('verify.access.denied');
+              throw new Error('operator access required');
+            }
+            if (response.status === 409 && payload && payload.error === 'shortlist_guard_blocked') {
+              const blockers = shortlistBlockedItems(payload);
+              statusNode.textContent = t('verify.candidateSearch.draftBlocked', {
+                items: blockers.length ? blockers.join(' | ') : 'approval guard',
+              });
+              return;
+            }
+            if (!response.ok || !payload || payload.ok !== true || !payload.shortlist_draft) {
+              throw new Error('shortlist draft request failed');
+            }
+            renderShortlistDraftResult(shortlistResult, payload.shortlist_draft);
+            statusNode.textContent = t('verify.candidateSearch.draftCreated', {
+              status: payload.shortlist_draft.draft_status || emptyValue(),
+              visible: String(payload.shortlist_draft.employer_visible === true),
+            });
+          } catch (error) {
+            if (error && error.message === 'operator access required') {
+              statusNode.textContent = t('verify.access.denied');
+            } else {
+              statusNode.textContent = t('verify.candidateSearch.draftError');
+            }
+          } finally {
+            button.disabled = false;
+            shortlistButton.disabled = collectCandidateShortlistRequests(results).length === 0;
+          }
+        });
+
+        actions.append(button, shortlistButton, statusNode);
+        section.append(title, copy, actions, results, shortlistResult);
         return section;
       }
 

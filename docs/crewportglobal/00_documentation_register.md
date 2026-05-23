@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.56
+- Version: 1.57
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -263,6 +263,7 @@ docs/crewportglobal/
   174_cpg_demand_011_operator_structured_blocker_ui_report.md
   175_cpg_demand_012_internal_shortlist_draft_design.md
   176_cpg_demand_013_internal_shortlist_draft_storage_guard_report.md
+  177_cpg_demand_014_operator_shortlist_draft_ui_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -521,6 +522,8 @@ Document 175 records the CPG-DEMAND-012 internal shortlist draft and approval gu
 
 Document 176 records the CPG-DEMAND-013 internal shortlist draft storage and guard implementation, including migration 016, operator-only shortlist draft endpoints, include/hold guard behavior, consent/source-card/search blocker checks, employer-visible false constraints, minimized snapshots and focused verification.
 
+Document 177 records the CPG-DEMAND-014 operator internal shortlist draft UI implementation, including `/verify/` candidate-level include/hold/exclude controls, guarded draft creation, internal-only result rendering, employer-visible false confirmation and sensitive-field exclusion verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -624,6 +627,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.57 | 2026-05-23 | GTC IT / AI Assistant | Added document 177 for CPG-DEMAND-014 covering `/verify/` internal shortlist draft UI controls, guarded draft creation, internal-only result rendering, employer-visible false confirmation and sensitive-field exclusion verification |
 | 1.56 | 2026-05-23 | GTC IT / AI Assistant | Added document 176 for CPG-DEMAND-013 covering internal shortlist draft storage, migration 016, operator-only endpoints, guard blocker behavior, no-employer-visibility constraints, minimized snapshots and focused verification |
 | 1.55 | 2026-05-23 | GTC IT / AI Assistant | Added document 175 for CPG-DEMAND-012 covering internal shortlist draft design, approval guard blocker codes, future API contracts, no-employer-visibility state rules, payload minimization and implementation sequence |
 | 1.54 | 2026-05-23 | GTC IT / AI Assistant | Added document 174 for CPG-DEMAND-011 covering `/verify/` candidate-search structured blocker UI, matched/blocked requirement summaries, safe missing labels, sensitive-field exclusion and focused UI verification |
