@@ -200,6 +200,79 @@
       background: rgba(255, 255, 255, 0.04);
     }
 
+    .registry-count-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .registry-count-card,
+    .registry-list-card {
+      display: grid;
+      gap: 8px;
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(16, 118, 135, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .registry-count-card strong {
+      color: var(--paper-strong);
+      font-size: 34px;
+      line-height: 1;
+    }
+
+    .registry-count-card span,
+    .registry-list-card p,
+    .registry-safe-note {
+      margin: 0;
+      color: var(--muted-on-dark);
+      line-height: 1.55;
+    }
+
+    .registry-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .registry-list-card h3 {
+      margin: 0;
+      color: var(--paper-strong);
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+
+    .registry-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .registry-list li {
+      display: grid;
+      gap: 4px;
+      padding: 10px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-on-dark);
+      line-height: 1.45;
+    }
+
+    .registry-list li:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .registry-list small {
+      color: var(--muted-on-dark);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
     .vacancy-card {
       display: grid;
       gap: 16px;
@@ -250,6 +323,8 @@
       .value-grid,
       .trust-grid,
       .cta-grid,
+      .registry-count-grid,
+      .registry-preview-grid,
       .live-dashboard,
       .vacancy-meta {
         grid-template-columns: 1fr;
@@ -382,6 +457,41 @@
             <p class="field-note" data-i18n="home.search.nextStep.copy">After login, the personal cabinet is assembled from confirmed capability cards connected to the physical person.</p>
           </article>
         </div>
+      </section>
+
+      <section class="card vacancy-board section-card" id="home-registry-summary">
+        <p class="eyebrow" data-i18n="home.registry.eyebrow">Live registry</p>
+        <h2 class="section-title" data-i18n="home.registry.title">Registered platform data for demonstration</h2>
+        <p class="section-copy" data-i18n="home.registry.copy">These counters come from the live database. Preview rows are intentionally contact-free: no e-mail, phone, document metadata, medical details or seafarer names are shown.</p>
+        <div class="registry-count-grid" aria-live="polite">
+          <article class="registry-count-card">
+            <strong id="home-registry-vacancy-count">0</strong>
+            <span data-i18n="home.registry.requests">registered crew requests</span>
+          </article>
+          <article class="registry-count-card">
+            <strong id="home-registry-vessel-count">0</strong>
+            <span data-i18n="home.registry.vessels">registered vessels</span>
+          </article>
+          <article class="registry-count-card">
+            <strong id="home-registry-seafarer-count">0</strong>
+            <span data-i18n="home.registry.seafarers">registered seafarers</span>
+          </article>
+        </div>
+        <div class="registry-preview-grid">
+          <article class="registry-list-card">
+            <h3 data-i18n="home.registry.requestsTitle">Crew requests</h3>
+            <ul id="home-registry-vacancies" class="registry-list"></ul>
+          </article>
+          <article class="registry-list-card">
+            <h3 data-i18n="home.registry.vesselsTitle">Vessels</h3>
+            <ul id="home-registry-vessels" class="registry-list"></ul>
+          </article>
+          <article class="registry-list-card">
+            <h3 data-i18n="home.registry.seafarersTitle">Seafarers</h3>
+            <ul id="home-registry-seafarers" class="registry-list"></ul>
+          </article>
+        </div>
+        <p class="registry-safe-note" data-i18n="home.registry.safeNote">The public demo view shows operational counts and structured matching hints only. Contact details remain inside protected workflows.</p>
       </section>
 
       <section class="card vacancy-board section-card">
@@ -564,6 +674,27 @@
         'home.search.nextStep': 'Authenticated cabinet',
         'home.search.nextStep.copy': 'After login, the personal cabinet is assembled from confirmed capability cards connected to the physical person.',
         'home.search.nextStep.cta': 'Public vacancy information',
+        'home.registry.eyebrow': 'Live registry',
+        'home.registry.title': 'Registered platform data for demonstration',
+        'home.registry.copy': 'These counters come from the live database. Preview rows are intentionally contact-free: no e-mail, phone, document metadata, medical details or seafarer names are shown.',
+        'home.registry.requests': 'registered crew requests',
+        'home.registry.vessels': 'registered vessels',
+        'home.registry.seafarers': 'registered seafarers',
+        'home.registry.requestsTitle': 'Crew requests',
+        'home.registry.vesselsTitle': 'Vessels',
+        'home.registry.seafarersTitle': 'Seafarers',
+        'home.registry.empty': 'No records yet',
+        'home.registry.status': 'Status',
+        'home.registry.rank': 'Rank',
+        'home.registry.department': 'Department',
+        'home.registry.vesselType': 'Vessel type',
+        'home.registry.join': 'Join',
+        'home.registry.company': 'Company',
+        'home.registry.vessel': 'Vessel',
+        'home.registry.flag': 'Flag',
+        'home.registry.availability': 'Availability',
+        'home.registry.country': 'Country',
+        'home.registry.safeNote': 'The public demo view shows operational counts and structured matching hints only. Contact details remain inside protected workflows.',
         'home.board.eyebrow': 'Latest vacancies',
         'home.board.title': 'Current public vacancy board',
         'home.board.copy': 'Public vacancies are shown only when reviewed employer-side demand is ready for publication. Operational registration and request preparation are handled after authenticated access.',
@@ -693,6 +824,27 @@
         'home.search.nextStep': 'Авторизованный кабинет',
         'home.search.nextStep.copy': 'После входа личный кабинет собирается из подтверждённых карточек возможностей, связанных с физическим лицом.',
         'home.search.nextStep.cta': 'Публичная информация о вакансиях',
+        'home.registry.eyebrow': 'Живой реестр',
+        'home.registry.title': 'Зарегистрированные данные платформы для демонстрации',
+        'home.registry.copy': 'Эти счетчики берутся из живой базы данных. Строки предварительного просмотра намеренно не содержат контактных данных: e-mail, телефоны, метаданные документов, медицинские детали и имена моряков не показываются.',
+        'home.registry.requests': 'зарегистрированных заявок',
+        'home.registry.vessels': 'зарегистрированных судов',
+        'home.registry.seafarers': 'зарегистрированных моряков',
+        'home.registry.requestsTitle': 'Заявки',
+        'home.registry.vesselsTitle': 'Суда',
+        'home.registry.seafarersTitle': 'Моряки',
+        'home.registry.empty': 'Записей пока нет',
+        'home.registry.status': 'Статус',
+        'home.registry.rank': 'Должность',
+        'home.registry.department': 'Департамент',
+        'home.registry.vesselType': 'Тип судна',
+        'home.registry.join': 'Посадка',
+        'home.registry.company': 'Компания',
+        'home.registry.vessel': 'Судно',
+        'home.registry.flag': 'Флаг',
+        'home.registry.availability': 'Доступность',
+        'home.registry.country': 'Страна',
+        'home.registry.safeNote': 'Публичный демонстрационный вид показывает только операционные счетчики и структурированные признаки для сопоставления. Контактные данные остаются в защищённых процессах.',
         'home.board.eyebrow': 'Последние вакансии',
         'home.board.title': 'Текущая публичная доска вакансий',
         'home.board.copy': 'Публичные вакансии показываются только когда проверенный спрос со стороны работодателя готов к публикации. Операционная регистрация и подготовка запросов выполняются после аутентифицированного доступа.',
@@ -767,8 +919,15 @@
       const boardStatus = document.getElementById('home-board-status');
       const boardCopy = document.getElementById('home-board-copy');
       const liveVacancies = document.getElementById('home-live-vacancies');
+      const registryVacancyCount = document.getElementById('home-registry-vacancy-count');
+      const registryVesselCount = document.getElementById('home-registry-vessel-count');
+      const registrySeafarerCount = document.getElementById('home-registry-seafarer-count');
+      const registryVacancies = document.getElementById('home-registry-vacancies');
+      const registryVessels = document.getElementById('home-registry-vessels');
+      const registrySeafarers = document.getElementById('home-registry-seafarers');
       let latestVacancies = [];
       let latestLoadState = 'loading';
+      let registrySummary = null;
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -812,6 +971,40 @@
         const item = document.createElement('span');
         item.textContent = `${label}: ${value}`;
         row.appendChild(item);
+      }
+
+      function asList(value) {
+        return Array.isArray(value) ? value : [];
+      }
+
+      function metaText(items) {
+        return items
+          .filter((item) => hasText(item.value))
+          .map((item) => `${item.label}: ${item.value}`)
+          .join(' · ');
+      }
+
+      function appendRegistryItem(list, titleText, metaItems) {
+        const item = document.createElement('li');
+        const title = document.createElement('strong');
+        title.textContent = hasText(titleText) ? titleText : t('home.registry.empty');
+        item.appendChild(title);
+
+        const meta = metaText(metaItems);
+        if (hasText(meta)) {
+          const small = document.createElement('small');
+          small.textContent = meta;
+          item.appendChild(small);
+        }
+
+        list.appendChild(item);
+      }
+
+      function renderEmptyRegistryList(list) {
+        list.innerHTML = '';
+        const item = document.createElement('li');
+        item.textContent = t('home.registry.empty');
+        list.appendChild(item);
       }
 
       function renderVacancy(vacancy) {
@@ -868,6 +1061,62 @@
         liveVacancies.hidden = false;
       }
 
+      function renderRegistryState() {
+        const counts = registrySummary && registrySummary.counts ? registrySummary.counts : {};
+        registryVacancyCount.textContent = String(counts.vacancy_requests || 0);
+        registryVesselCount.textContent = String(counts.vessels || 0);
+        registrySeafarerCount.textContent = String(counts.seafarers || 0);
+
+        const samples = registrySummary && registrySummary.samples ? registrySummary.samples : {};
+        const vacancyRows = asList(samples.vacancy_requests);
+        const vesselRows = asList(samples.vessels);
+        const seafarerRows = asList(samples.seafarers);
+
+        registryVacancies.innerHTML = '';
+        if (vacancyRows.length === 0) {
+          renderEmptyRegistryList(registryVacancies);
+        } else {
+          vacancyRows.slice(0, 4).forEach((row) => {
+            appendRegistryItem(registryVacancies, row.title || row.rank_label, [
+              { label: t('home.registry.rank'), value: row.rank_label },
+              { label: t('home.registry.department'), value: row.department },
+              { label: t('home.registry.vesselType'), value: row.vessel_type },
+              { label: t('home.registry.join'), value: row.join_date },
+              { label: t('home.registry.status'), value: row.publication_status },
+              { label: t('home.registry.company'), value: row.company_name },
+              { label: t('home.registry.vessel'), value: row.vessel_name },
+            ]);
+          });
+        }
+
+        registryVessels.innerHTML = '';
+        if (vesselRows.length === 0) {
+          renderEmptyRegistryList(registryVessels);
+        } else {
+          vesselRows.slice(0, 4).forEach((row) => {
+            appendRegistryItem(registryVessels, row.vessel_name, [
+              { label: t('home.registry.vesselType'), value: row.vessel_type },
+              { label: t('home.registry.flag'), value: row.flag_country_code },
+              { label: t('home.registry.company'), value: row.company_name },
+            ]);
+          });
+        }
+
+        registrySeafarers.innerHTML = '';
+        if (seafarerRows.length === 0) {
+          renderEmptyRegistryList(registrySeafarers);
+        } else {
+          seafarerRows.slice(0, 4).forEach((row) => {
+            appendRegistryItem(registrySeafarers, row.primary_rank || 'Seafarer profile', [
+              { label: t('home.registry.department'), value: row.department },
+              { label: t('home.registry.availability'), value: row.availability_status },
+              { label: t('home.registry.country'), value: row.country_code || row.nationality_code || row.residence_country_code },
+              { label: t('home.registry.status'), value: row.review_status },
+            ]);
+          });
+        }
+      }
+
       async function loadLiveVacancies() {
         latestLoadState = 'loading';
         renderLiveState();
@@ -889,8 +1138,28 @@
         renderLiveState();
       }
 
-      window.addEventListener('crewportglobal:languagechange', renderLiveState);
+      async function loadRegistrySummary() {
+        try {
+          const response = await fetch('/api/v1/registry-summary');
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || !payload || payload.ok !== true) {
+            throw new Error('home_registry_summary_load_failed');
+          }
+          registrySummary = payload;
+        } catch (error) {
+          registrySummary = null;
+          console.error(error);
+        }
+
+        renderRegistryState();
+      }
+
+      window.addEventListener('crewportglobal:languagechange', () => {
+        renderLiveState();
+        renderRegistryState();
+      });
       loadLiveVacancies();
+      loadRegistrySummary();
     })();
   </script>
 </body>

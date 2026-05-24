@@ -29,7 +29,18 @@ SET verification_status = 'rejected', updated_at = now()
 FROM ui_companies uc
 WHERE ec.company_id = uc.company_id
   AND ec.verification_status IN ('unverified', 'submitted', 'verified');
-`;
+
+WITH ui_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'ui.home.seafarer.%@example.com'
+)
+UPDATE crewportglobal.seafarer_profiles sp
+SET review_status = 'rejected', updated_at = now()
+FROM ui_users uu
+WHERE sp.user_id = uu.user_id
+  AND sp.review_status IN ('submitted_for_human_review', 'in_review', 'approved');
+	`;
 
   execSync(
     'PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -v ON_ERROR_STOP=1 -q',
@@ -45,6 +56,9 @@ test('homepage dashboard shows live API status and latest reviewed vacancy', asy
   const unique = Date.now();
   const title = `Second Engineer ${unique}`;
   const imo = `IMO${9300000 + (unique % 600000)}`;
+  const seafarerEmail = `ui.home.seafarer.${unique}@example.com`;
+  const seafarerPhone = `+1555${unique}`;
+  const seafarerRank = `Motorman ${unique}`;
 
   const createResponse = await request.post('/api/v1/registration/drafts', {
     data: {
@@ -78,6 +92,20 @@ test('homepage dashboard shows live API status and latest reviewed vacancy', asy
   expect(createResponse.ok()).toBeTruthy();
   const created = await createResponse.json();
 
+  const seafarerResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email: seafarerEmail,
+      full_name: `Homepage Seafarer ${unique}`,
+      rank: seafarerRank,
+      department: 'engine',
+      availability_status: 'available_now',
+      country_code: 'PH',
+      contact_phone: seafarerPhone,
+    },
+  });
+  expect(seafarerResponse.ok()).toBeTruthy();
+
   const companyDecision = await request.patch(`/api/v1/operator/review-queue/${created.draft_id}/status`, {
     data: {
       decision: 'reviewed',
@@ -102,4 +130,12 @@ test('homepage dashboard shows live API status and latest reviewed vacancy', asy
   await expect(page.locator('#home-live-vacancies')).toContainText(title);
   await expect(page.locator('#home-live-vacancies')).toContainText('Homepage Marine');
   await expect(page.locator('#home-live-vacancies')).toContainText('USD 5200.00 - 5800.00');
+  await expect(page.locator('#home-registry-vacancy-count')).not.toHaveText('0');
+  await expect(page.locator('#home-registry-vessel-count')).not.toHaveText('0');
+  await expect(page.locator('#home-registry-seafarer-count')).not.toHaveText('0');
+  await expect(page.locator('#home-registry-vacancies')).toContainText(title);
+  await expect(page.locator('#home-registry-vessels')).toContainText(`MV Dashboard Star ${unique}`);
+  await expect(page.locator('#home-registry-seafarers')).toContainText(seafarerRank);
+  await expect(page.locator('#home-registry-summary')).not.toContainText(seafarerEmail);
+  await expect(page.locator('#home-registry-summary')).not.toContainText(seafarerPhone);
 });

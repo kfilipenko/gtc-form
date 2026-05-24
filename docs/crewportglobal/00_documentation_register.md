@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.69
+- Version: 1.70
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -276,6 +276,7 @@ docs/crewportglobal/
   187_cpg_demand_024_import_visibility_numbered_tasks_delete_request_report.md
   188_cpg_demand_025_account_session_team_access_recovery_report.md
   189_cpg_demand_026_manager_deletion_confirmation_workflow_report.md
+  190_cpg_demand_027_public_demo_registry_summary_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -560,6 +561,8 @@ Document 188 records the CPG-DEMAND-025 account-session team access recovery imp
 
 Document 189 records the CPG-DEMAND-026 manager confirmation workflow for vacancy deletion requests, including owner/project-owner computed tasks, deletion-review GET/PATCH endpoints, confirm/reject state transitions, no-physical-delete boundary, actor-context audit events, `/team/` deep links, `/verify/` task panel and focused API/UI verification.
 
+Document 190 records the CPG-DEMAND-027 public demo registry summary implementation, including real PostgreSQL counts for registered crew requests, vessels and seafarers on the homepage, contact-free preview rows, `/api/v1/registry-summary`, privacy boundary proof and focused homepage verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -663,6 +666,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.70 | 2026-05-24 | GTC IT / AI Assistant | Added document 190 for CPG-DEMAND-027 covering the public demo registry summary, real live counts for crew requests, vessels and seafarers, contact-free homepage preview rows, `/api/v1/registry-summary` and focused verification |
 | 1.69 | 2026-05-24 | GTC IT / AI Assistant | Added document 189 for CPG-DEMAND-026 covering manager confirmation workflow for vacancy deletion requests, owner/project-owner computed tasks, deletion-review endpoint, confirm/reject transitions, no-physical-delete boundary, audit actor context, `/team/` deep links and `/verify/` task panel |
 | 1.68 | 2026-05-24 | GTC IT / AI Assistant | Added document 188 for CPG-DEMAND-025 covering account-session team access recovery for `/verify/` and `/team/`, `cpg_user_session` queue loading, group-scoped task visibility, PostgreSQL boolean normalization, preserved operation permission checks and focused verification |
 | 1.67 | 2026-05-24 | GTC IT / AI Assistant | Added document 187 for CPG-DEMAND-024 covering imported/test data visibility in the operator queue, numbered `/team/` tasks and `/verify/` queue rows, soft vacancy deletion request, manager-confirmation pending state, audit logging and focused verification |

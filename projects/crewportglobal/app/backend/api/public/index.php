@@ -7484,6 +7484,162 @@ function handle_get_public_vacancies(): void {
     ]);
 }
 
+function cpg_public_registry_count_row(): array {
+    $result = api_query(
+        "SELECT
+            (SELECT count(*)::int
+             FROM crewportglobal.vacancy_requests vr
+             WHERE COALESCE(vr.demand_workspace->'deletion_request'->>'status', '') <> 'confirmed_deleted') AS vacancy_request_count,
+            (SELECT count(*)::int
+             FROM crewportglobal.vessels) AS vessel_count,
+            (SELECT count(*)::int
+             FROM crewportglobal.seafarer_profiles) AS seafarer_count"
+    );
+
+    $row = pg_fetch_assoc($result);
+    return is_array($row) ? $row : [];
+}
+
+function cpg_public_registry_vacancy_rows(): array {
+    $result = api_query(
+        "SELECT
+            vr.vacancy_request_id,
+            COALESCE(NULLIF(vr.vacancy_title, ''), NULLIF(vr.required_rank_label, ''), NULLIF(vr.rank, ''), 'Crew request') AS vacancy_title,
+            COALESCE(NULLIF(vr.required_rank_label, ''), NULLIF(vr.rank, '')) AS rank_label,
+            vr.department,
+            COALESCE(NULLIF(vr.vessel_type_label, ''), NULLIF(vr.vessel_type, ''), NULLIF(v.vessel_type_label, ''), NULLIF(v.vessel_type, '')) AS vessel_type,
+            vr.join_date,
+            vr.publication_status,
+            ec.company_name,
+            v.vessel_name,
+            vr.updated_at
+         FROM crewportglobal.vacancy_requests vr
+         JOIN crewportglobal.employer_companies ec ON ec.company_id = vr.company_id
+         LEFT JOIN crewportglobal.vessels v ON v.vessel_id = vr.vessel_id
+         WHERE COALESCE(vr.demand_workspace->'deletion_request'->>'status', '') <> 'confirmed_deleted'
+         ORDER BY vr.updated_at DESC, vr.created_at DESC
+         LIMIT 6"
+    );
+
+    $items = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $items[] = [
+            'vacancy_request_id' => $row['vacancy_request_id'],
+            'title' => $row['vacancy_title'],
+            'rank_label' => $row['rank_label'],
+            'department' => $row['department'],
+            'vessel_type' => $row['vessel_type'],
+            'join_date' => $row['join_date'],
+            'publication_status' => $row['publication_status'],
+            'company_name' => $row['company_name'],
+            'vessel_name' => $row['vessel_name'],
+            'updated_at' => $row['updated_at'],
+        ];
+    }
+
+    return $items;
+}
+
+function cpg_public_registry_vessel_rows(): array {
+    $result = api_query(
+        "SELECT
+            v.vessel_id,
+            v.vessel_name,
+            COALESCE(NULLIF(v.vessel_type_label, ''), NULLIF(v.vessel_type, '')) AS vessel_type,
+            v.flag_country_code,
+            ec.company_name,
+            ec.company_type,
+            v.updated_at
+         FROM crewportglobal.vessels v
+         LEFT JOIN crewportglobal.employer_companies ec ON ec.company_id = v.company_id
+         ORDER BY v.updated_at DESC, v.created_at DESC
+         LIMIT 6"
+    );
+
+    $items = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $items[] = [
+            'vessel_id' => $row['vessel_id'],
+            'vessel_name' => $row['vessel_name'],
+            'vessel_type' => $row['vessel_type'],
+            'flag_country_code' => $row['flag_country_code'],
+            'company_name' => $row['company_name'],
+            'company_type' => $row['company_type'],
+            'updated_at' => $row['updated_at'],
+        ];
+    }
+
+    return $items;
+}
+
+function cpg_public_registry_seafarer_rows(): array {
+    $result = api_query(
+        "SELECT
+            seafarer_profile_id,
+            primary_rank,
+            department,
+            availability_status,
+            country_code,
+            nationality_code,
+            residence_country_code,
+            review_status,
+            updated_at
+         FROM crewportglobal.seafarer_profiles
+         ORDER BY updated_at DESC, created_at DESC
+         LIMIT 6"
+    );
+
+    $items = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $items[] = [
+            'seafarer_profile_id' => $row['seafarer_profile_id'],
+            'primary_rank' => $row['primary_rank'],
+            'department' => $row['department'],
+            'availability_status' => $row['availability_status'],
+            'country_code' => $row['country_code'],
+            'nationality_code' => $row['nationality_code'],
+            'residence_country_code' => $row['residence_country_code'],
+            'review_status' => $row['review_status'],
+            'updated_at' => $row['updated_at'],
+        ];
+    }
+
+    return $items;
+}
+
+function handle_get_public_registry_summary(): void {
+    $counts = cpg_public_registry_count_row();
+
+    api_json(200, [
+        'ok' => true,
+        'generated_at' => gmdate('c'),
+        'privacy_boundary' => [
+            'contact_fields_excluded' => true,
+            'seafarer_names_excluded' => true,
+            'forbidden_fields' => [
+                'email',
+                'contact_email',
+                'seafarer_email',
+                'phone',
+                'contact_phone',
+                'document_metadata',
+                'passport_number',
+                'medical_details',
+            ],
+        ],
+        'counts' => [
+            'vacancy_requests' => (int) ($counts['vacancy_request_count'] ?? 0),
+            'vessels' => (int) ($counts['vessel_count'] ?? 0),
+            'seafarers' => (int) ($counts['seafarer_count'] ?? 0),
+        ],
+        'samples' => [
+            'vacancy_requests' => cpg_public_registry_vacancy_rows(),
+            'vessels' => cpg_public_registry_vessel_rows(),
+            'seafarers' => cpg_public_registry_seafarer_rows(),
+        ],
+    ]);
+}
+
 function handle_get_public_vacancy(string $vacancyId): void {
     $uuid = api_normalize_uuid($vacancyId);
     if ($uuid === null) {
@@ -11622,6 +11778,10 @@ if (preg_match('#^/operator/seafarer-medical/([^/]+)$#', $path, $matches) === 1)
 
 if ($method === 'GET' && $path === '/vacancies') {
     handle_get_public_vacancies();
+}
+
+if ($method === 'GET' && $path === '/registry-summary') {
+    handle_get_public_registry_summary();
 }
 
 if (preg_match('#^/vacancies/([^/]+)$#', $path, $matches) === 1) {
