@@ -138,4 +138,10 @@ test('homepage dashboard shows live API status and latest reviewed vacancy', asy
   await expect(page.locator('#home-registry-seafarers')).toContainText(seafarerRank);
   await expect(page.locator('#home-registry-summary')).not.toContainText(seafarerEmail);
   await expect(page.locator('#home-registry-summary')).not.toContainText(seafarerPhone);
+  await expect(page.locator('main')).not.toContainText('for demonstration');
+  await expect(page.locator('#vacancy-search-block details').first()).not.toHaveAttribute('open', '');
+  await expect(page.locator('#vacancy-search-block .field-note').first()).not.toBeVisible();
+
+  await page.locator('#vacancy-search-block summary').first().click();
+  await expect(page.locator('#vacancy-search-block .field-note').first()).toBeVisible();
 });

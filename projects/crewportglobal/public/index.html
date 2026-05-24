@@ -109,6 +109,37 @@
       gap: 10px;
     }
 
+    details.search-field summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    details.search-field summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details.search-field summary::after {
+      content: "+";
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      color: var(--paper-strong);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    details.search-field[open] summary::after {
+      content: "-";
+    }
+
     .search-field strong,
     .value-card strong,
     .trust-card strong,
@@ -204,7 +235,6 @@
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
-      margin-top: 18px;
     }
 
     .registry-count-card,
@@ -364,31 +394,27 @@
     <main class="doc-main">
       <section class="home-grid app-hero">
         <article class="hero-copy app-hero-main">
-          <p class="app-kicker" data-i18n="home.hero.eyebrow">Maritime crew coordination platform</p>
-          <h1 class="landing-title" data-i18n="home.title">CrewPortGlobal connects employer demand with seafarer supply.</h1>
-          <p class="landing-lead" data-i18n="home.hero.lead">The public site explains the service model, trust rules and registration path. Functional work areas open only after registration, authentication and confirmed authorization.</p>
-          <div class="actions app-actions">
-            <a class="button primary" href="https://crewportglobal.com/how-it-works/" data-i18n="home.value.workflow.cta">How It Works</a>
-            <a class="button secondary" href="https://crewportglobal.com/legal/verification-policy/" data-i18n="home.cta.trust.button">Trust &amp; Safety</a>
-            <a class="button secondary" href="https://crewportglobal.com/for-seafarers/" data-i18n="home.hero.seafarerInfoCta">For Seafarers</a>
+          <p class="app-kicker" data-i18n="home.hero.eyebrow">Maritime crew matching workspace</p>
+          <h1 class="landing-title" data-i18n="home.title">CrewPortGlobal matches crew demand with verified seafarer supply.</h1>
+          <p class="landing-lead" data-i18n="home.hero.lead">Live crew requests, vessels and seafarer profiles are already registered. Public preview stays contact-free; operational work stays protected.</p>
+          <div class="registry-count-grid" aria-live="polite">
+            <article class="registry-count-card">
+              <strong id="home-registry-vacancy-count">0</strong>
+              <span data-i18n="home.registry.requests">registered crew requests</span>
+            </article>
+            <article class="registry-count-card">
+              <strong id="home-registry-vessel-count">0</strong>
+              <span data-i18n="home.registry.vessels">registered vessels</span>
+            </article>
+            <article class="registry-count-card">
+              <strong id="home-registry-seafarer-count">0</strong>
+              <span data-i18n="home.registry.seafarers">registered seafarers</span>
+            </article>
           </div>
-          <div class="app-stats-grid">
-            <div class="app-stat">
-              <strong id="home-live-vacancy-count" data-i18n="home.stat.vacancies.value">0</strong>
-              <span data-i18n="home.stat.vacancies.label">reviewed public vacancies</span>
-            </div>
-            <div class="app-stat">
-              <strong data-i18n="home.stat.cv.value">Private</strong>
-              <span data-i18n="home.stat.cv.label">CV visibility</span>
-            </div>
-            <div class="app-stat">
-              <strong data-i18n="home.stat.fees.value">0</strong>
-              <span data-i18n="home.stat.fees.label">seafarer recruitment fees</span>
-            </div>
-            <div class="app-stat">
-              <strong data-i18n="home.stat.review.value">Human</strong>
-              <span data-i18n="home.stat.review.label">review gate</span>
-            </div>
+          <div class="actions app-actions">
+            <a class="button primary" href="https://crewportglobal.com/vacancies/" data-i18n="home.hero.vacanciesCta">View vacancies</a>
+            <a class="button secondary" href="https://crewportglobal.com/for-shipowners/" data-i18n="home.hero.employerInfoCta">For Employers</a>
+            <a class="button secondary" href="https://crewportglobal.com/for-seafarers/" data-i18n="home.hero.seafarerInfoCta">For Seafarers</a>
           </div>
           <div class="live-dashboard" aria-live="polite">
             <span>
@@ -400,11 +426,11 @@
               <span data-i18n="home.live.board.label">Vacancy board</span>
             </span>
             <span>
-              <strong data-i18n="home.live.review.value">Human review</strong>
-              <span data-i18n="home.live.review.label">Publication gate</span>
+              <strong id="home-live-vacancy-count" data-i18n="home.stat.vacancies.value">0</strong>
+              <span data-i18n="home.stat.vacancies.label">reviewed public vacancies</span>
             </span>
           </div>
-          <p class="trust-note app-chip good" data-i18n="home.hero.trust">Registration creates a person and service account. Authorization is granted only when group membership, authority evidence and client-card relationship justify access to a specific area or record.</p>
+          <p class="trust-note app-chip good" data-i18n="home.hero.trust">No recruitment fees for seafarers. Candidate presentation requires review and consent.</p>
         </article>
 
         <aside class="hero-aside app-hero-media">
@@ -412,17 +438,17 @@
           <section class="app-panel">
             <p class="eyebrow" data-i18n="home.seafarers.eyebrow">For seafarers</p>
             <h2 data-i18n="home.seafarers.title">Seafarer supply is a professional resource</h2>
-            <p data-i18n="home.seafarers.copy">CrewPortGlobal records rank, certificates, availability, compensation expectations, vessel preferences and readiness for reviewed candidate presentation.</p>
+            <p data-i18n="home.seafarers.copy">Rank, certificates, availability and preferences are structured for reviewed matching.</p>
           </section>
           <section class="app-panel">
             <p class="eyebrow" data-i18n="home.employers.eyebrow">For employers</p>
             <h2 data-i18n="home.employers.title">Employer-side demand is the paying client side</h2>
-            <p data-i18n="home.employers.copy">CrewPortGlobal records company context, vessel context, crew need, budget, joining date, contract duration and evidence of authority to request candidates.</p>
+            <p data-i18n="home.employers.copy">Company, vessel and crew requirements are recorded as comparable demand data.</p>
           </section>
           <section class="app-panel">
             <p class="eyebrow" data-i18n="home.boundary.eyebrow">Trust rules</p>
             <h2 data-i18n="home.boundary.title">Matching is reviewed before presentation</h2>
-            <p data-i18n="home.boundary.copy">The platform may recommend candidates when demand conditions and seafarer supply data are sufficiently aligned. Human review remains mandatory.</p>
+            <p data-i18n="home.boundary.copy">Automated comparison supports operators; final presentation remains controlled.</p>
           </section>
         </aside>
       </section>
@@ -430,53 +456,39 @@
       <section class="card vacancy-search section-card app-search-card">
         <p class="eyebrow" data-i18n="home.search.eyebrow">Service model</p>
         <h2 class="section-title" data-i18n="home.search.title">The platform compares demand with supply after verified registration.</h2>
-        <p class="section-copy" data-i18n="home.search.copy">The public page does not collect operational data. It explains what information will be requested after a person creates a service account and receives confirmed capabilities.</p>
+        <p class="section-copy" data-i18n="home.search.copy">Open a topic for the minimum matching model. Full policies remain in the document section.</p>
         <div class="search-grid app-search-grid" id="vacancy-search-block">
-          <article class="search-field">
-            <strong data-i18n="home.search.position">Employer demand</strong>
+          <details class="search-field">
+            <summary><strong data-i18n="home.search.position">Employer demand</strong></summary>
             <p class="field-note" data-i18n="home.search.position.option1">Requested rank, department, vessel type, joining date, contract duration, salary range, required certificates and operating region.</p>
-          </article>
-          <article class="search-field">
-            <strong data-i18n="home.search.vessel">Seafarer supply</strong>
+          </details>
+          <details class="search-field">
+            <summary><strong data-i18n="home.search.vessel">Seafarer supply</strong></summary>
             <p class="field-note" data-i18n="home.search.vessel.option1">Rank, department, documents, experience, availability, expected compensation, preferred vessels, language skills and restrictions.</p>
-          </article>
-          <article class="search-field">
-            <strong data-i18n="home.search.joinDate">Authorization evidence</strong>
+          </details>
+          <details class="search-field">
+            <summary><strong data-i18n="home.search.joinDate">Authorization evidence</strong></summary>
             <p class="field-note" data-i18n="home.search.joinDate.placeholder">A person may act for a company, vessel or request only when the evidence has been reviewed and the scope is recorded.</p>
-          </article>
-          <article class="search-field">
-            <strong data-i18n="home.search.salary">Scoped visibility</strong>
+          </details>
+          <details class="search-field">
+            <summary><strong data-i18n="home.search.salary">Scoped visibility</strong></summary>
             <p class="field-note" data-i18n="home.search.salary.option1">Group membership opens service areas, but record visibility depends on the client card, task, company, vessel or control function.</p>
-          </article>
-          <article class="search-field">
-            <strong data-i18n="home.search.country">Human review</strong>
+          </details>
+          <details class="search-field">
+            <summary><strong data-i18n="home.search.country">Human review</strong></summary>
             <p class="field-note" data-i18n="home.search.country.placeholder">CrewPortGlobal reviews readiness before public publication, candidate recommendation or operational handoff.</p>
-          </article>
-          <article class="search-field">
-            <strong data-i18n="home.search.nextStep">Authenticated cabinet</strong>
+          </details>
+          <details class="search-field">
+            <summary><strong data-i18n="home.search.nextStep">Authenticated cabinet</strong></summary>
             <p class="field-note" data-i18n="home.search.nextStep.copy">After login, the personal cabinet is assembled from confirmed capability cards connected to the physical person.</p>
-          </article>
+          </details>
         </div>
       </section>
 
       <section class="card vacancy-board section-card" id="home-registry-summary">
         <p class="eyebrow" data-i18n="home.registry.eyebrow">Live registry</p>
-        <h2 class="section-title" data-i18n="home.registry.title">Registered platform data for demonstration</h2>
-        <p class="section-copy" data-i18n="home.registry.copy">These counters come from the live database. Preview rows are intentionally contact-free: no e-mail, phone, document metadata, medical details or seafarer names are shown.</p>
-        <div class="registry-count-grid" aria-live="polite">
-          <article class="registry-count-card">
-            <strong id="home-registry-vacancy-count">0</strong>
-            <span data-i18n="home.registry.requests">registered crew requests</span>
-          </article>
-          <article class="registry-count-card">
-            <strong id="home-registry-vessel-count">0</strong>
-            <span data-i18n="home.registry.vessels">registered vessels</span>
-          </article>
-          <article class="registry-count-card">
-            <strong id="home-registry-seafarer-count">0</strong>
-            <span data-i18n="home.registry.seafarers">registered seafarers</span>
-          </article>
-        </div>
+        <h2 class="section-title" data-i18n="home.registry.title">Registered platform data</h2>
+        <p class="section-copy" data-i18n="home.registry.copy">Safe preview rows from the live database. Contact details and documents are not public.</p>
         <div class="registry-preview-grid">
           <article class="registry-list-card">
             <h3 data-i18n="home.registry.requestsTitle">Crew requests</h3>
@@ -610,14 +622,15 @@
   <script>
     window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
       en: {
-        'home.title': 'CrewPortGlobal connects employer demand with seafarer supply.',
-        'home.hero.eyebrow': 'Maritime crew coordination platform',
-        'home.hero.lead': 'The public site explains the service model, trust rules and registration path. Functional work areas open only after registration, authentication and confirmed authorization.',
+        'home.title': 'CrewPortGlobal matches crew demand with verified seafarer supply.',
+        'home.hero.eyebrow': 'Maritime crew matching workspace',
+        'home.hero.lead': 'Live crew requests, vessels and seafarer profiles are already registered. Public preview stays contact-free; operational work stays protected.',
         'home.hero.primaryCta': 'How It Works',
         'home.hero.secondaryCta': 'Trust & Safety',
+        'home.hero.vacanciesCta': 'View vacancies',
         'home.hero.seafarerInfoCta': 'For Seafarers',
         'home.hero.employerInfoCta': 'For Employers',
-        'home.hero.trust': 'Registration creates a person and service account. Authorization is granted only when group membership, authority evidence and client-card relationship justify access to a specific area or record.',
+        'home.hero.trust': 'No recruitment fees for seafarers. Candidate presentation requires review and consent.',
         'home.stat.vacancies.value': '0',
         'home.stat.vacancies.label': 'reviewed public vacancies',
         'home.stat.cv.value': 'Private',
@@ -634,7 +647,7 @@
         'home.live.board.empty': 'No public listings',
         'home.live.board.available': '{count} published',
         'home.live.board.label': 'Vacancy board',
-        'home.live.review.value': 'Human review',
+        'home.live.review.value': 'Reviewed',
         'home.live.review.label': 'Publication gate',
         'home.live.salary': 'Salary',
         'home.live.salaryRequest': 'On request',
@@ -645,16 +658,16 @@
         'home.board.copyAvailable': 'Reviewed public vacancies are available now. Open the board for public information and reviewed listings.',
         'home.seafarers.eyebrow': 'For seafarers',
         'home.seafarers.title': 'Seafarer supply is a professional resource',
-        'home.seafarers.copy': 'CrewPortGlobal records rank, certificates, availability, compensation expectations, vessel preferences and readiness for reviewed candidate presentation.',
+        'home.seafarers.copy': 'Rank, certificates, availability and preferences are structured for reviewed matching.',
         'home.employers.eyebrow': 'For employers',
         'home.employers.title': 'Employer-side demand is the paying client side',
-        'home.employers.copy': 'CrewPortGlobal records company context, vessel context, crew need, budget, joining date, contract duration and evidence of authority to request candidates.',
+        'home.employers.copy': 'Company, vessel and crew requirements are recorded as comparable demand data.',
         'home.boundary.eyebrow': 'Trust rules',
         'home.boundary.title': 'Matching is reviewed before presentation',
-        'home.boundary.copy': 'The platform may recommend candidates when demand conditions and seafarer supply data are sufficiently aligned. Human review remains mandatory.',
+        'home.boundary.copy': 'Automated comparison supports operators; final presentation remains controlled.',
         'home.search.eyebrow': 'Service model',
         'home.search.title': 'The platform compares demand with supply after verified registration.',
-        'home.search.copy': 'The public page does not collect operational data. It explains what information will be requested after a person creates a service account and receives confirmed capabilities.',
+        'home.search.copy': 'Open a topic for the minimum matching model. Full policies remain in the document section.',
         'home.search.position': 'Employer demand',
         'home.search.position.option1': 'Requested rank, department, vessel type, joining date, contract duration, salary range, required certificates and operating region.',
         'home.search.position.option2': 'Employer-side demand is recorded only inside authenticated and scoped workflows.',
@@ -675,8 +688,8 @@
         'home.search.nextStep.copy': 'After login, the personal cabinet is assembled from confirmed capability cards connected to the physical person.',
         'home.search.nextStep.cta': 'Public vacancy information',
         'home.registry.eyebrow': 'Live registry',
-        'home.registry.title': 'Registered platform data for demonstration',
-        'home.registry.copy': 'These counters come from the live database. Preview rows are intentionally contact-free: no e-mail, phone, document metadata, medical details or seafarer names are shown.',
+        'home.registry.title': 'Registered platform data',
+        'home.registry.copy': 'Safe preview rows from the live database. Contact details and documents are not public.',
         'home.registry.requests': 'registered crew requests',
         'home.registry.vessels': 'registered vessels',
         'home.registry.seafarers': 'registered seafarers',
@@ -694,7 +707,7 @@
         'home.registry.flag': 'Flag',
         'home.registry.availability': 'Availability',
         'home.registry.country': 'Country',
-        'home.registry.safeNote': 'The public demo view shows operational counts and structured matching hints only. Contact details remain inside protected workflows.',
+        'home.registry.safeNote': 'This view shows operational counts and structured matching hints only. Contact details remain inside protected workflows.',
         'home.board.eyebrow': 'Latest vacancies',
         'home.board.title': 'Current public vacancy board',
         'home.board.copy': 'Public vacancies are shown only when reviewed employer-side demand is ready for publication. Operational registration and request preparation are handled after authenticated access.',
@@ -760,14 +773,15 @@
         'home.cta.trust.button': 'Open Trust & Safety'
       },
       ru: {
-        'home.title': 'CrewPortGlobal соединяет спрос работодателей с предложением моряков.',
-        'home.hero.eyebrow': 'Платформа координации морских экипажей',
-        'home.hero.lead': 'Публичный сайт объясняет модель сервиса, правила доверия и путь регистрации. Рабочие разделы открываются только после регистрации, аутентификации и подтверждённой авторизации.',
+        'home.title': 'CrewPortGlobal сопоставляет спрос на экипаж с проверенными данными моряков.',
+        'home.hero.eyebrow': 'Рабочая среда подбора морских экипажей',
+        'home.hero.lead': 'Заявки, суда и профили моряков уже зарегистрированы в системе. Публичный просмотр не раскрывает контакты; операционная работа остается защищенной.',
         'home.hero.primaryCta': 'Как это работает',
         'home.hero.secondaryCta': 'Доверие и безопасность',
+        'home.hero.vacanciesCta': 'Смотреть вакансии',
         'home.hero.seafarerInfoCta': 'Для моряков',
         'home.hero.employerInfoCta': 'Для работодателей',
-        'home.hero.trust': 'Регистрация создаёт карточку физического лица и сервисный аккаунт. Авторизация предоставляется только когда группа, доказательство полномочий и связь с карточкой клиента дают основание для доступа к конкретному разделу или записи.',
+        'home.hero.trust': 'Для моряков нет рекрутинговых сборов. Представление кандидата требует проверки и согласия.',
         'home.stat.vacancies.value': '0',
         'home.stat.vacancies.label': 'проверенных публичных вакансий',
         'home.stat.cv.value': 'Приватно',
@@ -784,7 +798,7 @@
         'home.live.board.empty': 'Публикаций нет',
         'home.live.board.available': 'Опубликовано: {count}',
         'home.live.board.label': 'Доска вакансий',
-        'home.live.review.value': 'Ручная проверка',
+        'home.live.review.value': 'Проверено',
         'home.live.review.label': 'Допуск к публикации',
         'home.live.salary': 'Зарплата',
         'home.live.salaryRequest': 'По запросу',
@@ -795,16 +809,16 @@
         'home.board.copyAvailable': 'Проверенные публичные вакансии уже доступны. Откройте доску для публичной информации и проверенных публикаций.',
         'home.seafarers.eyebrow': 'Для моряков',
         'home.seafarers.title': 'Моряк является профессиональным ресурсом',
-        'home.seafarers.copy': 'CrewPortGlobal фиксирует должность, сертификаты, доступность, ожидания по оплате, предпочтения по судам и готовность к проверенному представлению кандидата.',
+        'home.seafarers.copy': 'Должность, сертификаты, доступность и предпочтения структурируются для проверенного подбора.',
         'home.employers.eyebrow': 'Для работодателей',
         'home.employers.title': 'Сторона работодателя является покупателем услуги',
-        'home.employers.copy': 'CrewPortGlobal фиксирует контекст компании, судна, потребность в экипаже, бюджет, дату посадки, длительность контракта и доказательство права запрашивать кандидатов.',
+        'home.employers.copy': 'Компания, судно и требования к экипажу записываются как сопоставимые данные спроса.',
         'home.boundary.eyebrow': 'Правила доверия',
         'home.boundary.title': 'Сопоставление проверяется до представления',
-        'home.boundary.copy': 'Платформа может рекомендовать кандидатов, когда условия спроса и данные предложения моряка достаточно совпадают. Ручная проверка остаётся обязательной.',
+        'home.boundary.copy': 'Автоматическое сравнение помогает оператору; финальное представление остается контролируемым.',
         'home.search.eyebrow': 'Модель сервиса',
         'home.search.title': 'Платформа сравнивает спрос и предложение после проверенной регистрации.',
-        'home.search.copy': 'Публичная страница не собирает операционные данные. Она объясняет, какие сведения будут запрошены после создания сервисного аккаунта и подтверждения возможностей.',
+        'home.search.copy': 'Откройте пункт, чтобы увидеть минимальную модель сопоставления. Полные правила остаются в разделе документов.',
         'home.search.position': 'Спрос работодателя',
         'home.search.position.option1': 'Запрошенная должность, департамент, тип судна, дата посадки, длительность контракта, диапазон оплаты, требуемые сертификаты и регион работы.',
         'home.search.position.option2': 'Спрос работодателя фиксируется только внутри аутентифицированных и ограниченных по полномочиям процессов.',
@@ -825,8 +839,8 @@
         'home.search.nextStep.copy': 'После входа личный кабинет собирается из подтверждённых карточек возможностей, связанных с физическим лицом.',
         'home.search.nextStep.cta': 'Публичная информация о вакансиях',
         'home.registry.eyebrow': 'Живой реестр',
-        'home.registry.title': 'Зарегистрированные данные платформы для демонстрации',
-        'home.registry.copy': 'Эти счетчики берутся из живой базы данных. Строки предварительного просмотра намеренно не содержат контактных данных: e-mail, телефоны, метаданные документов, медицинские детали и имена моряков не показываются.',
+        'home.registry.title': 'Зарегистрированные данные платформы',
+        'home.registry.copy': 'Безопасные строки из живой базы данных. Контакты и документы не публикуются.',
         'home.registry.requests': 'зарегистрированных заявок',
         'home.registry.vessels': 'зарегистрированных судов',
         'home.registry.seafarers': 'зарегистрированных моряков',
@@ -844,7 +858,7 @@
         'home.registry.flag': 'Флаг',
         'home.registry.availability': 'Доступность',
         'home.registry.country': 'Страна',
-        'home.registry.safeNote': 'Публичный демонстрационный вид показывает только операционные счетчики и структурированные признаки для сопоставления. Контактные данные остаются в защищённых процессах.',
+        'home.registry.safeNote': 'Этот вид показывает только операционные счетчики и структурированные признаки для сопоставления. Контактные данные остаются в защищённых процессах.',
         'home.board.eyebrow': 'Последние вакансии',
         'home.board.title': 'Текущая публичная доска вакансий',
         'home.board.copy': 'Публичные вакансии показываются только когда проверенный спрос со стороны работодателя готов к публикации. Операционная регистрация и подготовка запросов выполняются после аутентифицированного доступа.',
