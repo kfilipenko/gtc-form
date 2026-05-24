@@ -715,6 +715,7 @@
         'verify.candidateSearch.reviewApplicationsBlocked': 'Review application guard blocked: {items}',
         'verify.candidateSearch.reviewApplicationsError': 'Could not create review applications.',
         'verify.candidateSearch.reviewApplication': '{candidate}: {status}; action {action}',
+        'verify.candidateSearch.operation': 'Computed operation: {label}. Group: {group}. Permission: {permission}. Status: {status}.',
         'verify.field.draftId': 'Draft ID',
         'verify.field.role': 'Role',
         'verify.field.email': 'Email',
@@ -775,6 +776,7 @@
         'verify.field.approvalWarnings': 'Warnings',
         'verify.field.activeConsents': 'Active consents',
         'verify.field.payloadGuard': 'Employer payload guard',
+        'verify.field.computedOperation': 'Computed operation',
         'verify.value.complete': 'complete',
         'verify.value.incomplete': 'incomplete',
         'verify.value.missing': 'missing: {items}',
@@ -926,6 +928,7 @@
         'verify.candidateSearch.reviewApplicationsBlocked': 'Review application guard заблокировал: {items}',
         'verify.candidateSearch.reviewApplicationsError': 'Не удалось создать review-заявки.',
         'verify.candidateSearch.reviewApplication': '{candidate}: {status}; действие {action}',
+        'verify.candidateSearch.operation': 'Вычисленная операция: {label}. Группа: {group}. Право: {permission}. Статус: {status}.',
         'verify.field.draftId': 'Draft ID',
         'verify.field.role': 'Роль',
         'verify.field.email': 'Email',
@@ -986,6 +989,7 @@
         'verify.field.approvalWarnings': 'Предупреждения',
         'verify.field.activeConsents': 'Активные согласия',
         'verify.field.payloadGuard': 'Контроль payload работодателя',
+        'verify.field.computedOperation': 'Вычисленная операция',
         'verify.value.complete': 'заполнено',
         'verify.value.incomplete': 'неполно',
         'verify.value.missing': 'не хватает: {items}',
@@ -1487,7 +1491,36 @@
           : [];
       }
 
-      function renderShortlistDraftResult(container, draft) {
+      function computedOperations(payload) {
+        return payload && Array.isArray(payload.computed_operations)
+          ? payload.computed_operations.filter((item) => item && typeof item === 'object')
+          : [];
+      }
+
+      function computedOperationText(operation) {
+        const access = operation && operation.required_access && typeof operation.required_access === 'object'
+          ? operation.required_access
+          : {};
+        return t('verify.candidateSearch.operation', {
+          label: access.operation_label || operation.operation_code || emptyValue(),
+          group: access.target_group_code || emptyValue(),
+          permission: access.required_permission_code || emptyValue(),
+          status: operation.operation_status || emptyValue(),
+        });
+      }
+
+      function renderComputedOperations(container, payload) {
+        computedOperations(payload).forEach((operation) => {
+          const line = document.createElement('div');
+          line.className = 'candidate-shortlist-candidate';
+          const strong = document.createElement('strong');
+          strong.textContent = computedOperationText(operation);
+          line.appendChild(strong);
+          container.appendChild(line);
+        });
+      }
+
+      function renderShortlistDraftResult(container, draft, payload) {
         container.innerHTML = '';
         if (!draft || typeof draft !== 'object') {
           return;
@@ -1522,6 +1555,8 @@
           line.appendChild(strong);
           container.appendChild(line);
         });
+
+        renderComputedOperations(container, payload);
       }
 
       function renderReviewApplicationsResult(container, payload) {
@@ -1554,6 +1589,7 @@
           line.appendChild(strong);
           container.appendChild(line);
         });
+        renderComputedOperations(container, payload);
       }
 
       function renderCandidateSearchResults(container, payload) {
@@ -1644,6 +1680,7 @@
           appendCandidateShortlistControls(card, candidate);
           container.appendChild(card);
         });
+        renderComputedOperations(container, payload);
       }
 
       function createCandidateSearchSection(vacancy) {
@@ -1785,7 +1822,7 @@
             }
             lastShortlistDraftId = payload.shortlist_draft.shortlist_draft_id || '';
             lastShortlistDraftStatus = payload.shortlist_draft.draft_status || '';
-            renderShortlistDraftResult(shortlistResult, payload.shortlist_draft);
+            renderShortlistDraftResult(shortlistResult, payload.shortlist_draft, payload);
             approveShortlistButton.disabled = !lastShortlistDraftId;
             rejectShortlistButton.disabled = !lastShortlistDraftId;
             createReviewApplicationsButton.disabled = lastShortlistDraftStatus !== 'approved_internal';
@@ -1840,7 +1877,7 @@
               throw new Error('shortlist approval request failed');
             }
             lastShortlistDraftStatus = payload.shortlist_draft.draft_status || '';
-            renderShortlistDraftResult(shortlistResult, payload.shortlist_draft);
+            renderShortlistDraftResult(shortlistResult, payload.shortlist_draft, payload);
             const key = decision === 'reject' ? 'verify.candidateSearch.rejectedDraft' : 'verify.candidateSearch.approvedDraft';
             statusNode.textContent = t(key, {
               status: payload.shortlist_draft.draft_status || emptyValue(),
@@ -2104,6 +2141,14 @@
         ];
       }
 
+      function computedOperationFields(operations) {
+        return Array.isArray(operations)
+          ? operations.map((operation) => createDetailField('verify.field.computedOperation', computedOperationText(operation), {
+            muted: operation && operation.operation_status !== 'available',
+          })).filter(Boolean)
+          : [];
+      }
+
       function appendSeafarerStructuredSections(sections, payload) {
         const workspace = structuredWorkspace(payload);
         const readiness = reviewReadiness(payload);
@@ -2276,6 +2321,9 @@
 
         if (approvalGuard) {
           sections.push(createDetailSection('verify.section.approvalGuard', approvalGuardFields(approvalGuard)));
+        }
+        if (Array.isArray(payload.computed_operations) && payload.computed_operations.length > 0) {
+          sections.push(createDetailSection('verify.field.computedOperation', computedOperationFields(payload.computed_operations)));
         }
 
         if (seafarer) {

@@ -120,6 +120,181 @@ function operator_queue_access_contract(string $queueType): ?array {
     return cpg_access_operator_queue_capabilities($queueType, null, true, cpg_identity_permission_mode($identity));
 }
 
+function operator_workflow_operation_requirements(): array {
+    return [
+        'create_internal_shortlist_draft' => [
+            'operation_label' => 'Create internal shortlist draft',
+            'target_group_code' => 'review_team',
+            'target_role_code' => 'reviewer',
+            'required_permission_code' => 'view_review_queue',
+            'scope' => 'queue',
+        ],
+        'approve_internal_shortlist' => [
+            'operation_label' => 'Approve internal shortlist',
+            'target_group_code' => 'review_team',
+            'target_role_code' => 'reviewer',
+            'required_permission_code' => 'approve_candidate_presentation',
+            'scope' => 'queue',
+        ],
+        'create_review_applications' => [
+            'operation_label' => 'Create internal review applications',
+            'target_group_code' => 'review_team',
+            'target_role_code' => 'reviewer',
+            'required_permission_code' => 'start_human_review',
+            'scope' => 'queue',
+        ],
+        'review_candidate_presentation' => [
+            'operation_label' => 'Review candidate presentation',
+            'target_group_code' => 'review_team',
+            'target_role_code' => 'reviewer',
+            'required_permission_code' => 'approve_candidate_presentation',
+            'scope' => 'queue',
+        ],
+    ];
+}
+
+function operator_workflow_operation_requirement(string $operationCode): ?array {
+    $requirements = operator_workflow_operation_requirements();
+    return isset($requirements[$operationCode]) && is_array($requirements[$operationCode])
+        ? $requirements[$operationCode]
+        : null;
+}
+
+function operator_workflow_operation_contract(string $operationCode, ?array $access = null): array {
+    $requirement = operator_workflow_operation_requirement($operationCode) ?? [];
+    $mode = is_array($access) && is_string($access['access_model'] ?? null)
+        ? (string) $access['access_model']
+        : (is_array($access) && is_string($access['mode'] ?? null)
+            ? (string) $access['mode']
+            : CPG_IDENTITY_BOUNDARY_TEMPORARY_OPERATOR_TOKEN);
+    $allowed = !is_array($access) || ($access['allowed'] ?? true) === true;
+
+    return [
+        'operation_code' => $operationCode,
+        'operation_label' => is_string($requirement['operation_label'] ?? null) ? $requirement['operation_label'] : $operationCode,
+        'target_group_code' => is_string($requirement['target_group_code'] ?? null) ? $requirement['target_group_code'] : null,
+        'target_role_code' => is_string($requirement['target_role_code'] ?? null) ? $requirement['target_role_code'] : null,
+        'required_permission_code' => is_string($requirement['required_permission_code'] ?? null) ? $requirement['required_permission_code'] : null,
+        'scope' => is_string($requirement['scope'] ?? null) ? $requirement['scope'] : null,
+        'mode' => $mode,
+        'allowed' => $allowed,
+        'permission_boundary' => $mode === CPG_IDENTITY_BOUNDARY_TEMPORARY_OPERATOR_TOKEN
+            ? 'temporary_operator_token_compatibility'
+            : 'group_permission_check',
+        'actor_label' => is_string($access['actor_label'] ?? null) ? (string) $access['actor_label'] : 'temporary_operator_token',
+        'actor_user_id' => is_string($access['actor_user_id'] ?? null) && $access['actor_user_id'] !== ''
+            ? (string) $access['actor_user_id']
+            : null,
+    ];
+}
+
+function operator_workflow_actor_context(?array $access, string $operationCode): array {
+    $contract = operator_workflow_operation_contract($operationCode, $access);
+    return [
+        'operation_code' => $operationCode,
+        'access_model' => $contract['mode'],
+        'actor_label' => $contract['actor_label'],
+        'actor_user_id' => $contract['actor_user_id'],
+        'target_group_code' => $contract['target_group_code'],
+        'target_role_code' => $contract['target_role_code'],
+        'required_permission_code' => $contract['required_permission_code'],
+        'scope' => $contract['scope'],
+        'permission_boundary' => $contract['permission_boundary'],
+    ];
+}
+
+function operator_workflow_session_allows_operation(array $session, array $requirement): bool {
+    $groups = function_exists('cpg_admin_access_string_list')
+        ? cpg_admin_access_string_list($session['groups'] ?? [])
+        : [];
+    $permissions = function_exists('cpg_admin_access_string_list')
+        ? cpg_admin_access_string_list($session['permissions'] ?? [])
+        : [];
+    $roles = function_exists('cpg_admin_access_string_list')
+        ? cpg_admin_access_string_list($session['roles'] ?? [])
+        : [];
+
+    $targetGroup = is_string($requirement['target_group_code'] ?? null) ? (string) $requirement['target_group_code'] : '';
+    $requiredPermission = is_string($requirement['required_permission_code'] ?? null) ? (string) $requirement['required_permission_code'] : '';
+    $groupAllowed = $targetGroup !== '' && in_array($targetGroup, $groups, true);
+    $ownerOverride = array_intersect($groups, ['owners', 'platform_owners', 'platform_administrators']) !== []
+        || array_intersect($roles, ['project_owner', 'platform_administrator']) !== [];
+    $permissionAllowed = $requiredPermission !== '' && in_array($requiredPermission, $permissions, true);
+
+    return ($groupAllowed && $permissionAllowed) || $ownerOverride;
+}
+
+function require_operator_workflow_operation_access(string $operationCode): array {
+    $requirement = operator_workflow_operation_requirement($operationCode);
+    if ($requirement === null) {
+        api_error(500, 'workflow_operation_requirement_missing', 'Workflow operation requirement is not configured');
+    }
+
+    $expected = operator_access_token();
+    $provided = request_operator_token();
+    if ($expected !== null && $provided !== null && hash_equals($expected, $provided)) {
+        return operator_workflow_operation_contract($operationCode, [
+            'access_model' => CPG_IDENTITY_BOUNDARY_TEMPORARY_OPERATOR_TOKEN,
+            'actor_label' => 'temporary_operator_token',
+            'actor_user_id' => null,
+            'allowed' => true,
+        ]);
+    }
+
+    $adminToken = admin_access_session_token();
+    if ($adminToken !== null) {
+        admin_access_load_runtime_env();
+        if (admin_access_public_flow_enabled()) {
+            $storage = admin_access_storage_or_response();
+            $session = $storage->findActiveAdminSession($adminToken, cpg_admin_now());
+            if (is_array($session) && operator_workflow_session_allows_operation($session, $requirement)) {
+                return operator_workflow_operation_contract($operationCode, [
+                    'access_model' => 'team_admin_session',
+                    'actor_label' => (string) ($session['email'] ?? 'team_session'),
+                    'actor_user_id' => (string) ($session['user_id'] ?? ''),
+                    'allowed' => true,
+                ]);
+            }
+
+            api_json(403, [
+                'ok' => false,
+                'error' => 'workflow_operation_permission_required',
+                'message' => 'This operation requires the configured group and permission',
+                'operation_access' => operator_workflow_operation_contract($operationCode, [
+                    'access_model' => 'team_admin_session',
+                    'actor_label' => is_array($session) ? (string) ($session['email'] ?? 'team_session') : 'team_session',
+                    'actor_user_id' => is_array($session) ? (string) ($session['user_id'] ?? '') : null,
+                    'allowed' => false,
+                ]),
+            ]);
+        }
+    }
+
+    if ($expected === null && $adminToken === null) {
+        api_error(403, 'operator_access_not_configured', 'Operator access token is not configured');
+    }
+
+    api_error(401, 'operator_access_required', 'Operator access token or approved team session is required');
+}
+
+function operator_computed_workflow_operation(
+    string $operationCode,
+    bool $available,
+    array $blockers = [],
+    array $extra = [],
+    ?array $access = null
+): array {
+    return array_merge([
+        'operation_code' => $operationCode,
+        'operation_status' => $available ? 'available' : 'blocked',
+        'is_visible' => true,
+        'is_executable' => $available,
+        'computed_from' => 'current_data_state',
+        'blockers' => array_values($blockers),
+        'required_access' => operator_workflow_operation_contract($operationCode, $access),
+    ], $extra);
+}
+
 function admin_access_public_routes_enabled(): bool {
     return cpg_admin_access_bool_env(ADMIN_ACCESS_PUBLIC_ROUTES_ENV)
         || cpg_admin_access_bool_env(ADMIN_ACCESS_PUBLIC_ROUTES_LEGACY_ENV);
@@ -5443,6 +5618,26 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
             'employer_visible' => false,
             'writes_audit_events' => false,
         ],
+        'computed_operations' => [
+            operator_computed_workflow_operation(
+                'create_internal_shortlist_draft',
+                count($limitedCandidates) > 0,
+                count($limitedCandidates) > 0 ? [] : [
+                    [
+                        'code' => 'no_candidate_search_results',
+                        'message' => 'Internal shortlist draft can be created only after candidate-search returns candidates',
+                    ],
+                ],
+                [
+                    'record_type' => 'vacancy_request',
+                    'record_id' => $vacancyRequestId,
+                    'next_record_type_if_executed' => 'operator_shortlist_draft',
+                    'next_status_if_executed' => 'needs_review',
+                    'responsible_group_after_transition' => 'review_team',
+                    'computed_from' => 'candidate_search_results',
+                ]
+            ),
+        ],
         'demand' => [
             'vacancy_request_id' => $vacancy['vacancy_request_id'],
             'vacancy_title' => $vacancy['vacancy_title'],
@@ -5770,7 +5965,7 @@ function cpg_operator_shortlist_read(string $shortlistDraftId): ?array {
     ];
 }
 
-function handle_post_operator_vacancy_shortlist_draft(string $vacancyId): void {
+function handle_post_operator_vacancy_shortlist_draft(string $vacancyId, ?array $access = null): void {
     $uuid = api_normalize_uuid($vacancyId);
     if ($uuid === null) {
         api_error(400, 'invalid_vacancy_request_id', 'vacancy_request_id must be a valid UUID');
@@ -5882,10 +6077,7 @@ function handle_post_operator_vacancy_shortlist_draft(string $vacancyId): void {
              RETURNING shortlist_draft_id',
             [
                 $uuid,
-                cpg_workspace_json([
-                    'access_model' => 'temporary_operator_token',
-                    'actor_label' => 'operator_candidate_search',
-                ]),
+                cpg_workspace_json(operator_workflow_actor_context($access, 'create_internal_shortlist_draft')),
                 (string) ($search['search_model'] ?? 'unknown'),
                 cpg_workspace_json($searchSnapshot),
                 cpg_workspace_json($approvalGuardSnapshot),
@@ -5935,6 +6127,34 @@ function handle_post_operator_vacancy_shortlist_draft(string $vacancyId): void {
             );
         }
 
+        $vacancyContext = cpg_fetch_one_assoc(
+            'SELECT created_by_user_id, company_id, vessel_id
+             FROM crewportglobal.vacancy_requests
+             WHERE vacancy_request_id = $1
+             LIMIT 1',
+            [$uuid]
+        );
+        if ($vacancyContext !== null && is_string($vacancyContext['created_by_user_id'] ?? null)) {
+            write_audit_event(
+                'operator_shortlist_draft_created',
+                (string) $vacancyContext['created_by_user_id'],
+                is_string($vacancyContext['company_id'] ?? null) ? (string) $vacancyContext['company_id'] : null,
+                is_string($vacancyContext['vessel_id'] ?? null) ? (string) $vacancyContext['vessel_id'] : null,
+                [
+                    'shortlist_draft_id' => $shortlistDraftId,
+                    'vacancy_request_id' => $uuid,
+                    'draft_status' => $draftStatus,
+                    'actor_context' => operator_workflow_actor_context($access, 'create_internal_shortlist_draft'),
+                    'candidate_count' => count($candidateRows),
+                    'included_candidate_count' => $approvalGuardSnapshot['included_candidate_count'],
+                    'blocked_candidate_count' => $approvalGuardSnapshot['blocked_candidate_count'],
+                    'employer_visible' => false,
+                    'creates_vacancy_applications' => false,
+                ],
+                'operator_shortlist_draft'
+            );
+        }
+
         api_tx_commit();
     } catch (Throwable $error) {
         api_tx_rollback();
@@ -5942,9 +6162,14 @@ function handle_post_operator_vacancy_shortlist_draft(string $vacancyId): void {
     }
 
     $draft = cpg_operator_shortlist_read($shortlistDraftId);
+    $internalApprovalGuard = is_array($draft) ? cpg_operator_shortlist_internal_approval_guard($draft) : null;
+    $reviewApplicationGuard = is_array($draft) ? cpg_operator_shortlist_review_application_guard($draft) : null;
     api_json(201, [
         'ok' => true,
         'shortlist_draft' => $draft,
+        'computed_operations' => is_array($draft)
+            ? cpg_operator_shortlist_computed_operations($draft, $internalApprovalGuard, $reviewApplicationGuard, $access)
+            : [],
         'side_effects' => [
             'created_internal_shortlist_draft' => true,
             'creates_vacancy_applications' => false,
@@ -5971,6 +6196,11 @@ function handle_get_operator_shortlist_draft(string $shortlistDraftId): void {
     api_json(200, [
         'ok' => true,
         'shortlist_draft' => $draft,
+        'computed_operations' => cpg_operator_shortlist_computed_operations(
+            $draft,
+            cpg_operator_shortlist_internal_approval_guard($draft),
+            cpg_operator_shortlist_review_application_guard($draft)
+        ),
     ]);
 }
 
@@ -6093,7 +6323,7 @@ function cpg_operator_shortlist_internal_approval_guard(array $draft): array {
     ];
 }
 
-function handle_patch_operator_shortlist_draft_approval(string $shortlistDraftId): void {
+function handle_patch_operator_shortlist_draft_approval(string $shortlistDraftId, ?array $access = null): void {
     $uuid = api_normalize_uuid($shortlistDraftId);
     if ($uuid === null) {
         api_error(400, 'invalid_shortlist_draft_id', 'shortlist_draft_id must be a valid UUID');
@@ -6178,6 +6408,7 @@ function handle_patch_operator_shortlist_draft_approval(string $shortlistDraftId
                     'previous_status' => $previousStatus,
                     'new_status' => $newStatus,
                     'operator_note' => $note,
+                    'actor_context' => operator_workflow_actor_context($access, 'approve_internal_shortlist'),
                     'internal_approval_guard' => $approvalGuard,
                     'employer_visible' => false,
                     'creates_vacancy_applications' => false,
@@ -6194,10 +6425,14 @@ function handle_patch_operator_shortlist_draft_approval(string $shortlistDraftId
     }
 
     $updatedDraft = cpg_operator_shortlist_read($uuid);
+    $reviewApplicationGuard = is_array($updatedDraft) ? cpg_operator_shortlist_review_application_guard($updatedDraft) : null;
     api_json(200, [
         'ok' => true,
         'shortlist_draft' => $updatedDraft,
         'internal_approval_guard' => $approvalGuard,
+        'computed_operations' => is_array($updatedDraft)
+            ? cpg_operator_shortlist_computed_operations($updatedDraft, $approvalGuard, $reviewApplicationGuard, $access)
+            : [],
         'side_effects' => [
             'changed_internal_shortlist_status' => true,
             'creates_vacancy_applications' => false,
@@ -6305,7 +6540,89 @@ function cpg_operator_shortlist_review_application_guard(array $draft): array {
     ];
 }
 
-function handle_post_operator_shortlist_draft_review_applications(string $shortlistDraftId): void {
+function cpg_operator_shortlist_computed_operations(
+    array $draft,
+    ?array $internalApprovalGuard = null,
+    ?array $reviewApplicationGuard = null,
+    ?array $access = null
+): array {
+    $draftStatus = is_string($draft['draft_status'] ?? null) ? (string) $draft['draft_status'] : '';
+    $approvalReady = is_array($internalApprovalGuard)
+        && ($internalApprovalGuard['internal_approval_status'] ?? null) === 'ready_for_internal_approval';
+    $reviewApplicationReady = is_array($reviewApplicationGuard)
+        && ($reviewApplicationGuard['review_application_status'] ?? null) === 'ready_for_review_application_staging';
+    $reviewApplicationBlockers = is_array($reviewApplicationGuard['approval_blockers'] ?? null)
+        ? $reviewApplicationGuard['approval_blockers']
+        : [];
+
+    return [
+        operator_computed_workflow_operation(
+            'approve_internal_shortlist',
+            $draftStatus === 'needs_review' && $approvalReady,
+            $approvalReady ? [] : [
+                [
+                    'code' => 'internal_approval_not_ready',
+                    'message' => 'Internal shortlist approval is available only when the current guard is ready',
+                ],
+            ],
+            [
+                'record_type' => 'operator_shortlist_draft',
+                'record_id' => $draft['shortlist_draft_id'] ?? null,
+                'next_status_if_executed' => 'approved_internal',
+                'responsible_group_after_transition' => 'review_team',
+            ],
+            $access
+        ),
+        operator_computed_workflow_operation(
+            'create_review_applications',
+            $draftStatus === 'approved_internal' && $reviewApplicationReady,
+            $reviewApplicationReady ? [] : $reviewApplicationBlockers,
+            [
+                'record_type' => 'operator_shortlist_draft',
+                'record_id' => $draft['shortlist_draft_id'] ?? null,
+                'next_record_type_if_executed' => 'vacancy_application',
+                'next_status_if_executed' => 'submitted_for_human_review',
+                'responsible_group_after_transition' => 'review_team',
+            ],
+            $access
+        ),
+    ];
+}
+
+function cpg_operator_vacancy_application_computed_operations(array $detail, ?array $access = null): array {
+    $application = is_array($detail['application'] ?? null) ? $detail['application'] : [];
+    $approvalGuard = is_array($detail['approval_guard'] ?? null) ? $detail['approval_guard'] : [];
+    $applicationStatus = is_string($application['application_status'] ?? null) ? (string) $application['application_status'] : '';
+    $ready = in_array($applicationStatus, ['submitted_for_human_review', 'in_review'], true)
+        && ($approvalGuard['approval_status'] ?? null) === 'ready_for_operator_approval';
+    $blockers = is_array($approvalGuard['approval_blockers'] ?? null) ? $approvalGuard['approval_blockers'] : [];
+    if (!in_array($applicationStatus, ['submitted_for_human_review', 'in_review'], true)) {
+        $blockers[] = [
+            'code' => 'vacancy_application_status_not_reviewable',
+            'message' => 'Candidate presentation review is available only for submitted or in-review applications',
+            'details' => ['application_status' => $applicationStatus],
+        ];
+    }
+
+    return [
+        operator_computed_workflow_operation(
+            'review_candidate_presentation',
+            $ready,
+            $blockers,
+            [
+                'record_type' => 'vacancy_application',
+                'record_id' => $application['vacancy_application_id'] ?? null,
+                'current_status' => $applicationStatus,
+                'next_status_if_executed' => 'presented',
+                'responsible_group_after_transition' => 'employer',
+                'presentation_guard_status' => $approvalGuard['approval_status'] ?? null,
+            ],
+            $access
+        ),
+    ];
+}
+
+function handle_post_operator_shortlist_draft_review_applications(string $shortlistDraftId, ?array $access = null): void {
     $uuid = api_normalize_uuid($shortlistDraftId);
     if ($uuid === null) {
         api_error(400, 'invalid_shortlist_draft_id', 'shortlist_draft_id must be a valid UUID');
@@ -6473,6 +6790,7 @@ function handle_post_operator_shortlist_draft_review_applications(string $shortl
                     'shortlist_draft_id' => $uuid,
                     'vacancy_request_id' => $draft['vacancy_request_id'],
                     'operator_note' => $note,
+                    'actor_context' => operator_workflow_actor_context($access, 'create_review_applications'),
                     'review_application_guard' => $reviewApplicationGuard,
                     'applications' => $applications,
                     'created_count' => $createdCount,
@@ -6498,6 +6816,26 @@ function handle_post_operator_shortlist_draft_review_applications(string $shortl
         'vacancy_request_id' => $draft['vacancy_request_id'],
         'review_application_guard' => $reviewApplicationGuard,
         'applications' => $applications,
+        'computed_operations' => array_map(
+            static function (array $application) use ($access): array {
+                return operator_computed_workflow_operation(
+                    'review_candidate_presentation',
+                    ($application['application_status'] ?? null) === 'submitted_for_human_review'
+                        || ($application['application_status'] ?? null) === 'in_review',
+                    [],
+                    [
+                        'record_type' => 'vacancy_application',
+                        'record_id' => $application['vacancy_application_id'] ?? null,
+                        'current_status' => $application['application_status'] ?? null,
+                        'next_status_if_executed' => 'presented',
+                        'responsible_group_after_transition' => 'employer',
+                        'computed_from' => 'bridge_created_review_application',
+                    ],
+                    $access
+                );
+            },
+            $applications
+        ),
         'side_effects' => [
             'creates_vacancy_applications' => $createdCount > 0,
             'created_review_applications_count' => $createdCount,
@@ -8871,7 +9209,7 @@ function read_operator_vacancy_application_detail(string $applicationId): ?array
     $operatorWorkspaceSummary = cpg_seafarer_workspace_summary_for_scope($workspaceSummary, 'operator_general');
     $approvalGuard = cpg_vacancy_application_approval_guard($applicationId);
 
-    return [
+    $detail = [
         'ok' => true,
         'queue_type' => 'vacancy_application',
         'application' => [
@@ -8937,6 +9275,9 @@ function read_operator_vacancy_application_detail(string $applicationId): ?array
         'operator_access' => operator_queue_access_contract('vacancy_application'),
         'generated_at' => gmdate('c'),
     ];
+    $detail['computed_operations'] = cpg_operator_vacancy_application_computed_operations($detail);
+
+    return $detail;
 }
 
 function handle_get_operator_vacancy_application_detail(string $applicationId): void {
@@ -9939,8 +10280,8 @@ if (preg_match('#^/operator/vacancies/([^/]+)/candidate-search$#', $path, $match
 
 if (preg_match('#^/operator/vacancies/([^/]+)/shortlist-drafts$#', $path, $matches) === 1) {
     if ($method === 'POST') {
-        require_operator_access();
-        handle_post_operator_vacancy_shortlist_draft($matches[1]);
+        $access = require_operator_workflow_operation_access('create_internal_shortlist_draft');
+        handle_post_operator_vacancy_shortlist_draft($matches[1], $access);
     }
     header('Allow: POST');
     api_error(405, 'method_not_allowed', 'Allowed methods: POST');
@@ -9948,8 +10289,8 @@ if (preg_match('#^/operator/vacancies/([^/]+)/shortlist-drafts$#', $path, $match
 
 if (preg_match('#^/operator/shortlist-drafts/([^/]+)/approval$#', $path, $matches) === 1) {
     if ($method === 'PATCH') {
-        require_operator_access();
-        handle_patch_operator_shortlist_draft_approval($matches[1]);
+        $access = require_operator_workflow_operation_access('approve_internal_shortlist');
+        handle_patch_operator_shortlist_draft_approval($matches[1], $access);
     }
     header('Allow: PATCH');
     api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
@@ -9957,8 +10298,8 @@ if (preg_match('#^/operator/shortlist-drafts/([^/]+)/approval$#', $path, $matche
 
 if (preg_match('#^/operator/shortlist-drafts/([^/]+)/review-applications$#', $path, $matches) === 1) {
     if ($method === 'POST') {
-        require_operator_access();
-        handle_post_operator_shortlist_draft_review_applications($matches[1]);
+        $access = require_operator_workflow_operation_access('create_review_applications');
+        handle_post_operator_shortlist_draft_review_applications($matches[1], $access);
     }
     header('Allow: POST');
     api_error(405, 'method_not_allowed', 'Allowed methods: POST');

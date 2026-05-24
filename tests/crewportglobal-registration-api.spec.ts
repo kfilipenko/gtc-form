@@ -1889,6 +1889,20 @@ test('operator candidate search returns read-only exact matches and blockers', a
       employer_visible: false,
     })
   );
+  expect(approval.computed_operations).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        operation_code: 'create_review_applications',
+        operation_status: 'available',
+        required_access: expect.objectContaining({
+          target_group_code: 'review_team',
+          target_role_code: 'reviewer',
+          required_permission_code: 'start_human_review',
+          permission_boundary: 'temporary_operator_token_compatibility',
+        }),
+      }),
+    ])
+  );
 
   const reviewApplicationsResponse = await request.post(`/operator/shortlist-drafts/${shortlistDraftId}/review-applications`, {
     data: {
@@ -1927,6 +1941,20 @@ test('operator candidate search returns read-only exact matches and blockers', a
       employer_visible: false,
       presented_to_employer: false,
     })
+  );
+  expect(reviewApplications.computed_operations).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        operation_code: 'review_candidate_presentation',
+        operation_status: 'available',
+        required_access: expect.objectContaining({
+          target_group_code: 'review_team',
+          target_role_code: 'reviewer',
+          required_permission_code: 'approve_candidate_presentation',
+          permission_boundary: 'temporary_operator_token_compatibility',
+        }),
+      }),
+    ])
   );
 
   const holdOnlyResponse = await request.post(`/operator/vacancies/${vacancyId}/shortlist-drafts`, {
