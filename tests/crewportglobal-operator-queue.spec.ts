@@ -537,6 +537,47 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
   const application = await applicationResponse.json();
   const applicationId = application.application.vacancy_application_id as string;
 
+  const reviewTeamSession = createReviewTeamAdminSession(employer.draft_id);
+  if (reviewTeamSession) {
+    await page.addInitScript((token) => {
+      window.localStorage.setItem('crewportglobal_team_session', token);
+    }, reviewTeamSession);
+    await page.goto('/team/');
+    await expect(page.locator('#team-tasks-title')).toContainText('My tasks');
+    await expect(page.locator('#team-task-list')).toContainText(title);
+    await expect(page.locator('#team-task-list')).toContainText('review_candidate_presentation');
+    const presentationTask = page.locator('#team-task-list .team-task', { hasText: title }).first();
+    await expect(presentationTask).toContainText('approve_candidate_presentation');
+    await presentationTask.locator('.team-task__link').click();
+    await expect(page).toHaveURL(/task_operation=review_candidate_presentation/);
+    await expect(page.locator('#queue-status')).toContainText('Task target opened');
+    const presentationTaskPanel = page.locator('.shortlist-task-panel', { hasText: 'Approve candidate presentation' });
+    await expect(presentationTaskPanel).toContainText('Task action');
+    await expect(presentationTaskPanel).toContainText('Approve candidate presentation');
+    const note = 'Candidate presentation approved from team task panel.';
+    await page.locator('#review-note').fill(note);
+    await presentationTaskPanel.getByRole('button', { name: 'Approve candidate presentation' }).click();
+    await expect(presentationTaskPanel).toContainText('Candidate presentation approved: presented');
+    await expect(presentationTaskPanel.getByRole('link', { name: 'Return to team tasks' })).toBeVisible();
+    await presentationTaskPanel.getByRole('link', { name: 'Return to team tasks' }).click();
+    await expect(page.locator('#team-task-feedback')).toContainText('Operation completed: review_candidate_presentation');
+    await expect(page.locator('#team-task-feedback')).toContainText('next group: employer');
+    await expect(page.locator('#team-task-list')).not.toContainText('review_candidate_presentation');
+
+    const employerDraftAfterPresentation = await request.get(`/api/v1/registration/drafts/${employer.draft_id}`);
+    expect(employerDraftAfterPresentation.ok()).toBeTruthy();
+    const employerDraft = await employerDraftAfterPresentation.json();
+    const presentedCandidates = employerDraft.payload.presented_candidates as Array<Record<string, unknown>>;
+    const presentedCandidate = presentedCandidates.find((item) => item.vacancy_application_id === applicationId);
+    expect(presentedCandidate).toBeTruthy();
+    const serializedCandidate = JSON.stringify(presentedCandidate);
+    expect(serializedCandidate).not.toContain(seafarerEmail);
+    expect(serializedCandidate).not.toContain('contact_email');
+    expect(serializedCandidate).not.toContain('contact_phone');
+    expect(serializedCandidate).not.toContain('document_metadata');
+    return;
+  }
+
   await page.addInitScript((token) => {
     window.sessionStorage.setItem('crewportglobal.operatorAccessToken', token);
   }, operatorAccessToken);

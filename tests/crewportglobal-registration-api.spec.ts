@@ -2046,6 +2046,54 @@ test('operator candidate search returns read-only exact matches and blockers', a
   const employerDraft = (await employerDraftResponse.json()) as DraftResponse;
   const presentedCandidates = employerDraft.payload.presented_candidates as Array<Record<string, unknown>>;
   expect(presentedCandidates).toEqual([]);
+
+  const presentationApplicationId = reviewApplications.applications[0].vacancy_application_id as string;
+  const presentationResponse = await request.patch(`/operator/vacancy-applications/${presentationApplicationId}/presentation-review`, {
+    data: {
+      note: 'Candidate presentation approved from task-specific endpoint.',
+    },
+  });
+  expect(presentationResponse.status()).toBe(200);
+  const presentation = await presentationResponse.json();
+  expect(presentation).toEqual(
+    expect.objectContaining({
+      ok: true,
+      vacancy_application_id: presentationApplicationId,
+      decision: 'reviewed',
+      queue_type: 'vacancy_application',
+      previous_status: 'submitted_for_human_review',
+      new_status: 'presented',
+      side_effects: expect.objectContaining({
+        creates_vacancy_applications: false,
+        changes_application_statuses: true,
+        moves_applications_to_presented: true,
+        presented_to_employer: true,
+        employer_visible: true,
+      }),
+      operation_access: expect.objectContaining({
+        operation_code: 'review_candidate_presentation',
+        required_permission_code: 'approve_candidate_presentation',
+      }),
+    })
+  );
+  expect((presentation.approval_guard as Record<string, unknown>).approval_status).toBe('approved_for_employer_presentation');
+  const serializedPresentation = JSON.stringify(presentation);
+  expect(serializedPresentation).not.toContain(exactEmail);
+  expect(serializedPresentation).not.toContain('contact_email');
+  expect(serializedPresentation).not.toContain('contact_phone');
+  expect(serializedPresentation).not.toContain('document_metadata');
+
+  const employerDraftAfterPresentationResponse = await request.get(`/registration/drafts/${employer.draft_id}`);
+  expect(employerDraftAfterPresentationResponse.status()).toBe(200);
+  const employerDraftAfterPresentation = (await employerDraftAfterPresentationResponse.json()) as DraftResponse;
+  const presentedCandidatesAfter = employerDraftAfterPresentation.payload.presented_candidates as Array<Record<string, unknown>>;
+  const presentedCandidate = presentedCandidatesAfter.find((item) => item.vacancy_application_id === presentationApplicationId);
+  expect(presentedCandidate).toBeTruthy();
+  const serializedEmployerCandidate = JSON.stringify(presentedCandidate);
+  expect(serializedEmployerCandidate).not.toContain(exactEmail);
+  expect(serializedEmployerCandidate).not.toContain('contact_email');
+  expect(serializedEmployerCandidate).not.toContain('contact_phone');
+  expect(serializedEmployerCandidate).not.toContain('document_metadata');
 });
 
 test('operator review queue returns submitted seafarer and company drafts', async ({ request }) => {

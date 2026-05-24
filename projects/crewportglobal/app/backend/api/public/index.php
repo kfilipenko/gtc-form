@@ -10148,7 +10148,8 @@ function apply_operator_review_decision(
     ?string $reviewNote,
     ?string $queueType = null,
     ?string $correctionCardCode = null,
-    ?array $approvalGuard = null
+    ?array $approvalGuard = null,
+    ?array $workflowAccess = null
 ): array {
     $correctionCardName = cpg_seafarer_review_card_name($correctionCardCode);
 
@@ -10211,6 +10212,9 @@ function apply_operator_review_decision(
             'vacancy_request_id' => $vacancyRequestId,
             'vacancy_application_id' => $applicationId,
             'approval_guard' => $approvalGuard,
+            'actor_context' => $workflowAccess !== null
+                ? operator_workflow_actor_context($workflowAccess, 'review_candidate_presentation')
+                : null,
         ], 'operator_review_queue');
 
         return [
@@ -10422,6 +10426,89 @@ function apply_operator_review_decision(
         'correction_card_code' => $correctionCardCode,
         'correction_card_name' => $correctionCardName,
     ];
+}
+
+function handle_patch_operator_vacancy_application_presentation_review(string $applicationId, array $access): void {
+    $uuid = api_normalize_uuid($applicationId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_vacancy_application_id', 'vacancy_application_id must be a valid UUID');
+    }
+
+    $body = api_decode_json_body();
+    $reviewNote = normalize_operator_review_note($body['note'] ?? $body['operator_note'] ?? null);
+    $approvalGuard = cpg_vacancy_application_approval_guard($uuid);
+    $actorContext = operator_workflow_actor_context($access, 'review_candidate_presentation');
+
+    if (($approvalGuard['approval_status'] ?? 'blocked') === 'blocked') {
+        api_json(409, [
+            'ok' => false,
+            'error' => 'approval_guard_blocked',
+            'message' => 'Candidate presentation is blocked by approval guard',
+            'approval_guard' => $approvalGuard,
+            'operation_access' => operator_workflow_operation_contract('review_candidate_presentation', $access),
+            'actor_context' => $actorContext,
+            'side_effects' => [
+                'creates_vacancy_applications' => false,
+                'changes_application_statuses' => false,
+                'moves_applications_to_presented' => false,
+                'presented_to_employer' => false,
+                'employer_visible' => false,
+            ],
+        ]);
+    }
+
+    $approvalGuard['approval_status'] = 'approved_for_employer_presentation';
+    $approvalGuard['approval_audit'] = [
+        'actor' => $actorContext['actor_label'] ?? 'temporary_operator_token',
+        'actor_user_id' => $actorContext['actor_user_id'] ?? null,
+        'action' => 'candidate_presentation_approved',
+        'operation_code' => 'review_candidate_presentation',
+        'timestamp' => gmdate('c'),
+        'reason' => $reviewNote,
+        'access_model' => $actorContext['access_model'] ?? null,
+        'target_group_code' => $actorContext['target_group_code'] ?? null,
+        'target_role_code' => $actorContext['target_role_code'] ?? null,
+        'required_permission_code' => $actorContext['required_permission_code'] ?? null,
+    ];
+
+    api_tx_begin();
+    try {
+        $result = apply_operator_review_decision(
+            $uuid,
+            'reviewed',
+            $reviewNote,
+            'vacancy_application',
+            null,
+            $approvalGuard,
+            $access
+        );
+        api_tx_commit();
+
+        api_json(200, [
+            'ok' => true,
+            'vacancy_application_id' => $result['vacancy_application_id'] ?? $uuid,
+            'vacancy_request_id' => $result['vacancy_request_id'] ?? null,
+            'decision' => 'reviewed',
+            'queue_type' => 'vacancy_application',
+            'previous_status' => $result['previous_status'],
+            'new_status' => $result['new_status'],
+            'review_note' => $result['review_note'],
+            'approval_guard' => $result['approval_guard'] ?? $approvalGuard,
+            'operation_access' => operator_workflow_operation_contract('review_candidate_presentation', $access),
+            'actor_context' => $actorContext,
+            'side_effects' => [
+                'creates_vacancy_applications' => false,
+                'changes_application_statuses' => true,
+                'moves_applications_to_presented' => ($result['new_status'] ?? null) === 'presented',
+                'presented_to_employer' => ($result['new_status'] ?? null) === 'presented',
+                'employer_visible' => ($result['new_status'] ?? null) === 'presented',
+            ],
+            'updated_at' => gmdate('c'),
+        ]);
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'candidate_presentation_review_failed', $error->getMessage());
+    }
 }
 
 function handle_patch_operator_review_queue_status(string $draftId): void {
@@ -10902,6 +10989,15 @@ if (preg_match('#^/operator/shortlist-drafts/([^/]+)$#', $path, $matches) === 1)
     }
     header('Allow: GET');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if (preg_match('#^/operator/vacancy-applications/([^/]+)/presentation-review$#', $path, $matches) === 1) {
+    if ($method === 'PATCH') {
+        $access = require_operator_workflow_operation_access('review_candidate_presentation');
+        handle_patch_operator_vacancy_application_presentation_review($matches[1], $access);
+    }
+    header('Allow: PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
 }
 
 if (preg_match('#^/operator/seafarer-medical/([^/]+)$#', $path, $matches) === 1) {

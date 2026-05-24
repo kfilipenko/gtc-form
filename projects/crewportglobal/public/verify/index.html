@@ -686,6 +686,11 @@
         'verify.shortlistTask.unavailable': 'Selected operation is not available for this draft: {items}',
         'verify.shortlistTask.running': 'Executing task operation...',
         'verify.shortlistTask.completed': 'Task operation completed: {status}. Employer visible: {visible}.',
+        'verify.presentationTask.approve': 'Approve candidate presentation',
+        'verify.presentationTask.copy': 'Approve employer-facing presentation only after the backend approval guard confirms consent, source-card state and employer payload safety.',
+        'verify.presentationTask.blocked': 'Candidate presentation guard blocked: {items}',
+        'verify.presentationTask.completed': 'Candidate presentation approved: {status}. Employer visible: {visible}.',
+        'verify.presentationTask.error': 'Could not approve candidate presentation.',
         'verify.section.registration': 'Registration',
         'verify.section.seafarer': 'Seafarer profile',
         'verify.section.documents': 'Document readiness',
@@ -912,6 +917,11 @@
         'verify.shortlistTask.unavailable': 'Выбранная операция недоступна для этого draft: {items}',
         'verify.shortlistTask.running': 'Выполняем операцию задачи...',
         'verify.shortlistTask.completed': 'Операция задачи выполнена: {status}. Видимость работодателю: {visible}.',
+        'verify.presentationTask.approve': 'Одобрить показ кандидата работодателю',
+        'verify.presentationTask.copy': 'Одобрение employer-facing presentation выполняется только после backend approval guard: consent, source-card state и safety employer payload.',
+        'verify.presentationTask.blocked': 'Guard показа кандидата работодателю заблокировал операцию: {items}',
+        'verify.presentationTask.completed': 'Показ кандидата работодателю одобрен: {status}. Видимость работодателю: {visible}.',
+        'verify.presentationTask.error': 'Не удалось одобрить показ кандидата работодателю.',
         'verify.section.registration': 'Регистрация',
         'verify.section.seafarer': 'Профиль моряка',
         'verify.section.documents': 'Готовность документов',
@@ -1680,6 +1690,15 @@
           : [];
       }
 
+      function vacancyApplicationApprovalBlockers(payload) {
+        const guard = payload && payload.approval_guard && typeof payload.approval_guard === 'object'
+          ? payload.approval_guard
+          : {};
+        return Array.isArray(guard.approval_blockers)
+          ? guard.approval_blockers.map((item) => item && item.code).filter(Boolean)
+          : [];
+      }
+
       function computedOperations(payload) {
         return payload && Array.isArray(payload.computed_operations)
           ? payload.computed_operations.filter((item) => item && typeof item === 'object')
@@ -1941,6 +1960,119 @@
               statusNode.textContent = t('verify.candidateSearch.approvalError');
             } else {
               statusNode.textContent = t('verify.candidateSearch.reviewApplicationsError');
+            }
+          }
+        });
+
+        actions.append(button, returnToTeamLink, statusNode);
+        panel.append(title, copy, actions, result);
+        return panel;
+      }
+
+      function createApplicationTaskExecutionPanel(applicationId, payload) {
+        const taskOperation = activeTaskTarget
+          && activeTaskTarget.queueType === 'vacancy_application'
+          && activeTaskTarget.queueItemId === applicationId
+          ? activeTaskTarget.taskOperation
+          : '';
+        if (taskOperation !== 'review_candidate_presentation') {
+          return null;
+        }
+
+        const operation = computedOperationFromPayload(payload, taskOperation);
+        const panel = document.createElement('section');
+        panel.className = 'detail-section shortlist-task-panel';
+
+        const title = document.createElement('h3');
+        title.textContent = t('verify.shortlistTask.title');
+
+        const copy = document.createElement('p');
+        copy.className = 'candidate-search-copy';
+        copy.textContent = t('verify.presentationTask.copy');
+
+        const actions = document.createElement('div');
+        actions.className = 'shortlist-task-actions';
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'button secondary';
+        button.textContent = t('verify.presentationTask.approve');
+
+        const returnToTeamLink = createReturnToTeamLink();
+        const statusNode = document.createElement('p');
+        statusNode.className = 'candidate-search-status';
+
+        const result = document.createElement('div');
+        result.className = 'candidate-shortlist-result';
+
+        const blockerCodes = operationBlockerCodes(operation);
+        if (!operationCanExecute(operation)) {
+          button.disabled = true;
+          statusNode.textContent = t('verify.shortlistTask.unavailable', {
+            items: blockerCodes.length ? blockerCodes.join(', ') : 'approval guard',
+          });
+        } else {
+          statusNode.textContent = computedOperationText(operation);
+        }
+
+        button.addEventListener('click', async () => {
+          button.disabled = true;
+          statusNode.textContent = t('verify.shortlistTask.running');
+          result.innerHTML = '';
+          try {
+            const note = (reviewNoteInput.value || '').trim();
+            const body = note ? { note } : {};
+            const response = await fetch(`/api/v1/operator/vacancy-applications/${encodeURIComponent(applicationId)}/presentation-review`, {
+              method: 'PATCH',
+              headers: operatorHeaders({
+                'Content-Type': 'application/json',
+              }),
+              body: JSON.stringify(body),
+            });
+            const actionPayload = await response.json().catch(() => ({}));
+            if (isOperatorAccessFailure(response)) {
+              showAccessPanel('verify.access.denied');
+              throw new Error('operator access required');
+            }
+            if (response.status === 409 && actionPayload && actionPayload.error === 'approval_guard_blocked') {
+              const blockers = vacancyApplicationApprovalBlockers(actionPayload);
+              statusNode.textContent = t('verify.presentationTask.blocked', {
+                items: blockers.length ? blockers.join(', ') : 'approval guard',
+              });
+              detailsJson.textContent = JSON.stringify(actionPayload, null, 2);
+              return;
+            }
+            if (!response.ok || !actionPayload || actionPayload.ok !== true) {
+              throw new Error('presentation review failed');
+            }
+
+            detailsJson.textContent = JSON.stringify(actionPayload, null, 2);
+            const line = document.createElement('div');
+            line.className = 'candidate-shortlist-candidate';
+            const strong = document.createElement('strong');
+            strong.textContent = t('verify.presentationTask.completed', {
+              status: actionPayload.new_status || emptyValue(),
+              visible: String(actionPayload.side_effects && actionPayload.side_effects.employer_visible === true),
+            });
+            line.appendChild(strong);
+            result.appendChild(line);
+
+            recordTeamTaskFeedback(
+              'review_candidate_presentation',
+              actionPayload.new_status || '',
+              'employer',
+              actionPayload
+            );
+            returnToTeamLink.hidden = false;
+            statusNode.textContent = t('verify.presentationTask.completed', {
+              status: actionPayload.new_status || emptyValue(),
+              visible: String(actionPayload.side_effects && actionPayload.side_effects.employer_visible === true),
+            });
+          } catch (error) {
+            if (error && error.message === 'operator access required') {
+              statusNode.textContent = t('verify.access.denied');
+            } else {
+              statusNode.textContent = t('verify.presentationTask.error');
             }
           }
         });
@@ -2766,6 +2898,10 @@
         }
 
         sections.filter(Boolean).forEach((section) => detailsSections.appendChild(section));
+        const taskPanel = createApplicationTaskExecutionPanel(application.vacancy_application_id || '', payload);
+        if (taskPanel) {
+          detailsSections.appendChild(taskPanel);
+        }
       }
 
       function setLatestReviewNote(note, target) {
