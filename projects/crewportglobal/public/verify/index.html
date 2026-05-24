@@ -166,6 +166,15 @@
     .candidate-search-return {
       text-decoration: none;
     }
+    .shortlist-task-panel {
+      gap: 12px;
+    }
+    .shortlist-task-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
     .candidate-search-status {
       margin: 0;
       color: var(--muted-on-dark);
@@ -672,6 +681,11 @@
         'verify.task.opened': 'Task target opened: {type} {id}.',
         'verify.task.notFound': 'Task target is not available in the current queue.',
         'verify.task.returnToTeam': 'Return to team tasks',
+        'verify.shortlistTask.title': 'Task action',
+        'verify.shortlistTask.copy': 'Execute the selected computed operation. Backend access and guard checks remain the source of truth.',
+        'verify.shortlistTask.unavailable': 'Selected operation is not available for this draft: {items}',
+        'verify.shortlistTask.running': 'Executing task operation...',
+        'verify.shortlistTask.completed': 'Task operation completed: {status}. Employer visible: {visible}.',
         'verify.section.registration': 'Registration',
         'verify.section.seafarer': 'Seafarer profile',
         'verify.section.documents': 'Document readiness',
@@ -893,6 +907,11 @@
         'verify.task.opened': 'Целевая задача открыта: {type} {id}.',
         'verify.task.notFound': 'Целевая задача недоступна в текущей очереди.',
         'verify.task.returnToTeam': 'Вернуться к задачам команды',
+        'verify.shortlistTask.title': 'Действие по задаче',
+        'verify.shortlistTask.copy': 'Выполните выбранную вычисленную операцию. Backend access и guard checks остаются источником истины.',
+        'verify.shortlistTask.unavailable': 'Выбранная операция недоступна для этого draft: {items}',
+        'verify.shortlistTask.running': 'Выполняем операцию задачи...',
+        'verify.shortlistTask.completed': 'Операция задачи выполнена: {status}. Видимость работодателю: {visible}.',
         'verify.section.registration': 'Регистрация',
         'verify.section.seafarer': 'Профиль моряка',
         'verify.section.documents': 'Готовность документов',
@@ -1180,7 +1199,7 @@
         const access = operation.required_access && typeof operation.required_access === 'object'
           ? operation.required_access
           : {};
-        return operation.responsible_group_after_transition || access.target_group_code || fallbackGroup || '';
+        return access.target_group_code || operation.responsible_group_after_transition || fallbackGroup || '';
       }
 
       function recordTeamTaskFeedback(operationCode, resultStatus, nextResponsibleGroup, payload) {
@@ -1197,11 +1216,20 @@
             task_target: activeTaskTarget,
             shortlist_draft_id: payload && payload.shortlist_draft
               ? (payload.shortlist_draft.shortlist_draft_id || '')
-              : '',
+              : (payload && payload.shortlist_draft_id ? payload.shortlist_draft_id : ''),
           }));
         } catch (error) {
           return;
         }
+      }
+
+      function createReturnToTeamLink() {
+        const link = document.createElement('a');
+        link.className = 'button secondary candidate-search-return';
+        link.href = '/team/';
+        link.textContent = t('verify.task.returnToTeam');
+        link.hidden = !activeTaskTarget;
+        return link;
       }
 
       function queueTargetId(item) {
@@ -1753,6 +1781,175 @@
         renderComputedOperations(container, payload);
       }
 
+      function shortlistTaskOperationButtonLabel(operationCode) {
+        if (operationCode === 'approve_internal_shortlist') {
+          return t('verify.candidateSearch.approveDraft');
+        }
+        if (operationCode === 'create_review_applications') {
+          return t('verify.candidateSearch.createReviewApplications');
+        }
+        return operationCode || emptyValue();
+      }
+
+      function operationBlockerCodes(operation) {
+        return operation && Array.isArray(operation.blockers)
+          ? operation.blockers.map((item) => item && item.code).filter(Boolean)
+          : [];
+      }
+
+      function operationCanExecute(operation) {
+        const access = operation && operation.required_access && typeof operation.required_access === 'object'
+          ? operation.required_access
+          : {};
+        return operation && operation.operation_status === 'available'
+          && operation.is_executable === true
+          && access.allowed !== false;
+      }
+
+      function createShortlistTaskExecutionPanel(shortlistDraftId, payload) {
+        const taskOperation = activeTaskTarget && activeTaskTarget.shortlistDraftId === shortlistDraftId
+          ? activeTaskTarget.taskOperation
+          : '';
+        if (!['approve_internal_shortlist', 'create_review_applications'].includes(taskOperation)) {
+          return null;
+        }
+
+        const operation = computedOperationFromPayload(payload, taskOperation);
+        const panel = document.createElement('section');
+        panel.className = 'detail-section shortlist-task-panel';
+
+        const title = document.createElement('h3');
+        title.textContent = t('verify.shortlistTask.title');
+
+        const copy = document.createElement('p');
+        copy.className = 'candidate-search-copy';
+        copy.textContent = t('verify.shortlistTask.copy');
+
+        const actions = document.createElement('div');
+        actions.className = 'shortlist-task-actions';
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'button secondary';
+        button.textContent = shortlistTaskOperationButtonLabel(taskOperation);
+
+        const returnToTeamLink = createReturnToTeamLink();
+        const statusNode = document.createElement('p');
+        statusNode.className = 'candidate-search-status';
+
+        const result = document.createElement('div');
+        result.className = 'candidate-shortlist-result';
+
+        const blockerCodes = operationBlockerCodes(operation);
+        if (!operationCanExecute(operation)) {
+          button.disabled = true;
+          statusNode.textContent = t('verify.shortlistTask.unavailable', {
+            items: blockerCodes.length ? blockerCodes.join(', ') : 'guard',
+          });
+        } else {
+          statusNode.textContent = computedOperationText(operation);
+        }
+
+        button.addEventListener('click', async () => {
+          button.disabled = true;
+          statusNode.textContent = t('verify.shortlistTask.running');
+          result.innerHTML = '';
+          try {
+            if (taskOperation === 'approve_internal_shortlist') {
+              const response = await fetch(`/api/v1/operator/shortlist-drafts/${encodeURIComponent(shortlistDraftId)}/approval`, {
+                method: 'PATCH',
+                headers: operatorHeaders({
+                  'Content-Type': 'application/json',
+                }),
+                body: JSON.stringify({ decision: 'approve_internal' }),
+              });
+              const actionPayload = await response.json().catch(() => ({}));
+              if (isOperatorAccessFailure(response)) {
+                showAccessPanel('verify.access.denied');
+                throw new Error('operator access required');
+              }
+              if (response.status === 409 && actionPayload && actionPayload.error === 'shortlist_internal_approval_blocked') {
+                const blockers = shortlistInternalApprovalBlockers(actionPayload);
+                statusNode.textContent = t('verify.candidateSearch.approvalBlocked', {
+                  items: blockers.length ? blockers.join(', ') : 'approval guard',
+                });
+                return;
+              }
+              if (!response.ok || !actionPayload || actionPayload.ok !== true || !actionPayload.shortlist_draft) {
+                throw new Error('shortlist task approval failed');
+              }
+              currentDraftPayload = actionPayload;
+              detailsJson.textContent = JSON.stringify(actionPayload, null, 2);
+              renderShortlistDraftResult(result, actionPayload.shortlist_draft, actionPayload);
+              recordTeamTaskFeedback(
+                'approve_internal_shortlist',
+                actionPayload.shortlist_draft.draft_status || '',
+                nextResponsibleGroupFromPayload(actionPayload, 'create_review_applications', 'review_team'),
+                actionPayload
+              );
+              returnToTeamLink.hidden = false;
+              statusNode.textContent = t('verify.shortlistTask.completed', {
+                status: actionPayload.shortlist_draft.draft_status || emptyValue(),
+                visible: String(actionPayload.shortlist_draft.employer_visible === true),
+              });
+              return;
+            }
+
+            const response = await fetch(`/api/v1/operator/shortlist-drafts/${encodeURIComponent(shortlistDraftId)}/review-applications`, {
+              method: 'POST',
+              headers: operatorHeaders({
+                'Content-Type': 'application/json',
+              }),
+              body: JSON.stringify({}),
+            });
+            const actionPayload = await response.json().catch(() => ({}));
+            if (isOperatorAccessFailure(response)) {
+              showAccessPanel('verify.access.denied');
+              throw new Error('operator access required');
+            }
+            if (response.status === 409 && actionPayload && actionPayload.error === 'shortlist_review_application_guard_blocked') {
+              const blockers = shortlistReviewApplicationBlockers(actionPayload);
+              statusNode.textContent = t('verify.candidateSearch.reviewApplicationsBlocked', {
+                items: blockers.length ? blockers.join(', ') : 'approval guard',
+              });
+              return;
+            }
+            if (!response.ok || !actionPayload || actionPayload.ok !== true) {
+              throw new Error('shortlist task review application failed');
+            }
+            detailsJson.textContent = JSON.stringify(actionPayload, null, 2);
+            renderReviewApplicationsResult(result, actionPayload);
+            const applications = Array.isArray(actionPayload.applications) ? actionPayload.applications : [];
+            const firstStatus = applications[0] && applications[0].application_status
+              ? applications[0].application_status
+              : emptyValue();
+            recordTeamTaskFeedback(
+              'create_review_applications',
+              firstStatus,
+              nextResponsibleGroupFromPayload(actionPayload, 'review_candidate_presentation', 'review_team'),
+              actionPayload
+            );
+            returnToTeamLink.hidden = false;
+            statusNode.textContent = t('verify.shortlistTask.completed', {
+              status: firstStatus,
+              visible: String(actionPayload.side_effects && actionPayload.side_effects.employer_visible === true),
+            });
+          } catch (error) {
+            if (error && error.message === 'operator access required') {
+              statusNode.textContent = t('verify.access.denied');
+            } else if (taskOperation === 'approve_internal_shortlist') {
+              statusNode.textContent = t('verify.candidateSearch.approvalError');
+            } else {
+              statusNode.textContent = t('verify.candidateSearch.reviewApplicationsError');
+            }
+          }
+        });
+
+        actions.append(button, returnToTeamLink, statusNode);
+        panel.append(title, copy, actions, result);
+        return panel;
+      }
+
       function renderCandidateSearchResults(container, payload) {
         container.innerHTML = '';
         const candidates = payload && Array.isArray(payload.candidates) ? payload.candidates : [];
@@ -1897,11 +2094,7 @@
         createReviewApplicationsButton.disabled = true;
         createReviewApplicationsButton.title = t('verify.candidateSearch.reviewApplicationsDisabled');
 
-        const returnToTeamLink = document.createElement('a');
-        returnToTeamLink.className = 'button secondary candidate-search-return';
-        returnToTeamLink.href = '/team/';
-        returnToTeamLink.textContent = t('verify.task.returnToTeam');
-        returnToTeamLink.hidden = !activeTaskTarget;
+        const returnToTeamLink = createReturnToTeamLink();
 
         const statusNode = document.createElement('p');
         statusNode.className = 'candidate-search-status';
@@ -2868,6 +3061,10 @@
           result.className = 'candidate-shortlist-result';
           renderShortlistDraftResult(result, draft, payload);
           detailsSections.appendChild(result);
+          const taskPanel = createShortlistTaskExecutionPanel(draft.shortlist_draft_id || '', payload);
+          if (taskPanel) {
+            detailsSections.appendChild(taskPanel);
+          }
           syncReviewTargetOptions(null);
           setLatestReviewNote('');
           renderReviewHistory([]);

@@ -6695,6 +6695,7 @@ function cpg_operator_shortlist_review_application_guard(array $draft): array {
         ]);
     }
 
+    $alreadyStagedReviewApplicationCount = 0;
     foreach ($includedCandidates as $candidate) {
         $candidateId = is_string($candidate['candidate_user_id'] ?? null) ? (string) $candidate['candidate_user_id'] : '';
         if ($candidateId === '') {
@@ -6737,7 +6738,13 @@ function cpg_operator_shortlist_review_application_guard(array $draft): array {
                 'candidate_user_id' => $candidateId,
                 'vacancy_application_id' => $existingApplication['vacancy_application_id'] ?? null,
             ]);
+        } elseif ($existingApplication !== null && !in_array((string) ($existingApplication['application_status'] ?? ''), ['withdrawn', 'rejected'], true)) {
+            $alreadyStagedReviewApplicationCount++;
         }
+    }
+
+    if ($includedCandidates !== [] && $alreadyStagedReviewApplicationCount === count($includedCandidates)) {
+        cpg_operator_shortlist_add_blocker($blockers, 'review_applications_already_staged', 'Review applications are already staged for all included candidates');
     }
 
     $warnings[] = [
@@ -8865,6 +8872,9 @@ function cpg_team_workbench_task_from_operation(
 ): ?array {
     $requiredAccess = is_array($operation['required_access'] ?? null) ? $operation['required_access'] : [];
     if (($requiredAccess['allowed'] ?? false) !== true) {
+        return null;
+    }
+    if (($operation['operation_status'] ?? null) !== 'available' || ($operation['is_executable'] ?? false) !== true) {
         return null;
     }
 

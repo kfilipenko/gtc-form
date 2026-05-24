@@ -745,6 +745,11 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       await teamCandidateSearch.getByRole('button', { name: 'Create internal shortlist draft' }).click();
       await expect(teamCandidateSearch).toContainText('Internal shortlist draft created');
       await expect(teamCandidateSearch).toContainText('Employer visible: false');
+      await expect(teamCandidateSearch).not.toContainText(exactEmail);
+      await expect(teamCandidateSearch).not.toContainText(mismatchEmail);
+      await expect(teamCandidateSearch).not.toContainText('contact_email');
+      await expect(teamCandidateSearch).not.toContainText('contact_phone');
+      await expect(teamCandidateSearch).not.toContainText('document_metadata');
       await expect(teamCandidateSearch.getByRole('link', { name: 'Return to team tasks' })).toBeVisible();
       await teamCandidateSearch.getByRole('link', { name: 'Return to team tasks' }).click();
       await expect(page).toHaveURL(/\/team\/?$/);
@@ -753,6 +758,34 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       const updatedTeamTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();
       await expect(updatedTeamTask).toContainText('approve_internal_shortlist');
       await expect(updatedTeamTask).not.toContainText('create_internal_shortlist_draft');
+
+      await updatedTeamTask.locator('.team-task__link').click();
+      await expect(page).toHaveURL(/task_operation=approve_internal_shortlist/);
+      const shortlistTaskPanel = page.locator('.shortlist-task-panel');
+      await expect(shortlistTaskPanel).toContainText('Task action');
+      await expect(shortlistTaskPanel).toContainText('Approve internal shortlist');
+      await shortlistTaskPanel.getByRole('button', { name: 'Approve internal shortlist' }).click();
+      await expect(shortlistTaskPanel).toContainText('Task operation completed: approved_internal');
+      await expect(shortlistTaskPanel.getByRole('link', { name: 'Return to team tasks' })).toBeVisible();
+      await shortlistTaskPanel.getByRole('link', { name: 'Return to team tasks' }).click();
+      await expect(page.locator('#team-task-feedback')).toContainText('Operation completed: approve_internal_shortlist');
+      const reviewApplicationsTeamTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();
+      await expect(reviewApplicationsTeamTask).toContainText('create_review_applications');
+      await expect(reviewApplicationsTeamTask).not.toContainText('approve_internal_shortlist');
+
+      await reviewApplicationsTeamTask.locator('.team-task__link').click();
+      await expect(page).toHaveURL(/task_operation=create_review_applications/);
+      const reviewApplicationsTaskPanel = page.locator('.shortlist-task-panel');
+      await expect(reviewApplicationsTaskPanel).toContainText('Task action');
+      await expect(reviewApplicationsTaskPanel).toContainText('Create review applications');
+      await reviewApplicationsTaskPanel.getByRole('button', { name: 'Create review applications' }).click();
+      await expect(reviewApplicationsTaskPanel).toContainText('Task operation completed: submitted_for_human_review');
+      await reviewApplicationsTaskPanel.getByRole('link', { name: 'Return to team tasks' }).click();
+      await expect(page.locator('#team-task-feedback')).toContainText('Operation completed: create_review_applications');
+      await expect(page.locator('#team-task-feedback')).toContainText('next group: review_team');
+      await expect(page.locator('#team-task-list')).not.toContainText('create_review_applications');
+
+      return;
     } finally {
       await teamRequest.dispose();
     }

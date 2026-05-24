@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.64
+- Version: 1.65
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -271,6 +271,7 @@ docs/crewportglobal/
   182_cpg_demand_019_team_workbench_computed_tasks_report.md
   183_cpg_demand_020_team_task_deep_links_report.md
   184_cpg_demand_021_team_task_completion_feedback_report.md
+  185_cpg_demand_022_task_specific_shortlist_operation_panel_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -545,6 +546,8 @@ Document 183 records the CPG-DEMAND-020 team task deep-link implementation, incl
 
 Document 184 records the CPG-DEMAND-021 team task completion feedback implementation, including current-data task recomputation after operation execution, suppression of completed shortlist-draft creation tasks when an active internal draft exists, return-to-team feedback from `/verify/`, next responsible group visibility and preserved no-persisted-task / no-employer-facing boundary.
 
+Document 185 records the CPG-DEMAND-022 task-specific shortlist operation panel implementation, including executable-only computed task visibility, `/verify/` task-action controls for `approve_internal_shortlist` and `create_review_applications`, return-to-team feedback, access/guard preservation and continued no-employer-facing boundary.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -648,6 +651,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.65 | 2026-05-24 | GTC IT / AI Assistant | Added document 185 for CPG-DEMAND-022 covering task-specific shortlist operation panel, executable-only computed task visibility, guarded `/verify/` actions for internal approval and review-application staging, return-to-team feedback and no-employer-facing boundary |
 | 1.64 | 2026-05-24 | GTC IT / AI Assistant | Added document 184 for CPG-DEMAND-021 covering team task completion feedback, current-data recomputation, active internal shortlist suppression of completed creation tasks, return-to-team workflow and next responsible group visibility |
 | 1.63 | 2026-05-24 | GTC IT / AI Assistant | Added document 183 for CPG-DEMAND-020 covering team task deep links, computed `target_url`, `/verify/` query target opening, named-session initial queue load and preserved backend guard boundary |
 | 1.62 | 2026-05-24 | GTC IT / AI Assistant | Added document 182 for CPG-DEMAND-019 covering `/team/` computed `My tasks`, named-session-only task access, `review_team` entry alignment, permission-filtered task visibility and preserved no-persisted-task boundary |
