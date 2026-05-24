@@ -94,25 +94,12 @@ function require_operator_or_team_access(): array {
         ];
     }
 
-    $adminToken = admin_access_session_token();
-    if ($adminToken !== null) {
-        admin_access_load_runtime_env();
-        if (admin_access_public_flow_enabled()) {
-            $storage = admin_access_storage_or_response();
-            $session = $storage->findActiveAdminSession($adminToken, cpg_admin_now());
-            if (is_array($session) && cpg_admin_access_user_can_view_team_links($session)) {
-                return [
-                    'access_model' => 'team_admin_session',
-                    'actor_label' => (string) ($session['email'] ?? 'team_session'),
-                    'actor_user_id' => (string) ($session['user_id'] ?? ''),
-                    'groups' => $session['groups'] ?? [],
-                    'roles' => $session['roles'] ?? [],
-                    'permissions' => $session['permissions'] ?? [],
-                ];
-            }
-        }
+    $namedAccess = operator_named_session_access_from_request();
+    if (is_array($namedAccess)) {
+        return $namedAccess;
     }
 
+    $adminToken = admin_access_session_token();
     if ($expected === null && $adminToken === null) {
         api_error(403, 'operator_access_not_configured', 'Operator access token is not configured');
     }
@@ -133,29 +120,79 @@ function operator_temporary_token_access(string $actorLabel = 'temporary_operato
 
 function operator_named_session_access_from_request(): ?array {
     $adminToken = admin_access_session_token();
-    if ($adminToken === null) {
+    if ($adminToken !== null) {
+        admin_access_load_runtime_env();
+        if (admin_access_public_flow_enabled()) {
+            $storage = admin_access_storage_or_response();
+            $session = $storage->findActiveAdminSession($adminToken, cpg_admin_now());
+            if (is_array($session) && cpg_admin_access_user_can_view_team_links($session)) {
+                return [
+                    'access_model' => 'team_admin_session',
+                    'actor_label' => (string) ($session['email'] ?? 'team_session'),
+                    'actor_user_id' => (string) ($session['user_id'] ?? ''),
+                    'groups' => $session['groups'] ?? [],
+                    'roles' => $session['roles'] ?? [],
+                    'permissions' => $session['permissions'] ?? [],
+                ];
+            }
+        }
+    }
+
+    return operator_account_session_access_from_request();
+}
+
+function operator_account_session_access_from_request(): ?array {
+    $session = cpg_auth_find_active_session();
+    if (!is_array($session) || !is_string($session['user_id'] ?? null) || (string) $session['user_id'] === '') {
         return null;
     }
 
-    admin_access_load_runtime_env();
-    if (!admin_access_public_flow_enabled()) {
+    $result = api_query(
+        'SELECT u.user_id::text AS user_id,
+                lower(u.email) AS email,
+                u.is_active,
+                COALESCE(array_agg(DISTINCT p.permission_code) FILTER (WHERE p.permission_code IS NOT NULL), ARRAY[]::text[]) AS permissions,
+                COALESCE(array_agg(DISTINCT r.role_code) FILTER (WHERE r.role_code IS NOT NULL), ARRAY[]::text[]) AS roles,
+                COALESCE(array_agg(DISTINCT g.group_code) FILTER (WHERE g.group_code IS NOT NULL), ARRAY[]::text[]) AS groups
+         FROM crewportglobal.users u
+         LEFT JOIN crewportglobal.access_group_members gm
+           ON gm.user_id = u.user_id
+          AND gm.membership_state = $2
+         LEFT JOIN crewportglobal.access_groups g
+           ON g.group_id = gm.group_id
+          AND g.is_active = TRUE
+         LEFT JOIN crewportglobal.access_group_roles gr
+           ON gr.group_id = g.group_id
+          AND gr.assignment_state = $2
+         LEFT JOIN crewportglobal.access_roles r
+           ON r.role_id = gr.role_id
+          AND r.is_active = TRUE
+         LEFT JOIN crewportglobal.access_role_permissions rp
+           ON rp.role_id = r.role_id
+         LEFT JOIN crewportglobal.access_permissions p
+           ON p.permission_id = rp.permission_id
+          AND p.is_active = TRUE
+         WHERE u.user_id = $1
+         GROUP BY u.user_id, u.email, u.is_active
+         LIMIT 1',
+        [(string) $session['user_id'], 'active']
+    );
+    $row = pg_fetch_assoc($result);
+    if (!is_array($row)) {
         return null;
     }
 
-    $storage = admin_access_storage_or_response();
-    $session = $storage->findActiveAdminSession($adminToken, cpg_admin_now());
-    if (!is_array($session)) {
-        return null;
-    }
-
-    return [
-        'access_model' => 'team_admin_session',
-        'actor_label' => (string) ($session['email'] ?? 'team_session'),
-        'actor_user_id' => (string) ($session['user_id'] ?? ''),
-        'groups' => $session['groups'] ?? [],
-        'roles' => $session['roles'] ?? [],
-        'permissions' => $session['permissions'] ?? [],
+    $access = [
+        'access_model' => 'account_team_session',
+        'actor_label' => (string) ($row['email'] ?? ($session['email'] ?? 'account_session')),
+        'actor_user_id' => (string) ($row['user_id'] ?? $session['user_id']),
+        'groups' => cpg_admin_access_pg_text_list($row['groups'] ?? []),
+        'roles' => cpg_admin_access_pg_text_list($row['roles'] ?? []),
+        'permissions' => cpg_admin_access_pg_text_list($row['permissions'] ?? []),
+        'is_active' => filter_var($row['is_active'] ?? true, FILTER_VALIDATE_BOOL),
     ];
+
+    return cpg_admin_access_user_can_view_team_links($access) ? $access : null;
 }
 
 function resolve_operator_or_named_session_access(string $temporaryActorLabel = 'temporary_operator_token'): array {
@@ -491,6 +528,24 @@ function require_operator_workflow_operation_access(string $operationCode): arra
         }
     }
 
+    $accountAccess = operator_account_session_access_from_request();
+    if (is_array($accountAccess)) {
+        if (operator_workflow_session_allows_operation($accountAccess, $requirement)) {
+            return operator_workflow_operation_contract($operationCode, array_merge($accountAccess, [
+                'allowed' => true,
+            ]));
+        }
+
+        api_json(403, [
+            'ok' => false,
+            'error' => 'workflow_operation_permission_required',
+            'message' => 'This operation requires the configured group and permission',
+            'operation_access' => operator_workflow_operation_contract($operationCode, array_merge($accountAccess, [
+                'allowed' => false,
+            ])),
+        ]);
+    }
+
     if ($expected === null && $adminToken === null) {
         api_error(403, 'operator_access_not_configured', 'Operator access token is not configured');
     }
@@ -664,6 +719,32 @@ function handle_get_admin_access_team_links(): void {
     admin_access_load_runtime_env();
     if (!admin_access_public_flow_enabled()) {
         admin_access_api_response(cpg_admin_access_disabled_response());
+    }
+
+    if (admin_access_session_token() === null) {
+        $accountAccess = operator_account_session_access_from_request();
+        if (is_array($accountAccess)) {
+            $groups = cpg_admin_access_string_list($accountAccess['groups'] ?? []);
+            sort($groups);
+
+            api_json(200, [
+                'ok' => true,
+                'user' => [
+                    'user_id' => (string) ($accountAccess['actor_user_id'] ?? ''),
+                    'email' => (string) ($accountAccess['actor_label'] ?? ''),
+                    'groups' => $groups,
+                ],
+                'access_model' => [
+                    'mode' => 'account_group_membership',
+                    'allowed_groups' => [
+                        CPG_ADMIN_ACCESS_OWNER_GROUP,
+                        CPG_ADMIN_ACCESS_TEAM_GROUP,
+                        CPG_ADMIN_ACCESS_REVIEW_TEAM_GROUP,
+                    ],
+                ],
+                'links' => CPG_ADMIN_ACCESS_TEAM_LINKS,
+            ]);
+        }
     }
 
     $storage = admin_access_storage_or_response();

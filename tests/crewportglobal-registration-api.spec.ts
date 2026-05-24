@@ -516,6 +516,62 @@ WHERE ec.company_id = ac.company_id
   );
 }
 
+function runApiPsql(sql: string): string {
+  return execSync(
+    'PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -v ON_ERROR_STOP=1 -qAt',
+    { input: sql, encoding: 'utf8' }
+  ).trim();
+}
+
+function addReviewTeamMembership(userId: string): void {
+  const safeUserId = userId.replace(/'/g, "''");
+  runApiPsql(`
+WITH target_group AS (
+  SELECT group_id
+  FROM crewportglobal.access_groups
+  WHERE group_code = 'review_team'
+    AND is_active = TRUE
+  LIMIT 1
+),
+target_user AS (
+  SELECT '${safeUserId}'::uuid AS user_id
+)
+INSERT INTO crewportglobal.access_group_members (group_id, user_id, reason)
+SELECT target_group.group_id, target_user.user_id, 'playwright account team session test'
+FROM target_group, target_user
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM crewportglobal.access_group_members existing
+  WHERE existing.group_id = target_group.group_id
+    AND existing.user_id = target_user.user_id
+    AND existing.membership_state = 'active'
+);
+`);
+}
+
+function createAccountSessionToken(userId: string): string {
+  const token = `playwright-account-session-${randomUUID()}`;
+  const tokenHash = createHash('sha256').update(token).digest('hex');
+  const safeUserId = userId.replace(/'/g, "''");
+  runApiPsql(`
+INSERT INTO crewportglobal.user_sessions (
+  user_id,
+  session_token_hash,
+  expires_at,
+  ip_address,
+  user_agent
+) VALUES (
+  '${safeUserId}'::uuid,
+  '${tokenHash}',
+  now() + interval '30 minutes',
+  '127.0.0.1',
+  'playwright-account-team-session'
+);
+`);
+
+  return token;
+}
+
 test.afterEach(() => {
   cleanupApiTestData();
 });
@@ -2138,6 +2194,61 @@ test('operator review queue returns submitted seafarer and company drafts', asyn
 
   expect(hasSeafarer).toBe(true);
   expect(hasCompany).toBe(true);
+});
+
+test('operator queue accepts account session with review team membership', async ({ request }) => {
+  const unique = Date.now();
+  const email = `api.account.team.${unique}@example.com`;
+  const title = `Account Session Electrician ${unique}`;
+
+  const createResponse = await request.post('/registration/drafts', {
+    data: {
+      role: 'employer',
+      role_in_company: 'crewing manager',
+      email,
+      full_name: 'Account Session Reviewer',
+      company_name: 'Account Session Marine LLC',
+      country_code: 'AE',
+      registration_number: `AE-ACCOUNT-${unique}`,
+      vacancy: {
+        vacancy_title: title,
+        rank: 'Electrician',
+        department: 'engine',
+        vessel_type: 'Container Ship',
+        join_date: '2026-10-10',
+        contract_duration: '4 months',
+        requirements: 'Synthetic account-session operator access test.',
+      },
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = (await createResponse.json()) as DraftResponse;
+
+  addReviewTeamMembership(created.draft_id);
+  const sessionToken = createAccountSessionToken(created.draft_id);
+
+  const accountHeaders = { Cookie: `cpg_user_session=${sessionToken}` };
+  const queueResponse = await fetch('http://127.0.0.1:38124/api/v1/operator/review-queue', {
+    headers: accountHeaders,
+  });
+  const queueBody = await queueResponse.text();
+  expect(queueResponse.ok, queueBody).toBeTruthy();
+  const queue = JSON.parse(queueBody) as {
+    access_model: string;
+    actor_user_id: string;
+    queue: Array<Record<string, unknown>>;
+  };
+  expect(queue.access_model).toBe('account_team_session');
+  expect(queue.actor_user_id).toBe(created.draft_id);
+  expect(JSON.stringify(queue.queue)).toContain(title);
+
+  const tasksResponse = await fetch('http://127.0.0.1:38124/api/v1/team/workbench/tasks', {
+    headers: accountHeaders,
+  });
+  const tasksBody = await tasksResponse.text();
+  expect(tasksResponse.ok, tasksBody).toBeTruthy();
+  const tasks = JSON.parse(tasksBody) as { tasks: Array<Record<string, unknown>> };
+  expect(JSON.stringify(tasks.tasks)).toContain(title);
 });
 
 test('operator can request vacancy deletion without physical delete', async ({ request }) => {

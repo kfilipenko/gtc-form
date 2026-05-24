@@ -3685,14 +3685,8 @@
       const initialQueueType = pendingTaskTarget
         ? (pendingTaskTarget.queueType || queueTypeForRecordType(pendingTaskTarget.recordType))
         : '';
-      if (getStoredOperatorToken() || getStoredTeamSessionToken()) {
-        setOperatorLane(preferredLaneForQueueType(initialQueueType), false);
-        loadQueue();
-      } else {
-        setOperatorLane('all', false);
-        showAccessPanel('verify.access.denied');
-        status.textContent = t('verify.access.denied');
-      }
+      setOperatorLane(preferredLaneForQueueType(initialQueueType), false);
+      loadQueue();
     })();
   </script>
 </body>

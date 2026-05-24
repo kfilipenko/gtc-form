@@ -579,17 +579,15 @@
 
     async function loadLinks() {
       const token = sessionToken();
-      if (!token) {
-        showLogin();
-        return;
-      }
       const { response, body } = await getJson('/api/v1/admin/access/team-links', token);
       if (!response.ok || body.ok !== true) {
         if (response.status === 403) {
           showLogin('This account is not in an approved team access group.');
           return;
         }
-        clearSession();
+        if (token) {
+          clearSession();
+        }
         showLogin('Session expired. Please request a new code.');
         return;
       }
