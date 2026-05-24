@@ -1890,6 +1890,45 @@ test('operator candidate search returns read-only exact matches and blockers', a
     })
   );
 
+  const reviewApplicationsResponse = await request.post(`/operator/shortlist-drafts/${shortlistDraftId}/review-applications`, {
+    data: {
+      operator_note: 'Stage included shortlist candidates for vacancy application review only.',
+    },
+  });
+  expect(reviewApplicationsResponse.status()).toBe(201);
+  const reviewApplications = await reviewApplicationsResponse.json();
+  expect(reviewApplications).toEqual(
+    expect.objectContaining({
+      ok: true,
+      shortlist_draft_id: shortlistDraftId,
+      vacancy_request_id: vacancyId,
+      review_application_guard: expect.objectContaining({
+        review_application_status: 'ready_for_review_application_staging',
+        employer_visibility: false,
+        moves_applications_to_presented: false,
+        presented_to_employer: false,
+      }),
+      side_effects: expect.objectContaining({
+        creates_vacancy_applications: true,
+        created_review_applications_count: 1,
+        moves_applications_to_presented: false,
+        presented_to_employer: false,
+        employer_visible: false,
+      }),
+    })
+  );
+  expect(reviewApplications.applications).toHaveLength(1);
+  expect(reviewApplications.applications[0]).toEqual(
+    expect.objectContaining({
+      candidate_user_id: exact.draft_id,
+      vacancy_request_id: vacancyId,
+      application_status: 'submitted_for_human_review',
+      action: 'created',
+      employer_visible: false,
+      presented_to_employer: false,
+    })
+  );
+
   const holdOnlyResponse = await request.post(`/operator/vacancies/${vacancyId}/shortlist-drafts`, {
     data: {
       candidates: [
@@ -1904,6 +1943,28 @@ test('operator candidate search returns read-only exact matches and blockers', a
   expect(holdOnlyResponse.status()).toBe(201);
   const holdOnly = await holdOnlyResponse.json();
   const holdOnlyDraftId = holdOnly.shortlist_draft.shortlist_draft_id as string;
+  const holdOnlyReviewApplicationsResponse = await request.post(`/operator/shortlist-drafts/${holdOnlyDraftId}/review-applications`, {
+    data: {},
+  });
+  expect(holdOnlyReviewApplicationsResponse.status()).toBe(409);
+  const holdOnlyReviewApplications = await holdOnlyReviewApplicationsResponse.json();
+  expect(holdOnlyReviewApplications).toEqual(
+    expect.objectContaining({
+      ok: false,
+      error: 'shortlist_review_application_guard_blocked',
+      review_application_guard: expect.objectContaining({
+        review_application_status: 'blocked',
+      }),
+      side_effects: expect.objectContaining({
+        creates_vacancy_applications: false,
+        moves_applications_to_presented: false,
+        presented_to_employer: false,
+        employer_visible: false,
+      }),
+    })
+  );
+  expect(JSON.stringify(holdOnlyReviewApplications)).toContain('shortlist_draft_not_approved_internal');
+
   const holdOnlyApprovalResponse = await request.patch(`/operator/shortlist-drafts/${holdOnlyDraftId}/approval`, {
     data: {
       decision: 'approve_internal',
@@ -1943,6 +2004,14 @@ test('operator candidate search returns read-only exact matches and blockers', a
   expect(serializedApproval).not.toContain('contact_email');
   expect(serializedApproval).not.toContain('contact_phone');
   expect(serializedApproval).not.toContain('document_metadata');
+
+  const serializedReviewApplications = JSON.stringify(reviewApplications);
+  expect(serializedReviewApplications).not.toContain(exactEmail);
+  expect(serializedReviewApplications).not.toContain(mismatchEmail);
+  expect(serializedReviewApplications).not.toContain(documentBlockedEmail);
+  expect(serializedReviewApplications).not.toContain('contact_email');
+  expect(serializedReviewApplications).not.toContain('contact_phone');
+  expect(serializedReviewApplications).not.toContain('document_metadata');
 
   const employerDraftResponse = await request.get(`/registration/drafts/${employer.draft_id}`);
   expect(employerDraftResponse.status()).toBe(200);

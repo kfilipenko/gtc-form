@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.58
+- Version: 1.59
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -265,6 +265,7 @@ docs/crewportglobal/
   176_cpg_demand_013_internal_shortlist_draft_storage_guard_report.md
   177_cpg_demand_014_operator_shortlist_draft_ui_report.md
   178_cpg_demand_015_internal_shortlist_approval_workflow_report.md
+  179_cpg_demand_016_internal_shortlist_to_review_application_bridge_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -527,6 +528,8 @@ Document 177 records the CPG-DEMAND-014 operator internal shortlist draft UI imp
 
 Document 178 records the CPG-DEMAND-015 internal shortlist approval workflow implementation, including the protected approval endpoint, approve/reject decisions, approval guard blocker codes, `/verify/` internal approval controls, status update to `approved_internal` / `rejected`, audit event creation and preserved no-employer-facing boundary.
 
+Document 179 records the CPG-DEMAND-016 internal shortlist to vacancy-application review-queue bridge, including the protected review-application endpoint, `approved_internal` guard, internal-only application staging to `submitted_for_human_review`, `/verify/` bridge action, audit event creation and preserved no-`presented` / no-employer-facing boundary.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -630,6 +633,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.59 | 2026-05-24 | GTC IT / AI Assistant | Added document 179 for CPG-DEMAND-016 covering the bridge from approved internal shortlist drafts to internal vacancy application review records, with protected endpoint, `/verify/` action, no-presented boundary, audit event and focused verification |
 | 1.58 | 2026-05-24 | GTC IT / AI Assistant | Added document 178 for CPG-DEMAND-015 covering the internal shortlist approval workflow, protected approval endpoint, `/verify/` approve/reject controls, approval guard blocker codes, audit event creation and no-employer-facing boundary |
 | 1.57 | 2026-05-23 | GTC IT / AI Assistant | Added document 177 for CPG-DEMAND-014 covering `/verify/` internal shortlist draft UI controls, guarded draft creation, internal-only result rendering, employer-visible false confirmation and sensitive-field exclusion verification |
 | 1.56 | 2026-05-23 | GTC IT / AI Assistant | Added document 176 for CPG-DEMAND-013 covering internal shortlist draft storage, migration 016, operator-only endpoints, guard blocker behavior, no-employer-visibility constraints, minimized snapshots and focused verification |

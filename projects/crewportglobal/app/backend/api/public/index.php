@@ -6207,6 +6207,310 @@ function handle_patch_operator_shortlist_draft_approval(string $shortlistDraftId
     ]);
 }
 
+function cpg_operator_shortlist_review_application_guard(array $draft): array {
+    $blockers = [];
+    $warnings = [];
+    $draftStatus = is_string($draft['draft_status'] ?? null) ? (string) $draft['draft_status'] : '';
+    $candidates = is_array($draft['candidates'] ?? null) ? $draft['candidates'] : [];
+    $includedCandidates = array_values(array_filter($candidates, static function (array $candidate): bool {
+        return ($candidate['operator_decision'] ?? null) === 'include';
+    }));
+
+    if ($draftStatus !== 'approved_internal') {
+        cpg_operator_shortlist_add_blocker($blockers, 'shortlist_draft_not_approved_internal', 'Review applications can be staged only from an approved internal shortlist draft', [
+            'draft_status' => $draftStatus,
+        ]);
+    }
+    if (cpg_pg_bool($draft['employer_visible'] ?? null)) {
+        cpg_operator_shortlist_add_blocker($blockers, 'shortlist_draft_employer_visible', 'Internal shortlist draft unexpectedly has employer visibility');
+    }
+    if (($draft['archived_at'] ?? null) !== null || $draftStatus === 'archived') {
+        cpg_operator_shortlist_add_blocker($blockers, 'shortlist_draft_archived', 'Archived shortlist drafts cannot create review applications');
+    }
+    if ($draftStatus === 'rejected') {
+        cpg_operator_shortlist_add_blocker($blockers, 'shortlist_draft_rejected', 'Rejected shortlist drafts cannot create review applications');
+    }
+    if ($includedCandidates === []) {
+        cpg_operator_shortlist_add_blocker($blockers, 'no_included_candidates', 'Review application staging requires at least one included candidate');
+    }
+
+    $internalApprovalGuard = cpg_operator_shortlist_internal_approval_guard($draft);
+    if (($internalApprovalGuard['internal_approval_status'] ?? 'blocked') !== 'ready_for_internal_approval') {
+        cpg_operator_shortlist_add_blocker($blockers, 'internal_approval_guard_not_ready', 'Internal approval guard is no longer ready for this shortlist draft', [
+            'approval_blockers' => is_array($internalApprovalGuard['approval_blockers'] ?? null) ? $internalApprovalGuard['approval_blockers'] : [],
+        ]);
+    }
+
+    foreach ($includedCandidates as $candidate) {
+        $candidateId = is_string($candidate['candidate_user_id'] ?? null) ? (string) $candidate['candidate_user_id'] : '';
+        if ($candidateId === '') {
+            cpg_operator_shortlist_add_blocker($blockers, 'included_candidate_id_missing', 'Included shortlist candidate has no candidate user id');
+            continue;
+        }
+        if (cpg_pg_bool($candidate['employer_visible'] ?? null)) {
+            cpg_operator_shortlist_add_blocker($blockers, 'shortlist_candidate_employer_visible', 'Internal shortlist candidate unexpectedly has employer visibility', [
+                'candidate_user_id' => $candidateId,
+            ]);
+        }
+
+        $guard = is_array($candidate['approval_guard_result'] ?? null) ? $candidate['approval_guard_result'] : [];
+        if (($guard['approval_status'] ?? 'blocked') !== 'ready_for_internal_shortlist') {
+            cpg_operator_shortlist_add_blocker($blockers, 'included_candidate_guard_blocked', 'Included candidate is not ready for review application staging', [
+                'candidate_user_id' => $candidateId,
+                'approval_blockers' => is_array($guard['approval_blockers'] ?? null) ? $guard['approval_blockers'] : [],
+            ]);
+        }
+
+        $snapshot = is_array($candidate['candidate_search_result'] ?? null) ? $candidate['candidate_search_result'] : [];
+        $forbiddenHits = cpg_payload_forbidden_key_hits($snapshot, cpg_employer_payload_forbidden_keys());
+        if ($forbiddenHits !== []) {
+            cpg_operator_shortlist_add_blocker($blockers, 'included_candidate_forbidden_field_risk', 'Included candidate snapshot contains forbidden employer-facing fields', [
+                'candidate_user_id' => $candidateId,
+                'fields' => $forbiddenHits,
+            ]);
+        }
+
+        $existingApplication = cpg_fetch_one_assoc(
+            'SELECT vacancy_application_id, application_status
+             FROM crewportglobal.vacancy_applications
+             WHERE vacancy_request_id = $1
+               AND seafarer_user_id = $2
+             LIMIT 1',
+            [$draft['vacancy_request_id'], $candidateId]
+        );
+        if ($existingApplication !== null && ($existingApplication['application_status'] ?? null) === 'presented') {
+            cpg_operator_shortlist_add_blocker($blockers, 'candidate_already_presented_to_employer', 'Candidate already has an employer-facing presented application for this vacancy', [
+                'candidate_user_id' => $candidateId,
+                'vacancy_application_id' => $existingApplication['vacancy_application_id'] ?? null,
+            ]);
+        }
+    }
+
+    $warnings[] = [
+        'code' => 'review_application_stage_only',
+        'message' => 'This bridge creates or reuses internal vacancy applications for review only; it does not present candidates to employers',
+    ];
+
+    return [
+        'review_application_status' => $blockers === [] ? 'ready_for_review_application_staging' : 'blocked',
+        'approval_blockers' => $blockers,
+        'approval_warnings' => $warnings,
+        'internal_approval_guard' => $internalApprovalGuard,
+        'candidate_count' => count($candidates),
+        'included_candidate_count' => count($includedCandidates),
+        'employer_visibility' => false,
+        'creates_review_applications_only' => true,
+        'moves_applications_to_presented' => false,
+        'presented_to_employer' => false,
+    ];
+}
+
+function handle_post_operator_shortlist_draft_review_applications(string $shortlistDraftId): void {
+    $uuid = api_normalize_uuid($shortlistDraftId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_shortlist_draft_id', 'shortlist_draft_id must be a valid UUID');
+    }
+    if (!cpg_operator_shortlist_tables_ready()) {
+        api_error(503, 'operator_shortlist_store_missing', 'Operator shortlist draft tables are not available');
+    }
+
+    $body = api_decode_json_body();
+    $note = normalize_optional_text($body['operator_note'] ?? $body['note'] ?? null, 1000);
+    $draft = cpg_operator_shortlist_read($uuid);
+    if ($draft === null) {
+        api_error(404, 'shortlist_draft_not_found', 'Internal shortlist draft not found');
+    }
+
+    $reviewApplicationGuard = cpg_operator_shortlist_review_application_guard($draft);
+    if (($reviewApplicationGuard['review_application_status'] ?? 'blocked') !== 'ready_for_review_application_staging') {
+        api_json(409, [
+            'ok' => false,
+            'error' => 'shortlist_review_application_guard_blocked',
+            'message' => 'Internal shortlist cannot create review applications',
+            'review_application_guard' => $reviewApplicationGuard,
+            'side_effects' => [
+                'creates_vacancy_applications' => false,
+                'changes_application_statuses' => false,
+                'moves_applications_to_presented' => false,
+                'presented_to_employer' => false,
+                'employer_visible' => false,
+            ],
+        ]);
+    }
+
+    $includedCandidates = array_values(array_filter($draft['candidates'], static function (array $candidate): bool {
+        return ($candidate['operator_decision'] ?? null) === 'include';
+    }));
+    $vacancyContext = cpg_fetch_one_assoc(
+        'SELECT created_by_user_id, company_id, vessel_id
+         FROM crewportglobal.vacancy_requests
+         WHERE vacancy_request_id = $1
+         LIMIT 1',
+        [$draft['vacancy_request_id']]
+    );
+
+    $applications = [];
+    $createdCount = 0;
+    $reusedCount = 0;
+    $resetCount = 0;
+
+    api_tx_begin();
+    try {
+        foreach ($includedCandidates as $candidate) {
+            $candidateId = (string) $candidate['candidate_user_id'];
+            $candidateUser = cpg_fetch_one_assoc(
+                'SELECT email
+                 FROM crewportglobal.users
+                 WHERE user_id = $1
+                 LIMIT 1',
+                [$candidateId]
+            );
+            if ($candidateUser === null || !is_string($candidateUser['email'] ?? null) || trim((string) $candidateUser['email']) === '') {
+                api_tx_rollback();
+                api_error(404, 'shortlist_candidate_user_not_found', 'Included shortlist candidate user not found');
+            }
+
+            $existingApplication = cpg_fetch_one_assoc(
+                'SELECT vacancy_application_id, application_status
+                 FROM crewportglobal.vacancy_applications
+                 WHERE vacancy_request_id = $1
+                   AND seafarer_user_id = $2
+                 LIMIT 1',
+                [$draft['vacancy_request_id'], $candidateId]
+            );
+            $previousStatus = is_array($existingApplication) ? (string) ($existingApplication['application_status'] ?? '') : null;
+            $action = 'created';
+            if ($existingApplication !== null) {
+                $action = in_array($previousStatus, ['withdrawn', 'rejected'], true)
+                    ? 'reset_to_submitted_for_human_review'
+                    : 'reused';
+            }
+
+            $insertResult = api_query(
+                "INSERT INTO crewportglobal.vacancy_applications (
+                    vacancy_request_id,
+                    seafarer_user_id,
+                    contact_email,
+                    candidate_note,
+                    application_status
+                 ) VALUES (
+                    $1,
+                    $2,
+                    $3,
+                    NULL,
+                    'submitted_for_human_review'
+                 )
+                 ON CONFLICT (vacancy_request_id, seafarer_user_id)
+                 DO UPDATE SET
+                   application_status = CASE
+                     WHEN crewportglobal.vacancy_applications.application_status IN ('withdrawn', 'rejected')
+                       THEN 'submitted_for_human_review'
+                     ELSE crewportglobal.vacancy_applications.application_status
+                   END,
+                   updated_at = CASE
+                     WHEN crewportglobal.vacancy_applications.application_status IN ('withdrawn', 'rejected')
+                       THEN now()
+                     ELSE crewportglobal.vacancy_applications.updated_at
+                   END
+                 RETURNING vacancy_application_id, application_status, created_at, updated_at",
+                [$draft['vacancy_request_id'], $candidateId, (string) $candidateUser['email']]
+            );
+            $applicationRow = pg_fetch_assoc($insertResult);
+            if (!is_array($applicationRow)) {
+                api_tx_rollback();
+                api_error(500, 'shortlist_review_application_create_failed', 'Unable to create review application from internal shortlist');
+            }
+
+            if ($action === 'created') {
+                $createdCount++;
+            } elseif ($action === 'reset_to_submitted_for_human_review') {
+                $resetCount++;
+            } else {
+                $reusedCount++;
+            }
+
+            $applications[] = [
+                'vacancy_application_id' => $applicationRow['vacancy_application_id'],
+                'vacancy_request_id' => $draft['vacancy_request_id'],
+                'candidate_user_id' => $candidateId,
+                'application_status' => $applicationRow['application_status'],
+                'previous_application_status' => $previousStatus,
+                'action' => $action,
+                'employer_visible' => false,
+                'presented_to_employer' => false,
+            ];
+        }
+
+        $guardSnapshot = is_array($draft['approval_guard_snapshot'] ?? null) ? $draft['approval_guard_snapshot'] : [];
+        $guardSnapshot['review_application_bridge'] = [
+            'shortlist_draft_id' => $uuid,
+            'operator_note' => $note,
+            'review_application_guard' => $reviewApplicationGuard,
+            'application_count' => count($applications),
+            'created_count' => $createdCount,
+            'reused_count' => $reusedCount,
+            'reset_count' => $resetCount,
+            'moved_to_presented_count' => 0,
+            'employer_visible' => false,
+            'staged_at' => gmdate('c'),
+        ];
+        api_query(
+            'UPDATE crewportglobal.operator_shortlist_drafts
+             SET approval_guard_snapshot = $2::jsonb,
+                 updated_at = now()
+             WHERE shortlist_draft_id = $1
+               AND employer_visible IS FALSE',
+            [$uuid, cpg_workspace_json($guardSnapshot)]
+        );
+
+        if ($vacancyContext !== null && is_string($vacancyContext['created_by_user_id'] ?? null)) {
+            write_audit_event(
+                'operator_shortlist_review_applications_created',
+                (string) $vacancyContext['created_by_user_id'],
+                is_string($vacancyContext['company_id'] ?? null) ? (string) $vacancyContext['company_id'] : null,
+                is_string($vacancyContext['vessel_id'] ?? null) ? (string) $vacancyContext['vessel_id'] : null,
+                [
+                    'shortlist_draft_id' => $uuid,
+                    'vacancy_request_id' => $draft['vacancy_request_id'],
+                    'operator_note' => $note,
+                    'review_application_guard' => $reviewApplicationGuard,
+                    'applications' => $applications,
+                    'created_count' => $createdCount,
+                    'reused_count' => $reusedCount,
+                    'reset_count' => $resetCount,
+                    'moves_applications_to_presented' => false,
+                    'presented_to_employer' => false,
+                    'employer_visible' => false,
+                ],
+                'operator_shortlist_review_application_bridge'
+            );
+        }
+
+        api_tx_commit();
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'shortlist_review_application_create_failed', $error->getMessage());
+    }
+
+    api_json(201, [
+        'ok' => true,
+        'shortlist_draft_id' => $uuid,
+        'vacancy_request_id' => $draft['vacancy_request_id'],
+        'review_application_guard' => $reviewApplicationGuard,
+        'applications' => $applications,
+        'side_effects' => [
+            'creates_vacancy_applications' => $createdCount > 0,
+            'created_review_applications_count' => $createdCount,
+            'reused_review_applications_count' => $reusedCount,
+            'reset_review_applications_count' => $resetCount,
+            'changes_existing_application_statuses' => $resetCount > 0,
+            'moves_applications_to_presented' => false,
+            'presented_to_employer' => false,
+            'employer_visible' => false,
+        ],
+    ]);
+}
+
 function upsert_vacancy_request(string $userId, string $companyId, ?string $vesselId, array $body): ?string {
     $vacancy = normalize_vacancy_payload($body);
     if ($vacancy === null) {
@@ -9649,6 +9953,15 @@ if (preg_match('#^/operator/shortlist-drafts/([^/]+)/approval$#', $path, $matche
     }
     header('Allow: PATCH');
     api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
+}
+
+if (preg_match('#^/operator/shortlist-drafts/([^/]+)/review-applications$#', $path, $matches) === 1) {
+    if ($method === 'POST') {
+        require_operator_access();
+        handle_post_operator_shortlist_draft_review_applications($matches[1]);
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
 }
 
 if (preg_match('#^/operator/shortlist-drafts/([^/]+)$#', $path, $matches) === 1) {

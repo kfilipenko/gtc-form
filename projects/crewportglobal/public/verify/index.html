@@ -708,6 +708,13 @@
         'verify.candidateSearch.rejectedDraft': 'Internal shortlist rejected: {status}. Employer visible: {visible}.',
         'verify.candidateSearch.approvalBlocked': 'Internal approval guard blocked: {items}',
         'verify.candidateSearch.approvalError': 'Could not update internal shortlist approval.',
+        'verify.candidateSearch.createReviewApplications': 'Create review applications',
+        'verify.candidateSearch.reviewApplicationsDisabled': 'Approve the internal shortlist before creating review applications.',
+        'verify.candidateSearch.creatingReviewApplications': 'Creating internal review applications...',
+        'verify.candidateSearch.reviewApplicationsCreated': 'Review applications created: {count}. Status: {status}. Employer visible: {visible}.',
+        'verify.candidateSearch.reviewApplicationsBlocked': 'Review application guard blocked: {items}',
+        'verify.candidateSearch.reviewApplicationsError': 'Could not create review applications.',
+        'verify.candidateSearch.reviewApplication': '{candidate}: {status}; action {action}',
         'verify.field.draftId': 'Draft ID',
         'verify.field.role': 'Role',
         'verify.field.email': 'Email',
@@ -912,6 +919,13 @@
         'verify.candidateSearch.rejectedDraft': 'Внутренний shortlist отклонён: {status}. Видимость работодателю: {visible}.',
         'verify.candidateSearch.approvalBlocked': 'Internal approval guard заблокировал: {items}',
         'verify.candidateSearch.approvalError': 'Не удалось обновить internal shortlist approval.',
+        'verify.candidateSearch.createReviewApplications': 'Создать review-заявки',
+        'verify.candidateSearch.reviewApplicationsDisabled': 'Сначала утвердите внутренний shortlist.',
+        'verify.candidateSearch.creatingReviewApplications': 'Создаём внутренние review-заявки...',
+        'verify.candidateSearch.reviewApplicationsCreated': 'Review-заявки созданы: {count}. Статус: {status}. Видимость работодателю: {visible}.',
+        'verify.candidateSearch.reviewApplicationsBlocked': 'Review application guard заблокировал: {items}',
+        'verify.candidateSearch.reviewApplicationsError': 'Не удалось создать review-заявки.',
+        'verify.candidateSearch.reviewApplication': '{candidate}: {status}; действие {action}',
         'verify.field.draftId': 'Draft ID',
         'verify.field.role': 'Роль',
         'verify.field.email': 'Email',
@@ -1464,6 +1478,15 @@
           : [];
       }
 
+      function shortlistReviewApplicationBlockers(payload) {
+        const guard = payload && payload.review_application_guard && typeof payload.review_application_guard === 'object'
+          ? payload.review_application_guard
+          : {};
+        return Array.isArray(guard.approval_blockers)
+          ? guard.approval_blockers.map((item) => item && item.code).filter(Boolean)
+          : [];
+      }
+
       function renderShortlistDraftResult(container, draft) {
         container.innerHTML = '';
         if (!draft || typeof draft !== 'object') {
@@ -1495,6 +1518,38 @@
             decision: candidate.operator_decision || emptyValue(),
             status: guard.approval_status || emptyValue(),
             blockers: blockerCodes.length ? blockerCodes.join(', ') : emptyValue(),
+          });
+          line.appendChild(strong);
+          container.appendChild(line);
+        });
+      }
+
+      function renderReviewApplicationsResult(container, payload) {
+        if (!payload || typeof payload !== 'object') {
+          return;
+        }
+        const applications = Array.isArray(payload.applications) ? payload.applications : [];
+        const summary = document.createElement('p');
+        summary.className = 'candidate-shortlist-summary';
+        const firstStatus = applications[0] && applications[0].application_status
+          ? applications[0].application_status
+          : emptyValue();
+        const employerVisible = payload.side_effects && payload.side_effects.employer_visible === true;
+        summary.textContent = t('verify.candidateSearch.reviewApplicationsCreated', {
+          count: String(applications.length),
+          status: firstStatus,
+          visible: String(employerVisible),
+        });
+        container.appendChild(summary);
+
+        applications.forEach((application) => {
+          const line = document.createElement('div');
+          line.className = 'candidate-shortlist-candidate';
+          const strong = document.createElement('strong');
+          strong.textContent = t('verify.candidateSearch.reviewApplication', {
+            candidate: application.candidate_user_id || emptyValue(),
+            status: application.application_status || emptyValue(),
+            action: application.action || emptyValue(),
           });
           line.appendChild(strong);
           container.appendChild(line);
@@ -1616,6 +1671,7 @@
         button.textContent = t('verify.candidateSearch.run');
 
         let lastShortlistDraftId = '';
+        let lastShortlistDraftStatus = '';
 
         const shortlistButton = document.createElement('button');
         shortlistButton.type = 'button';
@@ -1636,6 +1692,13 @@
         rejectShortlistButton.textContent = t('verify.candidateSearch.rejectDraft');
         rejectShortlistButton.disabled = true;
 
+        const createReviewApplicationsButton = document.createElement('button');
+        createReviewApplicationsButton.type = 'button';
+        createReviewApplicationsButton.className = 'button secondary';
+        createReviewApplicationsButton.textContent = t('verify.candidateSearch.createReviewApplications');
+        createReviewApplicationsButton.disabled = true;
+        createReviewApplicationsButton.title = t('verify.candidateSearch.reviewApplicationsDisabled');
+
         const statusNode = document.createElement('p');
         statusNode.className = 'candidate-search-status';
         statusNode.textContent = t('verify.candidateSearch.sideEffects');
@@ -1651,7 +1714,9 @@
           shortlistButton.disabled = true;
           approveShortlistButton.disabled = true;
           rejectShortlistButton.disabled = true;
+          createReviewApplicationsButton.disabled = true;
           lastShortlistDraftId = '';
+          lastShortlistDraftStatus = '';
           statusNode.textContent = t('verify.candidateSearch.loading');
           results.innerHTML = '';
           shortlistResult.innerHTML = '';
@@ -1719,9 +1784,11 @@
               throw new Error('shortlist draft request failed');
             }
             lastShortlistDraftId = payload.shortlist_draft.shortlist_draft_id || '';
+            lastShortlistDraftStatus = payload.shortlist_draft.draft_status || '';
             renderShortlistDraftResult(shortlistResult, payload.shortlist_draft);
             approveShortlistButton.disabled = !lastShortlistDraftId;
             rejectShortlistButton.disabled = !lastShortlistDraftId;
+            createReviewApplicationsButton.disabled = lastShortlistDraftStatus !== 'approved_internal';
             statusNode.textContent = t('verify.candidateSearch.draftCreated', {
               status: payload.shortlist_draft.draft_status || emptyValue(),
               visible: String(payload.shortlist_draft.employer_visible === true),
@@ -1747,6 +1814,7 @@
           shortlistButton.disabled = true;
           approveShortlistButton.disabled = true;
           rejectShortlistButton.disabled = true;
+          createReviewApplicationsButton.disabled = true;
           statusNode.textContent = t('verify.candidateSearch.approvingDraft');
           try {
             const response = await fetch(`/api/v1/operator/shortlist-drafts/${encodeURIComponent(lastShortlistDraftId)}/approval`, {
@@ -1771,6 +1839,7 @@
             if (!response.ok || !payload || payload.ok !== true || !payload.shortlist_draft) {
               throw new Error('shortlist approval request failed');
             }
+            lastShortlistDraftStatus = payload.shortlist_draft.draft_status || '';
             renderShortlistDraftResult(shortlistResult, payload.shortlist_draft);
             const key = decision === 'reject' ? 'verify.candidateSearch.rejectedDraft' : 'verify.candidateSearch.approvedDraft';
             statusNode.textContent = t(key, {
@@ -1788,6 +1857,7 @@
             shortlistButton.disabled = collectCandidateShortlistRequests(results).length === 0;
             approveShortlistButton.disabled = !lastShortlistDraftId;
             rejectShortlistButton.disabled = !lastShortlistDraftId;
+            createReviewApplicationsButton.disabled = !lastShortlistDraftId || lastShortlistDraftStatus !== 'approved_internal';
           }
         }
 
@@ -1798,7 +1868,67 @@
           updateInternalShortlistApproval('reject');
         });
 
-        actions.append(button, shortlistButton, approveShortlistButton, rejectShortlistButton, statusNode);
+        createReviewApplicationsButton.addEventListener('click', async () => {
+          if (!lastShortlistDraftId || lastShortlistDraftStatus !== 'approved_internal') {
+            statusNode.textContent = t('verify.candidateSearch.reviewApplicationsDisabled');
+            return;
+          }
+
+          button.disabled = true;
+          shortlistButton.disabled = true;
+          approveShortlistButton.disabled = true;
+          rejectShortlistButton.disabled = true;
+          createReviewApplicationsButton.disabled = true;
+          statusNode.textContent = t('verify.candidateSearch.creatingReviewApplications');
+          try {
+            const response = await fetch(`/api/v1/operator/shortlist-drafts/${encodeURIComponent(lastShortlistDraftId)}/review-applications`, {
+              method: 'POST',
+              headers: operatorHeaders({
+                'Content-Type': 'application/json',
+              }),
+              body: JSON.stringify({}),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (isOperatorAccessFailure(response)) {
+              showAccessPanel('verify.access.denied');
+              throw new Error('operator access required');
+            }
+            if (response.status === 409 && payload && payload.error === 'shortlist_review_application_guard_blocked') {
+              const blockers = shortlistReviewApplicationBlockers(payload);
+              statusNode.textContent = t('verify.candidateSearch.reviewApplicationsBlocked', {
+                items: blockers.length ? blockers.join(', ') : 'approval guard',
+              });
+              return;
+            }
+            if (!response.ok || !payload || payload.ok !== true) {
+              throw new Error('shortlist review applications request failed');
+            }
+            renderReviewApplicationsResult(shortlistResult, payload);
+            const applications = Array.isArray(payload.applications) ? payload.applications : [];
+            const firstStatus = applications[0] && applications[0].application_status
+              ? applications[0].application_status
+              : emptyValue();
+            statusNode.textContent = t('verify.candidateSearch.reviewApplicationsCreated', {
+              count: String(applications.length),
+              status: firstStatus,
+              visible: String(payload.side_effects && payload.side_effects.employer_visible === true),
+            });
+          } catch (error) {
+            if (error && error.message === 'operator access required') {
+              statusNode.textContent = t('verify.access.denied');
+            } else {
+              statusNode.textContent = t('verify.candidateSearch.reviewApplicationsError');
+            }
+          } finally {
+            button.disabled = false;
+            shortlistButton.disabled = collectCandidateShortlistRequests(results).length === 0;
+            approveShortlistButton.disabled = !lastShortlistDraftId;
+            rejectShortlistButton.disabled = !lastShortlistDraftId;
+            createReviewApplicationsButton.disabled = !lastShortlistDraftId || lastShortlistDraftStatus !== 'approved_internal';
+          }
+        });
+
+        actions.append(button, shortlistButton, approveShortlistButton, rejectShortlistButton, createReviewApplicationsButton, statusNode);
         section.append(title, copy, actions, results, shortlistResult);
         return section;
       }
