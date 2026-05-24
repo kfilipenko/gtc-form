@@ -11,6 +11,7 @@ const CPG_ADMIN_ACCESS_FLOW_LEGACY_ENV = 'CPG_ADMIN_ACCESS_FLOW_ENABLED';
 const CPG_ADMIN_ACCESS_OWNER_GROUP = 'owners';
 const CPG_ADMIN_ACCESS_PLATFORM_ADMIN_GROUP = 'platform_administrators';
 const CPG_ADMIN_ACCESS_TEAM_GROUP = 'cpg_team';
+const CPG_ADMIN_ACCESS_REVIEW_TEAM_GROUP = 'review_team';
 const CPG_ADMIN_ACCESS_REQUIRED_PERMISSION = 'view_admin_console';
 const CPG_ADMIN_ACCESS_MANAGE_GROUPS_PERMISSION = 'manage_user_groups';
 const CPG_ADMIN_ACCESS_ASSIGNABLE_GROUP_TYPES = ['internal', 'administration'];
@@ -211,7 +212,11 @@ function cpg_admin_access_user_can_view_team_links(array $user): bool {
     }
 
     $groups = cpg_admin_access_string_list($user['groups'] ?? ($user['group_codes'] ?? []));
-    return array_intersect($groups, [CPG_ADMIN_ACCESS_OWNER_GROUP, CPG_ADMIN_ACCESS_TEAM_GROUP]) !== [];
+    return array_intersect($groups, [
+        CPG_ADMIN_ACCESS_OWNER_GROUP,
+        CPG_ADMIN_ACCESS_TEAM_GROUP,
+        CPG_ADMIN_ACCESS_REVIEW_TEAM_GROUP,
+    ]) !== [];
 }
 
 function cpg_admin_access_user_can_receive_protected_code(array $user): bool {
@@ -988,7 +993,7 @@ function cpg_admin_access_team_links_with_storage(
         return cpg_admin_access_response(403, [
             'ok' => false,
             'error' => 'team_access_group_required',
-            'message' => 'Team links require owners or cpg_team group membership',
+            'message' => 'Team links require owners, cpg_team or review_team group membership',
         ]);
     }
 
@@ -1004,7 +1009,11 @@ function cpg_admin_access_team_links_with_storage(
         ],
         'access_model' => [
             'mode' => 'group_membership',
-            'allowed_groups' => [CPG_ADMIN_ACCESS_OWNER_GROUP, CPG_ADMIN_ACCESS_TEAM_GROUP],
+            'allowed_groups' => [
+                CPG_ADMIN_ACCESS_OWNER_GROUP,
+                CPG_ADMIN_ACCESS_TEAM_GROUP,
+                CPG_ADMIN_ACCESS_REVIEW_TEAM_GROUP,
+            ],
         ],
         'links' => CPG_ADMIN_ACCESS_TEAM_LINKS,
     ]);

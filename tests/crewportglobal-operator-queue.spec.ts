@@ -719,6 +719,16 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       expect(shortlistOperation.required_access.required_permission_code).toBe('view_review_queue');
       expect(shortlistOperation.required_access.actor_user_id).toBe(employer.draft_id);
       expect(shortlistOperation.required_access.allowed).toBe(true);
+
+      await page.addInitScript((token) => {
+        window.localStorage.setItem('crewportglobal_team_session', token);
+      }, reviewTeamSession);
+      await page.goto('/team/');
+      await expect(page.locator('#team-tasks-title')).toContainText('My tasks');
+      await expect(page.locator('#team-task-status')).toContainText('computed task');
+      await expect(page.locator('#team-task-list')).toContainText(vacancyTitle);
+      await expect(page.locator('#team-task-list')).toContainText('create_internal_shortlist_draft');
+      await expect(page.locator('#team-task-list')).toContainText('view_review_queue');
     } finally {
       await teamRequest.dispose();
     }

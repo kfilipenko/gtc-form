@@ -217,6 +217,56 @@
       border-color: var(--team-primary);
       color: var(--team-primary-strong);
     }
+    .team-task-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .team-task {
+      display: grid;
+      gap: 7px;
+      padding: 12px;
+      border: 1px solid var(--team-border);
+      border-radius: 10px;
+      background: var(--team-surface-soft);
+    }
+    .team-task__top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .team-task__title {
+      margin: 0;
+      font-weight: 900;
+      line-height: 1.3;
+    }
+    .team-task__badge {
+      flex: 0 0 auto;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(8, 122, 140, 0.12);
+      color: var(--team-primary-strong);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .team-task__meta {
+      margin: 0;
+      color: var(--team-muted);
+      font-size: 13px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+    .team-task__link {
+      color: var(--team-primary-strong);
+      font-weight: 900;
+      text-decoration: none;
+    }
+    .team-task__link:hover {
+      text-decoration: underline;
+    }
     @media (max-width: 760px) {
       .team-header {
         display: grid;
@@ -280,6 +330,11 @@
 
       <section class="team-console" id="team-console" hidden aria-labelledby="team-links-title">
         <section class="team-card">
+          <h2 class="team-section-title" id="team-tasks-title">My tasks</h2>
+          <p class="team-meta" id="team-task-status">Computed from current data state.</p>
+          <ul class="team-task-list" id="team-task-list"></ul>
+        </section>
+        <section class="team-card">
           <h2 class="team-section-title" id="team-links-title">Team links</h2>
           <p class="team-meta" id="team-meta">-</p>
           <ul class="team-link-list" id="team-link-list"></ul>
@@ -303,6 +358,8 @@
     const consolePanel = document.getElementById('team-console');
     const linkList = document.getElementById('team-link-list');
     const metaNode = document.getElementById('team-meta');
+    const taskStatusNode = document.getElementById('team-task-status');
+    const taskList = document.getElementById('team-task-list');
 
     function setStatus(message, type = '') {
       statusNode.textContent = message;
@@ -380,6 +437,72 @@
       }
     }
 
+    function textOrDash(value) {
+      const text = String(value || '').trim();
+      return text || '-';
+    }
+
+    function renderTasks(body) {
+      const tasks = Array.isArray(body.tasks) ? body.tasks : [];
+      const groups = Array.isArray(body.user?.groups) ? body.user.groups.join(', ') : 'none';
+      taskStatusNode.textContent = `${tasks.length} computed task(s). Model: ${body.task_model || 'current_data_state'}. Groups: ${groups}.`;
+      taskList.replaceChildren();
+      if (tasks.length === 0) {
+        const item = document.createElement('li');
+        item.className = 'team-task';
+        const note = document.createElement('p');
+        note.className = 'team-task__meta';
+        note.textContent = 'No available computed tasks for this session.';
+        item.append(note);
+        taskList.append(item);
+        return;
+      }
+
+      for (const task of tasks) {
+        const item = document.createElement('li');
+        item.className = 'team-task';
+
+        const top = document.createElement('div');
+        top.className = 'team-task__top';
+        const title = document.createElement('p');
+        title.className = 'team-task__title';
+        title.textContent = `${textOrDash(task.title)} — ${textOrDash(task.summary)}`;
+        const badge = document.createElement('span');
+        badge.className = 'team-task__badge';
+        badge.textContent = textOrDash(task.task_status);
+        top.append(title, badge);
+
+        const meta = document.createElement('p');
+        meta.className = 'team-task__meta';
+        const access = task.required_access || {};
+        meta.textContent = [
+          `operation: ${textOrDash(task.operation_code)}`,
+          `record: ${textOrDash(task.record_type)} ${textOrDash(task.record_id)}`,
+          `group: ${textOrDash(access.target_group_code)}`,
+          `permission: ${textOrDash(access.required_permission_code)}`,
+        ].join(' | ');
+
+        const link = document.createElement('a');
+        link.className = 'team-task__link';
+        link.href = task.action_url || '/verify/';
+        link.textContent = 'Open operator workbench';
+
+        item.append(top, meta, link);
+        taskList.append(item);
+      }
+    }
+
+    async function loadTasks(token) {
+      taskStatusNode.textContent = 'Loading computed tasks...';
+      taskList.replaceChildren();
+      const { response, body } = await getJson('/api/v1/team/workbench/tasks', token);
+      if (!response.ok || body.ok !== true) {
+        taskStatusNode.textContent = body.message || 'Computed tasks are not available for this session.';
+        return;
+      }
+      renderTasks(body);
+    }
+
     async function loadLinks() {
       const token = sessionToken();
       if (!token) {
@@ -397,6 +520,7 @@
         return;
       }
       renderLinks(body);
+      await loadTasks(token);
       showConsole();
     }
 

@@ -8784,6 +8784,268 @@ function handle_get_operator_review_queue(?array $access = null): void {
     ]);
 }
 
+function require_team_workbench_access(): array {
+    $access = operator_named_session_access_from_request();
+    if (!is_array($access)) {
+        api_json(401, [
+            'ok' => false,
+            'error' => 'team_session_required',
+            'message' => 'Team workbench requires an active named team session',
+        ]);
+    }
+
+    if (!operator_access_can_view_any_operator_queue($access)
+        && !operator_access_has_permission($access, 'approve_candidate_presentation')
+        && !operator_access_has_permission($access, 'start_human_review')) {
+        api_json(403, [
+            'ok' => false,
+            'error' => 'team_workbench_permission_required',
+            'message' => 'Team workbench tasks require an approved operational group permission',
+            'access_model' => operator_access_model($access),
+            'actor_user_id' => $access['actor_user_id'] ?? null,
+        ]);
+    }
+
+    return $access;
+}
+
+function cpg_team_workbench_task_from_operation(
+    array $operation,
+    string $taskType,
+    string $title,
+    string $summary,
+    string $actionUrl,
+    array $context = []
+): ?array {
+    $requiredAccess = is_array($operation['required_access'] ?? null) ? $operation['required_access'] : [];
+    if (($requiredAccess['allowed'] ?? false) !== true) {
+        return null;
+    }
+
+    return cpg_workspace_clean_record([
+        'task_type' => $taskType,
+        'task_status' => $operation['operation_status'] ?? 'blocked',
+        'operation_code' => $operation['operation_code'] ?? null,
+        'is_executable' => ($operation['is_executable'] ?? false) === true,
+        'title' => $title,
+        'summary' => $summary,
+        'action_url' => $actionUrl,
+        'record_type' => $operation['record_type'] ?? ($context['record_type'] ?? null),
+        'record_id' => $operation['record_id'] ?? ($context['record_id'] ?? null),
+        'current_status' => $operation['current_status'] ?? ($context['current_status'] ?? null),
+        'next_status_if_executed' => $operation['next_status_if_executed'] ?? null,
+        'responsible_group_after_transition' => $operation['responsible_group_after_transition'] ?? null,
+        'required_access' => $requiredAccess,
+        'blockers' => is_array($operation['blockers'] ?? null) ? $operation['blockers'] : [],
+        'computed_from' => $operation['computed_from'] ?? 'current_data_state',
+        'context' => $context,
+    ]);
+}
+
+function cpg_team_workbench_queue_tasks(array $access): array {
+    $tasks = [];
+    foreach (read_operator_review_queue($access) as $item) {
+        $queueType = is_string($item['queue_type'] ?? null) ? (string) $item['queue_type'] : '';
+        $queueItemId = is_string($item['queue_item_id'] ?? null) ? (string) $item['queue_item_id'] : '';
+        $summary = is_array($item['summary'] ?? null) ? $item['summary'] : [];
+        $title = is_string($summary['vacancy_title'] ?? null) && trim((string) $summary['vacancy_title']) !== ''
+            ? trim((string) $summary['vacancy_title'])
+            : (is_string($item['full_name'] ?? null) ? (string) $item['full_name'] : $queueType);
+
+        if ($queueType === 'vacancy_request' && $queueItemId !== '') {
+            $operation = operator_computed_workflow_operation(
+                'create_internal_shortlist_draft',
+                true,
+                [],
+                [
+                    'record_type' => 'vacancy_request',
+                    'record_id' => $queueItemId,
+                    'current_status' => $item['status'] ?? null,
+                    'next_record_type_if_executed' => 'operator_shortlist_draft',
+                    'next_status_if_executed' => 'needs_review',
+                    'responsible_group_after_transition' => 'review_team',
+                    'computed_from' => 'operator_review_queue_vacancy_request',
+                ],
+                $access
+            );
+            $task = cpg_team_workbench_task_from_operation(
+                $operation,
+                'demand_candidate_search',
+                'Run candidate search',
+                $title,
+                '/verify/',
+                [
+                    'queue_type' => $queueType,
+                    'queue_item_id' => $queueItemId,
+                    'status' => $item['status'] ?? null,
+                    'company_name' => $summary['company_name'] ?? null,
+                    'vessel_name' => $summary['vessel_name'] ?? null,
+                ]
+            );
+            if ($task !== null) {
+                $tasks[] = $task;
+            }
+            continue;
+        }
+
+        if ($queueType === 'vacancy_application' && $queueItemId !== '') {
+            $detail = read_operator_vacancy_application_detail($queueItemId, $access);
+            if ($detail === null) {
+                continue;
+            }
+            $operations = is_array($detail['computed_operations'] ?? null) ? $detail['computed_operations'] : [];
+            foreach ($operations as $operation) {
+                if (!is_array($operation) || ($operation['operation_code'] ?? null) !== 'review_candidate_presentation') {
+                    continue;
+                }
+                $task = cpg_team_workbench_task_from_operation(
+                    $operation,
+                    'candidate_presentation_review',
+                    'Review candidate presentation',
+                    $title,
+                    '/verify/',
+                    [
+                        'queue_type' => $queueType,
+                        'queue_item_id' => $queueItemId,
+                        'status' => $item['status'] ?? null,
+                        'candidate_rank' => $summary['candidate_rank'] ?? null,
+                        'vacancy_rank' => $summary['vacancy_rank'] ?? null,
+                    ]
+                );
+                if ($task !== null) {
+                    $tasks[] = $task;
+                }
+            }
+        }
+    }
+
+    return $tasks;
+}
+
+function cpg_team_workbench_shortlist_tasks(array $access): array {
+    if (!cpg_operator_shortlist_tables_ready()) {
+        return [];
+    }
+
+    $rows = cpg_fetch_all_assoc(
+        "SELECT osd.shortlist_draft_id::text AS shortlist_draft_id,
+                osd.vacancy_request_id::text AS vacancy_request_id,
+                osd.draft_status,
+                osd.updated_at::text AS updated_at,
+                vr.vacancy_title,
+                vr.rank,
+                vr.department,
+                ec.company_name
+         FROM crewportglobal.operator_shortlist_drafts osd
+         JOIN crewportglobal.vacancy_requests vr
+           ON vr.vacancy_request_id = osd.vacancy_request_id
+         JOIN crewportglobal.employer_companies ec
+           ON ec.company_id = vr.company_id
+         WHERE osd.employer_visible IS FALSE
+           AND osd.archived_at IS NULL
+           AND osd.draft_status IN ('needs_review', 'approved_internal')
+         ORDER BY osd.updated_at DESC
+         LIMIT 100",
+        []
+    );
+
+    $tasks = [];
+    foreach ($rows as $row) {
+        $draftId = is_string($row['shortlist_draft_id'] ?? null) ? (string) $row['shortlist_draft_id'] : '';
+        if ($draftId === '') {
+            continue;
+        }
+        $draft = cpg_operator_shortlist_read($draftId);
+        if ($draft === null) {
+            continue;
+        }
+
+        $internalApprovalGuard = cpg_operator_shortlist_internal_approval_guard($draft);
+        $reviewApplicationGuard = cpg_operator_shortlist_review_application_guard($draft);
+        $operations = cpg_operator_shortlist_computed_operations($draft, $internalApprovalGuard, $reviewApplicationGuard, $access);
+        foreach ($operations as $operation) {
+            if (!is_array($operation)) {
+                continue;
+            }
+            $operationCode = is_string($operation['operation_code'] ?? null) ? (string) $operation['operation_code'] : '';
+            $label = $operationCode === 'approve_internal_shortlist'
+                ? 'Approve internal shortlist'
+                : ($operationCode === 'create_review_applications' ? 'Create review applications' : 'Review shortlist draft');
+            $task = cpg_team_workbench_task_from_operation(
+                $operation,
+                'internal_shortlist_workflow',
+                $label,
+                is_string($row['vacancy_title'] ?? null) ? (string) $row['vacancy_title'] : 'Internal shortlist',
+                '/verify/',
+                [
+                    'shortlist_draft_id' => $draftId,
+                    'vacancy_request_id' => $row['vacancy_request_id'] ?? null,
+                    'draft_status' => $row['draft_status'] ?? null,
+                    'company_name' => $row['company_name'] ?? null,
+                    'rank' => $row['rank'] ?? null,
+                    'department' => $row['department'] ?? null,
+                    'included_candidate_count' => $reviewApplicationGuard['included_candidate_count'] ?? null,
+                ]
+            );
+            if ($task !== null) {
+                $tasks[] = $task;
+            }
+        }
+    }
+
+    return $tasks;
+}
+
+function cpg_team_workbench_tasks(array $access): array {
+    $tasks = array_merge(
+        cpg_team_workbench_queue_tasks($access),
+        cpg_team_workbench_shortlist_tasks($access)
+    );
+
+    usort($tasks, static function (array $left, array $right): int {
+        $leftReady = ($left['task_status'] ?? '') === 'available' ? 0 : 1;
+        $rightReady = ($right['task_status'] ?? '') === 'available' ? 0 : 1;
+        if ($leftReady !== $rightReady) {
+            return $leftReady <=> $rightReady;
+        }
+
+        return strcmp((string) ($left['summary'] ?? ''), (string) ($right['summary'] ?? ''));
+    });
+
+    return $tasks;
+}
+
+function handle_get_team_workbench_tasks(): void {
+    $access = require_team_workbench_access();
+    $tasks = cpg_team_workbench_tasks($access);
+
+    api_json(200, [
+        'ok' => true,
+        'task_model' => 'data_derived_current_state',
+        'persisted_task_table_created' => false,
+        'access_model' => operator_access_model($access),
+        'actor_user_id' => is_string($access['actor_user_id'] ?? null) && $access['actor_user_id'] !== ''
+            ? (string) $access['actor_user_id']
+            : null,
+        'user' => [
+            'user_id' => is_string($access['actor_user_id'] ?? null) ? (string) $access['actor_user_id'] : null,
+            'email' => is_string($access['actor_label'] ?? null) ? (string) $access['actor_label'] : null,
+            'groups' => operator_access_string_list($access, 'groups'),
+            'roles' => operator_access_string_list($access, 'roles'),
+            'permissions' => operator_access_string_list($access, 'permissions'),
+        ],
+        'queue_permissions' => [
+            'seafarer_profile' => operator_queue_access_contract('seafarer_profile', $access),
+            'company_verification' => operator_queue_access_contract('company_verification', $access),
+            'vacancy_request' => operator_queue_access_contract('vacancy_request', $access),
+            'vacancy_application' => operator_queue_access_contract('vacancy_application', $access),
+        ],
+        'tasks' => $tasks,
+        'count' => count($tasks),
+        'generated_at' => gmdate('c'),
+    ]);
+}
+
 function read_operator_document_review_queue(): array {
     $result = api_query(
         "SELECT
@@ -10336,6 +10598,14 @@ if ($path === '/admin/access/session/revoke') {
 if ($path === '/admin/access/team-links') {
     if ($method === 'GET') {
         handle_get_admin_access_team_links();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if ($path === '/team/workbench/tasks') {
+    if ($method === 'GET') {
+        handle_get_team_workbench_tasks();
     }
     header('Allow: GET');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
