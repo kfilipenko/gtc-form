@@ -122,6 +122,20 @@ test('homepage dashboard shows live API status and latest reviewed vacancy', asy
   });
   expect(vacancyDecision.ok()).toBeTruthy();
 
+  const registryResponse = await request.get('/api/v1/registry-summary');
+  expect(registryResponse.ok()).toBeTruthy();
+  const registryPayload = await registryResponse.json();
+  expect(JSON.stringify(registryPayload)).not.toContain(seafarerEmail);
+  expect(JSON.stringify(registryPayload)).not.toContain(seafarerPhone);
+  expect(registryPayload.counts.matching_ready).toBeGreaterThan(0);
+  expect(registryPayload.counts.with_blockers).toBeGreaterThanOrEqual(0);
+  expect(
+    registryPayload.samples.vacancy_requests.some(
+      (row: { title?: string; readiness_status?: string }) =>
+        row.title === title && row.readiness_status === 'matching_ready'
+    )
+  ).toBeTruthy();
+
   await page.goto('/');
 
   await expect(page.locator('#home-api-status')).toContainText('Online');
@@ -138,10 +152,46 @@ test('homepage dashboard shows live API status and latest reviewed vacancy', asy
   await expect(page.locator('#home-registry-seafarers')).toContainText(seafarerRank);
   await expect(page.locator('#home-registry-summary')).not.toContainText(seafarerEmail);
   await expect(page.locator('#home-registry-summary')).not.toContainText(seafarerPhone);
+  await expect(page.locator('[data-registry-filter="all"]')).toBeVisible();
+  await page.locator('[data-registry-filter="vacancy_requests"]').click();
+  await expect(page.locator('[data-registry-filter="vacancy_requests"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#home-registry-vacancy-card')).toBeVisible();
+  await expect(page.locator('#home-registry-vessel-card')).toBeHidden();
+  await expect(page.locator('#home-registry-seafarer-card')).toBeHidden();
+  await expect(page.locator('#home-registry-vacancies')).toContainText(title);
+
+  await page.locator('[data-registry-filter="matching_ready"]').click();
+  await expect(page.locator('#home-registry-vacancies')).toContainText(title);
+  await expect(page.locator('#home-registry-vessels')).toContainText(`MV Dashboard Star ${unique}`);
+  await expect(page.locator('#home-registry-seafarers')).toContainText(seafarerRank);
+  await expect(page.locator('#home-registry-summary')).not.toContainText(seafarerEmail);
+  await expect(page.locator('#home-registry-summary')).not.toContainText(seafarerPhone);
+
+  await page.locator('[data-registry-filter="has_blockers"]').click();
+  await expect(page.locator('[data-registry-filter="has_blockers"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#home-registry-summary')).not.toContainText(seafarerEmail);
+  await expect(page.locator('#home-registry-summary')).not.toContainText(seafarerPhone);
+
+  await page.locator('[data-registry-filter="all"]').click();
   await expect(page.locator('main')).not.toContainText('for demonstration');
   await expect(page.locator('#vacancy-search-block details').first()).not.toHaveAttribute('open', '');
   await expect(page.locator('#vacancy-search-block .field-note').first()).not.toBeVisible();
 
   await page.locator('#vacancy-search-block summary').first().click();
   await expect(page.locator('#vacancy-search-block .field-note').first()).toBeVisible();
+
+  await page.evaluate(() => {
+    window.localStorage.setItem('crewportglobal.language', 'ru');
+  });
+  await page.reload();
+  await expect(page.locator('#current-language-label')).toHaveText('Русский');
+  await expect(page.locator('[data-registry-filter="all"]')).toContainText('Все записи');
+  const registryCounterLabelsFit = await page.locator('.registry-count-card span').evaluateAll((nodes) =>
+    nodes.every((node) => {
+      const label = node as HTMLElement;
+      const card = label.closest('.registry-count-card') as HTMLElement | null;
+      return label.scrollWidth <= label.clientWidth + 1 && (!card || card.scrollWidth <= card.clientWidth + 1);
+    })
+  );
+  expect(registryCounterLabelsFit).toBeTruthy();
 });

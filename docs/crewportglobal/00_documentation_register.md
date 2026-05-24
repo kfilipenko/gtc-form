@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.71
+- Version: 1.72
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -278,6 +278,7 @@ docs/crewportglobal/
   189_cpg_demand_026_manager_deletion_confirmation_workflow_report.md
   190_cpg_demand_027_public_demo_registry_summary_report.md
   191_cpg_demand_028_homepage_compact_live_data_layout_report.md
+  192_cpg_demand_029_live_registry_filter_and_ru_card_fit_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -566,6 +567,8 @@ Document 190 records the CPG-DEMAND-027 public demo registry summary implementat
 
 Document 191 records the CPG-DEMAND-028 homepage compact live-data layout correction, including live registry counters in the first screen, removal of "for demonstration" wording, compact international product-page copy and accordion-style Service model cards with focused homepage verification.
 
+Document 192 records the CPG-DEMAND-029 homepage live-registry investor filter and Russian card-fit correction, including wrapped RU count labels, usable read-only registry filters for all records / requests / vessels / seafarers / matching-ready / blockers, readiness hints in safe preview rows, contact-free API proof and focused homepage verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -669,6 +672,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.72 | 2026-05-24 | GTC IT / AI Assistant | Added document 192 for CPG-DEMAND-029 covering Russian count-card fit correction, usable read-only live registry investor filters, matching-ready/blocker readiness hints, contact-free `/api/v1/registry-summary` verification and focused homepage verification |
 | 1.71 | 2026-05-24 | GTC IT / AI Assistant | Added document 191 for CPG-DEMAND-028 covering compact homepage live-data layout, first-screen registry counters, removal of "for demonstration", shortened EN/RU product copy and accordion-style Service model cards |
 | 1.70 | 2026-05-24 | GTC IT / AI Assistant | Added document 190 for CPG-DEMAND-027 covering the public demo registry summary, real live counts for crew requests, vessels and seafarers, contact-free homepage preview rows, `/api/v1/registry-summary` and focused verification |
 | 1.69 | 2026-05-24 | GTC IT / AI Assistant | Added document 189 for CPG-DEMAND-026 covering manager confirmation workflow for vacancy deletion requests, owner/project-owner computed tasks, deletion-review endpoint, confirm/reject transitions, no-physical-delete boundary, audit actor context, `/team/` deep links and `/verify/` task panel |
