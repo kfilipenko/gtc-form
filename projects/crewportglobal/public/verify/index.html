@@ -41,6 +41,7 @@
     .queue-table { width: 100%; border-collapse: collapse; min-width: 900px; }
     .queue-table th, .queue-table td { border-bottom: 1px solid var(--line); padding: 10px 8px; text-align: left; color: var(--muted-on-dark); }
     .queue-table th { color: var(--text-on-dark); font-weight: 600; }
+    .queue-table tr.queue-row--target td { background: rgba(125, 211, 252, 0.12); }
     .queue-type { font-size: 12px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; display: inline-block; }
     .operator-access {
       display: grid;
@@ -665,6 +666,8 @@
         'verify.details.loading': 'Loading draft details...',
         'verify.details.error': 'Could not load draft details.',
         'verify.details.raw': 'Raw API payload',
+        'verify.task.opened': 'Task target opened: {type} {id}.',
+        'verify.task.notFound': 'Task target is not available in the current queue.',
         'verify.section.registration': 'Registration',
         'verify.section.seafarer': 'Seafarer profile',
         'verify.section.documents': 'Document readiness',
@@ -676,6 +679,7 @@
         'verify.section.application': 'Vacancy application',
         'verify.section.approvalGuard': 'Approval guard',
         'verify.section.candidateSearch': 'Candidate search',
+        'verify.section.shortlistDraft': 'Internal shortlist draft',
         'verify.candidateSearch.copy': 'Read-only internal search. It does not create applications, change statuses or present candidates to employers.',
         'verify.candidateSearch.run': 'Run candidate search',
         'verify.candidateSearch.loading': 'Running read-only candidate search...',
@@ -777,6 +781,9 @@
         'verify.field.requirements': 'Requirements',
         'verify.field.applicationId': 'Application ID',
         'verify.field.applicationStatus': 'Application status',
+        'verify.field.shortlistDraftId': 'Shortlist draft ID',
+        'verify.field.shortlistStatus': 'Shortlist status',
+        'verify.field.employerVisible': 'Employer visible',
         'verify.field.contactEmail': 'Contact email',
         'verify.field.candidateNote': 'Candidate note',
         'verify.field.vacancyId': 'Vacancy ID',
@@ -879,6 +886,8 @@
         'verify.details.loading': 'Загружаем детали черновика...',
         'verify.details.error': 'Не удалось загрузить детали черновика.',
         'verify.details.raw': 'Сырой API payload',
+        'verify.task.opened': 'Целевая задача открыта: {type} {id}.',
+        'verify.task.notFound': 'Целевая задача недоступна в текущей очереди.',
         'verify.section.registration': 'Регистрация',
         'verify.section.seafarer': 'Профиль моряка',
         'verify.section.documents': 'Готовность документов',
@@ -890,6 +899,7 @@
         'verify.section.application': 'Отклик на вакансию',
         'verify.section.approvalGuard': 'Approval guard',
         'verify.section.candidateSearch': 'Поиск кандидатов',
+        'verify.section.shortlistDraft': 'Внутренний shortlist draft',
         'verify.candidateSearch.copy': 'Внутренний read-only поиск. Он не создает отклики, не меняет статусы и не показывает кандидатов работодателю.',
         'verify.candidateSearch.run': 'Запустить поиск кандидатов',
         'verify.candidateSearch.loading': 'Выполняем read-only поиск кандидатов...',
@@ -991,6 +1001,9 @@
         'verify.field.requirements': 'Требования',
         'verify.field.applicationId': 'ID отклика',
         'verify.field.applicationStatus': 'Статус отклика',
+        'verify.field.shortlistDraftId': 'ID shortlist draft',
+        'verify.field.shortlistStatus': 'Статус shortlist',
+        'verify.field.employerVisible': 'Видимость работодателю',
         'verify.field.contactEmail': 'Контактный email',
         'verify.field.candidateNote': 'Заметка кандидата',
         'verify.field.vacancyId': 'ID вакансии',
@@ -1058,6 +1071,8 @@
       let currentReviewHistory = [];
       let currentDraftPayload = null;
       let currentDetailType = 'draft';
+      let pendingTaskTarget = parseTaskTargetFromUrl();
+      let activeTaskTarget = pendingTaskTarget;
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -1130,6 +1145,79 @@
           headers.Authorization = `Bearer ${teamSessionToken}`;
         }
         return headers;
+      }
+
+      function parseTaskTargetFromUrl() {
+        const params = new URLSearchParams(window.location.search || '');
+        const taskOperation = (params.get('task_operation') || '').trim();
+        const queueType = (params.get('queue_type') || '').trim();
+        const queueItemId = (params.get('queue_item_id') || '').trim();
+        const recordType = (params.get('record_type') || '').trim();
+        const recordId = (params.get('record_id') || '').trim();
+        const shortlistDraftId = (params.get('shortlist_draft_id') || '').trim();
+        if (!taskOperation && !queueType && !queueItemId && !recordType && !recordId && !shortlistDraftId) {
+          return null;
+        }
+        return { taskOperation, queueType, queueItemId, recordType, recordId, shortlistDraftId };
+      }
+
+      function queueTargetId(item) {
+        if (!item || typeof item !== 'object') {
+          return '';
+        }
+        return item.queue_type === 'vacancy_application'
+          ? String(item.queue_item_id || '')
+          : String(item.draft_id || '');
+      }
+
+      function queueTypeForRecordType(recordType) {
+        if (recordType === 'vacancy_request') {
+          return 'vacancy_request';
+        }
+        if (recordType === 'vacancy_application') {
+          return 'vacancy_application';
+        }
+        if (recordType === 'seafarer_profile') {
+          return 'seafarer_profile';
+        }
+        if (recordType === 'company_verification') {
+          return 'company_verification';
+        }
+        return recordType || '';
+      }
+
+      function queueItemMatchesTaskTarget(item, target) {
+        if (!item || !target) {
+          return false;
+        }
+        const targetQueueType = target.queueType || queueTypeForRecordType(target.recordType);
+        if (targetQueueType && item.queue_type !== targetQueueType) {
+          return false;
+        }
+        const targetIds = [
+          target.queueItemId,
+          target.recordId,
+          target.shortlistDraftId,
+        ].filter(Boolean).map((value) => String(value));
+        if (targetIds.length === 0) {
+          return false;
+        }
+        const itemIds = [
+          item.queue_item_id,
+          item.draft_id,
+          queueTargetId(item),
+        ].filter(Boolean).map((value) => String(value));
+        return targetIds.some((id) => itemIds.includes(id));
+      }
+
+      function preferredLaneForQueueType(queueType) {
+        if (queueType === 'vacancy_request' || queueType === 'vacancy_application') {
+          return 'reviewer';
+        }
+        if (queueType === 'seafarer_profile' || queueType === 'company_verification') {
+          return 'verifier';
+        }
+        return 'all';
       }
 
       function queueDisplayValue(value) {
@@ -2666,12 +2754,118 @@
         }
       }
 
+      async function loadShortlistDraftDetails(shortlistDraftId) {
+        if (!shortlistDraftId) {
+          return;
+        }
+
+        currentDetailType = 'operator_shortlist_draft';
+        detailsJson.textContent = t('verify.details.loading');
+        detailsSections.innerHTML = '';
+        const loading = document.createElement('p');
+        loading.className = 'details-empty';
+        loading.textContent = t('verify.details.loading');
+        detailsSections.appendChild(loading);
+        try {
+          const response = await fetch(`/api/v1/operator/shortlist-drafts/${encodeURIComponent(shortlistDraftId)}`, {
+            headers: operatorHeaders(),
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (isOperatorAccessFailure(response)) {
+            showAccessPanel('verify.access.denied');
+            detailsJson.textContent = t('verify.access.denied');
+            return;
+          }
+          if (!response.ok || !payload || payload.ok !== true || !payload.shortlist_draft) {
+            throw new Error('shortlist_draft_details_load_failed');
+          }
+
+          const draft = payload.shortlist_draft;
+          detailsJson.textContent = JSON.stringify(payload, null, 2);
+          currentDraftPayload = payload;
+          detailsSections.innerHTML = '';
+          const section = createDetailSection('verify.section.shortlistDraft', [
+            createDetailField('verify.field.shortlistDraftId', draft.shortlist_draft_id),
+            createDetailField('verify.field.vacancyId', draft.vacancy_request_id),
+            createDetailField('verify.field.shortlistStatus', draft.draft_status),
+            createDetailField('verify.field.employerVisible', String(draft.employer_visible === true)),
+            createDetailField('verify.field.updated', draft.updated_at),
+          ]);
+          if (section) {
+            detailsSections.appendChild(section);
+          }
+          const result = document.createElement('div');
+          result.className = 'candidate-shortlist-result';
+          renderShortlistDraftResult(result, draft, payload);
+          detailsSections.appendChild(result);
+          syncReviewTargetOptions(null);
+          setLatestReviewNote('');
+          renderReviewHistory([]);
+        } catch (error) {
+          detailsJson.textContent = t('verify.details.error');
+          currentDraftPayload = null;
+          currentDetailType = 'draft';
+          detailsSections.innerHTML = '';
+          const errorLine = document.createElement('p');
+          errorLine.className = 'details-empty';
+          errorLine.textContent = t('verify.details.error');
+          detailsSections.appendChild(errorLine);
+          setLatestReviewNote('');
+          syncReviewTargetOptions(null);
+          renderReviewHistory([]);
+          console.error(error);
+        }
+      }
+
       async function loadQueueItemDetails(itemId, queueType) {
         if (queueType === 'vacancy_application') {
           await loadApplicationDetails(itemId);
           return;
         }
         await loadDraftDetails(itemId);
+      }
+
+      async function applyPendingTaskTarget() {
+        const target = pendingTaskTarget;
+        if (!target) {
+          return;
+        }
+
+        if (target.shortlistDraftId) {
+          pendingTaskTarget = null;
+          await loadShortlistDraftDetails(target.shortlistDraftId);
+          status.textContent = t('verify.task.opened', {
+            type: 'operator_shortlist_draft',
+            id: target.shortlistDraftId,
+          });
+          return;
+        }
+
+        const matchedItem = queueItems.find((item) => queueItemMatchesTaskTarget(item, target));
+        if (!matchedItem) {
+          pendingTaskTarget = null;
+          status.textContent = t('verify.task.notFound');
+          return;
+        }
+
+        pendingTaskTarget = null;
+        const targetQueueType = matchedItem.queue_type || '';
+        setOperatorLane(preferredLaneForQueueType(targetQueueType), false);
+        if (filterType) {
+          filterType.value = targetQueueType || 'all';
+        }
+        if (filterRole) {
+          filterRole.value = 'all';
+        }
+        if (filterStatus) {
+          filterStatus.value = 'all';
+        }
+        renderQueue();
+        await loadQueueItemDetails(queueTargetId(matchedItem), targetQueueType);
+        status.textContent = t('verify.task.opened', {
+          type: targetQueueType || 'queue',
+          id: matchedItem.queue_item_id || queueTargetId(matchedItem),
+        });
       }
 
       async function applyCardReview(decision) {
@@ -2811,6 +3005,12 @@
         items.forEach((item) => {
           const tr = document.createElement('tr');
           const targetId = item.queue_type === 'vacancy_application' ? item.queue_item_id : item.draft_id;
+          tr.dataset.queueType = item.queue_type || '';
+          tr.dataset.queueItemId = item.queue_item_id || '';
+          tr.dataset.draftId = targetId || item.draft_id || '';
+          if (activeTaskTarget && queueItemMatchesTaskTarget(item, activeTaskTarget)) {
+            tr.classList.add('queue-row--target');
+          }
           const queueTypeCell = document.createElement('td');
           const queueType = document.createElement('span');
           queueType.className = 'queue-type';
@@ -2890,6 +3090,7 @@
           hideAccessPanel();
           queueItems = Array.isArray(payload.queue) ? payload.queue : [];
           renderQueue();
+          await applyPendingTaskTarget();
         } catch (error) {
           status.textContent = t('verify.error');
           console.error(error);
@@ -2906,7 +3107,7 @@
       reviewCardStatusFilter.addEventListener('change', () => {
         if (currentDetailType === 'vacancy_application') {
           renderApplicationDetails(currentDraftPayload);
-        } else {
+        } else if (currentDetailType === 'draft') {
           renderDraftDetails(currentDraftPayload);
         }
       });
@@ -2952,15 +3153,23 @@
         renderQueue();
         if (currentDetailType === 'vacancy_application') {
           renderApplicationDetails(currentDraftPayload);
-        } else {
+        } else if (currentDetailType === 'draft') {
           renderDraftDetails(currentDraftPayload);
+        } else if (currentDetailType === 'operator_shortlist_draft') {
+          const draft = currentDraftPayload && currentDraftPayload.shortlist_draft;
+          if (draft && draft.shortlist_draft_id) {
+            loadShortlistDraftDetails(draft.shortlist_draft_id);
+          }
         }
         setLatestReviewNote(currentLatestNote);
         renderReviewHistory(currentReviewHistory);
       });
 
-      if (getStoredOperatorToken()) {
-        setOperatorLane('all', false);
+      const initialQueueType = pendingTaskTarget
+        ? (pendingTaskTarget.queueType || queueTypeForRecordType(pendingTaskTarget.recordType))
+        : '';
+      if (getStoredOperatorToken() || getStoredTeamSessionToken()) {
+        setOperatorLane(preferredLaneForQueueType(initialQueueType), false);
         loadQueue();
       } else {
         setOperatorLane('all', false);

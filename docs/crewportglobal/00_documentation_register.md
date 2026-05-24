@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.62
+- Version: 1.63
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -269,6 +269,7 @@ docs/crewportglobal/
   180_cpg_demand_017_computed_operation_visibility_and_access_report.md
   181_cpg_demand_018_named_operator_access_for_computed_operations_report.md
   182_cpg_demand_019_team_workbench_computed_tasks_report.md
+  183_cpg_demand_020_team_task_deep_links_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -539,6 +540,8 @@ Document 181 records the CPG-DEMAND-018 named operator access implementation for
 
 Document 182 records the CPG-DEMAND-019 team workbench computed tasks implementation, including named-session-only `My tasks` on `/team/`, read-only task derivation from current queue and shortlist data, `review_team` entry alignment, permission-filtered task visibility and preserved no-persisted-task / no-employer-facing boundary.
 
+Document 183 records the CPG-DEMAND-020 team task deep-link implementation, including computed task `target_url` generation, `/team/` task links to specific `/verify/` records, query-parameter target parsing, automatic operator lane/filter/detail opening and preserved backend access/guard boundary.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -642,6 +645,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.63 | 2026-05-24 | GTC IT / AI Assistant | Added document 183 for CPG-DEMAND-020 covering team task deep links, computed `target_url`, `/verify/` query target opening, named-session initial queue load and preserved backend guard boundary |
 | 1.62 | 2026-05-24 | GTC IT / AI Assistant | Added document 182 for CPG-DEMAND-019 covering `/team/` computed `My tasks`, named-session-only task access, `review_team` entry alignment, permission-filtered task visibility and preserved no-persisted-task boundary |
 | 1.61 | 2026-05-24 | GTC IT / AI Assistant | Added document 181 for CPG-DEMAND-018 covering named/team operator access for computed operations, `/verify/` team session support, queue permission filtering, actor-user audit propagation and preserved temporary-token compatibility |
 | 1.60 | 2026-05-24 | GTC IT / AI Assistant | Added document 180 for CPG-DEMAND-017 covering computed operation visibility, responsible group/permission metadata, actor-context audit enrichment and preserved data-derived task principle |

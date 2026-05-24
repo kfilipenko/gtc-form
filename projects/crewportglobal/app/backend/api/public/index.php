@@ -8809,6 +8809,52 @@ function require_team_workbench_access(): array {
     return $access;
 }
 
+function cpg_team_workbench_task_id(array $operation, array $context): string {
+    $parts = [
+        $operation['operation_code'] ?? 'operation',
+        $operation['record_type'] ?? ($context['queue_type'] ?? ($context['record_type'] ?? 'record')),
+        $operation['record_id'] ?? ($context['queue_item_id'] ?? ($context['shortlist_draft_id'] ?? ($context['record_id'] ?? 'unknown'))),
+    ];
+    return preg_replace('/[^a-zA-Z0-9_.:-]+/', '_', implode(':', array_map(static fn($value): string => (string) $value, $parts))) ?: 'computed_task';
+}
+
+function cpg_team_workbench_action_url(string $baseUrl, array $operation, array $context): string {
+    $params = [];
+    $operationCode = is_string($operation['operation_code'] ?? null) ? trim((string) $operation['operation_code']) : '';
+    if ($operationCode !== '') {
+        $params['task_operation'] = $operationCode;
+    }
+
+    $shortlistDraftId = is_string($context['shortlist_draft_id'] ?? null) ? trim((string) $context['shortlist_draft_id']) : '';
+    if ($shortlistDraftId !== '') {
+        $params['shortlist_draft_id'] = $shortlistDraftId;
+    } else {
+        $queueType = is_string($context['queue_type'] ?? null) ? trim((string) $context['queue_type']) : '';
+        $queueItemId = is_string($context['queue_item_id'] ?? null) ? trim((string) $context['queue_item_id']) : '';
+        if ($queueType !== '') {
+            $params['queue_type'] = $queueType;
+        }
+        if ($queueItemId !== '') {
+            $params['queue_item_id'] = $queueItemId;
+        }
+
+        $recordType = is_string($operation['record_type'] ?? null)
+            ? trim((string) $operation['record_type'])
+            : (is_string($context['record_type'] ?? null) ? trim((string) $context['record_type']) : '');
+        $recordId = is_string($operation['record_id'] ?? null)
+            ? trim((string) $operation['record_id'])
+            : (is_string($context['record_id'] ?? null) ? trim((string) $context['record_id']) : '');
+        if ($recordType !== '' && !isset($params['queue_type'])) {
+            $params['record_type'] = $recordType;
+        }
+        if ($recordId !== '' && !isset($params['queue_item_id'])) {
+            $params['record_id'] = $recordId;
+        }
+    }
+
+    return $params === [] ? $baseUrl : $baseUrl . '?' . http_build_query($params);
+}
+
 function cpg_team_workbench_task_from_operation(
     array $operation,
     string $taskType,
@@ -8827,9 +8873,11 @@ function cpg_team_workbench_task_from_operation(
         'task_status' => $operation['operation_status'] ?? 'blocked',
         'operation_code' => $operation['operation_code'] ?? null,
         'is_executable' => ($operation['is_executable'] ?? false) === true,
+        'task_id' => cpg_team_workbench_task_id($operation, $context),
         'title' => $title,
         'summary' => $summary,
-        'action_url' => $actionUrl,
+        'action_url' => cpg_team_workbench_action_url($actionUrl, $operation, $context),
+        'target_url' => cpg_team_workbench_action_url($actionUrl, $operation, $context),
         'record_type' => $operation['record_type'] ?? ($context['record_type'] ?? null),
         'record_id' => $operation['record_id'] ?? ($context['record_id'] ?? null),
         'current_status' => $operation['current_status'] ?? ($context['current_status'] ?? null),

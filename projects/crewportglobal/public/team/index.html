@@ -484,7 +484,7 @@
 
         const link = document.createElement('a');
         link.className = 'team-task__link';
-        link.href = task.action_url || '/verify/';
+        link.href = task.target_url || task.action_url || '/verify/';
         link.textContent = 'Open operator workbench';
 
         item.append(top, meta, link);

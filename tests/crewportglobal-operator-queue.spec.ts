@@ -729,6 +729,16 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       await expect(page.locator('#team-task-list')).toContainText(vacancyTitle);
       await expect(page.locator('#team-task-list')).toContainText('create_internal_shortlist_draft');
       await expect(page.locator('#team-task-list')).toContainText('view_review_queue');
+      const teamTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();
+      const teamTaskLink = teamTask.locator('.team-task__link');
+      await expect(teamTaskLink).toHaveAttribute('href', /task_operation=create_internal_shortlist_draft/);
+      await expect(teamTaskLink).toHaveAttribute('href', /queue_type=vacancy_request/);
+      await expect(teamTaskLink).toHaveAttribute('href', new RegExp(`queue_item_id=${vacancyRequestId}`));
+      await teamTaskLink.click();
+      await expect(page).toHaveURL(/\/verify\/\?/);
+      await expect(page.locator('#queue-status')).toContainText('Task target opened');
+      await expect(page.locator('.candidate-search-panel')).toContainText('Candidate search');
+      await expect(page.locator('.candidate-search-panel')).toContainText('No side effects');
     } finally {
       await teamRequest.dispose();
     }
