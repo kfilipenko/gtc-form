@@ -1,4 +1,4 @@
-import { expect, request as playwrightRequest, test, type APIRequestContext } from '@playwright/test';
+import { expect, request as playwrightRequest, test, type APIRequestContext, type Page } from '@playwright/test';
 import { execSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 
@@ -6,6 +6,17 @@ const operatorAccessToken =
   process.env.CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN ||
   process.env.CPG_OPERATOR_ACCESS_TOKEN ||
   'crewportglobal-local-operator';
+
+async function expectQueueTableFitsWorkbench(page: Page): Promise<void> {
+  const metrics = await page.locator('.queue-table-wrap').evaluate((wrap) => ({
+    pageClientWidth: document.documentElement.clientWidth,
+    pageScrollWidth: document.documentElement.scrollWidth,
+    wrapClientWidth: wrap.clientWidth,
+    wrapScrollWidth: wrap.scrollWidth,
+  }));
+  expect(metrics.wrapScrollWidth).toBeLessThanOrEqual(metrics.wrapClientWidth + 2);
+  expect(metrics.pageScrollWidth).toBeLessThanOrEqual(metrics.pageClientWidth + 2);
+}
 
 function cleanupOperatorQueueTestData(): void {
   const sql = `
@@ -399,6 +410,7 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#queue-status')).toContainText('Verifier');
   await expect(page.locator('#queue-body')).toContainText(seafarerEmail);
   await expect(page.locator('#queue-body')).toContainText('seafarer_profile');
+  await expectQueueTableFitsWorkbench(page);
 
   await page.locator('#filter-type').selectOption('seafarer_profile');
   await expect(page.locator('#queue-body')).toContainText(seafarerEmail);
@@ -551,6 +563,7 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
     await presentationTask.locator('.team-task__link').click();
     await expect(page).toHaveURL(/task_operation=review_candidate_presentation/);
     await expect(page.locator('#queue-status')).toContainText('Task target opened');
+    await expectQueueTableFitsWorkbench(page);
     const presentationTaskPanel = page.locator('.shortlist-task-panel', { hasText: 'Approve candidate presentation' });
     await expect(presentationTaskPanel).toContainText('Task action');
     await expect(presentationTaskPanel).toContainText('Approve candidate presentation');
@@ -592,6 +605,7 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
   await page.locator('#filter-type').selectOption('vacancy_application');
   await expect(page.locator('#queue-body')).toContainText(seafarerEmail);
   await expect(page.locator('#queue-body')).toContainText(title);
+  await expectQueueTableFitsWorkbench(page);
 
   let applicationRow = page.locator('#queue-body tr', { hasText: seafarerEmail }).first();
   await applicationRow.locator('.queue-open').click();

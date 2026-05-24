@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: continuation after CPG-DEMAND-022
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-05-24
 - Status: Implemented and verified on GTC1
 
@@ -296,6 +296,35 @@ npm run test:cpg-api
 ```
 
 Result: 16 passed.
+
+### 10.6 Visual correction after portal review
+
+После визуальной проверки Project Owner обнаружил, что таблица очереди `/verify/` может выходить за экран при длинных значениях:
+
+```text
+email
+status
+summary
+actions
+```
+
+Внесена UI-only корректировка:
+
+1. Таблица очереди переведена на fixed layout.
+2. Убрана минимальная ширина, из-за которой таблица могла растягивать рабочую область.
+3. Добавлены переносы длинных значений внутри ячеек.
+4. Actions переведены в компактную вертикальную группу внутри своей колонки.
+5. Добавлен Playwright assertion, проверяющий, что `.queue-table-wrap` и страница не получают горизонтальный overflow.
+
+Проверка:
+
+```bash
+npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-operator-queue.spec.ts
+```
+
+Result: 3 passed.
+
+Продуктовая логика, backend, access guard, audit и employer-facing payload не менялись.
 
 ## 11. Remaining controlled gaps
 
