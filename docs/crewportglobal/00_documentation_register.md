@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.66
+- Version: 1.67
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -273,6 +273,7 @@ docs/crewportglobal/
   184_cpg_demand_021_team_task_completion_feedback_report.md
   185_cpg_demand_022_task_specific_shortlist_operation_panel_report.md
   186_cpg_demand_023_candidate_presentation_task_panel_report.md
+  187_cpg_demand_024_import_visibility_numbered_tasks_delete_request_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -551,6 +552,8 @@ Document 185 records the CPG-DEMAND-022 task-specific shortlist operation panel 
 
 Document 186 records the CPG-DEMAND-023 candidate presentation task panel implementation, including the guarded `review_candidate_presentation` endpoint, `/verify/` task-action panel, `review_team` access boundary, actor-context audit propagation, transition to `presented`, employer payload allow-list verification and return-to-team feedback.
 
+Document 187 records the CPG-DEMAND-024 imported-data visibility, numbered task and vacancy deletion request implementation, including expanded operator queue visibility for imported/test statuses, `/team/` and `/verify/` numbering, soft vacancy deletion request storage, manager-confirmation pending state, actor-context audit and focused API/UI verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -654,6 +657,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.67 | 2026-05-24 | GTC IT / AI Assistant | Added document 187 for CPG-DEMAND-024 covering imported/test data visibility in the operator queue, numbered `/team/` tasks and `/verify/` queue rows, soft vacancy deletion request, manager-confirmation pending state, audit logging and focused verification |
 | 1.66 | 2026-05-24 | GTC IT / AI Assistant | Added document 186 for CPG-DEMAND-023 covering candidate presentation task panel, guarded `review_candidate_presentation` endpoint, `review_team` access boundary, actor-context audit, `presented` status transition, employer payload allow-list verification and return-to-team feedback |
 | 1.65 | 2026-05-24 | GTC IT / AI Assistant | Added document 185 for CPG-DEMAND-022 covering task-specific shortlist operation panel, executable-only computed task visibility, guarded `/verify/` actions for internal approval and review-application staging, return-to-team feedback and no-employer-facing boundary |
 | 1.64 | 2026-05-24 | GTC IT / AI Assistant | Added document 184 for CPG-DEMAND-021 covering team task completion feedback, current-data recomputation, active internal shortlist suppression of completed creation tasks, return-to-team workflow and next responsible group visibility |

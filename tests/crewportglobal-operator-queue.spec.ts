@@ -785,6 +785,7 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       await expect(page.locator('#team-task-list')).toContainText('create_internal_shortlist_draft');
       await expect(page.locator('#team-task-list')).toContainText('view_review_queue');
       const teamTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();
+      await expect(teamTask.locator('.team-task__number')).toHaveText(/^#\d+$/);
       const teamTaskLink = teamTask.locator('.team-task__link');
       await expect(teamTaskLink).toHaveAttribute('href', /task_operation=create_internal_shortlist_draft/);
       await expect(teamTaskLink).toHaveAttribute('href', /queue_type=vacancy_request/);
@@ -858,6 +859,8 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
   await expect(page.locator('#queue-body')).toContainText(vacancyTitle);
 
   const vacancyRow = page.locator('#queue-body tr', { hasText: employerEmail }).first();
+  await expect(vacancyRow.locator('td').first()).toHaveText(/^\d+$/);
+  await expect(vacancyRow.getByRole('button', { name: 'Request deletion' })).toBeVisible();
   await vacancyRow.locator('.queue-open').click();
 
   const candidateSearch = page.locator('.candidate-search-panel');

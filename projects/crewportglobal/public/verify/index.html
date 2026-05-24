@@ -56,18 +56,19 @@
       vertical-align: top;
     }
     .queue-table th { color: var(--text-on-dark); font-weight: 600; }
-    .queue-table th:nth-child(1), .queue-table td:nth-child(1) { width: 9%; }
+    .queue-table th:nth-child(1), .queue-table td:nth-child(1) { width: 4%; }
     .queue-table th:nth-child(2), .queue-table td:nth-child(2) { width: 9%; }
-    .queue-table th:nth-child(3), .queue-table td:nth-child(3) { width: 17%; }
-    .queue-table th:nth-child(4), .queue-table td:nth-child(4) { width: 14%; }
-    .queue-table th:nth-child(5), .queue-table td:nth-child(5) { width: 12%; }
-    .queue-table th:nth-child(6), .queue-table td:nth-child(6) { width: 20%; }
-    .queue-table th:nth-child(7), .queue-table td:nth-child(7) {
-      width: 9%;
+    .queue-table th:nth-child(3), .queue-table td:nth-child(3) { width: 8%; }
+    .queue-table th:nth-child(4), .queue-table td:nth-child(4) { width: 16%; }
+    .queue-table th:nth-child(5), .queue-table td:nth-child(5) { width: 13%; }
+    .queue-table th:nth-child(6), .queue-table td:nth-child(6) { width: 10%; }
+    .queue-table th:nth-child(7), .queue-table td:nth-child(7) { width: 19%; }
+    .queue-table th:nth-child(8), .queue-table td:nth-child(8) {
+      width: 8%;
       font-size: 12px;
       line-height: 1.45;
     }
-    .queue-table th:nth-child(8), .queue-table td:nth-child(8) { width: 10%; }
+    .queue-table th:nth-child(9), .queue-table td:nth-child(9) { width: 13%; }
     .queue-table tr.queue-row--target td { background: rgba(125, 211, 252, 0.12); }
     .queue-type { font-size: 12px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; display: inline-block; }
     .inline-actions {
@@ -574,6 +575,7 @@
           <table class="queue-table" aria-label="Operator review queue table">
             <thead>
               <tr>
+                <th data-i18n="verify.col.number">#</th>
                 <th data-i18n="verify.col.type">Type</th>
                 <th data-i18n="verify.col.role">Role</th>
                 <th data-i18n="verify.col.email">Email</th>
@@ -676,6 +678,7 @@
         'verify.sort.updatedAsc': 'Updated asc',
         'verify.sort.createdDesc': 'Created desc',
         'verify.sort.createdAsc': 'Created asc',
+        'verify.col.number': '#',
         'verify.col.type': 'Type',
         'verify.col.role': 'Role',
         'verify.col.email': 'Email',
@@ -688,6 +691,11 @@
         'verify.action.startReview': 'Start review',
         'verify.action.needsCorrection': 'Needs correction',
         'verify.action.reviewed': 'Mark reviewed',
+        'verify.action.deleteRequest': 'Request deletion',
+        'verify.action.deleteConfirm': 'Hide this vacancy request and require manager confirmation?',
+        'verify.action.deleteSaving': 'Requesting vacancy deletion...',
+        'verify.action.deleteSaved': 'Deletion requested. Vacancy hidden from operator queue; manager confirmation required.',
+        'verify.action.deleteError': 'Could not request vacancy deletion.',
         'verify.action.saving': 'Applying operator decision...',
         'verify.action.saved': 'Decision saved: {decision}',
         'verify.action.error': 'Could not apply operator decision.',
@@ -907,6 +915,7 @@
         'verify.sort.updatedAsc': 'Сначала старые (updated)',
         'verify.sort.createdDesc': 'Сначала новые (created)',
         'verify.sort.createdAsc': 'Сначала старые (created)',
+        'verify.col.number': '#',
         'verify.col.type': 'Тип',
         'verify.col.role': 'Роль',
         'verify.col.email': 'Email',
@@ -919,6 +928,11 @@
         'verify.action.startReview': 'Начать проверку',
         'verify.action.needsCorrection': 'Нужна доработка',
         'verify.action.reviewed': 'Отметить: проверено',
+        'verify.action.deleteRequest': 'Удалить заявку',
+        'verify.action.deleteConfirm': 'Скрыть эту заявку и отправить удаление на подтверждение менеджера?',
+        'verify.action.deleteSaving': 'Отправляем запрос на удаление заявки...',
+        'verify.action.deleteSaved': 'Удаление запрошено. Заявка скрыта из очереди оператора и ожидает подтверждения менеджера.',
+        'verify.action.deleteError': 'Не удалось запросить удаление заявки.',
         'verify.action.saving': 'Применяем решение оператора...',
         'verify.action.saved': 'Решение сохранено: {decision}',
         'verify.action.error': 'Не удалось применить решение оператора.',
@@ -3433,6 +3447,43 @@
         }
       }
 
+      async function requestVacancyDeletion(vacancyRequestId) {
+        if (!vacancyRequestId) {
+          return;
+        }
+        if (!window.confirm(t('verify.action.deleteConfirm'))) {
+          return;
+        }
+        status.textContent = t('verify.action.deleteSaving');
+        const note = (reviewNoteInput.value || '').trim();
+        try {
+          const response = await fetch(`/api/v1/operator/vacancy-requests/${encodeURIComponent(vacancyRequestId)}/deletion-request`, {
+            method: 'PATCH',
+            headers: operatorHeaders({
+              'Content-Type': 'application/json',
+            }),
+            body: JSON.stringify(note ? { note } : {}),
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (isOperatorAccessFailure(response)) {
+            showAccessPanel('verify.access.denied');
+            status.textContent = t('verify.access.denied');
+            return;
+          }
+          if (!response.ok || !payload || payload.ok !== true) {
+            throw new Error('vacancy_deletion_request_failed');
+          }
+
+          hideAccessPanel();
+          reviewNoteFeedback.textContent = t('verify.action.deleteSaved');
+          await loadQueue();
+          status.textContent = t('verify.action.deleteSaved');
+        } catch (error) {
+          status.textContent = t('verify.action.deleteError');
+          console.error(error);
+        }
+      }
+
       function renderQueue() {
         const items = filteredQueue();
         const laneTotal = countItemsForLane(activeOperatorLane);
@@ -3445,7 +3496,7 @@
           return;
         }
 
-        items.forEach((item) => {
+        items.forEach((item, index) => {
           const tr = document.createElement('tr');
           const targetId = item.queue_type === 'vacancy_application' ? item.queue_item_id : item.draft_id;
           tr.dataset.queueType = item.queue_type || '';
@@ -3454,6 +3505,8 @@
           if (activeTaskTarget && queueItemMatchesTaskTarget(item, activeTaskTarget)) {
             tr.classList.add('queue-row--target');
           }
+          appendTextCell(tr, String(index + 1));
+
           const queueTypeCell = document.createElement('td');
           const queueType = document.createElement('span');
           queueType.className = 'queue-type';
@@ -3477,6 +3530,18 @@
             createQueueButton('queue-decision', 'verify.action.needsCorrection', targetId, 'needs_correction', item.queue_type, item),
             createQueueButton('queue-decision', 'verify.action.reviewed', targetId, 'reviewed', item.queue_type, item)
           );
+          if (item.queue_type === 'vacancy_request' && item.queue_item_id) {
+            const deleteButton = createQueueButton(
+              'queue-delete-request',
+              'verify.action.deleteRequest',
+              item.queue_item_id,
+              'reviewed',
+              item.queue_type,
+              item
+            );
+            deleteButton.dataset.vacancyRequestId = item.queue_item_id;
+            actionWrap.append(deleteButton);
+          }
           actionCell.appendChild(actionWrap);
           tr.appendChild(actionCell);
           body.appendChild(tr);
@@ -3508,6 +3573,15 @@
               button.getAttribute('data-decision') || '',
               button.getAttribute('data-queue-type') || ''
             );
+          });
+        });
+
+        body.querySelectorAll('.queue-delete-request').forEach((button) => {
+          button.addEventListener('click', () => {
+            if (button.disabled) {
+              return;
+            }
+            requestVacancyDeletion(button.getAttribute('data-vacancy-request-id') || '');
           });
         });
       }

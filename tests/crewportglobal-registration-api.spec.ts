@@ -2140,6 +2140,94 @@ test('operator review queue returns submitted seafarer and company drafts', asyn
   expect(hasCompany).toBe(true);
 });
 
+test('operator can request vacancy deletion without physical delete', async ({ request }) => {
+  const unique = Date.now();
+  const email = `api.vacancy.delete.${unique}@example.com`;
+
+  const createResponse = await request.post('/registration/drafts', {
+    data: {
+      role: 'employer',
+      role_in_company: 'manager',
+      email,
+      full_name: 'Delete Request API Employer',
+      company_name: 'Delete Request Marine LLC',
+      country_code: 'AE',
+      registration_number: `AE-DEL-${unique}`,
+      vessel: {
+        vessel_name: 'MV Delete Request',
+        vessel_type: 'Bulk Carrier',
+        imo_number: 'IMO9301234',
+      },
+      vacancy: {
+        vacancy_title: `Delete Request Bosun ${unique}`,
+        rank: 'Bosun',
+        department: 'deck',
+        vessel_type: 'Bulk Carrier',
+        join_date: '2026-09-20',
+        contract_duration: '3 months',
+        requirements: 'Synthetic vacancy deletion request test.',
+      },
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = (await createResponse.json()) as DraftResponse;
+  const vacancy = created.payload.vacancy_request as Record<string, unknown>;
+  const vacancyId = vacancy.vacancy_request_id as string;
+
+  const queueBeforeResponse = await request.get('/operator/review-queue');
+  expect(queueBeforeResponse.status()).toBe(200);
+  const queueBefore = (await queueBeforeResponse.json()) as { queue: Array<Record<string, unknown>> };
+  expect(
+    queueBefore.queue.some((item) => item.queue_type === 'vacancy_request' && item.queue_item_id === vacancyId)
+  ).toBe(true);
+
+  const deletionResponse = await request.patch(`/operator/vacancy-requests/${vacancyId}/deletion-request`, {
+    data: {
+      note: 'Synthetic operator deletion request requiring manager confirmation.',
+    },
+  });
+  expect(deletionResponse.status()).toBe(200);
+  const deletionBody = (await deletionResponse.json()) as Record<string, any>;
+  expect(deletionBody.ok).toBe(true);
+  expect(deletionBody.new_status).toBe('closed');
+  expect(deletionBody.deletion_request).toEqual(
+    expect.objectContaining({
+      status: 'pending_manager_confirmation',
+      requires_manager_confirmation: true,
+      physical_delete: false,
+      hidden_from_operator_queue: true,
+    })
+  );
+  expect(deletionBody.side_effects).toEqual(
+    expect.objectContaining({
+      hidden_from_operator_queue: true,
+      requires_manager_confirmation: true,
+      physical_delete: false,
+      employer_visible: false,
+    })
+  );
+
+  const safeVacancyId = vacancyId.replace(/'/g, "''");
+  const storedDeletion = execSync(
+    `PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -qAt -F '|' -c "SELECT publication_status, demand_workspace->'deletion_request'->>'status', demand_workspace->'deletion_request'->>'manager_confirmation_status' FROM crewportglobal.vacancy_requests WHERE vacancy_request_id = '${safeVacancyId}'::uuid LIMIT 1;"`,
+    { encoding: 'utf8' }
+  ).trim();
+  expect(storedDeletion).toBe('closed|pending_manager_confirmation|pending');
+
+  const auditCount = Number(execSync(
+    `PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -qAt -c "SELECT count(*) FROM crewportglobal.registration_audit_events WHERE event_type = 'operator_vacancy_deletion_requested' AND event_payload->>'vacancy_request_id' = '${safeVacancyId}';"`,
+    { encoding: 'utf8' }
+  ).trim());
+  expect(auditCount).toBeGreaterThan(0);
+
+  const queueAfterResponse = await request.get('/operator/review-queue');
+  expect(queueAfterResponse.status()).toBe(200);
+  const queueAfter = (await queueAfterResponse.json()) as { queue: Array<Record<string, unknown>> };
+  expect(
+    queueAfter.queue.some((item) => item.queue_type === 'vacancy_request' && item.queue_item_id === vacancyId)
+  ).toBe(false);
+});
+
 test('operator decision endpoint updates draft review status', async ({ request }) => {
   const unique = Date.now();
   const email = `api.operator.decision.${unique}@example.com`;
@@ -2188,8 +2276,9 @@ test('operator decision endpoint updates draft review status', async ({ request 
   const queueBody = (await queueResponse.json()) as {
     queue: Array<Record<string, unknown>>;
   };
-  const stillInQueue = queueBody.queue.some((item) => item.draft_id === created.draft_id);
-  expect(stillInQueue).toBe(false);
+  const reviewedQueueItem = queueBody.queue.find((item) => item.draft_id === created.draft_id);
+  expect(reviewedQueueItem).toBeTruthy();
+  expect(reviewedQueueItem?.status).toBe('approved');
 });
 
 test('operator decision note validation and persistence works', async ({ request }) => {

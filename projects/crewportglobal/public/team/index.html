@@ -238,10 +238,28 @@
       gap: 10px;
       align-items: flex-start;
     }
+    .team-task__heading {
+      display: flex;
+      min-width: 0;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .team-task__number {
+      flex: 0 0 auto;
+      min-width: 34px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(8, 122, 140, 0.12);
+      color: var(--team-primary-strong);
+      font-size: 12px;
+      font-weight: 900;
+      text-align: center;
+    }
     .team-task__title {
       margin: 0;
       font-weight: 900;
       line-height: 1.3;
+      overflow-wrap: anywhere;
     }
     .team-task__badge {
       flex: 0 0 auto;
@@ -508,19 +526,25 @@
         return;
       }
 
-      for (const task of tasks) {
+      tasks.forEach((task, index) => {
         const item = document.createElement('li');
         item.className = 'team-task';
 
         const top = document.createElement('div');
         top.className = 'team-task__top';
+        const heading = document.createElement('div');
+        heading.className = 'team-task__heading';
+        const number = document.createElement('span');
+        number.className = 'team-task__number';
+        number.textContent = `#${index + 1}`;
         const title = document.createElement('p');
         title.className = 'team-task__title';
         title.textContent = `${textOrDash(task.title)} — ${textOrDash(task.summary)}`;
         const badge = document.createElement('span');
         badge.className = 'team-task__badge';
         badge.textContent = textOrDash(task.task_status);
-        top.append(title, badge);
+        heading.append(number, title);
+        top.append(heading, badge);
 
         const meta = document.createElement('p');
         meta.className = 'team-task__meta';
@@ -539,7 +563,7 @@
 
         item.append(top, meta, link);
         taskList.append(item);
-      }
+      });
     }
 
     async function loadTasks(token) {
