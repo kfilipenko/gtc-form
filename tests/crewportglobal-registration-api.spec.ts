@@ -1857,6 +1857,77 @@ test('operator candidate search returns read-only exact matches and blockers', a
   const shortlistRead = await shortlistReadResponse.json();
   expect(shortlistRead.shortlist_draft.shortlist_draft_id).toBe(shortlistDraftId);
 
+  const approvalResponse = await request.patch(`/operator/shortlist-drafts/${shortlistDraftId}/approval`, {
+    data: {
+      decision: 'approve_internal',
+      operator_note: 'Internal shortlist is ready for the next controlled workflow step.',
+    },
+  });
+  expect(approvalResponse.status()).toBe(200);
+  const approval = await approvalResponse.json();
+  expect(approval).toEqual(
+    expect.objectContaining({
+      ok: true,
+      internal_approval_guard: expect.objectContaining({
+        internal_approval_status: 'ready_for_internal_approval',
+        employer_visibility: false,
+        creates_vacancy_applications: false,
+        changes_application_statuses: false,
+      }),
+      side_effects: expect.objectContaining({
+        changed_internal_shortlist_status: true,
+        creates_vacancy_applications: false,
+        changes_application_statuses: false,
+        employer_visible: false,
+      }),
+    })
+  );
+  expect(approval.shortlist_draft).toEqual(
+    expect.objectContaining({
+      shortlist_draft_id: shortlistDraftId,
+      draft_status: 'approved_internal',
+      employer_visible: false,
+    })
+  );
+
+  const holdOnlyResponse = await request.post(`/operator/vacancies/${vacancyId}/shortlist-drafts`, {
+    data: {
+      candidates: [
+        {
+          candidate_user_id: mismatch.draft_id,
+          operator_decision: 'hold',
+          operator_note: 'Hold-only draft should not be internally approvable.',
+        },
+      ],
+    },
+  });
+  expect(holdOnlyResponse.status()).toBe(201);
+  const holdOnly = await holdOnlyResponse.json();
+  const holdOnlyDraftId = holdOnly.shortlist_draft.shortlist_draft_id as string;
+  const holdOnlyApprovalResponse = await request.patch(`/operator/shortlist-drafts/${holdOnlyDraftId}/approval`, {
+    data: {
+      decision: 'approve_internal',
+    },
+  });
+  expect(holdOnlyApprovalResponse.status()).toBe(409);
+  const holdOnlyApproval = await holdOnlyApprovalResponse.json();
+  expect(holdOnlyApproval).toEqual(
+    expect.objectContaining({
+      ok: false,
+      error: 'shortlist_internal_approval_blocked',
+      internal_approval_guard: expect.objectContaining({
+        internal_approval_status: 'blocked',
+      }),
+      side_effects: expect.objectContaining({
+        changed_internal_shortlist_status: false,
+        creates_vacancy_applications: false,
+        changes_application_statuses: false,
+        employer_visible: false,
+      }),
+    })
+  );
+  expect(JSON.stringify(holdOnlyApproval)).toContain('no_included_candidates');
+
   const serializedShortlist = JSON.stringify(shortlistRead);
   expect(serializedShortlist).not.toContain(exactEmail);
   expect(serializedShortlist).not.toContain(mismatchEmail);
@@ -1864,6 +1935,14 @@ test('operator candidate search returns read-only exact matches and blockers', a
   expect(serializedShortlist).not.toContain('contact_email');
   expect(serializedShortlist).not.toContain('contact_phone');
   expect(serializedShortlist).not.toContain('document_metadata');
+
+  const serializedApproval = JSON.stringify(approval);
+  expect(serializedApproval).not.toContain(exactEmail);
+  expect(serializedApproval).not.toContain(mismatchEmail);
+  expect(serializedApproval).not.toContain(documentBlockedEmail);
+  expect(serializedApproval).not.toContain('contact_email');
+  expect(serializedApproval).not.toContain('contact_phone');
+  expect(serializedApproval).not.toContain('document_metadata');
 
   const employerDraftResponse = await request.get(`/registration/drafts/${employer.draft_id}`);
   expect(employerDraftResponse.status()).toBe(200);

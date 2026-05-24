@@ -5974,6 +5974,239 @@ function handle_get_operator_shortlist_draft(string $shortlistDraftId): void {
     ]);
 }
 
+function cpg_operator_shortlist_approval_decision(mixed $value): ?string {
+    if (!is_string($value) || trim($value) === '') {
+        return null;
+    }
+
+    $decision = trim($value);
+    return in_array($decision, ['approve_internal', 'reject'], true) ? $decision : null;
+}
+
+function cpg_operator_shortlist_internal_approval_guard(array $draft): array {
+    $blockers = [];
+    $warnings = [];
+    $candidates = is_array($draft['candidates'] ?? null) ? $draft['candidates'] : [];
+    $includedCandidates = array_values(array_filter($candidates, static function (array $candidate): bool {
+        return ($candidate['operator_decision'] ?? null) === 'include';
+    }));
+
+    if (cpg_pg_bool($draft['employer_visible'] ?? null)) {
+        cpg_operator_shortlist_add_blocker($blockers, 'shortlist_draft_employer_visible', 'Internal shortlist draft unexpectedly has employer visibility');
+    }
+
+    if (($draft['archived_at'] ?? null) !== null) {
+        cpg_operator_shortlist_add_blocker($blockers, 'shortlist_draft_archived', 'Archived shortlist drafts cannot be internally approved');
+    }
+
+    $draftStatus = is_string($draft['draft_status'] ?? null) ? (string) $draft['draft_status'] : '';
+    if ($draftStatus === 'archived') {
+        cpg_operator_shortlist_add_blocker($blockers, 'shortlist_draft_archived', 'Archived shortlist drafts cannot be internally approved');
+    }
+    if ($draftStatus === 'rejected') {
+        cpg_operator_shortlist_add_blocker($blockers, 'shortlist_draft_rejected', 'Rejected shortlist drafts require a future reopen workflow before approval');
+    }
+
+    if ($includedCandidates === []) {
+        cpg_operator_shortlist_add_blocker($blockers, 'no_included_candidates', 'Internal approval requires at least one included candidate');
+    }
+
+    foreach ($candidates as $candidate) {
+        if (cpg_pg_bool($candidate['employer_visible'] ?? null)) {
+            cpg_operator_shortlist_add_blocker($blockers, 'shortlist_candidate_employer_visible', 'Internal shortlist candidate unexpectedly has employer visibility', [
+                'candidate_user_id' => $candidate['candidate_user_id'] ?? null,
+            ]);
+        }
+        if (($candidate['operator_decision'] ?? null) !== 'include') {
+            continue;
+        }
+
+        $guard = is_array($candidate['approval_guard_result'] ?? null) ? $candidate['approval_guard_result'] : [];
+        if (($guard['approval_status'] ?? 'blocked') !== 'ready_for_internal_shortlist') {
+            cpg_operator_shortlist_add_blocker($blockers, 'included_candidate_guard_blocked', 'Included candidate is not ready for internal shortlist approval', [
+                'candidate_user_id' => $candidate['candidate_user_id'] ?? null,
+                'approval_blockers' => is_array($guard['approval_blockers'] ?? null) ? $guard['approval_blockers'] : [],
+            ]);
+        }
+
+        $snapshot = is_array($candidate['candidate_search_result'] ?? null) ? $candidate['candidate_search_result'] : [];
+        $forbiddenHits = cpg_payload_forbidden_key_hits($snapshot, cpg_employer_payload_forbidden_keys());
+        if ($forbiddenHits !== []) {
+            cpg_operator_shortlist_add_blocker($blockers, 'included_candidate_forbidden_field_risk', 'Included candidate snapshot contains forbidden employer-facing fields', [
+                'candidate_user_id' => $candidate['candidate_user_id'] ?? null,
+                'fields' => $forbiddenHits,
+            ]);
+        }
+    }
+
+    $vacancyId = is_string($draft['vacancy_request_id'] ?? null) ? (string) $draft['vacancy_request_id'] : '';
+    $currentSearch = $vacancyId !== '' ? read_operator_vacancy_candidate_search($vacancyId, 100) : null;
+    $currentCandidates = [];
+    if (is_array($currentSearch)) {
+        foreach (($currentSearch['candidates'] ?? []) as $candidate) {
+            if (is_array($candidate) && is_string($candidate['candidate_user_id'] ?? null)) {
+                $currentCandidates[(string) $candidate['candidate_user_id']] = $candidate;
+            }
+        }
+    } else {
+        cpg_operator_shortlist_add_blocker($blockers, 'shortlist_vacancy_not_searchable', 'Vacancy candidate search is not available for internal approval');
+    }
+
+    foreach ($includedCandidates as $candidate) {
+        $candidateId = is_string($candidate['candidate_user_id'] ?? null) ? (string) $candidate['candidate_user_id'] : '';
+        if ($candidateId === '' || !isset($currentCandidates[$candidateId])) {
+            cpg_operator_shortlist_add_blocker($blockers, 'included_candidate_not_in_current_search_results', 'Included candidate is no longer present in current candidate-search results', [
+                'candidate_user_id' => $candidateId,
+            ]);
+            continue;
+        }
+
+        $currentGuard = cpg_operator_shortlist_candidate_guard($currentCandidates[$candidateId]);
+        if (($currentGuard['approval_status'] ?? 'blocked') !== 'ready_for_internal_shortlist') {
+            cpg_operator_shortlist_add_blocker($blockers, 'included_candidate_current_guard_blocked', 'Included candidate no longer passes current internal shortlist guard', [
+                'candidate_user_id' => $candidateId,
+                'approval_blockers' => is_array($currentGuard['approval_blockers'] ?? null) ? $currentGuard['approval_blockers'] : [],
+            ]);
+        }
+    }
+
+    $warnings[] = [
+        'code' => 'internal_approval_only',
+        'message' => 'Internal shortlist approval does not create vacancy applications or employer-facing candidate visibility',
+    ];
+
+    return [
+        'internal_approval_status' => $blockers === [] ? 'ready_for_internal_approval' : 'blocked',
+        'approval_blockers' => $blockers,
+        'approval_warnings' => $warnings,
+        'candidate_count' => count($candidates),
+        'included_candidate_count' => count($includedCandidates),
+        'held_candidate_count' => count(array_filter($candidates, static function (array $candidate): bool {
+            return ($candidate['operator_decision'] ?? null) === 'hold';
+        })),
+        'excluded_candidate_count' => count(array_filter($candidates, static function (array $candidate): bool {
+            return ($candidate['operator_decision'] ?? null) === 'exclude';
+        })),
+        'employer_visibility' => false,
+        'creates_vacancy_applications' => false,
+        'changes_application_statuses' => false,
+    ];
+}
+
+function handle_patch_operator_shortlist_draft_approval(string $shortlistDraftId): void {
+    $uuid = api_normalize_uuid($shortlistDraftId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_shortlist_draft_id', 'shortlist_draft_id must be a valid UUID');
+    }
+    if (!cpg_operator_shortlist_tables_ready()) {
+        api_error(503, 'operator_shortlist_store_missing', 'Operator shortlist draft tables are not available');
+    }
+
+    $body = api_decode_json_body();
+    $decision = cpg_operator_shortlist_approval_decision($body['decision'] ?? $body['action'] ?? null);
+    if ($decision === null) {
+        api_error(400, 'invalid_shortlist_approval_decision', 'decision must be approve_internal or reject');
+    }
+    $note = normalize_optional_text($body['operator_note'] ?? $body['note'] ?? null, 1000);
+
+    $draft = cpg_operator_shortlist_read($uuid);
+    if ($draft === null) {
+        api_error(404, 'shortlist_draft_not_found', 'Internal shortlist draft not found');
+    }
+
+    $previousStatus = is_string($draft['draft_status'] ?? null) ? (string) $draft['draft_status'] : 'unknown';
+    $approvalGuard = cpg_operator_shortlist_internal_approval_guard($draft);
+    if ($decision === 'approve_internal' && ($approvalGuard['internal_approval_status'] ?? 'blocked') !== 'ready_for_internal_approval') {
+        api_json(409, [
+            'ok' => false,
+            'error' => 'shortlist_internal_approval_blocked',
+            'message' => 'Internal shortlist approval guard blocked this draft',
+            'internal_approval_guard' => $approvalGuard,
+            'side_effects' => [
+                'changed_internal_shortlist_status' => false,
+                'creates_vacancy_applications' => false,
+                'changes_application_statuses' => false,
+                'employer_visible' => false,
+            ],
+        ]);
+    }
+
+    $newStatus = $decision === 'approve_internal' ? 'approved_internal' : 'rejected';
+    $guardSnapshot = is_array($draft['approval_guard_snapshot'] ?? null) ? $draft['approval_guard_snapshot'] : [];
+    $guardSnapshot['internal_approval'] = [
+        'decision' => $decision,
+        'previous_status' => $previousStatus,
+        'new_status' => $newStatus,
+        'operator_note' => $note,
+        'guard' => $approvalGuard,
+        'decided_at' => gmdate('c'),
+        'employer_visible' => false,
+        'creates_vacancy_applications' => false,
+        'changes_application_statuses' => false,
+    ];
+
+    $vacancyContext = cpg_fetch_one_assoc(
+        'SELECT created_by_user_id, company_id, vessel_id
+         FROM crewportglobal.vacancy_requests
+         WHERE vacancy_request_id = $1
+         LIMIT 1',
+        [$draft['vacancy_request_id']]
+    );
+
+    api_tx_begin();
+    try {
+        api_query(
+            'UPDATE crewportglobal.operator_shortlist_drafts
+             SET draft_status = $2,
+                 approval_guard_snapshot = $3::jsonb,
+                 updated_at = now()
+             WHERE shortlist_draft_id = $1
+               AND employer_visible IS FALSE',
+            [$uuid, $newStatus, cpg_workspace_json($guardSnapshot)]
+        );
+
+        if ($vacancyContext !== null && is_string($vacancyContext['created_by_user_id'] ?? null)) {
+            write_audit_event(
+                'operator_shortlist_internal_approval_recorded',
+                (string) $vacancyContext['created_by_user_id'],
+                is_string($vacancyContext['company_id'] ?? null) ? (string) $vacancyContext['company_id'] : null,
+                is_string($vacancyContext['vessel_id'] ?? null) ? (string) $vacancyContext['vessel_id'] : null,
+                [
+                    'shortlist_draft_id' => $uuid,
+                    'vacancy_request_id' => $draft['vacancy_request_id'],
+                    'decision' => $decision,
+                    'previous_status' => $previousStatus,
+                    'new_status' => $newStatus,
+                    'operator_note' => $note,
+                    'internal_approval_guard' => $approvalGuard,
+                    'employer_visible' => false,
+                    'creates_vacancy_applications' => false,
+                    'changes_application_statuses' => false,
+                ],
+                'operator_shortlist_approval'
+            );
+        }
+
+        api_tx_commit();
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'shortlist_internal_approval_failed', $error->getMessage());
+    }
+
+    $updatedDraft = cpg_operator_shortlist_read($uuid);
+    api_json(200, [
+        'ok' => true,
+        'shortlist_draft' => $updatedDraft,
+        'internal_approval_guard' => $approvalGuard,
+        'side_effects' => [
+            'changed_internal_shortlist_status' => true,
+            'creates_vacancy_applications' => false,
+            'changes_application_statuses' => false,
+            'employer_visible' => false,
+        ],
+    ]);
+}
+
 function upsert_vacancy_request(string $userId, string $companyId, ?string $vesselId, array $body): ?string {
     $vacancy = normalize_vacancy_payload($body);
     if ($vacancy === null) {
@@ -9407,6 +9640,15 @@ if (preg_match('#^/operator/vacancies/([^/]+)/shortlist-drafts$#', $path, $match
     }
     header('Allow: POST');
     api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if (preg_match('#^/operator/shortlist-drafts/([^/]+)/approval$#', $path, $matches) === 1) {
+    if ($method === 'PATCH') {
+        require_operator_access();
+        handle_patch_operator_shortlist_draft_approval($matches[1]);
+    }
+    header('Allow: PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
 }
 
 if (preg_match('#^/operator/shortlist-drafts/([^/]+)$#', $path, $matches) === 1) {

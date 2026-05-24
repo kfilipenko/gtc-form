@@ -635,6 +635,11 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
   await expect(candidateSearch).toContainText('candidate_search_blocked');
   await expect(candidateSearch).toContainText('structured_requirement_unmatched');
 
+  await candidateSearch.getByRole('button', { name: 'Approve internal shortlist' }).click();
+  await expect(candidateSearch).toContainText('Internal shortlist approved');
+  await expect(candidateSearch).toContainText('approved_internal');
+  await expect(candidateSearch).toContainText('Employer visible: false');
+
   await expect(candidateSearch).not.toContainText(exactEmail);
   await expect(candidateSearch).not.toContainText(mismatchEmail);
   await expect(candidateSearch).not.toContainText('contact_email');

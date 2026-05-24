@@ -701,6 +701,13 @@
         'verify.candidateSearch.draftBlocked': 'Internal shortlist guard blocked: {items}',
         'verify.candidateSearch.draftError': 'Could not create internal shortlist draft.',
         'verify.candidateSearch.draftCandidate': '{name}: {decision}; guard {status}; blockers {blockers}',
+        'verify.candidateSearch.approveDraft': 'Approve internal shortlist',
+        'verify.candidateSearch.rejectDraft': 'Reject internal shortlist',
+        'verify.candidateSearch.approvingDraft': 'Recording internal shortlist approval...',
+        'verify.candidateSearch.approvedDraft': 'Internal shortlist approved: {status}. Employer visible: {visible}.',
+        'verify.candidateSearch.rejectedDraft': 'Internal shortlist rejected: {status}. Employer visible: {visible}.',
+        'verify.candidateSearch.approvalBlocked': 'Internal approval guard blocked: {items}',
+        'verify.candidateSearch.approvalError': 'Could not update internal shortlist approval.',
         'verify.field.draftId': 'Draft ID',
         'verify.field.role': 'Role',
         'verify.field.email': 'Email',
@@ -898,6 +905,13 @@
         'verify.candidateSearch.draftBlocked': 'Internal shortlist guard заблокировал: {items}',
         'verify.candidateSearch.draftError': 'Не удалось создать внутренний shortlist draft.',
         'verify.candidateSearch.draftCandidate': '{name}: {decision}; guard {status}; блокеры {blockers}',
+        'verify.candidateSearch.approveDraft': 'Утвердить внутренний shortlist',
+        'verify.candidateSearch.rejectDraft': 'Отклонить внутренний shortlist',
+        'verify.candidateSearch.approvingDraft': 'Записываем внутреннее approval...',
+        'verify.candidateSearch.approvedDraft': 'Внутренний shortlist утверждён: {status}. Видимость работодателю: {visible}.',
+        'verify.candidateSearch.rejectedDraft': 'Внутренний shortlist отклонён: {status}. Видимость работодателю: {visible}.',
+        'verify.candidateSearch.approvalBlocked': 'Internal approval guard заблокировал: {items}',
+        'verify.candidateSearch.approvalError': 'Не удалось обновить internal shortlist approval.',
         'verify.field.draftId': 'Draft ID',
         'verify.field.role': 'Роль',
         'verify.field.email': 'Email',
@@ -1441,6 +1455,15 @@
         }).filter(Boolean);
       }
 
+      function shortlistInternalApprovalBlockers(payload) {
+        const guard = payload && payload.internal_approval_guard && typeof payload.internal_approval_guard === 'object'
+          ? payload.internal_approval_guard
+          : {};
+        return Array.isArray(guard.approval_blockers)
+          ? guard.approval_blockers.map((item) => item && item.code).filter(Boolean)
+          : [];
+      }
+
       function renderShortlistDraftResult(container, draft) {
         container.innerHTML = '';
         if (!draft || typeof draft !== 'object') {
@@ -1592,12 +1615,26 @@
         button.className = 'button secondary';
         button.textContent = t('verify.candidateSearch.run');
 
+        let lastShortlistDraftId = '';
+
         const shortlistButton = document.createElement('button');
         shortlistButton.type = 'button';
         shortlistButton.className = 'button secondary';
         shortlistButton.textContent = t('verify.candidateSearch.createDraft');
         shortlistButton.disabled = true;
         shortlistButton.title = t('verify.candidateSearch.createDraftDisabled');
+
+        const approveShortlistButton = document.createElement('button');
+        approveShortlistButton.type = 'button';
+        approveShortlistButton.className = 'button secondary';
+        approveShortlistButton.textContent = t('verify.candidateSearch.approveDraft');
+        approveShortlistButton.disabled = true;
+
+        const rejectShortlistButton = document.createElement('button');
+        rejectShortlistButton.type = 'button';
+        rejectShortlistButton.className = 'button secondary';
+        rejectShortlistButton.textContent = t('verify.candidateSearch.rejectDraft');
+        rejectShortlistButton.disabled = true;
 
         const statusNode = document.createElement('p');
         statusNode.className = 'candidate-search-status';
@@ -1612,6 +1649,9 @@
         button.addEventListener('click', async () => {
           button.disabled = true;
           shortlistButton.disabled = true;
+          approveShortlistButton.disabled = true;
+          rejectShortlistButton.disabled = true;
+          lastShortlistDraftId = '';
           statusNode.textContent = t('verify.candidateSearch.loading');
           results.innerHTML = '';
           shortlistResult.innerHTML = '';
@@ -1678,7 +1718,10 @@
             if (!response.ok || !payload || payload.ok !== true || !payload.shortlist_draft) {
               throw new Error('shortlist draft request failed');
             }
+            lastShortlistDraftId = payload.shortlist_draft.shortlist_draft_id || '';
             renderShortlistDraftResult(shortlistResult, payload.shortlist_draft);
+            approveShortlistButton.disabled = !lastShortlistDraftId;
+            rejectShortlistButton.disabled = !lastShortlistDraftId;
             statusNode.textContent = t('verify.candidateSearch.draftCreated', {
               status: payload.shortlist_draft.draft_status || emptyValue(),
               visible: String(payload.shortlist_draft.employer_visible === true),
@@ -1695,7 +1738,67 @@
           }
         });
 
-        actions.append(button, shortlistButton, statusNode);
+        async function updateInternalShortlistApproval(decision) {
+          if (!lastShortlistDraftId) {
+            return;
+          }
+
+          button.disabled = true;
+          shortlistButton.disabled = true;
+          approveShortlistButton.disabled = true;
+          rejectShortlistButton.disabled = true;
+          statusNode.textContent = t('verify.candidateSearch.approvingDraft');
+          try {
+            const response = await fetch(`/api/v1/operator/shortlist-drafts/${encodeURIComponent(lastShortlistDraftId)}/approval`, {
+              method: 'PATCH',
+              headers: operatorHeaders({
+                'Content-Type': 'application/json',
+              }),
+              body: JSON.stringify({ decision }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (isOperatorAccessFailure(response)) {
+              showAccessPanel('verify.access.denied');
+              throw new Error('operator access required');
+            }
+            if (response.status === 409 && payload && payload.error === 'shortlist_internal_approval_blocked') {
+              const blockers = shortlistInternalApprovalBlockers(payload);
+              statusNode.textContent = t('verify.candidateSearch.approvalBlocked', {
+                items: blockers.length ? blockers.join(', ') : 'approval guard',
+              });
+              return;
+            }
+            if (!response.ok || !payload || payload.ok !== true || !payload.shortlist_draft) {
+              throw new Error('shortlist approval request failed');
+            }
+            renderShortlistDraftResult(shortlistResult, payload.shortlist_draft);
+            const key = decision === 'reject' ? 'verify.candidateSearch.rejectedDraft' : 'verify.candidateSearch.approvedDraft';
+            statusNode.textContent = t(key, {
+              status: payload.shortlist_draft.draft_status || emptyValue(),
+              visible: String(payload.shortlist_draft.employer_visible === true),
+            });
+          } catch (error) {
+            if (error && error.message === 'operator access required') {
+              statusNode.textContent = t('verify.access.denied');
+            } else {
+              statusNode.textContent = t('verify.candidateSearch.approvalError');
+            }
+          } finally {
+            button.disabled = false;
+            shortlistButton.disabled = collectCandidateShortlistRequests(results).length === 0;
+            approveShortlistButton.disabled = !lastShortlistDraftId;
+            rejectShortlistButton.disabled = !lastShortlistDraftId;
+          }
+        }
+
+        approveShortlistButton.addEventListener('click', () => {
+          updateInternalShortlistApproval('approve_internal');
+        });
+        rejectShortlistButton.addEventListener('click', () => {
+          updateInternalShortlistApproval('reject');
+        });
+
+        actions.append(button, shortlistButton, approveShortlistButton, rejectShortlistButton, statusNode);
         section.append(title, copy, actions, results, shortlistResult);
         return section;
       }
