@@ -233,7 +233,7 @@
 
     .registry-count-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(145px, 1fr));
       gap: 12px;
     }
 
@@ -241,6 +241,7 @@
     .registry-list-card {
       display: grid;
       gap: 8px;
+      min-width: 0;
       padding: 18px;
       border-radius: 18px;
       border: 1px solid rgba(16, 118, 135, 0.2);
@@ -259,6 +260,7 @@
       margin: 0;
       color: var(--muted-on-dark);
       line-height: 1.55;
+      overflow-wrap: anywhere;
     }
 
     .registry-preview-grid {
@@ -266,6 +268,46 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
       margin-top: 16px;
+    }
+
+    .registry-preview-grid[data-visible-cards="1"] {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .registry-preview-grid[data-visible-cards="2"] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .registry-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .registry-filter button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      max-width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-on-dark);
+      font: inherit;
+      font-size: 13px;
+      line-height: 1.2;
+      cursor: pointer;
+      overflow-wrap: anywhere;
+      text-align: center;
+    }
+
+    .registry-filter button.is-active {
+      border-color: rgba(78, 196, 213, 0.72);
+      background: rgba(78, 196, 213, 0.18);
+      color: var(--paper-strong);
     }
 
     .registry-list-card h3 {
@@ -301,6 +343,7 @@
       color: var(--muted-on-dark);
       font-size: 13px;
       line-height: 1.45;
+      overflow-wrap: anywhere;
     }
 
     .vacancy-card {
@@ -489,16 +532,24 @@
         <p class="eyebrow" data-i18n="home.registry.eyebrow">Live registry</p>
         <h2 class="section-title" data-i18n="home.registry.title">Registered platform data</h2>
         <p class="section-copy" data-i18n="home.registry.copy">Safe preview rows from the live database. Contact details and documents are not public.</p>
-        <div class="registry-preview-grid">
-          <article class="registry-list-card">
+        <div class="registry-filter" role="group" aria-label="Live registry filter" data-i18n-aria-label="home.registry.filterLabel">
+          <button type="button" class="is-active" data-registry-filter="all" aria-pressed="true" data-i18n="home.registry.filter.all">All records</button>
+          <button type="button" data-registry-filter="vacancy_requests" aria-pressed="false" data-i18n="home.registry.filter.requests">Requests</button>
+          <button type="button" data-registry-filter="vessels" aria-pressed="false" data-i18n="home.registry.filter.vessels">Vessels</button>
+          <button type="button" data-registry-filter="seafarers" aria-pressed="false" data-i18n="home.registry.filter.seafarers">Seafarers</button>
+          <button type="button" data-registry-filter="matching_ready" aria-pressed="false" data-i18n="home.registry.filter.ready">Matching-ready</button>
+          <button type="button" data-registry-filter="has_blockers" aria-pressed="false" data-i18n="home.registry.filter.blockers">With blockers</button>
+        </div>
+        <div class="registry-preview-grid" id="home-registry-preview-grid">
+          <article class="registry-list-card" id="home-registry-vacancy-card">
             <h3 data-i18n="home.registry.requestsTitle">Crew requests</h3>
             <ul id="home-registry-vacancies" class="registry-list"></ul>
           </article>
-          <article class="registry-list-card">
+          <article class="registry-list-card" id="home-registry-vessel-card">
             <h3 data-i18n="home.registry.vesselsTitle">Vessels</h3>
             <ul id="home-registry-vessels" class="registry-list"></ul>
           </article>
-          <article class="registry-list-card">
+          <article class="registry-list-card" id="home-registry-seafarer-card">
             <h3 data-i18n="home.registry.seafarersTitle">Seafarers</h3>
             <ul id="home-registry-seafarers" class="registry-list"></ul>
           </article>
@@ -707,6 +758,16 @@
         'home.registry.flag': 'Flag',
         'home.registry.availability': 'Availability',
         'home.registry.country': 'Country',
+        'home.registry.readiness': 'Readiness',
+        'home.registry.ready': 'Matching-ready',
+        'home.registry.blockers': 'Blockers',
+        'home.registry.filterLabel': 'Live registry filter',
+        'home.registry.filter.all': 'All records',
+        'home.registry.filter.requests': 'Requests',
+        'home.registry.filter.vessels': 'Vessels',
+        'home.registry.filter.seafarers': 'Seafarers',
+        'home.registry.filter.ready': 'Matching-ready',
+        'home.registry.filter.blockers': 'With blockers',
         'home.registry.safeNote': 'This view shows operational counts and structured matching hints only. Contact details remain inside protected workflows.',
         'home.board.eyebrow': 'Latest vacancies',
         'home.board.title': 'Current public vacancy board',
@@ -858,6 +919,16 @@
         'home.registry.flag': 'Флаг',
         'home.registry.availability': 'Доступность',
         'home.registry.country': 'Страна',
+        'home.registry.readiness': 'Готовность',
+        'home.registry.ready': 'Готово к сопоставлению',
+        'home.registry.blockers': 'Блокеры',
+        'home.registry.filterLabel': 'Фильтр живого реестра',
+        'home.registry.filter.all': 'Все записи',
+        'home.registry.filter.requests': 'Заявки',
+        'home.registry.filter.vessels': 'Суда',
+        'home.registry.filter.seafarers': 'Моряки',
+        'home.registry.filter.ready': 'Готово к сопоставлению',
+        'home.registry.filter.blockers': 'С блокерами',
         'home.registry.safeNote': 'Этот вид показывает только операционные счетчики и структурированные признаки для сопоставления. Контактные данные остаются в защищённых процессах.',
         'home.board.eyebrow': 'Последние вакансии',
         'home.board.title': 'Текущая публичная доска вакансий',
@@ -936,12 +1007,20 @@
       const registryVacancyCount = document.getElementById('home-registry-vacancy-count');
       const registryVesselCount = document.getElementById('home-registry-vessel-count');
       const registrySeafarerCount = document.getElementById('home-registry-seafarer-count');
+      const registryPreviewGrid = document.getElementById('home-registry-preview-grid');
+      const registryFilterButtons = Array.from(document.querySelectorAll('[data-registry-filter]'));
       const registryVacancies = document.getElementById('home-registry-vacancies');
       const registryVessels = document.getElementById('home-registry-vessels');
       const registrySeafarers = document.getElementById('home-registry-seafarers');
+      const registryCards = {
+        vacancy_requests: document.getElementById('home-registry-vacancy-card'),
+        vessels: document.getElementById('home-registry-vessel-card'),
+        seafarers: document.getElementById('home-registry-seafarer-card')
+      };
       let latestVacancies = [];
       let latestLoadState = 'loading';
       let registrySummary = null;
+      let activeRegistryFilter = 'all';
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -998,6 +1077,18 @@
           .join(' · ');
       }
 
+      function readinessText(row) {
+        if (!row || row.readiness_status !== 'has_blockers') {
+          return t('home.registry.ready');
+        }
+
+        const blockers = asList(row.readiness_blockers)
+          .filter((code) => hasText(code))
+          .slice(0, 3)
+          .join(', ');
+        return blockers ? `${t('home.registry.blockers')}: ${blockers}` : t('home.registry.blockers');
+      }
+
       function appendRegistryItem(list, titleText, metaItems) {
         const item = document.createElement('li');
         const title = document.createElement('strong');
@@ -1019,6 +1110,42 @@
         const item = document.createElement('li');
         item.textContent = t('home.registry.empty');
         list.appendChild(item);
+      }
+
+      function registryFilterAllowsKind(kind) {
+        if (activeRegistryFilter === 'all' || activeRegistryFilter === 'matching_ready' || activeRegistryFilter === 'has_blockers') {
+          return true;
+        }
+
+        return activeRegistryFilter === kind;
+      }
+
+      function registryFilterAllowsRow(row) {
+        if (activeRegistryFilter === 'matching_ready') {
+          return row && row.readiness_status === 'matching_ready';
+        }
+
+        if (activeRegistryFilter === 'has_blockers') {
+          return row && row.readiness_status === 'has_blockers';
+        }
+
+        return true;
+      }
+
+      function filterRegistryRows(kind, rows) {
+        if (!registryFilterAllowsKind(kind)) {
+          return [];
+        }
+
+        return rows.filter((row) => registryFilterAllowsRow(row)).slice(0, 4);
+      }
+
+      function renderRegistryFilterState() {
+        registryFilterButtons.forEach((button) => {
+          const isActive = button.dataset.registryFilter === activeRegistryFilter;
+          button.classList.toggle('is-active', isActive);
+          button.setAttribute('aria-pressed', String(isActive));
+        });
       }
 
       function renderVacancy(vacancy) {
@@ -1082,9 +1209,25 @@
         registrySeafarerCount.textContent = String(counts.seafarers || 0);
 
         const samples = registrySummary && registrySummary.samples ? registrySummary.samples : {};
-        const vacancyRows = asList(samples.vacancy_requests);
-        const vesselRows = asList(samples.vessels);
-        const seafarerRows = asList(samples.seafarers);
+        const vacancyRows = filterRegistryRows('vacancy_requests', asList(samples.vacancy_requests));
+        const vesselRows = filterRegistryRows('vessels', asList(samples.vessels));
+        const seafarerRows = filterRegistryRows('seafarers', asList(samples.seafarers));
+        const visibleKinds = ['vacancy_requests', 'vessels', 'seafarers'].filter((kind) => registryFilterAllowsKind(kind));
+        visibleKinds.forEach((kind) => {
+          const card = registryCards[kind];
+          if (card) {
+            card.hidden = false;
+          }
+        });
+        Object.entries(registryCards).forEach(([kind, card]) => {
+          if (card && !visibleKinds.includes(kind)) {
+            card.hidden = true;
+          }
+        });
+        if (registryPreviewGrid) {
+          registryPreviewGrid.dataset.visibleCards = String(visibleKinds.length);
+        }
+        renderRegistryFilterState();
 
         registryVacancies.innerHTML = '';
         if (vacancyRows.length === 0) {
@@ -1099,6 +1242,7 @@
               { label: t('home.registry.status'), value: row.publication_status },
               { label: t('home.registry.company'), value: row.company_name },
               { label: t('home.registry.vessel'), value: row.vessel_name },
+              { label: t('home.registry.readiness'), value: readinessText(row) },
             ]);
           });
         }
@@ -1112,6 +1256,7 @@
               { label: t('home.registry.vesselType'), value: row.vessel_type },
               { label: t('home.registry.flag'), value: row.flag_country_code },
               { label: t('home.registry.company'), value: row.company_name },
+              { label: t('home.registry.readiness'), value: readinessText(row) },
             ]);
           });
         }
@@ -1126,6 +1271,7 @@
               { label: t('home.registry.availability'), value: row.availability_status },
               { label: t('home.registry.country'), value: row.country_code || row.nationality_code || row.residence_country_code },
               { label: t('home.registry.status'), value: row.review_status },
+              { label: t('home.registry.readiness'), value: readinessText(row) },
             ]);
           });
         }
@@ -1171,6 +1317,12 @@
       window.addEventListener('crewportglobal:languagechange', () => {
         renderLiveState();
         renderRegistryState();
+      });
+      registryFilterButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          activeRegistryFilter = button.dataset.registryFilter || 'all';
+          renderRegistryState();
+        });
       });
       loadLiveVacancies();
       loadRegistrySummary();

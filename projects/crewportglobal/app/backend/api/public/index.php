@@ -7491,13 +7491,75 @@ function cpg_public_registry_count_row(): array {
              FROM crewportglobal.vacancy_requests vr
              WHERE COALESCE(vr.demand_workspace->'deletion_request'->>'status', '') <> 'confirmed_deleted') AS vacancy_request_count,
             (SELECT count(*)::int
+             FROM crewportglobal.vacancy_requests vr
+             LEFT JOIN crewportglobal.vessels v ON v.vessel_id = vr.vessel_id
+             WHERE COALESCE(vr.demand_workspace->'deletion_request'->>'status', '') <> 'confirmed_deleted'
+               AND COALESCE(NULLIF(vr.required_rank_label, ''), NULLIF(vr.rank, '')) IS NOT NULL
+               AND NULLIF(vr.department, '') IS NOT NULL
+               AND COALESCE(NULLIF(vr.vessel_type_label, ''), NULLIF(vr.vessel_type, ''), NULLIF(v.vessel_type_label, ''), NULLIF(v.vessel_type, '')) IS NOT NULL
+               AND vr.join_date IS NOT NULL) AS vacancy_request_matching_ready_count,
+            (SELECT count(*)::int
              FROM crewportglobal.vessels) AS vessel_count,
             (SELECT count(*)::int
-             FROM crewportglobal.seafarer_profiles) AS seafarer_count"
+             FROM crewportglobal.vessels v
+             WHERE NULLIF(v.vessel_name, '') IS NOT NULL
+               AND COALESCE(NULLIF(v.vessel_type_label, ''), NULLIF(v.vessel_type, '')) IS NOT NULL) AS vessel_matching_ready_count,
+            (SELECT count(*)::int
+             FROM crewportglobal.seafarer_profiles) AS seafarer_count,
+            (SELECT count(*)::int
+             FROM crewportglobal.seafarer_profiles sp
+             WHERE NULLIF(sp.primary_rank, '') IS NOT NULL
+               AND NULLIF(sp.department, '') IS NOT NULL
+               AND NULLIF(sp.availability_status, '') IS NOT NULL) AS seafarer_matching_ready_count"
     );
 
     $row = pg_fetch_assoc($result);
     return is_array($row) ? $row : [];
+}
+
+function cpg_public_registry_has_text($value): bool {
+    return is_string($value) ? trim($value) !== '' : $value !== null;
+}
+
+function cpg_public_registry_readiness(string $kind, array $row): array {
+    $blockers = [];
+
+    if ($kind === 'vacancy_request') {
+        if (!cpg_public_registry_has_text($row['rank_label'] ?? null)) {
+            $blockers[] = 'missing_rank';
+        }
+        if (!cpg_public_registry_has_text($row['department'] ?? null)) {
+            $blockers[] = 'missing_department';
+        }
+        if (!cpg_public_registry_has_text($row['vessel_type'] ?? null)) {
+            $blockers[] = 'missing_vessel_type';
+        }
+        if (!cpg_public_registry_has_text($row['join_date'] ?? null)) {
+            $blockers[] = 'missing_join_date';
+        }
+    } elseif ($kind === 'vessel') {
+        if (!cpg_public_registry_has_text($row['vessel_name'] ?? null)) {
+            $blockers[] = 'missing_vessel_name';
+        }
+        if (!cpg_public_registry_has_text($row['vessel_type'] ?? null)) {
+            $blockers[] = 'missing_vessel_type';
+        }
+    } elseif ($kind === 'seafarer') {
+        if (!cpg_public_registry_has_text($row['primary_rank'] ?? null)) {
+            $blockers[] = 'missing_rank';
+        }
+        if (!cpg_public_registry_has_text($row['department'] ?? null)) {
+            $blockers[] = 'missing_department';
+        }
+        if (!cpg_public_registry_has_text($row['availability_status'] ?? null)) {
+            $blockers[] = 'missing_availability';
+        }
+    }
+
+    return [
+        'readiness_status' => count($blockers) === 0 ? 'matching_ready' : 'has_blockers',
+        'readiness_blockers' => $blockers,
+    ];
 }
 
 function cpg_public_registry_vacancy_rows(): array {
@@ -7518,12 +7580,12 @@ function cpg_public_registry_vacancy_rows(): array {
          LEFT JOIN crewportglobal.vessels v ON v.vessel_id = vr.vessel_id
          WHERE COALESCE(vr.demand_workspace->'deletion_request'->>'status', '') <> 'confirmed_deleted'
          ORDER BY vr.updated_at DESC, vr.created_at DESC
-         LIMIT 6"
+         LIMIT 12"
     );
 
     $items = [];
     while (($row = pg_fetch_assoc($result)) !== false) {
-        $items[] = [
+        $item = [
             'vacancy_request_id' => $row['vacancy_request_id'],
             'title' => $row['vacancy_title'],
             'rank_label' => $row['rank_label'],
@@ -7535,6 +7597,7 @@ function cpg_public_registry_vacancy_rows(): array {
             'vessel_name' => $row['vessel_name'],
             'updated_at' => $row['updated_at'],
         ];
+        $items[] = array_merge($item, cpg_public_registry_readiness('vacancy_request', $item));
     }
 
     return $items;
@@ -7553,12 +7616,12 @@ function cpg_public_registry_vessel_rows(): array {
          FROM crewportglobal.vessels v
          LEFT JOIN crewportglobal.employer_companies ec ON ec.company_id = v.company_id
          ORDER BY v.updated_at DESC, v.created_at DESC
-         LIMIT 6"
+         LIMIT 12"
     );
 
     $items = [];
     while (($row = pg_fetch_assoc($result)) !== false) {
-        $items[] = [
+        $item = [
             'vessel_id' => $row['vessel_id'],
             'vessel_name' => $row['vessel_name'],
             'vessel_type' => $row['vessel_type'],
@@ -7567,6 +7630,7 @@ function cpg_public_registry_vessel_rows(): array {
             'company_type' => $row['company_type'],
             'updated_at' => $row['updated_at'],
         ];
+        $items[] = array_merge($item, cpg_public_registry_readiness('vessel', $item));
     }
 
     return $items;
@@ -7586,12 +7650,12 @@ function cpg_public_registry_seafarer_rows(): array {
             updated_at
          FROM crewportglobal.seafarer_profiles
          ORDER BY updated_at DESC, created_at DESC
-         LIMIT 6"
+         LIMIT 12"
     );
 
     $items = [];
     while (($row = pg_fetch_assoc($result)) !== false) {
-        $items[] = [
+        $item = [
             'seafarer_profile_id' => $row['seafarer_profile_id'],
             'primary_rank' => $row['primary_rank'],
             'department' => $row['department'],
@@ -7602,6 +7666,7 @@ function cpg_public_registry_seafarer_rows(): array {
             'review_status' => $row['review_status'],
             'updated_at' => $row['updated_at'],
         ];
+        $items[] = array_merge($item, cpg_public_registry_readiness('seafarer', $item));
     }
 
     return $items;
@@ -7609,6 +7674,12 @@ function cpg_public_registry_seafarer_rows(): array {
 
 function handle_get_public_registry_summary(): void {
     $counts = cpg_public_registry_count_row();
+    $vacancyCount = (int) ($counts['vacancy_request_count'] ?? 0);
+    $vesselCount = (int) ($counts['vessel_count'] ?? 0);
+    $seafarerCount = (int) ($counts['seafarer_count'] ?? 0);
+    $vacancyReadyCount = (int) ($counts['vacancy_request_matching_ready_count'] ?? 0);
+    $vesselReadyCount = (int) ($counts['vessel_matching_ready_count'] ?? 0);
+    $seafarerReadyCount = (int) ($counts['seafarer_matching_ready_count'] ?? 0);
 
     api_json(200, [
         'ok' => true,
@@ -7628,9 +7699,11 @@ function handle_get_public_registry_summary(): void {
             ],
         ],
         'counts' => [
-            'vacancy_requests' => (int) ($counts['vacancy_request_count'] ?? 0),
-            'vessels' => (int) ($counts['vessel_count'] ?? 0),
-            'seafarers' => (int) ($counts['seafarer_count'] ?? 0),
+            'vacancy_requests' => $vacancyCount,
+            'vessels' => $vesselCount,
+            'seafarers' => $seafarerCount,
+            'matching_ready' => $vacancyReadyCount + $vesselReadyCount + $seafarerReadyCount,
+            'with_blockers' => max(0, ($vacancyCount + $vesselCount + $seafarerCount) - ($vacancyReadyCount + $vesselReadyCount + $seafarerReadyCount)),
         ],
         'samples' => [
             'vacancy_requests' => cpg_public_registry_vacancy_rows(),
