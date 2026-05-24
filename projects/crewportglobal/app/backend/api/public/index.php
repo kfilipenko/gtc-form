@@ -186,10 +186,12 @@ function operator_account_session_access_from_request(): ?array {
         'access_model' => 'account_team_session',
         'actor_label' => (string) ($row['email'] ?? ($session['email'] ?? 'account_session')),
         'actor_user_id' => (string) ($row['user_id'] ?? $session['user_id']),
+        'user_id' => (string) ($row['user_id'] ?? $session['user_id']),
+        'email' => (string) ($row['email'] ?? ($session['email'] ?? '')),
         'groups' => cpg_admin_access_pg_text_list($row['groups'] ?? []),
         'roles' => cpg_admin_access_pg_text_list($row['roles'] ?? []),
         'permissions' => cpg_admin_access_pg_text_list($row['permissions'] ?? []),
-        'is_active' => filter_var($row['is_active'] ?? true, FILTER_VALIDATE_BOOL),
+        'is_active' => cpg_admin_access_storage_normalize_bool($row['is_active'] ?? true, true),
     ];
 
     return cpg_admin_access_user_can_view_team_links($access) ? $access : null;

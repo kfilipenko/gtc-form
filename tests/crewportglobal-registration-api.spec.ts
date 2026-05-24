@@ -1,4 +1,4 @@
-import { expect, test, type APIRequestContext } from '@playwright/test';
+import { expect, request as playwrightRequest, test, type APIRequestContext } from '@playwright/test';
 import { execSync } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs';
@@ -547,29 +547,6 @@ WHERE NOT EXISTS (
     AND existing.membership_state = 'active'
 );
 `);
-}
-
-function createAccountSessionToken(userId: string): string {
-  const token = `playwright-account-session-${randomUUID()}`;
-  const tokenHash = createHash('sha256').update(token).digest('hex');
-  const safeUserId = userId.replace(/'/g, "''");
-  runApiPsql(`
-INSERT INTO crewportglobal.user_sessions (
-  user_id,
-  session_token_hash,
-  expires_at,
-  ip_address,
-  user_agent
-) VALUES (
-  '${safeUserId}'::uuid,
-  '${tokenHash}',
-  now() + interval '30 minutes',
-  '127.0.0.1',
-  'playwright-account-team-session'
-);
-`);
-
-  return token;
 }
 
 test.afterEach(() => {
@@ -2196,17 +2173,29 @@ test('operator review queue returns submitted seafarer and company drafts', asyn
   expect(hasCompany).toBe(true);
 });
 
-test('operator queue accepts account session with review team membership', async ({ request }) => {
+test('operator queue accepts account session with review team membership', async () => {
   const unique = Date.now();
   const email = `api.account.team.${unique}@example.com`;
   const title = `Account Session Electrician ${unique}`;
 
-  const createResponse = await request.post('/registration/drafts', {
+  const accountContext = await playwrightRequest.newContext({
+    baseURL: 'http://127.0.0.1:38124/api/v1',
+    extraHTTPHeaders: {
+      Authorization: '',
+      'X-CPG-Operator-Token': '',
+    },
+  });
+
+  const createResponse = await accountContext.post('/auth/register-password', {
     data: {
       role: 'employer',
       role_in_company: 'crewing manager',
       email,
       full_name: 'Account Session Reviewer',
+      password: 'CrewPortGlobal123!',
+      confirm_password: 'CrewPortGlobal123!',
+      terms_accepted: true,
+      consent_accepted: true,
       company_name: 'Account Session Marine LLC',
       country_code: 'AE',
       registration_number: `AE-ACCOUNT-${unique}`,
@@ -2222,33 +2211,60 @@ test('operator queue accepts account session with review team membership', async
     },
   });
   expect(createResponse.status()).toBe(201);
-  const created = (await createResponse.json()) as DraftResponse;
+  const created = (await createResponse.json()) as DraftResponse & { user: { user_id: string } };
+  const accountUserId = created.user.user_id;
+  addReviewTeamMembership(accountUserId);
+  const accessSnapshot = runApiPsql(`
+SELECT
+  COALESCE(string_agg(DISTINCT g.group_code, ',' ORDER BY g.group_code), ''),
+  COALESCE(string_agg(DISTINCT p.permission_code, ',' ORDER BY p.permission_code), '')
+FROM crewportglobal.users u
+LEFT JOIN crewportglobal.access_group_members gm
+  ON gm.user_id = u.user_id
+ AND gm.membership_state = 'active'
+LEFT JOIN crewportglobal.access_groups g
+  ON g.group_id = gm.group_id
+ AND g.is_active = TRUE
+LEFT JOIN crewportglobal.access_group_roles gr
+  ON gr.group_id = g.group_id
+ AND gr.assignment_state = 'active'
+LEFT JOIN crewportglobal.access_roles r
+  ON r.role_id = gr.role_id
+ AND r.is_active = TRUE
+LEFT JOIN crewportglobal.access_role_permissions rp
+  ON rp.role_id = r.role_id
+LEFT JOIN crewportglobal.access_permissions p
+  ON p.permission_id = rp.permission_id
+ AND p.is_active = TRUE
+WHERE u.user_id = '${accountUserId.replace(/'/g, "''")}'::uuid;
+`);
+  expect(accessSnapshot).toContain('review_team');
+  expect(accessSnapshot).toContain('view_review_queue');
 
-  addReviewTeamMembership(created.draft_id);
-  const sessionToken = createAccountSessionToken(created.draft_id);
+  const meResponse = await accountContext.get('/auth/me');
+  const meBody = await meResponse.text();
+  expect(meResponse.ok(), meBody).toBeTruthy();
+  expect(JSON.parse(meBody).authenticated).toBe(true);
 
-  const accountHeaders = { Cookie: `cpg_user_session=${sessionToken}` };
-  const queueResponse = await fetch('http://127.0.0.1:38124/api/v1/operator/review-queue', {
-    headers: accountHeaders,
-  });
+  const queueResponse = await accountContext.get('/operator/review-queue');
   const queueBody = await queueResponse.text();
-  expect(queueResponse.ok, queueBody).toBeTruthy();
+  expect(queueResponse.ok(), queueBody).toBeTruthy();
   const queue = JSON.parse(queueBody) as {
     access_model: string;
     actor_user_id: string;
     queue: Array<Record<string, unknown>>;
   };
   expect(queue.access_model).toBe('account_team_session');
-  expect(queue.actor_user_id).toBe(created.draft_id);
+  expect(queue.actor_user_id).toBe(accountUserId);
   expect(JSON.stringify(queue.queue)).toContain(title);
 
-  const tasksResponse = await fetch('http://127.0.0.1:38124/api/v1/team/workbench/tasks', {
-    headers: accountHeaders,
-  });
+  const tasksResponse = await accountContext.get('/team/workbench/tasks');
   const tasksBody = await tasksResponse.text();
-  expect(tasksResponse.ok, tasksBody).toBeTruthy();
+  expect(tasksResponse.ok(), tasksBody).toBeTruthy();
   const tasks = JSON.parse(tasksBody) as { tasks: Array<Record<string, unknown>> };
   expect(JSON.stringify(tasks.tasks)).toContain(title);
+
+  await accountContext.dispose();
 });
 
 test('operator can request vacancy deletion without physical delete', async ({ request }) => {
