@@ -8890,6 +8890,28 @@ function cpg_team_workbench_task_from_operation(
     ]);
 }
 
+function cpg_operator_active_shortlist_draft_for_vacancy(string $vacancyRequestId): ?array {
+    if ($vacancyRequestId === '' || !cpg_operator_shortlist_tables_ready()) {
+        return null;
+    }
+
+    $row = cpg_fetch_one_assoc(
+        "SELECT shortlist_draft_id::text AS shortlist_draft_id,
+                draft_status,
+                updated_at::text AS updated_at
+         FROM crewportglobal.operator_shortlist_drafts
+         WHERE vacancy_request_id = $1::uuid
+           AND employer_visible IS FALSE
+           AND archived_at IS NULL
+           AND draft_status IN ('needs_review', 'approved_internal')
+         ORDER BY updated_at DESC
+         LIMIT 1",
+        [$vacancyRequestId]
+    );
+
+    return is_array($row) ? $row : null;
+}
+
 function cpg_team_workbench_queue_tasks(array $access): array {
     $tasks = [];
     foreach (read_operator_review_queue($access) as $item) {
@@ -8901,6 +8923,10 @@ function cpg_team_workbench_queue_tasks(array $access): array {
             : (is_string($item['full_name'] ?? null) ? (string) $item['full_name'] : $queueType);
 
         if ($queueType === 'vacancy_request' && $queueItemId !== '') {
+            if (cpg_operator_active_shortlist_draft_for_vacancy($queueItemId) !== null) {
+                continue;
+            }
+
             $operation = operator_computed_workflow_operation(
                 'create_internal_shortlist_draft',
                 true,

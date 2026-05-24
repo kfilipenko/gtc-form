@@ -163,6 +163,9 @@
       align-items: center;
       gap: 10px;
     }
+    .candidate-search-return {
+      text-decoration: none;
+    }
     .candidate-search-status {
       margin: 0;
       color: var(--muted-on-dark);
@@ -668,6 +671,7 @@
         'verify.details.raw': 'Raw API payload',
         'verify.task.opened': 'Task target opened: {type} {id}.',
         'verify.task.notFound': 'Task target is not available in the current queue.',
+        'verify.task.returnToTeam': 'Return to team tasks',
         'verify.section.registration': 'Registration',
         'verify.section.seafarer': 'Seafarer profile',
         'verify.section.documents': 'Document readiness',
@@ -888,6 +892,7 @@
         'verify.details.raw': 'Сырой API payload',
         'verify.task.opened': 'Целевая задача открыта: {type} {id}.',
         'verify.task.notFound': 'Целевая задача недоступна в текущей очереди.',
+        'verify.task.returnToTeam': 'Вернуться к задачам команды',
         'verify.section.registration': 'Регистрация',
         'verify.section.seafarer': 'Профиль моряка',
         'verify.section.documents': 'Готовность документов',
@@ -1047,6 +1052,7 @@
       const operatorLaneControls = Array.from(document.querySelectorAll('[data-operator-lane]'));
       const OPERATOR_TOKEN_STORAGE_KEY = 'crewportglobal.operatorAccessToken';
       const TEAM_SESSION_STORAGE_KEYS = ['crewportglobal_team_session', 'crewportglobal_admin_session'];
+      const TEAM_TASK_FEEDBACK_STORAGE_KEY = 'crewportglobal_team_task_feedback';
       const OPERATOR_LANE_RULES = {
         all: null,
         verifier: ['seafarer_profile', 'company_verification'],
@@ -1159,6 +1165,43 @@
           return null;
         }
         return { taskOperation, queueType, queueItemId, recordType, recordId, shortlistDraftId };
+      }
+
+      function computedOperationFromPayload(payload, operationCode) {
+        const operations = payload && Array.isArray(payload.computed_operations) ? payload.computed_operations : [];
+        return operations.find((operation) => operation && operation.operation_code === operationCode) || null;
+      }
+
+      function nextResponsibleGroupFromPayload(payload, operationCode, fallbackGroup) {
+        const operation = computedOperationFromPayload(payload, operationCode);
+        if (!operation || typeof operation !== 'object') {
+          return fallbackGroup || '';
+        }
+        const access = operation.required_access && typeof operation.required_access === 'object'
+          ? operation.required_access
+          : {};
+        return operation.responsible_group_after_transition || access.target_group_code || fallbackGroup || '';
+      }
+
+      function recordTeamTaskFeedback(operationCode, resultStatus, nextResponsibleGroup, payload) {
+        if (!activeTaskTarget) {
+          return;
+        }
+
+        try {
+          window.localStorage.setItem(TEAM_TASK_FEEDBACK_STORAGE_KEY, JSON.stringify({
+            at: new Date().toISOString(),
+            operation_code: operationCode,
+            result_status: resultStatus || '',
+            next_responsible_group: nextResponsibleGroup || '',
+            task_target: activeTaskTarget,
+            shortlist_draft_id: payload && payload.shortlist_draft
+              ? (payload.shortlist_draft.shortlist_draft_id || '')
+              : '',
+          }));
+        } catch (error) {
+          return;
+        }
       }
 
       function queueTargetId(item) {
@@ -1854,6 +1897,12 @@
         createReviewApplicationsButton.disabled = true;
         createReviewApplicationsButton.title = t('verify.candidateSearch.reviewApplicationsDisabled');
 
+        const returnToTeamLink = document.createElement('a');
+        returnToTeamLink.className = 'button secondary candidate-search-return';
+        returnToTeamLink.href = '/team/';
+        returnToTeamLink.textContent = t('verify.task.returnToTeam');
+        returnToTeamLink.hidden = !activeTaskTarget;
+
         const statusNode = document.createElement('p');
         statusNode.className = 'candidate-search-status';
         statusNode.textContent = t('verify.candidateSearch.sideEffects');
@@ -1944,6 +1993,13 @@
             approveShortlistButton.disabled = !lastShortlistDraftId;
             rejectShortlistButton.disabled = !lastShortlistDraftId;
             createReviewApplicationsButton.disabled = lastShortlistDraftStatus !== 'approved_internal';
+            returnToTeamLink.hidden = false;
+            recordTeamTaskFeedback(
+              'create_internal_shortlist_draft',
+              payload.shortlist_draft.draft_status || '',
+              nextResponsibleGroupFromPayload(payload, 'create_internal_shortlist_draft', 'review_team'),
+              payload
+            );
             statusNode.textContent = t('verify.candidateSearch.draftCreated', {
               status: payload.shortlist_draft.draft_status || emptyValue(),
               visible: String(payload.shortlist_draft.employer_visible === true),
@@ -1997,6 +2053,13 @@
             lastShortlistDraftStatus = payload.shortlist_draft.draft_status || '';
             renderShortlistDraftResult(shortlistResult, payload.shortlist_draft, payload);
             const key = decision === 'reject' ? 'verify.candidateSearch.rejectedDraft' : 'verify.candidateSearch.approvedDraft';
+            returnToTeamLink.hidden = false;
+            recordTeamTaskFeedback(
+              decision === 'reject' ? 'reject_internal_shortlist' : 'approve_internal_shortlist',
+              payload.shortlist_draft.draft_status || '',
+              nextResponsibleGroupFromPayload(payload, 'create_review_applications', 'review_team'),
+              payload
+            );
             statusNode.textContent = t(key, {
               status: payload.shortlist_draft.draft_status || emptyValue(),
               visible: String(payload.shortlist_draft.employer_visible === true),
@@ -2063,6 +2126,13 @@
             const firstStatus = applications[0] && applications[0].application_status
               ? applications[0].application_status
               : emptyValue();
+            returnToTeamLink.hidden = false;
+            recordTeamTaskFeedback(
+              'create_review_applications',
+              firstStatus,
+              nextResponsibleGroupFromPayload(payload, 'review_candidate_presentation', 'review_team'),
+              payload
+            );
             statusNode.textContent = t('verify.candidateSearch.reviewApplicationsCreated', {
               count: String(applications.length),
               status: firstStatus,
@@ -2083,7 +2153,7 @@
           }
         });
 
-        actions.append(button, shortlistButton, approveShortlistButton, rejectShortlistButton, createReviewApplicationsButton, statusNode);
+        actions.append(button, shortlistButton, approveShortlistButton, rejectShortlistButton, createReviewApplicationsButton, returnToTeamLink, statusNode);
         section.append(title, copy, actions, results, shortlistResult);
         return section;
       }

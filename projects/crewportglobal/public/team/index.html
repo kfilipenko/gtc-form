@@ -267,6 +267,22 @@
     .team-task__link:hover {
       text-decoration: underline;
     }
+    .team-task-feedback {
+      display: grid;
+      gap: 4px;
+      margin: 0 0 12px;
+      padding: 10px 12px;
+      border: 1px solid rgba(8, 116, 67, 0.28);
+      border-radius: 10px;
+      background: rgba(8, 116, 67, 0.08);
+      color: var(--team-success);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+    .team-task-feedback[hidden] {
+      display: none;
+    }
     @media (max-width: 760px) {
       .team-header {
         display: grid;
@@ -332,6 +348,7 @@
         <section class="team-card">
           <h2 class="team-section-title" id="team-tasks-title">My tasks</h2>
           <p class="team-meta" id="team-task-status">Computed from current data state.</p>
+          <p class="team-task-feedback" id="team-task-feedback" hidden></p>
           <ul class="team-task-list" id="team-task-list"></ul>
         </section>
         <section class="team-card">
@@ -346,6 +363,7 @@
   <script>
     const TEAM_SESSION_KEY = 'crewportglobal_team_session';
     const ADMIN_SESSION_KEY = 'crewportglobal_admin_session';
+    const TEAM_TASK_FEEDBACK_KEY = 'crewportglobal_team_task_feedback';
     const form = document.getElementById('team-access-form');
     const email = document.getElementById('team-email');
     const code = document.getElementById('team-code');
@@ -359,6 +377,7 @@
     const linkList = document.getElementById('team-link-list');
     const metaNode = document.getElementById('team-meta');
     const taskStatusNode = document.getElementById('team-task-status');
+    const taskFeedbackNode = document.getElementById('team-task-feedback');
     const taskList = document.getElementById('team-task-list');
 
     function setStatus(message, type = '') {
@@ -442,10 +461,41 @@
       return text || '-';
     }
 
+    function takeTaskFeedback() {
+      try {
+        const raw = window.localStorage.getItem(TEAM_TASK_FEEDBACK_KEY) || '';
+        if (!raw) return null;
+        window.localStorage.removeItem(TEAM_TASK_FEEDBACK_KEY);
+        const parsed = JSON.parse(raw);
+        return parsed && typeof parsed === 'object' ? parsed : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function renderTaskFeedback() {
+      const feedback = takeTaskFeedback();
+      if (!feedback) {
+        taskFeedbackNode.hidden = true;
+        taskFeedbackNode.textContent = '';
+        return;
+      }
+
+      const parts = [
+        `Operation completed: ${textOrDash(feedback.operation_code)}`,
+        `result: ${textOrDash(feedback.result_status)}`,
+        `next group: ${textOrDash(feedback.next_responsible_group)}`,
+        'Task list below is recomputed from current data.',
+      ];
+      taskFeedbackNode.textContent = parts.join(' | ');
+      taskFeedbackNode.hidden = false;
+    }
+
     function renderTasks(body) {
       const tasks = Array.isArray(body.tasks) ? body.tasks : [];
       const groups = Array.isArray(body.user?.groups) ? body.user.groups.join(', ') : 'none';
       taskStatusNode.textContent = `${tasks.length} computed task(s). Model: ${body.task_model || 'current_data_state'}. Groups: ${groups}.`;
+      renderTaskFeedback();
       taskList.replaceChildren();
       if (tasks.length === 0) {
         const item = document.createElement('li');

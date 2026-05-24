@@ -739,6 +739,20 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       await expect(page.locator('#queue-status')).toContainText('Task target opened');
       await expect(page.locator('.candidate-search-panel')).toContainText('Candidate search');
       await expect(page.locator('.candidate-search-panel')).toContainText('No side effects');
+      const teamCandidateSearch = page.locator('.candidate-search-panel');
+      await teamCandidateSearch.getByRole('button', { name: 'Run candidate search' }).click();
+      await expect(teamCandidateSearch).toContainText('Candidate search loaded');
+      await teamCandidateSearch.getByRole('button', { name: 'Create internal shortlist draft' }).click();
+      await expect(teamCandidateSearch).toContainText('Internal shortlist draft created');
+      await expect(teamCandidateSearch).toContainText('Employer visible: false');
+      await expect(teamCandidateSearch.getByRole('link', { name: 'Return to team tasks' })).toBeVisible();
+      await teamCandidateSearch.getByRole('link', { name: 'Return to team tasks' }).click();
+      await expect(page).toHaveURL(/\/team\/?$/);
+      await expect(page.locator('#team-task-feedback')).toContainText('Operation completed: create_internal_shortlist_draft');
+      await expect(page.locator('#team-task-feedback')).toContainText('next group: review_team');
+      const updatedTeamTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();
+      await expect(updatedTeamTask).toContainText('approve_internal_shortlist');
+      await expect(updatedTeamTask).not.toContainText('create_internal_shortlist_draft');
     } finally {
       await teamRequest.dispose();
     }
