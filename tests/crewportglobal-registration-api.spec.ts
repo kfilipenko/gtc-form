@@ -523,13 +523,14 @@ function runApiPsql(sql: string): string {
   ).trim();
 }
 
-function addReviewTeamMembership(userId: string): void {
+function addAccessGroupMembership(userId: string, groupCode: string): void {
   const safeUserId = userId.replace(/'/g, "''");
+  const safeGroupCode = groupCode.replace(/'/g, "''");
   runApiPsql(`
 WITH target_group AS (
   SELECT group_id
   FROM crewportglobal.access_groups
-  WHERE group_code = 'review_team'
+  WHERE group_code = '${safeGroupCode}'
     AND is_active = TRUE
   LIMIT 1
 ),
@@ -547,6 +548,14 @@ WHERE NOT EXISTS (
     AND existing.membership_state = 'active'
 );
 `);
+}
+
+function addReviewTeamMembership(userId: string): void {
+  addAccessGroupMembership(userId, 'review_team');
+}
+
+function addOwnerMembership(userId: string): void {
+  addAccessGroupMembership(userId, 'owners');
 }
 
 test.afterEach(() => {
@@ -2353,6 +2362,137 @@ test('operator can request vacancy deletion without physical delete', async ({ r
   expect(
     queueAfter.queue.some((item) => item.queue_type === 'vacancy_request' && item.queue_item_id === vacancyId)
   ).toBe(false);
+
+  const ownerContext = await playwrightRequest.newContext({
+    baseURL: 'http://127.0.0.1:38124/api/v1',
+    extraHTTPHeaders: {
+      Authorization: '',
+      'X-CPG-Operator-Token': '',
+    },
+  });
+
+  try {
+    const ownerResponse = await ownerContext.post('/auth/register-password', {
+      data: {
+        role: 'employer',
+        role_in_company: 'manager',
+        email: `api.owner.delete.${unique}@example.com`,
+        full_name: 'Deletion Confirmation Owner',
+        password: 'CrewPortGlobal123!',
+        confirm_password: 'CrewPortGlobal123!',
+        terms_accepted: true,
+        consent_accepted: true,
+        company_name: 'Deletion Owner Marine LLC',
+        country_code: 'AE',
+        registration_number: `AE-OWNER-DEL-${unique}`,
+      },
+    });
+    expect(ownerResponse.status()).toBe(201);
+    const owner = (await ownerResponse.json()) as { user: { user_id: string } };
+    addOwnerMembership(owner.user.user_id);
+
+    const tasksResponse = await ownerContext.get('/team/workbench/tasks');
+    const tasksBody = await tasksResponse.text();
+    expect(tasksResponse.ok(), tasksBody).toBeTruthy();
+    const tasks = JSON.parse(tasksBody) as { tasks: Array<Record<string, any>> };
+    const deletionTask = tasks.tasks.find((task) => task.operation_code === 'confirm_vacancy_deletion' && task.record_id === vacancyId);
+    expect(deletionTask).toEqual(
+      expect.objectContaining({
+        task_type: 'vacancy_deletion_confirmation',
+        operation_code: 'confirm_vacancy_deletion',
+        record_type: 'vacancy_deletion_request',
+        record_id: vacancyId,
+      })
+    );
+
+    const detailResponse = await ownerContext.get(`/operator/vacancy-requests/${vacancyId}/deletion-review`);
+    const detailBody = await detailResponse.text();
+    expect(detailResponse.ok(), detailBody).toBeTruthy();
+    const detail = JSON.parse(detailBody) as Record<string, any>;
+    expect(detail.deletion_request).toEqual(
+      expect.objectContaining({
+        status: 'pending_manager_confirmation',
+        manager_confirmation_status: 'pending',
+      })
+    );
+    expect(JSON.stringify(detail.computed_operations)).toContain('confirm_vacancy_deletion');
+    expect(JSON.stringify(detail.computed_operations)).toContain('reject_vacancy_deletion');
+
+    const rejectResponse = await ownerContext.patch(`/operator/vacancy-requests/${vacancyId}/deletion-review`, {
+      data: {
+        decision: 'reject',
+        note: 'Synthetic manager rejects deletion and restores workflow.',
+      },
+    });
+    const rejectBodyText = await rejectResponse.text();
+    expect(rejectResponse.ok(), rejectBodyText).toBeTruthy();
+    const rejectBody = JSON.parse(rejectBodyText) as Record<string, any>;
+    expect(rejectBody.decision).toBe('reject');
+    expect(rejectBody.deletion_request).toEqual(
+      expect.objectContaining({
+        status: 'rejected_by_manager',
+        manager_confirmation_status: 'rejected',
+        physical_delete: false,
+        hidden_from_operator_queue: false,
+      })
+    );
+    expect(rejectBody.actor_context.actor_user_id).toBe(owner.user.user_id);
+
+    const restoredDeletion = execSync(
+      `PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -qAt -F '|' -c "SELECT publication_status, demand_workspace->'deletion_request'->>'status', demand_workspace->'deletion_request'->>'manager_confirmation_status' FROM crewportglobal.vacancy_requests WHERE vacancy_request_id = '${safeVacancyId}'::uuid LIMIT 1;"`,
+      { encoding: 'utf8' }
+    ).trim();
+    expect(restoredDeletion).toBe(`${deletionBody.previous_status}|rejected_by_manager|rejected`);
+
+    const queueRestoredResponse = await request.get('/operator/review-queue');
+    expect(queueRestoredResponse.status()).toBe(200);
+    const queueRestored = (await queueRestoredResponse.json()) as { queue: Array<Record<string, unknown>> };
+    expect(
+      queueRestored.queue.some((item) => item.queue_type === 'vacancy_request' && item.queue_item_id === vacancyId)
+    ).toBe(true);
+
+    const secondDeletionResponse = await request.patch(`/operator/vacancy-requests/${vacancyId}/deletion-request`, {
+      data: {
+        note: 'Synthetic second deletion request for manager confirmation.',
+      },
+    });
+    expect(secondDeletionResponse.status()).toBe(200);
+
+    const confirmResponse = await ownerContext.patch(`/operator/vacancy-requests/${vacancyId}/deletion-review`, {
+      data: {
+        decision: 'confirm',
+        note: 'Synthetic manager confirms deletion.',
+      },
+    });
+    const confirmBodyText = await confirmResponse.text();
+    expect(confirmResponse.ok(), confirmBodyText).toBeTruthy();
+    const confirmBody = JSON.parse(confirmBodyText) as Record<string, any>;
+    expect(confirmBody.decision).toBe('confirm');
+    expect(confirmBody.new_status).toBe('closed');
+    expect(confirmBody.deletion_request).toEqual(
+      expect.objectContaining({
+        status: 'confirmed_deleted',
+        manager_confirmation_status: 'confirmed',
+        physical_delete: false,
+        hidden_from_operator_queue: true,
+      })
+    );
+    expect(confirmBody.actor_context.actor_user_id).toBe(owner.user.user_id);
+
+    const confirmedDeletion = execSync(
+      `PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -qAt -F '|' -c "SELECT publication_status, demand_workspace->'deletion_request'->>'status', demand_workspace->'deletion_request'->>'manager_confirmation_status' FROM crewportglobal.vacancy_requests WHERE vacancy_request_id = '${safeVacancyId}'::uuid LIMIT 1;"`,
+      { encoding: 'utf8' }
+    ).trim();
+    expect(confirmedDeletion).toBe('closed|confirmed_deleted|confirmed');
+
+    const managerAuditCount = Number(execSync(
+      `PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -qAt -c "SELECT count(*) FROM crewportglobal.registration_audit_events WHERE event_type IN ('manager_vacancy_deletion_confirmed', 'manager_vacancy_deletion_rejected') AND event_payload->>'vacancy_request_id' = '${safeVacancyId}' AND event_payload->'actor_context'->>'actor_user_id' = '${owner.user.user_id.replace(/'/g, "''")}';"`,
+      { encoding: 'utf8' }
+    ).trim());
+    expect(managerAuditCount).toBeGreaterThanOrEqual(2);
+  } finally {
+    await ownerContext.dispose();
+  }
 });
 
 test('operator decision endpoint updates draft review status', async ({ request }) => {

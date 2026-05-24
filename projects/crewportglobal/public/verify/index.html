@@ -739,6 +739,12 @@
         'verify.presentationTask.blocked': 'Candidate presentation guard blocked: {items}',
         'verify.presentationTask.completed': 'Candidate presentation approved: {status}. Employer visible: {visible}.',
         'verify.presentationTask.error': 'Could not approve candidate presentation.',
+        'verify.deletionTask.copy': 'Confirm or reject the pending vacancy deletion request. Confirmation keeps the vacancy closed without physical deletion; rejection restores the previous workflow status.',
+        'verify.deletionTask.confirm': 'Confirm deletion',
+        'verify.deletionTask.reject': 'Reject deletion',
+        'verify.deletionTask.blocked': 'Deletion confirmation guard blocked: {items}',
+        'verify.deletionTask.completed': 'Deletion decision recorded: {status}. Hidden from queue: {hidden}.',
+        'verify.deletionTask.error': 'Could not record deletion confirmation decision.',
         'verify.section.registration': 'Registration',
         'verify.section.seafarer': 'Seafarer profile',
         'verify.section.documents': 'Document readiness',
@@ -751,6 +757,7 @@
         'verify.section.approvalGuard': 'Approval guard',
         'verify.section.candidateSearch': 'Candidate search',
         'verify.section.shortlistDraft': 'Internal shortlist draft',
+        'verify.section.deletionReview': 'Vacancy deletion confirmation',
         'verify.candidateSearch.copy': 'Read-only internal search. It does not create applications, change statuses or present candidates to employers.',
         'verify.candidateSearch.run': 'Run candidate search',
         'verify.candidateSearch.loading': 'Running read-only candidate search...',
@@ -858,6 +865,11 @@
         'verify.field.contactEmail': 'Contact email',
         'verify.field.candidateNote': 'Candidate note',
         'verify.field.vacancyId': 'Vacancy ID',
+        'verify.field.deletionStatus': 'Deletion status',
+        'verify.field.managerConfirmation': 'Manager confirmation',
+        'verify.field.requestedBy': 'Requested by',
+        'verify.field.requestedAt': 'Requested at',
+        'verify.field.reason': 'Reason',
         'verify.field.approvalStatus': 'Approval status',
         'verify.field.approvalBlockers': 'Blockers',
         'verify.field.approvalWarnings': 'Warnings',
@@ -976,6 +988,12 @@
         'verify.presentationTask.blocked': 'Guard показа кандидата работодателю заблокировал операцию: {items}',
         'verify.presentationTask.completed': 'Показ кандидата работодателю одобрен: {status}. Видимость работодателю: {visible}.',
         'verify.presentationTask.error': 'Не удалось одобрить показ кандидата работодателю.',
+        'verify.deletionTask.copy': 'Подтвердите или отклоните ожидающий запрос на удаление заявки. Подтверждение оставляет заявку закрытой без физического удаления; отклонение возвращает предыдущий workflow status.',
+        'verify.deletionTask.confirm': 'Подтвердить удаление',
+        'verify.deletionTask.reject': 'Отклонить удаление',
+        'verify.deletionTask.blocked': 'Guard подтверждения удаления заблокировал операцию: {items}',
+        'verify.deletionTask.completed': 'Решение по удалению записано: {status}. Скрыта из очереди: {hidden}.',
+        'verify.deletionTask.error': 'Не удалось записать решение по удалению.',
         'verify.section.registration': 'Регистрация',
         'verify.section.seafarer': 'Профиль моряка',
         'verify.section.documents': 'Готовность документов',
@@ -988,6 +1006,7 @@
         'verify.section.approvalGuard': 'Approval guard',
         'verify.section.candidateSearch': 'Поиск кандидатов',
         'verify.section.shortlistDraft': 'Внутренний shortlist draft',
+        'verify.section.deletionReview': 'Подтверждение удаления заявки',
         'verify.candidateSearch.copy': 'Внутренний read-only поиск. Он не создает отклики, не меняет статусы и не показывает кандидатов работодателю.',
         'verify.candidateSearch.run': 'Запустить поиск кандидатов',
         'verify.candidateSearch.loading': 'Выполняем read-only поиск кандидатов...',
@@ -1095,6 +1114,11 @@
         'verify.field.contactEmail': 'Контактный email',
         'verify.field.candidateNote': 'Заметка кандидата',
         'verify.field.vacancyId': 'ID вакансии',
+        'verify.field.deletionStatus': 'Статус удаления',
+        'verify.field.managerConfirmation': 'Подтверждение менеджера',
+        'verify.field.requestedBy': 'Запросил',
+        'verify.field.requestedAt': 'Запрошено',
+        'verify.field.reason': 'Причина',
         'verify.field.approvalStatus': 'Статус approval',
         'verify.field.approvalBlockers': 'Блокеры',
         'verify.field.approvalWarnings': 'Предупреждения',
@@ -2132,6 +2156,130 @@
         });
 
         actions.append(button, returnToTeamLink, statusNode);
+        panel.append(title, copy, actions, result);
+        return panel;
+      }
+
+      function createDeletionReviewTaskExecutionPanel(vacancyRequestId, payload) {
+        const taskOperation = activeTaskTarget
+          && (activeTaskTarget.recordType === 'vacancy_deletion_request' || activeTaskTarget.queueType === 'vacancy_deletion_request')
+          && (activeTaskTarget.recordId === vacancyRequestId || activeTaskTarget.queueItemId === vacancyRequestId)
+          ? activeTaskTarget.taskOperation
+          : '';
+        if (!['confirm_vacancy_deletion', 'reject_vacancy_deletion'].includes(taskOperation)) {
+          return null;
+        }
+
+        const panel = document.createElement('section');
+        panel.className = 'detail-section shortlist-task-panel';
+
+        const title = document.createElement('h3');
+        title.textContent = t('verify.shortlistTask.title');
+
+        const copy = document.createElement('p');
+        copy.className = 'candidate-search-copy';
+        copy.textContent = t('verify.deletionTask.copy');
+
+        const actions = document.createElement('div');
+        actions.className = 'shortlist-task-actions';
+
+        const confirmOperation = computedOperationFromPayload(payload, 'confirm_vacancy_deletion');
+        const rejectOperation = computedOperationFromPayload(payload, 'reject_vacancy_deletion');
+        const confirmButton = document.createElement('button');
+        confirmButton.type = 'button';
+        confirmButton.className = 'button secondary';
+        confirmButton.textContent = t('verify.deletionTask.confirm');
+        const rejectButton = document.createElement('button');
+        rejectButton.type = 'button';
+        rejectButton.className = 'button secondary';
+        rejectButton.textContent = t('verify.deletionTask.reject');
+
+        const returnToTeamLink = createReturnToTeamLink();
+        const statusNode = document.createElement('p');
+        statusNode.className = 'candidate-search-status';
+
+        const result = document.createElement('div');
+        result.className = 'candidate-shortlist-result';
+
+        const confirmBlockers = operationBlockerCodes(confirmOperation);
+        const rejectBlockers = operationBlockerCodes(rejectOperation);
+        confirmButton.disabled = !operationCanExecute(confirmOperation);
+        rejectButton.disabled = !operationCanExecute(rejectOperation);
+        if (confirmButton.disabled && rejectButton.disabled) {
+          statusNode.textContent = t('verify.deletionTask.blocked', {
+            items: (confirmBlockers.length ? confirmBlockers : rejectBlockers).join(', ') || 'guard',
+          });
+        } else {
+          statusNode.textContent = computedOperationText(taskOperation === 'reject_vacancy_deletion' ? rejectOperation : confirmOperation);
+        }
+
+        const submitDecision = async (decision) => {
+          confirmButton.disabled = true;
+          rejectButton.disabled = true;
+          statusNode.textContent = t('verify.shortlistTask.running');
+          result.innerHTML = '';
+          try {
+            const note = (reviewNoteInput.value || '').trim();
+            const response = await fetch(`/api/v1/operator/vacancy-requests/${encodeURIComponent(vacancyRequestId)}/deletion-review`, {
+              method: 'PATCH',
+              headers: operatorHeaders({
+                'Content-Type': 'application/json',
+              }),
+              body: JSON.stringify(note ? { decision, note } : { decision }),
+            });
+            const actionPayload = await response.json().catch(() => ({}));
+            if (isOperatorAccessFailure(response)) {
+              showAccessPanel('verify.access.denied');
+              throw new Error('operator access required');
+            }
+            if (response.status === 409 && actionPayload && actionPayload.error === 'vacancy_deletion_confirmation_not_pending') {
+              statusNode.textContent = t('verify.deletionTask.blocked', { items: 'deletion_request_not_pending_manager_confirmation' });
+              detailsJson.textContent = JSON.stringify(actionPayload, null, 2);
+              return;
+            }
+            if (!response.ok || !actionPayload || actionPayload.ok !== true) {
+              throw new Error('deletion review failed');
+            }
+
+            detailsJson.textContent = JSON.stringify(actionPayload, null, 2);
+            const line = document.createElement('div');
+            line.className = 'candidate-shortlist-candidate';
+            const strong = document.createElement('strong');
+            strong.textContent = t('verify.deletionTask.completed', {
+              status: actionPayload.deletion_request && actionPayload.deletion_request.manager_confirmation_status
+                ? actionPayload.deletion_request.manager_confirmation_status
+                : (actionPayload.new_status || emptyValue()),
+              hidden: String(actionPayload.side_effects && actionPayload.side_effects.hidden_from_operator_queue === true),
+            });
+            line.appendChild(strong);
+            result.appendChild(line);
+
+            const operationCode = decision === 'confirm' ? 'confirm_vacancy_deletion' : 'reject_vacancy_deletion';
+            recordTeamTaskFeedback(
+              operationCode,
+              actionPayload.new_status || '',
+              decision === 'reject' ? 'review_team' : '',
+              actionPayload
+            );
+            returnToTeamLink.hidden = false;
+            statusNode.textContent = strong.textContent;
+          } catch (error) {
+            if (error && error.message === 'operator access required') {
+              statusNode.textContent = t('verify.access.denied');
+            } else {
+              statusNode.textContent = t('verify.deletionTask.error');
+            }
+          }
+        };
+
+        confirmButton.addEventListener('click', () => {
+          submitDecision('confirm');
+        });
+        rejectButton.addEventListener('click', () => {
+          submitDecision('reject');
+        });
+
+        actions.append(confirmButton, rejectButton, returnToTeamLink, statusNode);
         panel.append(title, copy, actions, result);
         return panel;
       }
@@ -3274,7 +3422,91 @@
         }
       }
 
+      function renderDeletionReviewDetails(payload) {
+        detailsSections.innerHTML = '';
+        const vacancy = payload && payload.vacancy_request && typeof payload.vacancy_request === 'object'
+          ? payload.vacancy_request
+          : {};
+        const deletion = payload && payload.deletion_request && typeof payload.deletion_request === 'object'
+          ? payload.deletion_request
+          : {};
+        const section = createDetailSection('verify.section.deletionReview', [
+          createDetailField('verify.field.vacancyId', vacancy.vacancy_request_id),
+          createDetailField('verify.field.vacancyTitle', vacancy.vacancy_title),
+          createDetailField('verify.field.status', vacancy.publication_status),
+          createDetailField('verify.field.companyName', vacancy.company_name),
+          createDetailField('verify.field.vesselName', vacancy.vessel_name),
+          createDetailField('verify.field.rank', vacancy.rank),
+          createDetailField('verify.field.department', vacancy.department),
+          createDetailField('verify.field.deletionStatus', deletion.status),
+          createDetailField('verify.field.managerConfirmation', deletion.manager_confirmation_status),
+          createDetailField('verify.field.requestedBy', deletion.requested_by),
+          createDetailField('verify.field.requestedAt', deletion.requested_at),
+          createDetailField('verify.field.reason', deletion.reason),
+        ]);
+        if (section) {
+          detailsSections.appendChild(section);
+        }
+
+        const taskPanel = createDeletionReviewTaskExecutionPanel(vacancy.vacancy_request_id || '', payload);
+        if (taskPanel) {
+          detailsSections.appendChild(taskPanel);
+        }
+      }
+
+      async function loadDeletionReviewDetails(vacancyRequestId) {
+        if (!vacancyRequestId) {
+          return;
+        }
+
+        currentDetailType = 'vacancy_deletion_request';
+        detailsJson.textContent = t('verify.details.loading');
+        detailsSections.innerHTML = '';
+        const loading = document.createElement('p');
+        loading.className = 'details-empty';
+        loading.textContent = t('verify.details.loading');
+        detailsSections.appendChild(loading);
+        try {
+          const response = await fetch(`/api/v1/operator/vacancy-requests/${encodeURIComponent(vacancyRequestId)}/deletion-review`, {
+            headers: operatorHeaders(),
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (isOperatorAccessFailure(response)) {
+            showAccessPanel('verify.access.denied');
+            detailsJson.textContent = t('verify.access.denied');
+            return;
+          }
+          if (!response.ok || !payload || payload.ok !== true) {
+            throw new Error('deletion_review_details_load_failed');
+          }
+
+          detailsJson.textContent = JSON.stringify(payload, null, 2);
+          currentDraftPayload = payload;
+          renderDeletionReviewDetails(payload);
+          syncReviewTargetOptions(null);
+          setLatestReviewNote('');
+          renderReviewHistory([]);
+        } catch (error) {
+          detailsJson.textContent = t('verify.details.error');
+          currentDraftPayload = null;
+          currentDetailType = 'draft';
+          detailsSections.innerHTML = '';
+          const errorLine = document.createElement('p');
+          errorLine.className = 'details-empty';
+          errorLine.textContent = t('verify.details.error');
+          detailsSections.appendChild(errorLine);
+          setLatestReviewNote('');
+          syncReviewTargetOptions(null);
+          renderReviewHistory([]);
+          console.error(error);
+        }
+      }
+
       async function loadQueueItemDetails(itemId, queueType) {
+        if (queueType === 'vacancy_deletion_request') {
+          await loadDeletionReviewDetails(itemId);
+          return;
+        }
         if (queueType === 'vacancy_application') {
           await loadApplicationDetails(itemId);
           return;
@@ -3294,6 +3526,19 @@
           status.textContent = t('verify.task.opened', {
             type: 'operator_shortlist_draft',
             id: target.shortlistDraftId,
+          });
+          return;
+        }
+
+        const deletionReviewId = (target.recordType === 'vacancy_deletion_request' || target.queueType === 'vacancy_deletion_request')
+          ? (target.recordId || target.queueItemId)
+          : '';
+        if (deletionReviewId) {
+          pendingTaskTarget = null;
+          await loadDeletionReviewDetails(deletionReviewId);
+          status.textContent = t('verify.task.opened', {
+            type: 'vacancy_deletion_request',
+            id: deletionReviewId,
           });
           return;
         }
@@ -3677,6 +3922,8 @@
           if (draft && draft.shortlist_draft_id) {
             loadShortlistDraftDetails(draft.shortlist_draft_id);
           }
+        } else if (currentDetailType === 'vacancy_deletion_request') {
+          renderDeletionReviewDetails(currentDraftPayload);
         }
         setLatestReviewNote(currentLatestNote);
         renderReviewHistory(currentReviewHistory);

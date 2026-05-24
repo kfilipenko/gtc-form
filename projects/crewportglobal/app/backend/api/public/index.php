@@ -397,6 +397,20 @@ function operator_workflow_operation_requirements(): array {
             'required_permission_code' => 'approve_vacancy_request',
             'scope' => 'queue',
         ],
+        'confirm_vacancy_deletion' => [
+            'operation_label' => 'Confirm vacancy deletion',
+            'target_group_code' => 'owners',
+            'target_role_code' => 'project_owner',
+            'required_permission_code' => 'approve_access_policy_change',
+            'scope' => 'queue',
+        ],
+        'reject_vacancy_deletion' => [
+            'operation_label' => 'Reject vacancy deletion',
+            'target_group_code' => 'owners',
+            'target_role_code' => 'project_owner',
+            'required_permission_code' => 'approve_access_policy_change',
+            'scope' => 'queue',
+        ],
     ];
 }
 
@@ -8897,7 +8911,8 @@ function require_team_workbench_access(): array {
 
     if (!operator_access_can_view_any_operator_queue($access)
         && !operator_access_has_permission($access, 'approve_candidate_presentation')
-        && !operator_access_has_permission($access, 'start_human_review')) {
+        && !operator_access_has_permission($access, 'start_human_review')
+        && !operator_access_has_permission($access, 'approve_access_policy_change')) {
         api_json(403, [
             'ok' => false,
             'error' => 'team_workbench_permission_required',
@@ -9174,10 +9189,97 @@ function cpg_team_workbench_shortlist_tasks(array $access): array {
     return $tasks;
 }
 
+function cpg_team_workbench_deletion_confirmation_tasks(array $access): array {
+    $rows = cpg_fetch_all_assoc(
+        "SELECT vr.vacancy_request_id::text AS vacancy_request_id,
+                vr.publication_status,
+                vr.vacancy_title,
+                vr.rank,
+                vr.department,
+                vr.demand_workspace,
+                vr.updated_at::text AS updated_at,
+                ec.company_name,
+                v.vessel_name
+         FROM crewportglobal.vacancy_requests vr
+         JOIN crewportglobal.employer_companies ec
+           ON ec.company_id = vr.company_id
+         LEFT JOIN crewportglobal.vessels v
+           ON v.vessel_id = vr.vessel_id
+         WHERE COALESCE(vr.demand_workspace->'deletion_request'->>'status', '') = 'pending_manager_confirmation'
+           AND COALESCE(vr.demand_workspace->'deletion_request'->>'manager_confirmation_status', '') = 'pending'
+         ORDER BY vr.updated_at DESC, vr.created_at DESC
+         LIMIT 100",
+        []
+    );
+
+    $tasks = [];
+    foreach ($rows as $row) {
+        $vacancyRequestId = is_string($row['vacancy_request_id'] ?? null) ? (string) $row['vacancy_request_id'] : '';
+        if ($vacancyRequestId === '') {
+            continue;
+        }
+
+        $workspace = cpg_decode_json_object(is_string($row['demand_workspace'] ?? null) ? (string) $row['demand_workspace'] : null);
+        $deletionRequest = is_array($workspace['deletion_request'] ?? null) ? $workspace['deletion_request'] : [];
+        $operation = operator_computed_workflow_operation(
+            'confirm_vacancy_deletion',
+            true,
+            [],
+            [
+                'record_type' => 'vacancy_deletion_request',
+                'record_id' => $vacancyRequestId,
+                'current_status' => $deletionRequest['manager_confirmation_status'] ?? 'pending',
+                'next_status_if_executed' => 'confirmed',
+                'responsible_group_after_transition' => null,
+                'computed_from' => 'vacancy_deletion_request_pending_manager_confirmation',
+            ],
+            $access
+        );
+
+        $title = is_string($row['vacancy_title'] ?? null) && trim((string) $row['vacancy_title']) !== ''
+            ? trim((string) $row['vacancy_title'])
+            : 'Vacancy deletion request';
+        $summaryParts = array_filter([
+            is_string($row['company_name'] ?? null) ? (string) $row['company_name'] : null,
+            is_string($row['vessel_name'] ?? null) ? (string) $row['vessel_name'] : null,
+            is_string($deletionRequest['requested_by'] ?? null) ? 'requested by ' . (string) $deletionRequest['requested_by'] : null,
+        ]);
+
+        $task = cpg_team_workbench_task_from_operation(
+            $operation,
+            'vacancy_deletion_confirmation',
+            'Confirm vacancy deletion',
+            $title,
+            '/verify/',
+            [
+                'record_type' => 'vacancy_deletion_request',
+                'record_id' => $vacancyRequestId,
+                'vacancy_request_id' => $vacancyRequestId,
+                'status' => $row['publication_status'] ?? null,
+                'company_name' => $row['company_name'] ?? null,
+                'vessel_name' => $row['vessel_name'] ?? null,
+                'rank' => $row['rank'] ?? null,
+                'department' => $row['department'] ?? null,
+                'summary' => $summaryParts === [] ? null : implode(' | ', $summaryParts),
+                'deletion_request_status' => $deletionRequest['status'] ?? null,
+                'manager_confirmation_status' => $deletionRequest['manager_confirmation_status'] ?? null,
+                'requested_by' => $deletionRequest['requested_by'] ?? null,
+                'requested_at' => $deletionRequest['requested_at'] ?? null,
+            ]
+        );
+        if ($task !== null) {
+            $tasks[] = $task;
+        }
+    }
+
+    return $tasks;
+}
+
 function cpg_team_workbench_tasks(array $access): array {
     $tasks = array_merge(
         cpg_team_workbench_queue_tasks($access),
-        cpg_team_workbench_shortlist_tasks($access)
+        cpg_team_workbench_shortlist_tasks($access),
+        cpg_team_workbench_deletion_confirmation_tasks($access)
     );
 
     usort($tasks, static function (array $left, array $right): int {
@@ -10738,6 +10840,266 @@ function handle_patch_operator_vacancy_request_deletion_request(string $vacancyR
     }
 }
 
+function cpg_operator_vacancy_deletion_review_detail(string $vacancyRequestId, ?array $access = null): ?array {
+    $row = cpg_fetch_one_assoc(
+        "SELECT vr.vacancy_request_id::text AS vacancy_request_id,
+                vr.created_by_user_id::text AS created_by_user_id,
+                vr.company_id::text AS company_id,
+                vr.vessel_id::text AS vessel_id,
+                vr.publication_status,
+                vr.vacancy_title,
+                vr.rank,
+                vr.department,
+                vr.vessel_type,
+                vr.join_date::text AS join_date,
+                vr.demand_workspace,
+                vr.created_at::text AS created_at,
+                vr.updated_at::text AS updated_at,
+                ec.company_name,
+                v.vessel_name
+         FROM crewportglobal.vacancy_requests vr
+         JOIN crewportglobal.employer_companies ec
+           ON ec.company_id = vr.company_id
+         LEFT JOIN crewportglobal.vessels v
+           ON v.vessel_id = vr.vessel_id
+         WHERE vr.vacancy_request_id = $1::uuid
+         LIMIT 1",
+        [$vacancyRequestId]
+    );
+    if (!is_array($row)) {
+        return null;
+    }
+
+    $workspace = cpg_decode_json_object(is_string($row['demand_workspace'] ?? null) ? (string) $row['demand_workspace'] : null);
+    $deletionRequest = is_array($workspace['deletion_request'] ?? null) ? $workspace['deletion_request'] : [];
+    $pending = ($deletionRequest['status'] ?? null) === 'pending_manager_confirmation'
+        && ($deletionRequest['manager_confirmation_status'] ?? null) === 'pending';
+    $blockers = $pending ? [] : [[
+        'code' => 'deletion_request_not_pending_manager_confirmation',
+        'message' => 'Vacancy deletion request is not pending manager confirmation',
+    ]];
+
+    return [
+        'vacancy_request' => [
+            'vacancy_request_id' => $row['vacancy_request_id'],
+            'publication_status' => $row['publication_status'],
+            'vacancy_title' => $row['vacancy_title'],
+            'rank' => $row['rank'],
+            'department' => $row['department'],
+            'vessel_type' => $row['vessel_type'],
+            'join_date' => $row['join_date'],
+            'company_name' => $row['company_name'],
+            'vessel_name' => $row['vessel_name'],
+            'created_at' => $row['created_at'],
+            'updated_at' => $row['updated_at'],
+        ],
+        'deletion_request' => $deletionRequest,
+        'computed_operations' => [
+            operator_computed_workflow_operation(
+                'confirm_vacancy_deletion',
+                $pending,
+                $blockers,
+                [
+                    'record_type' => 'vacancy_deletion_request',
+                    'record_id' => $row['vacancy_request_id'],
+                    'current_status' => $deletionRequest['manager_confirmation_status'] ?? null,
+                    'next_status_if_executed' => 'confirmed',
+                    'responsible_group_after_transition' => null,
+                    'computed_from' => 'vacancy_deletion_request_detail',
+                ],
+                $access
+            ),
+            operator_computed_workflow_operation(
+                'reject_vacancy_deletion',
+                $pending,
+                $blockers,
+                [
+                    'record_type' => 'vacancy_deletion_request',
+                    'record_id' => $row['vacancy_request_id'],
+                    'current_status' => $deletionRequest['manager_confirmation_status'] ?? null,
+                    'next_status_if_executed' => (string) ($deletionRequest['previous_publication_status'] ?? 'submitted_for_human_review'),
+                    'responsible_group_after_transition' => 'review_team',
+                    'computed_from' => 'vacancy_deletion_request_detail',
+                ],
+                $access
+            ),
+        ],
+    ];
+}
+
+function handle_get_operator_vacancy_request_deletion_review(string $vacancyRequestId, array $access): void {
+    $uuid = api_normalize_uuid($vacancyRequestId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_vacancy_request_id', 'vacancy_request_id must be a valid UUID');
+    }
+
+    $detail = cpg_operator_vacancy_deletion_review_detail($uuid, $access);
+    if ($detail === null) {
+        api_error(404, 'vacancy_request_not_found', 'Vacancy request not found');
+    }
+
+    api_json(200, array_merge([
+        'ok' => true,
+        'queue_type' => 'vacancy_deletion_request',
+        'operation_access' => operator_workflow_operation_contract('confirm_vacancy_deletion', $access),
+        'actor_context' => operator_workflow_actor_context($access, 'confirm_vacancy_deletion'),
+        'generated_at' => gmdate('c'),
+    ], $detail));
+}
+
+function handle_patch_operator_vacancy_request_deletion_review(string $vacancyRequestId, array $access): void {
+    $uuid = api_normalize_uuid($vacancyRequestId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_vacancy_request_id', 'vacancy_request_id must be a valid UUID');
+    }
+
+    $body = api_decode_json_body();
+    $decision = is_string($body['decision'] ?? null) ? trim((string) $body['decision']) : '';
+    if (!in_array($decision, ['confirm', 'reject'], true)) {
+        api_error(400, 'invalid_deletion_review_decision', 'decision must be one of confirm, reject');
+    }
+    $operationCode = $decision === 'confirm' ? 'confirm_vacancy_deletion' : 'reject_vacancy_deletion';
+    $reviewNote = normalize_operator_review_note($body['note'] ?? $body['reason'] ?? $body['operator_note'] ?? null);
+    $actorContext = operator_workflow_actor_context($access, $operationCode);
+
+    $currentRow = cpg_fetch_one_assoc(
+        "SELECT vr.vacancy_request_id::text AS vacancy_request_id,
+                vr.created_by_user_id::text AS created_by_user_id,
+                vr.company_id::text AS company_id,
+                vr.vessel_id::text AS vessel_id,
+                vr.publication_status,
+                vr.vacancy_title,
+                vr.demand_workspace,
+                ec.company_name
+         FROM crewportglobal.vacancy_requests vr
+         JOIN crewportglobal.employer_companies ec ON ec.company_id = vr.company_id
+         WHERE vr.vacancy_request_id = $1::uuid
+         LIMIT 1",
+        [$uuid]
+    );
+    if (!is_array($currentRow)) {
+        api_error(404, 'vacancy_request_not_found', 'Vacancy request not found');
+    }
+
+    $workspace = cpg_decode_json_object(is_string($currentRow['demand_workspace'] ?? null) ? (string) $currentRow['demand_workspace'] : null);
+    $deletionRequest = is_array($workspace['deletion_request'] ?? null) ? $workspace['deletion_request'] : [];
+    if (($deletionRequest['status'] ?? null) !== 'pending_manager_confirmation'
+        || ($deletionRequest['manager_confirmation_status'] ?? null) !== 'pending') {
+        api_json(409, [
+            'ok' => false,
+            'error' => 'vacancy_deletion_confirmation_not_pending',
+            'message' => 'Vacancy deletion request is not pending manager confirmation',
+            'deletion_request' => $deletionRequest,
+            'operation_access' => operator_workflow_operation_contract($operationCode, $access),
+            'actor_context' => $actorContext,
+            'side_effects' => [
+                'physical_delete' => false,
+                'changed_vacancy_status' => false,
+                'hidden_from_operator_queue' => ($deletionRequest['hidden_from_operator_queue'] ?? false) === true,
+            ],
+        ]);
+    }
+
+    $previousStatus = (string) $currentRow['publication_status'];
+    $restoreStatus = is_string($deletionRequest['previous_publication_status'] ?? null) && trim((string) $deletionRequest['previous_publication_status']) !== ''
+        ? trim((string) $deletionRequest['previous_publication_status'])
+        : 'submitted_for_human_review';
+    $newStatus = $decision === 'confirm' ? 'closed' : $restoreStatus;
+    $newDeletionRequest = array_merge($deletionRequest, [
+        'status' => $decision === 'confirm' ? 'confirmed_deleted' : 'rejected_by_manager',
+        'manager_confirmation_status' => $decision === 'confirm' ? 'confirmed' : 'rejected',
+        'manager_decision' => $decision,
+        'manager_decision_at' => gmdate('c'),
+        'manager_decision_by' => $actorContext['actor_label'] ?? 'manager',
+        'manager_decision_by_user_id' => $actorContext['actor_user_id'] ?? null,
+        'manager_decision_note' => $reviewNote,
+        'hidden_from_operator_queue' => $decision === 'confirm',
+        'requires_manager_confirmation' => false,
+        'physical_delete' => false,
+    ]);
+
+    api_tx_begin();
+    try {
+        $updateResult = api_query(
+            "UPDATE crewportglobal.vacancy_requests
+             SET publication_status = $2,
+                 demand_workspace = jsonb_set(
+                   COALESCE(demand_workspace, '{}'::jsonb),
+                   '{deletion_request}',
+                   $3::jsonb,
+                   true
+                 ),
+                 updated_at = now()
+             WHERE vacancy_request_id = $1::uuid
+             RETURNING updated_at::text AS updated_at",
+            [$uuid, $newStatus, cpg_workspace_json($newDeletionRequest)]
+        );
+        $updatedRow = pg_fetch_assoc($updateResult);
+        if (!is_array($updatedRow)) {
+            api_error(404, 'vacancy_request_not_found', 'Vacancy request not found');
+        }
+
+        $auditUserId = is_string($currentRow['created_by_user_id'] ?? null) && (string) $currentRow['created_by_user_id'] !== ''
+            ? (string) $currentRow['created_by_user_id']
+            : null;
+        $auditRecorded = false;
+        if ($auditUserId !== null) {
+            write_audit_event(
+                $decision === 'confirm' ? 'manager_vacancy_deletion_confirmed' : 'manager_vacancy_deletion_rejected',
+                $auditUserId,
+                (string) $currentRow['company_id'],
+                isset($currentRow['vessel_id']) && (string) $currentRow['vessel_id'] !== '' ? (string) $currentRow['vessel_id'] : null,
+                [
+                    'queue_type' => 'vacancy_deletion_request',
+                    'vacancy_request_id' => $uuid,
+                    'vacancy_title' => $currentRow['vacancy_title'] ?? null,
+                    'company_name' => $currentRow['company_name'] ?? null,
+                    'decision' => $decision,
+                    'previous_status' => $previousStatus,
+                    'new_status' => $newStatus,
+                    'deletion_request' => $newDeletionRequest,
+                    'actor_context' => $actorContext,
+                    'side_effects' => [
+                        'hidden_from_operator_queue' => $decision === 'confirm',
+                        'requires_manager_confirmation' => false,
+                        'physical_delete' => false,
+                        'employer_visible' => false,
+                    ],
+                ],
+                'operator_review_queue'
+            );
+            $auditRecorded = true;
+        }
+
+        api_tx_commit();
+
+        api_json(200, [
+            'ok' => true,
+            'vacancy_request_id' => $uuid,
+            'queue_type' => 'vacancy_deletion_request',
+            'decision' => $decision,
+            'previous_status' => $previousStatus,
+            'new_status' => $newStatus,
+            'deletion_request' => $newDeletionRequest,
+            'operation_access' => operator_workflow_operation_contract($operationCode, $access),
+            'actor_context' => $actorContext,
+            'audit_recorded' => $auditRecorded,
+            'side_effects' => [
+                'hidden_from_operator_queue' => $decision === 'confirm',
+                'requires_manager_confirmation' => false,
+                'physical_delete' => false,
+                'employer_visible' => false,
+                'creates_vacancy_applications' => false,
+                'changes_application_statuses' => false,
+            ],
+            'updated_at' => $updatedRow['updated_at'] ?? gmdate('c'),
+        ]);
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'vacancy_deletion_confirmation_failed', $error->getMessage());
+    }
+}
+
 function handle_patch_operator_review_queue_status(string $draftId): void {
     $uuid = api_normalize_uuid($draftId);
     if ($uuid === null) {
@@ -11234,6 +11596,19 @@ if (preg_match('#^/operator/vacancy-requests/([^/]+)/deletion-request$#', $path,
     }
     header('Allow: PATCH');
     api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
+}
+
+if (preg_match('#^/operator/vacancy-requests/([^/]+)/deletion-review$#', $path, $matches) === 1) {
+    if ($method === 'GET') {
+        $access = require_operator_workflow_operation_access('confirm_vacancy_deletion');
+        handle_get_operator_vacancy_request_deletion_review($matches[1], $access);
+    }
+    if ($method === 'PATCH') {
+        $access = require_operator_workflow_operation_access('confirm_vacancy_deletion');
+        handle_patch_operator_vacancy_request_deletion_review($matches[1], $access);
+    }
+    header('Allow: GET, PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET, PATCH');
 }
 
 if (preg_match('#^/operator/seafarer-medical/([^/]+)$#', $path, $matches) === 1) {

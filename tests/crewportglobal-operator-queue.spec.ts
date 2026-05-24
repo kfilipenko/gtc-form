@@ -185,6 +185,48 @@ VALUES (
   return sessionId;
 }
 
+function createOwnerAdminSession(userId: string): string | null {
+  if (!accessControlTablesReady()) {
+    return null;
+  }
+
+  const safeUserId = userId.replace(/'/g, "''");
+  const sessionId = randomUUID();
+  runPsql(`
+WITH target_group AS (
+  SELECT group_id
+  FROM crewportglobal.access_groups
+  WHERE group_code = 'owners'
+    AND is_active = TRUE
+  LIMIT 1
+),
+target_user AS (
+  SELECT '${safeUserId}'::uuid AS user_id
+)
+INSERT INTO crewportglobal.access_group_members (group_id, user_id, reason)
+SELECT target_group.group_id, target_user.user_id, 'playwright owner deletion confirmation test'
+FROM target_group, target_user
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM crewportglobal.access_group_members existing
+  WHERE existing.group_id = target_group.group_id
+    AND existing.user_id = target_user.user_id
+    AND existing.membership_state = 'active'
+);
+
+INSERT INTO crewportglobal.admin_sessions (admin_session_id, user_id, expires_at, ip_address, user_agent)
+VALUES (
+  '${sessionId}'::uuid,
+  '${safeUserId}'::uuid,
+  now() + interval '30 minutes',
+  '127.0.0.1',
+  'playwright-owner-deletion-confirmation-session'
+);
+`);
+
+  return sessionId;
+}
+
 async function acceptPresentationConsents(request: APIRequestContext, draftId: string): Promise<void> {
   for (const consentType of ['matching_preparation', 'employer_sharing']) {
     const response = await request.post('/api/v1/seafarer/consents', {
@@ -458,6 +500,77 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#details-sections')).toContainText('QUAL-003 Certificate of competence');
   await page.locator('#review-card-status-filter').selectOption('verified');
   await expect(page.locator('#details-sections')).not.toContainText('QUAL-003 Certificate of competence');
+});
+
+test('owner team task opens pending vacancy deletion confirmation panel', async ({ page, request, baseURL }) => {
+  const unique = Date.now();
+  const employerEmail = `ui.queue.deletion.owner.${unique}@example.com`;
+  const vacancyTitle = `UI Deletion Manager Review ${unique}`;
+
+  const createResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'employer',
+      email: employerEmail,
+      full_name: 'UI Deletion Owner Employer',
+      company_name: 'UI Deletion Owner Marine LLC',
+      country_code: 'AE',
+      registration_number: `AE-UI-DEL-${unique}`,
+      vessel: {
+        vessel_name: 'MV UI Deletion Owner',
+        vessel_type: 'Bulk Carrier',
+        imo_number: 'IMO9401234',
+      },
+      vacancy: {
+        vacancy_title: vacancyTitle,
+        rank: 'Bosun',
+        department: 'deck',
+        vessel_type: 'Bulk Carrier',
+        join_date: '2026-10-10',
+        contract_duration: '3 months',
+        requirements: 'UI deletion manager confirmation test.',
+      },
+    },
+  });
+  expect(createResponse.ok()).toBeTruthy();
+  const employer = await createResponse.json();
+  const vacancyRequestId = readVacancyRequestIdForUser(employer.draft_id);
+
+  const deletionResponse = await request.patch(`/api/v1/operator/vacancy-requests/${vacancyRequestId}/deletion-request`, {
+    data: {
+      note: 'UI deletion request pending manager confirmation.',
+    },
+  });
+  expect(deletionResponse.ok()).toBeTruthy();
+
+  const ownerSession = createOwnerAdminSession(employer.draft_id);
+  if (!ownerSession || !baseURL) {
+    return;
+  }
+
+  await page.addInitScript((token) => {
+    window.localStorage.setItem('crewportglobal_team_session', token);
+  }, ownerSession);
+  await page.goto('/team/');
+  await expect(page.locator('#team-task-status')).toContainText('computed task');
+  const deletionTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();
+  await expect(deletionTask).toContainText('confirm_vacancy_deletion');
+  await expect(deletionTask).toContainText('approve_access_policy_change');
+  const taskLink = deletionTask.locator('.team-task__link');
+  await expect(taskLink).toHaveAttribute('href', /task_operation=confirm_vacancy_deletion/);
+  await expect(taskLink).toHaveAttribute('href', /record_type=vacancy_deletion_request/);
+  await expect(taskLink).toHaveAttribute('href', new RegExp(`record_id=${vacancyRequestId}`));
+
+  await taskLink.click();
+  await expect(page).toHaveURL(/task_operation=confirm_vacancy_deletion/);
+  const deletionPanel = page.locator('.shortlist-task-panel');
+  await expect(deletionPanel).toContainText('Task action');
+  await expect(deletionPanel).toContainText('Confirm deletion');
+  await expect(deletionPanel).toContainText('Reject deletion');
+  await deletionPanel.getByRole('button', { name: 'Reject deletion' }).click();
+  await expect(deletionPanel).toContainText('Deletion decision recorded: rejected. Hidden from queue: false.');
+  await expect(deletionPanel.getByRole('link', { name: 'Return to team tasks' })).toBeVisible();
+  await deletionPanel.getByRole('link', { name: 'Return to team tasks' }).click();
+  await expect(page.locator('#team-task-feedback')).toContainText('Operation completed: reject_vacancy_deletion');
 });
 
 test('operator queue page renders and reviews vacancy applications', async ({ page, request }) => {
