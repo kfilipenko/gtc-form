@@ -77,6 +77,13 @@
       color: var(--muted-on-dark);
       min-height: 20px;
     }
+    .operator-access__hint {
+      grid-column: 1 / -1;
+      margin: 0;
+      color: var(--muted-on-dark);
+      font-size: 13px;
+      line-height: 1.45;
+    }
     .details-card {
       margin-top: 18px;
       border: 1px solid var(--line);
@@ -461,6 +468,7 @@
             <input id="operator-token" type="password" autocomplete="off" placeholder="Access token" data-i18n-placeholder="verify.access.placeholder">
           </div>
           <button id="operator-unlock" class="button primary" type="submit" data-i18n="verify.access.button">Unlock queue</button>
+          <p class="operator-access__hint" data-i18n="verify.access.teamHint">Approved team users can sign in through /team/ and return here; review_team / reviewer permissions are required for shortlist operations.</p>
           <p id="operator-access-feedback" class="operator-access__feedback" data-i18n="verify.access.denied">Operator access required.</p>
         </form>
 
@@ -599,7 +607,8 @@
         'verify.access.placeholder': 'Access token',
         'verify.access.button': 'Unlock queue',
         'verify.access.required': 'Enter the operator access token.',
-        'verify.access.denied': 'Operator access required.',
+        'verify.access.denied': 'Operator access or approved team session required.',
+        'verify.access.teamHint': 'Approved team users can sign in through /team/ and return here; review_team / reviewer permissions are required for shortlist operations.',
         'verify.access.ready': 'Operator access confirmed.',
         'verify.filter.type': 'Type',
         'verify.filter.role': 'Role',
@@ -812,7 +821,8 @@
         'verify.access.placeholder': 'Токен доступа',
         'verify.access.button': 'Открыть очередь',
         'verify.access.required': 'Введите токен доступа оператора.',
-        'verify.access.denied': 'Требуется доступ оператора.',
+        'verify.access.denied': 'Требуется доступ оператора или утвержденная team session.',
+        'verify.access.teamHint': 'Утвержденный пользователь команды может войти через /team/ и вернуться сюда; для shortlist-операций нужны review_team / reviewer permissions.',
         'verify.access.ready': 'Доступ оператора подтвержден.',
         'verify.filter.type': 'Тип',
         'verify.filter.role': 'Роль',
@@ -1023,6 +1033,7 @@
       const operatorAccessFeedback = document.getElementById('operator-access-feedback');
       const operatorLaneControls = Array.from(document.querySelectorAll('[data-operator-lane]'));
       const OPERATOR_TOKEN_STORAGE_KEY = 'crewportglobal.operatorAccessToken';
+      const TEAM_SESSION_STORAGE_KEYS = ['crewportglobal_team_session', 'crewportglobal_admin_session'];
       const OPERATOR_LANE_RULES = {
         all: null,
         verifier: ['seafarer_profile', 'company_verification'],
@@ -1079,6 +1090,20 @@
         }
       }
 
+      function getStoredTeamSessionToken() {
+        try {
+          for (const key of TEAM_SESSION_STORAGE_KEYS) {
+            const token = window.localStorage.getItem(key) || '';
+            if (token.trim()) {
+              return token.trim();
+            }
+          }
+        } catch (error) {
+          return '';
+        }
+        return '';
+      }
+
       function showAccessPanel(messageKey) {
         operatorAccessForm.hidden = false;
         operatorAccessFeedback.textContent = t(messageKey || 'verify.access.denied');
@@ -1098,6 +1123,11 @@
         const token = getStoredOperatorToken();
         if (token) {
           headers['X-CPG-Operator-Token'] = token;
+          return headers;
+        }
+        const teamSessionToken = getStoredTeamSessionToken();
+        if (teamSessionToken) {
+          headers.Authorization = `Bearer ${teamSessionToken}`;
         }
         return headers;
       }

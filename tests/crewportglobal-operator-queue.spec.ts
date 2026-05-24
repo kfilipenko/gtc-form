@@ -1,5 +1,6 @@
-import { expect, test, type APIRequestContext } from '@playwright/test';
+import { expect, request as playwrightRequest, test, type APIRequestContext } from '@playwright/test';
 import { execSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 
 const operatorAccessToken =
   process.env.CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN ||
@@ -34,6 +35,27 @@ ui_vacancies AS (
 DELETE FROM crewportglobal.vacancy_applications va
 WHERE va.seafarer_user_id IN (SELECT user_id FROM ui_users)
    OR va.vacancy_request_id IN (SELECT vacancy_request_id FROM ui_vacancies);
+
+DO $$
+BEGIN
+  IF to_regclass('crewportglobal.admin_sessions') IS NOT NULL THEN
+    DELETE FROM crewportglobal.admin_sessions s
+    WHERE s.user_id IN (
+      SELECT user_id
+      FROM crewportglobal.users
+      WHERE email LIKE 'ui.queue.%@example.com'
+    );
+  END IF;
+
+  IF to_regclass('crewportglobal.access_group_members') IS NOT NULL THEN
+    DELETE FROM crewportglobal.access_group_members gm
+    WHERE gm.user_id IN (
+      SELECT user_id
+      FROM crewportglobal.users
+      WHERE email LIKE 'ui.queue.%@example.com'
+    );
+  END IF;
+END $$;
 
 WITH ui_users AS (
   SELECT user_id
@@ -79,6 +101,78 @@ WHERE sp.user_id = u.user_id
 test.afterEach(() => {
   cleanupOperatorQueueTestData();
 });
+
+function runPsql(sql: string): string {
+  return execSync(
+    'PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -v ON_ERROR_STOP=1 -qAt',
+    { input: sql, encoding: 'utf8' }
+  ).trim();
+}
+
+function accessControlTablesReady(): boolean {
+  return runPsql(`
+SELECT CASE
+  WHEN to_regclass('crewportglobal.access_groups') IS NOT NULL
+   AND to_regclass('crewportglobal.access_group_members') IS NOT NULL
+   AND to_regclass('crewportglobal.admin_sessions') IS NOT NULL
+  THEN '1'
+  ELSE '0'
+END;
+`) === '1';
+}
+
+function readVacancyRequestIdForUser(userId: string): string {
+  const safeUserId = userId.replace(/'/g, "''");
+  return runPsql(`
+SELECT vacancy_request_id::text
+FROM crewportglobal.vacancy_requests
+WHERE created_by_user_id = '${safeUserId}'::uuid
+ORDER BY created_at DESC
+LIMIT 1;
+`);
+}
+
+function createReviewTeamAdminSession(userId: string): string | null {
+  if (!accessControlTablesReady()) {
+    return null;
+  }
+
+  const safeUserId = userId.replace(/'/g, "''");
+  const sessionId = randomUUID();
+  runPsql(`
+WITH target_group AS (
+  SELECT group_id
+  FROM crewportglobal.access_groups
+  WHERE group_code = 'review_team'
+    AND is_active = TRUE
+  LIMIT 1
+),
+target_user AS (
+  SELECT '${safeUserId}'::uuid AS user_id
+)
+INSERT INTO crewportglobal.access_group_members (group_id, user_id, reason)
+SELECT target_group.group_id, target_user.user_id, 'playwright review team session test'
+FROM target_group, target_user
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM crewportglobal.access_group_members existing
+  WHERE existing.group_id = target_group.group_id
+    AND existing.user_id = target_user.user_id
+    AND existing.membership_state = 'active'
+);
+
+INSERT INTO crewportglobal.admin_sessions (admin_session_id, user_id, expires_at, ip_address, user_agent)
+VALUES (
+  '${sessionId}'::uuid,
+  '${safeUserId}'::uuid,
+  now() + interval '30 minutes',
+  '127.0.0.1',
+  'playwright-review-team-session'
+);
+`);
+
+  return sessionId;
+}
 
 async function acceptPresentationConsents(request: APIRequestContext, draftId: string): Promise<void> {
   for (const consentType of ['matching_preparation', 'employer_sharing']) {
@@ -482,7 +576,7 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
   await expect(page.locator('#review-history-list')).toContainText(note);
 });
 
-test('operator vacancy detail runs read-only candidate search without sensitive candidate contacts', async ({ page, request }) => {
+test('operator vacancy detail runs read-only candidate search without sensitive candidate contacts', async ({ page, request, baseURL }) => {
   const unique = Date.now();
   const employerEmail = `ui.queue.search.employer.${unique}@example.com`;
   const exactEmail = `ui.queue.search.exact.${unique}@example.com`;
@@ -528,6 +622,7 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
     },
   });
   expect(employerCreate.ok()).toBeTruthy();
+  const employer = await employerCreate.json();
 
   const exactCreate = await request.post('/api/v1/registration/drafts', {
     data: {
@@ -586,6 +681,48 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
     },
   });
   expect(mismatchApproval.ok()).toBeTruthy();
+
+  const reviewTeamSession = createReviewTeamAdminSession(employer.draft_id);
+  const vacancyRequestId = readVacancyRequestIdForUser(employer.draft_id);
+  if (reviewTeamSession && baseURL) {
+    const teamRequest = await playwrightRequest.newContext({
+      baseURL,
+      extraHTTPHeaders: {
+        Authorization: `Bearer ${reviewTeamSession}`,
+      },
+    });
+    try {
+      const teamQueueResponse = await teamRequest.get('/api/v1/operator/review-queue');
+      const teamQueueBody = await teamQueueResponse.text();
+      expect(teamQueueResponse.ok(), teamQueueBody).toBeTruthy();
+      const teamQueue = JSON.parse(teamQueueBody);
+      expect(teamQueue.access_model).toBe('team_admin_session');
+      expect(teamQueue.actor_user_id).toBe(employer.draft_id);
+      expect(
+        teamQueue.queue.every((item: { queue_type?: string }) =>
+          item.queue_type === 'vacancy_request' || item.queue_type === 'vacancy_application'
+        )
+      ).toBeTruthy();
+      expect(JSON.stringify(teamQueue.queue)).toContain(vacancyTitle);
+
+      const teamSearchResponse = await teamRequest.get(`/api/v1/operator/vacancies/${vacancyRequestId}/candidate-search?limit=25`);
+      const teamSearchBody = await teamSearchResponse.text();
+      expect(teamSearchResponse.ok(), teamSearchBody).toBeTruthy();
+      const teamSearch = JSON.parse(teamSearchBody);
+      const shortlistOperation = teamSearch.computed_operations.find(
+        (operation: { operation_code?: string }) => operation.operation_code === 'create_internal_shortlist_draft'
+      );
+      expect(teamSearch.access_model).toBe('team_admin_session');
+      expect(teamSearch.actor_user_id).toBe(employer.draft_id);
+      expect(shortlistOperation.required_access.permission_boundary).toBe('group_permission_check');
+      expect(shortlistOperation.required_access.target_group_code).toBe('review_team');
+      expect(shortlistOperation.required_access.required_permission_code).toBe('view_review_queue');
+      expect(shortlistOperation.required_access.actor_user_id).toBe(employer.draft_id);
+      expect(shortlistOperation.required_access.allowed).toBe(true);
+    } finally {
+      await teamRequest.dispose();
+    }
+  }
 
   await page.addInitScript((token) => {
     window.sessionStorage.setItem('crewportglobal.operatorAccessToken', token);

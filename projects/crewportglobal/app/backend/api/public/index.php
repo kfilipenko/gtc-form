@@ -88,6 +88,9 @@ function require_operator_or_team_access(): array {
             'access_model' => 'temporary_operator_token',
             'actor_label' => 'operator_document_review_queue',
             'actor_user_id' => null,
+            'groups' => [],
+            'roles' => [],
+            'permissions' => [],
         ];
     }
 
@@ -103,6 +106,8 @@ function require_operator_or_team_access(): array {
                     'actor_label' => (string) ($session['email'] ?? 'team_session'),
                     'actor_user_id' => (string) ($session['user_id'] ?? ''),
                     'groups' => $session['groups'] ?? [],
+                    'roles' => $session['roles'] ?? [],
+                    'permissions' => $session['permissions'] ?? [],
                 ];
             }
         }
@@ -115,7 +120,203 @@ function require_operator_or_team_access(): array {
     api_error(401, 'operator_or_team_access_required', 'Operator or approved team access is required');
 }
 
-function operator_queue_access_contract(string $queueType): ?array {
+function operator_temporary_token_access(string $actorLabel = 'temporary_operator_token'): array {
+    return [
+        'access_model' => CPG_IDENTITY_BOUNDARY_TEMPORARY_OPERATOR_TOKEN,
+        'actor_label' => $actorLabel,
+        'actor_user_id' => null,
+        'groups' => [],
+        'roles' => [],
+        'permissions' => [],
+    ];
+}
+
+function operator_named_session_access_from_request(): ?array {
+    $adminToken = admin_access_session_token();
+    if ($adminToken === null) {
+        return null;
+    }
+
+    admin_access_load_runtime_env();
+    if (!admin_access_public_flow_enabled()) {
+        return null;
+    }
+
+    $storage = admin_access_storage_or_response();
+    $session = $storage->findActiveAdminSession($adminToken, cpg_admin_now());
+    if (!is_array($session)) {
+        return null;
+    }
+
+    return [
+        'access_model' => 'team_admin_session',
+        'actor_label' => (string) ($session['email'] ?? 'team_session'),
+        'actor_user_id' => (string) ($session['user_id'] ?? ''),
+        'groups' => $session['groups'] ?? [],
+        'roles' => $session['roles'] ?? [],
+        'permissions' => $session['permissions'] ?? [],
+    ];
+}
+
+function resolve_operator_or_named_session_access(string $temporaryActorLabel = 'temporary_operator_token'): array {
+    $expected = operator_access_token();
+    $provided = request_operator_token();
+    if ($expected !== null && $provided !== null && hash_equals($expected, $provided)) {
+        return operator_temporary_token_access($temporaryActorLabel);
+    }
+
+    $namedAccess = operator_named_session_access_from_request();
+    if (is_array($namedAccess)) {
+        return $namedAccess;
+    }
+
+    if ($expected === null && admin_access_session_token() === null) {
+        api_error(403, 'operator_access_not_configured', 'Operator access token is not configured');
+    }
+
+    api_error(401, 'operator_access_required', 'Operator access token or approved team session is required');
+}
+
+function operator_access_model(?array $access): string {
+    if (is_array($access) && is_string($access['access_model'] ?? null) && $access['access_model'] !== '') {
+        return (string) $access['access_model'];
+    }
+
+    if (is_array($access) && is_string($access['mode'] ?? null) && $access['mode'] !== '') {
+        return (string) $access['mode'];
+    }
+
+    return CPG_IDENTITY_BOUNDARY_TEMPORARY_OPERATOR_TOKEN;
+}
+
+function operator_access_string_list(?array $access, string $key): array {
+    if (!is_array($access)) {
+        return [];
+    }
+
+    $value = $access[$key] ?? [];
+    if (function_exists('cpg_admin_access_string_list')) {
+        return cpg_admin_access_string_list($value);
+    }
+
+    if (!is_array($value)) {
+        return [];
+    }
+
+    return array_values(array_filter(array_map(
+        static fn(mixed $item): string => strtolower(trim((string) $item)),
+        $value
+    )));
+}
+
+function operator_access_has_owner_override(?array $access): bool {
+    $groups = operator_access_string_list($access, 'groups');
+    $roles = operator_access_string_list($access, 'roles');
+
+    return array_intersect($groups, ['owners', 'platform_owners', 'platform_administrators']) !== []
+        || array_intersect($roles, ['project_owner', 'platform_administrator']) !== [];
+}
+
+function operator_access_has_permission(?array $access, string $permissionCode): bool {
+    if ($permissionCode === '') {
+        return false;
+    }
+
+    if (operator_access_model($access) === CPG_IDENTITY_BOUNDARY_TEMPORARY_OPERATOR_TOKEN) {
+        return true;
+    }
+
+    if (operator_access_has_owner_override($access)) {
+        return true;
+    }
+
+    return in_array($permissionCode, operator_access_string_list($access, 'permissions'), true);
+}
+
+function operator_queue_capability_for_access(array $requirement, ?array $access): array {
+    $permissionCode = is_string($requirement['permission_code'] ?? null) ? (string) $requirement['permission_code'] : null;
+    $scope = is_string($requirement['scope'] ?? null) ? (string) $requirement['scope'] : null;
+
+    return [
+        'permission_code' => $permissionCode,
+        'scope' => $scope,
+        'allowed' => $permissionCode !== null && operator_access_has_permission($access, $permissionCode),
+    ];
+}
+
+function operator_queue_access_contract(string $queueType, ?array $access = null): ?array {
+    $mode = operator_access_model($access);
+    if ($mode === CPG_IDENTITY_BOUNDARY_TEMPORARY_OPERATOR_TOKEN && !is_array($access)) {
+        $identity = cpg_identity_temporary_operator_token('operator_review_queue');
+        return cpg_access_operator_queue_capabilities($queueType, null, true, cpg_identity_permission_mode($identity));
+    }
+
+    $viewRequirement = cpg_access_operator_queue_view_requirement($queueType);
+    if ($viewRequirement === null) {
+        return null;
+    }
+
+    $matrix = cpg_access_operator_queue_permission_matrix();
+    $actions = [];
+    foreach (($matrix[$queueType]['actions'] ?? []) as $decision => $requirement) {
+        if (is_string($decision) && is_array($requirement)) {
+            $actions[$decision] = operator_queue_capability_for_access($requirement, $access);
+        }
+    }
+
+    return [
+        'mode' => $mode,
+        'view' => operator_queue_capability_for_access($viewRequirement, $access),
+        'actions' => $actions,
+    ];
+}
+
+function operator_access_can_view_queue_type(string $queueType, ?array $access = null): bool {
+    $contract = operator_queue_access_contract($queueType, $access);
+    return is_array($contract) && (($contract['view']['allowed'] ?? false) === true);
+}
+
+function operator_access_can_view_any_operator_queue(?array $access = null): bool {
+    foreach (array_keys(cpg_access_operator_queue_permission_matrix()) as $queueType) {
+        if (is_string($queueType) && operator_access_can_view_queue_type($queueType, $access)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function require_operator_or_team_queue_access(): array {
+    $access = resolve_operator_or_named_session_access('operator_review_queue');
+    if (!operator_access_can_view_any_operator_queue($access)) {
+        api_json(403, [
+            'ok' => false,
+            'error' => 'operator_queue_permission_required',
+            'message' => 'Operator queue access requires at least one queue view permission',
+            'access_model' => operator_access_model($access),
+        ]);
+    }
+
+    return $access;
+}
+
+function require_operator_queue_type_access(string $queueType): array {
+    $access = resolve_operator_or_named_session_access('operator_review_queue');
+    if (!operator_access_can_view_queue_type($queueType, $access)) {
+        api_json(403, [
+            'ok' => false,
+            'error' => 'operator_queue_permission_required',
+            'message' => 'Operator queue access requires the configured queue view permission',
+            'queue_type' => $queueType,
+            'operator_access' => operator_queue_access_contract($queueType, $access),
+            'access_model' => operator_access_model($access),
+        ]);
+    }
+
+    return $access;
+}
+
+function operator_legacy_queue_access_contract(string $queueType): ?array {
     $identity = cpg_identity_temporary_operator_token('operator_review_queue');
     return cpg_access_operator_queue_capabilities($queueType, null, true, cpg_identity_permission_mode($identity));
 }
@@ -162,12 +363,16 @@ function operator_workflow_operation_requirement(string $operationCode): ?array 
 
 function operator_workflow_operation_contract(string $operationCode, ?array $access = null): array {
     $requirement = operator_workflow_operation_requirement($operationCode) ?? [];
-    $mode = is_array($access) && is_string($access['access_model'] ?? null)
-        ? (string) $access['access_model']
-        : (is_array($access) && is_string($access['mode'] ?? null)
-            ? (string) $access['mode']
-            : CPG_IDENTITY_BOUNDARY_TEMPORARY_OPERATOR_TOKEN);
-    $allowed = !is_array($access) || ($access['allowed'] ?? true) === true;
+    $mode = operator_access_model($access);
+    $requiredPermission = is_string($requirement['required_permission_code'] ?? null)
+        ? (string) $requirement['required_permission_code']
+        : '';
+    $allowed = is_array($access) && array_key_exists('allowed', $access)
+        ? ($access['allowed'] === true)
+        : true;
+    if ($mode !== CPG_IDENTITY_BOUNDARY_TEMPORARY_OPERATOR_TOKEN) {
+        $allowed = $allowed && operator_access_has_permission($access, $requiredPermission);
+    }
 
     return [
         'operation_code' => $operationCode,
@@ -185,6 +390,9 @@ function operator_workflow_operation_contract(string $operationCode, ?array $acc
         'actor_user_id' => is_string($access['actor_user_id'] ?? null) && $access['actor_user_id'] !== ''
             ? (string) $access['actor_user_id']
             : null,
+        'groups' => operator_access_string_list($access, 'groups'),
+        'roles' => operator_access_string_list($access, 'roles'),
+        'permissions' => operator_access_string_list($access, 'permissions'),
     ];
 }
 
@@ -253,6 +461,9 @@ function require_operator_workflow_operation_access(string $operationCode): arra
                     'actor_label' => (string) ($session['email'] ?? 'team_session'),
                     'actor_user_id' => (string) ($session['user_id'] ?? ''),
                     'allowed' => true,
+                    'groups' => $session['groups'] ?? [],
+                    'roles' => $session['roles'] ?? [],
+                    'permissions' => $session['permissions'] ?? [],
                 ]);
             }
 
@@ -265,6 +476,9 @@ function require_operator_workflow_operation_access(string $operationCode): arra
                     'actor_label' => is_array($session) ? (string) ($session['email'] ?? 'team_session') : 'team_session',
                     'actor_user_id' => is_array($session) ? (string) ($session['user_id'] ?? '') : null,
                     'allowed' => false,
+                    'groups' => is_array($session) ? ($session['groups'] ?? []) : [],
+                    'roles' => is_array($session) ? ($session['roles'] ?? []) : [],
+                    'permissions' => is_array($session) ? ($session['permissions'] ?? []) : [],
                 ]),
             ]);
         }
@@ -5199,7 +5413,7 @@ function cpg_operator_candidate_search_sort_rank(array $candidate): int {
     };
 }
 
-function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $limit): ?array {
+function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $limit, ?array $access = null): ?array {
     $vacancy = cpg_fetch_one_assoc(
         "SELECT
             vr.vacancy_request_id,
@@ -5609,7 +5823,10 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
     return [
         'ok' => true,
         'vacancy_request_id' => $vacancyRequestId,
-        'access_model' => 'temporary_operator_token',
+        'access_model' => operator_access_model($access),
+        'actor_user_id' => is_string($access['actor_user_id'] ?? null) && $access['actor_user_id'] !== ''
+            ? (string) $access['actor_user_id']
+            : null,
         'search_model' => 'cpg-demand-010-structured-requirement-evaluator',
         'search_scope' => 'operator_internal_only',
         'side_effects' => [
@@ -5635,7 +5852,8 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
                     'next_status_if_executed' => 'needs_review',
                     'responsible_group_after_transition' => 'review_team',
                     'computed_from' => 'candidate_search_results',
-                ]
+                ],
+                $access
             ),
         ],
         'demand' => [
@@ -5666,13 +5884,13 @@ function read_operator_vacancy_candidate_search(string $vacancyRequestId, int $l
     ];
 }
 
-function handle_get_operator_vacancy_candidate_search(string $vacancyId): void {
+function handle_get_operator_vacancy_candidate_search(string $vacancyId, ?array $access = null): void {
     $uuid = api_normalize_uuid($vacancyId);
     if ($uuid === null) {
         api_error(400, 'invalid_vacancy_request_id', 'vacancy_request_id must be a valid UUID');
     }
 
-    $search = read_operator_vacancy_candidate_search($uuid, cpg_candidate_search_limit());
+    $search = read_operator_vacancy_candidate_search($uuid, cpg_candidate_search_limit(), $access);
     if ($search === null) {
         api_error(404, 'vacancy_request_not_found', 'Vacancy request not found');
     }
@@ -6179,7 +6397,7 @@ function handle_post_operator_vacancy_shortlist_draft(string $vacancyId, ?array 
     ]);
 }
 
-function handle_get_operator_shortlist_draft(string $shortlistDraftId): void {
+function handle_get_operator_shortlist_draft(string $shortlistDraftId, ?array $access = null): void {
     $uuid = api_normalize_uuid($shortlistDraftId);
     if ($uuid === null) {
         api_error(400, 'invalid_shortlist_draft_id', 'shortlist_draft_id must be a valid UUID');
@@ -6199,7 +6417,8 @@ function handle_get_operator_shortlist_draft(string $shortlistDraftId): void {
         'computed_operations' => cpg_operator_shortlist_computed_operations(
             $draft,
             cpg_operator_shortlist_internal_approval_guard($draft),
-            cpg_operator_shortlist_review_application_guard($draft)
+            cpg_operator_shortlist_review_application_guard($draft),
+            $access
         ),
     ]);
 }
@@ -8016,7 +8235,7 @@ function handle_get_draft(string $draftId): void {
 
     $visibilityScope = cpg_normalize_visibility_scope($_GET['visibility'] ?? null, 'owner_full');
     if ($visibilityScope !== 'owner_full') {
-        require_operator_access();
+        require_operator_or_team_queue_access();
     }
     api_json(200, build_draft_response($uuid, $visibilityScope));
 }
@@ -8025,7 +8244,7 @@ function handle_get_seafarer_workspace(): void {
     [$userId, $accessModel] = cpg_resolve_seafarer_workspace_user();
     $visibilityScope = cpg_normalize_visibility_scope($_GET['visibility'] ?? null, 'owner_full');
     if ($visibilityScope !== 'owner_full') {
-        require_operator_access();
+        require_operator_or_team_queue_access();
     }
     $workspace = cpg_read_seafarer_workspace_summary($userId);
 
@@ -8306,11 +8525,12 @@ function handle_patch_draft(string $draftId): void {
     }
 }
 
-function read_operator_review_queue(): array {
+function read_operator_review_queue(?array $access = null): array {
     $items = [];
 
-    $seafarerResult = api_query(
-        "SELECT
+    if (operator_access_can_view_queue_type('seafarer_profile', $access)) {
+        $seafarerResult = api_query(
+            "SELECT
             sp.seafarer_profile_id AS queue_item_id,
             sp.user_id AS draft_id,
             u.email,
@@ -8327,31 +8547,33 @@ function read_operator_review_queue(): array {
          WHERE sp.review_status IN ('submitted_for_human_review', 'in_review')
          ORDER BY sp.updated_at DESC, sp.created_at DESC
          LIMIT 200"
-    );
+        );
 
-    while (($row = pg_fetch_assoc($seafarerResult)) !== false) {
-        $items[] = [
-            'queue_item_id' => $row['queue_item_id'],
-            'queue_type' => 'seafarer_profile',
-            'draft_id' => $row['draft_id'],
-            'role' => 'seafarer',
-            'email' => $row['email'],
-            'full_name' => $row['display_name'] ?? $row['email'],
-            'status' => $row['queue_status'],
-            'created_at' => $row['created_at'],
-            'updated_at' => $row['updated_at'],
-            'summary' => [
-                'primary_rank' => $row['primary_rank'],
-                'department' => $row['department'],
-                'availability_status' => $row['availability_status'],
-                'availability_date' => $row['availability_date'],
-            ],
-            'operator_access' => operator_queue_access_contract('seafarer_profile'),
-        ];
+        while (($row = pg_fetch_assoc($seafarerResult)) !== false) {
+            $items[] = [
+                'queue_item_id' => $row['queue_item_id'],
+                'queue_type' => 'seafarer_profile',
+                'draft_id' => $row['draft_id'],
+                'role' => 'seafarer',
+                'email' => $row['email'],
+                'full_name' => $row['display_name'] ?? $row['email'],
+                'status' => $row['queue_status'],
+                'created_at' => $row['created_at'],
+                'updated_at' => $row['updated_at'],
+                'summary' => [
+                    'primary_rank' => $row['primary_rank'],
+                    'department' => $row['department'],
+                    'availability_status' => $row['availability_status'],
+                    'availability_date' => $row['availability_date'],
+                ],
+                'operator_access' => operator_queue_access_contract('seafarer_profile', $access),
+            ];
+        }
     }
 
-    $companyResult = api_query(
-        "SELECT
+    if (operator_access_can_view_queue_type('company_verification', $access)) {
+        $companyResult = api_query(
+            "SELECT
             ec.company_id AS queue_item_id,
             cu.user_id AS draft_id,
             COALESCE(ur.role, 'employer') AS role,
@@ -8383,31 +8605,33 @@ function read_operator_review_queue(): array {
          WHERE ec.verification_status IN ('unverified', 'submitted')
          ORDER BY ec.updated_at DESC, ec.created_at DESC
          LIMIT 200"
-    );
+        );
 
-    while (($row = pg_fetch_assoc($companyResult)) !== false) {
-        $items[] = [
-            'queue_item_id' => $row['queue_item_id'],
-            'queue_type' => 'company_verification',
-            'draft_id' => $row['draft_id'],
-            'role' => $row['role'],
-            'email' => $row['email'],
-            'full_name' => $row['display_name'] ?? $row['email'],
-            'status' => $row['queue_status'],
-            'created_at' => $row['created_at'],
-            'updated_at' => $row['updated_at'],
-            'summary' => [
-                'company_name' => $row['company_name'],
-                'company_type' => $row['company_type'],
-                'country_code' => $row['country_code'],
-                'role_in_company' => $row['role_in_company'],
-            ],
-            'operator_access' => operator_queue_access_contract('company_verification'),
-        ];
+        while (($row = pg_fetch_assoc($companyResult)) !== false) {
+            $items[] = [
+                'queue_item_id' => $row['queue_item_id'],
+                'queue_type' => 'company_verification',
+                'draft_id' => $row['draft_id'],
+                'role' => $row['role'],
+                'email' => $row['email'],
+                'full_name' => $row['display_name'] ?? $row['email'],
+                'status' => $row['queue_status'],
+                'created_at' => $row['created_at'],
+                'updated_at' => $row['updated_at'],
+                'summary' => [
+                    'company_name' => $row['company_name'],
+                    'company_type' => $row['company_type'],
+                    'country_code' => $row['country_code'],
+                    'role_in_company' => $row['role_in_company'],
+                ],
+                'operator_access' => operator_queue_access_contract('company_verification', $access),
+            ];
+        }
     }
 
-    $vacancyResult = api_query(
-        "SELECT
+    if (operator_access_can_view_queue_type('vacancy_request', $access)) {
+        $vacancyResult = api_query(
+            "SELECT
             vr.vacancy_request_id AS queue_item_id,
             vr.created_by_user_id AS draft_id,
             COALESCE(ur.role, 'employer') AS role,
@@ -8442,39 +8666,41 @@ function read_operator_review_queue(): array {
          WHERE vr.publication_status IN ('submitted_for_human_review', 'in_review')
          ORDER BY vr.updated_at DESC, vr.created_at DESC
          LIMIT 200"
-    );
+        );
 
-    while (($row = pg_fetch_assoc($vacancyResult)) !== false) {
-        $items[] = [
-            'queue_item_id' => $row['queue_item_id'],
-            'queue_type' => 'vacancy_request',
-            'draft_id' => $row['draft_id'],
-            'role' => $row['role'],
-            'email' => $row['email'],
-            'full_name' => $row['display_name'] ?? $row['email'],
-            'status' => $row['queue_status'],
-            'created_at' => $row['created_at'],
-            'updated_at' => $row['updated_at'],
-            'summary' => [
-                'vacancy_title' => $row['vacancy_title'],
-                'rank' => $row['rank'],
-                'department' => $row['department'],
-                'vessel_type' => $row['vessel_type'],
-                'join_date' => $row['join_date'],
-                'contract_duration' => $row['contract_duration'],
-                'salary_min_usd' => $row['salary_min_usd'],
-                'salary_max_usd' => $row['salary_max_usd'],
-                'currency' => $row['currency'],
-                'company_name' => $row['company_name'],
-                'company_verification_status' => $row['verification_status'],
-                'vessel_name' => $row['vessel_name'],
-            ],
-            'operator_access' => operator_queue_access_contract('vacancy_request'),
-        ];
+        while (($row = pg_fetch_assoc($vacancyResult)) !== false) {
+            $items[] = [
+                'queue_item_id' => $row['queue_item_id'],
+                'queue_type' => 'vacancy_request',
+                'draft_id' => $row['draft_id'],
+                'role' => $row['role'],
+                'email' => $row['email'],
+                'full_name' => $row['display_name'] ?? $row['email'],
+                'status' => $row['queue_status'],
+                'created_at' => $row['created_at'],
+                'updated_at' => $row['updated_at'],
+                'summary' => [
+                    'vacancy_title' => $row['vacancy_title'],
+                    'rank' => $row['rank'],
+                    'department' => $row['department'],
+                    'vessel_type' => $row['vessel_type'],
+                    'join_date' => $row['join_date'],
+                    'contract_duration' => $row['contract_duration'],
+                    'salary_min_usd' => $row['salary_min_usd'],
+                    'salary_max_usd' => $row['salary_max_usd'],
+                    'currency' => $row['currency'],
+                    'company_name' => $row['company_name'],
+                    'company_verification_status' => $row['verification_status'],
+                    'vessel_name' => $row['vessel_name'],
+                ],
+                'operator_access' => operator_queue_access_contract('vacancy_request', $access),
+            ];
+        }
     }
 
-    $applicationResult = api_query(
-        "SELECT
+    if (operator_access_can_view_queue_type('vacancy_application', $access)) {
+        $applicationResult = api_query(
+            "SELECT
             va.vacancy_application_id AS queue_item_id,
             va.seafarer_user_id AS draft_id,
             su.email,
@@ -8502,31 +8728,32 @@ function read_operator_review_queue(): array {
          WHERE va.application_status IN ('submitted_for_human_review', 'in_review')
          ORDER BY va.updated_at DESC, va.created_at DESC
          LIMIT 200"
-    );
+        );
 
-    while (($row = pg_fetch_assoc($applicationResult)) !== false) {
-        $items[] = [
-            'queue_item_id' => $row['queue_item_id'],
-            'queue_type' => 'vacancy_application',
-            'draft_id' => $row['draft_id'],
-            'role' => 'seafarer',
-            'email' => $row['contact_email'] ?: $row['email'],
-            'full_name' => $row['display_name'] ?? $row['email'],
-            'status' => $row['queue_status'],
-            'created_at' => $row['created_at'],
-            'updated_at' => $row['updated_at'],
-            'summary' => [
-                'vacancy_title' => $row['vacancy_title'],
-                'vacancy_rank' => $row['vacancy_rank'],
-                'candidate_rank' => $row['primary_rank'],
-                'candidate_review_status' => $row['candidate_review_status'],
-                'availability_status' => $row['availability_status'],
-                'company_name' => $row['company_name'],
-                'vessel_name' => $row['vessel_name'],
-                'candidate_note' => $row['candidate_note'],
-            ],
-            'operator_access' => operator_queue_access_contract('vacancy_application'),
-        ];
+        while (($row = pg_fetch_assoc($applicationResult)) !== false) {
+            $items[] = [
+                'queue_item_id' => $row['queue_item_id'],
+                'queue_type' => 'vacancy_application',
+                'draft_id' => $row['draft_id'],
+                'role' => 'seafarer',
+                'email' => $row['contact_email'] ?: $row['email'],
+                'full_name' => $row['display_name'] ?? $row['email'],
+                'status' => $row['queue_status'],
+                'created_at' => $row['created_at'],
+                'updated_at' => $row['updated_at'],
+                'summary' => [
+                    'vacancy_title' => $row['vacancy_title'],
+                    'vacancy_rank' => $row['vacancy_rank'],
+                    'candidate_rank' => $row['primary_rank'],
+                    'candidate_review_status' => $row['candidate_review_status'],
+                    'availability_status' => $row['availability_status'],
+                    'company_name' => $row['company_name'],
+                    'vessel_name' => $row['vessel_name'],
+                    'candidate_note' => $row['candidate_note'],
+                ],
+                'operator_access' => operator_queue_access_contract('vacancy_application', $access),
+            ];
+        }
     }
 
     usort(
@@ -8537,13 +8764,22 @@ function read_operator_review_queue(): array {
     return $items;
 }
 
-function handle_get_operator_review_queue(): void {
-    $queue = read_operator_review_queue();
+function handle_get_operator_review_queue(?array $access = null): void {
+    $queue = read_operator_review_queue($access);
     api_json(200, [
         'ok' => true,
         'queue' => $queue,
         'count' => count($queue),
-        'access_model' => 'temporary_operator_token',
+        'access_model' => operator_access_model($access),
+        'actor_user_id' => is_string($access['actor_user_id'] ?? null) && $access['actor_user_id'] !== ''
+            ? (string) $access['actor_user_id']
+            : null,
+        'queue_permissions' => [
+            'seafarer_profile' => operator_queue_access_contract('seafarer_profile', $access),
+            'company_verification' => operator_queue_access_contract('company_verification', $access),
+            'vacancy_request' => operator_queue_access_contract('vacancy_request', $access),
+            'vacancy_application' => operator_queue_access_contract('vacancy_application', $access),
+        ],
         'generated_at' => gmdate('c'),
     ]);
 }
@@ -9141,7 +9377,7 @@ function read_operator_vacancy_application_review_history(string $applicationId)
     return $events;
 }
 
-function read_operator_vacancy_application_detail(string $applicationId): ?array {
+function read_operator_vacancy_application_detail(string $applicationId, ?array $access = null): ?array {
     $result = api_query(
         "SELECT
             va.vacancy_application_id,
@@ -9272,21 +9508,21 @@ function read_operator_vacancy_application_detail(string $applicationId): ?array
         'operator_review' => $history[0] ?? null,
         'operator_review_history' => $history,
         'approval_guard' => $approvalGuard,
-        'operator_access' => operator_queue_access_contract('vacancy_application'),
+        'operator_access' => operator_queue_access_contract('vacancy_application', $access),
         'generated_at' => gmdate('c'),
     ];
-    $detail['computed_operations'] = cpg_operator_vacancy_application_computed_operations($detail);
+    $detail['computed_operations'] = cpg_operator_vacancy_application_computed_operations($detail, $access);
 
     return $detail;
 }
 
-function handle_get_operator_vacancy_application_detail(string $applicationId): void {
+function handle_get_operator_vacancy_application_detail(string $applicationId, ?array $access = null): void {
     $uuid = api_normalize_uuid($applicationId);
     if ($uuid === null) {
         api_error(400, 'invalid_vacancy_application_id', 'vacancy_application_id must be a valid UUID');
     }
 
-    $detail = read_operator_vacancy_application_detail($uuid);
+    $detail = read_operator_vacancy_application_detail($uuid, $access);
     if ($detail === null) {
         api_error(404, 'vacancy_application_not_found', 'Vacancy application not found');
     }
@@ -10233,8 +10469,8 @@ if ($path === '/seafarer/document-readiness') {
 }
 
 if ($method === 'GET' && $path === '/operator/review-queue') {
-    require_operator_access();
-    handle_get_operator_review_queue();
+    $access = require_operator_or_team_queue_access();
+    handle_get_operator_review_queue($access);
 }
 
 if ($method === 'GET' && $path === '/operator/document-review-queue') {
@@ -10262,8 +10498,8 @@ if (preg_match('#^/operator/documents/([^/]+)/review$#', $path, $matches) === 1)
 
 if (preg_match('#^/operator/review-queue/vacancy-applications/([^/]+)$#', $path, $matches) === 1) {
     if ($method === 'GET') {
-        require_operator_access();
-        handle_get_operator_vacancy_application_detail($matches[1]);
+        $access = require_operator_queue_type_access('vacancy_application');
+        handle_get_operator_vacancy_application_detail($matches[1], $access);
     }
     header('Allow: GET');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
@@ -10271,8 +10507,8 @@ if (preg_match('#^/operator/review-queue/vacancy-applications/([^/]+)$#', $path,
 
 if (preg_match('#^/operator/vacancies/([^/]+)/candidate-search$#', $path, $matches) === 1) {
     if ($method === 'GET') {
-        require_operator_access();
-        handle_get_operator_vacancy_candidate_search($matches[1]);
+        $access = require_operator_workflow_operation_access('create_internal_shortlist_draft');
+        handle_get_operator_vacancy_candidate_search($matches[1], $access);
     }
     header('Allow: GET');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
@@ -10307,8 +10543,8 @@ if (preg_match('#^/operator/shortlist-drafts/([^/]+)/review-applications$#', $pa
 
 if (preg_match('#^/operator/shortlist-drafts/([^/]+)$#', $path, $matches) === 1) {
     if ($method === 'GET') {
-        require_operator_access();
-        handle_get_operator_shortlist_draft($matches[1]);
+        $access = require_operator_or_team_queue_access();
+        handle_get_operator_shortlist_draft($matches[1], $access);
     }
     header('Allow: GET');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');

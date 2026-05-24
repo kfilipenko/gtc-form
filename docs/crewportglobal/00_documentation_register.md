@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.60
+- Version: 1.61
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -267,6 +267,7 @@ docs/crewportglobal/
   178_cpg_demand_015_internal_shortlist_approval_workflow_report.md
   179_cpg_demand_016_internal_shortlist_to_review_application_bridge_report.md
   180_cpg_demand_017_computed_operation_visibility_and_access_report.md
+  181_cpg_demand_018_named_operator_access_for_computed_operations_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -533,6 +534,8 @@ Document 179 records the CPG-DEMAND-016 internal shortlist to vacancy-applicatio
 
 Document 180 records the CPG-DEMAND-017 computed operation visibility and access contract implementation, including data-derived operation display in `/verify/`, required group/role/permission metadata, temporary-token compatibility, admin-session permission boundary preparation, audit actor-context enrichment and the preserved principle that operational tasks are computed from current data state.
 
+Document 181 records the CPG-DEMAND-018 named operator access implementation for computed operations, including `/verify/` team/admin session support, queue visibility filtered by group permissions, operation execution through `review_team` / `reviewer` permissions, actor-user audit propagation and preserved temporary-token compatibility.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -636,6 +639,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.61 | 2026-05-24 | GTC IT / AI Assistant | Added document 181 for CPG-DEMAND-018 covering named/team operator access for computed operations, `/verify/` team session support, queue permission filtering, actor-user audit propagation and preserved temporary-token compatibility |
 | 1.60 | 2026-05-24 | GTC IT / AI Assistant | Added document 180 for CPG-DEMAND-017 covering computed operation visibility, responsible group/permission metadata, actor-context audit enrichment and preserved data-derived task principle |
 | 1.59 | 2026-05-24 | GTC IT / AI Assistant | Added document 179 for CPG-DEMAND-016 covering the bridge from approved internal shortlist drafts to internal vacancy application review records, with protected endpoint, `/verify/` action, no-presented boundary, audit event and focused verification |
 | 1.58 | 2026-05-24 | GTC IT / AI Assistant | Added document 178 for CPG-DEMAND-015 covering the internal shortlist approval workflow, protected approval endpoint, `/verify/` approve/reject controls, approval guard blocker codes, audit event creation and no-employer-facing boundary |
