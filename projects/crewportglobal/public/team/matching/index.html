@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Request Supply Comparison</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="stylesheet" href="/assets/crewportglobal-docs.css">
+  <link rel="stylesheet" href="/assets/crewportglobal-app.css">
+  <style>
+    :root {
+      --match-bg: #071826;
+      --match-panel: #10263a;
+      --match-soft: #142d42;
+      --match-line: rgba(160, 181, 203, 0.22);
+      --match-text: #eef6ff;
+      --match-muted: #aac0d5;
+      --match-primary: #56d2e2;
+      --match-success: #79d68a;
+      --match-warning: #ffb45d;
+      --match-danger: #ff867d;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top right, rgba(86, 210, 226, 0.13), transparent 34%), var(--match-bg);
+      color: var(--match-text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .matching-shell {
+      width: min(1240px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 24px 0 48px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .matching-header,
+    .matching-panel,
+    .matching-card {
+      border: 1px solid var(--match-line);
+      border-radius: 14px;
+      background: rgba(16, 38, 58, 0.9);
+      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.24);
+    }
+
+    .matching-header {
+      padding: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .matching-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .matching-brand-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      background: rgba(86, 210, 226, 0.13);
+      color: var(--match-primary);
+      font-weight: 900;
+    }
+
+    .matching-brand strong,
+    .matching-card h3,
+    .matching-title {
+      color: var(--match-text);
+    }
+
+    .matching-brand p,
+    .matching-meta,
+    .matching-status,
+    .matching-field span {
+      margin: 0;
+      color: var(--match-muted);
+      line-height: 1.45;
+    }
+
+    .matching-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .matching-link,
+    .matching-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 10px 14px;
+      border: 1px solid var(--match-line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--match-text);
+      font: inherit;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .matching-button.primary,
+    .matching-link.primary {
+      border-color: rgba(86, 210, 226, 0.42);
+      background: rgba(86, 210, 226, 0.17);
+      color: var(--match-primary);
+    }
+
+    .matching-button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .matching-panel {
+      padding: 18px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .matching-title {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 52px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .matching-filter-grid,
+    .matching-summary-grid,
+    .matching-demand-grid,
+    .matching-dimension-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .matching-filter-grid {
+      grid-template-columns: minmax(220px, 1.35fr) minmax(220px, 1fr) minmax(120px, 0.45fr);
+    }
+
+    .matching-summary-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .matching-demand-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .matching-field {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .matching-field label,
+    .matching-field strong {
+      font-size: 13px;
+      color: var(--match-muted);
+      font-weight: 800;
+    }
+
+    .matching-field select,
+    .matching-field input {
+      width: 100%;
+      min-height: 44px;
+      box-sizing: border-box;
+      border: 1px solid var(--match-line);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.18);
+      color: var(--match-text);
+      font: inherit;
+      padding: 10px 12px;
+    }
+
+    .matching-card {
+      min-width: 0;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+      background: rgba(20, 45, 66, 0.82);
+    }
+
+    .matching-card h3 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .matching-badge-row,
+    .matching-chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .matching-badge,
+    .matching-chip {
+      display: inline-flex;
+      max-width: 100%;
+      padding: 7px 9px;
+      border: 1px solid var(--match-line);
+      border-radius: 999px;
+      color: var(--match-muted);
+      font-size: 12px;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .matching-badge.ready,
+    .matching-chip.ready {
+      border-color: rgba(121, 214, 138, 0.35);
+      color: var(--match-success);
+    }
+
+    .matching-badge.review,
+    .matching-chip.review {
+      border-color: rgba(86, 210, 226, 0.35);
+      color: var(--match-primary);
+    }
+
+    .matching-badge.blocked,
+    .matching-chip.blocked {
+      border-color: rgba(255, 180, 93, 0.42);
+      color: var(--match-warning);
+    }
+
+    .matching-chip.danger {
+      border-color: rgba(255, 134, 125, 0.38);
+      color: var(--match-danger);
+    }
+
+    .matching-safe-grid,
+    .matching-dimension-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .matching-safe-item,
+    .matching-dimension {
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid rgba(160, 181, 203, 0.15);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.12);
+      overflow-wrap: anywhere;
+    }
+
+    .matching-safe-item span,
+    .matching-dimension span {
+      display: block;
+      color: var(--match-muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .matching-safe-item strong,
+    .matching-dimension strong {
+      display: block;
+      margin-top: 4px;
+      color: var(--match-text);
+      font-size: 14px;
+    }
+
+    .matching-candidate-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .matching-empty {
+      padding: 18px;
+      border: 1px dashed var(--match-line);
+      border-radius: 12px;
+      color: var(--match-muted);
+    }
+
+    @media (max-width: 920px) {
+      .matching-filter-grid,
+      .matching-summary-grid,
+      .matching-demand-grid,
+      .matching-safe-grid,
+      .matching-dimension-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="matching-shell">
+    <header class="matching-header">
+      <div class="matching-brand">
+        <span class="matching-brand-mark">CPG</span>
+        <div>
+          <strong>CrewPortGlobal</strong>
+          <p>Internal crew request to candidate supply comparison</p>
+        </div>
+      </div>
+      <nav class="matching-actions" aria-label="Matching navigation">
+        <a class="matching-link" href="/team/">Team cabinet</a>
+        <a class="matching-link" href="/team/registry/">Registry detail</a>
+        <a class="matching-link" href="/verify/">Operator queue</a>
+      </nav>
+    </header>
+
+    <section class="matching-panel">
+      <p class="matching-meta">Protected read-only diagnostic view. No shortlist, vacancy application or employer visibility is created here.</p>
+      <h1 class="matching-title">Crew request -> candidate supply</h1>
+      <div class="matching-filter-grid">
+        <div class="matching-field">
+          <label for="vacancy-select">Crew request</label>
+          <select id="vacancy-select">
+            <option value="">Loading requests...</option>
+          </select>
+        </div>
+        <div class="matching-field">
+          <label for="vacancy-id">Crew request ID</label>
+          <input id="vacancy-id" type="text" autocomplete="off" spellcheck="false" placeholder="Paste vacancy_request_id">
+        </div>
+        <div class="matching-field">
+          <label for="result-limit">Candidates</label>
+          <select id="result-limit">
+            <option value="25" selected>25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+      </div>
+      <div class="matching-actions">
+        <button class="matching-button primary" type="button" id="run-comparison">Run comparison</button>
+        <a class="matching-link" id="open-verify" href="/verify/">Open shortlist workspace</a>
+      </div>
+      <p class="matching-status" id="matching-status" role="status" aria-live="polite">Loading protected request list...</p>
+    </section>
+
+    <section class="matching-panel" id="demand-panel" hidden>
+      <h2 class="matching-meta">Crew request</h2>
+      <div class="matching-demand-grid" id="demand-grid"></div>
+      <div class="matching-chip-list" id="demand-blockers"></div>
+      <div class="matching-chip-list" id="requirement-items"></div>
+    </section>
+
+    <section class="matching-summary-grid" id="summary-grid" hidden></section>
+
+    <section class="matching-candidate-list" id="candidate-list" aria-label="Candidate comparison results"></section>
+  </main>
+
+  <script>
+    (function () {
+      const TEAM_SESSION_KEY = 'crewportglobal_team_session';
+      const ADMIN_SESSION_KEY = 'crewportglobal_admin_session';
+      const selectNode = document.getElementById('vacancy-select');
+      const vacancyIdNode = document.getElementById('vacancy-id');
+      const limitNode = document.getElementById('result-limit');
+      const runButton = document.getElementById('run-comparison');
+      const openVerify = document.getElementById('open-verify');
+      const statusNode = document.getElementById('matching-status');
+      const demandPanel = document.getElementById('demand-panel');
+      const demandGrid = document.getElementById('demand-grid');
+      const demandBlockers = document.getElementById('demand-blockers');
+      const requirementItems = document.getElementById('requirement-items');
+      const summaryGrid = document.getElementById('summary-grid');
+      const candidateList = document.getElementById('candidate-list');
+
+      const fieldLabels = {
+        vacancy_title: 'Request',
+        rank: 'Rank',
+        department: 'Department',
+        vessel_type: 'Vessel type',
+        join_date: 'Join date',
+        company_name: 'Company',
+        vessel_name: 'Vessel',
+        publication_status: 'Publication',
+        required_passport_validity_days: 'Passport validity days',
+        required_medical_validity_days: 'Medical validity days',
+      };
+
+      const dimensionLabels = {
+        rank: 'Rank',
+        vessel_type: 'Vessel type',
+        availability: 'Availability',
+        department: 'Department',
+        coc_requirements: 'COC requirements',
+        endorsement_requirements: 'Endorsements',
+        training_requirements: 'Training',
+        sea_service_requirements: 'Sea service',
+        passport_validity: 'Passport validity',
+        medical_validity: 'Medical validity',
+      };
+
+      function queryToken() {
+        return new URLSearchParams(window.location.search).get('operator_token') || '';
+      }
+
+      function storedToken() {
+        return window.localStorage.getItem(TEAM_SESSION_KEY)
+          || window.localStorage.getItem(ADMIN_SESSION_KEY)
+          || window.sessionStorage.getItem('crewportglobal.operatorAccessToken')
+          || '';
+      }
+
+      function token() {
+        return queryToken() || storedToken();
+      }
+
+      function headers() {
+        const authToken = token();
+        return authToken ? { Authorization: `Bearer ${authToken}` } : {};
+      }
+
+      function text(value) {
+        const valueText = String(value ?? '').trim();
+        return valueText || '-';
+      }
+
+      function setStatus(message) {
+        statusNode.textContent = message;
+      }
+
+      function clearResults() {
+        demandPanel.hidden = true;
+        summaryGrid.hidden = true;
+        demandGrid.replaceChildren();
+        demandBlockers.replaceChildren();
+        requirementItems.replaceChildren();
+        summaryGrid.replaceChildren();
+        candidateList.replaceChildren();
+      }
+
+      function chip(label, tone = '') {
+        const item = document.createElement('span');
+        item.className = `matching-chip ${tone}`.trim();
+        item.textContent = label;
+        return item;
+      }
+
+      function safeItem(label, value) {
+        const item = document.createElement('div');
+        item.className = 'matching-safe-item';
+        const labelNode = document.createElement('span');
+        labelNode.textContent = label;
+        const valueNode = document.createElement('strong');
+        valueNode.textContent = text(value);
+        item.append(labelNode, valueNode);
+        return item;
+      }
+
+      function dimensionItem(label, value, matched) {
+        const item = document.createElement('div');
+        item.className = 'matching-dimension';
+        const labelNode = document.createElement('span');
+        labelNode.textContent = label;
+        const valueNode = document.createElement('strong');
+        valueNode.textContent = value;
+        item.append(labelNode, valueNode);
+        item.style.borderColor = matched === true
+          ? 'rgba(121, 214, 138, 0.35)'
+          : matched === false
+            ? 'rgba(255, 180, 93, 0.42)'
+            : 'rgba(160, 181, 203, 0.15)';
+        return item;
+      }
+
+      function issueCodes(items) {
+        return Array.isArray(items)
+          ? items.map((item) => item && item.code).filter(Boolean)
+          : [];
+      }
+
+      function resultTone(matchLevel) {
+        if (matchLevel === 'match_ready') return 'ready';
+        if (matchLevel === 'review_possible') return 'review';
+        return 'blocked';
+      }
+
+      function summarizeRequirement(result) {
+        if (!result || result.required === false) return 'not required';
+        return `${result.matched ? 'matched' : 'blocked'} ${result.matched_count || 0}/${result.required_count || 0}`;
+      }
+
+      function summarizeValidity(result) {
+        if (!result || result.required === false) return 'not required';
+        if (result.matched) return `matched, remaining ${text(result.remaining_days)} days`;
+        return `${text(result.failure_reason || 'blocked')}, minimum ${text(result.minimum_validity_days)} days`;
+      }
+
+      function renderDemand(payload) {
+        const demand = payload.demand || {};
+        const readiness = payload.demand_readiness || {};
+        demandPanel.hidden = false;
+        [
+          'vacancy_title',
+          'rank',
+          'department',
+          'vessel_type',
+          'join_date',
+          'company_name',
+          'vessel_name',
+          'publication_status',
+          'required_passport_validity_days',
+          'required_medical_validity_days',
+        ].forEach((key) => {
+          demandGrid.append(safeItem(fieldLabels[key] || key, demand[key]));
+        });
+
+        const demandStatus = readiness.status === 'search_ready' ? 'ready' : 'blocked';
+        demandBlockers.append(chip(`Demand readiness: ${text(readiness.status)}`, demandStatus));
+        const blockers = Array.isArray(readiness.blockers) ? readiness.blockers : [];
+        if (blockers.length === 0) {
+          demandBlockers.append(chip('No demand blockers', 'ready'));
+        } else {
+          blockers.forEach((blocker) => demandBlockers.append(chip(text(blocker.code), 'blocked')));
+        }
+
+        const requirements = Array.isArray(payload.requirement_items) ? payload.requirement_items : [];
+        if (requirements.length === 0) {
+          requirementItems.append(chip('No structured child requirements', 'review'));
+        } else {
+          requirements.slice(0, 18).forEach((item) => {
+            requirementItems.append(chip(`${text(item.requirement_kind)}: ${text(item.requirement_label || item.requirement_key)}`, 'review'));
+          });
+        }
+      }
+
+      function renderSummary(payload) {
+        const candidates = Array.isArray(payload.candidates) ? payload.candidates : [];
+        const counts = candidates.reduce((acc, candidate) => {
+          const level = candidate.match_level || 'blocked';
+          acc[level] = (acc[level] || 0) + 1;
+          return acc;
+        }, {});
+        const values = [
+          ['Candidates shown', payload.count || 0],
+          ['Match-ready', counts.match_ready || 0],
+          ['Review possible', counts.review_possible || 0],
+          ['Blocked', counts.blocked || 0],
+        ];
+        summaryGrid.hidden = false;
+        values.forEach(([label, value]) => {
+          const card = document.createElement('article');
+          card.className = 'matching-card';
+          const number = document.createElement('h3');
+          number.textContent = String(value);
+          const textNode = document.createElement('p');
+          textNode.className = 'matching-meta';
+          textNode.textContent = label;
+          card.append(number, textNode);
+          summaryGrid.append(card);
+        });
+      }
+
+      function renderDimensions(candidate) {
+        const grid = document.createElement('div');
+        grid.className = 'matching-dimension-grid';
+        const results = candidate.dimension_results || {};
+        const rank = results.rank || {};
+        grid.append(dimensionItem('Rank', `${text(rank.demand_label)} -> ${text(rank.candidate_label)}`, rank.matched));
+        const vessel = results.vessel_type || {};
+        grid.append(dimensionItem('Vessel type', `${text(vessel.demand_label)} | source ${text(vessel.match_source)}`, vessel.matched));
+        const availability = results.availability || {};
+        grid.append(dimensionItem('Availability', `${text(availability.candidate_status)} ${text(availability.candidate_date)} / join ${text(availability.vacancy_join_date)}`, availability.matched));
+        const department = results.department || {};
+        grid.append(dimensionItem('Department', `${text(department.demand_department)} -> ${text(department.candidate_department)}`, department.required ? department.matched : null));
+        grid.append(dimensionItem('COC', summarizeRequirement(results.coc_requirements), results.coc_requirements?.required ? results.coc_requirements?.matched : null));
+        grid.append(dimensionItem('Endorsement', summarizeRequirement(results.endorsement_requirements), results.endorsement_requirements?.required ? results.endorsement_requirements?.matched : null));
+        grid.append(dimensionItem('Training', summarizeRequirement(results.training_requirements), results.training_requirements?.required ? results.training_requirements?.matched : null));
+        grid.append(dimensionItem('Sea service', summarizeRequirement(results.sea_service_requirements), results.sea_service_requirements?.required ? results.sea_service_requirements?.matched : null));
+        grid.append(dimensionItem('Passport validity', summarizeValidity(results.passport_validity), results.passport_validity?.required ? results.passport_validity?.matched : null));
+        grid.append(dimensionItem('Medical validity', summarizeValidity(results.medical_validity), results.medical_validity?.required ? results.medical_validity?.matched : null));
+        return grid;
+      }
+
+      function renderCandidate(candidate, index) {
+        const card = document.createElement('article');
+        card.className = 'matching-card';
+        const title = document.createElement('h3');
+        title.textContent = `#${index + 1} ${text(candidate.display_name)}`;
+        const badges = document.createElement('div');
+        badges.className = 'matching-badge-row';
+        badges.append(chip(text(candidate.match_level), resultTone(candidate.match_level)));
+        badges.append(chip(`Rank: ${text(candidate.primary_rank)}`, 'review'));
+        badges.append(chip(`Availability: ${text(candidate.availability_status)}`, 'review'));
+        badges.append(chip(`Review: ${text(candidate.review_status)}`, 'review'));
+
+        const matched = document.createElement('div');
+        matched.className = 'matching-chip-list';
+        const matchedDimensions = Array.isArray(candidate.matched_dimensions) ? candidate.matched_dimensions : [];
+        if (matchedDimensions.length === 0) {
+          matched.append(chip('No matched dimensions', 'blocked'));
+        } else {
+          matchedDimensions.forEach((name) => matched.append(chip(`matched: ${dimensionLabels[name] || name}`, 'ready')));
+        }
+
+        const issues = document.createElement('div');
+        issues.className = 'matching-chip-list';
+        const blockers = issueCodes(candidate.blockers);
+        const warnings = issueCodes(candidate.warnings);
+        if (blockers.length === 0) {
+          issues.append(chip('No hard blockers', 'ready'));
+        } else {
+          blockers.forEach((code) => issues.append(chip(code, 'blocked')));
+        }
+        warnings.forEach((code) => issues.append(chip(`warning: ${code}`, 'danger')));
+
+        card.append(title, badges, matched, issues, renderDimensions(candidate));
+        return card;
+      }
+
+      function renderCandidates(payload) {
+        const candidates = Array.isArray(payload.candidates) ? payload.candidates : [];
+        candidateList.replaceChildren();
+        if (candidates.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'matching-empty';
+          empty.textContent = 'No candidate search rows for this request.';
+          candidateList.append(empty);
+          return;
+        }
+        candidates.forEach((candidate, index) => {
+          candidateList.append(renderCandidate(candidate, index));
+        });
+      }
+
+      async function fetchJson(path) {
+        const response = await fetch(path, {
+          headers: headers(),
+          credentials: 'same-origin',
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || payload.ok === false) {
+          throw new Error(payload.message || payload.error || `Request failed: ${response.status}`);
+        }
+        return payload;
+      }
+
+      async function loadRequests() {
+        const params = new URLSearchParams({
+          type: 'vacancy_requests',
+          readiness: 'all',
+          page: '1',
+          page_size: '50',
+        });
+        try {
+          const payload = await fetchJson(`/api/v1/operator/registry-detail?${params.toString()}`);
+          const rows = Array.isArray(payload.rows) ? payload.rows : [];
+          selectNode.replaceChildren();
+          if (rows.length === 0) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'No crew requests available';
+            selectNode.append(option);
+          } else {
+            rows.forEach((row) => {
+              const option = document.createElement('option');
+              option.value = row.record_id || '';
+              option.textContent = `${text(row.display_title)} | ${text(row.readiness_status)} | ${text(row.record_id)}`;
+              selectNode.append(option);
+            });
+          }
+          const paramsFromUrl = new URLSearchParams(window.location.search);
+          const requestedId = paramsFromUrl.get('vacancy_request_id') || '';
+          if (requestedId) {
+            vacancyIdNode.value = requestedId;
+            selectNode.value = requestedId;
+            await runComparison();
+          } else if (rows[0]?.record_id) {
+            vacancyIdNode.value = rows[0].record_id;
+            setStatus('Protected request list loaded. Select a request and run comparison.');
+          } else {
+            setStatus('No crew requests are available for comparison.');
+          }
+        } catch (error) {
+          selectNode.replaceChildren();
+          const option = document.createElement('option');
+          option.value = '';
+          option.textContent = 'Protected access required';
+          selectNode.append(option);
+          setStatus(error.message || 'Protected request list is not available for this session.');
+        }
+      }
+
+      async function runComparison() {
+        const vacancyId = (vacancyIdNode.value.trim() || selectNode.value || '').trim();
+        if (!vacancyId) {
+          setStatus('Select or paste a crew request ID first.');
+          return;
+        }
+        runButton.disabled = true;
+        clearResults();
+        setStatus('Running request-supply comparison...');
+        openVerify.href = `/verify/?queue_type=vacancy_request&queue_item_id=${encodeURIComponent(vacancyId)}`;
+        try {
+          const params = new URLSearchParams({ limit: limitNode.value });
+          const payload = await fetchJson(`/api/v1/operator/vacancies/${encodeURIComponent(vacancyId)}/candidate-search?${params.toString()}`);
+          renderDemand(payload);
+          renderSummary(payload);
+          renderCandidates(payload);
+          setStatus(`Comparison loaded. ${payload.count || 0} candidates shown, ${payload.total_considered || 0} considered. Side effects: employer visible ${payload.side_effects?.employer_visible === true ? 'true' : 'false'}.`);
+        } catch (error) {
+          clearResults();
+          setStatus(error.message || 'Comparison failed.');
+        } finally {
+          runButton.disabled = false;
+        }
+      }
+
+      selectNode.addEventListener('change', () => {
+        vacancyIdNode.value = selectNode.value || '';
+      });
+      runButton.addEventListener('click', runComparison);
+
+      if (queryToken()) {
+        window.sessionStorage.setItem('crewportglobal.operatorAccessToken', queryToken());
+      }
+      loadRequests();
+    })();
+  </script>
+</body>
+</html>

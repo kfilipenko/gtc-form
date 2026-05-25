@@ -891,6 +891,22 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       await page.addInitScript((token) => {
         window.localStorage.setItem('crewportglobal_team_session', token);
       }, reviewTeamSession);
+      await page.goto(`/team/matching/?vacancy_request_id=${vacancyRequestId}`);
+      await expect(page.locator('#matching-status')).toContainText('Comparison loaded');
+      await expect(page.locator('#demand-panel')).toContainText(vacancyTitle);
+      await expect(page.locator('#summary-grid')).toContainText('Match-ready');
+      await expect(page.locator('#candidate-list')).toContainText(`UI Exact Candidate ${unique}`);
+      await expect(page.locator('#candidate-list')).toContainText('match_ready');
+      await expect(page.locator('#candidate-list')).toContainText('matched: Rank');
+      await expect(page.locator('#candidate-list')).toContainText('COC');
+      await expect(page.locator('#candidate-list')).toContainText(`UI Mismatch Candidate ${unique}`);
+      await expect(page.locator('#candidate-list')).toContainText('rank_mismatch');
+      await expect(page.locator('#candidate-list')).toContainText('vessel_type_mismatch');
+      await expect(page.locator('body')).not.toContainText(exactEmail);
+      await expect(page.locator('body')).not.toContainText(mismatchEmail);
+      await expect(page.locator('body')).not.toContainText('contact_email');
+      await expect(page.locator('body')).not.toContainText('document_metadata');
+
       await page.goto('/team/');
       await expect(page.locator('#team-tasks-title')).toContainText('My tasks');
       await expect(page.locator('#team-task-status')).toContainText('computed task');

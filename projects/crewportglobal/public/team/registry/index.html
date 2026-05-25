@@ -95,6 +95,13 @@
       gap: 10px;
     }
 
+    .registry-row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
     .registry-button,
     .registry-link {
       display: inline-flex;
@@ -309,6 +316,7 @@
       </div>
       <nav class="registry-actions" aria-label="Registry navigation">
         <a class="registry-link" href="/team/">Team cabinet</a>
+        <a class="registry-link" href="/team/matching/">Request-supply comparison</a>
         <a class="registry-link" href="/verify/">Operator queue</a>
         <a class="registry-link" href="/">Homepage</a>
       </nav>
@@ -499,6 +507,17 @@
             : 'blockers: none';
           meta.textContent = `id: ${text(row.record_id)} | updated: ${text(row.updated_at)} | ${blockers}`;
           card.append(meta);
+
+          if (row.record_type === 'vacancy_request' && row.record_id) {
+            const actions = document.createElement('div');
+            actions.className = 'registry-row-actions';
+            const compareLink = document.createElement('a');
+            compareLink.className = 'registry-link primary';
+            compareLink.href = `/team/matching/?vacancy_request_id=${encodeURIComponent(row.record_id)}`;
+            compareLink.textContent = 'Compare request-supply';
+            actions.append(compareLink);
+            card.append(actions);
+          }
           listNode.append(card);
         });
       }
