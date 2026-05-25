@@ -918,6 +918,32 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       await expect(page.locator('#shortlist-result')).toContainText(`UI Mismatch Candidate ${unique}: hold; guard blocked`);
       await expect(page.locator('#open-draft-task')).toBeVisible();
 
+      const shortlistHistoryResponse = await teamRequest.get('/api/v1/operator/shortlist-drafts?status=all&page=1&page_size=25');
+      const shortlistHistoryBody = await shortlistHistoryResponse.text();
+      expect(shortlistHistoryResponse.ok(), shortlistHistoryBody).toBeTruthy();
+      const shortlistHistory = JSON.parse(shortlistHistoryBody);
+      expect(shortlistHistory.privacy_boundary.candidate_contact_fields_excluded).toBe(true);
+      expect(shortlistHistory.privacy_boundary.candidate_document_metadata_excluded).toBe(true);
+      const createdDraftRow = shortlistHistory.rows.find(
+        (row: { vacancy_request_id?: string }) => row.vacancy_request_id === vacancyRequestId
+      );
+      expect(createdDraftRow.draft_status).toBe('needs_review');
+      expect(createdDraftRow.employer_visible).toBe(false);
+      expect(createdDraftRow.next_operation.operation_code).toBe('approve_internal_shortlist');
+      expect(createdDraftRow.next_operation.responsible_group).toBe('review_team');
+      expect(JSON.stringify(createdDraftRow)).not.toContain(exactEmail);
+      expect(JSON.stringify(createdDraftRow)).not.toContain('document_metadata');
+
+      await page.goto('/team/shortlists/');
+      await expect(page.locator('#shortlist-history-status')).toContainText('Showing');
+      await expect(page.locator('#shortlist-history-list')).toContainText(vacancyTitle);
+      await expect(page.locator('#shortlist-history-list')).toContainText('needs_review');
+      await expect(page.locator('#shortlist-history-list')).toContainText('approve_internal_shortlist');
+      await expect(page.locator('#shortlist-history-list')).toContainText('review_team');
+      await expect(page.locator('#shortlist-history-list')).not.toContainText(exactEmail);
+      await expect(page.locator('#shortlist-history-list')).not.toContainText('contact_email');
+      await expect(page.locator('#shortlist-history-list')).not.toContainText('document_metadata');
+
       await page.goto('/team/');
       await expect(page.locator('#team-tasks-title')).toContainText('My tasks');
       await expect(page.locator('#team-task-status')).toContainText('computed task');

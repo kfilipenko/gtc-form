@@ -6528,6 +6528,239 @@ function handle_get_operator_shortlist_draft(string $shortlistDraftId, ?array $a
     ]);
 }
 
+function cpg_operator_shortlist_list_page_size(): int {
+    $raw = $_GET['page_size'] ?? null;
+    $pageSize = is_string($raw) && trim($raw) !== '' ? (int) $raw : 25;
+    if ($pageSize < 10) {
+        return 10;
+    }
+    if ($pageSize > 100) {
+        return 100;
+    }
+    return $pageSize;
+}
+
+function cpg_operator_shortlist_list_page(): int {
+    $raw = $_GET['page'] ?? null;
+    $page = is_string($raw) && trim($raw) !== '' ? (int) $raw : 1;
+    return max(1, $page);
+}
+
+function cpg_operator_shortlist_list_status(): string {
+    $raw = $_GET['status'] ?? null;
+    $status = is_string($raw) && trim($raw) !== '' ? trim($raw) : 'all';
+    return in_array($status, ['all', 'draft', 'needs_review', 'approved_internal', 'rejected', 'archived'], true)
+        ? $status
+        : 'all';
+}
+
+function cpg_operator_shortlist_first_next_operation(array $operations): ?array {
+    $firstVisible = null;
+    foreach ($operations as $operation) {
+        if (!is_array($operation)) {
+            continue;
+        }
+        if ($firstVisible === null) {
+            $firstVisible = $operation;
+        }
+        $access = is_array($operation['required_access'] ?? null) ? $operation['required_access'] : [];
+        if (($operation['is_executable'] ?? false) === true && ($access['allowed'] ?? true) === true) {
+            return $operation;
+        }
+    }
+
+    return $firstVisible;
+}
+
+function cpg_operator_shortlist_task_url(string $shortlistDraftId, ?array $operation): string {
+    $operationCode = is_array($operation) && is_string($operation['operation_code'] ?? null)
+        ? (string) $operation['operation_code']
+        : '';
+    $params = [
+        'queue_type' => 'operator_shortlist_draft',
+        'queue_item_id' => $shortlistDraftId,
+        'shortlist_draft_id' => $shortlistDraftId,
+    ];
+    if ($operationCode !== '') {
+        $params['task_operation'] = $operationCode;
+    }
+
+    return '/verify/?' . http_build_query($params);
+}
+
+function handle_get_operator_shortlist_drafts(array $access): void {
+    if (!cpg_operator_shortlist_tables_ready()) {
+        api_error(503, 'operator_shortlist_store_missing', 'Operator shortlist draft tables are not available');
+    }
+
+    $status = cpg_operator_shortlist_list_status();
+    $page = cpg_operator_shortlist_list_page();
+    $pageSize = cpg_operator_shortlist_list_page_size();
+    $offset = ($page - 1) * $pageSize;
+    $where = ['osd.employer_visible IS FALSE'];
+    $params = [];
+    if ($status === 'archived') {
+        $where[] = "(osd.archived_at IS NOT NULL OR osd.draft_status = 'archived')";
+    } elseif ($status !== 'all') {
+        $params[] = $status;
+        $where[] = 'osd.draft_status = $' . count($params);
+    }
+    $whereSql = implode(' AND ', $where);
+
+    $countRow = cpg_fetch_one_assoc(
+        "SELECT COUNT(*)::int AS total_count
+         FROM crewportglobal.operator_shortlist_drafts osd
+         WHERE {$whereSql}",
+        $params
+    );
+    $totalCount = (int) ($countRow['total_count'] ?? 0);
+    $totalPages = max(1, (int) ceil($totalCount / $pageSize));
+    if ($page > $totalPages) {
+        $page = $totalPages;
+        $offset = ($page - 1) * $pageSize;
+    }
+
+    $rowParams = $params;
+    $rowParams[] = $pageSize;
+    $limitPlaceholder = '$' . count($rowParams);
+    $rowParams[] = $offset;
+    $offsetPlaceholder = '$' . count($rowParams);
+
+    $rows = cpg_fetch_all_assoc(
+        "SELECT osd.shortlist_draft_id::text AS shortlist_draft_id,
+                osd.vacancy_request_id::text AS vacancy_request_id,
+                osd.created_by_operator_context::text AS created_by_operator_context,
+                osd.draft_status,
+                osd.employer_visible,
+                osd.created_at::text AS created_at,
+                osd.updated_at::text AS updated_at,
+                osd.archived_at::text AS archived_at,
+                vr.vacancy_title,
+                vr.rank,
+                vr.department,
+                vr.publication_status,
+                ec.company_name,
+                v.vessel_name,
+                COALESCE(candidates.candidate_count, 0)::int AS candidate_count,
+                COALESCE(candidates.included_candidate_count, 0)::int AS included_candidate_count,
+                COALESCE(candidates.hold_candidate_count, 0)::int AS hold_candidate_count,
+                COALESCE(candidates.excluded_candidate_count, 0)::int AS excluded_candidate_count,
+                COALESCE(candidates.guard_blocked_candidate_count, 0)::int AS guard_blocked_candidate_count,
+                COALESCE(candidates.match_ready_candidate_count, 0)::int AS match_ready_candidate_count
+         FROM crewportglobal.operator_shortlist_drafts osd
+         JOIN crewportglobal.vacancy_requests vr
+           ON vr.vacancy_request_id = osd.vacancy_request_id
+         JOIN crewportglobal.employer_companies ec
+           ON ec.company_id = vr.company_id
+         LEFT JOIN crewportglobal.vessels v
+           ON v.vessel_id = vr.vessel_id
+         LEFT JOIN LATERAL (
+           SELECT COUNT(*) AS candidate_count,
+                  COUNT(*) FILTER (WHERE osc.operator_decision = 'include') AS included_candidate_count,
+                  COUNT(*) FILTER (WHERE osc.operator_decision = 'hold') AS hold_candidate_count,
+                  COUNT(*) FILTER (WHERE osc.operator_decision = 'exclude') AS excluded_candidate_count,
+                  COUNT(*) FILTER (WHERE osc.approval_guard_result->>'approval_status' = 'blocked') AS guard_blocked_candidate_count,
+                  COUNT(*) FILTER (WHERE osc.match_level = 'match_ready') AS match_ready_candidate_count
+           FROM crewportglobal.operator_shortlist_candidates osc
+           WHERE osc.shortlist_draft_id = osd.shortlist_draft_id
+         ) candidates ON TRUE
+         WHERE {$whereSql}
+         ORDER BY osd.updated_at DESC, osd.created_at DESC
+         LIMIT {$limitPlaceholder} OFFSET {$offsetPlaceholder}",
+        $rowParams
+    );
+
+    $safeRows = [];
+    foreach ($rows as $row) {
+        $draftId = is_string($row['shortlist_draft_id'] ?? null) ? (string) $row['shortlist_draft_id'] : '';
+        if ($draftId === '') {
+            continue;
+        }
+        $draft = cpg_operator_shortlist_read($draftId);
+        $operations = [];
+        if ($draft !== null) {
+            $operations = cpg_operator_shortlist_computed_operations(
+                $draft,
+                cpg_operator_shortlist_internal_approval_guard($draft),
+                cpg_operator_shortlist_review_application_guard($draft),
+                $access
+            );
+        }
+        $nextOperation = cpg_operator_shortlist_first_next_operation($operations);
+        $nextAccess = is_array($nextOperation['required_access'] ?? null) ? $nextOperation['required_access'] : [];
+        $safeRows[] = cpg_workspace_clean_record([
+            'shortlist_draft_id' => $draftId,
+            'vacancy_request_id' => $row['vacancy_request_id'] ?? null,
+            'vacancy_title' => $row['vacancy_title'] ?? null,
+            'company_name' => $row['company_name'] ?? null,
+            'vessel_name' => $row['vessel_name'] ?? null,
+            'rank' => $row['rank'] ?? null,
+            'department' => $row['department'] ?? null,
+            'publication_status' => $row['publication_status'] ?? null,
+            'draft_status' => $row['draft_status'] ?? null,
+            'employer_visible' => cpg_pg_bool($row['employer_visible'] ?? null),
+            'created_at' => $row['created_at'] ?? null,
+            'updated_at' => $row['updated_at'] ?? null,
+            'archived_at' => $row['archived_at'] ?? null,
+            'created_by_operator_context' => cpg_decode_json_object($row['created_by_operator_context'] ?? null),
+            'candidate_counts' => [
+                'candidate_count' => (int) ($row['candidate_count'] ?? 0),
+                'included_candidate_count' => (int) ($row['included_candidate_count'] ?? 0),
+                'hold_candidate_count' => (int) ($row['hold_candidate_count'] ?? 0),
+                'excluded_candidate_count' => (int) ($row['excluded_candidate_count'] ?? 0),
+                'guard_blocked_candidate_count' => (int) ($row['guard_blocked_candidate_count'] ?? 0),
+                'match_ready_candidate_count' => (int) ($row['match_ready_candidate_count'] ?? 0),
+            ],
+            'next_operation' => is_array($nextOperation) ? [
+                'operation_code' => $nextOperation['operation_code'] ?? null,
+                'operation_label' => $nextOperation['required_access']['operation_label'] ?? ($nextOperation['operation_code'] ?? null),
+                'operation_status' => $nextOperation['operation_status'] ?? null,
+                'is_executable' => $nextOperation['is_executable'] ?? false,
+                'blockers' => is_array($nextOperation['blockers'] ?? null) ? $nextOperation['blockers'] : [],
+                'responsible_group' => $nextAccess['target_group_code'] ?? null,
+                'responsible_role' => $nextAccess['target_role_code'] ?? null,
+                'required_permission' => $nextAccess['required_permission_code'] ?? null,
+                'access_allowed' => $nextAccess['allowed'] ?? null,
+                'permission_boundary' => $nextAccess['permission_boundary'] ?? null,
+                'responsible_group_after_transition' => $nextOperation['responsible_group_after_transition'] ?? null,
+            ] : null,
+            'all_computed_operations' => array_map(static function (array $operation): array {
+                $access = is_array($operation['required_access'] ?? null) ? $operation['required_access'] : [];
+                return cpg_workspace_clean_record([
+                    'operation_code' => $operation['operation_code'] ?? null,
+                    'operation_status' => $operation['operation_status'] ?? null,
+                    'is_executable' => $operation['is_executable'] ?? false,
+                    'blockers' => is_array($operation['blockers'] ?? null) ? $operation['blockers'] : [],
+                    'responsible_group' => $access['target_group_code'] ?? null,
+                    'required_permission' => $access['required_permission_code'] ?? null,
+                    'access_allowed' => $access['allowed'] ?? null,
+                ]);
+            }, $operations),
+            'task_url' => cpg_operator_shortlist_task_url($draftId, $nextOperation),
+        ]);
+    }
+
+    api_json(200, [
+        'ok' => true,
+        'access_model' => operator_access_model($access),
+        'actor_user_id' => is_string($access['actor_user_id'] ?? null) && $access['actor_user_id'] !== ''
+            ? (string) $access['actor_user_id']
+            : null,
+        'status' => $status,
+        'page' => $page,
+        'page_size' => $pageSize,
+        'total_count' => $totalCount,
+        'total_pages' => $totalPages,
+        'rows' => $safeRows,
+        'privacy_boundary' => [
+            'candidate_contact_fields_excluded' => true,
+            'candidate_document_metadata_excluded' => true,
+            'employer_visible' => false,
+        ],
+        'generated_at' => gmdate('c'),
+    ]);
+}
+
 function cpg_operator_shortlist_approval_decision(mixed $value): ?string {
     if (!is_string($value) || trim($value) === '') {
         return null;
@@ -11989,6 +12222,15 @@ if (preg_match('#^/operator/vacancies/([^/]+)/shortlist-drafts$#', $path, $match
     }
     header('Allow: POST');
     api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if ($path === '/operator/shortlist-drafts') {
+    if ($method === 'GET') {
+        $access = require_operator_or_team_access();
+        handle_get_operator_shortlist_drafts($access);
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
 }
 
 if (preg_match('#^/operator/shortlist-drafts/([^/]+)/approval$#', $path, $matches) === 1) {
