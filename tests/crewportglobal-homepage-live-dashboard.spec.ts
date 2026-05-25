@@ -147,6 +147,19 @@ test('homepage dashboard shows live API status and latest reviewed vacancy', asy
   await expect(page.locator('#home-registry-vacancy-count')).not.toHaveText('0');
   await expect(page.locator('#home-registry-vessel-count')).not.toHaveText('0');
   await expect(page.locator('#home-registry-seafarer-count')).not.toHaveText('0');
+  await expect(page.locator('[data-i18n="home.hero.registryCta"]')).toBeVisible();
+  await page.locator('[data-i18n="home.hero.registryCta"]').click();
+  await expect(page.locator('#home-registry-summary')).toBeInViewport({ ratio: 0.2 });
+  const registryAppearsBeforeServiceModel = await page.evaluate(() => {
+    const registry = document.getElementById('home-registry-summary');
+    const serviceModel = document.getElementById('vacancy-search-block')?.closest('section');
+    if (!registry || !serviceModel) {
+      return false;
+    }
+
+    return registry.getBoundingClientRect().top + window.scrollY < serviceModel.getBoundingClientRect().top + window.scrollY;
+  });
+  expect(registryAppearsBeforeServiceModel).toBeTruthy();
   await expect(page.locator('#home-registry-vacancies')).toContainText(title);
   await expect(page.locator('#home-registry-vessels')).toContainText(`MV Dashboard Star ${unique}`);
   await expect(page.locator('#home-registry-seafarers')).toContainText(seafarerRank);

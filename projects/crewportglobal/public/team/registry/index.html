@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Protected registry detail</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="stylesheet" href="/assets/crewportglobal-docs.css">
+  <link rel="stylesheet" href="/assets/crewportglobal-app.css">
+  <style>
+    :root {
+      --registry-bg: #071826;
+      --registry-panel: #10263a;
+      --registry-panel-soft: #142d42;
+      --registry-line: rgba(160, 181, 203, 0.22);
+      --registry-text: #eef6ff;
+      --registry-muted: #aac0d5;
+      --registry-primary: #56d2e2;
+      --registry-warning: #ffb45d;
+      --registry-success: #79d68a;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top right, rgba(86, 210, 226, 0.13), transparent 34%), var(--registry-bg);
+      color: var(--registry-text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .registry-shell {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 24px 0 48px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .registry-header,
+    .registry-panel,
+    .registry-card {
+      border: 1px solid var(--registry-line);
+      border-radius: 14px;
+      background: rgba(16, 38, 58, 0.9);
+      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.24);
+    }
+
+    .registry-header {
+      padding: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .registry-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .registry-brand-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      background: rgba(86, 210, 226, 0.13);
+      color: var(--registry-primary);
+      font-weight: 900;
+    }
+
+    .registry-brand strong,
+    .registry-card h3 {
+      color: var(--registry-text);
+    }
+
+    .registry-brand p,
+    .registry-meta,
+    .registry-status,
+    .registry-field span {
+      margin: 0;
+      color: var(--registry-muted);
+      line-height: 1.45;
+    }
+
+    .registry-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .registry-button,
+    .registry-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 10px 14px;
+      border: 1px solid var(--registry-line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--registry-text);
+      font: inherit;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .registry-button.primary {
+      border-color: rgba(86, 210, 226, 0.42);
+      background: rgba(86, 210, 226, 0.17);
+      color: var(--registry-primary);
+    }
+
+    .registry-button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .registry-panel {
+      padding: 18px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .registry-title {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 52px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .registry-filter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .registry-field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .registry-field label,
+    .registry-field strong {
+      font-size: 13px;
+      color: var(--registry-muted);
+      font-weight: 800;
+    }
+
+    .registry-field select,
+    .registry-field input {
+      width: 100%;
+      min-height: 44px;
+      box-sizing: border-box;
+      border: 1px solid var(--registry-line);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.18);
+      color: var(--registry-text);
+      font: inherit;
+      padding: 10px 12px;
+    }
+
+    .registry-counts,
+    .registry-list,
+    .registry-safe-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .registry-counts {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .registry-count {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--registry-line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .registry-count strong {
+      display: block;
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    .registry-count span {
+      display: block;
+      margin-top: 8px;
+      color: var(--registry-muted);
+      overflow-wrap: anywhere;
+    }
+
+    .registry-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .registry-card {
+      min-width: 0;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+      background: rgba(20, 45, 66, 0.82);
+    }
+
+    .registry-card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .registry-card h3 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .registry-badge {
+      flex: 0 0 auto;
+      max-width: 170px;
+      padding: 7px 9px;
+      border: 1px solid var(--registry-line);
+      border-radius: 999px;
+      color: var(--registry-muted);
+      font-size: 12px;
+      font-weight: 900;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+
+    .registry-badge.ready {
+      border-color: rgba(121, 214, 138, 0.35);
+      color: var(--registry-success);
+    }
+
+    .registry-badge.blocked {
+      border-color: rgba(255, 180, 93, 0.42);
+      color: var(--registry-warning);
+    }
+
+    .registry-safe-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .registry-safe-item {
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid rgba(160, 181, 203, 0.15);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    .registry-safe-item span,
+    .registry-safe-item strong {
+      display: block;
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .registry-safe-item span {
+      color: var(--registry-muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .registry-safe-item strong {
+      margin-top: 4px;
+      color: var(--registry-text);
+      font-size: 14px;
+    }
+
+    .registry-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .registry-filter-grid,
+      .registry-counts,
+      .registry-list,
+      .registry-safe-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="registry-shell">
+    <header class="registry-header">
+      <div class="registry-brand">
+        <span class="registry-brand-mark">CPG</span>
+        <div>
+          <strong>CrewPortGlobal</strong>
+          <p>Protected registry detail for internal investor review</p>
+        </div>
+      </div>
+      <nav class="registry-actions" aria-label="Registry navigation">
+        <a class="registry-link" href="/team/">Team cabinet</a>
+        <a class="registry-link" href="/verify/">Operator queue</a>
+        <a class="registry-link" href="/">Homepage</a>
+      </nav>
+    </header>
+
+    <section class="registry-panel">
+      <p class="registry-meta">Internal read-only view. Contacts, document metadata, passport numbers and medical details are excluded.</p>
+      <h1 class="registry-title">Live registry detail</h1>
+      <div class="registry-filter-grid">
+        <div class="registry-field">
+          <label for="registry-type">Record type</label>
+          <select id="registry-type">
+            <option value="all">All records</option>
+            <option value="vacancy_requests">Crew requests</option>
+            <option value="vessels">Vessels</option>
+            <option value="seafarers">Seafarers</option>
+          </select>
+        </div>
+        <div class="registry-field">
+          <label for="registry-readiness">Readiness</label>
+          <select id="registry-readiness">
+            <option value="all">All readiness states</option>
+            <option value="matching_ready">Matching-ready</option>
+            <option value="has_blockers">With blockers</option>
+          </select>
+        </div>
+        <div class="registry-field">
+          <label for="registry-page-size">Page size</label>
+          <select id="registry-page-size">
+            <option value="10">10</option>
+            <option value="25" selected>25</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+        <div class="registry-field">
+          <label for="registry-token">Operator token fallback</label>
+          <input id="registry-token" type="password" autocomplete="off" placeholder="Only if no team session">
+        </div>
+      </div>
+      <div class="registry-actions">
+        <button class="registry-button primary" type="button" id="registry-apply">Apply filters</button>
+        <button class="registry-button" type="button" id="registry-prev">Previous</button>
+        <button class="registry-button" type="button" id="registry-next">Next</button>
+      </div>
+      <p class="registry-status" id="registry-status" role="status" aria-live="polite">Loading protected registry...</p>
+      <div class="registry-counts" id="registry-counts"></div>
+    </section>
+
+    <section class="registry-list" id="registry-list" aria-label="Protected registry rows"></section>
+  </main>
+
+  <script>
+    (function () {
+      const TEAM_SESSION_KEY = 'crewportglobal_team_session';
+      const ADMIN_SESSION_KEY = 'crewportglobal_admin_session';
+      const typeSelect = document.getElementById('registry-type');
+      const readinessSelect = document.getElementById('registry-readiness');
+      const pageSizeSelect = document.getElementById('registry-page-size');
+      const tokenInput = document.getElementById('registry-token');
+      const applyButton = document.getElementById('registry-apply');
+      const prevButton = document.getElementById('registry-prev');
+      const nextButton = document.getElementById('registry-next');
+      const statusNode = document.getElementById('registry-status');
+      const countsNode = document.getElementById('registry-counts');
+      const listNode = document.getElementById('registry-list');
+      let page = 1;
+      let totalPages = 1;
+
+      const labels = {
+        vacancy_request: 'Crew request',
+        vessel: 'Vessel',
+        seafarer: 'Seafarer',
+        rank: 'Rank',
+        department: 'Department',
+        vessel_type: 'Vessel type',
+        join_date: 'Join date',
+        contract_duration: 'Contract',
+        publication_status: 'Publication',
+        company_name: 'Company',
+        company_type: 'Company type',
+        employer_country_code: 'Employer country',
+        vessel_name: 'Vessel',
+        flag_country_code: 'Flag',
+        primary_rank: 'Rank',
+        availability_status: 'Availability',
+        country_code: 'Country',
+        nationality_code: 'Nationality',
+        residence_country_code: 'Residence',
+        review_status: 'Review status',
+      };
+
+      function queryToken() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('operator_token') || '';
+      }
+
+      function storedToken() {
+        return window.localStorage.getItem(TEAM_SESSION_KEY)
+          || window.localStorage.getItem(ADMIN_SESSION_KEY)
+          || window.sessionStorage.getItem('crewportglobal.operatorAccessToken')
+          || '';
+      }
+
+      function effectiveToken() {
+        return tokenInput.value.trim() || queryToken() || storedToken();
+      }
+
+      function setStatus(message) {
+        statusNode.textContent = message;
+      }
+
+      function text(value) {
+        const valueText = String(value ?? '').trim();
+        return valueText || '-';
+      }
+
+      function safeEntries(columns) {
+        return Object.entries(columns || {}).filter((entry) => text(entry[1]) !== '-');
+      }
+
+      function renderCounts(counts) {
+        const normalized = {
+          'Crew requests': counts?.vacancy_request_count ?? 0,
+          Vessels: counts?.vessel_count ?? 0,
+          Seafarers: counts?.seafarer_count ?? 0,
+          'Ready requests': counts?.vacancy_request_matching_ready_count ?? 0,
+          'Ready seafarers': counts?.seafarer_matching_ready_count ?? 0,
+        };
+        countsNode.replaceChildren();
+        Object.entries(normalized).forEach((entry) => {
+          const card = document.createElement('div');
+          card.className = 'registry-count';
+          const value = document.createElement('strong');
+          value.textContent = String(entry[1]);
+          const label = document.createElement('span');
+          label.textContent = entry[0];
+          card.append(value, label);
+          countsNode.append(card);
+        });
+      }
+
+      function renderRows(rows) {
+        listNode.replaceChildren();
+        if (!Array.isArray(rows) || rows.length === 0) {
+          const empty = document.createElement('article');
+          empty.className = 'registry-card';
+          empty.textContent = 'No rows for the selected filter.';
+          listNode.append(empty);
+          return;
+        }
+
+        rows.forEach((row) => {
+          const card = document.createElement('article');
+          card.className = 'registry-card';
+          const head = document.createElement('div');
+          head.className = 'registry-card-head';
+          const titleWrap = document.createElement('div');
+          const kind = document.createElement('p');
+          kind.className = 'registry-meta';
+          kind.textContent = labels[row.record_type] || row.record_type || 'Registry row';
+          const title = document.createElement('h3');
+          title.textContent = text(row.display_title);
+          titleWrap.append(kind, title);
+          const badge = document.createElement('span');
+          badge.className = `registry-badge ${row.readiness_status === 'matching_ready' ? 'ready' : 'blocked'}`;
+          badge.textContent = row.readiness_status === 'matching_ready' ? 'matching-ready' : 'has blockers';
+          head.append(titleWrap, badge);
+          card.append(head);
+
+          const grid = document.createElement('div');
+          grid.className = 'registry-safe-grid';
+          safeEntries(row.safe_columns).forEach((entry) => {
+            const item = document.createElement('div');
+            item.className = 'registry-safe-item';
+            const label = document.createElement('span');
+            label.textContent = labels[entry[0]] || entry[0];
+            const value = document.createElement('strong');
+            value.textContent = text(entry[1]);
+            item.append(label, value);
+            grid.append(item);
+          });
+          card.append(grid);
+
+          const meta = document.createElement('p');
+          meta.className = 'registry-meta';
+          const blockers = Array.isArray(row.readiness_blockers) && row.readiness_blockers.length > 0
+            ? `blockers: ${row.readiness_blockers.join(', ')}`
+            : 'blockers: none';
+          meta.textContent = `id: ${text(row.record_id)} | updated: ${text(row.updated_at)} | ${blockers}`;
+          card.append(meta);
+          listNode.append(card);
+        });
+      }
+
+      async function loadRegistry() {
+        applyButton.disabled = true;
+        prevButton.disabled = true;
+        nextButton.disabled = true;
+        setStatus('Loading protected registry...');
+        const params = new URLSearchParams({
+          type: typeSelect.value,
+          readiness: readinessSelect.value,
+          page: String(page),
+          page_size: pageSizeSelect.value,
+        });
+        const headers = {};
+        const token = effectiveToken();
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+
+        try {
+          const response = await fetch(`/api/v1/operator/registry-detail?${params.toString()}`, {
+            headers,
+            credentials: 'same-origin',
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || payload.ok !== true) {
+            throw new Error(payload.message || 'Protected registry is not available for this session.');
+          }
+          totalPages = payload.total_pages || 1;
+          page = payload.page || 1;
+          renderCounts(payload.counts || {});
+          renderRows(payload.rows || []);
+          setStatus(`Showing ${payload.rows?.length || 0} of ${payload.total_count || 0} rows. Page ${page} of ${totalPages}. Access: ${payload.access_model || 'protected'}.`);
+        } catch (error) {
+          renderCounts({});
+          renderRows([]);
+          setStatus(error.message || 'Protected registry is not available for this session.');
+        } finally {
+          applyButton.disabled = false;
+          prevButton.disabled = page <= 1;
+          nextButton.disabled = page >= totalPages;
+        }
+      }
+
+      applyButton.addEventListener('click', () => {
+        page = 1;
+        loadRegistry();
+      });
+      prevButton.addEventListener('click', () => {
+        page = Math.max(1, page - 1);
+        loadRegistry();
+      });
+      nextButton.addEventListener('click', () => {
+        page = Math.min(totalPages, page + 1);
+        loadRegistry();
+      });
+      [typeSelect, readinessSelect, pageSizeSelect].forEach((node) => {
+        node.addEventListener('change', () => {
+          page = 1;
+          loadRegistry();
+        });
+      });
+
+      if (queryToken()) {
+        window.sessionStorage.setItem('crewportglobal.operatorAccessToken', queryToken());
+      }
+      loadRegistry();
+    })();
+  </script>
+</body>
+</html>

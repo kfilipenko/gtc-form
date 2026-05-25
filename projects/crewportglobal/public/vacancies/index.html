@@ -195,6 +195,15 @@
         rgba(255, 255, 255, 0.03);
     }
 
+    .registered-card {
+      display: grid;
+      gap: 18px;
+      border-color: rgba(86, 210, 226, 0.18);
+      background:
+        linear-gradient(180deg, rgba(86, 210, 226, 0.07), rgba(255, 255, 255, 0.025)),
+        rgba(255, 255, 255, 0.03);
+    }
+
     .live-vacancy-list {
       display: grid;
       gap: 14px;
@@ -239,6 +248,13 @@
     .vacancy-requirements {
       margin: 0;
       font-size: 15px;
+    }
+
+    .registered-boundary {
+      margin: 0;
+      color: var(--muted-on-dark);
+      font-size: 14px;
+      line-height: 1.6;
     }
 
     .empty-card {
@@ -435,6 +451,13 @@
           <p id="vacancy-live-status" class="lead-copy" data-i18n="vacancies.live.loading">Loading reviewed vacancies...</p>
           <div id="vacancy-live-list" class="live-vacancy-list"></div>
         </article>
+        <article class="card vacancy-card registered-card" id="vacancy-registered-state">
+          <p class="eyebrow" data-i18n="vacancies.registered.eyebrow">Registered crew requests</p>
+          <h2 data-i18n="vacancies.registered.title">Safe preview from registered demand data</h2>
+          <p id="vacancy-registered-status" class="lead-copy" data-i18n="vacancies.registered.loading">Loading registered request preview...</p>
+          <p class="registered-boundary" data-i18n="vacancies.registered.boundary">Read-only preview excludes contacts, documents, private notes and candidate data.</p>
+          <div id="vacancy-registered-list" class="live-vacancy-list"></div>
+        </article>
         <article class="card vacancy-card empty-card app-empty" id="vacancy-empty-state">
           <p class="eyebrow" data-i18n="vacancies.empty.eyebrow">Current public availability</p>
           <h2 data-i18n="vacancies.empty.title">No public vacancies are available yet</h2>
@@ -522,6 +545,17 @@
         'vacancies.live.country': 'Country',
         'vacancies.live.requirements': 'Requirements',
         'vacancies.live.open': 'Read-only listing',
+        'vacancies.registered.eyebrow': 'Registered crew requests',
+        'vacancies.registered.title': 'Safe preview from registered demand data',
+        'vacancies.registered.loading': 'Loading registered request preview...',
+        'vacancies.registered.count': '{count} registered crew requests shown',
+        'vacancies.registered.empty': 'Registered crew request preview is not available yet.',
+        'vacancies.registered.error': 'Could not load registered request preview.',
+        'vacancies.registered.boundary': 'Read-only preview excludes contacts, documents, private notes and candidate data.',
+        'vacancies.registered.rank': 'Requested rank',
+        'vacancies.registered.department': 'Department',
+        'vacancies.registered.readiness': 'Readiness',
+        'vacancies.registered.publication': 'Publication',
         'vacancies.empty.eyebrow': 'Current public availability',
         'vacancies.empty.title': 'No public vacancies are available yet',
         'vacancies.empty.copy': 'When reviewed employer-side demand is ready for public display, this page will show a read-only summary of the listing.',
@@ -596,6 +630,17 @@
         'vacancies.live.country': 'Страна',
         'vacancies.live.requirements': 'Требования',
         'vacancies.live.open': 'Публикация только для чтения',
+        'vacancies.registered.eyebrow': 'Зарегистрированные заявки',
+        'vacancies.registered.title': 'Безопасное превью зарегистрированного спроса',
+        'vacancies.registered.loading': 'Загружаем превью зарегистрированных заявок...',
+        'vacancies.registered.count': 'Показано зарегистрированных заявок: {count}',
+        'vacancies.registered.empty': 'Превью зарегистрированных заявок пока недоступно.',
+        'vacancies.registered.error': 'Не удалось загрузить превью зарегистрированных заявок.',
+        'vacancies.registered.boundary': 'Превью доступно только для чтения и не раскрывает контакты, документы, частные примечания или данные кандидатов.',
+        'vacancies.registered.rank': 'Запрошенная должность',
+        'vacancies.registered.department': 'Департамент',
+        'vacancies.registered.readiness': 'Готовность',
+        'vacancies.registered.publication': 'Публикация',
         'vacancies.empty.eyebrow': 'Текущая публичная доступность',
         'vacancies.empty.title': 'Публичных вакансий пока нет',
         'vacancies.empty.copy': 'Когда проверенный спрос со стороны работодателя будет готов к публичному отображению, эта страница покажет сводку публикации только для чтения.',
@@ -625,8 +670,12 @@
       const emptyState = document.getElementById('vacancy-empty-state');
       const liveStatus = document.getElementById('vacancy-live-status');
       const liveList = document.getElementById('vacancy-live-list');
+      const registeredStatus = document.getElementById('vacancy-registered-status');
+      const registeredList = document.getElementById('vacancy-registered-list');
       let vacancies = [];
+      let registeredRequests = [];
       let loadFailed = false;
+      let registeredLoadFailed = false;
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -703,6 +752,37 @@
         return item;
       }
 
+      function renderRegisteredRequestCard(request) {
+        const item = document.createElement('article');
+        item.className = 'live-vacancy-item';
+
+        const title = document.createElement('h3');
+        title.textContent = request.title || request.rank_label || 'Registered crew request';
+        item.appendChild(title);
+
+        const meta = document.createElement('div');
+        meta.className = 'vacancy-meta';
+        addMeta(meta, t('vacancies.live.vessel'), request.vessel_name || request.vessel_type);
+        if (hasText(request.vessel_name) && hasText(request.vessel_type)) {
+          addMeta(meta, t('vacancies.filters.vessel'), request.vessel_type);
+        }
+        addMeta(meta, t('vacancies.registered.rank'), request.rank_label);
+        addMeta(meta, t('vacancies.registered.department'), request.department);
+        addMeta(meta, t('vacancies.live.joinDate'), request.join_date);
+        addMeta(meta, t('vacancies.registered.publication'), request.publication_status);
+        addMeta(meta, t('vacancies.registered.readiness'), request.readiness_status);
+        item.appendChild(meta);
+
+        if (Array.isArray(request.readiness_blockers) && request.readiness_blockers.length > 0) {
+          const blockers = document.createElement('p');
+          blockers.className = 'vacancy-requirements';
+          blockers.textContent = `Blockers: ${request.readiness_blockers.join(', ')}`;
+          item.appendChild(blockers);
+        }
+
+        return item;
+      }
+
       function renderVacancies() {
         liveList.innerHTML = '';
 
@@ -730,6 +810,22 @@
         });
       }
 
+      function renderRegisteredRequests() {
+        registeredList.innerHTML = '';
+        if (registeredLoadFailed) {
+          registeredStatus.textContent = t('vacancies.registered.error');
+          return;
+        }
+        if (registeredRequests.length === 0) {
+          registeredStatus.textContent = t('vacancies.registered.empty');
+          return;
+        }
+        registeredStatus.textContent = t('vacancies.registered.count', { count: registeredRequests.length });
+        registeredRequests.forEach((request) => {
+          registeredList.appendChild(renderRegisteredRequestCard(request));
+        });
+      }
+
       async function loadVacancies() {
         liveState.hidden = false;
         liveStatus.textContent = t('vacancies.live.loading');
@@ -750,8 +846,33 @@
         }
       }
 
-      window.addEventListener('crewportglobal:languagechange', renderVacancies);
+      async function loadRegisteredRequests() {
+        registeredStatus.textContent = t('vacancies.registered.loading');
+        try {
+          const response = await fetch('/api/v1/registry-summary');
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || !payload || payload.ok !== true) {
+            throw new Error('registry_summary_load_failed');
+          }
+          registeredRequests = Array.isArray(payload.samples?.vacancy_requests)
+            ? payload.samples.vacancy_requests
+            : [];
+          registeredLoadFailed = false;
+          renderRegisteredRequests();
+        } catch (error) {
+          registeredRequests = [];
+          registeredLoadFailed = true;
+          renderRegisteredRequests();
+          console.error(error);
+        }
+      }
+
+      window.addEventListener('crewportglobal:languagechange', () => {
+        renderVacancies();
+        renderRegisteredRequests();
+      });
       loadVacancies();
+      loadRegisteredRequests();
     })();
   </script>
 </body>

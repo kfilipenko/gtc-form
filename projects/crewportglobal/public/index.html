@@ -314,6 +314,10 @@
       color: var(--paper-strong);
     }
 
+    #home-registry-summary {
+      scroll-margin-top: 24px;
+    }
+
     .registry-list-card h3 {
       margin: 0;
       color: var(--paper-strong);
@@ -459,7 +463,8 @@
             </article>
           </div>
           <div class="actions app-actions">
-            <a class="button primary" href="https://crewportglobal.com/vacancies/" data-i18n="home.hero.vacanciesCta">View vacancies</a>
+            <a class="button primary" href="#home-registry-summary" data-i18n="home.hero.registryCta">Show registry data</a>
+            <a class="button secondary" href="https://crewportglobal.com/vacancies/" data-i18n="home.hero.vacanciesCta">View vacancies</a>
             <a class="button secondary" href="https://crewportglobal.com/for-shipowners/" data-i18n="home.hero.employerInfoCta">For Employers</a>
             <a class="button secondary" href="https://crewportglobal.com/for-seafarers/" data-i18n="home.hero.seafarerInfoCta">For Seafarers</a>
           </div>
@@ -500,6 +505,35 @@
         </aside>
       </section>
 
+      <section class="card vacancy-board section-card" id="home-registry-summary">
+        <p class="eyebrow" data-i18n="home.registry.eyebrow">Live registry</p>
+        <h2 class="section-title" data-i18n="home.registry.title">Registered platform data</h2>
+        <p class="section-copy" data-i18n="home.registry.copy">Safe preview rows from the live database. Contact details and documents are not public.</p>
+        <div class="registry-filter" role="group" aria-label="Live registry filter" data-i18n-aria-label="home.registry.filterLabel">
+          <button type="button" class="is-active" data-registry-filter="all" aria-pressed="true" data-i18n="home.registry.filter.all">All records</button>
+          <button type="button" data-registry-filter="vacancy_requests" aria-pressed="false" data-i18n="home.registry.filter.requests">Requests</button>
+          <button type="button" data-registry-filter="vessels" aria-pressed="false" data-i18n="home.registry.filter.vessels">Vessels</button>
+          <button type="button" data-registry-filter="seafarers" aria-pressed="false" data-i18n="home.registry.filter.seafarers">Seafarers</button>
+          <button type="button" data-registry-filter="matching_ready" aria-pressed="false" data-i18n="home.registry.filter.ready">Matching-ready</button>
+          <button type="button" data-registry-filter="has_blockers" aria-pressed="false" data-i18n="home.registry.filter.blockers">With blockers</button>
+        </div>
+        <div class="registry-preview-grid" id="home-registry-preview-grid">
+          <article class="registry-list-card" id="home-registry-vacancy-card">
+            <h3 data-i18n="home.registry.requestsTitle">Crew requests</h3>
+            <ul id="home-registry-vacancies" class="registry-list"></ul>
+          </article>
+          <article class="registry-list-card" id="home-registry-vessel-card">
+            <h3 data-i18n="home.registry.vesselsTitle">Vessels</h3>
+            <ul id="home-registry-vessels" class="registry-list"></ul>
+          </article>
+          <article class="registry-list-card" id="home-registry-seafarer-card">
+            <h3 data-i18n="home.registry.seafarersTitle">Seafarers</h3>
+            <ul id="home-registry-seafarers" class="registry-list"></ul>
+          </article>
+        </div>
+        <p class="registry-safe-note" data-i18n="home.registry.safeNote">The public demo view shows operational counts and structured matching hints only. Contact details remain inside protected workflows.</p>
+      </section>
+
       <section class="card vacancy-search section-card app-search-card">
         <p class="eyebrow" data-i18n="home.search.eyebrow">Service model</p>
         <h2 class="section-title" data-i18n="home.search.title">The platform compares demand with supply after verified registration.</h2>
@@ -530,35 +564,6 @@
             <p class="field-note" data-i18n="home.search.nextStep.copy">After login, the personal cabinet is assembled from confirmed capability cards connected to the physical person.</p>
           </details>
         </div>
-      </section>
-
-      <section class="card vacancy-board section-card" id="home-registry-summary">
-        <p class="eyebrow" data-i18n="home.registry.eyebrow">Live registry</p>
-        <h2 class="section-title" data-i18n="home.registry.title">Registered platform data</h2>
-        <p class="section-copy" data-i18n="home.registry.copy">Safe preview rows from the live database. Contact details and documents are not public.</p>
-        <div class="registry-filter" role="group" aria-label="Live registry filter" data-i18n-aria-label="home.registry.filterLabel">
-          <button type="button" class="is-active" data-registry-filter="all" aria-pressed="true" data-i18n="home.registry.filter.all">All records</button>
-          <button type="button" data-registry-filter="vacancy_requests" aria-pressed="false" data-i18n="home.registry.filter.requests">Requests</button>
-          <button type="button" data-registry-filter="vessels" aria-pressed="false" data-i18n="home.registry.filter.vessels">Vessels</button>
-          <button type="button" data-registry-filter="seafarers" aria-pressed="false" data-i18n="home.registry.filter.seafarers">Seafarers</button>
-          <button type="button" data-registry-filter="matching_ready" aria-pressed="false" data-i18n="home.registry.filter.ready">Matching-ready</button>
-          <button type="button" data-registry-filter="has_blockers" aria-pressed="false" data-i18n="home.registry.filter.blockers">With blockers</button>
-        </div>
-        <div class="registry-preview-grid" id="home-registry-preview-grid">
-          <article class="registry-list-card" id="home-registry-vacancy-card">
-            <h3 data-i18n="home.registry.requestsTitle">Crew requests</h3>
-            <ul id="home-registry-vacancies" class="registry-list"></ul>
-          </article>
-          <article class="registry-list-card" id="home-registry-vessel-card">
-            <h3 data-i18n="home.registry.vesselsTitle">Vessels</h3>
-            <ul id="home-registry-vessels" class="registry-list"></ul>
-          </article>
-          <article class="registry-list-card" id="home-registry-seafarer-card">
-            <h3 data-i18n="home.registry.seafarersTitle">Seafarers</h3>
-            <ul id="home-registry-seafarers" class="registry-list"></ul>
-          </article>
-        </div>
-        <p class="registry-safe-note" data-i18n="home.registry.safeNote">The public demo view shows operational counts and structured matching hints only. Contact details remain inside protected workflows.</p>
       </section>
 
       <section class="card vacancy-board section-card">
@@ -680,6 +685,7 @@
         'home.title': 'CrewPortGlobal matches crew demand with verified seafarer supply.',
         'home.hero.eyebrow': 'Maritime crew matching workspace',
         'home.hero.lead': 'Live crew requests, vessels and seafarer profiles are already registered. Public preview stays contact-free; operational work stays protected.',
+        'home.hero.registryCta': 'Show registry data',
         'home.hero.primaryCta': 'How It Works',
         'home.hero.secondaryCta': 'Trust & Safety',
         'home.hero.vacanciesCta': 'View vacancies',
@@ -841,6 +847,7 @@
         'home.title': 'CrewPortGlobal сопоставляет спрос на экипаж с проверенными данными моряков.',
         'home.hero.eyebrow': 'Рабочая среда подбора морских экипажей',
         'home.hero.lead': 'Заявки, суда и профили моряков уже зарегистрированы в системе. Публичный просмотр не раскрывает контакты; операционная работа остается защищенной.',
+        'home.hero.registryCta': 'Показать данные',
         'home.hero.primaryCta': 'Как это работает',
         'home.hero.secondaryCta': 'Доверие и безопасность',
         'home.hero.vacanciesCta': 'Смотреть вакансии',
@@ -1025,6 +1032,7 @@
       let latestLoadState = 'loading';
       let registrySummary = null;
       let activeRegistryFilter = 'all';
+      const registryPreviewLimit = 8;
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -1141,7 +1149,7 @@
           return [];
         }
 
-        return rows.filter((row) => registryFilterAllowsRow(row)).slice(0, 4);
+        return rows.filter((row) => registryFilterAllowsRow(row)).slice(0, registryPreviewLimit);
       }
 
       function renderRegistryFilterState() {
@@ -1237,7 +1245,7 @@
         if (vacancyRows.length === 0) {
           renderEmptyRegistryList(registryVacancies);
         } else {
-          vacancyRows.slice(0, 4).forEach((row) => {
+          vacancyRows.forEach((row) => {
             appendRegistryItem(registryVacancies, row.title || row.rank_label, [
               { label: t('home.registry.rank'), value: row.rank_label },
               { label: t('home.registry.department'), value: row.department },
@@ -1255,7 +1263,7 @@
         if (vesselRows.length === 0) {
           renderEmptyRegistryList(registryVessels);
         } else {
-          vesselRows.slice(0, 4).forEach((row) => {
+          vesselRows.forEach((row) => {
             appendRegistryItem(registryVessels, row.vessel_name, [
               { label: t('home.registry.vesselType'), value: row.vessel_type },
               { label: t('home.registry.flag'), value: row.flag_country_code },
@@ -1269,7 +1277,7 @@
         if (seafarerRows.length === 0) {
           renderEmptyRegistryList(registrySeafarers);
         } else {
-          seafarerRows.slice(0, 4).forEach((row) => {
+          seafarerRows.forEach((row) => {
             appendRegistryItem(registrySeafarers, row.primary_rank || 'Seafarer profile', [
               { label: t('home.registry.department'), value: row.department },
               { label: t('home.registry.availability'), value: row.availability_status },

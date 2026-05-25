@@ -120,11 +120,12 @@ function operator_temporary_token_access(string $actorLabel = 'temporary_operato
 
 function operator_named_session_access_from_request(): ?array {
     $adminToken = admin_access_session_token();
-    if ($adminToken !== null) {
+    $normalizedAdminToken = $adminToken === null ? null : api_normalize_uuid($adminToken);
+    if ($normalizedAdminToken !== null) {
         admin_access_load_runtime_env();
         if (admin_access_public_flow_enabled()) {
             $storage = admin_access_storage_or_response();
-            $session = $storage->findActiveAdminSession($adminToken, cpg_admin_now());
+            $session = $storage->findActiveAdminSession($normalizedAdminToken, cpg_admin_now());
             if (is_array($session) && cpg_admin_access_user_can_view_team_links($session)) {
                 return [
                     'access_model' => 'team_admin_session',
@@ -7713,6 +7714,214 @@ function handle_get_public_registry_summary(): void {
     ]);
 }
 
+function cpg_registry_detail_add_row(array &$rows, string $recordType, string $recordId, string $displayTitle, array $safeColumns, ?string $updatedAt, array $readiness): void {
+    $rows[] = [
+        'record_type' => $recordType,
+        'record_id' => $recordId,
+        'display_title' => $displayTitle,
+        'updated_at' => $updatedAt,
+        'readiness_status' => $readiness['readiness_status'] ?? 'has_blockers',
+        'readiness_blockers' => $readiness['readiness_blockers'] ?? [],
+        'safe_columns' => $safeColumns,
+    ];
+}
+
+function cpg_registry_detail_vacancy_rows(): array {
+    $result = api_query(
+        "SELECT
+            vr.vacancy_request_id,
+            COALESCE(NULLIF(vr.vacancy_title, ''), NULLIF(vr.required_rank_label, ''), NULLIF(vr.rank, ''), 'Crew request') AS vacancy_title,
+            COALESCE(NULLIF(vr.required_rank_label, ''), NULLIF(vr.rank, '')) AS rank_label,
+            vr.department,
+            COALESCE(NULLIF(vr.vessel_type_label, ''), NULLIF(vr.vessel_type, ''), NULLIF(v.vessel_type_label, ''), NULLIF(v.vessel_type, '')) AS vessel_type,
+            vr.join_date,
+            vr.contract_duration,
+            vr.publication_status,
+            ec.company_name,
+            ec.company_type,
+            ec.country_code AS employer_country_code,
+            v.vessel_name,
+            v.flag_country_code,
+            vr.updated_at
+         FROM crewportglobal.vacancy_requests vr
+         JOIN crewportglobal.employer_companies ec ON ec.company_id = vr.company_id
+         LEFT JOIN crewportglobal.vessels v ON v.vessel_id = vr.vessel_id
+         WHERE COALESCE(vr.demand_workspace->'deletion_request'->>'status', '') <> 'confirmed_deleted'
+         ORDER BY vr.updated_at DESC, vr.created_at DESC"
+    );
+
+    $rows = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $readinessInput = [
+            'rank_label' => $row['rank_label'],
+            'department' => $row['department'],
+            'vessel_type' => $row['vessel_type'],
+            'join_date' => $row['join_date'],
+        ];
+        cpg_registry_detail_add_row($rows, 'vacancy_request', (string) $row['vacancy_request_id'], (string) $row['vacancy_title'], [
+            'rank' => $row['rank_label'],
+            'department' => $row['department'],
+            'vessel_type' => $row['vessel_type'],
+            'join_date' => $row['join_date'],
+            'contract_duration' => $row['contract_duration'],
+            'publication_status' => $row['publication_status'],
+            'company_name' => $row['company_name'],
+            'company_type' => $row['company_type'],
+            'employer_country_code' => $row['employer_country_code'],
+            'vessel_name' => $row['vessel_name'],
+            'flag_country_code' => $row['flag_country_code'],
+        ], $row['updated_at'] ?? null, cpg_public_registry_readiness('vacancy_request', $readinessInput));
+    }
+
+    return $rows;
+}
+
+function cpg_registry_detail_vessel_rows(): array {
+    $result = api_query(
+        "SELECT
+            v.vessel_id,
+            v.vessel_name,
+            COALESCE(NULLIF(v.vessel_type_label, ''), NULLIF(v.vessel_type, '')) AS vessel_type,
+            v.flag_country_code,
+            ec.company_name,
+            ec.company_type,
+            ec.country_code AS employer_country_code,
+            v.updated_at
+         FROM crewportglobal.vessels v
+         LEFT JOIN crewportglobal.employer_companies ec ON ec.company_id = v.company_id
+         ORDER BY v.updated_at DESC, v.created_at DESC"
+    );
+
+    $rows = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $displayTitle = cpg_public_registry_has_text($row['vessel_name'] ?? null) ? (string) $row['vessel_name'] : 'Vessel profile';
+        cpg_registry_detail_add_row($rows, 'vessel', (string) $row['vessel_id'], $displayTitle, [
+            'vessel_name' => $row['vessel_name'],
+            'vessel_type' => $row['vessel_type'],
+            'flag_country_code' => $row['flag_country_code'],
+            'company_name' => $row['company_name'],
+            'company_type' => $row['company_type'],
+            'employer_country_code' => $row['employer_country_code'],
+        ], $row['updated_at'] ?? null, cpg_public_registry_readiness('vessel', [
+            'vessel_name' => $row['vessel_name'],
+            'vessel_type' => $row['vessel_type'],
+        ]));
+    }
+
+    return $rows;
+}
+
+function cpg_registry_detail_seafarer_rows(): array {
+    $result = api_query(
+        "SELECT
+            seafarer_profile_id,
+            primary_rank,
+            department,
+            availability_status,
+            country_code,
+            nationality_code,
+            residence_country_code,
+            review_status,
+            updated_at
+         FROM crewportglobal.seafarer_profiles
+         ORDER BY updated_at DESC, created_at DESC"
+    );
+
+    $rows = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $rank = cpg_public_registry_has_text($row['primary_rank'] ?? null) ? (string) $row['primary_rank'] : 'Seafarer profile';
+        cpg_registry_detail_add_row($rows, 'seafarer', (string) $row['seafarer_profile_id'], $rank, [
+            'primary_rank' => $row['primary_rank'],
+            'department' => $row['department'],
+            'availability_status' => $row['availability_status'],
+            'country_code' => $row['country_code'],
+            'nationality_code' => $row['nationality_code'],
+            'residence_country_code' => $row['residence_country_code'],
+            'review_status' => $row['review_status'],
+        ], $row['updated_at'] ?? null, cpg_public_registry_readiness('seafarer', [
+            'primary_rank' => $row['primary_rank'],
+            'department' => $row['department'],
+            'availability_status' => $row['availability_status'],
+        ]));
+    }
+
+    return $rows;
+}
+
+function cpg_registry_detail_rows(string $type): array {
+    $rows = [];
+    if ($type === 'all' || $type === 'vacancy_requests') {
+        $rows = array_merge($rows, cpg_registry_detail_vacancy_rows());
+    }
+    if ($type === 'all' || $type === 'vessels') {
+        $rows = array_merge($rows, cpg_registry_detail_vessel_rows());
+    }
+    if ($type === 'all' || $type === 'seafarers') {
+        $rows = array_merge($rows, cpg_registry_detail_seafarer_rows());
+    }
+
+    usort($rows, static function (array $left, array $right): int {
+        return strcmp((string) ($right['updated_at'] ?? ''), (string) ($left['updated_at'] ?? ''));
+    });
+
+    return $rows;
+}
+
+function handle_get_operator_registry_detail(array $access): void {
+    $type = (string) ($_GET['type'] ?? 'all');
+    if (!in_array($type, ['all', 'vacancy_requests', 'vessels', 'seafarers'], true)) {
+        api_error(400, 'invalid_registry_type', 'Unsupported registry type filter');
+    }
+
+    $readiness = (string) ($_GET['readiness'] ?? 'all');
+    if (!in_array($readiness, ['all', 'matching_ready', 'has_blockers'], true)) {
+        api_error(400, 'invalid_registry_readiness', 'Unsupported registry readiness filter');
+    }
+
+    $page = max(1, (int) ($_GET['page'] ?? 1));
+    $pageSize = max(10, min(50, (int) ($_GET['page_size'] ?? 25)));
+    $rows = cpg_registry_detail_rows($type);
+    if ($readiness !== 'all') {
+        $rows = array_values(array_filter($rows, static fn(array $row): bool => ($row['readiness_status'] ?? '') === $readiness));
+    }
+
+    $totalCount = count($rows);
+    $totalPages = max(1, (int) ceil($totalCount / $pageSize));
+    $page = min($page, $totalPages);
+    $offset = ($page - 1) * $pageSize;
+    $pagedRows = array_slice($rows, $offset, $pageSize);
+
+    api_json(200, [
+        'ok' => true,
+        'generated_at' => gmdate('c'),
+        'access_model' => $access['access_model'] ?? 'unknown',
+        'actor_user_id' => $access['actor_user_id'] ?? null,
+        'type' => $type,
+        'readiness' => $readiness,
+        'page' => $page,
+        'page_size' => $pageSize,
+        'total_count' => $totalCount,
+        'total_pages' => $totalPages,
+        'counts' => cpg_public_registry_count_row(),
+        'rows' => $pagedRows,
+        'privacy_boundary' => [
+            'protected_view' => true,
+            'contact_fields_excluded' => true,
+            'seafarer_names_excluded' => true,
+            'forbidden_fields' => [
+                'email',
+                'contact_email',
+                'seafarer_email',
+                'phone',
+                'contact_phone',
+                'document_metadata',
+                'passport_number',
+                'medical_details',
+            ],
+        ],
+    ]);
+}
+
 function handle_get_public_vacancy(string $vacancyId): void {
     $uuid = api_normalize_uuid($vacancyId);
     if ($uuid === null) {
@@ -11838,6 +12047,11 @@ if (preg_match('#^/operator/vacancy-requests/([^/]+)/deletion-review$#', $path, 
     }
     header('Allow: GET, PATCH');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET, PATCH');
+}
+
+if ($method === 'GET' && $path === '/operator/registry-detail') {
+    $access = require_operator_or_team_access();
+    handle_get_operator_registry_detail($access);
 }
 
 if (preg_match('#^/operator/seafarer-medical/([^/]+)$#', $path, $matches) === 1) {

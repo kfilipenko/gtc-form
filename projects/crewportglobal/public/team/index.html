@@ -460,7 +460,12 @@
       const groups = Array.isArray(body.user?.groups) ? body.user.groups.join(', ') : 'none';
       metaNode.textContent = `${body.user?.email || 'team member'} | groups: ${groups}`;
       linkList.replaceChildren();
-      for (const link of Array.isArray(body.links) ? body.links : []) {
+      const links = Array.isArray(body.links) ? body.links.slice() : [];
+      links.push({
+        label: 'Protected registry detail',
+        url: '/team/registry/',
+      });
+      for (const link of links) {
         const item = document.createElement('li');
         const anchor = document.createElement('a');
         anchor.href = link.url;

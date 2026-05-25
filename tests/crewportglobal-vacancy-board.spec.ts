@@ -100,6 +100,10 @@ test('vacancy board renders reviewed public vacancies from API', async ({ page, 
   await expect(page.locator('#vacancy-live-list')).toContainText(title);
   await expect(page.locator('#vacancy-live-list')).toContainText('Bulk Carrier');
   await expect(page.locator('#vacancy-live-list')).toContainText('USD 6500.00 - 7200.00');
+  await expect(page.locator('#vacancy-registered-state')).toContainText(title);
+  await expect(page.locator('#vacancy-registered-state')).toContainText('Bulk Carrier');
+  await expect(page.locator('#vacancy-registered-state')).toContainText('matching_ready');
+  await expect(page.locator('#vacancy-registered-state')).not.toContainText(`ui.vacancy.${unique}@example.com`);
   await expect(page.locator('main input')).toHaveCount(0);
   await expect(page.locator('main select')).toHaveCount(0);
   await expect(page.locator('#vacancy-live-list a')).toHaveCount(0);
