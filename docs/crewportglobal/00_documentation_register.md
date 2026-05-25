@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.75
+- Version: 1.76
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -282,6 +282,7 @@ docs/crewportglobal/
   193_cpg_demand_030_homepage_registry_data_access_report.md
   194_cpg_demand_031_protected_registry_detail_and_vacancy_preview_report.md
   195_cpg_demand_032_request_supply_comparison_view_report.md
+  196_cpg_demand_033_comparison_to_shortlist_handoff_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -578,6 +579,8 @@ Document 194 records the CPG-DEMAND-031 protected registry detail and vacancy pr
 
 Document 195 records the CPG-DEMAND-032 protected request-supply comparison view, including `/team/matching/`, crew-request selection, reuse of the backend candidate-search evaluator, per-candidate matched dimensions, blockers, warnings, structured requirement summaries, shortlist-workspace link and contact-free verification before any shortlist side effect.
 
+Document 196 records the CPG-DEMAND-033 controlled comparison-to-shortlist handoff, including guarded internal shortlist draft creation from `/team/matching/`, default include/hold decisions based on candidate-search blockers, backend guard authority, draft task link and focused verification that no employer visibility or contact-data exposure is introduced.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -681,6 +684,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.76 | 2026-05-25 | GTC IT / AI Assistant | Added document 196 for CPG-DEMAND-033 covering controlled handoff from request-supply comparison to guarded internal shortlist draft creation |
 | 1.75 | 2026-05-25 | GTC IT / AI Assistant | Added document 195 for CPG-DEMAND-032 covering protected request-supply comparison at `/team/matching/`, candidate-search explanation, blocker visibility, registry/team links and contact-free verification before shortlist |
 | 1.74 | 2026-05-25 | GTC IT / AI Assistant | Added document 194 for CPG-DEMAND-031 covering protected registry detail, paginated safe rows, `/team/registry/`, `/api/v1/operator/registry-detail`, team link and registered crew-request preview on `/vacancies/` |
 | 1.73 | 2026-05-25 | GTC IT / AI Assistant | Added document 193 for CPG-DEMAND-030 covering homepage registry data access, top-block Show registry data action, safe live registry placement before explanatory content, expanded preview row count and focused verification |

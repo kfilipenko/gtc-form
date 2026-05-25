@@ -245,6 +245,49 @@
       color: var(--match-danger);
     }
 
+    .matching-shortlist-panel {
+      border-color: rgba(86, 210, 226, 0.32);
+      background: rgba(8, 45, 63, 0.92);
+    }
+
+    .matching-shortlist-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) minmax(130px, 0.45fr) minmax(220px, 0.85fr);
+      gap: 10px;
+      align-items: end;
+      padding: 10px;
+      border: 1px solid rgba(160, 181, 203, 0.15);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    .matching-shortlist-row select,
+    .matching-shortlist-row input {
+      width: 100%;
+      min-height: 40px;
+      box-sizing: border-box;
+      border: 1px solid var(--match-line);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.18);
+      color: var(--match-text);
+      font: inherit;
+      padding: 8px 10px;
+    }
+
+    .matching-shortlist-row label {
+      display: grid;
+      gap: 6px;
+      color: var(--match-muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .matching-shortlist-result {
+      display: grid;
+      gap: 8px;
+      color: var(--match-muted);
+    }
+
     .matching-safe-grid,
     .matching-dimension-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -293,7 +336,8 @@
       .matching-summary-grid,
       .matching-demand-grid,
       .matching-safe-grid,
-      .matching-dimension-grid {
+      .matching-dimension-grid,
+      .matching-shortlist-row {
         grid-template-columns: 1fr;
       }
     }
@@ -355,6 +399,17 @@
 
     <section class="matching-summary-grid" id="summary-grid" hidden></section>
 
+    <section class="matching-panel matching-shortlist-panel" id="shortlist-panel" hidden>
+      <h2 class="matching-meta">Controlled shortlist handoff</h2>
+      <p class="matching-meta">Create an internal shortlist draft only after reviewing this comparison. Backend approval guard remains the source of truth.</p>
+      <div id="shortlist-controls"></div>
+      <div class="matching-actions">
+        <button class="matching-button primary" type="button" id="create-shortlist" disabled>Create internal shortlist draft</button>
+        <a class="matching-link" id="open-draft-task" href="/team/" hidden>Open draft task</a>
+      </div>
+      <div class="matching-shortlist-result" id="shortlist-result" aria-live="polite"></div>
+    </section>
+
     <section class="matching-candidate-list" id="candidate-list" aria-label="Candidate comparison results"></section>
   </main>
 
@@ -374,6 +429,12 @@
       const requirementItems = document.getElementById('requirement-items');
       const summaryGrid = document.getElementById('summary-grid');
       const candidateList = document.getElementById('candidate-list');
+      const shortlistPanel = document.getElementById('shortlist-panel');
+      const shortlistControls = document.getElementById('shortlist-controls');
+      const createShortlistButton = document.getElementById('create-shortlist');
+      const openDraftTask = document.getElementById('open-draft-task');
+      const shortlistResult = document.getElementById('shortlist-result');
+      let currentPayload = null;
 
       const fieldLabels = {
         vacancy_title: 'Request',
@@ -438,6 +499,13 @@
         requirementItems.replaceChildren();
         summaryGrid.replaceChildren();
         candidateList.replaceChildren();
+        shortlistPanel.hidden = true;
+        shortlistControls.replaceChildren();
+        shortlistResult.replaceChildren();
+        createShortlistButton.disabled = true;
+        openDraftTask.hidden = true;
+        openDraftTask.href = '/team/';
+        currentPayload = null;
       }
 
       function chip(label, tone = '') {
@@ -634,6 +702,109 @@
         });
       }
 
+      function hasHardBlockers(candidate) {
+        return Array.isArray(candidate?.blockers) && candidate.blockers.length > 0;
+      }
+
+      function renderShortlistControls(payload) {
+        const candidates = Array.isArray(payload.candidates) ? payload.candidates : [];
+        shortlistControls.replaceChildren();
+        shortlistResult.replaceChildren();
+        openDraftTask.hidden = true;
+        shortlistPanel.hidden = false;
+        createShortlistButton.disabled = candidates.length === 0;
+        if (candidates.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'matching-empty';
+          empty.textContent = 'No candidates are available for shortlist draft handoff.';
+          shortlistControls.append(empty);
+          return;
+        }
+
+        candidates.forEach((candidate, index) => {
+          const row = document.createElement('div');
+          row.className = 'matching-shortlist-row';
+          row.dataset.candidateUserId = candidate.candidate_user_id || '';
+
+          const summary = document.createElement('div');
+          const name = document.createElement('strong');
+          name.textContent = `#${index + 1} ${text(candidate.display_name)}`;
+          const meta = document.createElement('p');
+          meta.className = 'matching-meta';
+          const blockerCodes = issueCodes(candidate.blockers);
+          meta.textContent = `${text(candidate.match_level)} | blockers: ${blockerCodes.length ? blockerCodes.join(', ') : 'none'}`;
+          summary.append(name, meta);
+
+          const decisionLabel = document.createElement('label');
+          decisionLabel.textContent = 'Decision';
+          const select = document.createElement('select');
+          select.className = 'matching-shortlist-decision';
+          [
+            ['include', 'Include'],
+            ['hold', 'Hold'],
+            ['exclude', 'Exclude'],
+          ].forEach(([value, label]) => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = label;
+            if (value === 'include' && hasHardBlockers(candidate)) {
+              option.disabled = true;
+            }
+            select.append(option);
+          });
+          select.value = hasHardBlockers(candidate) ? 'hold' : 'include';
+          decisionLabel.append(select);
+
+          const noteLabel = document.createElement('label');
+          noteLabel.textContent = 'Internal note';
+          const note = document.createElement('input');
+          note.className = 'matching-shortlist-note';
+          note.type = 'text';
+          note.maxLength = 1000;
+          note.placeholder = hasHardBlockers(candidate) ? 'Held due to search blockers' : 'Optional note';
+          noteLabel.append(note);
+
+          row.append(summary, decisionLabel, noteLabel);
+          shortlistControls.append(row);
+        });
+      }
+
+      function collectShortlistCandidates() {
+        return Array.from(shortlistControls.querySelectorAll('.matching-shortlist-row')).map((row) => {
+          const select = row.querySelector('.matching-shortlist-decision');
+          const note = row.querySelector('.matching-shortlist-note');
+          return {
+            candidate_user_id: row.dataset.candidateUserId || '',
+            operator_decision: select ? select.value : 'hold',
+            operator_note: note ? note.value.trim() : '',
+          };
+        }).filter((item) => item.candidate_user_id);
+      }
+
+      function renderShortlistResult(payload) {
+        shortlistResult.replaceChildren();
+        const draft = payload.shortlist_draft || {};
+        const status = document.createElement('p');
+        status.textContent = `Internal shortlist draft created: ${text(draft.draft_status)}. Employer visible: ${draft.employer_visible === true ? 'true' : 'false'}.`;
+        shortlistResult.append(status);
+
+        const candidateRows = Array.isArray(draft.candidates) ? draft.candidates : [];
+        candidateRows.forEach((candidate) => {
+          const guard = candidate.approval_guard_result || {};
+          const blockers = Array.isArray(guard.approval_blockers)
+            ? guard.approval_blockers.map((item) => item && item.code).filter(Boolean)
+            : [];
+          const line = document.createElement('p');
+          line.textContent = `${text(candidate.candidate_search_result?.display_name)}: ${text(candidate.operator_decision)}; guard ${text(guard.approval_status)}; blockers ${blockers.length ? blockers.join(', ') : 'none'}`;
+          shortlistResult.append(line);
+        });
+
+        if (draft.shortlist_draft_id) {
+          openDraftTask.hidden = false;
+          openDraftTask.href = `/verify/?queue_type=operator_shortlist_draft&queue_item_id=${encodeURIComponent(draft.shortlist_draft_id)}&shortlist_draft_id=${encodeURIComponent(draft.shortlist_draft_id)}&task_operation=approve_internal_shortlist`;
+        }
+      }
+
       async function fetchJson(path) {
         const response = await fetch(path, {
           headers: headers(),
@@ -705,9 +876,11 @@
         try {
           const params = new URLSearchParams({ limit: limitNode.value });
           const payload = await fetchJson(`/api/v1/operator/vacancies/${encodeURIComponent(vacancyId)}/candidate-search?${params.toString()}`);
+          currentPayload = payload;
           renderDemand(payload);
           renderSummary(payload);
           renderCandidates(payload);
+          renderShortlistControls(payload);
           setStatus(`Comparison loaded. ${payload.count || 0} candidates shown, ${payload.total_considered || 0} considered. Side effects: employer visible ${payload.side_effects?.employer_visible === true ? 'true' : 'false'}.`);
         } catch (error) {
           clearResults();
@@ -717,10 +890,53 @@
         }
       }
 
+      async function createShortlistDraft() {
+        const vacancyId = (currentPayload?.vacancy_request_id || vacancyIdNode.value.trim() || selectNode.value || '').trim();
+        const candidates = collectShortlistCandidates();
+        if (!vacancyId || candidates.length === 0) {
+          shortlistResult.textContent = 'Run comparison before creating an internal shortlist draft.';
+          return;
+        }
+        createShortlistButton.disabled = true;
+        openDraftTask.hidden = true;
+        shortlistResult.textContent = 'Creating internal shortlist draft...';
+        try {
+          const params = new URLSearchParams({ limit: limitNode.value });
+          const response = await fetch(`/api/v1/operator/vacancies/${encodeURIComponent(vacancyId)}/shortlist-drafts?${params.toString()}`, {
+            method: 'POST',
+            headers: {
+              ...headers(),
+              'Content-Type': 'application/json',
+            },
+            credentials: 'same-origin',
+            body: JSON.stringify({ candidates }),
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || payload.ok !== true) {
+            const blocked = Array.isArray(payload.blocked_candidates)
+              ? payload.blocked_candidates.map((item) => {
+                const guard = item.approval_guard_result || {};
+                const blockers = Array.isArray(guard.approval_blockers)
+                  ? guard.approval_blockers.map((blocker) => blocker && blocker.code).filter(Boolean)
+                  : [];
+                return `${text(item.candidate_user_id)}: ${blockers.length ? blockers.join(', ') : text(guard.approval_status || payload.error)}`;
+              })
+              : [];
+            throw new Error(blocked.length ? `Shortlist guard blocked: ${blocked.join('; ')}` : (payload.message || payload.error || 'Could not create internal shortlist draft.'));
+          }
+          renderShortlistResult(payload);
+        } catch (error) {
+          shortlistResult.textContent = error.message || 'Could not create internal shortlist draft.';
+        } finally {
+          createShortlistButton.disabled = false;
+        }
+      }
+
       selectNode.addEventListener('change', () => {
         vacancyIdNode.value = selectNode.value || '';
       });
       runButton.addEventListener('click', runComparison);
+      createShortlistButton.addEventListener('click', createShortlistDraft);
 
       if (queryToken()) {
         window.sessionStorage.setItem('crewportglobal.operatorAccessToken', queryToken());
