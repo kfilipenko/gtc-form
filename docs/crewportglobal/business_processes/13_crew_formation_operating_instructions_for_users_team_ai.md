@@ -1,0 +1,526 @@
+# CrewPortGlobal - BP-013 Crew Formation Operating Instructions For Users, Team And AI Agents
+
+- Project: CrewPortGlobal.com
+- Company: GTC INFORMATION TECHNOLOGY FZ-LLC
+- Business-process ID: BP-013
+- Source task: CPG-BIZ-012 approved execution task, document 199
+- Baseline: BP-012 crew formation service business process manual
+- Date: 2026-05-26
+- Document type: Operating instructions
+- Status: Drafted for Project Owner review
+
+## 1. Purpose
+
+This instruction explains how users, team members and AI agents must work inside the CrewPortGlobal crew formation process.
+
+It expands BP-012 into practical duties, rights, action sequences and authority boundaries.
+
+The instruction is designed for:
+
+1. seafarers;
+2. employer / shipowner users;
+3. employer representatives;
+4. support operators;
+5. reviewers;
+6. managers;
+7. billing operators;
+8. Project Owner / control users;
+9. AI agents.
+
+## 2. Controlling Rule
+
+Each visible task must come from data and workflow state, not from arbitrary manual labels.
+
+The task rule is:
+
+```text
+previous stage result + current object state + role/permission + assignment relationship = visible next task
+```
+
+The executor should see one primary task at a time.
+
+Secondary actions may exist, but they should be inside the work object or a secondary menu, not displayed as competing primary actions in the queue.
+
+## 3. Standard Task Card For Users And Team
+
+### 3.1 Required display
+
+Each task card must show:
+
+| Element | Requirement |
+|---|---|
+| Task title | Clear stage action and object summary. |
+| Active link | Opens the exact internal working object. |
+| Object type | Crew request, seafarer profile, shortlist draft, candidate presentation, deletion request, billing record. |
+| Safe object summary | Short non-sensitive summary. |
+| Responsible group | Group that owns the operation. |
+| Assigned employee | Specific assignee when one exists. |
+| Required permission | Permission needed to complete the operation. |
+| Status / blockers | Why the task is executable or blocked. |
+| SLA state | Deadline/color if defined. |
+
+### 3.2 Recommended title format
+
+```text
+{Stage action}. ({Object type}: {safe object summary}.)
+```
+
+Examples:
+
+```text
+Review crew request completeness. (Crew request: Chief Officer for Bulk Carrier, join date 2026-08-15.)
+```
+
+```text
+Review request-supply comparison. (Crew request: Second Engineer for Container Vessel.)
+```
+
+```text
+Approve internal shortlist. (Crew request: Chief Officer, 3 included candidates.)
+```
+
+```text
+Approve candidate for employer presentation. (Candidate: Able Seaman, documents ready.)
+```
+
+```text
+Confirm deletion request. (Crew request: Chief Officer for Bulk Carrier, requested by reviewer.)
+```
+
+### 3.3 Action label rule
+
+| Label type | Rule |
+|---|---|
+| Primary operation | Only one should be visually dominant. |
+| Secondary operation | Show inside workspace or contextual menu. |
+| Review outcome | Show after the user opens the review workspace. |
+| Destructive operation | Requires confirmation workflow and manager/control approval. |
+| Public/external view | Must be clearly labeled as public/external if used. |
+
+Ambiguous labels must be avoided.
+
+| Current label | Required correction |
+|---|---|
+| `Open item` | Use `Open internal work item` or `Open review workspace`. |
+| `Start review` | Show only when starting review is the actual computed task. |
+| `Needs correction` | Treat as review outcome, not generic queue action. |
+| `Mark reviewed` | Treat as review outcome inside review workspace. |
+| `Request deletion` | Treat as secondary controlled action with manager confirmation. |
+
+## 4. Seafarer Instructions
+
+### 4.1 Purpose
+
+The seafarer provides supply-side information needed for matching and crew formation.
+
+### 4.2 Seafarer may
+
+1. register a personal account;
+2. confirm email;
+3. create or update seafarer profile;
+4. provide rank, documents, certificates, availability and preferences;
+5. upload required documents through protected upload;
+6. respond to correction requests;
+7. withdraw or update availability where supported;
+8. see own tasks and profile status.
+
+### 4.3 Seafarer must not
+
+1. be charged recruitment or placement fees;
+2. see other seafarers' records;
+3. access employer internal review notes;
+4. approve own candidate presentation;
+5. bypass document or profile review.
+
+### 4.4 Typical task sequence
+
+| Trigger | Visible task | Link target | Output |
+|---|---|---|---|
+| Registration started | Complete seafarer profile | `/create-profile/` or cabinet card | Profile draft updated. |
+| Documents missing | Upload required document | document upload card | Protected document metadata created. |
+| Correction requested | Correct source card | exact profile card section | Corrected data submitted. |
+| Availability outdated | Update availability | availability/profile card | Supply data becomes current. |
+
+## 5. Employer / Shipowner User Instructions
+
+### 5.1 Purpose
+
+The employer-side user provides demand-side data and receives approved service outputs.
+
+### 5.2 Employer user may
+
+1. register or confirm account;
+2. submit company and authority context;
+3. submit vessel context;
+4. submit crew request / vacancy requirements;
+5. receive approved candidate summaries;
+6. provide feedback;
+7. request follow-up or additional crew support;
+8. handle commercial/billing communication if authorized.
+
+### 5.3 Employer user must not
+
+1. receive candidate contact data before approved process;
+2. receive restricted medical, family or identity details;
+3. access internal shortlist drafts;
+4. access internal comparison notes beyond approved summaries;
+5. act without authority evidence when authority is required.
+
+### 5.4 Typical task sequence
+
+| Trigger | Visible task | Link target | Output |
+|---|---|---|---|
+| Employer account exists | Complete company / authority details | employer workspace | Employer context ready for review. |
+| Vessel data missing | Add vessel context | vessel workspace | Vessel context structured. |
+| Crew need exists | Submit crew request | vacancy/request workspace | Demand record created. |
+| Candidate summary approved | Review candidate summary | employer candidate view | Employer feedback recorded. |
+| Service result confirmed | Confirm commercial or follow-up action | employer/billing workspace | Billing or next request workflow starts. |
+
+## 6. Group 0 - Marketing Instructions
+
+Marketing handles lead qualification and routing.
+
+| Responsibility | Instruction |
+|---|---|
+| Create or confirm lead | Record source, client type and contactability. |
+| Qualify demand | Identify whether the inquiry is employer-side, seafarer-side or partner-side. |
+| Route lead | Send employer leads to Group 1; seafarer leads to Group 2; risk cases to Group 5. |
+| Preserve attribution | Keep source and campaign data for future revenue analysis. |
+
+Marketing must not promise employment, crew availability, pricing, legal approval or candidate presentation.
+
+## 7. Group 1 - Employer / Shipowner Registration Instructions
+
+Group 1 structures employer-side demand.
+
+### 7.1 Main responsibilities
+
+1. confirm employer-side client context;
+2. collect company and representative details;
+3. collect vessel context;
+4. collect crew request details;
+5. ensure demand is structured enough for matching;
+6. route authority/compliance issues to Group 5;
+7. route commercial entitlement issues to Group 3.
+
+### 7.2 Computed task examples
+
+| State | Task |
+|---|---|
+| Employer data incomplete | `Review employer registration completeness. (Client: {safe company summary}.)` |
+| Vessel data incomplete | `Review vessel context. (Vessel: {vessel type / name if safe}.)` |
+| Crew request incomplete | `Review crew request completeness. (Crew request: {rank} for {vessel type}.)` |
+| Employer feedback due | `Record employer feedback. (Candidate presentation: {role/vessel summary}.)` |
+
+### 7.3 Prohibited actions
+
+Group 1 must not:
+
+1. expose candidate data without approved presentation;
+2. approve restricted medical details for employer view;
+3. bypass internal shortlist approval;
+4. promise final employment outcome;
+5. approve billing without Group 3 control.
+
+## 8. Group 2 - Seafarer Registration And Development Instructions
+
+Group 2 structures supply-side data.
+
+### 8.1 Main responsibilities
+
+1. support seafarer profile completion;
+2. check missing profile sections;
+3. help resolve correction tasks;
+4. maintain availability and preference data;
+5. route document/readiness review to Group 5 or `review_team`;
+6. keep no-fee boundary visible.
+
+### 8.2 Computed task examples
+
+| State | Task |
+|---|---|
+| Profile incomplete | `Review seafarer profile completeness. (Seafarer profile: {rank / safe name if allowed}.)` |
+| Source card correction open | `Request profile correction. (Source card: {card code and safe label}.)` |
+| Availability stale | `Update seafarer availability. (Profile: {rank summary}.)` |
+
+### 8.3 Prohibited actions
+
+Group 2 must not:
+
+1. charge or imply recruitment/placement fees;
+2. promise a job or embarkation;
+3. approve candidate presentation alone;
+4. expose one seafarer's data to another;
+5. override medical or document review.
+
+## 9. Group 3 - Payments, Sales And Revenue Distribution Instructions
+
+Group 3 controls commercial basis and billing handoff.
+
+### 9.1 Main responsibilities
+
+1. confirm employer-side service scope;
+2. confirm payer and entitlement;
+3. prepare invoice or billing basis after approved service event;
+4. track payment status where implemented;
+5. preserve manager/reward attribution;
+6. ensure no seafarer recruitment or placement fee is charged.
+
+### 9.2 Computed task examples
+
+| State | Task |
+|---|---|
+| Service scope unclear | `Confirm commercial basis. (Client: {safe company summary}.)` |
+| Candidate service delivered | `Prepare billing handoff. (Crew request: {rank/vessel summary}.)` |
+| Payment issue | `Resolve payment blocker. (Client: {safe client summary}.)` |
+
+### 9.3 Prohibited actions
+
+Group 3 must not:
+
+1. bill seafarer recruitment or placement fees;
+2. create false service completion records;
+3. override operational review or compliance blockers;
+4. change candidate presentation decisions.
+
+## 10. Group 4 - Client Support Instructions
+
+Group 4 resolves communication and operational blockers.
+
+### 10.1 Main responsibilities
+
+1. answer support questions;
+2. help users find the correct workflow;
+3. support upload or login issues;
+4. route business, compliance or billing cases to correct group;
+5. record support notes and outcomes.
+
+### 10.2 Computed task examples
+
+| State | Task |
+|---|---|
+| User cannot complete form | `Assist workflow completion. (Object: {safe object summary}.)` |
+| Client response needed | `Follow up with client. (Client: {safe summary}.)` |
+| Support blocker resolved | `Close support blocker. (Case: {safe case summary}.)` |
+
+### 10.3 Prohibited actions
+
+Group 4 must not:
+
+1. approve candidate presentation;
+2. confirm employer authority;
+3. approve deletion alone;
+4. access restricted documents without assigned task;
+5. make employment or payment decisions.
+
+## 11. Group 5 - Internal Control Instructions
+
+Group 5 handles control, verification and exceptions.
+
+### 11.1 Main responsibilities
+
+1. review company/authority risk;
+2. review document and evidence exceptions;
+3. review deletion confirmation tasks;
+4. review complaints and audit exceptions;
+5. support quality checks;
+6. ensure restricted data is not exposed.
+
+### 11.2 Computed task examples
+
+| State | Task |
+|---|---|
+| Authority evidence pending | `Review authority evidence. (Client: {safe company summary}.)` |
+| Deletion requested | `Confirm deletion request. (Crew request: {safe request summary}.)` |
+| Sensitive exception | `Review compliance exception. (Object: {safe object summary}.)` |
+
+### 11.3 Prohibited actions
+
+Group 5 must not:
+
+1. disclose restricted fields outside approved scope;
+2. erase audit evidence;
+3. approve billing without commercial basis;
+4. turn control review into employment decision.
+
+## 12. `review_team` / Reviewer Instructions
+
+The `review_team` is responsible for matching review, shortlist and candidate presentation workflow.
+
+### 12.1 Required permissions
+
+Current demand workflow permissions include:
+
+| Operation | Required permission |
+|---|---|
+| View review queue | `view_review_queue` |
+| Create internal shortlist draft | `view_review_queue` |
+| Approve internal shortlist | `approve_candidate_presentation` |
+| Create review applications | `start_human_review` |
+| Review candidate presentation | `approve_candidate_presentation` |
+
+### 12.2 Main responsibilities
+
+1. review structured crew request readiness;
+2. review request-supply comparison;
+3. inspect blockers before shortlist;
+4. create internal shortlist draft only from current comparison/search results;
+5. approve or reject internal shortlist;
+6. create review applications after internal approval;
+7. review candidate presentation summary;
+8. preserve no-employer-visible boundary until presentation guard passes.
+
+### 12.3 Computed task sequence
+
+| Previous result | Reviewer's next task |
+|---|---|
+| Search result exists | `Create internal shortlist draft. (Crew request: {safe demand summary}.)` |
+| Draft exists and guard is ready | `Approve internal shortlist. (Shortlist draft: {candidate count and demand summary}.)` |
+| Draft is approved internal | `Create candidate presentation review. (Shortlist draft: {safe summary}.)` |
+| Review application exists | `Approve candidate for employer presentation. (Candidate: {safe profile summary}.)` |
+
+### 12.4 Prohibited actions
+
+Reviewer must not:
+
+1. present candidate to employer before guard;
+2. include candidates with unresolved hard blockers unless future explicit exception workflow exists;
+3. expose contacts, medical, family or identity details;
+4. mark work reviewed without checking evidence;
+5. use `Request deletion` as a substitute for correction/review outcome.
+
+## 13. Manager / Project Owner Instructions
+
+Managers and Project Owner handle assignment, escalation and control decisions.
+
+### 13.1 Main responsibilities
+
+1. assign responsible manager or specialist;
+2. monitor group queues;
+3. resolve conflicts between groups;
+4. approve or reject deletion confirmations;
+5. review audit exceptions;
+6. confirm process changes before implementation;
+7. ensure B2B revenue logic and no-fee boundary.
+
+### 13.2 Computed task examples
+
+| State | Task |
+|---|---|
+| Deletion pending manager confirmation | `Confirm deletion request. (Crew request: {safe request summary}.)` |
+| Overdue task | `Review overdue task escalation. (Client: {safe summary}.)` |
+| Assignment missing | `Assign responsible specialist. (Object: {safe object summary}.)` |
+
+## 14. AI-Agent Instructions
+
+### 14.1 AI may assist with
+
+1. checking field completeness;
+2. comparing demand with supply;
+3. summarizing blockers;
+4. drafting correction reasons;
+5. preparing candidate comparison text;
+6. preparing task titles;
+7. detecting inconsistent workflow states;
+8. preparing audit summaries.
+
+### 14.2 AI must not independently
+
+1. approve or reject candidate presentation;
+2. approve internal shortlist;
+3. confirm deletion;
+4. approve employer authority;
+5. make billing decisions;
+6. make employment decisions;
+7. override access-control decisions;
+8. expose restricted fields in prompts or outputs.
+
+### 14.3 AI output label
+
+AI-generated work must be labeled as assistant/preparatory output until a human executor approves it.
+
+Recommended label:
+
+```text
+AI-prepared summary for human review. Not a final decision.
+```
+
+## 15. Working Object Links
+
+Every task must link to the exact working object.
+
+| Object type | Link target direction |
+|---|---|
+| Crew request completeness | Internal request/vacancy workspace or `/verify/` detail with request id. |
+| Request-supply comparison | `/team/matching/` with crew request id. |
+| Internal shortlist draft | `/team/shortlists/` detail/drill-down or `/verify/` task context. |
+| Candidate presentation review | `/verify/` vacancy application detail or future review workspace. |
+| Deletion confirmation | manager confirmation task panel. |
+| Billing handoff | future billing/service completion workspace. |
+
+The link must not send a team user to a public page when the work requires internal review.
+
+## 16. Review Outcomes
+
+Review outcomes should be recorded inside the review workspace.
+
+| Outcome | Meaning | Next state |
+|---|---|---|
+| Approved / reviewed | Evidence and data are sufficient for this stage | Next process step computes. |
+| Needs correction | Required data/evidence is missing or inconsistent | Correction task computes for owner/responsible group. |
+| Rejected | The item cannot proceed in current workflow | Manager/control or closure task computes. |
+| Hold | More information is needed or external response is pending | Follow-up task computes. |
+| Request deletion | Secondary controlled action | Manager confirmation task computes. |
+
+## 17. Escalation Rules
+
+Escalate when:
+
+1. deadline is overdue;
+2. requester authority is unclear;
+3. candidate data contains restricted/sensitive conflict;
+4. employer asks for prohibited information;
+5. seafarer fee boundary is at risk;
+6. deletion or data-retention question appears;
+7. AI output conflicts with human evidence;
+8. billing/service-result basis is disputed.
+
+Escalation should create a visible computed task for manager/control only when the underlying state supports it.
+
+## 18. Confidentiality Rules
+
+Users and team must protect:
+
+1. candidate contact details;
+2. passport and identity numbers;
+3. medical declarations;
+4. family and next-of-kin data;
+5. raw uploaded document IDs and paths;
+6. internal review notes;
+7. audit/control records;
+8. access/session data.
+
+Employer-facing summaries must use allow-listed fields only.
+
+## 19. Future UI Revision Requirements
+
+When UI simplification is approved, the operator queue should be changed so that:
+
+1. one primary operation is shown per item;
+2. the primary operation name matches the computed task;
+3. the working object link is explicit;
+4. secondary actions move inside the workspace;
+5. review outcomes appear only after opening review;
+6. destructive actions require confirmation workflow;
+7. access denied actions are hidden or shown as blocked with reason;
+8. task labels are understandable to non-technical users.
+
+## 20. Next Stage
+
+After BP-012 and BP-013 are reviewed by Project Owner, the next stage should be:
+
+```text
+CPG-BIZ-013 - Operator task-action simplification based on approved crew formation process
+```
+
+That stage should convert the current multiple visible row actions into one primary computed task and a controlled internal workspace.

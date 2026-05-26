@@ -7,7 +7,7 @@
 - Source request: Project Owner instruction after CPG-DEMAND-035
 - Version: 1.0
 - Date: 2026-05-26
-- Status: For Project Owner approval
+- Status: Approved by Project Owner; BP-012 and BP-013 drafted for review
 
 ## 1. Purpose
 
@@ -314,6 +314,8 @@ This task does not authorize:
 
 Implementation may start only after Project Owner approval of this task.
 
+Project Owner approval was received on 2026-05-26.
+
 ## 10. Acceptance Criteria
 
 The task is complete when:
@@ -331,7 +333,7 @@ The task is complete when:
 
 ## 11. Approval Gate
 
-Project Owner approval is required before execution.
+Project Owner approval was required before execution and was received on 2026-05-26.
 
 After approval, the implementation agent should first prepare BP-012 and BP-013 as documentation-only work.
 

@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.79
+- Version: 1.80
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -302,6 +302,8 @@ docs/crewportglobal/
     09_public_site_and_authenticated_navigation_transition_plan.md
     10_document_upload_storage_and_review_procedure.md
     11_seafarer_field_dictionary_and_reference_catalog_alignment.md
+    12_crew_formation_service_business_process_manual.md
+    13_crew_formation_operating_instructions_for_users_team_ai.md
 ```
 
 ### 3.3 Product governance control
@@ -409,6 +411,8 @@ Business Process Register 0.9 adds BP-009. BP-009 records the public site and au
 Business Process Register 1.0 adds BP-010 for Issue #14 / CPG-DOC-021. BP-010 records the document upload, protected storage and review procedure, including seafarer, employer and future vessel document categories, server-only storage folders, metadata model, file limits, antivirus scanning, replacement behavior, scoped visibility and implementation decisions required before the first upload endpoint.
 
 Business Process Register 1.1 adds BP-011. BP-011 records the seafarer Excel field dictionary and reference catalog alignment, including private source handling, workbook sheet inventory, seafarer workspace card plan, reference dictionaries, future database/API slices and controlled publication order.
+
+Business Process Register 1.2 adds BP-012 and BP-013. BP-012 records the controlling end-to-end crew formation service business process from employer demand and seafarer supply to internal shortlist, candidate presentation, service completion, B2B billing basis and audit evidence. BP-013 records operating instructions for users, team groups, reviewers, managers, billing, Project Owner and AI agents, including computed task display, group/employee assignment, permissions and authority boundaries.
 
 Document 109 records the frontend-only BP-009 implementation slice that simplifies public and document navigation, removes public Create Profile / Post Vacancy navigation exposure and routes public functional CTAs to Login / Registration while preserving direct URLs.
 
@@ -693,6 +697,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.80 | 2026-05-26 | GTC IT / AI Assistant | Added BP-012 and BP-013 business-process documents for crew formation service operations, user/team/AI instructions, computed task display, assignment rules, process outputs and audit evidence |
 | 1.79 | 2026-05-26 | GTC IT / AI Assistant | Added document 199 as the CPG-BIZ-012 execution task for crew formation business-process documentation, computed task rules, group/employee assignment and task display format |
 | 1.78 | 2026-05-26 | GTC IT / AI Assistant | Added document 198 for CPG-DEMAND-035 covering safe shortlist draft drill-down with actor summaries, audit linkage, creation/current blockers, blocker delta and contact-free UI/API verification |
 | 1.77 | 2026-05-25 | GTC IT / AI Assistant | Added document 197 for CPG-DEMAND-034 covering protected shortlist draft history, safe list endpoint, computed next operation visibility, responsible access metadata and contact-free verification |
