@@ -286,10 +286,59 @@
       color: var(--shortlist-muted);
     }
 
+    .shortlist-drilldown {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid rgba(86, 210, 226, 0.25);
+      border-radius: 12px;
+      background: rgba(7, 24, 38, 0.62);
+    }
+
+    .shortlist-drilldown[hidden] {
+      display: none;
+    }
+
+    .shortlist-drilldown-grid,
+    .shortlist-drilldown-candidates {
+      display: grid;
+      gap: 12px;
+    }
+
+    .shortlist-drilldown-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .shortlist-drilldown-card {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid rgba(160, 181, 203, 0.15);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.13);
+    }
+
+    .shortlist-drilldown-card strong,
+    .shortlist-drilldown-card span {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .shortlist-drilldown-card strong {
+      color: var(--shortlist-text);
+    }
+
+    .shortlist-drilldown-card span {
+      margin-top: 5px;
+      color: var(--shortlist-muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
     @media (max-width: 920px) {
       .shortlist-filter-grid,
       .shortlist-summary-grid,
-      .shortlist-safe-grid {
+      .shortlist-safe-grid,
+      .shortlist-drilldown-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -416,6 +465,36 @@
         return item;
       }
 
+      function drilldownCard(title, lines) {
+        const item = document.createElement('div');
+        item.className = 'shortlist-drilldown-card';
+        const titleNode = document.createElement('strong');
+        titleNode.textContent = title;
+        item.append(titleNode);
+        (Array.isArray(lines) ? lines : []).forEach((line) => {
+          const lineNode = document.createElement('span');
+          lineNode.textContent = line;
+          item.append(lineNode);
+        });
+        return item;
+      }
+
+      function codeList(values) {
+        const list = Array.isArray(values) ? values.filter(Boolean).map(String) : [];
+        return list.length ? list.join(', ') : 'none';
+      }
+
+      function actorLines(actor) {
+        const value = actor && typeof actor === 'object' ? actor : {};
+        return [
+          `actor: ${text(value.actor_label)}`,
+          `user: ${text(value.actor_user_id)}`,
+          `operation: ${text(value.operation_code)}`,
+          `group: ${text(value.target_group_code)}`,
+          `permission: ${text(value.required_permission_code)}`,
+        ];
+      }
+
       function operationTone(operation) {
         if (!operation) return 'blocked';
         if (operation.is_executable === true && operation.access_allowed !== false) return 'ready';
@@ -523,15 +602,117 @@
           taskLink.className = 'shortlist-link primary';
           taskLink.href = row.task_url || '/verify/';
           taskLink.textContent = 'Open next task';
+          const drilldownButton = document.createElement('button');
+          drilldownButton.className = 'shortlist-button';
+          drilldownButton.type = 'button';
+          drilldownButton.textContent = 'View drill-down';
           const compareLink = document.createElement('a');
           compareLink.className = 'shortlist-link';
           compareLink.href = `/team/matching/?vacancy_request_id=${encodeURIComponent(row.vacancy_request_id || '')}`;
           compareLink.textContent = 'Compare request-supply';
-          actions.append(taskLink, compareLink);
+          actions.append(taskLink, drilldownButton, compareLink);
           card.append(actions);
+
+          const drilldown = document.createElement('div');
+          drilldown.className = 'shortlist-drilldown';
+          drilldown.hidden = true;
+          card.append(drilldown);
+          drilldownButton.addEventListener('click', () => {
+            if (drilldown.hidden) {
+              drilldown.hidden = false;
+              if (drilldown.dataset.loaded !== 'true') {
+                loadDrillDown(row.shortlist_draft_id, drilldown);
+              }
+            } else {
+              drilldown.hidden = true;
+            }
+          });
 
           listNode.append(card);
         });
+      }
+
+      function renderDrillDown(target, payload) {
+        const drill = payload.drill_down || {};
+        target.replaceChildren();
+
+        const timeline = document.createElement('div');
+        timeline.className = 'shortlist-drilldown-grid';
+        timeline.append(drilldownCard('Created by', [
+          `created: ${text(drill.created?.created_at)}`,
+          `audit: ${drill.created?.audit_recorded === true ? 'recorded' : 'not recorded'}`,
+          ...actorLines(drill.created?.actor_context),
+        ]));
+        timeline.append(drilldownCard('Approved by', drill.internal_approval ? [
+          `decision: ${text(drill.internal_approval.decision)}`,
+          `previous: ${text(drill.internal_approval.previous_status)}`,
+          `new: ${text(drill.internal_approval.new_status)}`,
+          `decided: ${text(drill.internal_approval.decided_at || drill.internal_approval.audit_created_at)}`,
+          `audit: ${drill.internal_approval.audit_recorded === true ? 'recorded' : 'not recorded'}`,
+          ...actorLines(drill.internal_approval.actor_context),
+        ] : ['decision: not recorded yet']));
+        timeline.append(drilldownCard('Current guards', [
+          `candidate search: ${drill.current_guards?.candidate_search_available === true ? 'available' : 'not available'}`,
+          `internal approval: ${text(drill.current_guards?.internal_approval_status)}`,
+          `internal blockers: ${codeList(drill.current_guards?.internal_approval_blocker_codes)}`,
+          `review application: ${text(drill.current_guards?.review_application_status)}`,
+          `review blockers: ${codeList(drill.current_guards?.review_application_blocker_codes)}`,
+        ]));
+        target.append(timeline);
+
+        const operations = document.createElement('div');
+        operations.className = 'shortlist-chip-list';
+        (Array.isArray(drill.computed_operations) ? drill.computed_operations : []).forEach((operation) => {
+          operations.append(chip(`${text(operation.operation_code)}: ${text(operation.operation_status)}; blockers ${codeList(operation.blocker_codes)}`, operation.is_executable === true ? 'ready' : 'blocked'));
+        });
+        target.append(operations);
+
+        const candidates = document.createElement('div');
+        candidates.className = 'shortlist-drilldown-candidates';
+        (Array.isArray(drill.candidates) ? drill.candidates : []).forEach((candidate, index) => {
+          const candidateCard = document.createElement('div');
+          candidateCard.className = 'shortlist-drilldown-card';
+          const title = document.createElement('strong');
+          title.textContent = `#${index + 1} ${text(candidate.display_name)} | ${text(candidate.operator_decision)}`;
+          candidateCard.append(title);
+          [
+            `creation match: ${text(candidate.match_level_at_creation)}`,
+            `current match: ${text(candidate.current_match_level)}`,
+            `creation blockers: ${codeList(candidate.creation_blockers?.combined_blocker_codes)}`,
+            `current blockers: ${codeList(candidate.current_blockers?.combined_blocker_codes)}`,
+            `resolved blockers: ${codeList(candidate.blocker_delta?.resolved_blockers)}`,
+            `new blockers: ${codeList(candidate.blocker_delta?.new_blockers)}`,
+            `unchanged blockers: ${codeList(candidate.blocker_delta?.unchanged_blockers)}`,
+          ].forEach((line) => {
+            const lineNode = document.createElement('span');
+            lineNode.textContent = line;
+            candidateCard.append(lineNode);
+          });
+          candidates.append(candidateCard);
+        });
+        target.append(candidates);
+        target.dataset.loaded = 'true';
+      }
+
+      async function loadDrillDown(draftId, target) {
+        if (!draftId) {
+          target.textContent = 'Shortlist draft id is missing.';
+          return;
+        }
+        target.textContent = 'Loading safe drill-down...';
+        try {
+          const response = await fetch(`/api/v1/operator/shortlist-drafts/${encodeURIComponent(draftId)}`, {
+            headers: headers(),
+            credentials: 'same-origin',
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || payload.ok !== true) {
+            throw new Error(payload.message || payload.error || `Request failed: ${response.status}`);
+          }
+          renderDrillDown(target, payload);
+        } catch (error) {
+          target.textContent = error.message || 'Safe drill-down is not available for this session.';
+        }
       }
 
       async function loadHistory() {

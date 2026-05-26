@@ -963,6 +963,33 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       await expect(shortlistTaskPanel.getByRole('link', { name: 'Return to team tasks' })).toBeVisible();
       await shortlistTaskPanel.getByRole('link', { name: 'Return to team tasks' }).click();
       await expect(page.locator('#team-task-feedback')).toContainText('Operation completed: approve_internal_shortlist');
+
+      const approvedDraftDetailResponse = await teamRequest.get(`/api/v1/operator/shortlist-drafts/${createdDraftRow.shortlist_draft_id}`);
+      const approvedDraftDetailBody = await approvedDraftDetailResponse.text();
+      expect(approvedDraftDetailResponse.ok(), approvedDraftDetailBody).toBeTruthy();
+      const approvedDraftDetail = JSON.parse(approvedDraftDetailBody);
+      expect(approvedDraftDetail.drill_down.created.actor_context.operation_code).toBe('create_internal_shortlist_draft');
+      expect(approvedDraftDetail.drill_down.internal_approval.decision).toBe('approve_internal');
+      expect(approvedDraftDetail.drill_down.internal_approval.actor_context.operation_code).toBe('approve_internal_shortlist');
+      expect(approvedDraftDetail.drill_down.current_guards.internal_approval_status).toBe('ready_for_internal_approval');
+      expect(approvedDraftDetail.drill_down.privacy_boundary.candidate_document_metadata_excluded).toBe(true);
+      expect(JSON.stringify(approvedDraftDetail.drill_down)).toContain('rank_mismatch');
+      expect(JSON.stringify(approvedDraftDetail.drill_down)).not.toContain(exactEmail);
+      expect(JSON.stringify(approvedDraftDetail.drill_down)).not.toContain('contact_email');
+      expect(JSON.stringify(approvedDraftDetail.drill_down)).not.toContain('"document_metadata":');
+
+      await page.goto('/team/shortlists/');
+      const approvedDraftCard = page.locator('#shortlist-history-list .shortlist-card', { hasText: vacancyTitle }).first();
+      await approvedDraftCard.getByRole('button', { name: 'View drill-down' }).click();
+      await expect(approvedDraftCard.locator('.shortlist-drilldown')).toContainText('Created by');
+      await expect(approvedDraftCard.locator('.shortlist-drilldown')).toContainText('Approved by');
+      await expect(approvedDraftCard.locator('.shortlist-drilldown')).toContainText('approve_internal');
+      await expect(approvedDraftCard.locator('.shortlist-drilldown')).toContainText('rank_mismatch');
+      await expect(approvedDraftCard.locator('.shortlist-drilldown')).not.toContainText(exactEmail);
+      await expect(approvedDraftCard.locator('.shortlist-drilldown')).not.toContainText('contact_email');
+      await expect(approvedDraftCard.locator('.shortlist-drilldown')).not.toContainText('document_metadata');
+
+      await page.goto('/team/');
       const reviewApplicationsTeamTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();
       await expect(reviewApplicationsTeamTask).toContainText('create_review_applications');
       await expect(reviewApplicationsTeamTask).not.toContainText('approve_internal_shortlist');

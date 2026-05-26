@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.77
+- Version: 1.78
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -284,6 +284,7 @@ docs/crewportglobal/
   195_cpg_demand_032_request_supply_comparison_view_report.md
   196_cpg_demand_033_comparison_to_shortlist_handoff_report.md
   197_cpg_demand_034_shortlist_draft_history_list_report.md
+  198_cpg_demand_035_shortlist_draft_safe_drilldown_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -584,6 +585,8 @@ Document 196 records the CPG-DEMAND-033 controlled comparison-to-shortlist hando
 
 Document 197 records the CPG-DEMAND-034 shortlist draft history/list implementation, including protected `/team/shortlists/`, safe `/api/v1/operator/shortlist-drafts` list payloads, internal draft status/candidate-count visibility, next computed operation display, responsible group/permission visibility and contact-free verification.
 
+Document 198 records the CPG-DEMAND-035 safe shortlist draft drill-down implementation, including created-by and approved-by actor summaries, audit-event linkage, blockers at creation, current blockers, blocker delta, candidate-level safe drill-down on `/team/shortlists/` and contact-free verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -687,6 +690,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.78 | 2026-05-26 | GTC IT / AI Assistant | Added document 198 for CPG-DEMAND-035 covering safe shortlist draft drill-down with actor summaries, audit linkage, creation/current blockers, blocker delta and contact-free UI/API verification |
 | 1.77 | 2026-05-25 | GTC IT / AI Assistant | Added document 197 for CPG-DEMAND-034 covering protected shortlist draft history, safe list endpoint, computed next operation visibility, responsible access metadata and contact-free verification |
 | 1.76 | 2026-05-25 | GTC IT / AI Assistant | Added document 196 for CPG-DEMAND-033 covering controlled handoff from request-supply comparison to guarded internal shortlist draft creation |
 | 1.75 | 2026-05-25 | GTC IT / AI Assistant | Added document 195 for CPG-DEMAND-032 covering protected request-supply comparison at `/team/matching/`, candidate-search explanation, blocker visibility, registry/team links and contact-free verification before shortlist |

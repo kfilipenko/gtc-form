@@ -6516,15 +6516,20 @@ function handle_get_operator_shortlist_draft(string $shortlistDraftId, ?array $a
         api_error(404, 'shortlist_draft_not_found', 'Internal shortlist draft not found');
     }
 
+    $internalApprovalGuard = cpg_operator_shortlist_internal_approval_guard($draft);
+    $reviewApplicationGuard = cpg_operator_shortlist_review_application_guard($draft);
+    $computedOperations = cpg_operator_shortlist_computed_operations(
+        $draft,
+        $internalApprovalGuard,
+        $reviewApplicationGuard,
+        $access
+    );
+
     api_json(200, [
         'ok' => true,
         'shortlist_draft' => $draft,
-        'computed_operations' => cpg_operator_shortlist_computed_operations(
-            $draft,
-            cpg_operator_shortlist_internal_approval_guard($draft),
-            cpg_operator_shortlist_review_application_guard($draft),
-            $access
-        ),
+        'computed_operations' => $computedOperations,
+        'drill_down' => cpg_operator_shortlist_drill_down($draft, $internalApprovalGuard, $reviewApplicationGuard, $computedOperations),
     ]);
 }
 
@@ -6586,6 +6591,270 @@ function cpg_operator_shortlist_task_url(string $shortlistDraftId, ?array $opera
     }
 
     return '/verify/?' . http_build_query($params);
+}
+
+function cpg_operator_shortlist_actor_summary(mixed $context): ?array {
+    if (!is_array($context)) {
+        return null;
+    }
+
+    return cpg_workspace_clean_record([
+        'operation_code' => $context['operation_code'] ?? null,
+        'access_model' => $context['access_model'] ?? ($context['mode'] ?? null),
+        'actor_label' => $context['actor_label'] ?? null,
+        'actor_user_id' => $context['actor_user_id'] ?? null,
+        'target_group_code' => $context['target_group_code'] ?? null,
+        'target_role_code' => $context['target_role_code'] ?? null,
+        'required_permission_code' => $context['required_permission_code'] ?? null,
+        'scope' => $context['scope'] ?? null,
+        'permission_boundary' => $context['permission_boundary'] ?? null,
+    ]);
+}
+
+function cpg_operator_shortlist_audit_events(string $shortlistDraftId): array {
+    $rows = cpg_fetch_all_assoc(
+        "SELECT event_type,
+                source,
+                created_at::text AS created_at,
+                event_payload::text AS event_payload
+         FROM crewportglobal.registration_audit_events
+         WHERE event_payload->>'shortlist_draft_id' = $1
+         ORDER BY created_at ASC, registration_audit_event_id ASC",
+        [$shortlistDraftId]
+    );
+
+    return array_values(array_map(static function (array $row): array {
+        $payload = cpg_decode_json_object($row['event_payload'] ?? null);
+        $actorContext = cpg_operator_shortlist_actor_summary($payload['actor_context'] ?? null);
+        return cpg_workspace_clean_record([
+            'event_type' => $row['event_type'] ?? null,
+            'source' => $row['source'] ?? null,
+            'created_at' => $row['created_at'] ?? null,
+            'actor_context' => $actorContext,
+            'decision' => $payload['decision'] ?? null,
+            'previous_status' => $payload['previous_status'] ?? null,
+            'new_status' => $payload['new_status'] ?? null,
+            'candidate_count' => $payload['candidate_count'] ?? null,
+            'included_candidate_count' => $payload['included_candidate_count'] ?? null,
+            'blocked_candidate_count' => $payload['blocked_candidate_count'] ?? null,
+            'created_count' => $payload['created_count'] ?? null,
+            'reused_count' => $payload['reused_count'] ?? null,
+            'reset_count' => $payload['reset_count'] ?? null,
+            'employer_visible' => $payload['employer_visible'] ?? null,
+            'creates_vacancy_applications' => $payload['creates_vacancy_applications'] ?? null,
+            'changes_application_statuses' => $payload['changes_application_statuses'] ?? null,
+        ]);
+    }, $rows));
+}
+
+function cpg_operator_shortlist_find_audit_event(array $events, string $eventType): ?array {
+    $matched = null;
+    foreach ($events as $event) {
+        if (is_array($event) && ($event['event_type'] ?? null) === $eventType) {
+            $matched = $event;
+        }
+    }
+
+    return $matched;
+}
+
+function cpg_operator_shortlist_guard_blocker_codes(array $guard): array {
+    $codes = [];
+    $blockers = is_array($guard['approval_blockers'] ?? null) ? $guard['approval_blockers'] : [];
+    foreach ($blockers as $blocker) {
+        if (is_array($blocker) && is_string($blocker['code'] ?? null) && trim((string) $blocker['code']) !== '') {
+            $codes[] = trim((string) $blocker['code']);
+        } elseif (is_string($blocker) && trim($blocker) !== '') {
+            $codes[] = trim($blocker);
+        }
+    }
+
+    return array_values(array_unique($codes));
+}
+
+function cpg_operator_shortlist_code_delta(array $createdCodes, array $currentCodes): array {
+    $created = array_values(array_unique(array_filter(array_map('strval', $createdCodes), static fn(string $value): bool => trim($value) !== '')));
+    $current = array_values(array_unique(array_filter(array_map('strval', $currentCodes), static fn(string $value): bool => trim($value) !== '')));
+
+    return [
+        'unchanged_blockers' => array_values(array_intersect($created, $current)),
+        'resolved_blockers' => array_values(array_diff($created, $current)),
+        'new_blockers' => array_values(array_diff($current, $created)),
+    ];
+}
+
+function cpg_operator_shortlist_current_candidate_map(string $vacancyRequestId): array {
+    $search = $vacancyRequestId !== '' ? read_operator_vacancy_candidate_search($vacancyRequestId, 100) : null;
+    $map = [];
+    if (!is_array($search)) {
+        return [
+            'search_available' => false,
+            'candidates' => [],
+        ];
+    }
+
+    foreach (($search['candidates'] ?? []) as $candidate) {
+        if (is_array($candidate) && is_string($candidate['candidate_user_id'] ?? null) && trim((string) $candidate['candidate_user_id']) !== '') {
+            $map[(string) $candidate['candidate_user_id']] = $candidate;
+        }
+    }
+
+    return [
+        'search_available' => true,
+        'candidates' => $map,
+    ];
+}
+
+function cpg_operator_shortlist_candidate_drilldown(array $candidate, array $currentCandidateMap): array {
+    $candidateId = is_string($candidate['candidate_user_id'] ?? null) ? (string) $candidate['candidate_user_id'] : '';
+    $snapshot = is_array($candidate['candidate_search_result'] ?? null) ? $candidate['candidate_search_result'] : [];
+    $createdSearchBlockers = array_values(array_filter(array_map('strval', is_array($candidate['blocker_codes'] ?? null) ? $candidate['blocker_codes'] : [])));
+    $createdGuard = is_array($candidate['approval_guard_result'] ?? null) ? $candidate['approval_guard_result'] : [];
+    $createdGuardBlockers = cpg_operator_shortlist_guard_blocker_codes($createdGuard);
+    $currentCandidate = $candidateId !== '' && isset($currentCandidateMap[$candidateId]) && is_array($currentCandidateMap[$candidateId])
+        ? $currentCandidateMap[$candidateId]
+        : null;
+
+    if ($currentCandidate !== null) {
+        $currentSearchBlockers = cpg_operator_shortlist_issue_codes(is_array($currentCandidate['blockers'] ?? null) ? $currentCandidate['blockers'] : []);
+        $currentGuard = cpg_operator_shortlist_candidate_guard($currentCandidate);
+        $currentGuardBlockers = cpg_operator_shortlist_guard_blocker_codes($currentGuard);
+        $currentStatus = 'found_in_current_search';
+        $currentMatchLevel = $currentCandidate['match_level'] ?? null;
+    } else {
+        $currentSearchBlockers = ['candidate_not_in_current_search_results'];
+        $currentGuard = [
+            'approval_status' => 'blocked',
+            'approval_blockers' => [
+                [
+                    'code' => 'candidate_not_in_current_search_results',
+                    'message' => 'Candidate is not present in current candidate-search results',
+                ],
+            ],
+        ];
+        $currentGuardBlockers = ['candidate_not_in_current_search_results'];
+        $currentStatus = 'missing_from_current_search';
+        $currentMatchLevel = null;
+    }
+
+    $createdCombined = array_values(array_unique(array_merge($createdSearchBlockers, $createdGuardBlockers)));
+    $currentCombined = array_values(array_unique(array_merge($currentSearchBlockers, $currentGuardBlockers)));
+
+    return cpg_workspace_clean_record([
+        'candidate_user_id' => $candidateId,
+        'display_name' => $snapshot['display_name'] ?? null,
+        'operator_decision' => $candidate['operator_decision'] ?? null,
+        'match_level_at_creation' => $candidate['match_level'] ?? null,
+        'current_match_level' => $currentMatchLevel,
+        'employer_visible' => false,
+        'creation_blockers' => [
+            'search_blocker_codes' => $createdSearchBlockers,
+            'approval_status' => $createdGuard['approval_status'] ?? null,
+            'approval_blocker_codes' => $createdGuardBlockers,
+            'combined_blocker_codes' => $createdCombined,
+        ],
+        'current_blockers' => [
+            'status' => $currentStatus,
+            'search_blocker_codes' => $currentSearchBlockers,
+            'approval_status' => $currentGuard['approval_status'] ?? null,
+            'approval_blocker_codes' => $currentGuardBlockers,
+            'combined_blocker_codes' => $currentCombined,
+        ],
+        'blocker_delta' => cpg_operator_shortlist_code_delta($createdCombined, $currentCombined),
+    ]);
+}
+
+function cpg_operator_shortlist_drill_down(array $draft, array $internalApprovalGuard, array $reviewApplicationGuard, array $operations): array {
+    $draftId = is_string($draft['shortlist_draft_id'] ?? null) ? (string) $draft['shortlist_draft_id'] : '';
+    $vacancyId = is_string($draft['vacancy_request_id'] ?? null) ? (string) $draft['vacancy_request_id'] : '';
+    $auditEvents = $draftId !== '' ? cpg_operator_shortlist_audit_events($draftId) : [];
+    $createdAudit = cpg_operator_shortlist_find_audit_event($auditEvents, 'operator_shortlist_draft_created');
+    $approvalAudit = cpg_operator_shortlist_find_audit_event($auditEvents, 'operator_shortlist_internal_approval_recorded');
+    $reviewBridgeAudit = cpg_operator_shortlist_find_audit_event($auditEvents, 'operator_shortlist_review_applications_created');
+    $approvalSnapshot = is_array($draft['approval_guard_snapshot']['internal_approval'] ?? null)
+        ? $draft['approval_guard_snapshot']['internal_approval']
+        : null;
+    $reviewBridgeSnapshot = is_array($draft['approval_guard_snapshot']['review_application_bridge'] ?? null)
+        ? $draft['approval_guard_snapshot']['review_application_bridge']
+        : null;
+    $currentSearch = cpg_operator_shortlist_current_candidate_map($vacancyId);
+    $currentCandidates = is_array($currentSearch['candidates'] ?? null) ? $currentSearch['candidates'] : [];
+
+    $candidateDrilldown = [];
+    foreach ((is_array($draft['candidates'] ?? null) ? $draft['candidates'] : []) as $candidate) {
+        if (is_array($candidate)) {
+            $candidateDrilldown[] = cpg_operator_shortlist_candidate_drilldown($candidate, $currentCandidates);
+        }
+    }
+
+    return cpg_workspace_clean_record([
+        'shortlist_draft_id' => $draftId,
+        'vacancy_request_id' => $vacancyId,
+        'draft_status' => $draft['draft_status'] ?? null,
+        'created' => [
+            'created_at' => $draft['created_at'] ?? null,
+            'actor_context' => cpg_operator_shortlist_actor_summary($draft['created_by_operator_context'] ?? null),
+            'audit_recorded' => $createdAudit !== null,
+            'audit_created_at' => $createdAudit['created_at'] ?? null,
+        ],
+        'internal_approval' => $approvalSnapshot === null ? null : [
+            'decision' => $approvalSnapshot['decision'] ?? null,
+            'previous_status' => $approvalSnapshot['previous_status'] ?? null,
+            'new_status' => $approvalSnapshot['new_status'] ?? null,
+            'decided_at' => $approvalSnapshot['decided_at'] ?? null,
+            'actor_context' => cpg_operator_shortlist_actor_summary($approvalAudit['actor_context'] ?? null),
+            'audit_recorded' => $approvalAudit !== null,
+            'audit_created_at' => $approvalAudit['created_at'] ?? null,
+        ],
+        'review_application_bridge' => $reviewBridgeSnapshot === null ? null : [
+            'application_count' => $reviewBridgeSnapshot['application_count'] ?? null,
+            'created_count' => $reviewBridgeSnapshot['created_count'] ?? null,
+            'reused_count' => $reviewBridgeSnapshot['reused_count'] ?? null,
+            'reset_count' => $reviewBridgeSnapshot['reset_count'] ?? null,
+            'staged_at' => $reviewBridgeSnapshot['staged_at'] ?? null,
+            'actor_context' => cpg_operator_shortlist_actor_summary($reviewBridgeAudit['actor_context'] ?? null),
+            'audit_recorded' => $reviewBridgeAudit !== null,
+            'audit_created_at' => $reviewBridgeAudit['created_at'] ?? null,
+        ],
+        'creation_snapshot' => [
+            'demand_readiness_status' => $draft['search_snapshot']['demand_readiness']['status'] ?? null,
+            'demand_blocker_codes' => cpg_operator_shortlist_issue_codes(
+                is_array($draft['search_snapshot']['demand_readiness']['blockers'] ?? null)
+                    ? $draft['search_snapshot']['demand_readiness']['blockers']
+                    : []
+            ),
+            'candidate_count' => $draft['approval_guard_snapshot']['candidate_count'] ?? null,
+            'included_candidate_count' => $draft['approval_guard_snapshot']['included_candidate_count'] ?? null,
+            'blocked_candidate_count' => $draft['approval_guard_snapshot']['blocked_candidate_count'] ?? null,
+        ],
+        'current_guards' => [
+            'candidate_search_available' => $currentSearch['search_available'] ?? false,
+            'internal_approval_status' => $internalApprovalGuard['internal_approval_status'] ?? null,
+            'internal_approval_blocker_codes' => cpg_operator_shortlist_guard_blocker_codes($internalApprovalGuard),
+            'review_application_status' => $reviewApplicationGuard['review_application_status'] ?? null,
+            'review_application_blocker_codes' => cpg_operator_shortlist_guard_blocker_codes($reviewApplicationGuard),
+        ],
+        'computed_operations' => array_map(static function (array $operation): array {
+            $access = is_array($operation['required_access'] ?? null) ? $operation['required_access'] : [];
+            return cpg_workspace_clean_record([
+                'operation_code' => $operation['operation_code'] ?? null,
+                'operation_status' => $operation['operation_status'] ?? null,
+                'is_executable' => $operation['is_executable'] ?? false,
+                'blocker_codes' => cpg_operator_shortlist_issue_codes(is_array($operation['blockers'] ?? null) ? $operation['blockers'] : []),
+                'responsible_group' => $access['target_group_code'] ?? null,
+                'required_permission' => $access['required_permission_code'] ?? null,
+                'access_allowed' => $access['allowed'] ?? null,
+            ]);
+        }, $operations),
+        'candidates' => $candidateDrilldown,
+        'audit_events' => $auditEvents,
+        'privacy_boundary' => [
+            'candidate_contact_fields_excluded' => true,
+            'candidate_document_metadata_excluded' => true,
+            'operator_notes_excluded' => true,
+            'employer_visible' => false,
+        ],
+    ]);
 }
 
 function handle_get_operator_shortlist_drafts(array $access): void {
