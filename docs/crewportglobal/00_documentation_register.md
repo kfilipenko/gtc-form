@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.78
+- Version: 1.79
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -285,6 +285,7 @@ docs/crewportglobal/
   196_cpg_demand_033_comparison_to_shortlist_handoff_report.md
   197_cpg_demand_034_shortlist_draft_history_list_report.md
   198_cpg_demand_035_shortlist_draft_safe_drilldown_report.md
+  199_cpg_biz_012_crew_formation_process_documentation_task.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -587,6 +588,8 @@ Document 197 records the CPG-DEMAND-034 shortlist draft history/list implementat
 
 Document 198 records the CPG-DEMAND-035 safe shortlist draft drill-down implementation, including created-by and approved-by actor summaries, audit-event linkage, blockers at creation, current blockers, blocker delta, candidate-level safe drill-down on `/team/shortlists/` and contact-free verification.
 
+Document 199 records the CPG-BIZ-012 execution task for preparing the controlling crew formation business-process manual and operating instructions, including computed-task principles, group/employee assignment rules, task display format, process outputs, audit evidence and approval gate before implementation.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -690,6 +693,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.79 | 2026-05-26 | GTC IT / AI Assistant | Added document 199 as the CPG-BIZ-012 execution task for crew formation business-process documentation, computed task rules, group/employee assignment and task display format |
 | 1.78 | 2026-05-26 | GTC IT / AI Assistant | Added document 198 for CPG-DEMAND-035 covering safe shortlist draft drill-down with actor summaries, audit linkage, creation/current blockers, blocker delta and contact-free UI/API verification |
 | 1.77 | 2026-05-25 | GTC IT / AI Assistant | Added document 197 for CPG-DEMAND-034 covering protected shortlist draft history, safe list endpoint, computed next operation visibility, responsible access metadata and contact-free verification |
 | 1.76 | 2026-05-25 | GTC IT / AI Assistant | Added document 196 for CPG-DEMAND-033 covering controlled handoff from request-supply comparison to guarded internal shortlist draft creation |
