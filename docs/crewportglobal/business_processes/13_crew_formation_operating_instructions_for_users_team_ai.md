@@ -351,13 +351,16 @@ The `review_team` is responsible for matching review, shortlist and candidate pr
 
 Current demand workflow permissions include:
 
-| Operation | Required permission |
-|---|---|
-| View review queue | `view_review_queue` |
-| Create internal shortlist draft | `view_review_queue` |
-| Approve internal shortlist | `approve_candidate_presentation` |
-| Create review applications | `start_human_review` |
-| Review candidate presentation | `approve_candidate_presentation` |
+| Operation | Responsible group | Required permission |
+|---|---|---|
+| View review queue | `review_team` | `view_review_queue` |
+| Create internal shortlist draft | `review_team` | `view_review_queue` |
+| Approve internal shortlist | `review_team` | `approve_candidate_presentation` |
+| Create review applications | `review_team` | `start_human_review` |
+| Review candidate presentation | `review_team` | `approve_candidate_presentation` |
+| Request vacancy deletion | `review_team` | `approve_vacancy_request` |
+
+Deletion confirmation is not a reviewer permission. It belongs to owner/control users under `approve_access_policy_change`.
 
 ### 12.2 Main responsibilities
 
@@ -485,7 +488,29 @@ For task links this means:
 
 AI agents must not mark a process stage complete only because a document has been written. The agent must also verify the relevant application behavior or explicitly report why verification was not possible.
 
-## 17. Review Outcomes
+## 17. Verified Role-Based Task Execution Rules
+
+The following rules are verified in the running application and must be preserved by users, team members and AI agents.
+
+| Task / operation | Responsible group | Required permission | User instruction |
+|---|---|---|---|
+| Create internal shortlist draft | `review_team` | `view_review_queue` | Use only from a concrete request-supply comparison task. Do not create from an unrelated request or public page. |
+| Approve internal shortlist | `review_team` | `approve_candidate_presentation` | Approve only inside the concrete shortlist draft task panel and only after guard output is visible. |
+| Create candidate presentation review | `review_team` | `start_human_review` | Create review applications only from an approved internal shortlist draft. |
+| Review candidate presentation | `review_team` | `approve_candidate_presentation` | Approve or block only inside the concrete vacancy application review workspace. |
+| Confirm or reject deletion request | `owners` / Project Owner control | `approve_access_policy_change` | This is manager/control-only. Review-team may request deletion but must not confirm or reject it. |
+
+If a task appears to a user without the required group and permission, the user must not execute it and the issue must be escalated as an access-control defect.
+
+If a user attempts direct endpoint access without the required group and permission, the expected result is:
+
+```text
+403 workflow_operation_permission_required
+```
+
+AI agents may summarize the access requirement, but must not recommend bypassing the access contract.
+
+## 18. Review Outcomes
 
 Review outcomes should be recorded inside the review workspace.
 
@@ -497,7 +522,7 @@ Review outcomes should be recorded inside the review workspace.
 | Hold | More information is needed or external response is pending | Follow-up task computes. |
 | Request deletion | Secondary controlled action | Manager confirmation task computes. |
 
-## 18. Escalation Rules
+## 19. Escalation Rules
 
 Escalate when:
 
@@ -512,7 +537,7 @@ Escalate when:
 
 Escalation should create a visible computed task for manager/control only when the underlying state supports it.
 
-## 19. Confidentiality Rules
+## 20. Confidentiality Rules
 
 Users and team must protect:
 
@@ -527,7 +552,7 @@ Users and team must protect:
 
 Employer-facing summaries must use allow-listed fields only.
 
-## 20. Future UI Revision Requirements
+## 21. Future UI Revision Requirements
 
 When UI simplification is approved, the operator queue should be changed so that:
 
@@ -540,7 +565,7 @@ When UI simplification is approved, the operator queue should be changed so that
 7. access denied actions are hidden or shown as blocked with reason;
 8. task labels are understandable to non-technical users.
 
-## 21. Next Stage
+## 22. Next Stage
 
 After BP-012 and BP-013 are reviewed by Project Owner, the next stage should be:
 

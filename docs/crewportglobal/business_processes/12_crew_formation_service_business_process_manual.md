@@ -376,7 +376,21 @@ Computed task links are part of this verification. A visible task is compliant o
 
 Sending the user to a general list without opening the target object is not compliant with this manual.
 
-## 18. Next Stage
+## 18. Verified Role-Based Task Execution Matrix
+
+The following task execution controls have been verified against the running application.
+
+| Process stage | Computed operation | Responsible group | Required permission | Verified application behavior |
+|---|---|---|---|---|
+| CF-09 Request-supply matching and shortlist preparation | `create_internal_shortlist_draft` | `review_team` | `view_review_queue` | Review-team user sees the task, opens the concrete comparison workspace and creates an internal-only shortlist draft. |
+| CF-10 Internal shortlist approval | `approve_internal_shortlist` | `review_team` | `approve_candidate_presentation` | Review-team user sees the task, opens the concrete draft approval panel and approves the internal draft without employer visibility. |
+| CF-11 Candidate presentation review preparation | `create_review_applications` | `review_team` | `start_human_review` | Review-team user sees the task after internal approval and creates review applications from the concrete shortlist draft. |
+| CF-11 / CF-12 Employer-facing candidate presentation review | `review_candidate_presentation` | `review_team` | `approve_candidate_presentation` | Review-team user opens the concrete vacancy application and performs human presentation review. |
+| Control exception - deletion confirmation | `confirm_vacancy_deletion` / `reject_vacancy_deletion` | `owners` | `approve_access_policy_change` | Owner/control user sees and executes the manager confirmation panel. Review-team user does not receive the task and direct endpoint access is denied. |
+
+This verified matrix is part of the business process. A future UI or backend change must not weaken these group and permission boundaries.
+
+## 19. Next Stage
 
 The companion operating instruction must be maintained in:
 

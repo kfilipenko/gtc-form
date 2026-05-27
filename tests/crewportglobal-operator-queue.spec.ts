@@ -63,6 +63,19 @@ function expectConcreteComputedTaskLink(task: Record<string, unknown>): void {
   ).toBeTruthy();
 }
 
+function expectTaskRequiredAccess(
+  task: Record<string, unknown>,
+  targetGroupCode: string,
+  requiredPermissionCode: string,
+  allowed = true
+): void {
+  const access = task.required_access as Record<string, unknown> | undefined;
+  expect(access).toBeTruthy();
+  expect(access?.target_group_code).toBe(targetGroupCode);
+  expect(access?.required_permission_code).toBe(requiredPermissionCode);
+  expect(access?.allowed).toBe(allowed);
+}
+
 function cleanupOperatorQueueTestData(): void {
   const sql = `
 WITH ui_users AS (
@@ -593,6 +606,51 @@ test('owner team task opens pending vacancy deletion confirmation panel', async 
   });
   expect(deletionResponse.ok()).toBeTruthy();
 
+  const reviewTeamSession = createReviewTeamAdminSession(employer.draft_id);
+  if (reviewTeamSession && baseURL) {
+    const reviewTeamRequest = await playwrightRequest.newContext({
+      baseURL,
+      extraHTTPHeaders: {
+        Authorization: `Bearer ${reviewTeamSession}`,
+      },
+    });
+    try {
+      const workbenchResponse = await reviewTeamRequest.get('/api/v1/team/workbench/tasks');
+      const workbenchBody = await workbenchResponse.text();
+      expect(workbenchResponse.ok(), workbenchBody).toBeTruthy();
+      const workbench = JSON.parse(workbenchBody);
+      const reviewTeamDeletionTask = (workbench.tasks as Array<Record<string, unknown>>).find((task) =>
+        task.operation_code === 'confirm_vacancy_deletion' && task.record_id === vacancyRequestId
+      );
+      expect(reviewTeamDeletionTask).toBeFalsy();
+
+      const deletionReviewResponse = await reviewTeamRequest.get(
+        `/api/v1/operator/vacancy-requests/${vacancyRequestId}/deletion-review`
+      );
+      const deletionReviewBody = await deletionReviewResponse.text();
+      expect(deletionReviewResponse.status(), deletionReviewBody).toBe(403);
+      const deletionReview = JSON.parse(deletionReviewBody);
+      expect(deletionReview.error).toBe('workflow_operation_permission_required');
+      expect(deletionReview.operation_access.target_group_code).toBe('owners');
+      expect(deletionReview.operation_access.required_permission_code).toBe('approve_access_policy_change');
+      expect(deletionReview.operation_access.allowed).toBe(false);
+
+      const blockedExecutionResponse = await reviewTeamRequest.patch(
+        `/api/v1/operator/vacancy-requests/${vacancyRequestId}/deletion-review`,
+        {
+          data: {
+            decision: 'confirm',
+            note: 'Review team must not confirm manager deletion.',
+          },
+        }
+      );
+      const blockedExecutionBody = await blockedExecutionResponse.text();
+      expect(blockedExecutionResponse.status(), blockedExecutionBody).toBe(403);
+    } finally {
+      await reviewTeamRequest.dispose();
+    }
+  }
+
   const ownerSession = createOwnerAdminSession(employer.draft_id);
   if (!ownerSession || !baseURL) {
     return;
@@ -614,6 +672,11 @@ test('owner team task opens pending vacancy deletion confirmation panel', async 
     );
     expect(deletionTaskPayload).toBeTruthy();
     expectConcreteComputedTaskLink(deletionTaskPayload as Record<string, unknown>);
+    expectTaskRequiredAccess(
+      deletionTaskPayload as Record<string, unknown>,
+      'owners',
+      'approve_access_policy_change'
+    );
   } finally {
     await ownerRequest.dispose();
   }
@@ -756,6 +819,11 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
         );
         expect(presentationTaskPayload).toBeTruthy();
         expectConcreteComputedTaskLink(presentationTaskPayload as Record<string, unknown>);
+        expectTaskRequiredAccess(
+          presentationTaskPayload as Record<string, unknown>,
+          'review_team',
+          'approve_candidate_presentation'
+        );
       } finally {
         await teamRequest.dispose();
       }
@@ -1001,6 +1069,11 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       );
       expect(createShortlistTaskPayload).toBeTruthy();
       expectConcreteComputedTaskLink(createShortlistTaskPayload as Record<string, unknown>);
+      expectTaskRequiredAccess(
+        createShortlistTaskPayload as Record<string, unknown>,
+        'review_team',
+        'view_review_queue'
+      );
 
       await page.addInitScript((token) => {
         window.localStorage.setItem('crewportglobal_team_session', token);
@@ -1070,6 +1143,11 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       );
       expect(approveInternalTaskPayload).toBeTruthy();
       expectConcreteComputedTaskLink(approveInternalTaskPayload as Record<string, unknown>);
+      expectTaskRequiredAccess(
+        approveInternalTaskPayload as Record<string, unknown>,
+        'review_team',
+        'approve_candidate_presentation'
+      );
 
       await page.goto('/team/shortlists/');
       await expect(page.locator('#shortlist-history-status')).toContainText('Showing');
@@ -1139,6 +1217,11 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       );
       expect(createReviewApplicationsTaskPayload).toBeTruthy();
       expectConcreteComputedTaskLink(createReviewApplicationsTaskPayload as Record<string, unknown>);
+      expectTaskRequiredAccess(
+        createReviewApplicationsTaskPayload as Record<string, unknown>,
+        'review_team',
+        'start_human_review'
+      );
 
       await page.goto('/team/');
       const reviewApplicationsTeamTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();
