@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.81
+- Version: 1.82
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -287,6 +287,8 @@ docs/crewportglobal/
   198_cpg_demand_035_shortlist_draft_safe_drilldown_report.md
   199_cpg_biz_012_crew_formation_process_documentation_task.md
   200_cpg_biz_013_operator_task_action_simplification_report.md
+  201_cpg_biz_014_computed_task_list_presentation_correction_task.md
+  202_cpg_biz_014_computed_task_list_presentation_correction_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -597,6 +599,10 @@ Document 199 records the CPG-BIZ-012 execution task for preparing the controllin
 
 Document 200 records the CPG-BIZ-013 operator task-action simplification implementation, including the single primary computed operation in `/verify/` queue rows, secondary review outcomes moved into the opened workspace, preserved permission metadata, vacancy deletion request relocation and focused UI/access verification.
 
+Document 201 records the CPG-BIZ-014 corrective execution task for replacing the remaining technical `/verify/` queue table with a computed business task list where the task title and description are the active link to the internal work object.
+
+Document 202 records the CPG-BIZ-014 implementation result, including the four-column computed task list, removal of service/technical fields from list columns, active task-link behavior, workspace-contained secondary actions, permission-preserving checks and focused verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -700,6 +706,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.82 | 2026-05-27 | GTC IT / AI Assistant | Added documents 201 and 202 for CPG-BIZ-014 covering computed task-list presentation correction, active task-title links, removal of technical columns from `/verify/` list and focused verification |
 | 1.81 | 2026-05-27 | GTC IT / AI Assistant | Added document 200 for CPG-BIZ-013 covering operator queue single-primary-task display, workspace-contained review outcomes, permission-preserving action relocation and focused verification |
 | 1.80 | 2026-05-26 | GTC IT / AI Assistant | Added BP-012 and BP-013 business-process documents for crew formation service operations, user/team/AI instructions, computed task display, assignment rules, process outputs and audit evidence |
 | 1.79 | 2026-05-26 | GTC IT / AI Assistant | Added document 199 as the CPG-BIZ-012 execution task for crew formation business-process documentation, computed task rules, group/employee assignment and task display format |

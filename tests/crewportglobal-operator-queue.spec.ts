@@ -450,16 +450,18 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
     .toBeGreaterThanOrEqual(1);
   await page.locator('.operator-lane-button[data-operator-lane="verifier"]').click();
   await expect(page.locator('#queue-status')).toContainText('Verifier');
-  await expect(page.locator('#queue-body')).toContainText(seafarerEmail);
-  await expect(page.locator('#queue-body')).toContainText('seafarer_profile');
+  await expect(page.locator('#queue-body')).not.toContainText(seafarerEmail);
+  await expect(page.locator('#queue-body')).toContainText('Review seafarer profile completeness.');
+  await expect(page.locator('#queue-body')).toContainText('Second Officer');
   await expectQueueTableFitsWorkbench(page);
 
   await page.locator('#filter-type').selectOption('seafarer_profile');
-  await expect(page.locator('#queue-body')).toContainText(seafarerEmail);
+  await expect(page.locator('#queue-body')).toContainText('Review seafarer profile completeness.');
 
   await page.locator('#filter-role').selectOption('seafarer');
-  const queueRow = page.locator('#queue-body tr', { hasText: seafarerEmail }).first();
-  await queueRow.locator('.queue-open').click();
+  const queueRow = page.locator('#queue-body tr', { hasText: 'Review seafarer profile completeness.' }).first();
+  await expect(queueRow.getByRole('button', { name: /Open review workspace/ })).toHaveCount(0);
+  await queueRow.locator('.queue-task-link.queue-open').click();
   await expect(page.locator('#details-sections')).toContainText('Registration');
   await expect(page.locator('#details-sections')).toContainText('Seafarer profile');
   await expect(page.locator('#details-sections')).toContainText('Document readiness');
@@ -718,12 +720,13 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
   await page.locator('.operator-lane-button[data-operator-lane="reviewer"]').click();
   await expect(page.locator('#queue-status')).toContainText('Reviewer');
   await page.locator('#filter-type').selectOption('vacancy_application');
-  await expect(page.locator('#queue-body')).toContainText(seafarerEmail);
+  await expect(page.locator('#queue-body')).not.toContainText(seafarerEmail);
+  await expect(page.locator('#queue-body')).toContainText('Review candidate application.');
   await expect(page.locator('#queue-body')).toContainText(title);
   await expectQueueTableFitsWorkbench(page);
 
-  let applicationRow = page.locator('#queue-body tr', { hasText: seafarerEmail }).first();
-  await applicationRow.locator('.queue-open').click();
+  let applicationRow = page.locator('#queue-body tr', { hasText: title }).first();
+  await applicationRow.locator('.queue-task-link.queue-open').click();
   await expect(page.locator('#details-sections')).toContainText('Vacancy application');
   await expect(page.locator('#details-sections')).toContainText(applicationId);
   await expect(page.locator('#details-sections')).toContainText(candidateNote);
@@ -737,7 +740,7 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
   await expect(page.locator('#queue-status')).toContainText('in_review');
   await expect(page.locator('#details-sections')).toContainText('in_review');
 
-  applicationRow = page.locator('#queue-body tr', { hasText: seafarerEmail }).first();
+  applicationRow = page.locator('#queue-body tr', { hasText: title }).first();
   const note = 'Candidate can be presented to employer after document check.';
   await page.locator('#review-note').fill(note);
   await applicationWorkspaceActions.locator('.queue-decision[data-decision="reviewed"]').click();
@@ -1024,14 +1027,15 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
   await expect(page.locator('#queue-status')).toContainText('Queue loaded');
   await page.locator('.operator-lane-button[data-operator-lane="reviewer"]').click();
   await page.locator('#filter-type').selectOption('vacancy_request');
-  await expect(page.locator('#queue-body')).toContainText(employerEmail);
+  await expect(page.locator('#queue-body')).not.toContainText(employerEmail);
+  await expect(page.locator('#queue-body')).toContainText('Review crew request completeness.');
   await expect(page.locator('#queue-body')).toContainText(vacancyTitle);
 
-  const vacancyRow = page.locator('#queue-body tr', { hasText: employerEmail }).first();
+  const vacancyRow = page.locator('#queue-body tr', { hasText: vacancyTitle }).first();
   await expect(vacancyRow.locator('td').first()).toHaveText(/^\d+$/);
   await expect(vacancyRow.getByRole('button', { name: 'Request deletion' })).toHaveCount(0);
   await expect(vacancyRow.locator('.queue-decision')).toHaveCount(0);
-  await vacancyRow.locator('.queue-open').click();
+  await vacancyRow.locator('.queue-task-link.queue-open').click();
   const vacancyWorkspaceActions = page.locator('.workspace-actions-section');
   await expect(vacancyWorkspaceActions).toContainText('Workspace actions');
   await expect(vacancyWorkspaceActions.getByRole('button', { name: 'Request deletion' })).toBeVisible();

@@ -56,21 +56,51 @@
       vertical-align: top;
     }
     .queue-table th { color: var(--text-on-dark); font-weight: 600; }
-    .queue-table th:nth-child(1), .queue-table td:nth-child(1) { width: 4%; }
-    .queue-table th:nth-child(2), .queue-table td:nth-child(2) { width: 9%; }
-    .queue-table th:nth-child(3), .queue-table td:nth-child(3) { width: 8%; }
-    .queue-table th:nth-child(4), .queue-table td:nth-child(4) { width: 16%; }
-    .queue-table th:nth-child(5), .queue-table td:nth-child(5) { width: 13%; }
-    .queue-table th:nth-child(6), .queue-table td:nth-child(6) { width: 10%; }
-    .queue-table th:nth-child(7), .queue-table td:nth-child(7) { width: 19%; }
-    .queue-table th:nth-child(8), .queue-table td:nth-child(8) {
-      width: 8%;
-      font-size: 12px;
-      line-height: 1.45;
-    }
-    .queue-table th:nth-child(9), .queue-table td:nth-child(9) { width: 13%; }
+    .queue-table th:nth-child(1), .queue-table td:nth-child(1) { width: 5%; }
+    .queue-table th:nth-child(2), .queue-table td:nth-child(2) { width: 55%; }
+    .queue-table th:nth-child(3), .queue-table td:nth-child(3) { width: 20%; }
+    .queue-table th:nth-child(4), .queue-table td:nth-child(4) { width: 20%; }
     .queue-table tr.queue-row--target td { background: rgba(125, 211, 252, 0.12); }
     .queue-type { font-size: 12px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; display: inline-block; }
+    .queue-task-link {
+      display: grid;
+      gap: 4px;
+      color: var(--text-on-dark);
+      text-decoration: none;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 8px;
+      margin: -8px;
+    }
+    .queue-task-link:hover,
+    .queue-task-link:focus-visible {
+      border-color: var(--line);
+      background: rgba(255, 255, 255, 0.05);
+      outline: none;
+    }
+    .queue-task-title {
+      color: var(--text-on-dark);
+      font-weight: 800;
+      line-height: 1.35;
+    }
+    .queue-task-description {
+      color: var(--muted-on-dark);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .queue-meta {
+      display: grid;
+      gap: 4px;
+      color: var(--muted-on-dark);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .queue-meta strong {
+      color: var(--text-on-dark);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
     .inline-actions {
       display: grid;
       grid-template-columns: 1fr;
@@ -588,21 +618,16 @@
             <thead>
               <tr>
                 <th data-i18n="verify.col.number">#</th>
-                <th data-i18n="verify.col.type">Type</th>
-                <th data-i18n="verify.col.role">Role</th>
-                <th data-i18n="verify.col.email">Email</th>
-                <th data-i18n="verify.col.name">Name</th>
-                <th data-i18n="verify.col.status">Status</th>
-                <th data-i18n="verify.col.summary">Summary</th>
-                <th data-i18n="verify.col.updated">Updated</th>
-                <th data-i18n="verify.col.actions">Actions</th>
+                <th data-i18n="verify.col.task">Task</th>
+                <th data-i18n="verify.col.responsible">Responsible</th>
+                <th data-i18n="verify.col.state">State</th>
               </tr>
             </thead>
             <tbody id="queue-body"></tbody>
           </table>
         </div>
 
-        <section class="details-card">
+        <section class="details-card" id="review-workspace">
           <h2 class="details-title" data-i18n="verify.details.title">Review item details</h2>
           <div id="details-sections" class="details-sections">
             <p class="details-empty" data-i18n="verify.details.empty">Select a queue item to load full draft details.</p>
@@ -699,6 +724,9 @@
         'verify.col.summary': 'Summary',
         'verify.col.updated': 'Updated',
         'verify.col.actions': 'Task',
+        'verify.col.task': 'Task',
+        'verify.col.responsible': 'Responsible',
+        'verify.col.state': 'State',
         'verify.action.open': 'Open review workspace',
         'verify.action.startReview': 'Start review',
         'verify.action.needsCorrection': 'Needs correction',
@@ -773,6 +801,31 @@
         'verify.section.deletionReview': 'Vacancy deletion confirmation',
         'verify.section.workspaceActions': 'Workspace actions',
         'verify.workspaceActions.copy': 'Use these actions only after reviewing the opened internal work item. Queue rows show one primary task; review outcomes and deletion requests are handled here.',
+        'verify.taskTitle.seafarerProfile': 'Review seafarer profile completeness.',
+        'verify.taskTitle.companyVerification': 'Review company verification.',
+        'verify.taskTitle.crewRequest': 'Review crew request completeness.',
+        'verify.taskTitle.vacancyApplication': 'Review candidate application.',
+        'verify.taskTitle.createShortlist': 'Create internal shortlist draft.',
+        'verify.taskTitle.approveInternalShortlist': 'Approve internal shortlist.',
+        'verify.taskTitle.createReviewApplications': 'Create candidate presentation review.',
+        'verify.taskTitle.reviewCandidatePresentation': 'Approve candidate for employer presentation.',
+        'verify.taskTitle.confirmDeletion': 'Confirm deletion request.',
+        'verify.taskTitle.rejectDeletion': 'Reject deletion request.',
+        'verify.taskDescription': '({objectType}: {summary}.)',
+        'verify.object.seafarerProfile': 'Seafarer profile',
+        'verify.object.company': 'Company',
+        'verify.object.crewRequest': 'Crew request',
+        'verify.object.vacancyApplication': 'Candidate application',
+        'verify.object.deletionRequest': 'Deletion request',
+        'verify.responsible.group': 'Group: {group}',
+        'verify.responsible.permission': 'Permission: {permission}',
+        'verify.responsible.unassigned': 'Group queue',
+        'verify.state.ready': 'Ready for action',
+        'verify.state.inReview': 'In review',
+        'verify.state.waitingCorrection': 'Waiting for correction',
+        'verify.state.completed': 'Completed/control record',
+        'verify.state.managerConfirmation': 'Manager confirmation required',
+        'verify.state.status': 'State: {status}',
         'verify.candidateSearch.copy': 'Read-only internal search. It does not create applications, change statuses or present candidates to employers.',
         'verify.candidateSearch.run': 'Run candidate search',
         'verify.candidateSearch.loading': 'Running read-only candidate search...',
@@ -951,6 +1004,9 @@
         'verify.col.summary': 'Сводка',
         'verify.col.updated': 'Обновлен',
         'verify.col.actions': 'Задача',
+        'verify.col.task': 'Задача',
+        'verify.col.responsible': 'Ответственный',
+        'verify.col.state': 'Состояние',
         'verify.action.open': 'Открыть рабочую область',
         'verify.action.startReview': 'Начать проверку',
         'verify.action.needsCorrection': 'Нужна доработка',
@@ -1025,6 +1081,31 @@
         'verify.section.deletionReview': 'Подтверждение удаления заявки',
         'verify.section.workspaceActions': 'Действия в рабочей области',
         'verify.workspaceActions.copy': 'Используйте эти действия только после проверки открытого внутреннего объекта. В строке очереди показывается одна главная задача; результаты проверки и удаление обрабатываются здесь.',
+        'verify.taskTitle.seafarerProfile': 'Проверить полноту профиля моряка.',
+        'verify.taskTitle.companyVerification': 'Проверить компанию работодателя.',
+        'verify.taskTitle.crewRequest': 'Проверить полноту заявки на экипаж.',
+        'verify.taskTitle.vacancyApplication': 'Проверить отклик кандидата.',
+        'verify.taskTitle.createShortlist': 'Создать внутренний shortlist draft.',
+        'verify.taskTitle.approveInternalShortlist': 'Утвердить внутренний shortlist.',
+        'verify.taskTitle.createReviewApplications': 'Создать проверку кандидатов для представления.',
+        'verify.taskTitle.reviewCandidatePresentation': 'Утвердить кандидата для показа работодателю.',
+        'verify.taskTitle.confirmDeletion': 'Подтвердить удаление заявки.',
+        'verify.taskTitle.rejectDeletion': 'Отклонить удаление заявки.',
+        'verify.taskDescription': '({objectType}: {summary}.)',
+        'verify.object.seafarerProfile': 'Профиль моряка',
+        'verify.object.company': 'Компания',
+        'verify.object.crewRequest': 'Заявка на экипаж',
+        'verify.object.vacancyApplication': 'Отклик кандидата',
+        'verify.object.deletionRequest': 'Запрос на удаление',
+        'verify.responsible.group': 'Группа: {group}',
+        'verify.responsible.permission': 'Право: {permission}',
+        'verify.responsible.unassigned': 'Групповая очередь',
+        'verify.state.ready': 'Готово к выполнению',
+        'verify.state.inReview': 'В проверке',
+        'verify.state.waitingCorrection': 'Ожидает исправления',
+        'verify.state.completed': 'Завершено / контрольная запись',
+        'verify.state.managerConfirmation': 'Требуется подтверждение менеджера',
+        'verify.state.status': 'Состояние: {status}',
         'verify.candidateSearch.copy': 'Внутренний read-only поиск. Он не создает отклики, не меняет статусы и не показывает кандидатов работодателю.',
         'verify.candidateSearch.run': 'Запустить поиск кандидатов',
         'verify.candidateSearch.loading': 'Выполняем read-only поиск кандидатов...',
@@ -1343,7 +1424,7 @@
         if (!item || typeof item !== 'object') {
           return '';
         }
-        return item.queue_type === 'vacancy_application'
+        return (item.queue_type === 'vacancy_application' || item.queue_type === 'vacancy_deletion_request')
           ? String(item.queue_item_id || '')
           : String(item.draft_id || '');
       }
@@ -1563,6 +1644,224 @@
           }
         });
         return chunks.length ? chunks.join(' | ') : '-';
+      }
+
+      function summaryValue(item, keys) {
+        if (!item || typeof item !== 'object' || !item.summary || typeof item.summary !== 'object') {
+          return '';
+        }
+        const keyList = Array.isArray(keys) ? keys : [keys];
+        for (const key of keyList) {
+          const value = item.summary[key];
+          if (value !== null && value !== undefined && String(value).trim() !== '') {
+            return String(value).trim();
+          }
+        }
+        return '';
+      }
+
+      function queueTaskTitleKey(item) {
+        if (item && activeTaskTarget && queueItemMatchesTaskTarget(item, activeTaskTarget)) {
+          const operation = activeTaskTarget.taskOperation || '';
+          if (operation === 'create_internal_shortlist_draft') {
+            return 'verify.taskTitle.createShortlist';
+          }
+          if (operation === 'approve_internal_shortlist') {
+            return 'verify.taskTitle.approveInternalShortlist';
+          }
+          if (operation === 'create_review_applications') {
+            return 'verify.taskTitle.createReviewApplications';
+          }
+          if (operation === 'review_candidate_presentation') {
+            return 'verify.taskTitle.reviewCandidatePresentation';
+          }
+          if (operation === 'confirm_vacancy_deletion') {
+            return 'verify.taskTitle.confirmDeletion';
+          }
+          if (operation === 'reject_vacancy_deletion') {
+            return 'verify.taskTitle.rejectDeletion';
+          }
+        }
+        if (!item || typeof item !== 'object') {
+          return 'verify.action.open';
+        }
+        if (item.queue_type === 'seafarer_profile') {
+          return 'verify.taskTitle.seafarerProfile';
+        }
+        if (item.queue_type === 'company_verification') {
+          return 'verify.taskTitle.companyVerification';
+        }
+        if (item.queue_type === 'vacancy_request') {
+          return 'verify.taskTitle.crewRequest';
+        }
+        if (item.queue_type === 'vacancy_application') {
+          return 'verify.taskTitle.vacancyApplication';
+        }
+        if (item.queue_type === 'vacancy_deletion_request') {
+          return 'verify.taskTitle.confirmDeletion';
+        }
+        return 'verify.action.open';
+      }
+
+      function queueObjectTypeKey(item) {
+        if (!item || typeof item !== 'object') {
+          return 'verify.object.crewRequest';
+        }
+        if (item.queue_type === 'seafarer_profile') {
+          return 'verify.object.seafarerProfile';
+        }
+        if (item.queue_type === 'company_verification') {
+          return 'verify.object.company';
+        }
+        if (item.queue_type === 'vacancy_application') {
+          return 'verify.object.vacancyApplication';
+        }
+        if (item.queue_type === 'vacancy_deletion_request') {
+          return 'verify.object.deletionRequest';
+        }
+        return 'verify.object.crewRequest';
+      }
+
+      function queueObjectSummary(item) {
+        if (!item || typeof item !== 'object') {
+          return '-';
+        }
+        if (item.queue_type === 'seafarer_profile') {
+          return [
+            item.full_name,
+            summaryValue(item, ['primary_rank', 'rank']),
+            summaryValue(item, 'availability_status'),
+          ].filter(Boolean).join(', ') || summaryText(item);
+        }
+        if (item.queue_type === 'company_verification') {
+          return [
+            summaryValue(item, 'company_name') || item.full_name,
+            summaryValue(item, 'company_type'),
+          ].filter(Boolean).join(', ') || summaryText(item);
+        }
+        if (item.queue_type === 'vacancy_application') {
+          return [
+            item.full_name,
+            summaryValue(item, ['vacancy_title', 'rank']),
+          ].filter(Boolean).join(' - ') || summaryText(item);
+        }
+        const rank = summaryValue(item, ['rank', 'required_rank_label']);
+        const vesselType = summaryValue(item, ['vessel_type', 'vessel_type_label']);
+        const joinDate = summaryValue(item, 'join_date');
+        const title = summaryValue(item, 'vacancy_title');
+        const requestSummary = [
+          title || rank,
+          vesselType ? `for ${vesselType}` : '',
+          joinDate ? `join date ${joinDate}` : '',
+        ].filter(Boolean).join(', ');
+        return requestSummary || summaryText(item);
+      }
+
+      function queueResponsibleGroup(item) {
+        if (!item || typeof item !== 'object') {
+          return t('verify.responsible.unassigned');
+        }
+        if (item.queue_type === 'seafarer_profile' || item.queue_type === 'company_verification') {
+          return t('operator.role.verifier');
+        }
+        if (item.queue_type === 'vacancy_request' || item.queue_type === 'vacancy_application') {
+          return t('operator.role.reviewer');
+        }
+        if (item.queue_type === 'vacancy_deletion_request') {
+          return t('operator.role.platformAdministrator');
+        }
+        return t('verify.responsible.unassigned');
+      }
+
+      function queueRequiredPermission(item) {
+        if (!item || typeof item !== 'object') {
+          return '';
+        }
+        const actionAccess = queueActionAccess(item, 'start_review');
+        if (actionAccess && actionAccess.permission_code) {
+          return actionAccess.permission_code;
+        }
+        const viewAccess = item.operator_access && item.operator_access.view && typeof item.operator_access.view === 'object'
+          ? item.operator_access.view
+          : {};
+        return viewAccess.permission_code || '';
+      }
+
+      function queueTaskState(item) {
+        const statusValue = item && item.status ? String(item.status) : '';
+        if (item && item.queue_type === 'vacancy_deletion_request') {
+          return t('verify.state.managerConfirmation');
+        }
+        if (statusValue === 'in_review') {
+          return t('verify.state.inReview');
+        }
+        if (statusValue === 'rejected' || statusValue === 'needs_correction' || statusValue === 'correction_requested') {
+          return t('verify.state.waitingCorrection');
+        }
+        if (['reviewed', 'approved', 'published', 'presented', 'closed'].includes(statusValue)) {
+          return t('verify.state.completed');
+        }
+        if (statusValue === 'submitted_for_human_review' || statusValue === 'submitted' || statusValue === 'pending_review') {
+          return t('verify.state.ready');
+        }
+        return statusValue ? t('verify.state.status', { status: statusValue }) : t('verify.state.ready');
+      }
+
+      function queueTaskHref(item, targetId) {
+        const params = new URLSearchParams();
+        if (item && item.queue_type) {
+          params.set('queue_type', item.queue_type);
+        }
+        if (item && item.queue_item_id) {
+          params.set('queue_item_id', item.queue_item_id);
+        } else if (targetId) {
+          params.set('queue_item_id', targetId);
+        }
+        return `${window.location.pathname}?${params.toString()}#review-workspace`;
+      }
+
+      function appendMetaCell(row, lines) {
+        const cell = document.createElement('td');
+        const wrapper = document.createElement('div');
+        wrapper.className = 'queue-meta';
+        (Array.isArray(lines) ? lines : []).filter(Boolean).forEach((line) => {
+          const div = document.createElement('div');
+          div.textContent = line;
+          wrapper.appendChild(div);
+        });
+        if (!wrapper.childElementCount) {
+          wrapper.textContent = '-';
+        }
+        cell.appendChild(wrapper);
+        row.appendChild(cell);
+        return cell;
+      }
+
+      function appendTaskCell(row, item, targetId) {
+        const cell = document.createElement('td');
+        const link = document.createElement('a');
+        link.className = 'queue-task-link queue-open';
+        link.href = queueTaskHref(item, targetId);
+        link.dataset.draftId = targetId || '';
+        if (item && item.queue_type) {
+          link.dataset.queueType = item.queue_type;
+        }
+
+        const title = document.createElement('span');
+        title.className = 'queue-task-title';
+        title.textContent = t(queueTaskTitleKey(item));
+
+        const description = document.createElement('span');
+        description.className = 'queue-task-description';
+        description.textContent = t('verify.taskDescription', {
+          objectType: t(queueObjectTypeKey(item)),
+          summary: queueObjectSummary(item),
+        });
+
+        link.append(title, description);
+        cell.appendChild(link);
+        row.appendChild(cell);
+        return cell;
       }
 
       function compareBy(sortValue, left, right) {
@@ -3868,7 +4167,7 @@
 
         items.forEach((item, index) => {
           const tr = document.createElement('tr');
-          const targetId = item.queue_type === 'vacancy_application' ? item.queue_item_id : item.draft_id;
+          const targetId = queueTargetId(item);
           tr.dataset.queueType = item.queue_type || '';
           tr.dataset.queueItemId = item.queue_item_id || '';
           tr.dataset.draftId = targetId || item.draft_id || '';
@@ -3876,29 +4175,12 @@
             tr.classList.add('queue-row--target');
           }
           appendTextCell(tr, String(index + 1));
-
-          const queueTypeCell = document.createElement('td');
-          const queueType = document.createElement('span');
-          queueType.className = 'queue-type';
-          queueType.textContent = queueDisplayValue(item.queue_type);
-          queueTypeCell.appendChild(queueType);
-          tr.appendChild(queueTypeCell);
-
-          appendTextCell(tr, item.role);
-          appendTextCell(tr, item.email);
-          appendTextCell(tr, item.full_name);
-          appendTextCell(tr, item.status);
-          appendTextCell(tr, summaryText(item));
-          appendTextCell(tr, item.updated_at);
-
-          const actionCell = document.createElement('td');
-          const actionWrap = document.createElement('div');
-          actionWrap.className = 'inline-actions';
-          const primaryButton = createQueueButton('queue-open', 'verify.action.open', targetId, '', item.queue_type, item);
-          primaryButton.textContent = queuePrimaryTaskLabel(item);
-          actionWrap.append(primaryButton);
-          actionCell.appendChild(actionWrap);
-          tr.appendChild(actionCell);
+          appendTaskCell(tr, item, targetId);
+          appendMetaCell(tr, [
+            t('verify.responsible.group', { group: queueResponsibleGroup(item) }),
+            queueRequiredPermission(item) ? t('verify.responsible.permission', { permission: queueRequiredPermission(item) }) : '',
+          ]);
+          appendMetaCell(tr, [queueTaskState(item)]);
           body.appendChild(tr);
         });
 
@@ -3910,7 +4192,12 @@
         });
 
         body.querySelectorAll('.queue-open').forEach((button) => {
-          button.addEventListener('click', () => {
+          button.addEventListener('click', (event) => {
+            event.preventDefault();
+            const href = button.getAttribute('href') || '';
+            if (href) {
+              window.history.replaceState(null, '', href);
+            }
             loadQueueItemDetails(
               button.getAttribute('data-draft-id') || '',
               button.getAttribute('data-queue-type') || ''

@@ -89,12 +89,15 @@ test('operator queue disables actions denied by operator_access contract', async
 
   await page.goto('/verify/');
 
-  const row = page.locator('#queue-body tr', { hasText: 'operator.access.contract@example.com' }).first();
+  await expect(page.locator('#queue-body')).not.toContainText('operator.access.contract@example.com');
+  const row = page.locator('#queue-body tr', { hasText: 'Review crew request completeness.' }).first();
   await expect(row).toBeVisible();
-
-  await expect(row.locator('.queue-open')).toHaveText('Open review workspace');
+  await expect(row).toContainText('Crew request');
+  await expect(row).toContainText('Group: Reviewer');
+  await expect(row.getByRole('button', { name: /Open review workspace/ })).toHaveCount(0);
+  await expect(row.locator('.queue-task-link.queue-open')).toBeVisible();
   await expect(row.locator('.queue-decision')).toHaveCount(0);
-  await row.locator('.queue-open').click();
+  await row.locator('.queue-task-link.queue-open').click();
 
   const workspaceActions = page.locator('.workspace-actions-section');
   await expect(workspaceActions).toContainText('Workspace actions');
