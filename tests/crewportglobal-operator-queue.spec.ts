@@ -18,6 +18,51 @@ async function expectQueueTableFitsWorkbench(page: Page): Promise<void> {
   expect(metrics.pageScrollWidth).toBeLessThanOrEqual(metrics.pageClientWidth + 2);
 }
 
+function expectConcreteComputedTaskLink(task: Record<string, unknown>): void {
+  const rawUrl = String(task.target_url || task.action_url || '');
+  expect(rawUrl).toBeTruthy();
+  const url = new URL(rawUrl, 'https://crewportglobal.test');
+  const operationCode = String(task.operation_code || '');
+  const visibleTarget = `${url.pathname}${url.search}${url.hash}`;
+  expect(visibleTarget).not.toBe('/verify/');
+  expect(visibleTarget).not.toBe('/team/');
+
+  if (operationCode === 'create_internal_shortlist_draft') {
+    expect(url.pathname).toBe('/team/matching/');
+    expect(url.searchParams.get('vacancy_request_id')).toBeTruthy();
+    return;
+  }
+
+  if (operationCode === 'approve_internal_shortlist' || operationCode === 'create_review_applications') {
+    expect(url.pathname).toBe('/verify/');
+    expect(url.searchParams.get('task_operation')).toBe(operationCode);
+    expect(url.searchParams.get('shortlist_draft_id')).toBeTruthy();
+    return;
+  }
+
+  if (operationCode === 'review_candidate_presentation') {
+    expect(url.pathname).toBe('/verify/');
+    expect(url.searchParams.get('task_operation')).toBe(operationCode);
+    expect(url.searchParams.get('queue_type')).toBe('vacancy_application');
+    expect(url.searchParams.get('queue_item_id')).toBeTruthy();
+    return;
+  }
+
+  if (operationCode === 'confirm_vacancy_deletion' || operationCode === 'reject_vacancy_deletion') {
+    expect(url.pathname).toBe('/verify/');
+    expect(url.searchParams.get('task_operation')).toBe(operationCode);
+    expect(url.searchParams.get('record_type')).toBe('vacancy_deletion_request');
+    expect(url.searchParams.get('record_id')).toBeTruthy();
+    return;
+  }
+
+  expect(
+    url.searchParams.get('queue_item_id') ||
+      url.searchParams.get('record_id') ||
+      url.searchParams.get('shortlist_draft_id')
+  ).toBeTruthy();
+}
+
 function cleanupOperatorQueueTestData(): void {
   const sql = `
 WITH ui_users AS (
@@ -553,6 +598,26 @@ test('owner team task opens pending vacancy deletion confirmation panel', async 
     return;
   }
 
+  const ownerRequest = await playwrightRequest.newContext({
+    baseURL,
+    extraHTTPHeaders: {
+      Authorization: `Bearer ${ownerSession}`,
+    },
+  });
+  try {
+    const workbenchResponse = await ownerRequest.get('/api/v1/team/workbench/tasks');
+    const workbenchBody = await workbenchResponse.text();
+    expect(workbenchResponse.ok(), workbenchBody).toBeTruthy();
+    const workbench = JSON.parse(workbenchBody);
+    const deletionTaskPayload = (workbench.tasks as Array<Record<string, unknown>>).find((task) =>
+      task.operation_code === 'confirm_vacancy_deletion' && task.record_id === vacancyRequestId
+    );
+    expect(deletionTaskPayload).toBeTruthy();
+    expectConcreteComputedTaskLink(deletionTaskPayload as Record<string, unknown>);
+  } finally {
+    await ownerRequest.dispose();
+  }
+
   await page.addInitScript((token) => {
     window.localStorage.setItem('crewportglobal_team_session', token);
   }, ownerSession);
@@ -582,7 +647,7 @@ test('owner team task opens pending vacancy deletion confirmation panel', async 
   await expect(page.locator('#team-task-feedback')).toContainText('Operation completed: reject_vacancy_deletion');
 });
 
-test('operator queue page renders and reviews vacancy applications', async ({ page, request }) => {
+test('operator queue page renders and reviews vacancy applications', async ({ page, request, baseURL }) => {
   const unique = Date.now();
   const employerEmail = `ui.queue.employer.${unique}@example.com`;
   const seafarerEmail = `ui.queue.application.seafarer.${unique}@example.com`;
@@ -673,6 +738,29 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
 
   const reviewTeamSession = createReviewTeamAdminSession(employer.draft_id);
   if (reviewTeamSession) {
+    if (baseURL) {
+      const teamRequest = await playwrightRequest.newContext({
+        baseURL,
+        extraHTTPHeaders: {
+          Authorization: `Bearer ${reviewTeamSession}`,
+        },
+      });
+      try {
+        const workbenchResponse = await teamRequest.get('/api/v1/team/workbench/tasks');
+        const workbenchBody = await workbenchResponse.text();
+        expect(workbenchResponse.ok(), workbenchBody).toBeTruthy();
+        const workbench = JSON.parse(workbenchBody);
+        const presentationTaskPayload = (workbench.tasks as Array<Record<string, unknown>>).find((task) =>
+          task.operation_code === 'review_candidate_presentation' &&
+          (task.context as Record<string, unknown> | undefined)?.queue_item_id === applicationId
+        );
+        expect(presentationTaskPayload).toBeTruthy();
+        expectConcreteComputedTaskLink(presentationTaskPayload as Record<string, unknown>);
+      } finally {
+        await teamRequest.dispose();
+      }
+    }
+
     await page.addInitScript((token) => {
       window.localStorage.setItem('crewportglobal_team_session', token);
     }, reviewTeamSession);
@@ -903,6 +991,17 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       expect(shortlistOperation.required_access.actor_user_id).toBe(employer.draft_id);
       expect(shortlistOperation.required_access.allowed).toBe(true);
 
+      const initialWorkbenchResponse = await teamRequest.get('/api/v1/team/workbench/tasks');
+      const initialWorkbenchBody = await initialWorkbenchResponse.text();
+      expect(initialWorkbenchResponse.ok(), initialWorkbenchBody).toBeTruthy();
+      const initialWorkbench = JSON.parse(initialWorkbenchBody);
+      const createShortlistTaskPayload = (initialWorkbench.tasks as Array<Record<string, unknown>>).find((task) =>
+        task.operation_code === 'create_internal_shortlist_draft' &&
+        (task.context as Record<string, unknown> | undefined)?.queue_item_id === vacancyRequestId
+      );
+      expect(createShortlistTaskPayload).toBeTruthy();
+      expectConcreteComputedTaskLink(createShortlistTaskPayload as Record<string, unknown>);
+
       await page.addInitScript((token) => {
         window.localStorage.setItem('crewportglobal_team_session', token);
       }, reviewTeamSession);
@@ -961,6 +1060,17 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       expect(JSON.stringify(createdDraftRow)).not.toContain(exactEmail);
       expect(JSON.stringify(createdDraftRow)).not.toContain('document_metadata');
 
+      const approvalWorkbenchResponse = await teamRequest.get('/api/v1/team/workbench/tasks');
+      const approvalWorkbenchBody = await approvalWorkbenchResponse.text();
+      expect(approvalWorkbenchResponse.ok(), approvalWorkbenchBody).toBeTruthy();
+      const approvalWorkbench = JSON.parse(approvalWorkbenchBody);
+      const approveInternalTaskPayload = (approvalWorkbench.tasks as Array<Record<string, unknown>>).find((task) =>
+        task.operation_code === 'approve_internal_shortlist' &&
+        (task.context as Record<string, unknown> | undefined)?.shortlist_draft_id === createdDraftRow.shortlist_draft_id
+      );
+      expect(approveInternalTaskPayload).toBeTruthy();
+      expectConcreteComputedTaskLink(approveInternalTaskPayload as Record<string, unknown>);
+
       await page.goto('/team/shortlists/');
       await expect(page.locator('#shortlist-history-status')).toContainText('Showing');
       await expect(page.locator('#shortlist-history-list')).toContainText(vacancyTitle);
@@ -1018,6 +1128,17 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       await expect(approvedDraftCard.locator('.shortlist-drilldown')).not.toContainText(exactEmail);
       await expect(approvedDraftCard.locator('.shortlist-drilldown')).not.toContainText('contact_email');
       await expect(approvedDraftCard.locator('.shortlist-drilldown')).not.toContainText('document_metadata');
+
+      const reviewApplicationsWorkbenchResponse = await teamRequest.get('/api/v1/team/workbench/tasks');
+      const reviewApplicationsWorkbenchBody = await reviewApplicationsWorkbenchResponse.text();
+      expect(reviewApplicationsWorkbenchResponse.ok(), reviewApplicationsWorkbenchBody).toBeTruthy();
+      const reviewApplicationsWorkbench = JSON.parse(reviewApplicationsWorkbenchBody);
+      const createReviewApplicationsTaskPayload = (reviewApplicationsWorkbench.tasks as Array<Record<string, unknown>>).find((task) =>
+        task.operation_code === 'create_review_applications' &&
+        (task.context as Record<string, unknown> | undefined)?.shortlist_draft_id === createdDraftRow.shortlist_draft_id
+      );
+      expect(createReviewApplicationsTaskPayload).toBeTruthy();
+      expectConcreteComputedTaskLink(createReviewApplicationsTaskPayload as Record<string, unknown>);
 
       await page.goto('/team/');
       const reviewApplicationsTeamTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();

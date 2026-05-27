@@ -345,7 +345,38 @@ Future UI must follow this manual:
 6. make action labels clear to non-technical users;
 7. keep public/external view separate from internal review workspace.
 
-## 17. Next Stage
+## 17. Process Description And Application Verification Cycle
+
+CrewPortGlobal process documentation must be prepared and validated through a controlled cycle.
+
+The required cycle is:
+
+```text
+1. Describe the process stage.
+2. Verify whether the described stage is executable in the current application.
+3. If the application does not match the process, make the minimum necessary correction.
+4. Test the corrected behavior.
+5. If tests confirm compliance, move to the next process stage.
+6. If compliance is not confirmed, repeat verification, correction and testing before moving on.
+```
+
+This cycle is mandatory because business-process documentation is not only a written description. It is also a control method for proving that the application can execute the described process.
+
+For every implementation or UI-correction slice based on this manual, the implementation report must record:
+
+1. process stage described;
+2. application surface checked;
+3. mismatch found, if any;
+4. correction made, if any;
+5. tests executed;
+6. result of compliance check;
+7. next planned stage or confirmation that the stage is complete.
+
+Computed task links are part of this verification. A visible task is compliant only if its active title/description link opens the exact internal working object with the executable operation or controlled blocker state.
+
+Sending the user to a general list without opening the target object is not compliant with this manual.
+
+## 18. Next Stage
 
 The companion operating instruction must be maintained in:
 

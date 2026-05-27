@@ -460,7 +460,32 @@ Every task must link to the exact working object.
 
 The link must not send a team user to a public page when the work requires internal review.
 
-## 16. Review Outcomes
+## 16. Execution And Verification Cycle For Process Work
+
+Users, team members and AI agents must treat process documentation and product behavior as one controlled system.
+
+The required execution cycle is:
+
+```text
+1. Describe the process stage and expected task.
+2. Open the application and verify that the stage can actually be performed.
+3. If the application does not support the described operation, record the mismatch and correct only the necessary surface.
+4. Run focused tests for the affected process.
+5. Move to the next process stage only after the test confirms compliance.
+6. If compliance is not confirmed, repeat the check/fix/test cycle.
+```
+
+For task links this means:
+
+1. the task title and object description are the active link;
+2. the link opens the exact internal working object;
+3. the opened workspace shows the executable operation or the blocker that prevents execution;
+4. secondary actions remain inside the workspace or contextual menu;
+5. after successful completion, the task list is recomputed from current data.
+
+AI agents must not mark a process stage complete only because a document has been written. The agent must also verify the relevant application behavior or explicitly report why verification was not possible.
+
+## 17. Review Outcomes
 
 Review outcomes should be recorded inside the review workspace.
 
@@ -472,7 +497,7 @@ Review outcomes should be recorded inside the review workspace.
 | Hold | More information is needed or external response is pending | Follow-up task computes. |
 | Request deletion | Secondary controlled action | Manager confirmation task computes. |
 
-## 17. Escalation Rules
+## 18. Escalation Rules
 
 Escalate when:
 
@@ -487,7 +512,7 @@ Escalate when:
 
 Escalation should create a visible computed task for manager/control only when the underlying state supports it.
 
-## 18. Confidentiality Rules
+## 19. Confidentiality Rules
 
 Users and team must protect:
 
@@ -502,7 +527,7 @@ Users and team must protect:
 
 Employer-facing summaries must use allow-listed fields only.
 
-## 19. Future UI Revision Requirements
+## 20. Future UI Revision Requirements
 
 When UI simplification is approved, the operator queue should be changed so that:
 
@@ -515,7 +540,7 @@ When UI simplification is approved, the operator queue should be changed so that
 7. access denied actions are hidden or shown as blocked with reason;
 8. task labels are understandable to non-technical users.
 
-## 20. Next Stage
+## 21. Next Stage
 
 After BP-012 and BP-013 are reviewed by Project Owner, the next stage should be:
 
