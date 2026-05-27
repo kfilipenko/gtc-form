@@ -261,6 +261,23 @@
       line-height: 1.3;
       overflow-wrap: anywhere;
     }
+    .team-task__title a {
+      color: var(--team-text);
+      text-decoration: none;
+    }
+    .team-task__title a:hover,
+    .team-task__title a:focus-visible {
+      color: var(--team-primary-strong);
+      text-decoration: underline;
+    }
+    .team-task__description {
+      display: block;
+      margin-top: 3px;
+      color: var(--team-muted);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
     .team-task__badge {
       flex: 0 0 auto;
       padding: 3px 8px;
@@ -271,6 +288,15 @@
       font-weight: 900;
     }
     .team-task__meta {
+      margin: 0;
+      color: var(--team-muted);
+      font-size: 13px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+    .team-task__meta-list {
+      display: grid;
+      gap: 4px;
       margin: 0;
       color: var(--team-muted);
       font-size: 13px;
@@ -492,6 +518,128 @@
       return text || '-';
     }
 
+    function taskValue(task, path, fallback = '') {
+      const keys = Array.isArray(path) ? path : String(path || '').split('.');
+      let current = task;
+      for (const key of keys) {
+        if (!current || typeof current !== 'object' || !(key in current)) {
+          return fallback;
+        }
+        current = current[key];
+      }
+      const text = String(current || '').trim();
+      return text || fallback;
+    }
+
+    function taskOperation(task) {
+      return taskValue(task, 'operation_code');
+    }
+
+    function taskBusinessTitle(task) {
+      const operation = taskOperation(task);
+      if (operation === 'create_internal_shortlist_draft') {
+        return 'Create internal shortlist draft.';
+      }
+      if (operation === 'approve_internal_shortlist') {
+        return 'Approve internal shortlist.';
+      }
+      if (operation === 'create_review_applications') {
+        return 'Create candidate presentation review.';
+      }
+      if (operation === 'review_candidate_presentation') {
+        return 'Approve candidate for employer presentation.';
+      }
+      if (operation === 'confirm_vacancy_deletion') {
+        return 'Confirm deletion request.';
+      }
+      if (operation === 'reject_vacancy_deletion') {
+        return 'Reject deletion request.';
+      }
+      return textOrDash(task.title);
+    }
+
+    function taskObjectType(task) {
+      const operation = taskOperation(task);
+      const type = taskValue(task, 'task_type') || taskValue(task, 'record_type');
+      if (operation === 'create_internal_shortlist_draft' || type === 'demand_candidate_search') {
+        return 'Crew request';
+      }
+      if (operation === 'approve_internal_shortlist' || operation === 'create_review_applications' || type === 'internal_shortlist_workflow') {
+        return 'Internal shortlist';
+      }
+      if (operation === 'review_candidate_presentation' || type === 'candidate_presentation_review') {
+        return 'Candidate presentation';
+      }
+      if (operation === 'confirm_vacancy_deletion' || operation === 'reject_vacancy_deletion' || type === 'vacancy_deletion_confirmation') {
+        return 'Deletion request';
+      }
+      return textOrDash(task.record_type || type);
+    }
+
+    function taskSafeSummary(task) {
+      const context = task && typeof task.context === 'object' && task.context !== null ? task.context : {};
+      const parts = [
+        task.summary,
+        context.rank,
+        context.department,
+        context.company_name,
+        context.vessel_name,
+      ].map((value) => String(value || '').trim()).filter(Boolean);
+      return parts.length ? parts.join(', ') : textOrDash(task.record_id);
+    }
+
+    function taskProcessStage(task) {
+      const operation = taskOperation(task);
+      if (operation === 'create_internal_shortlist_draft') {
+        return 'Request-supply matching and shortlist preparation';
+      }
+      if (operation === 'approve_internal_shortlist') {
+        return 'Internal shortlist approval';
+      }
+      if (operation === 'create_review_applications') {
+        return 'Candidate presentation review preparation';
+      }
+      if (operation === 'review_candidate_presentation') {
+        return 'Employer-facing candidate presentation review';
+      }
+      if (operation === 'confirm_vacancy_deletion' || operation === 'reject_vacancy_deletion') {
+        return 'Controlled deletion confirmation';
+      }
+      if (taskValue(task, 'task_type') === 'demand_candidate_search') {
+        return 'Request-supply matching and shortlist preparation';
+      }
+      return 'Computed team operation';
+    }
+
+    function taskVisibilityCondition(task) {
+      const operation = taskOperation(task);
+      const status = taskValue(task, 'current_status') || taskValue(task, 'context.status') || taskValue(task, 'context.draft_status');
+      if (operation === 'confirm_vacancy_deletion' || operation === 'reject_vacancy_deletion') {
+        return 'Visible until manager confirms or rejects the deletion request.';
+      }
+      if (operation) {
+        return 'Visible until this computed operation is completed or blocked by guard.';
+      }
+      if (status) {
+        return `Visible because workflow status is ${status}.`;
+      }
+      return 'Visible because current data state creates this group task.';
+    }
+
+    function taskResponsibleLines(task) {
+      const access = task && typeof task.required_access === 'object' && task.required_access !== null
+        ? task.required_access
+        : {};
+      const group = textOrDash(access.target_group_code);
+      const permission = textOrDash(access.required_permission_code);
+      const assignee = textOrDash(taskValue(task, 'context.assigned_user_label'));
+      return [
+        `Group: ${group}`,
+        assignee !== '-' ? `Assigned employee: ${assignee}` : 'Assigned employee: group queue',
+        `Permission: ${permission}`,
+      ];
+    }
+
     function takeTaskFeedback() {
       try {
         const raw = window.localStorage.getItem(TEAM_TASK_FEEDBACK_KEY) || '';
@@ -552,29 +700,35 @@
         number.textContent = `#${index + 1}`;
         const title = document.createElement('p');
         title.className = 'team-task__title';
-        title.textContent = `${textOrDash(task.title)} — ${textOrDash(task.summary)}`;
-        const badge = document.createElement('span');
-        badge.className = 'team-task__badge';
-        badge.textContent = textOrDash(task.task_status);
-        heading.append(number, title);
-        top.append(heading, badge);
-
-        const meta = document.createElement('p');
-        meta.className = 'team-task__meta';
-        const access = task.required_access || {};
-        meta.textContent = [
-          `operation: ${textOrDash(task.operation_code)}`,
-          `record: ${textOrDash(task.record_type)} ${textOrDash(task.record_id)}`,
-          `group: ${textOrDash(access.target_group_code)}`,
-          `permission: ${textOrDash(access.required_permission_code)}`,
-        ].join(' | ');
-
         const link = document.createElement('a');
         link.className = 'team-task__link';
         link.href = task.target_url || task.action_url || '/verify/';
-        link.textContent = 'Open operator workbench';
+        const titleText = document.createElement('span');
+        titleText.textContent = taskBusinessTitle(task);
+        const description = document.createElement('span');
+        description.className = 'team-task__description';
+        description.textContent = `(${taskObjectType(task)}: ${taskSafeSummary(task)}.)`;
+        link.append(titleText, description);
+        title.append(link);
+        const badge = document.createElement('span');
+        badge.className = 'team-task__badge';
+        badge.textContent = 'Computed task';
+        heading.append(number, title);
+        top.append(heading, badge);
 
-        item.append(top, meta, link);
+        const state = document.createElement('div');
+        state.className = 'team-task__meta-list';
+        [
+          `Stage: ${taskProcessStage(task)}`,
+          taskVisibilityCondition(task),
+          ...taskResponsibleLines(task),
+        ].forEach((line) => {
+          const row = document.createElement('div');
+          row.textContent = line;
+          state.append(row);
+        });
+
+        item.append(top, state);
         taskList.append(item);
       });
     }

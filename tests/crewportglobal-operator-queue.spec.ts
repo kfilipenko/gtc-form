@@ -559,8 +559,11 @@ test('owner team task opens pending vacancy deletion confirmation panel', async 
   await page.goto('/team/');
   await expect(page.locator('#team-task-status')).toContainText('computed task');
   const deletionTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();
-  await expect(deletionTask).toContainText('confirm_vacancy_deletion');
-  await expect(deletionTask).toContainText('approve_access_policy_change');
+  await expect(deletionTask).toContainText('Confirm deletion request.');
+  await expect(deletionTask).toContainText('Stage: Controlled deletion confirmation');
+  await expect(deletionTask).toContainText('Visible until manager confirms or rejects the deletion request.');
+  await expect(deletionTask).toContainText('Permission: approve_access_policy_change');
+  await expect(deletionTask).not.toContainText('confirm_vacancy_deletion');
   const taskLink = deletionTask.locator('.team-task__link');
   await expect(taskLink).toHaveAttribute('href', /task_operation=confirm_vacancy_deletion/);
   await expect(taskLink).toHaveAttribute('href', /record_type=vacancy_deletion_request/);
@@ -676,9 +679,12 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
     await page.goto('/team/');
     await expect(page.locator('#team-tasks-title')).toContainText('My tasks');
     await expect(page.locator('#team-task-list')).toContainText(title);
-    await expect(page.locator('#team-task-list')).toContainText('review_candidate_presentation');
     const presentationTask = page.locator('#team-task-list .team-task', { hasText: title }).first();
-    await expect(presentationTask).toContainText('approve_candidate_presentation');
+    await expect(presentationTask).toContainText('Approve candidate for employer presentation.');
+    await expect(presentationTask).toContainText('Stage: Employer-facing candidate presentation review');
+    await expect(presentationTask).toContainText('Visible until this computed operation is completed or blocked by guard.');
+    await expect(presentationTask).toContainText('Permission: approve_candidate_presentation');
+    await expect(presentationTask).not.toContainText('review_candidate_presentation');
     await presentationTask.locator('.team-task__link').click();
     await expect(page).toHaveURL(/task_operation=review_candidate_presentation/);
     await expect(page.locator('#queue-status')).toContainText('Task target opened');
@@ -959,7 +965,10 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       await expect(page.locator('#team-task-list')).toContainText(vacancyTitle);
       const updatedTeamTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();
       await expect(updatedTeamTask.locator('.team-task__number')).toHaveText(/^#\d+$/);
-      await expect(updatedTeamTask).toContainText('approve_internal_shortlist');
+      await expect(updatedTeamTask).toContainText('Approve internal shortlist.');
+      await expect(updatedTeamTask).toContainText('Stage: Internal shortlist approval');
+      await expect(updatedTeamTask).toContainText('Permission: approve_candidate_presentation');
+      await expect(updatedTeamTask).not.toContainText('approve_internal_shortlist');
       await expect(updatedTeamTask).not.toContainText('create_internal_shortlist_draft');
 
       await updatedTeamTask.locator('.team-task__link').click();
@@ -1000,7 +1009,9 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
 
       await page.goto('/team/');
       const reviewApplicationsTeamTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();
-      await expect(reviewApplicationsTeamTask).toContainText('create_review_applications');
+      await expect(reviewApplicationsTeamTask).toContainText('Create candidate presentation review.');
+      await expect(reviewApplicationsTeamTask).toContainText('Stage: Candidate presentation review preparation');
+      await expect(reviewApplicationsTeamTask).not.toContainText('create_review_applications');
       await expect(reviewApplicationsTeamTask).not.toContainText('approve_internal_shortlist');
 
       await reviewApplicationsTeamTask.locator('.team-task__link').click();
