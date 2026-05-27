@@ -94,6 +94,8 @@ test('operator queue disables actions denied by operator_access contract', async
   await expect(row).toBeVisible();
   await expect(row).toContainText('Crew request');
   await expect(row).toContainText('Group: Reviewer');
+  await expect(row).toContainText('Stage: Employer demand intake review');
+  await expect(row).toContainText('Visible because submitted data requires a human review outcome.');
   await expect(row.getByRole('button', { name: /Open review workspace/ })).toHaveCount(0);
   await expect(row.locator('.queue-task-link.queue-open')).toBeVisible();
   await expect(row.locator('.queue-decision')).toHaveCount(0);

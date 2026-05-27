@@ -460,6 +460,8 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
 
   await page.locator('#filter-role').selectOption('seafarer');
   const queueRow = page.locator('#queue-body tr', { hasText: 'Review seafarer profile completeness.' }).first();
+  await expect(queueRow).toContainText('Stage: Seafarer supply readiness review');
+  await expect(queueRow).toContainText('Visible because submitted data requires a human review outcome.');
   await expect(queueRow.getByRole('button', { name: /Open review workspace/ })).toHaveCount(0);
   await queueRow.locator('.queue-task-link.queue-open').click();
   await expect(page.locator('#details-sections')).toContainText('Registration');

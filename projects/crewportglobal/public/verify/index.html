@@ -726,7 +726,7 @@
         'verify.col.actions': 'Task',
         'verify.col.task': 'Task',
         'verify.col.responsible': 'Responsible',
-        'verify.col.state': 'State',
+        'verify.col.state': 'Stage / condition',
         'verify.action.open': 'Open review workspace',
         'verify.action.startReview': 'Start review',
         'verify.action.needsCorrection': 'Needs correction',
@@ -820,12 +820,25 @@
         'verify.responsible.group': 'Group: {group}',
         'verify.responsible.permission': 'Permission: {permission}',
         'verify.responsible.unassigned': 'Group queue',
-        'verify.state.ready': 'Ready for action',
-        'verify.state.inReview': 'In review',
-        'verify.state.waitingCorrection': 'Waiting for correction',
-        'verify.state.completed': 'Completed/control record',
-        'verify.state.managerConfirmation': 'Manager confirmation required',
-        'verify.state.status': 'State: {status}',
+        'verify.processStage.supplyReadinessReview': 'Seafarer supply readiness review',
+        'verify.processStage.companyVerification': 'Employer / company verification',
+        'verify.processStage.demandIntakeReview': 'Employer demand intake review',
+        'verify.processStage.candidateApplicationReview': 'Candidate application review',
+        'verify.processStage.requestSupplyMatching': 'Request-supply matching and shortlist preparation',
+        'verify.processStage.internalShortlistApproval': 'Internal shortlist approval',
+        'verify.processStage.presentationPreparation': 'Candidate presentation review preparation',
+        'verify.processStage.candidatePresentationReview': 'Employer-facing candidate presentation review',
+        'verify.processStage.deletionConfirmation': 'Controlled deletion confirmation',
+        'verify.processStage.controlRecord': 'Control record / closed workflow',
+        'verify.processStage.genericReview': 'Human review',
+        'verify.taskState.stage': 'Stage: {stage}',
+        'verify.visibilityReason.submitted': 'Visible because submitted data requires a human review outcome.',
+        'verify.visibilityReason.inReview': 'Visible until the reviewer records the outcome.',
+        'verify.visibilityReason.correction': 'Visible until correction is submitted and the blocker is resolved.',
+        'verify.visibilityReason.managerConfirmation': 'Visible until manager confirms or rejects the deletion request.',
+        'verify.visibilityReason.completed': 'Shown by the current filter as a control record; no primary execution remains.',
+        'verify.visibilityReason.computedOperation': 'Visible until this computed operation is completed or blocked by guard.',
+        'verify.visibilityReason.status': 'Visible because workflow status is {status}.',
         'verify.candidateSearch.copy': 'Read-only internal search. It does not create applications, change statuses or present candidates to employers.',
         'verify.candidateSearch.run': 'Run candidate search',
         'verify.candidateSearch.loading': 'Running read-only candidate search...',
@@ -1006,7 +1019,7 @@
         'verify.col.actions': 'Задача',
         'verify.col.task': 'Задача',
         'verify.col.responsible': 'Ответственный',
-        'verify.col.state': 'Состояние',
+        'verify.col.state': 'Этап / причина',
         'verify.action.open': 'Открыть рабочую область',
         'verify.action.startReview': 'Начать проверку',
         'verify.action.needsCorrection': 'Нужна доработка',
@@ -1100,12 +1113,25 @@
         'verify.responsible.group': 'Группа: {group}',
         'verify.responsible.permission': 'Право: {permission}',
         'verify.responsible.unassigned': 'Групповая очередь',
-        'verify.state.ready': 'Готово к выполнению',
-        'verify.state.inReview': 'В проверке',
-        'verify.state.waitingCorrection': 'Ожидает исправления',
-        'verify.state.completed': 'Завершено / контрольная запись',
-        'verify.state.managerConfirmation': 'Требуется подтверждение менеджера',
-        'verify.state.status': 'Состояние: {status}',
+        'verify.processStage.supplyReadinessReview': 'Проверка готовности данных моряка',
+        'verify.processStage.companyVerification': 'Проверка работодателя / компании',
+        'verify.processStage.demandIntakeReview': 'Проверка заявки работодателя на экипаж',
+        'verify.processStage.candidateApplicationReview': 'Проверка отклика кандидата',
+        'verify.processStage.requestSupplyMatching': 'Сопоставление заявки и предложения / подготовка shortlist',
+        'verify.processStage.internalShortlistApproval': 'Внутреннее утверждение shortlist',
+        'verify.processStage.presentationPreparation': 'Подготовка проверки кандидатов для представления',
+        'verify.processStage.candidatePresentationReview': 'Проверка кандидата перед показом работодателю',
+        'verify.processStage.deletionConfirmation': 'Контрольное подтверждение удаления',
+        'verify.processStage.controlRecord': 'Контрольная запись / закрытый workflow',
+        'verify.processStage.genericReview': 'Проверка человеком',
+        'verify.taskState.stage': 'Этап: {stage}',
+        'verify.visibilityReason.submitted': 'Отображается, потому что поданные данные требуют результата проверки человеком.',
+        'verify.visibilityReason.inReview': 'Отображается до фиксации результата проверки ответственным исполнителем.',
+        'verify.visibilityReason.correction': 'Отображается до отправки исправления и закрытия причины блокировки.',
+        'verify.visibilityReason.managerConfirmation': 'Отображается до подтверждения или отклонения удаления менеджером.',
+        'verify.visibilityReason.completed': 'Показано текущим фильтром как контрольная запись; активной операции нет.',
+        'verify.visibilityReason.computedOperation': 'Отображается до выполнения вычисленной операции или блокировки guard.',
+        'verify.visibilityReason.status': 'Отображается из-за workflow status: {status}.',
         'verify.candidateSearch.copy': 'Внутренний read-only поиск. Он не создает отклики, не меняет статусы и не показывает кандидатов работодателю.',
         'verify.candidateSearch.run': 'Запустить поиск кандидатов',
         'verify.candidateSearch.loading': 'Выполняем read-only поиск кандидатов...',
@@ -1787,24 +1813,75 @@
         return viewAccess.permission_code || '';
       }
 
-      function queueTaskState(item) {
+      function queueTaskStageKey(item) {
+        if (item && activeTaskTarget && queueItemMatchesTaskTarget(item, activeTaskTarget)) {
+          const operation = activeTaskTarget.taskOperation || '';
+          if (operation === 'create_internal_shortlist_draft') {
+            return 'verify.processStage.requestSupplyMatching';
+          }
+          if (operation === 'approve_internal_shortlist') {
+            return 'verify.processStage.internalShortlistApproval';
+          }
+          if (operation === 'create_review_applications') {
+            return 'verify.processStage.presentationPreparation';
+          }
+          if (operation === 'review_candidate_presentation') {
+            return 'verify.processStage.candidatePresentationReview';
+          }
+          if (operation === 'confirm_vacancy_deletion' || operation === 'reject_vacancy_deletion') {
+            return 'verify.processStage.deletionConfirmation';
+          }
+        }
+        if (!item || typeof item !== 'object') {
+          return 'verify.processStage.genericReview';
+        }
+        if (item.queue_type === 'seafarer_profile') {
+          return 'verify.processStage.supplyReadinessReview';
+        }
+        if (item.queue_type === 'company_verification') {
+          return 'verify.processStage.companyVerification';
+        }
+        if (item.queue_type === 'vacancy_request') {
+          return 'verify.processStage.demandIntakeReview';
+        }
+        if (item.queue_type === 'vacancy_application') {
+          return 'verify.processStage.candidateApplicationReview';
+        }
+        if (item.queue_type === 'vacancy_deletion_request') {
+          return 'verify.processStage.deletionConfirmation';
+        }
+        return 'verify.processStage.genericReview';
+      }
+
+      function queueTaskVisibilityReasonKey(item) {
         const statusValue = item && item.status ? String(item.status) : '';
+        if (item && activeTaskTarget && queueItemMatchesTaskTarget(item, activeTaskTarget) && activeTaskTarget.taskOperation) {
+          return 'verify.visibilityReason.computedOperation';
+        }
         if (item && item.queue_type === 'vacancy_deletion_request') {
-          return t('verify.state.managerConfirmation');
+          return 'verify.visibilityReason.managerConfirmation';
         }
         if (statusValue === 'in_review') {
-          return t('verify.state.inReview');
+          return 'verify.visibilityReason.inReview';
         }
         if (statusValue === 'rejected' || statusValue === 'needs_correction' || statusValue === 'correction_requested') {
-          return t('verify.state.waitingCorrection');
+          return 'verify.visibilityReason.correction';
         }
         if (['reviewed', 'approved', 'published', 'presented', 'closed'].includes(statusValue)) {
-          return t('verify.state.completed');
+          return 'verify.visibilityReason.completed';
         }
         if (statusValue === 'submitted_for_human_review' || statusValue === 'submitted' || statusValue === 'pending_review') {
-          return t('verify.state.ready');
+          return 'verify.visibilityReason.submitted';
         }
-        return statusValue ? t('verify.state.status', { status: statusValue }) : t('verify.state.ready');
+        return statusValue ? 'verify.visibilityReason.status' : 'verify.visibilityReason.submitted';
+      }
+
+      function queueTaskStateLines(item) {
+        const statusValue = item && item.status ? String(item.status) : '';
+        return [
+          t('verify.taskState.stage', { stage: t(queueTaskStageKey(item)) }),
+          t(queueTaskVisibilityReasonKey(item), { status: statusValue || '-' }),
+        ];
       }
 
       function queueTaskHref(item, targetId) {
@@ -4180,7 +4257,7 @@
             t('verify.responsible.group', { group: queueResponsibleGroup(item) }),
             queueRequiredPermission(item) ? t('verify.responsible.permission', { permission: queueRequiredPermission(item) }) : '',
           ]);
-          appendMetaCell(tr, [queueTaskState(item)]);
+          appendMetaCell(tr, queueTaskStateLines(item));
           body.appendChild(tr);
         });
 
