@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.87
+- Version: 1.88
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -294,6 +294,7 @@ docs/crewportglobal/
   205_cpg_biz_016_team_task_deep_link_execution_fix_report.md
   206_cpg_biz_017_computed_task_link_audit_report.md
   207_cpg_biz_018_role_based_task_execution_acceptance_matrix_report.md
+  208_cpg_biz_019_assignment_aware_task_visibility_check_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -618,6 +619,8 @@ Document 206 records the CPG-BIZ-017 full computed task link audit, including UR
 
 Document 207 records the CPG-BIZ-018 role-based task execution acceptance matrix, including verified group/permission contracts for review-team operations, owner/control deletion confirmation, and negative access checks for review-team access to manager-only deletion confirmation.
 
+Document 208 records the CPG-BIZ-019 assignment-aware task visibility check, including verified current group-queue behavior, `persisted_task_table_created = false`, `Assigned employee: group queue` UI behavior, and the controlled gap before personal task assignment implementation.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -721,6 +724,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.88 | 2026-05-27 | GTC IT / AI Assistant | Added document 208 for CPG-BIZ-019 covering assignment-aware task visibility check, verified group-queue boundary and controlled gap before personal task assignment |
 | 1.87 | 2026-05-27 | GTC IT / AI Assistant | Added document 207 for CPG-BIZ-018 covering role-based computed task execution, group/permission acceptance matrix and manager-only deletion confirmation access checks |
 | 1.86 | 2026-05-27 | GTC IT / AI Assistant | Added document 206 for CPG-BIZ-017 covering full computed task link audit, concrete working-object URL contracts and process documentation verification cycle |
 | 1.85 | 2026-05-27 | GTC IT / AI Assistant | Added document 205 for CPG-BIZ-016 covering computed task deep-link execution fix from `/team/` to concrete `/team/matching/?vacancy_request_id=...` workspace with click-through verification |

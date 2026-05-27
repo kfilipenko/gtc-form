@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 1.4
+- Version: 1.5
 - Status: For internal review
 
 ## 1. Purpose
@@ -105,6 +105,7 @@ This documentation block starts from the following approved business controls:
 31. Secondary actions and review outcomes must be moved into the working object or contextual menus instead of competing as primary queue actions.
 32. Process documentation must be verified against the running application through the describe / verify / correct / test / advance cycle before the next stage is treated as complete.
 33. Computed task execution must be verified against group and permission contracts; manager/control-only operations must not be executable by review-team or unrelated groups.
+34. Current task visibility is verified only at group-queue level until persisted personal assignment records, assignment audit events and assignment-aware task filtering are implemented.
 
 ## 5. Intended Use
 
@@ -124,6 +125,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.5 | 2026-05-27 | GTC IT / AI Assistant | Added the verified group-queue assignment boundary and recorded personal task assignment as the next controlled implementation stage |
 | 1.4 | 2026-05-27 | GTC IT / AI Assistant | Added role-based computed task execution verification as a core control, covering review-team operational tasks and owner/control-only deletion confirmation |
 | 1.3 | 2026-05-27 | GTC IT / AI Assistant | Added the mandatory process-description and application-verification cycle to BP-012 and BP-013, requiring each described stage to be checked in the application, corrected if necessary and tested before moving to the next stage |
 | 1.2 | 2026-05-26 | GTC IT / AI Assistant | Added BP-012 crew formation service business-process manual and BP-013 operating instructions for users, team and AI agents, including computed task rules, assignment visibility, process outputs, audit evidence and UI simplification baseline |

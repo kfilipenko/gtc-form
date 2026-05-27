@@ -510,7 +510,36 @@ If a user attempts direct endpoint access without the required group and permiss
 
 AI agents may summarize the access requirement, but must not recommend bypassing the access contract.
 
-## 18. Review Outcomes
+## 18. Verified Group Queue Assignment Boundary
+
+The current application verifies group-queue task visibility, not full personal task assignment.
+
+Current user-facing rule:
+
+```text
+Assigned employee: group queue
+```
+
+means:
+
+1. the task is computed from current data;
+2. the task belongs to the displayed responsible group;
+3. the authenticated user has the required group/permission to work in that group queue;
+4. no named employee assignment exists yet for that task.
+
+Users and AI agents must not interpret `group queue` as personal responsibility of the logged-in user.
+
+Managers may treat such tasks as available for the authorized group, but personal ownership requires a future assignment record and audit event.
+
+The full personal assignment model is not verified until the system has:
+
+1. persisted assignment records;
+2. assigned user id / label in the task payload;
+3. manager-controlled assignment and reassignment operation;
+4. audit event for assignment changes;
+5. test proving the task moves from group queue to the named employee's `My tasks`.
+
+## 19. Review Outcomes
 
 Review outcomes should be recorded inside the review workspace.
 
@@ -522,7 +551,7 @@ Review outcomes should be recorded inside the review workspace.
 | Hold | More information is needed or external response is pending | Follow-up task computes. |
 | Request deletion | Secondary controlled action | Manager confirmation task computes. |
 
-## 19. Escalation Rules
+## 20. Escalation Rules
 
 Escalate when:
 
@@ -537,7 +566,7 @@ Escalate when:
 
 Escalation should create a visible computed task for manager/control only when the underlying state supports it.
 
-## 20. Confidentiality Rules
+## 21. Confidentiality Rules
 
 Users and team must protect:
 
@@ -552,7 +581,7 @@ Users and team must protect:
 
 Employer-facing summaries must use allow-listed fields only.
 
-## 21. Future UI Revision Requirements
+## 22. Future UI Revision Requirements
 
 When UI simplification is approved, the operator queue should be changed so that:
 
@@ -565,7 +594,7 @@ When UI simplification is approved, the operator queue should be changed so that
 7. access denied actions are hidden or shown as blocked with reason;
 8. task labels are understandable to non-technical users.
 
-## 22. Next Stage
+## 23. Next Stage
 
 After BP-012 and BP-013 are reviewed by Project Owner, the next stage should be:
 

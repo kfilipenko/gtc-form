@@ -667,6 +667,7 @@ test('owner team task opens pending vacancy deletion confirmation panel', async 
     const workbenchBody = await workbenchResponse.text();
     expect(workbenchResponse.ok(), workbenchBody).toBeTruthy();
     const workbench = JSON.parse(workbenchBody);
+    expect(workbench.persisted_task_table_created).toBe(false);
     const deletionTaskPayload = (workbench.tasks as Array<Record<string, unknown>>).find((task) =>
       task.operation_code === 'confirm_vacancy_deletion' && task.record_id === vacancyRequestId
     );
@@ -677,6 +678,7 @@ test('owner team task opens pending vacancy deletion confirmation panel', async 
       'owners',
       'approve_access_policy_change'
     );
+    expect((deletionTaskPayload as Record<string, unknown>).context).not.toHaveProperty('assigned_user_label');
   } finally {
     await ownerRequest.dispose();
   }
@@ -690,6 +692,7 @@ test('owner team task opens pending vacancy deletion confirmation panel', async 
   await expect(deletionTask).toContainText('Confirm deletion request.');
   await expect(deletionTask).toContainText('Stage: Controlled deletion confirmation');
   await expect(deletionTask).toContainText('Visible until manager confirms or rejects the deletion request.');
+  await expect(deletionTask).toContainText('Assigned employee: group queue');
   await expect(deletionTask).toContainText('Permission: approve_access_policy_change');
   await expect(deletionTask).not.toContainText('confirm_vacancy_deletion');
   const taskLink = deletionTask.locator('.team-task__link');
@@ -813,6 +816,7 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
         const workbenchBody = await workbenchResponse.text();
         expect(workbenchResponse.ok(), workbenchBody).toBeTruthy();
         const workbench = JSON.parse(workbenchBody);
+        expect(workbench.persisted_task_table_created).toBe(false);
         const presentationTaskPayload = (workbench.tasks as Array<Record<string, unknown>>).find((task) =>
           task.operation_code === 'review_candidate_presentation' &&
           (task.context as Record<string, unknown> | undefined)?.queue_item_id === applicationId
@@ -824,6 +828,7 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
           'review_team',
           'approve_candidate_presentation'
         );
+        expect((presentationTaskPayload as Record<string, unknown>).context).not.toHaveProperty('assigned_user_label');
       } finally {
         await teamRequest.dispose();
       }
@@ -839,6 +844,7 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
     await expect(presentationTask).toContainText('Approve candidate for employer presentation.');
     await expect(presentationTask).toContainText('Stage: Employer-facing candidate presentation review');
     await expect(presentationTask).toContainText('Visible until this computed operation is completed or blocked by guard.');
+    await expect(presentationTask).toContainText('Assigned employee: group queue');
     await expect(presentationTask).toContainText('Permission: approve_candidate_presentation');
     await expect(presentationTask).not.toContainText('review_candidate_presentation');
     await presentationTask.locator('.team-task__link').click();
@@ -1063,6 +1069,7 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       const initialWorkbenchBody = await initialWorkbenchResponse.text();
       expect(initialWorkbenchResponse.ok(), initialWorkbenchBody).toBeTruthy();
       const initialWorkbench = JSON.parse(initialWorkbenchBody);
+      expect(initialWorkbench.persisted_task_table_created).toBe(false);
       const createShortlistTaskPayload = (initialWorkbench.tasks as Array<Record<string, unknown>>).find((task) =>
         task.operation_code === 'create_internal_shortlist_draft' &&
         (task.context as Record<string, unknown> | undefined)?.queue_item_id === vacancyRequestId
@@ -1074,6 +1081,7 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
         'review_team',
         'view_review_queue'
       );
+      expect((createShortlistTaskPayload as Record<string, unknown>).context).not.toHaveProperty('assigned_user_label');
 
       await page.addInitScript((token) => {
         window.localStorage.setItem('crewportglobal_team_session', token);
@@ -1085,6 +1093,7 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       const createShortlistTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();
       await expect(createShortlistTask).toContainText('Create internal shortlist draft.');
       await expect(createShortlistTask).toContainText('Stage: Request-supply matching and shortlist preparation');
+      await expect(createShortlistTask).toContainText('Assigned employee: group queue');
       await expect(createShortlistTask.locator('.team-task__link')).toHaveAttribute(
         'href',
         new RegExp(`/team/matching/\\?vacancy_request_id=${vacancyRequestId}`)
@@ -1137,6 +1146,7 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       const approvalWorkbenchBody = await approvalWorkbenchResponse.text();
       expect(approvalWorkbenchResponse.ok(), approvalWorkbenchBody).toBeTruthy();
       const approvalWorkbench = JSON.parse(approvalWorkbenchBody);
+      expect(approvalWorkbench.persisted_task_table_created).toBe(false);
       const approveInternalTaskPayload = (approvalWorkbench.tasks as Array<Record<string, unknown>>).find((task) =>
         task.operation_code === 'approve_internal_shortlist' &&
         (task.context as Record<string, unknown> | undefined)?.shortlist_draft_id === createdDraftRow.shortlist_draft_id
@@ -1148,6 +1158,7 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
         'review_team',
         'approve_candidate_presentation'
       );
+      expect((approveInternalTaskPayload as Record<string, unknown>).context).not.toHaveProperty('assigned_user_label');
 
       await page.goto('/team/shortlists/');
       await expect(page.locator('#shortlist-history-status')).toContainText('Showing');
@@ -1167,6 +1178,7 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       await expect(updatedTeamTask.locator('.team-task__number')).toHaveText(/^#\d+$/);
       await expect(updatedTeamTask).toContainText('Approve internal shortlist.');
       await expect(updatedTeamTask).toContainText('Stage: Internal shortlist approval');
+      await expect(updatedTeamTask).toContainText('Assigned employee: group queue');
       await expect(updatedTeamTask).toContainText('Permission: approve_candidate_presentation');
       await expect(updatedTeamTask).not.toContainText('approve_internal_shortlist');
       await expect(updatedTeamTask).not.toContainText('create_internal_shortlist_draft');
@@ -1211,6 +1223,7 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       const reviewApplicationsWorkbenchBody = await reviewApplicationsWorkbenchResponse.text();
       expect(reviewApplicationsWorkbenchResponse.ok(), reviewApplicationsWorkbenchBody).toBeTruthy();
       const reviewApplicationsWorkbench = JSON.parse(reviewApplicationsWorkbenchBody);
+      expect(reviewApplicationsWorkbench.persisted_task_table_created).toBe(false);
       const createReviewApplicationsTaskPayload = (reviewApplicationsWorkbench.tasks as Array<Record<string, unknown>>).find((task) =>
         task.operation_code === 'create_review_applications' &&
         (task.context as Record<string, unknown> | undefined)?.shortlist_draft_id === createdDraftRow.shortlist_draft_id
@@ -1222,11 +1235,13 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
         'review_team',
         'start_human_review'
       );
+      expect((createReviewApplicationsTaskPayload as Record<string, unknown>).context).not.toHaveProperty('assigned_user_label');
 
       await page.goto('/team/');
       const reviewApplicationsTeamTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();
       await expect(reviewApplicationsTeamTask).toContainText('Create candidate presentation review.');
       await expect(reviewApplicationsTeamTask).toContainText('Stage: Candidate presentation review preparation');
+      await expect(reviewApplicationsTeamTask).toContainText('Assigned employee: group queue');
       await expect(reviewApplicationsTeamTask).not.toContainText('create_review_applications');
       await expect(reviewApplicationsTeamTask).not.toContainText('approve_internal_shortlist');
 

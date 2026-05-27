@@ -246,6 +246,32 @@ assigned_at
 assigned_by_user_id
 ```
 
+### 11.1 Verified current assignment boundary
+
+Current runtime verification confirms the group-queue part of this rule.
+
+Verified behavior:
+
+1. `/api/v1/team/workbench/tasks` returns `task_model = data_derived_current_state`.
+2. `/api/v1/team/workbench/tasks` returns `persisted_task_table_created = false`.
+3. `/team/` task cards show `Assigned employee: group queue` when no personal assignment exists.
+4. Tasks are filtered by group and permission.
+
+Not yet implemented:
+
+1. persisted task assignment table;
+2. assignment to a specific employee;
+3. automatic transfer from group queue to a named employee's `My tasks`;
+4. hiding group-wide visibility when a narrower personal assignment exists.
+
+Until that implementation exists, the verified process rule is:
+
+```text
+previous stage result + current object state + group/permission = visible group queue task
+```
+
+The full assignment-aware rule remains a controlled next implementation stage.
+
 ## 12. Approval Gates
 
 | Gate | Required before passing | May not be bypassed |
