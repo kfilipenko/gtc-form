@@ -9877,6 +9877,15 @@ function cpg_team_workbench_task_id(array $operation, array $context): string {
 function cpg_team_workbench_action_url(string $baseUrl, array $operation, array $context): string {
     $params = [];
     $operationCode = is_string($operation['operation_code'] ?? null) ? trim((string) $operation['operation_code']) : '';
+    $queueType = is_string($context['queue_type'] ?? null) ? trim((string) $context['queue_type']) : '';
+    $queueItemId = is_string($context['queue_item_id'] ?? null) ? trim((string) $context['queue_item_id']) : '';
+
+    if ($operationCode === 'create_internal_shortlist_draft' && $queueType === 'vacancy_request' && $queueItemId !== '') {
+        return $baseUrl . '?' . http_build_query([
+            'vacancy_request_id' => $queueItemId,
+        ]);
+    }
+
     if ($operationCode !== '') {
         $params['task_operation'] = $operationCode;
     }
@@ -9885,8 +9894,6 @@ function cpg_team_workbench_action_url(string $baseUrl, array $operation, array 
     if ($shortlistDraftId !== '') {
         $params['shortlist_draft_id'] = $shortlistDraftId;
     } else {
-        $queueType = is_string($context['queue_type'] ?? null) ? trim((string) $context['queue_type']) : '';
-        $queueItemId = is_string($context['queue_item_id'] ?? null) ? trim((string) $context['queue_item_id']) : '';
         if ($queueType !== '') {
             $params['queue_type'] = $queueType;
         }
@@ -10006,7 +10013,7 @@ function cpg_team_workbench_queue_tasks(array $access): array {
                 'demand_candidate_search',
                 'Run candidate search',
                 $title,
-                '/verify/',
+                '/team/matching/',
                 [
                     'queue_type' => $queueType,
                     'queue_item_id' => $queueItemId,

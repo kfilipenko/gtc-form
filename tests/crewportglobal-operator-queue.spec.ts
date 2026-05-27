@@ -906,7 +906,19 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       await page.addInitScript((token) => {
         window.localStorage.setItem('crewportglobal_team_session', token);
       }, reviewTeamSession);
-      await page.goto(`/team/matching/?vacancy_request_id=${vacancyRequestId}`);
+
+      await page.goto('/team/');
+      await expect(page.locator('#team-tasks-title')).toContainText('My tasks');
+      await expect(page.locator('#team-task-list')).toContainText(vacancyTitle);
+      const createShortlistTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();
+      await expect(createShortlistTask).toContainText('Create internal shortlist draft.');
+      await expect(createShortlistTask).toContainText('Stage: Request-supply matching and shortlist preparation');
+      await expect(createShortlistTask.locator('.team-task__link')).toHaveAttribute(
+        'href',
+        new RegExp(`/team/matching/\\?vacancy_request_id=${vacancyRequestId}`)
+      );
+      await createShortlistTask.locator('.team-task__link').click();
+      await expect(page).toHaveURL(new RegExp(`/team/matching/\\?vacancy_request_id=${vacancyRequestId}`));
       await expect(page.locator('#matching-status')).toContainText('Comparison loaded');
       await expect(page.locator('#demand-panel')).toContainText(vacancyTitle);
       await expect(page.locator('#summary-grid')).toContainText('Match-ready');

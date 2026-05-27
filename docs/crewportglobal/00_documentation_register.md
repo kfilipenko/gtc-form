@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.84
+- Version: 1.85
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -291,6 +291,7 @@ docs/crewportglobal/
   202_cpg_biz_014_computed_task_list_presentation_correction_report.md
   203_cpg_biz_014_task_stage_condition_visibility_addendum_report.md
   204_cpg_biz_015_team_task_stage_condition_alignment_report.md
+  205_cpg_biz_016_team_task_deep_link_execution_fix_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -609,6 +610,8 @@ Document 203 records the CPG-BIZ-014 task-stage and visibility-condition addendu
 
 Document 204 records the CPG-BIZ-015 `/team/` My Tasks and group queue alignment, including active computed task-title links, process-stage labels, visibility conditions, responsible group/assignee visibility, permission display and focused verification.
 
+Document 205 records the CPG-BIZ-016 computed task deep-link execution fix, including routing `create_internal_shortlist_draft` tasks from `/team/` to the concrete `/team/matching/?vacancy_request_id=...` workspace, click-through Playwright verification and preservation of approval guard boundaries.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -712,6 +715,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.85 | 2026-05-27 | GTC IT / AI Assistant | Added document 205 for CPG-BIZ-016 covering computed task deep-link execution fix from `/team/` to concrete `/team/matching/?vacancy_request_id=...` workspace with click-through verification |
 | 1.84 | 2026-05-27 | GTC IT / AI Assistant | Added document 204 for CPG-BIZ-015 covering `/team/` My Tasks and group queue alignment to computed task title, process stage, visibility condition, responsible group/assignee and permission display |
 | 1.83 | 2026-05-27 | GTC IT / AI Assistant | Added document 203 for CPG-BIZ-014 task-stage and visibility-condition display, explaining why computed tasks are visible and when they leave the queue |
 | 1.82 | 2026-05-27 | GTC IT / AI Assistant | Added documents 201 and 202 for CPG-BIZ-014 covering computed task-list presentation correction, active task-title links, removal of technical columns from `/verify/` list and focused verification |
