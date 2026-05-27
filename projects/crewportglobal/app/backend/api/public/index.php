@@ -356,6 +356,22 @@ function require_operator_queue_type_access(string $queueType): array {
     return $access;
 }
 
+function require_operator_queue_decision_access(string $queueType, string $decision, array $access): void {
+    $contract = operator_queue_access_contract($queueType, $access);
+    $action = is_array($contract['actions'][$decision] ?? null) ? $contract['actions'][$decision] : null;
+    if (($action['allowed'] ?? false) !== true) {
+        api_json(403, [
+            'ok' => false,
+            'error' => 'operator_queue_action_permission_required',
+            'message' => 'Operator queue decision requires the configured group permission',
+            'queue_type' => $queueType,
+            'decision' => $decision,
+            'operator_access' => $contract,
+            'access_model' => operator_access_model($access),
+        ]);
+    }
+}
+
 function operator_legacy_queue_access_contract(string $queueType): ?array {
     $identity = cpg_identity_temporary_operator_token('operator_review_queue');
     return cpg_access_operator_queue_capabilities($queueType, null, true, cpg_identity_permission_mode($identity));
@@ -469,6 +485,37 @@ function operator_workflow_actor_context(?array $access, string $operationCode):
         'required_permission_code' => $contract['required_permission_code'],
         'scope' => $contract['scope'],
         'permission_boundary' => $contract['permission_boundary'],
+    ];
+}
+
+function operator_queue_decision_actor_context(?array $access, string $queueType, string $decision): array {
+    $contract = operator_queue_access_contract($queueType, $access);
+    $actions = is_array($contract['actions'] ?? null) ? $contract['actions'] : [];
+    $action = is_array($actions[$decision] ?? null) ? $actions[$decision] : [];
+    $targetGroup = in_array($queueType, ['vacancy_request', 'vacancy_application'], true)
+        ? 'review_team'
+        : (in_array($queueType, ['seafarer_profile', 'company_verification'], true) ? 'verification_team' : null);
+    $targetRole = $targetGroup === 'review_team'
+        ? 'reviewer'
+        : ($targetGroup === 'verification_team' ? 'verifier' : null);
+    $mode = operator_access_model($access);
+
+    return [
+        'operation_code' => 'operator_review_queue_status',
+        'decision' => $decision,
+        'queue_type' => $queueType,
+        'access_model' => $mode,
+        'actor_label' => is_string($access['actor_label'] ?? null) ? (string) $access['actor_label'] : 'temporary_operator_token',
+        'actor_user_id' => is_string($access['actor_user_id'] ?? null) && $access['actor_user_id'] !== ''
+            ? (string) $access['actor_user_id']
+            : null,
+        'target_group_code' => $targetGroup,
+        'target_role_code' => $targetRole,
+        'required_permission_code' => is_string($action['permission_code'] ?? null) ? (string) $action['permission_code'] : null,
+        'scope' => is_string($action['scope'] ?? null) ? (string) $action['scope'] : null,
+        'permission_boundary' => $mode === CPG_IDENTITY_BOUNDARY_TEMPORARY_OPERATOR_TOKEN
+            ? 'temporary_operator_token_compatibility'
+            : 'group_permission_check',
     ];
 }
 
@@ -9934,6 +9981,9 @@ function cpg_team_workbench_task_from_operation(
         return null;
     }
 
+    $assignment = cpg_team_workbench_task_assignment($operation, $context);
+    $context = cpg_team_workbench_context_with_assignment($context, $assignment);
+
     return cpg_workspace_clean_record([
         'task_type' => $taskType,
         'task_status' => $operation['operation_status'] ?? 'blocked',
@@ -9950,10 +10000,190 @@ function cpg_team_workbench_task_from_operation(
         'next_status_if_executed' => $operation['next_status_if_executed'] ?? null,
         'responsible_group_after_transition' => $operation['responsible_group_after_transition'] ?? null,
         'required_access' => $requiredAccess,
+        'assignment' => $assignment,
         'blockers' => is_array($operation['blockers'] ?? null) ? $operation['blockers'] : [],
         'computed_from' => $operation['computed_from'] ?? 'current_data_state',
         'context' => $context,
     ]);
+}
+
+function cpg_team_workbench_context_with_assignment(array $context, array $assignment): array {
+    $context['assigned_group_code'] = $assignment['assigned_group_code'] ?? null;
+    $context['assignment_mode'] = $assignment['assignment_mode'] ?? 'group_queue';
+    $context['assignment_reason'] = $assignment['assignment_reason'] ?? null;
+    $context['assignment_source'] = $assignment['assignment_source'] ?? 'computed_from_history';
+
+    if (is_string($assignment['assigned_user_id'] ?? null) && $assignment['assigned_user_id'] !== '') {
+        $context['assigned_user_id'] = (string) $assignment['assigned_user_id'];
+    }
+    if (is_string($assignment['assigned_user_label'] ?? null) && $assignment['assigned_user_label'] !== '') {
+        $context['assigned_user_label'] = (string) $assignment['assigned_user_label'];
+    }
+    if (is_string($assignment['source_event_type'] ?? null) && $assignment['source_event_type'] !== '') {
+        $context['assignment_source_event_type'] = (string) $assignment['source_event_type'];
+    }
+    if (is_string($assignment['source_operation_code'] ?? null) && $assignment['source_operation_code'] !== '') {
+        $context['assignment_source_operation_code'] = (string) $assignment['source_operation_code'];
+    }
+
+    return $context;
+}
+
+function cpg_team_workbench_task_assignment(array $operation, array $context): array {
+    $requiredAccess = is_array($operation['required_access'] ?? null) ? $operation['required_access'] : [];
+    $targetGroup = is_string($requiredAccess['target_group_code'] ?? null)
+        ? trim((string) $requiredAccess['target_group_code'])
+        : '';
+    if ($targetGroup === '') {
+        return [
+            'assignment_mode' => 'group_queue',
+            'assignment_reason' => 'target_group_not_defined',
+            'assigned_group_code' => null,
+            'assignment_source' => 'computed_from_history',
+        ];
+    }
+
+    $patterns = cpg_team_workbench_assignment_patterns($operation, $context);
+    $historicalAssignee = cpg_team_workbench_historical_assignee($targetGroup, $patterns);
+    if ($historicalAssignee !== null) {
+        return $historicalAssignee;
+    }
+
+    return [
+        'assignment_mode' => 'group_queue',
+        'assignment_reason' => $patterns === []
+            ? 'no_object_reference_for_assignment'
+            : 'no_active_historical_executor_for_object_group',
+        'assigned_group_code' => $targetGroup,
+        'assignment_source' => 'computed_from_history',
+        'assignment_object_patterns' => array_keys($patterns),
+    ];
+}
+
+function cpg_team_workbench_assignment_patterns(array $operation, array $context): array {
+    $patterns = [];
+    $addPattern = static function (array $pattern) use (&$patterns): void {
+        $json = json_encode($pattern, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if (is_string($json) && $json !== '') {
+            $patterns[$json] = $json;
+        }
+    };
+    $addKey = static function (string $key, mixed $value) use ($addPattern): void {
+        if (!is_string($value) || trim($value) === '') {
+            return;
+        }
+        $addPattern([$key => trim($value)]);
+    };
+
+    $recordType = is_string($operation['record_type'] ?? null)
+        ? (string) $operation['record_type']
+        : (is_string($context['record_type'] ?? null) ? (string) $context['record_type'] : '');
+    $recordId = is_string($operation['record_id'] ?? null)
+        ? (string) $operation['record_id']
+        : (is_string($context['record_id'] ?? null) ? (string) $context['record_id'] : '');
+    $queueType = is_string($context['queue_type'] ?? null) ? (string) $context['queue_type'] : '';
+    $queueItemId = is_string($context['queue_item_id'] ?? null) ? (string) $context['queue_item_id'] : '';
+
+    if ($recordId !== '') {
+        $addKey('record_id', $recordId);
+        if ($recordType === 'vacancy_request' || $recordType === 'vacancy_deletion_request') {
+            $addKey('vacancy_request_id', $recordId);
+        } elseif ($recordType === 'operator_shortlist_draft') {
+            $addKey('shortlist_draft_id', $recordId);
+        } elseif ($recordType === 'vacancy_application') {
+            $addKey('vacancy_application_id', $recordId);
+            $addPattern(['applications' => [['vacancy_application_id' => $recordId]]]);
+        }
+    }
+
+    if ($queueItemId !== '') {
+        $addKey('queue_item_id', $queueItemId);
+        if ($queueType === 'vacancy_request') {
+            $addKey('vacancy_request_id', $queueItemId);
+        } elseif ($queueType === 'vacancy_application') {
+            $addKey('vacancy_application_id', $queueItemId);
+            $addPattern(['applications' => [['vacancy_application_id' => $queueItemId]]]);
+        }
+    }
+
+    foreach ([
+        'vacancy_request_id',
+        'shortlist_draft_id',
+        'vacancy_application_id',
+        'candidate_user_id',
+        'seafarer_user_id',
+        'vessel_id',
+        'company_id',
+        'draft_id',
+    ] as $key) {
+        $addKey($key, $context[$key] ?? null);
+        $addKey($key, $operation[$key] ?? null);
+    }
+
+    if (is_string($context['vacancy_application_id'] ?? null) && $context['vacancy_application_id'] !== '') {
+        $addPattern(['applications' => [['vacancy_application_id' => (string) $context['vacancy_application_id']]]]);
+    }
+
+    return $patterns;
+}
+
+function cpg_team_workbench_historical_assignee(string $targetGroup, array $patterns): ?array {
+    if ($targetGroup === '' || $patterns === []) {
+        return null;
+    }
+
+    $params = [$targetGroup];
+    $patternClauses = [];
+    foreach (array_values($patterns) as $pattern) {
+        $params[] = $pattern;
+        $patternClauses[] = 'rae.event_payload @> $' . count($params) . '::jsonb';
+    }
+
+    $row = cpg_fetch_one_assoc(
+        "SELECT rae.registration_audit_event_id::text AS source_event_id,
+                rae.event_type AS source_event_type,
+                rae.created_at::text AS source_event_created_at,
+                COALESCE(NULLIF(u.display_name, ''), lower(u.email)) AS assigned_user_label,
+                u.user_id::text AS assigned_user_id,
+                rae.event_payload->'actor_context'->>'operation_code' AS source_operation_code
+         FROM crewportglobal.registration_audit_events rae
+         JOIN crewportglobal.users u
+           ON u.user_id::text = COALESCE(
+                NULLIF(rae.event_payload->'actor_context'->>'actor_user_id', ''),
+                rae.actor_user_id::text
+              )
+          AND u.is_active IS TRUE
+         JOIN crewportglobal.access_groups ag
+           ON ag.group_code = $1
+          AND ag.is_active IS TRUE
+         JOIN crewportglobal.access_group_members agm
+           ON agm.group_id = ag.group_id
+          AND agm.user_id = u.user_id
+          AND agm.membership_state = 'active'
+         WHERE rae.event_payload @> jsonb_build_object('actor_context', jsonb_build_object('target_group_code', $1::text))
+           AND (" . implode(' OR ', $patternClauses) . ")
+         ORDER BY rae.created_at DESC, rae.registration_audit_event_id DESC
+         LIMIT 1",
+        $params
+    );
+
+    if ($row === null) {
+        return null;
+    }
+
+    return [
+        'assignment_mode' => 'historical_active_executor',
+        'assignment_reason' => 'active_employee_previously_completed_group_task_for_object',
+        'assigned_group_code' => $targetGroup,
+        'assigned_user_id' => $row['assigned_user_id'] ?? null,
+        'assigned_user_label' => $row['assigned_user_label'] ?? null,
+        'assignment_source' => 'computed_from_history',
+        'source_event_id' => $row['source_event_id'] ?? null,
+        'source_event_type' => $row['source_event_type'] ?? null,
+        'source_event_created_at' => $row['source_event_created_at'] ?? null,
+        'source_operation_code' => $row['source_operation_code'] ?? null,
+        'assignment_object_patterns' => array_keys($patterns),
+    ];
 }
 
 function cpg_operator_active_shortlist_draft_for_vacancy(string $vacancyRequestId): ?array {
@@ -10249,6 +10479,7 @@ function handle_get_team_workbench_tasks(): void {
     api_json(200, [
         'ok' => true,
         'task_model' => 'data_derived_current_state',
+        'task_assignment_model' => 'historical_active_executor_or_group_queue',
         'persisted_task_table_created' => false,
         'access_model' => operator_access_model($access),
         'actor_user_id' => is_string($access['actor_user_id'] ?? null) && $access['actor_user_id'] !== ''
@@ -11019,6 +11250,180 @@ function handle_get_operator_vacancy_application_detail(string $applicationId, ?
     api_json(200, $detail);
 }
 
+function read_operator_vacancy_request_review_history(string $vacancyRequestId): array {
+    $result = api_query(
+        "SELECT event_payload->>'decision' AS decision,
+                event_payload->>'previous_status' AS previous_status,
+                event_payload->>'new_status' AS new_status,
+                event_payload->>'queue_type' AS queue_type,
+                event_payload->>'role' AS role,
+                event_payload->>'review_note' AS review_note,
+                event_payload->>'correction_card_code' AS correction_card_code,
+                event_payload->>'correction_card_name' AS correction_card_name,
+                source,
+                created_at
+         FROM crewportglobal.registration_audit_events
+         WHERE event_type = 'operator_review_decision_recorded'
+           AND event_payload->>'vacancy_request_id' = $1
+         ORDER BY created_at DESC
+         LIMIT 20",
+        [$vacancyRequestId]
+    );
+
+    $events = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $events[] = [
+            'decision' => $row['decision'] ?? null,
+            'previous_status' => $row['previous_status'] ?? null,
+            'new_status' => $row['new_status'] ?? null,
+            'queue_type' => $row['queue_type'] ?? null,
+            'role' => $row['role'] ?? null,
+            'review_note' => $row['review_note'] ?? null,
+            'correction_card_code' => $row['correction_card_code'] ?? null,
+            'correction_card_name' => $row['correction_card_name'] ?? null,
+            'source' => $row['source'] ?? null,
+            'created_at' => $row['created_at'] ?? null,
+        ];
+    }
+
+    return $events;
+}
+
+function read_operator_vacancy_request_detail(string $vacancyRequestId, ?array $access = null): ?array {
+    $row = cpg_fetch_one_assoc(
+        "SELECT
+            vr.vacancy_request_id::text AS vacancy_request_id,
+            vr.created_by_user_id::text AS created_by_user_id,
+            vr.company_id::text AS company_id,
+            vr.vessel_id::text AS vessel_id,
+            vr.vacancy_title,
+            vr.rank,
+            vr.department,
+            vr.vessel_type,
+            vr.required_rank_value_id::text AS required_rank_value_id,
+            vr.required_rank_label,
+            vr.vessel_type_value_id::text AS vessel_type_value_id,
+            vr.vessel_type_label,
+            vr.join_date::text AS join_date,
+            vr.contract_duration,
+            vr.contract_duration_value,
+            vr.contract_duration_unit,
+            vr.salary_min_usd,
+            vr.salary_max_usd,
+            vr.salary_text,
+            vr.currency,
+            vr.employer_country_code,
+            vr.requirements,
+            vr.publication_status,
+            vr.demand_workspace,
+            vr.created_at::text AS vacancy_created_at,
+            vr.updated_at::text AS vacancy_updated_at,
+            u.email,
+            u.display_name,
+            COALESCE(ur.role, 'employer') AS role,
+            ec.company_name,
+            ec.company_type,
+            ec.country_code AS company_country_code,
+            ec.verification_status,
+            v.vessel_name,
+            v.vessel_type AS vessel_record_type,
+            v.imo_number,
+            v.flag_country_code
+         FROM crewportglobal.vacancy_requests vr
+         JOIN crewportglobal.employer_companies ec ON ec.company_id = vr.company_id
+         LEFT JOIN crewportglobal.vessels v ON v.vessel_id = vr.vessel_id
+         LEFT JOIN crewportglobal.users u ON u.user_id = vr.created_by_user_id
+         LEFT JOIN LATERAL (
+             SELECT role
+             FROM crewportglobal.user_roles ur
+             WHERE ur.user_id = vr.created_by_user_id
+             ORDER BY ur.created_at ASC
+             LIMIT 1
+         ) ur ON TRUE
+         WHERE vr.vacancy_request_id = $1::uuid
+         LIMIT 1",
+        [$vacancyRequestId]
+    );
+    if ($row === null) {
+        return null;
+    }
+
+    $history = read_operator_vacancy_request_review_history($vacancyRequestId);
+    $requirementItems = read_demand_requirement_items($vacancyRequestId);
+
+    return [
+        'ok' => true,
+        'queue_type' => 'vacancy_request',
+        'draft_id' => $row['created_by_user_id'] ?? null,
+        'role' => $row['role'] ?? 'employer',
+        'email' => $row['email'] ?? null,
+        'status' => $row['publication_status'] ?? null,
+        'created_at' => $row['vacancy_created_at'] ?? null,
+        'updated_at' => $row['vacancy_updated_at'] ?? null,
+        'payload' => [
+            'operator_review' => $history[0] ?? null,
+            'operator_review_history' => $history,
+            'vacancy_request' => [
+                'vacancy_request_id' => $row['vacancy_request_id'],
+                'created_by_user_id' => $row['created_by_user_id'],
+                'vacancy_title' => $row['vacancy_title'],
+                'rank' => $row['rank'],
+                'department' => $row['department'],
+                'vessel_type' => $row['vessel_type'],
+                'required_rank_value_id' => $row['required_rank_value_id'],
+                'required_rank_label' => $row['required_rank_label'],
+                'vessel_type_value_id' => $row['vessel_type_value_id'],
+                'vessel_type_label' => $row['vessel_type_label'],
+                'join_date' => $row['join_date'],
+                'contract_duration' => $row['contract_duration'],
+                'contract_duration_value' => $row['contract_duration_value'],
+                'contract_duration_unit' => $row['contract_duration_unit'],
+                'salary_min_usd' => $row['salary_min_usd'],
+                'salary_max_usd' => $row['salary_max_usd'],
+                'salary_text' => $row['salary_text'],
+                'currency' => $row['currency'],
+                'employer_country_code' => $row['employer_country_code'],
+                'requirements' => $row['requirements'],
+                'publication_status' => $row['publication_status'],
+                'demand_workspace' => cpg_decode_json_object(is_string($row['demand_workspace'] ?? null) ? $row['demand_workspace'] : null),
+            ],
+            'company' => [
+                'company_id' => $row['company_id'],
+                'company_name' => $row['company_name'],
+                'company_type' => $row['company_type'],
+                'country_code' => $row['company_country_code'],
+                'verification_status' => $row['verification_status'],
+            ],
+            'vessel' => [
+                'vessel_id' => $row['vessel_id'],
+                'vessel_name' => $row['vessel_name'],
+                'vessel_type' => $row['vessel_record_type'],
+                'imo_number' => $row['imo_number'],
+                'flag_country_code' => $row['flag_country_code'],
+            ],
+            'demand_requirement_items' => $requirementItems,
+        ],
+        'operator_review' => $history[0] ?? null,
+        'operator_review_history' => $history,
+        'operator_access' => operator_queue_access_contract('vacancy_request', $access),
+        'generated_at' => gmdate('c'),
+    ];
+}
+
+function handle_get_operator_vacancy_request_detail(string $vacancyRequestId, ?array $access = null): void {
+    $uuid = api_normalize_uuid($vacancyRequestId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_vacancy_request_id', 'vacancy_request_id must be a valid UUID');
+    }
+
+    $detail = read_operator_vacancy_request_detail($uuid, $access);
+    if ($detail === null) {
+        api_error(404, 'vacancy_request_not_found', 'Vacancy request not found');
+    }
+
+    api_json(200, $detail);
+}
+
 function handle_get_operator_restricted_medical(string $draftId): void {
     $uuid = api_normalize_uuid($draftId);
     if ($uuid === null) {
@@ -11295,6 +11700,82 @@ function apply_operator_review_decision(
     ?array $workflowAccess = null
 ): array {
     $correctionCardName = cpg_seafarer_review_card_name($correctionCardCode);
+
+    if ($queueType === 'vacancy_request') {
+        $currentResult = api_query(
+            "SELECT
+                vr.vacancy_request_id,
+                vr.created_by_user_id,
+                vr.company_id,
+                vr.vessel_id,
+                vr.publication_status,
+                COALESCE(ur.role, 'employer') AS role
+             FROM crewportglobal.vacancy_requests vr
+             LEFT JOIN LATERAL (
+                 SELECT role
+                 FROM crewportglobal.user_roles ur
+                 WHERE ur.user_id = vr.created_by_user_id
+                 ORDER BY ur.created_at ASC
+                 LIMIT 1
+             ) ur ON TRUE
+             WHERE vr.vacancy_request_id = $1::uuid
+             LIMIT 1",
+            [$draftId]
+        );
+        $currentRow = pg_fetch_assoc($currentResult);
+        if (is_array($currentRow)) {
+            $statusMap = [
+                'start_review' => 'in_review',
+                'needs_correction' => 'rejected',
+                'reviewed' => 'published',
+            ];
+            $newStatus = $statusMap[$decision];
+            $vacancyRequestId = (string) $currentRow['vacancy_request_id'];
+            $ownerUserId = (string) $currentRow['created_by_user_id'];
+            $companyId = (string) $currentRow['company_id'];
+            $vesselId = isset($currentRow['vessel_id']) ? (string) $currentRow['vessel_id'] : null;
+            if ($vesselId === '') {
+                $vesselId = null;
+            }
+            $role = (string) ($currentRow['role'] ?? 'employer');
+            $previousStatus = (string) $currentRow['publication_status'];
+
+            api_query(
+                'UPDATE crewportglobal.vacancy_requests
+                 SET publication_status = $2, updated_at = now()
+                 WHERE vacancy_request_id = $1',
+                [$vacancyRequestId, $newStatus]
+            );
+
+            write_audit_event('operator_review_decision_recorded', $ownerUserId, $companyId, $vesselId, [
+                'decision' => $decision,
+                'queue_type' => 'vacancy_request',
+                'previous_status' => $previousStatus,
+                'new_status' => $newStatus,
+                'role' => $role,
+                'review_note' => $reviewNote,
+                'correction_card_code' => $correctionCardCode,
+                'correction_card_name' => $correctionCardName,
+                'vacancy_request_id' => $vacancyRequestId,
+                'actor_context' => $workflowAccess !== null
+                    ? operator_queue_decision_actor_context($workflowAccess, 'vacancy_request', $decision)
+                    : null,
+            ], 'operator_review_queue');
+
+            return [
+                'queue_type' => 'vacancy_request',
+                'role' => $role,
+                'previous_status' => $previousStatus,
+                'new_status' => $newStatus,
+                'company_id' => $companyId,
+                'vessel_id' => $vesselId,
+                'vacancy_request_id' => $vacancyRequestId,
+                'review_note' => $reviewNote,
+                'correction_card_code' => $correctionCardCode,
+                'correction_card_name' => $correctionCardName,
+            ];
+        }
+    }
 
     if ($queueType === 'vacancy_application') {
         $statusMap = [
@@ -12053,6 +12534,7 @@ function handle_patch_operator_review_queue_status(string $draftId): void {
         api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
     }
 
+    $access = resolve_operator_or_named_session_access('operator_review_queue');
     $body = api_decode_json_body();
     $decision = normalize_operator_decision($body['decision'] ?? $body['action'] ?? $body['status'] ?? null);
     if ($decision === null) {
@@ -12065,6 +12547,10 @@ function handle_patch_operator_review_queue_status(string $draftId): void {
     $queueType = normalize_operator_queue_type($body['queue_type'] ?? null);
     $correctionCardCode = normalize_operator_correction_card_code($body['correction_card_code'] ?? $body['correction_card'] ?? null);
     $approvalGuard = null;
+
+    if ($queueType !== null) {
+        require_operator_queue_decision_access($queueType, $decision, $access);
+    }
 
     if ($queueType === 'vacancy_application' && $decision === 'reviewed') {
         $approvalGuard = cpg_vacancy_application_approval_guard($uuid);
@@ -12087,7 +12573,7 @@ function handle_patch_operator_review_queue_status(string $draftId): void {
 
     api_tx_begin();
     try {
-        $result = apply_operator_review_decision($uuid, $decision, $reviewNote, $queueType, $correctionCardCode, $approvalGuard);
+        $result = apply_operator_review_decision($uuid, $decision, $reviewNote, $queueType, $correctionCardCode, $approvalGuard, $access);
         api_tx_commit();
 
         api_json(200, [
@@ -12482,6 +12968,15 @@ if (preg_match('#^/operator/review-queue/vacancy-applications/([^/]+)$#', $path,
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
 }
 
+if (preg_match('#^/operator/review-queue/vacancy-requests/([^/]+)$#', $path, $matches) === 1) {
+    if ($method === 'GET') {
+        $access = require_operator_queue_type_access('vacancy_request');
+        handle_get_operator_vacancy_request_detail($matches[1], $access);
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
 if (preg_match('#^/operator/vacancies/([^/]+)/candidate-search$#', $path, $matches) === 1) {
     if ($method === 'GET') {
         $access = require_operator_workflow_operation_access('create_internal_shortlist_draft');
@@ -12623,7 +13118,6 @@ if (preg_match('#^/employer/vacancy-applications/([^/]+)/shortlist$#', $path, $m
 
 if (preg_match('#^/operator/review-queue/([^/]+)/status$#', $path, $matches) === 1) {
     if ($method === 'PATCH') {
-        require_operator_access();
         handle_patch_operator_review_queue_status($matches[1]);
     }
     header('Allow: PATCH');

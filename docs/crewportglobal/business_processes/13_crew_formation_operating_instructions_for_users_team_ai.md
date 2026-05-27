@@ -510,11 +510,11 @@ If a user attempts direct endpoint access without the required group and permiss
 
 AI agents may summarize the access requirement, but must not recommend bypassing the access contract.
 
-## 18. Verified Group Queue Assignment Boundary
+## 18. Verified Computed Assignment Rule
 
-The current application verifies group-queue task visibility, not full personal task assignment.
+The current application computes task assignment from data and audit history.
 
-Current user-facing rule:
+User-facing rules:
 
 ```text
 Assigned employee: group queue
@@ -524,20 +524,29 @@ means:
 
 1. the task is computed from current data;
 2. the task belongs to the displayed responsible group;
-3. the authenticated user has the required group/permission to work in that group queue;
-4. no named employee assignment exists yet for that task.
+3. no active employee in that group has previous recorded work history for the same object;
+4. the first authorized group member who completes the task creates audit evidence that can assign later tasks for the same object and group to that person.
 
-Users and AI agents must not interpret `group queue` as personal responsibility of the logged-in user.
+```text
+Assigned employee: {name}
+```
 
-Managers may treat such tasks as available for the authorized group, but personal ownership requires a future assignment record and audit event.
+means:
 
-The full personal assignment model is not verified until the system has:
+1. an active employee in the responsible group previously completed an analogous operation for this object;
+2. the employee is still active and still has active group membership;
+3. the task remains visible according to the same group/permission contract;
+4. the named employee is the expected executor unless a manager/control user changes the workflow in a later approved reassignment process.
 
-1. persisted assignment records;
-2. assigned user id / label in the task payload;
-3. manager-controlled assignment and reassignment operation;
-4. audit event for assignment changes;
-5. test proving the task moves from group queue to the named employee's `My tasks`.
+The current runtime does not use a manual assignment table. It uses:
+
+1. existing audit events;
+2. `actor_context.actor_user_id`;
+3. `actor_context.target_group_code`;
+4. object identifiers such as vacancy request, shortlist draft or vacancy application id;
+5. active user and active group-membership checks.
+
+Users and AI agents must not create an artificial assignment outside this computed rule. If the named employee is inactive, blocked or no longer a member of the responsible group, the task must return to the group queue.
 
 ## 19. Review Outcomes
 

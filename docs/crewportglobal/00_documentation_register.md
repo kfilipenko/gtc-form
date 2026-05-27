@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.88
+- Version: 1.90
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -295,6 +295,8 @@ docs/crewportglobal/
   206_cpg_biz_017_computed_task_link_audit_report.md
   207_cpg_biz_018_role_based_task_execution_acceptance_matrix_report.md
   208_cpg_biz_019_assignment_aware_task_visibility_check_report.md
+  209_cpg_biz_020_historical_task_assignment_report.md
+  210_cpg_biz_021_vacancy_request_deep_link_workspace_fix_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -621,6 +623,8 @@ Document 207 records the CPG-BIZ-018 role-based task execution acceptance matrix
 
 Document 208 records the CPG-BIZ-019 assignment-aware task visibility check, including verified current group-queue behavior, `persisted_task_table_created = false`, `Assigned employee: group queue` UI behavior, and the controlled gap before personal task assignment implementation.
 
+Document 209 records the CPG-BIZ-020 historical task assignment implementation, including active historical executor precedence, group-queue fallback, audit-event based assignee computation, `/api/v1/team/workbench/tasks` assignment payloads, process documentation updates and focused verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -724,6 +728,8 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.90 | 2026-05-27 | GTC IT / AI Assistant | Added document 210 for CPG-BIZ-021 covering exact vacancy-request deep-link workspace loading, target-row filtering, team-session queue-decision permission checks and focused UI/API verification |
+| 1.89 | 2026-05-27 | GTC IT / AI Assistant | Added document 209 for CPG-BIZ-020 covering computed task personalization from active historical executor evidence, group-queue fallback and focused task-assignment verification |
 | 1.88 | 2026-05-27 | GTC IT / AI Assistant | Added document 208 for CPG-BIZ-019 covering assignment-aware task visibility check, verified group-queue boundary and controlled gap before personal task assignment |
 | 1.87 | 2026-05-27 | GTC IT / AI Assistant | Added document 207 for CPG-BIZ-018 covering role-based computed task execution, group/permission acceptance matrix and manager-only deletion confirmation access checks |
 | 1.86 | 2026-05-27 | GTC IT / AI Assistant | Added document 206 for CPG-BIZ-017 covering full computed task link audit, concrete working-object URL contracts and process documentation verification cycle |

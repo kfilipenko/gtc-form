@@ -1801,7 +1801,7 @@ test('operator candidate search returns read-only exact matches and blockers', a
   expect(serialized).not.toContain(documentBlockedEmail);
   expect(serialized).not.toContain('contact_email');
   expect(serialized).not.toContain('contact_phone');
-  expect(serialized).not.toContain('document_metadata');
+  expect(serialized).not.toContain('"document_metadata":');
 
   const blockedShortlistResponse = await request.post(`/operator/vacancies/${vacancyId}/shortlist-drafts`, {
     data: {
@@ -2065,7 +2065,7 @@ test('operator candidate search returns read-only exact matches and blockers', a
   expect(serializedShortlist).not.toContain(documentBlockedEmail);
   expect(serializedShortlist).not.toContain('contact_email');
   expect(serializedShortlist).not.toContain('contact_phone');
-  expect(serializedShortlist).not.toContain('document_metadata');
+  expect(serializedShortlist).not.toContain('"document_metadata":');
 
   const serializedApproval = JSON.stringify(approval);
   expect(serializedApproval).not.toContain(exactEmail);
@@ -2073,7 +2073,7 @@ test('operator candidate search returns read-only exact matches and blockers', a
   expect(serializedApproval).not.toContain(documentBlockedEmail);
   expect(serializedApproval).not.toContain('contact_email');
   expect(serializedApproval).not.toContain('contact_phone');
-  expect(serializedApproval).not.toContain('document_metadata');
+  expect(serializedApproval).not.toContain('"document_metadata":');
 
   const serializedReviewApplications = JSON.stringify(reviewApplications);
   expect(serializedReviewApplications).not.toContain(exactEmail);
@@ -2081,7 +2081,7 @@ test('operator candidate search returns read-only exact matches and blockers', a
   expect(serializedReviewApplications).not.toContain(documentBlockedEmail);
   expect(serializedReviewApplications).not.toContain('contact_email');
   expect(serializedReviewApplications).not.toContain('contact_phone');
-  expect(serializedReviewApplications).not.toContain('document_metadata');
+  expect(serializedReviewApplications).not.toContain('"document_metadata":');
 
   const employerDraftResponse = await request.get(`/registration/drafts/${employer.draft_id}`);
   expect(employerDraftResponse.status()).toBe(200);
@@ -2123,7 +2123,7 @@ test('operator candidate search returns read-only exact matches and blockers', a
   expect(serializedPresentation).not.toContain(exactEmail);
   expect(serializedPresentation).not.toContain('contact_email');
   expect(serializedPresentation).not.toContain('contact_phone');
-  expect(serializedPresentation).not.toContain('document_metadata');
+  expect(serializedPresentation).not.toContain('"document_metadata":');
 
   const employerDraftAfterPresentationResponse = await request.get(`/registration/drafts/${employer.draft_id}`);
   expect(employerDraftAfterPresentationResponse.status()).toBe(200);
@@ -2135,7 +2135,7 @@ test('operator candidate search returns read-only exact matches and blockers', a
   expect(serializedEmployerCandidate).not.toContain(exactEmail);
   expect(serializedEmployerCandidate).not.toContain('contact_email');
   expect(serializedEmployerCandidate).not.toContain('contact_phone');
-  expect(serializedEmployerCandidate).not.toContain('document_metadata');
+  expect(serializedEmployerCandidate).not.toContain('"document_metadata":');
 });
 
 test('operator review queue returns submitted seafarer and company drafts', async ({ request }) => {

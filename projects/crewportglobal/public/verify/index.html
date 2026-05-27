@@ -1450,9 +1450,21 @@
         if (!item || typeof item !== 'object') {
           return '';
         }
-        return (item.queue_type === 'vacancy_application' || item.queue_type === 'vacancy_deletion_request')
+        return (item.queue_type === 'vacancy_application'
+            || item.queue_type === 'vacancy_deletion_request'
+            || item.queue_type === 'vacancy_request')
           ? String(item.queue_item_id || '')
           : String(item.draft_id || '');
+      }
+
+      function scrollReviewWorkspaceIntoView() {
+        const workspace = document.getElementById('review-workspace');
+        if (!workspace) {
+          return;
+        }
+        window.requestAnimationFrame(() => {
+          workspace.scrollIntoView({ block: 'start' });
+        });
       }
 
       function queueTypeForRecordType(recordType) {
@@ -3761,6 +3773,7 @@
         const sortValue = sortOrder.value;
 
         return queueItems
+          .filter((item) => (activeTaskTarget ? queueItemMatchesTaskTarget(item, activeTaskTarget) : true))
           .filter((item) => isItemInOperatorLane(item))
           .filter((item) => (typeValue === 'all' ? true : item.queue_type === typeValue))
           .filter((item) => (roleValue === 'all' ? true : item.role === roleValue))
@@ -3784,6 +3797,51 @@
           const payload = await response.json().catch(() => ({}));
           if (!response.ok || !payload || payload.ok !== true) {
             throw new Error('draft_details_load_failed');
+          }
+          detailsJson.textContent = JSON.stringify(payload, null, 2);
+          currentDraftPayload = payload;
+          renderDraftDetails(payload);
+          syncReviewTargetOptions(payload);
+          setLatestReviewNote(extractLatestNote(payload), extractLatestTarget(payload));
+          renderReviewHistory(extractReviewHistory(payload));
+        } catch (error) {
+          detailsJson.textContent = t('verify.details.error');
+          currentDraftPayload = null;
+          detailsSections.innerHTML = '';
+          const errorLine = document.createElement('p');
+          errorLine.className = 'details-empty';
+          errorLine.textContent = t('verify.details.error');
+          detailsSections.appendChild(errorLine);
+          setLatestReviewNote('');
+          syncReviewTargetOptions(null);
+          renderReviewHistory([]);
+          console.error(error);
+        }
+      }
+
+      async function loadVacancyRequestDetails(vacancyRequestId) {
+        if (!vacancyRequestId) {
+          return;
+        }
+
+        detailsJson.textContent = t('verify.details.loading');
+        detailsSections.innerHTML = '';
+        const loading = document.createElement('p');
+        loading.className = 'details-empty';
+        loading.textContent = t('verify.details.loading');
+        detailsSections.appendChild(loading);
+        try {
+          const response = await fetch(`/api/v1/operator/review-queue/vacancy-requests/${encodeURIComponent(vacancyRequestId)}`, {
+            headers: operatorHeaders(),
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (isOperatorAccessFailure(response)) {
+            showAccessPanel('verify.access.denied');
+            detailsJson.textContent = t('verify.access.denied');
+            return;
+          }
+          if (!response.ok || !payload || payload.ok !== true) {
+            throw new Error('vacancy_request_details_load_failed');
           }
           detailsJson.textContent = JSON.stringify(payload, null, 2);
           currentDraftPayload = payload;
@@ -4008,6 +4066,10 @@
           return;
         }
         currentQueueItemContext = findQueueItemContext(itemId, queueType);
+        if (queueType === 'vacancy_request') {
+          await loadVacancyRequestDetails(itemId);
+          return;
+        }
         if (queueType === 'vacancy_application') {
           await loadApplicationDetails(itemId);
           return;
@@ -4028,6 +4090,7 @@
             type: 'operator_shortlist_draft',
             id: target.shortlistDraftId,
           });
+          scrollReviewWorkspaceIntoView();
           return;
         }
 
@@ -4041,6 +4104,7 @@
             type: 'vacancy_deletion_request',
             id: deletionReviewId,
           });
+          scrollReviewWorkspaceIntoView();
           return;
         }
 
@@ -4069,6 +4133,7 @@
           type: targetQueueType || 'queue',
           id: matchedItem.queue_item_id || queueTargetId(matchedItem),
         });
+        scrollReviewWorkspaceIntoView();
       }
 
       async function applyCardReview(decision) {
@@ -4278,7 +4343,13 @@
             loadQueueItemDetails(
               button.getAttribute('data-draft-id') || '',
               button.getAttribute('data-queue-type') || ''
-            );
+            ).then(() => {
+              status.textContent = t('verify.task.opened', {
+                type: button.getAttribute('data-queue-type') || 'queue',
+                id: button.getAttribute('data-draft-id') || '',
+              });
+              scrollReviewWorkspaceIntoView();
+            });
           });
         });
 

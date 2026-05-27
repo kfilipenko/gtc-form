@@ -223,54 +223,49 @@ Ambiguous action labels must be replaced:
 
 ## 11. Assignment And Visibility
 
-Task visibility must respect both group responsibility and individual assignment.
+Task visibility must respect both group responsibility and computed individual assignment.
+
+The verified assignment rule is:
+
+```text
+previous stage result
++ current object state
++ responsible group/permission
++ active historical executor for the same object and group
+= visible task for person or group queue
+```
 
 | Case | Visibility rule |
 |---|---|
-| No employee assignment exists | Show task in responsible group queue. |
-| Responsible manager exists | Show task to responsible manager and authorized leaders. |
-| Current specialist exists | Show task in current specialist's `My tasks`. |
-| Review/control exception exists | Show task to authorized control role or Project Owner. |
-| User only has broad unrelated group membership | Do not show unrelated client task if narrower assignment exists. |
+| An active employee in the responsible group previously completed an analogous task for the same object | Show the new task as assigned to that employee. |
+| No active historical executor exists for that object and group | Show the task in the responsible group queue. |
+| First group member completes a group-queue task | Their audit event becomes the historical assignment source for later tasks on the same object and group. |
+| Historical employee is inactive, blocked or no longer an active member of the responsible group | Do not assign personally; return the task to the responsible group queue. |
+| Review/control exception exists | Show task to authorized control role or Project Owner according to the operation's access contract. |
+| User only has broad unrelated group membership | Do not show unrelated client task if a narrower assignment and access boundary applies. |
 
-The system should record assignment context in future implementation:
+The current implementation uses existing audit evidence rather than a separate assignment table.
+
+Runtime assignment source:
 
 ```text
-responsible_manager_user_id
-current_specialist_user_id
-current_group_code
-current_stage
-current_operation_code
-assignment_reason
-assigned_at
-assigned_by_user_id
+registration_audit_events.event_payload.actor_context.actor_user_id
+registration_audit_events.event_payload.actor_context.target_group_code
+registration_audit_events.event_payload object identifiers
+users.is_active
+access_group_members.membership_state = active
 ```
-
-### 11.1 Verified current assignment boundary
-
-Current runtime verification confirms the group-queue part of this rule.
 
 Verified behavior:
 
 1. `/api/v1/team/workbench/tasks` returns `task_model = data_derived_current_state`.
-2. `/api/v1/team/workbench/tasks` returns `persisted_task_table_created = false`.
-3. `/team/` task cards show `Assigned employee: group queue` when no personal assignment exists.
-4. Tasks are filtered by group and permission.
+2. `/api/v1/team/workbench/tasks` returns `task_assignment_model = historical_active_executor_or_group_queue`.
+3. `/api/v1/team/workbench/tasks` returns `persisted_task_table_created = false`.
+4. `/team/` task cards show `Assigned employee: group queue` when no historical active executor exists.
+5. `/team/` task cards show the named employee when the same active group member previously completed an operation for the same object.
+6. Tasks remain filtered by group and permission.
 
-Not yet implemented:
-
-1. persisted task assignment table;
-2. assignment to a specific employee;
-3. automatic transfer from group queue to a named employee's `My tasks`;
-4. hiding group-wide visibility when a narrower personal assignment exists.
-
-Until that implementation exists, the verified process rule is:
-
-```text
-previous stage result + current object state + group/permission = visible group queue task
-```
-
-The full assignment-aware rule remains a controlled next implementation stage.
+This is a computed assignment model. It does not create a manual assignment record and does not authorize bypassing manager-controlled reassignment rules that may be added later.
 
 ## 12. Approval Gates
 
