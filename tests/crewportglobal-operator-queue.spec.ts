@@ -478,7 +478,9 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#details-json')).toContainText('seafarer_profile');
 
   await page.locator('#review-note').fill('');
-  await queueRow.locator('.queue-decision[data-decision="needs_correction"]').click();
+  const workspaceActions = page.locator('.workspace-actions-section');
+  await expect(workspaceActions).toContainText('Workspace actions');
+  await workspaceActions.locator('.queue-decision[data-decision="needs_correction"]').click();
   await expect(page.locator('#review-note-feedback')).toContainText('requires a review note');
 
   const note = 'Missing certificate details and availability date.';
@@ -488,7 +490,7 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#details-sections')).toContainText('review: under_review');
 
   await page.locator('#review-note').fill(note);
-  await queueRow.locator('.queue-decision[data-decision="needs_correction"]').click();
+  await workspaceActions.locator('.queue-decision[data-decision="needs_correction"]').click();
   await expect(page.locator('#queue-status')).toContainText('rejected');
   await expect(page.locator('#latest-review-note')).toContainText(note);
   await expect(page.locator('#latest-review-note')).toContainText('QUAL-003 Certificate of competence');
@@ -729,14 +731,16 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
   await expect(page.locator('#details-sections')).toContainText('Operator Queue Applicant');
   await expect(page.locator('#details-json')).toContainText('vacancy_application');
 
-  await applicationRow.locator('.queue-decision[data-decision="start_review"]').click();
+  const applicationWorkspaceActions = page.locator('.workspace-actions-section');
+  await expect(applicationWorkspaceActions).toContainText('Workspace actions');
+  await applicationWorkspaceActions.locator('.queue-decision[data-decision="start_review"]').click();
   await expect(page.locator('#queue-status')).toContainText('in_review');
   await expect(page.locator('#details-sections')).toContainText('in_review');
 
   applicationRow = page.locator('#queue-body tr', { hasText: seafarerEmail }).first();
   const note = 'Candidate can be presented to employer after document check.';
   await page.locator('#review-note').fill(note);
-  await applicationRow.locator('.queue-decision[data-decision="reviewed"]').click();
+  await applicationWorkspaceActions.locator('.queue-decision[data-decision="reviewed"]').click();
   await expect(page.locator('#queue-status')).toContainText('presented');
   await expect(page.locator('#details-sections')).toContainText('presented');
   await expect(page.locator('#latest-review-note')).toContainText(note);
@@ -1025,8 +1029,12 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
 
   const vacancyRow = page.locator('#queue-body tr', { hasText: employerEmail }).first();
   await expect(vacancyRow.locator('td').first()).toHaveText(/^\d+$/);
-  await expect(vacancyRow.getByRole('button', { name: 'Request deletion' })).toBeVisible();
+  await expect(vacancyRow.getByRole('button', { name: 'Request deletion' })).toHaveCount(0);
+  await expect(vacancyRow.locator('.queue-decision')).toHaveCount(0);
   await vacancyRow.locator('.queue-open').click();
+  const vacancyWorkspaceActions = page.locator('.workspace-actions-section');
+  await expect(vacancyWorkspaceActions).toContainText('Workspace actions');
+  await expect(vacancyWorkspaceActions.getByRole('button', { name: 'Request deletion' })).toBeVisible();
 
   const candidateSearch = page.locator('.candidate-search-panel');
   await expect(candidateSearch).toContainText('Candidate search');

@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.80
+- Version: 1.81
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -286,6 +286,7 @@ docs/crewportglobal/
   197_cpg_demand_034_shortlist_draft_history_list_report.md
   198_cpg_demand_035_shortlist_draft_safe_drilldown_report.md
   199_cpg_biz_012_crew_formation_process_documentation_task.md
+  200_cpg_biz_013_operator_task_action_simplification_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -594,6 +595,8 @@ Document 198 records the CPG-DEMAND-035 safe shortlist draft drill-down implemen
 
 Document 199 records the CPG-BIZ-012 execution task for preparing the controlling crew formation business-process manual and operating instructions, including computed-task principles, group/employee assignment rules, task display format, process outputs, audit evidence and approval gate before implementation.
 
+Document 200 records the CPG-BIZ-013 operator task-action simplification implementation, including the single primary computed operation in `/verify/` queue rows, secondary review outcomes moved into the opened workspace, preserved permission metadata, vacancy deletion request relocation and focused UI/access verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -697,6 +700,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.81 | 2026-05-27 | GTC IT / AI Assistant | Added document 200 for CPG-BIZ-013 covering operator queue single-primary-task display, workspace-contained review outcomes, permission-preserving action relocation and focused verification |
 | 1.80 | 2026-05-26 | GTC IT / AI Assistant | Added BP-012 and BP-013 business-process documents for crew formation service operations, user/team/AI instructions, computed task display, assignment rules, process outputs and audit evidence |
 | 1.79 | 2026-05-26 | GTC IT / AI Assistant | Added document 199 as the CPG-BIZ-012 execution task for crew formation business-process documentation, computed task rules, group/employee assignment and task display format |
 | 1.78 | 2026-05-26 | GTC IT / AI Assistant | Added document 198 for CPG-DEMAND-035 covering safe shortlist draft drill-down with actor summaries, audit linkage, creation/current blockers, blocker delta and contact-free UI/API verification |

@@ -61,6 +61,28 @@ test('operator queue disables actions denied by operator_access contract', async
     });
   });
 
+  await page.route(`**/api/v1/registration/drafts/${draftId}**`, async (route) => {
+    await route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        ok: true,
+        draft_id: draftId,
+        role: 'employer',
+        email: 'operator.access.contract@example.com',
+        status: 'submitted_for_human_review',
+        created_at: '2026-05-15T00:00:00Z',
+        updated_at: '2026-05-15T00:00:00Z',
+        payload: {
+          vacancy_request: {
+            vacancy_request_id: 'vacancy-access-contract',
+            vacancy_title: 'Chief Engineer',
+            publication_status: 'submitted_for_human_review',
+          },
+        },
+      }),
+    });
+  });
+
   await page.addInitScript((token) => {
     window.sessionStorage.setItem('crewportglobal.operatorAccessToken', token);
   }, operatorAccessToken);
@@ -70,9 +92,15 @@ test('operator queue disables actions denied by operator_access contract', async
   const row = page.locator('#queue-body tr', { hasText: 'operator.access.contract@example.com' }).first();
   await expect(row).toBeVisible();
 
-  const startReview = row.locator('.queue-decision[data-decision="start_review"]');
-  const needsCorrection = row.locator('.queue-decision[data-decision="needs_correction"]');
-  const reviewed = row.locator('.queue-decision[data-decision="reviewed"]');
+  await expect(row.locator('.queue-open')).toHaveText('Open review workspace');
+  await expect(row.locator('.queue-decision')).toHaveCount(0);
+  await row.locator('.queue-open').click();
+
+  const workspaceActions = page.locator('.workspace-actions-section');
+  await expect(workspaceActions).toContainText('Workspace actions');
+  const startReview = workspaceActions.locator('.queue-decision[data-decision="start_review"]');
+  const needsCorrection = workspaceActions.locator('.queue-decision[data-decision="needs_correction"]');
+  const reviewed = workspaceActions.locator('.queue-decision[data-decision="reviewed"]');
 
   await expect(startReview).toBeEnabled();
   await expect(startReview).toHaveAttribute('data-permission-code', 'start_human_review');

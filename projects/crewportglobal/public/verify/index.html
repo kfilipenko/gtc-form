@@ -394,6 +394,18 @@
       flex-wrap: wrap;
       gap: 8px;
     }
+    .workspace-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .workspace-action-copy {
+      margin: 0;
+      color: var(--muted-on-dark);
+      font-size: 13px;
+      line-height: 1.5;
+    }
     .review-card-action[disabled] {
       cursor: not-allowed;
       opacity: 0.52;
@@ -686,12 +698,13 @@
         'verify.col.status': 'Status',
         'verify.col.summary': 'Summary',
         'verify.col.updated': 'Updated',
-        'verify.col.actions': 'Actions',
-        'verify.action.open': 'Open item',
+        'verify.col.actions': 'Task',
+        'verify.action.open': 'Open review workspace',
         'verify.action.startReview': 'Start review',
         'verify.action.needsCorrection': 'Needs correction',
         'verify.action.reviewed': 'Mark reviewed',
         'verify.action.deleteRequest': 'Request deletion',
+        'verify.action.primaryHint': 'Review outcomes and secondary actions are inside the workspace.',
         'verify.action.deleteConfirm': 'Hide this vacancy request and require manager confirmation?',
         'verify.action.deleteSaving': 'Requesting vacancy deletion...',
         'verify.action.deleteSaved': 'Deletion requested. Vacancy hidden from operator queue; manager confirmation required.',
@@ -758,6 +771,8 @@
         'verify.section.candidateSearch': 'Candidate search',
         'verify.section.shortlistDraft': 'Internal shortlist draft',
         'verify.section.deletionReview': 'Vacancy deletion confirmation',
+        'verify.section.workspaceActions': 'Workspace actions',
+        'verify.workspaceActions.copy': 'Use these actions only after reviewing the opened internal work item. Queue rows show one primary task; review outcomes and deletion requests are handled here.',
         'verify.candidateSearch.copy': 'Read-only internal search. It does not create applications, change statuses or present candidates to employers.',
         'verify.candidateSearch.run': 'Run candidate search',
         'verify.candidateSearch.loading': 'Running read-only candidate search...',
@@ -935,12 +950,13 @@
         'verify.col.status': 'Статус',
         'verify.col.summary': 'Сводка',
         'verify.col.updated': 'Обновлен',
-        'verify.col.actions': 'Действия',
-        'verify.action.open': 'Открыть запись',
+        'verify.col.actions': 'Задача',
+        'verify.action.open': 'Открыть рабочую область',
         'verify.action.startReview': 'Начать проверку',
         'verify.action.needsCorrection': 'Нужна доработка',
         'verify.action.reviewed': 'Отметить: проверено',
         'verify.action.deleteRequest': 'Удалить заявку',
+        'verify.action.primaryHint': 'Результаты проверки и вторичные действия находятся внутри рабочей области.',
         'verify.action.deleteConfirm': 'Скрыть эту заявку и отправить удаление на подтверждение менеджера?',
         'verify.action.deleteSaving': 'Отправляем запрос на удаление заявки...',
         'verify.action.deleteSaved': 'Удаление запрошено. Заявка скрыта из очереди оператора и ожидает подтверждения менеджера.',
@@ -1007,6 +1023,8 @@
         'verify.section.candidateSearch': 'Поиск кандидатов',
         'verify.section.shortlistDraft': 'Внутренний shortlist draft',
         'verify.section.deletionReview': 'Подтверждение удаления заявки',
+        'verify.section.workspaceActions': 'Действия в рабочей области',
+        'verify.workspaceActions.copy': 'Используйте эти действия только после проверки открытого внутреннего объекта. В строке очереди показывается одна главная задача; результаты проверки и удаление обрабатываются здесь.',
         'verify.candidateSearch.copy': 'Внутренний read-only поиск. Он не создает отклики, не меняет статусы и не показывает кандидатов работодателю.',
         'verify.candidateSearch.run': 'Запустить поиск кандидатов',
         'verify.candidateSearch.loading': 'Выполняем read-only поиск кандидатов...',
@@ -1184,6 +1202,7 @@
       let currentReviewHistory = [];
       let currentDraftPayload = null;
       let currentDetailType = 'draft';
+      let currentQueueItemContext = null;
       let pendingTaskTarget = parseTaskTargetFromUrl();
       let activeTaskTarget = pendingTaskTarget;
 
@@ -1436,6 +1455,100 @@
         }
         button.textContent = t(textKey);
         return button;
+      }
+
+      function queuePrimaryTaskLabel(item) {
+        if (item && activeTaskTarget && queueItemMatchesTaskTarget(item, activeTaskTarget)) {
+          const operation = activeTaskTarget.taskOperation || '';
+          if (operation === 'create_internal_shortlist_draft') {
+            return t('verify.candidateSearch.createDraft');
+          }
+          if (operation === 'review_candidate_presentation') {
+            return t('verify.presentationTask.approve');
+          }
+          if (operation === 'confirm_vacancy_deletion') {
+            return t('verify.deletionTask.confirm');
+          }
+          if (operation === 'reject_vacancy_deletion') {
+            return t('verify.deletionTask.reject');
+          }
+          if (operation === 'approve_internal_shortlist' || operation === 'create_review_applications') {
+            return shortlistTaskOperationButtonLabel(operation);
+          }
+        }
+        return t('verify.action.open');
+      }
+
+      function findQueueItemContext(itemId, queueType) {
+        return queueItems.find((item) => {
+          if (queueType && item.queue_type !== queueType) {
+            return false;
+          }
+          const ids = [item.queue_item_id, item.draft_id, queueTargetId(item)]
+            .filter(Boolean)
+            .map((value) => String(value));
+          return ids.includes(String(itemId || ''));
+        }) || null;
+      }
+
+      function createWorkspaceActionsSection() {
+        const context = currentQueueItemContext;
+        if (!context || !context.queue_type) {
+          return null;
+        }
+        const targetId = queueTargetId(context);
+        if (!targetId) {
+          return null;
+        }
+
+        const section = document.createElement('section');
+        section.className = 'detail-section workspace-actions-section';
+
+        const title = document.createElement('h3');
+        title.textContent = t('verify.section.workspaceActions');
+
+        const copy = document.createElement('p');
+        copy.className = 'workspace-action-copy';
+        copy.textContent = t('verify.workspaceActions.copy');
+
+        const actions = document.createElement('div');
+        actions.className = 'workspace-actions';
+
+        ['start_review', 'needs_correction', 'reviewed'].forEach((decision) => {
+          const labelKey = decision === 'start_review'
+            ? 'verify.action.startReview'
+            : (decision === 'needs_correction' ? 'verify.action.needsCorrection' : 'verify.action.reviewed');
+          const button = createQueueButton('queue-decision workspace-decision', labelKey, targetId, decision, context.queue_type, context);
+          button.addEventListener('click', () => {
+            if (button.disabled) {
+              return;
+            }
+            applyDecision(targetId, decision, context.queue_type);
+          });
+          actions.appendChild(button);
+        });
+
+        if (context.queue_type === 'vacancy_request' && context.queue_item_id) {
+          const deleteButton = createQueueButton(
+            'queue-delete-request workspace-delete-request',
+            'verify.action.deleteRequest',
+            context.queue_item_id,
+            'reviewed',
+            context.queue_type,
+            context
+          );
+          deleteButton.dataset.vacancyRequestId = context.queue_item_id;
+          deleteButton.addEventListener('click', () => {
+            if (deleteButton.disabled) {
+              return;
+            }
+            requestVacancyDeletion(context.queue_item_id || '');
+          });
+          actions.appendChild(deleteButton);
+        }
+
+        section.append(title, copy, actions);
+        return section;
       }
 
       function summaryText(item) {
@@ -2997,6 +3110,10 @@
         }
 
         sections.filter(Boolean).forEach((section) => detailsSections.appendChild(section));
+        const workspaceActions = createWorkspaceActionsSection();
+        if (workspaceActions) {
+          detailsSections.appendChild(workspaceActions);
+        }
       }
 
       function renderApplicationDetails(payload) {
@@ -3100,6 +3217,10 @@
         }
 
         sections.filter(Boolean).forEach((section) => detailsSections.appendChild(section));
+        const workspaceActions = createWorkspaceActionsSection();
+        if (workspaceActions) {
+          detailsSections.appendChild(workspaceActions);
+        }
         const taskPanel = createApplicationTaskExecutionPanel(application.vacancy_application_id || '', payload);
         if (taskPanel) {
           detailsSections.appendChild(taskPanel);
@@ -3360,6 +3481,7 @@
           return;
         }
 
+        currentQueueItemContext = null;
         currentDetailType = 'operator_shortlist_draft';
         detailsJson.textContent = t('verify.details.loading');
         detailsSections.innerHTML = '';
@@ -3459,6 +3581,7 @@
           return;
         }
 
+        currentQueueItemContext = null;
         currentDetailType = 'vacancy_deletion_request';
         detailsJson.textContent = t('verify.details.loading');
         detailsSections.innerHTML = '';
@@ -3504,9 +3627,11 @@
 
       async function loadQueueItemDetails(itemId, queueType) {
         if (queueType === 'vacancy_deletion_request') {
+          currentQueueItemContext = null;
           await loadDeletionReviewDetails(itemId);
           return;
         }
+        currentQueueItemContext = findQueueItemContext(itemId, queueType);
         if (queueType === 'vacancy_application') {
           await loadApplicationDetails(itemId);
           return;
@@ -3769,24 +3894,9 @@
           const actionCell = document.createElement('td');
           const actionWrap = document.createElement('div');
           actionWrap.className = 'inline-actions';
-          actionWrap.append(
-            createQueueButton('queue-open', 'verify.action.open', targetId, '', item.queue_type, item),
-            createQueueButton('queue-decision', 'verify.action.startReview', targetId, 'start_review', item.queue_type, item),
-            createQueueButton('queue-decision', 'verify.action.needsCorrection', targetId, 'needs_correction', item.queue_type, item),
-            createQueueButton('queue-decision', 'verify.action.reviewed', targetId, 'reviewed', item.queue_type, item)
-          );
-          if (item.queue_type === 'vacancy_request' && item.queue_item_id) {
-            const deleteButton = createQueueButton(
-              'queue-delete-request',
-              'verify.action.deleteRequest',
-              item.queue_item_id,
-              'reviewed',
-              item.queue_type,
-              item
-            );
-            deleteButton.dataset.vacancyRequestId = item.queue_item_id;
-            actionWrap.append(deleteButton);
-          }
+          const primaryButton = createQueueButton('queue-open', 'verify.action.open', targetId, '', item.queue_type, item);
+          primaryButton.textContent = queuePrimaryTaskLabel(item);
+          actionWrap.append(primaryButton);
           actionCell.appendChild(actionWrap);
           tr.appendChild(actionCell);
           body.appendChild(tr);
@@ -3808,27 +3918,6 @@
           });
         });
 
-        body.querySelectorAll('.queue-decision').forEach((button) => {
-          button.addEventListener('click', () => {
-            if (button.disabled) {
-              return;
-            }
-            applyDecision(
-              button.getAttribute('data-draft-id') || '',
-              button.getAttribute('data-decision') || '',
-              button.getAttribute('data-queue-type') || ''
-            );
-          });
-        });
-
-        body.querySelectorAll('.queue-delete-request').forEach((button) => {
-          button.addEventListener('click', () => {
-            if (button.disabled) {
-              return;
-            }
-            requestVacancyDeletion(button.getAttribute('data-vacancy-request-id') || '');
-          });
-        });
       }
 
       async function loadQueue() {
