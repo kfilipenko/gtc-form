@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.90
+- Version: 1.91
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -297,6 +297,7 @@ docs/crewportglobal/
   208_cpg_biz_019_assignment_aware_task_visibility_check_report.md
   209_cpg_biz_020_historical_task_assignment_report.md
   210_cpg_biz_021_vacancy_request_deep_link_workspace_fix_report.md
+  211_cpg_biz_022_business_process_verification_status_and_next_plan.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -728,6 +729,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.91 | 2026-05-27 | GTC IT / AI Assistant | Added document 211 for CPG-BIZ-022 summarizing business-process stages already verified by the describe/verify/correct/test/advance method, remaining gaps and the recommended next work plan |
 | 1.90 | 2026-05-27 | GTC IT / AI Assistant | Added document 210 for CPG-BIZ-021 covering exact vacancy-request deep-link workspace loading, target-row filtering, team-session queue-decision permission checks and focused UI/API verification |
 | 1.89 | 2026-05-27 | GTC IT / AI Assistant | Added document 209 for CPG-BIZ-020 covering computed task personalization from active historical executor evidence, group-queue fallback and focused task-assignment verification |
 | 1.88 | 2026-05-27 | GTC IT / AI Assistant | Added document 208 for CPG-BIZ-019 covering assignment-aware task visibility check, verified group-queue boundary and controlled gap before personal task assignment |
