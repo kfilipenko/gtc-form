@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 2.9
+- Version: 3.0
 - Status: For internal review
 
 ## 1. Purpose
@@ -120,6 +120,7 @@ This documentation block starts from the following approved business controls:
 44. The seafarer `/create-profile/` questionnaire must expose one visible `Save / confirm data` action for saving and completeness confirmation; section-level save controls stay hidden from ordinary users, background autosave may preserve draft field changes without review side effects, and backend `S-*` missing items must be displayed with exact section links and field/section highlighting before any operator-review submission is allowed.
 45. Protected upload panels must show allowed formats and the 10 MB single-file limit before upload; frontend validation, backend validation and runtime web/PHP upload limits must be aligned, and rejected uploads must show a specific reason instead of a generic failure whenever the system can identify it.
 46. All current and future CrewPortGlobal forms must attach to the standard form lifecycle module instead of implementing page-local rules: explicit role/form context, safe draft persistence, backend completeness, protected upload, submit-review gating, correction handoff and computed task creation must follow BP-014.
+47. The first shared frontend lifecycle helper has been extracted. Future form pages must reuse the shared missing-item navigation/highlighting and autosave controller instead of copying page-local lifecycle logic.
 
 ## 5. Intended Use
 
@@ -139,6 +140,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.0 | 2026-05-28 | GTC IT / AI Assistant | Added Phase B shared frontend lifecycle helper control after extracting `/create-profile/` missing-item navigation/highlighting and autosave behavior into a reusable module |
 | 2.9 | 2026-05-28 | GTC IT / AI Assistant | Added BP-014 standard form lifecycle and validation module for role-aware draft context, reusable save/completeness/upload behavior, submit-review gating and computed task integration across all forms |
 | 2.8 | 2026-05-28 | GTC IT / AI Assistant | Added protected-upload limit and diagnostics control: upload panels must show allowed formats / 10 MB limit, runtime limits must match application rules and rejected uploads must expose specific causes |
 | 2.7 | 2026-05-28 | GTC IT / AI Assistant | Added Phase 2 `/create-profile/` completeness-gate control: one visible Save / confirm action, hidden section-save controls, backend `S-*` missing-item rendering and highlighted fields/sections before submit-review activation |

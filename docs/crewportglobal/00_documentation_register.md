@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.08
+- Version: 2.10
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -317,6 +317,7 @@ docs/crewportglobal/
   228_cpg_biz_039_create_profile_completeness_gate_phase2_report.md
   229_cpg_biz_040_protected_upload_limit_diagnostics_report.md
   230_cpg_biz_041_standard_form_lifecycle_module_report.md
+  231_cpg_biz_042_shared_frontend_form_lifecycle_helper_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -672,6 +673,8 @@ Document 229 records the CPG-BIZ-040 protected upload limit and diagnostics corr
 
 Document 230 records the CPG-BIZ-041 standard form lifecycle module decision, including BP-014, explicit role/form context, reusable Save/completeness/upload behavior, protected upload diagnostics, submit-review gating, numbered missing items and computed task integration for all current and future CrewPortGlobal forms.
 
+Document 231 records the CPG-BIZ-042 shared frontend form lifecycle helper extraction, including the reusable `crewportglobal-form-lifecycle.js` module, `/create-profile/` adoption for missing-item navigation/highlighting and autosave, unchanged user-visible behavior and focused create-profile regression verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -775,6 +778,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.10 | 2026-05-28 | GTC IT / AI Assistant | Added document 231 for CPG-BIZ-042 covering shared frontend form lifecycle helper extraction, `/create-profile/` adoption and create-profile regression verification |
 | 2.09 | 2026-05-28 | GTC IT / AI Assistant | Added document 230 and BP-014 for the standard form lifecycle module covering role-aware context, reusable save/completeness/upload behavior and staged adoption across all forms |
 | 2.08 | 2026-05-28 | GTC IT / AI Assistant | Added document 229 for CPG-BIZ-040 covering protected upload limit diagnostics, runtime upload limit alignment, exact upload error messages and frontend upload validation |
 | 2.07 | 2026-05-28 | GTC IT / AI Assistant | Added document 228 for CPG-BIZ-039 covering Phase 2 `/create-profile/` completeness gate UI, one visible Save / confirm action, S-code missing-item display and frontend test-maintenance updates |

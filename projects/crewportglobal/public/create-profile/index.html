@@ -2691,6 +2691,7 @@
     };
   </script>
   <script src="../assets/crewportglobal-registration-drafts.js"></script>
+  <script src="../assets/crewportglobal-form-lifecycle.js"></script>
   <script src="../assets/crewportglobal-reference-catalogs.js"></script>
   <script src="../assets/crewportglobal-public-i18n.js" defer></script>
   <script>
@@ -2879,9 +2880,6 @@
       let latestReviewStatusLabel = '';
       let latestApplications = [];
       let latestCompleteness = null;
-      let autosaveTimer = null;
-      let autosaveInFlight = false;
-      let autosavePending = false;
       let activeDraftRole = '';
 
       const completenessFieldTargets = {
@@ -2933,6 +2931,15 @@
         'S-12.D4': 'profile-section-documents',
         'S-12.D5': 'profile-section-documents'
       };
+
+      const completenessNavigator = window.CPGFormLifecycle.createCompletenessNavigator({
+        fieldTargets: completenessFieldTargets,
+        sectionTargets: completenessSectionTargets,
+        defaultPath: '/create-profile/',
+        getDraftId: currentDraftId,
+        targetPathResolver: targetPathForMissingItem,
+        fallbackLabel: () => t('create.completeness.openSection')
+      });
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -4280,110 +4287,16 @@
       }
 
       function clearCompletenessHighlights() {
-        document.querySelectorAll('.is-completeness-missing').forEach((element) => {
-          element.classList.remove('is-completeness-missing');
-        });
+        completenessNavigator.clearHighlights();
       }
 
       function openProfileSection(targetId) {
-        if (!targetId) {
-          return;
-        }
-        const target = document.getElementById(targetId);
-        if (!target) {
-          return;
-        }
-        document.querySelectorAll('.section-tab').forEach((item) => {
-          item.classList.toggle('is-current', item.getAttribute('data-section-target') === targetId);
-        });
-        if (target instanceof HTMLDetailsElement) {
-          target.open = true;
-        }
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-
-      function sectionIdForMissingItem(item) {
-        const fieldCode = item && typeof item.field_code === 'string' ? item.field_code : '';
-        if (fieldCode && completenessSectionTargets[fieldCode]) {
-          return completenessSectionTargets[fieldCode];
-        }
-        const targetUrl = item && typeof item.target_url === 'string' ? item.target_url : '';
-        const hash = targetUrl.includes('#') ? targetUrl.split('#').pop() : '';
-        return hash || '';
-      }
-
-      function currentCreateProfilePath() {
-        const draftId = currentDraftId();
-        return draftId ? `/create-profile/?draft_id=${encodeURIComponent(draftId)}` : '/create-profile/';
+        completenessNavigator.openSection(targetId);
       }
 
       function targetPathForMissingItem(item) {
         const targetUrl = item && typeof item.target_url === 'string' ? item.target_url : '';
         return targetUrl.startsWith('/post-vacancy/') ? '/post-vacancy/' : '/create-profile/';
-      }
-
-      function pathWithDraftId(path) {
-        const draftId = currentDraftId();
-        return draftId ? `${path}?draft_id=${encodeURIComponent(draftId)}` : path;
-      }
-
-      function hrefForMissingItem(item) {
-        const sectionId = sectionIdForMissingItem(item);
-        const targetPath = targetPathForMissingItem(item);
-        const basePath = targetPath === '/create-profile/' ? currentCreateProfilePath() : pathWithDraftId(targetPath);
-        return `${basePath}${sectionId ? `#${encodeURIComponent(sectionId)}` : ''}`;
-      }
-
-      function isCurrentPageHref(href) {
-        try {
-          const target = new URL(href, window.location.origin);
-          const currentPath = window.location.pathname.replace(/\/$/, '');
-          const targetPath = target.pathname.replace(/\/$/, '');
-          return currentPath === targetPath;
-        } catch (error) {
-          return true;
-        }
-      }
-
-      function labelForMissingItem(item) {
-        const fieldCode = item && typeof item.field_code === 'string' ? item.field_code : '';
-        const label = item && typeof item.label === 'string' ? item.label : '';
-        if (fieldCode && label) {
-          return `${fieldCode}: ${label}`;
-        }
-        return fieldCode || label || t('create.completeness.openSection');
-      }
-
-      function applyCompletenessHighlights(missingItems) {
-        clearCompletenessHighlights();
-        const sectionIds = new Set();
-        (missingItems || []).forEach((item) => {
-          const fieldCode = item && typeof item.field_code === 'string' ? item.field_code : '';
-          const targetIds = completenessFieldTargets[fieldCode] || [];
-          targetIds.forEach((targetId) => {
-            const field = document.getElementById(targetId);
-            const card = field ? field.closest('.field-card') : null;
-            if (card) {
-              card.classList.add('is-completeness-missing');
-            }
-          });
-          const sectionId = sectionIdForMissingItem(item);
-          if (sectionId) {
-            sectionIds.add(sectionId);
-          }
-        });
-
-        sectionIds.forEach((sectionId) => {
-          const section = document.getElementById(sectionId);
-          if (section) {
-            section.classList.add('is-completeness-missing');
-          }
-          document.querySelectorAll('.section-tab').forEach((button) => {
-            if (button.getAttribute('data-section-target') === sectionId) {
-              button.classList.add('is-completeness-missing');
-            }
-          });
-        });
       }
 
       async function refreshCompleteness(draftId, options) {
@@ -4426,19 +4339,10 @@
         return currentDraftId() || (fullName.value.trim() && email.value.trim());
       }
 
-      function scheduleAutosave() {
-        window.clearTimeout(autosaveTimer);
-        if (!canAutosaveCurrentDraft()) {
-          return;
-        }
-        if (autosaveInFlight) {
-          autosavePending = true;
-          return;
-        }
-
-        autosaveTimer = window.setTimeout(async () => {
-          autosaveInFlight = true;
-          autosavePending = false;
+      const autosaveController = window.CPGFormLifecycle.createAutosaveController({
+        delayMs: 1000,
+        canRun: canAutosaveCurrentDraft,
+        run: async () => {
           try {
             const response = await saveSeafarerDraft({ validate: false });
             if (response && response.draft_id) {
@@ -4449,13 +4353,12 @@
             }
           } catch (error) {
             console.error(error);
-          } finally {
-            autosaveInFlight = false;
-            if (autosavePending) {
-              scheduleAutosave();
-            }
           }
-        }, 1000);
+        }
+      });
+
+      function scheduleAutosave() {
+        autosaveController.schedule();
       }
 
       function renderWorkspace() {
@@ -4504,34 +4407,7 @@
 
         missingList.innerHTML = '';
         if (backendMissing) {
-          applyCompletenessHighlights(backendMissing);
-          if (backendMissing.length === 0) {
-            const item = document.createElement('li');
-            item.textContent = t('create.progress.noMissing');
-            missingList.appendChild(item);
-            return;
-          }
-
-          backendMissing.forEach((entry) => {
-            const item = document.createElement('li');
-            const link = document.createElement('a');
-            const href = hrefForMissingItem(entry);
-            link.href = href;
-            link.textContent = labelForMissingItem(entry);
-            link.addEventListener('click', (event) => {
-              if (!isCurrentPageHref(href)) {
-                return;
-              }
-              event.preventDefault();
-              const sectionId = sectionIdForMissingItem(entry);
-              if (sectionId) {
-                window.history.replaceState(null, '', href);
-                openProfileSection(sectionId);
-              }
-            });
-            item.appendChild(link);
-            missingList.appendChild(item);
-          });
+          completenessNavigator.renderMissingList(missingList, backendMissing, t('create.progress.noMissing'));
           return;
         }
 
@@ -4797,8 +4673,7 @@
           return;
         }
 
-        window.clearTimeout(autosaveTimer);
-        autosavePending = false;
+        autosaveController.cancel();
         submit.disabled = true;
         status.textContent = t('create.form.saving');
 
