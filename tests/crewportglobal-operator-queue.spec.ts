@@ -18,6 +18,15 @@ async function expectQueueTableFitsWorkbench(page: Page): Promise<void> {
   expect(metrics.pageScrollWidth).toBeLessThanOrEqual(metrics.pageClientWidth + 2);
 }
 
+async function openWorkspaceSecondaryActions(page: Page): Promise<void> {
+  const disclosure = page.locator('.workspace-actions-section .workspace-action-disclosure').first();
+  await expect(disclosure).toBeVisible();
+  const isOpen = await disclosure.evaluate((element) => element instanceof HTMLDetailsElement && element.open);
+  if (!isOpen) {
+    await disclosure.locator('summary').click();
+  }
+}
+
 function expectConcreteComputedTaskLink(task: Record<string, unknown>): void {
   const rawUrl = String(task.target_url || task.action_url || '');
   expect(rawUrl).toBeTruthy();
@@ -691,9 +700,13 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
     await expect(page.locator('#review-workspace')).not.toContainText(seafarerName);
     await expect(page.locator('#review-workspace')).not.toContainText('Supply Scope Kin Hidden');
     await expect(page.locator('#review-workspace')).not.toContainText('Supply restricted surgery details hidden from verifier summary.');
+    await expect(page.locator('#raw-details')).toBeHidden();
+    await expect(page.locator('#details-json')).toContainText('Technical debug payload is hidden');
+    await expect(page.locator('#details-json')).not.toContainText(employerEmail);
 
     const companyNote = 'Company authority, vessel context and demand intake reviewed.';
     await page.locator('#review-note').fill(companyNote);
+    await openWorkspaceSecondaryActions(page);
     await page.locator('.workspace-actions-section').locator('.queue-decision[data-decision="reviewed"]').click();
     await expect(page.locator('#queue-status')).toContainText('verified');
     await expect(page.locator('#latest-review-note')).toContainText(companyNote);
@@ -746,12 +759,14 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#details-sections')).not.toContainText('Supply Hidden Captain');
   await expect(page.locator('#details-sections')).not.toContainText('supply.hidden.reference@example.com');
   await expect(page.locator('#details-sections')).not.toContainText('Supply restricted surgery details hidden from verifier summary.');
-  await expect(page.locator('#details-json')).toContainText('seafarer_review_readiness');
-  await expect(page.locator('#details-json')).toContainText('sensitive_fields_redacted');
-  await expect(page.locator('#details-json')).toContainText('restricted_family_record');
-  await expect(page.locator('#details-json')).toContainText('restricted_medical_details_hidden');
-  await expect(page.locator('#details-json')).toContainText(seafarerEmail);
-  await expect(page.locator('#details-json')).toContainText('seafarer_profile');
+  await expect(page.locator('#raw-details')).toBeHidden();
+  await expect(page.locator('#details-json')).toContainText('Technical debug payload is hidden');
+  await expect(page.locator('#details-json')).not.toContainText('seafarer_review_readiness');
+  await expect(page.locator('#details-json')).not.toContainText('sensitive_fields_redacted');
+  await expect(page.locator('#details-json')).not.toContainText('restricted_family_record');
+  await expect(page.locator('#details-json')).not.toContainText('restricted_medical_details_hidden');
+  await expect(page.locator('#details-json')).not.toContainText(seafarerEmail);
+  await expect(page.locator('#details-json')).not.toContainText('seafarer_profile');
   await expect(page.locator('#details-json')).not.toContainText('Supply Scope Kin Hidden');
   await expect(page.locator('#details-json')).not.toContainText('+995555240024');
   await expect(page.locator('#details-json')).not.toContainText('Supply Hidden Child');
@@ -774,6 +789,8 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await page.locator('#review-note').fill('');
   const workspaceActions = page.locator('.workspace-actions-section');
   await expect(workspaceActions).toContainText('Workspace actions');
+  await expect(workspaceActions.locator('.workspace-action-disclosure')).toBeVisible();
+  await openWorkspaceSecondaryActions(page);
   await workspaceActions.locator('.queue-decision[data-decision="needs_correction"]').click();
   await expect(page.locator('#review-note-feedback')).toContainText('requires a review note');
 
@@ -784,6 +801,7 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#details-sections')).toContainText('review: under_review');
 
   await page.locator('#review-note').fill(note);
+  await openWorkspaceSecondaryActions(page);
   await workspaceActions.locator('.queue-decision[data-decision="needs_correction"]').click();
   await expect(page.locator('#queue-status')).toContainText('rejected');
   await expect(page.locator('#latest-review-note')).toContainText(note);
@@ -1170,10 +1188,13 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
   await expect(page.locator('#details-sections')).toContainText(candidateNote);
   await expect(page.locator('#details-sections')).toContainText(title);
   await expect(page.locator('#details-sections')).toContainText('Operator Queue Applicant');
-  await expect(page.locator('#details-json')).toContainText('vacancy_application');
+  await expect(page.locator('#raw-details')).toBeHidden();
+  await expect(page.locator('#details-json')).toContainText('Technical debug payload is hidden');
+  await expect(page.locator('#details-json')).not.toContainText('vacancy_application');
 
   const applicationWorkspaceActions = page.locator('.workspace-actions-section');
   await expect(applicationWorkspaceActions).toContainText('Workspace actions');
+  await openWorkspaceSecondaryActions(page);
   await applicationWorkspaceActions.locator('.queue-decision[data-decision="start_review"]').click();
   await expect(page.locator('#queue-status')).toContainText('in_review');
   await expect(page.locator('#details-sections')).toContainText('in_review');
@@ -1181,6 +1202,7 @@ test('operator queue page renders and reviews vacancy applications', async ({ pa
   applicationRow = page.locator('#queue-body tr', { hasText: title }).first();
   const note = 'Candidate can be presented to employer after document check.';
   await page.locator('#review-note').fill(note);
+  await openWorkspaceSecondaryActions(page);
   await applicationWorkspaceActions.locator('.queue-decision[data-decision="reviewed"]').click();
   await expect(page.locator('#queue-status')).toContainText('presented');
   await expect(page.locator('#details-sections')).toContainText('presented');
@@ -1370,6 +1392,12 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       await expect(page.locator('#review-workspace')).not.toContainText(mismatchEmail);
       await expect(page.locator('#review-workspace')).not.toContainText('contact_email');
       await expect(page.locator('#review-workspace')).not.toContainText('document_metadata');
+      await expect(page.locator('#raw-details')).toBeHidden();
+      await expect(page.locator('#details-json')).toContainText('Technical debug payload is hidden');
+      await expect(page.locator('#details-json')).not.toContainText(exactEmail);
+      await expect(page.locator('#details-json')).not.toContainText(mismatchEmail);
+      await expect(page.locator('#details-json')).not.toContainText('contact_email');
+      await expect(page.locator('#details-json')).not.toContainText('document_metadata');
       const workspaceVisibleAfterDeepLink = await page.locator('#review-workspace').evaluate((element) => {
         const rect = element.getBoundingClientRect();
         return rect.top >= 0 && rect.top < window.innerHeight;
@@ -1587,6 +1615,7 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
   await vacancyRow.locator('.queue-task-link.queue-open').click();
   const vacancyWorkspaceActions = page.locator('.workspace-actions-section');
   await expect(vacancyWorkspaceActions).toContainText('Workspace actions');
+  await openWorkspaceSecondaryActions(page);
   await expect(vacancyWorkspaceActions.getByRole('button', { name: 'Request deletion' })).toBeVisible();
 
   const candidateSearch = page.locator('.candidate-search-panel');

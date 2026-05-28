@@ -430,6 +430,20 @@
       gap: 8px;
       align-items: center;
     }
+    .workspace-action-disclosure {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .workspace-action-disclosure summary {
+      cursor: pointer;
+      color: var(--text-on-dark);
+      font-weight: 700;
+    }
+    .workspace-action-disclosure .workspace-actions {
+      margin-top: 10px;
+    }
     .workspace-action-copy {
       margin: 0;
       color: var(--muted-on-dark);
@@ -660,9 +674,9 @@
               <ol id="review-history-list" class="history-list" hidden></ol>
             </div>
           </div>
-          <details class="raw-details">
-            <summary data-i18n="verify.details.raw">Raw API payload</summary>
-            <pre id="details-json" class="details-json" data-i18n="verify.details.empty">Select a queue item to load full draft details.</pre>
+          <details class="raw-details" id="raw-details" hidden>
+            <summary data-i18n="verify.details.raw">Technical debug payload</summary>
+            <pre id="details-json" class="details-json" data-i18n="verify.details.debugHidden">Technical debug payload is hidden in normal review mode.</pre>
           </details>
         </section>
       </section>
@@ -766,7 +780,8 @@
         'verify.details.empty': 'Select a queue item to load full draft details.',
         'verify.details.loading': 'Loading draft details...',
         'verify.details.error': 'Could not load draft details.',
-        'verify.details.raw': 'Raw API payload',
+        'verify.details.raw': 'Technical debug payload',
+        'verify.details.debugHidden': 'Technical debug payload is hidden in normal review mode.',
         'verify.task.opened': 'Task target opened: {type} {id}.',
         'verify.task.notFound': 'Task target is not available in the current queue.',
         'verify.task.returnToTeam': 'Return to team tasks',
@@ -801,6 +816,7 @@
         'verify.section.deletionReview': 'Vacancy deletion confirmation',
         'verify.section.workspaceActions': 'Workspace actions',
         'verify.workspaceActions.copy': 'Use these actions only after reviewing the opened internal work item. Queue rows show one primary task; review outcomes and deletion requests are handled here.',
+        'verify.workspaceActions.summary': 'Review outcomes and secondary actions',
         'verify.taskTitle.seafarerProfile': 'Review seafarer profile completeness.',
         'verify.taskTitle.companyVerification': 'Review company verification.',
         'verify.taskTitle.crewRequest': 'Review crew request completeness.',
@@ -1059,7 +1075,8 @@
         'verify.details.empty': 'Выберите элемент очереди, чтобы загрузить полные детали черновика.',
         'verify.details.loading': 'Загружаем детали черновика...',
         'verify.details.error': 'Не удалось загрузить детали черновика.',
-        'verify.details.raw': 'Сырой API payload',
+        'verify.details.raw': 'Технический debug payload',
+        'verify.details.debugHidden': 'Технический debug payload скрыт в обычном режиме проверки.',
         'verify.task.opened': 'Целевая задача открыта: {type} {id}.',
         'verify.task.notFound': 'Целевая задача недоступна в текущей очереди.',
         'verify.task.returnToTeam': 'Вернуться к задачам команды',
@@ -1094,6 +1111,7 @@
         'verify.section.deletionReview': 'Подтверждение удаления заявки',
         'verify.section.workspaceActions': 'Действия в рабочей области',
         'verify.workspaceActions.copy': 'Используйте эти действия только после проверки открытого внутреннего объекта. В строке очереди показывается одна главная задача; результаты проверки и удаление обрабатываются здесь.',
+        'verify.workspaceActions.summary': 'Результаты проверки и вторичные действия',
         'verify.taskTitle.seafarerProfile': 'Проверить полноту профиля моряка.',
         'verify.taskTitle.companyVerification': 'Проверить компанию работодателя.',
         'verify.taskTitle.crewRequest': 'Проверить полноту заявки на экипаж.',
@@ -1266,6 +1284,7 @@
       const body = document.getElementById('queue-body');
       const detailsSections = document.getElementById('details-sections');
       const detailsJson = document.getElementById('details-json');
+      const rawDetails = document.getElementById('raw-details');
       const reviewTargetSelect = document.getElementById('review-target');
       const reviewCardStatusFilter = document.getElementById('review-card-status-filter');
       const reviewCardActionButtons = Array.from(document.querySelectorAll('.review-card-action'));
@@ -1312,6 +1331,7 @@
       let currentQueueItemContext = null;
       let pendingTaskTarget = parseTaskTargetFromUrl();
       let activeTaskTarget = pendingTaskTarget;
+      const debugPayloadEnabled = new URLSearchParams(window.location.search).get('debug_payload') === '1';
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -1326,6 +1346,22 @@
         }
         return Object.entries(values).reduce((acc, entry) => acc.replace(`{${entry[0]}}`, String(entry[1])), raw);
       }
+
+      function setDetailsDebugPayload(value) {
+        if (!detailsJson) {
+          return;
+        }
+        if (!debugPayloadEnabled) {
+          detailsJson.textContent = t('verify.details.debugHidden');
+          return;
+        }
+        detailsJson.textContent = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+      }
+
+      if (rawDetails) {
+        rawDetails.hidden = !debugPayloadEnabled;
+      }
+      setDetailsDebugPayload(t('verify.details.empty'));
 
       function getStoredOperatorToken() {
         try {
@@ -1666,7 +1702,13 @@
           actions.appendChild(deleteButton);
         }
 
-        section.append(title, copy, actions);
+        const disclosure = document.createElement('details');
+        disclosure.className = 'workspace-action-disclosure';
+        const summary = document.createElement('summary');
+        summary.textContent = t('verify.workspaceActions.summary');
+        disclosure.append(summary, actions);
+
+        section.append(title, copy, disclosure);
         return section;
       }
 
@@ -2477,7 +2519,7 @@
                 throw new Error('shortlist task approval failed');
               }
               currentDraftPayload = actionPayload;
-              detailsJson.textContent = JSON.stringify(actionPayload, null, 2);
+              setDetailsDebugPayload(actionPayload);
               renderShortlistDraftResult(result, actionPayload.shortlist_draft, actionPayload);
               recordTeamTaskFeedback(
                 'approve_internal_shortlist',
@@ -2515,7 +2557,7 @@
             if (!response.ok || !actionPayload || actionPayload.ok !== true) {
               throw new Error('shortlist task review application failed');
             }
-            detailsJson.textContent = JSON.stringify(actionPayload, null, 2);
+            setDetailsDebugPayload(actionPayload);
             renderReviewApplicationsResult(result, actionPayload);
             const applications = Array.isArray(actionPayload.applications) ? actionPayload.applications : [];
             const firstStatus = applications[0] && applications[0].application_status
@@ -2618,14 +2660,14 @@
               statusNode.textContent = t('verify.presentationTask.blocked', {
                 items: blockers.length ? blockers.join(', ') : 'approval guard',
               });
-              detailsJson.textContent = JSON.stringify(actionPayload, null, 2);
+              setDetailsDebugPayload(actionPayload);
               return;
             }
             if (!response.ok || !actionPayload || actionPayload.ok !== true) {
               throw new Error('presentation review failed');
             }
 
-            detailsJson.textContent = JSON.stringify(actionPayload, null, 2);
+            setDetailsDebugPayload(actionPayload);
             const line = document.createElement('div');
             line.className = 'candidate-shortlist-candidate';
             const strong = document.createElement('strong');
@@ -2735,14 +2777,14 @@
             }
             if (response.status === 409 && actionPayload && actionPayload.error === 'vacancy_deletion_confirmation_not_pending') {
               statusNode.textContent = t('verify.deletionTask.blocked', { items: 'deletion_request_not_pending_manager_confirmation' });
-              detailsJson.textContent = JSON.stringify(actionPayload, null, 2);
+              setDetailsDebugPayload(actionPayload);
               return;
             }
             if (!response.ok || !actionPayload || actionPayload.ok !== true) {
               throw new Error('deletion review failed');
             }
 
-            detailsJson.textContent = JSON.stringify(actionPayload, null, 2);
+            setDetailsDebugPayload(actionPayload);
             const line = document.createElement('div');
             line.className = 'candidate-shortlist-candidate';
             const strong = document.createElement('strong');
@@ -3786,7 +3828,7 @@
           return;
         }
 
-        detailsJson.textContent = t('verify.details.loading');
+        setDetailsDebugPayload(t('verify.details.loading'));
         detailsSections.innerHTML = '';
         const loading = document.createElement('p');
         loading.className = 'details-empty';
@@ -3798,14 +3840,14 @@
           if (!response.ok || !payload || payload.ok !== true) {
             throw new Error('draft_details_load_failed');
           }
-          detailsJson.textContent = JSON.stringify(payload, null, 2);
+          setDetailsDebugPayload(payload);
           currentDraftPayload = payload;
           renderDraftDetails(payload);
           syncReviewTargetOptions(payload);
           setLatestReviewNote(extractLatestNote(payload), extractLatestTarget(payload));
           renderReviewHistory(extractReviewHistory(payload));
         } catch (error) {
-          detailsJson.textContent = t('verify.details.error');
+          setDetailsDebugPayload(t('verify.details.error'));
           currentDraftPayload = null;
           detailsSections.innerHTML = '';
           const errorLine = document.createElement('p');
@@ -3824,7 +3866,7 @@
           return;
         }
 
-        detailsJson.textContent = t('verify.details.loading');
+        setDetailsDebugPayload(t('verify.details.loading'));
         detailsSections.innerHTML = '';
         const loading = document.createElement('p');
         loading.className = 'details-empty';
@@ -3837,20 +3879,20 @@
           const payload = await response.json().catch(() => ({}));
           if (isOperatorAccessFailure(response)) {
             showAccessPanel('verify.access.denied');
-            detailsJson.textContent = t('verify.access.denied');
+            setDetailsDebugPayload(t('verify.access.denied'));
             return;
           }
           if (!response.ok || !payload || payload.ok !== true) {
             throw new Error('vacancy_request_details_load_failed');
           }
-          detailsJson.textContent = JSON.stringify(payload, null, 2);
+          setDetailsDebugPayload(payload);
           currentDraftPayload = payload;
           renderDraftDetails(payload);
           syncReviewTargetOptions(payload);
           setLatestReviewNote(extractLatestNote(payload), extractLatestTarget(payload));
           renderReviewHistory(extractReviewHistory(payload));
         } catch (error) {
-          detailsJson.textContent = t('verify.details.error');
+          setDetailsDebugPayload(t('verify.details.error'));
           currentDraftPayload = null;
           detailsSections.innerHTML = '';
           const errorLine = document.createElement('p');
@@ -3869,7 +3911,7 @@
           return;
         }
 
-        detailsJson.textContent = t('verify.details.loading');
+        setDetailsDebugPayload(t('verify.details.loading'));
         detailsSections.innerHTML = '';
         const loading = document.createElement('p');
         loading.className = 'details-empty';
@@ -3882,20 +3924,20 @@
           const payload = await response.json().catch(() => ({}));
           if (isOperatorAccessFailure(response)) {
             showAccessPanel('verify.access.denied');
-            detailsJson.textContent = t('verify.access.denied');
+            setDetailsDebugPayload(t('verify.access.denied'));
             return;
           }
           if (!response.ok || !payload || payload.ok !== true) {
             throw new Error('application_details_load_failed');
           }
-          detailsJson.textContent = JSON.stringify(payload, null, 2);
+          setDetailsDebugPayload(payload);
           currentDraftPayload = payload;
           renderApplicationDetails(payload);
           syncReviewTargetOptions(payload);
           setLatestReviewNote(extractLatestNote(payload), extractLatestTarget(payload));
           renderReviewHistory(extractReviewHistory(payload));
         } catch (error) {
-          detailsJson.textContent = t('verify.details.error');
+          setDetailsDebugPayload(t('verify.details.error'));
           currentDraftPayload = null;
           currentDetailType = 'draft';
           detailsSections.innerHTML = '';
@@ -3917,7 +3959,7 @@
 
         currentQueueItemContext = null;
         currentDetailType = 'operator_shortlist_draft';
-        detailsJson.textContent = t('verify.details.loading');
+        setDetailsDebugPayload(t('verify.details.loading'));
         detailsSections.innerHTML = '';
         const loading = document.createElement('p');
         loading.className = 'details-empty';
@@ -3930,7 +3972,7 @@
           const payload = await response.json().catch(() => ({}));
           if (isOperatorAccessFailure(response)) {
             showAccessPanel('verify.access.denied');
-            detailsJson.textContent = t('verify.access.denied');
+            setDetailsDebugPayload(t('verify.access.denied'));
             return;
           }
           if (!response.ok || !payload || payload.ok !== true || !payload.shortlist_draft) {
@@ -3938,7 +3980,7 @@
           }
 
           const draft = payload.shortlist_draft;
-          detailsJson.textContent = JSON.stringify(payload, null, 2);
+          setDetailsDebugPayload(payload);
           currentDraftPayload = payload;
           detailsSections.innerHTML = '';
           const section = createDetailSection('verify.section.shortlistDraft', [
@@ -3963,7 +4005,7 @@
           setLatestReviewNote('');
           renderReviewHistory([]);
         } catch (error) {
-          detailsJson.textContent = t('verify.details.error');
+          setDetailsDebugPayload(t('verify.details.error'));
           currentDraftPayload = null;
           currentDetailType = 'draft';
           detailsSections.innerHTML = '';
@@ -4017,7 +4059,7 @@
 
         currentQueueItemContext = null;
         currentDetailType = 'vacancy_deletion_request';
-        detailsJson.textContent = t('verify.details.loading');
+        setDetailsDebugPayload(t('verify.details.loading'));
         detailsSections.innerHTML = '';
         const loading = document.createElement('p');
         loading.className = 'details-empty';
@@ -4030,21 +4072,21 @@
           const payload = await response.json().catch(() => ({}));
           if (isOperatorAccessFailure(response)) {
             showAccessPanel('verify.access.denied');
-            detailsJson.textContent = t('verify.access.denied');
+            setDetailsDebugPayload(t('verify.access.denied'));
             return;
           }
           if (!response.ok || !payload || payload.ok !== true) {
             throw new Error('deletion_review_details_load_failed');
           }
 
-          detailsJson.textContent = JSON.stringify(payload, null, 2);
+          setDetailsDebugPayload(payload);
           currentDraftPayload = payload;
           renderDeletionReviewDetails(payload);
           syncReviewTargetOptions(null);
           setLatestReviewNote('');
           renderReviewHistory([]);
         } catch (error) {
-          detailsJson.textContent = t('verify.details.error');
+          setDetailsDebugPayload(t('verify.details.error'));
           currentDraftPayload = null;
           currentDetailType = 'draft';
           detailsSections.innerHTML = '';
@@ -4230,7 +4272,7 @@
               ? payload.approval_guard.approval_blockers.map((item) => item && item.code).filter(Boolean).join(', ')
               : 'approval guard';
             status.textContent = `Approval guard blocked: ${blockers}`;
-            detailsJson.textContent = JSON.stringify(payload, null, 2);
+            setDetailsDebugPayload(payload);
             return;
           }
           if (!response.ok || !payload || payload.ok !== true) {
