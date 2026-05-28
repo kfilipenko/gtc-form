@@ -135,17 +135,20 @@ This phase does not yet:
 
 ## 8. Next Planned Stage
 
-Next implementation stage:
+The next implementation stage after this report was:
 
 ```text
 CPG-BIZ-035 Phase 1 - Backend completeness analyzer and API contract
 ```
 
-Planned work:
+Phase 1 is now documented in:
 
-1. use `questionnaire_schema.php` as the source of required fields;
-2. compute missing fields/documents from draft payload and uploaded document metadata;
-3. expose a safe completeness response;
-4. keep runtime review submission unchanged until the submit gate is implemented in a later phase;
-5. add no-DB helper tests and focused API tests where endpoint behavior is introduced.
+```text
+docs/crewportglobal/227_cpg_biz_038_backend_completeness_analyzer_api_contract_report.md
+```
 
+Next active stage after Phase 1:
+
+```text
+CPG-BIZ-035 Phase 2 - /create-profile/ autosave plus one Save / confirm action
+```

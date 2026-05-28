@@ -10,6 +10,7 @@ require_once __DIR__ . '/../lib/admin_access_storage_factory.php';
 require_once __DIR__ . '/../lib/document_uploads.php';
 require_once __DIR__ . '/../lib/identity_context.php';
 require_once __DIR__ . '/../lib/questionnaire_schema.php';
+require_once __DIR__ . '/../lib/questionnaire_completeness.php';
 require_once __DIR__ . '/../lib/reference_catalogs.php';
 require_once __DIR__ . '/../lib/registration_person_flow.php';
 require_once __DIR__ . '/../lib/user_auth.php';
@@ -8933,6 +8934,262 @@ function build_draft_response(string $userId, string $visibilityScope = 'owner_f
     ];
 }
 
+function cpg_questionnaire_decode_list(mixed $value): array {
+    if (is_array($value)) {
+        return array_values($value);
+    }
+
+    if (is_string($value) && trim($value) !== '') {
+        $decoded = json_decode($value, true);
+        return is_array($decoded) ? array_values($decoded) : [];
+    }
+
+    return [];
+}
+
+function cpg_questionnaire_rank_requires_coc(mixed $rank): bool {
+    if (!is_string($rank) || trim($rank) === '') {
+        return false;
+    }
+
+    $normalized = strtolower($rank);
+    foreach (['master', 'captain', 'officer', 'engineer', 'eto', 'electro'] as $needle) {
+        if (str_contains($normalized, $needle)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function cpg_questionnaire_first_present(mixed ...$values): mixed {
+    foreach ($values as $value) {
+        if (cpg_questionnaire_value_present($value)) {
+            return $value;
+        }
+    }
+
+    return null;
+}
+
+function cpg_questionnaire_seafarer_completeness(string $userId, array $userRow): array {
+    $profileResult = api_query(
+        'SELECT first_name,
+                primary_rank,
+                department,
+                availability_status,
+                availability_date,
+                nationality_code,
+                residence_country_code,
+                preferred_vessel_types,
+                salary_expectation_usd,
+                contact_phone,
+                contact_email,
+                review_status,
+                document_metadata
+         FROM crewportglobal.seafarer_profiles
+         WHERE user_id = $1
+         LIMIT 1',
+        [$userId]
+    );
+    $profile = pg_fetch_assoc($profileResult) ?: [];
+    $metadata = cpg_decode_json_object(is_string($profile['document_metadata'] ?? null) ? (string) $profile['document_metadata'] : null);
+    $sourceWorkspace = isset($metadata['seafarer_workspace']) && is_array($metadata['seafarer_workspace'])
+        ? $metadata['seafarer_workspace']
+        : [];
+    $qualification = array_merge(
+        cpg_workspace_section($sourceWorkspace, 'qualifications'),
+        cpg_workspace_section($sourceWorkspace, 'qualification_details')
+    );
+    $identity = cpg_workspace_section($sourceWorkspace, 'identity_documents');
+    $publication = cpg_workspace_section($sourceWorkspace, 'matching_publication');
+    $consent = cpg_workspace_section($sourceWorkspace, 'consent_details');
+    $workspace = cpg_read_seafarer_workspace_summary($userId);
+    $matchingPreferences = is_array($workspace['matching_preferences'] ?? null) ? $workspace['matching_preferences'] : [];
+    $certificates = is_array($workspace['certificates'] ?? null) ? $workspace['certificates'] : [];
+    $primaryCertificate = is_array($certificates[0] ?? null) ? $certificates[0] : [];
+    $medicalDeclarations = is_array($workspace['medical_declarations'] ?? null) ? $workspace['medical_declarations'] : [];
+    $primaryMedical = is_array($medicalDeclarations[0] ?? null) ? $medicalDeclarations[0] : [];
+    $dataProcessing = cpg_questionnaire_first_present(
+        $matchingPreferences['data_processing_confirmation'] ?? null,
+        $publication['data_processing_confirmation'] ?? null,
+        $consent['data_processing_confirmation'] ?? null
+    );
+
+    $availabilityStatus = $profile['availability_status'] ?? null;
+    $rank = $profile['primary_rank'] ?? null;
+
+    return cpg_questionnaire_completeness_result([
+        'object_type' => 'seafarer_profile',
+        'object_id' => $userId,
+        'role' => 'seafarer',
+        'streams' => ['S'],
+        'field_values' => [
+            'S-1.1' => cpg_questionnaire_first_present($profile['first_name'] ?? null, $userRow['display_name'] ?? null),
+            'S-1.2' => $userRow['email'] ?? null,
+            'S-1.3' => cpg_questionnaire_first_present($profile['contact_phone'] ?? null),
+            'S-1.4' => $rank,
+            'S-1.5' => $profile['department'] ?? null,
+            'S-1.6' => ($availabilityStatus !== 'unknown') ? $availabilityStatus : null,
+            'S-1.7' => $profile['availability_date'] ?? null,
+            'S-1.8' => $profile['nationality_code'] ?? null,
+            'S-1.9' => $profile['residence_country_code'] ?? null,
+            'S-1.10' => $profile['salary_expectation_usd'] ?? null,
+            'S-1.11' => cpg_questionnaire_decode_list($profile['preferred_vessel_types'] ?? null),
+            'S-6.1' => cpg_questionnaire_first_present($metadata['passport_expiry'] ?? null, $identity['foreign_passport_expiry'] ?? null),
+            'S-7.1' => cpg_questionnaire_first_present($qualification['coc_type'] ?? null, $primaryCertificate['certificate_type_label'] ?? null),
+            'S-7.2' => cpg_questionnaire_first_present($qualification['coc_issuing_country'] ?? null, $primaryCertificate['issuing_country_code'] ?? null),
+            'S-7.3' => cpg_questionnaire_first_present($qualification['coc_expiry'] ?? null, $primaryCertificate['expires_at'] ?? null),
+            'S-10.1' => cpg_questionnaire_first_present($metadata['medical_expiry'] ?? null, $primaryMedical['medical_certificate_expires_at'] ?? null),
+            'S-11.1' => $dataProcessing === 'i_confirm' ? $dataProcessing : null,
+        ],
+        'documents' => cpg_document_read_documents($userId, 'seafarer'),
+        'conditions' => [
+            'availability_status_is_available_later' => $availabilityStatus === 'available_later',
+            'rank_or_request_requires_coc' => cpg_questionnaire_rank_requires_coc($rank),
+            'rank_vessel_or_request_requires_training' => false,
+            'request_requires_education' => false,
+            'request_requires_language_after_field_is_implemented' => false,
+            'request_requires_sea_service' => false,
+        ],
+        'unresolved_corrections' => cpg_questionnaire_unresolved_source_card_corrections($userId, $metadata),
+    ]);
+}
+
+function cpg_questionnaire_unresolved_source_card_corrections(string $userId, array $metadata): array {
+    $states = cpg_seafarer_workspace_card_review_states(cpg_workspace_json($metadata));
+    $corrections = [];
+    foreach ($states as $cardCode => $state) {
+        if (($state['review_status'] ?? null) !== 'correction_requested') {
+            continue;
+        }
+        $corrections[] = [
+            'type' => 'source_card_correction',
+            'card_code' => $cardCode,
+            'card_name' => $state['card_name'] ?? cpg_seafarer_review_card_name((string) $cardCode),
+            'review_note' => $state['review_note'] ?? null,
+            'target_url' => '/create-profile/?draft_id=' . rawurlencode($userId) . '#profile-section-documents',
+        ];
+    }
+    return $corrections;
+}
+
+function cpg_questionnaire_demand_completeness(string $userId, string $role, array $userRow): array {
+    $company = read_primary_company_for_user($userId) ?? [];
+    $companyId = is_string($company['company_id'] ?? null) ? (string) $company['company_id'] : null;
+    $vessel = $companyId !== null ? (read_latest_vessel_for_company($companyId) ?? []) : [];
+    $vacancy = $companyId !== null ? (read_latest_vacancy_for_company($companyId, $userId) ?? []) : [];
+    $roleInCompany = $company['role_in_company'] ?? null;
+    $vesselType = cpg_questionnaire_first_present(
+        $vacancy['vessel_type_label'] ?? null,
+        $vacancy['vessel_type'] ?? null,
+        $vessel['vessel_type_label'] ?? null,
+        $vessel['vessel_type'] ?? null
+    );
+
+    return cpg_questionnaire_completeness_result([
+        'object_type' => 'demand_questionnaire',
+        'object_id' => $userId,
+        'role' => $role,
+        'streams' => ['E', 'V', 'R'],
+        'field_values' => [
+            'E-1.1' => $userRow['email'] ?? null,
+            'E-1.2' => $userRow['display_name'] ?? null,
+            'E-1.3' => $role,
+            'E-2.1' => $company['company_name'] ?? null,
+            'E-2.2' => $company['country_code'] ?? null,
+            'E-2.3' => $company['registration_number'] ?? null,
+            'E-3.1' => $roleInCompany,
+            'V-1.1' => $vessel['vessel_name'] ?? null,
+            'V-1.2' => $vessel['imo_number'] ?? null,
+            'V-2.1' => cpg_questionnaire_first_present($vesselType, $vessel['vessel_type_label'] ?? null, $vessel['vessel_type'] ?? null),
+            'R-1.1' => cpg_questionnaire_first_present($vacancy['required_rank_label'] ?? null, $vacancy['rank'] ?? null, $vacancy['vacancy_title'] ?? null),
+            'R-1.2' => $vacancy['department'] ?? null,
+            'R-2.1' => $vesselType,
+            'R-3.1' => $vacancy['join_date'] ?? null,
+            'R-4.1' => cpg_questionnaire_first_present(
+                $vacancy['contract_duration'] ?? null,
+                cpg_questionnaire_value_present($vacancy['contract_duration_value'] ?? null)
+                    && cpg_questionnaire_value_present($vacancy['contract_duration_unit'] ?? null)
+                    ? [$vacancy['contract_duration_value'], $vacancy['contract_duration_unit']]
+                    : null
+            ),
+            'R-4.2' => $vacancy['salary_min_usd'] ?? null,
+            'R-4.3' => $vacancy['salary_max_usd'] ?? null,
+            'R-4.4' => $vacancy['currency'] ?? null,
+        ],
+        'documents' => cpg_document_read_documents($userId),
+        'conditions' => [
+            'representative_is_not_recorded_owner' => $roleInCompany !== 'owner',
+            'exact_vessel_is_known' => cpg_questionnaire_value_present($vessel['vessel_name'] ?? null)
+                || cpg_questionnaire_value_present($vessel['imo_number'] ?? null),
+            'exact_vessel_is_known_or_flag_constraint_is_used' => cpg_questionnaire_value_present($vessel['vessel_name'] ?? null)
+                || cpg_questionnaire_value_present($vessel['imo_number'] ?? null)
+                || cpg_questionnaire_value_present($vessel['flag_country_code'] ?? null),
+            'authority_or_commercial_policy_requires_request_brief' => false,
+            'rank_or_request_requires_coc' => cpg_questionnaire_rank_requires_coc($vacancy['rank'] ?? $vacancy['required_rank_label'] ?? null),
+            'request_requires_education' => false,
+            'rank_vessel_or_request_requires_training' => false,
+            'request_requires_sea_service' => false,
+            'request_requires_visa_after_field_is_implemented' => false,
+            'request_requires_language_after_field_is_implemented' => false,
+        ],
+        'unresolved_corrections' => [],
+    ]);
+}
+
+function cpg_registration_draft_completeness(string $draftId): array {
+    $userResult = api_query(
+        'SELECT user_id,
+                email,
+                display_name,
+                registration_status,
+                created_at,
+                updated_at
+         FROM crewportglobal.users
+         WHERE user_id = $1
+         LIMIT 1',
+        [$draftId]
+    );
+    $userRow = pg_fetch_assoc($userResult);
+    if (!is_array($userRow)) {
+        api_error(404, 'draft_not_found', 'Registration draft not found');
+    }
+
+    $role = read_role_for_user($draftId);
+    if ($role === null) {
+        api_error(500, 'role_missing', 'User role mapping is missing');
+    }
+
+    $completeness = $role === 'seafarer'
+        ? cpg_questionnaire_seafarer_completeness($draftId, $userRow)
+        : cpg_questionnaire_demand_completeness($draftId, $role, $userRow);
+
+    return [
+        'ok' => true,
+        'draft_id' => $draftId,
+        'role' => $role,
+        'status' => $userRow['registration_status'] ?? null,
+        'completeness' => $completeness,
+        'side_effects' => [
+            'created_operator_task' => false,
+            'changed_review_status' => false,
+            'changed_publication_status' => false,
+            'changed_document_status' => false,
+        ],
+        'generated_at' => gmdate('c'),
+    ];
+}
+
+function handle_get_draft_completeness(string $draftId): void {
+    $uuid = api_normalize_uuid($draftId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
+    }
+
+    api_json(200, cpg_registration_draft_completeness($uuid));
+}
+
 function write_audit_event(
     string $eventType,
     string $userId,
@@ -12983,6 +13240,14 @@ if ($path === '/registration/person/confirm') {
 
 if ($method === 'POST' && $path === '/registration/drafts') {
     handle_create_draft();
+}
+
+if (preg_match('#^/registration/drafts/([^/]+)/completeness$#', $path, $matches) === 1) {
+    if ($method === 'GET') {
+        handle_get_draft_completeness($matches[1]);
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
 }
 
 if (preg_match('#^/registration/drafts/([^/]+)$#', $path, $matches) === 1) {

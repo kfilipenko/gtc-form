@@ -678,6 +678,97 @@ test('seafarer draft create, get and patch flow works', async ({ request }) => {
   expect(patchedDocumentMetadata.passport_expiry).toBe('2028-07-10');
 });
 
+test('questionnaire completeness endpoint reports numbered seafarer missing items without side effects', async ({ request }) => {
+  const unique = Date.now();
+  const email = `api.completeness.seafarer.${unique}@example.com`;
+
+  const createResponse = await request.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      rank: 'Able Seaman',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = (await createResponse.json()) as DraftResponse;
+
+  const completenessResponse = await request.get(`/registration/drafts/${created.draft_id}/completeness`);
+  expect(completenessResponse.status()).toBe(200);
+  const body = await completenessResponse.json();
+
+  expect(body.ok).toBe(true);
+  expect(body.draft_id).toBe(created.draft_id);
+  expect(body.role).toBe('seafarer');
+  expect(body.side_effects).toEqual({
+    created_operator_task: false,
+    changed_review_status: false,
+    changed_publication_status: false,
+    changed_document_status: false,
+  });
+
+  const completeness = body.completeness as Record<string, unknown>;
+  expect(completeness.object_type).toBe('seafarer_profile');
+  expect(completeness.streams).toEqual(['S']);
+  expect(completeness.overall_status).toBe('incomplete');
+  expect(completeness.can_save).toBe(true);
+  expect(completeness.can_submit_to_operator).toBe(false);
+
+  const missingCodes = (completeness.missing_items as Array<Record<string, unknown>>).map((item) => item.field_code);
+  expect(missingCodes).toContain('S-1.1');
+  expect(missingCodes).toContain('S-1.3');
+  expect(missingCodes).toContain('S-12.D1');
+  expect(missingCodes).toContain('S-12.D2');
+  expect(missingCodes).toContain('S-12.D5');
+  expect(JSON.stringify(body)).not.toContain('storage_path');
+  expect(JSON.stringify(body)).not.toContain('document_metadata');
+});
+
+test('questionnaire completeness endpoint reports demand streams and required documents', async ({ request }) => {
+  const unique = Date.now();
+  const email = `api.completeness.employer.${unique}@example.com`;
+
+  const createResponse = await request.post('/registration/drafts', {
+    data: {
+      role: 'employer',
+      role_in_company: 'manager',
+      email,
+      full_name: 'Completeness Employer',
+      company_name: `Completeness Marine ${unique}`,
+      country_code: 'AE',
+      registration_number: `AE-COMP-${unique}`,
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = (await createResponse.json()) as DraftResponse;
+
+  const completenessResponse = await request.get(`/registration/drafts/${created.draft_id}/completeness`);
+  expect(completenessResponse.status()).toBe(200);
+  const body = await completenessResponse.json();
+  const completeness = body.completeness as Record<string, unknown>;
+
+  expect(completeness.object_type).toBe('demand_questionnaire');
+  expect(completeness.streams).toEqual(['E', 'V', 'R']);
+  expect(completeness.overall_status).toBe('incomplete');
+  expect(completeness.can_submit_to_operator).toBe(false);
+
+  const missingCodes = (completeness.missing_items as Array<Record<string, unknown>>).map((item) => item.field_code);
+  expect(missingCodes).toContain('E-4.D1');
+  expect(missingCodes).toContain('E-4.D2');
+  expect(missingCodes).toContain('E-4.D3');
+  expect(missingCodes).toContain('V-2.1');
+  expect(missingCodes).toContain('R-1.1');
+  expect(missingCodes).toContain('R-3.1');
+
+  const requiredDocuments = completeness.required_documents as Array<Record<string, unknown>>;
+  expect(requiredDocuments).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ document_type: 'company_registration', status: 'missing' }),
+      expect.objectContaining({ document_type: 'representative_id', status: 'missing' }),
+    ])
+  );
+  expect(body.side_effects.created_operator_task).toBe(false);
+});
+
 test('seafarer document upload stores clean PDF metadata and protected file', async ({ request }) => {
   const unique = Date.now();
   const email = `api.upload.seafarer.${unique}@example.com`;

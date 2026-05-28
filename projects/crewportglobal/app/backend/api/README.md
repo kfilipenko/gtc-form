@@ -13,6 +13,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - POST /api/v1/registration/drafts
 - GET /api/v1/registration/drafts/{draft_id}
 - PATCH /api/v1/registration/drafts/{draft_id}
+- GET /api/v1/registration/drafts/{draft_id}/completeness
 - GET /api/v1/registration/drafts/{draft_id}/documents
 - POST /api/v1/registration/drafts/{draft_id}/documents
 - POST /api/v1/registration/person/request
@@ -65,6 +66,7 @@ The current implementation provides runtime handlers and DB writes for draft cre
 - employer candidate pipeline logic: employer draft responses include only `presented_candidates` that belong to the employer company and the current vacancy workspace
 - employer shortlist action logic: employers can mark an operator-presented candidate as `contacted`, `interview_requested`, `not_suitable` or back to `presented`, with an optional employer follow-up note, through the draft-scoped employer workspace
 - protected document upload logic: draft documents can be uploaded through `POST /api/v1/registration/drafts/{draft_id}/documents`, stored outside the public web root, scanned by ClamAV and listed as metadata only through `GET /api/v1/registration/drafts/{draft_id}/documents`
+- questionnaire completeness logic: `GET /api/v1/registration/drafts/{draft_id}/completeness` computes numbered `S/E/V/R` missing fields and required document checks from the canonical mandatory-field schema without changing review status, publication status, document status or creating operator tasks
 - protected document review logic: clean uploaded documents can be listed through `GET /api/v1/operator/document-review-queue`, downloaded through `GET /api/v1/operator/documents/{document_id}/download` and reviewed through `PATCH /api/v1/operator/documents/{document_id}/review`; infected, blocked, unscanned and scan-error files are not reviewable
 - operator access boundary: `GET /api/v1/operator/review-queue`, `PATCH /api/v1/operator/review-queue/{draft_id}/status` and document-review operator routes require `X-CPG-Operator-Token` or approved team/admin session access
 - access-control guard foundation: `lib/access_control.php` defines Phase 2 permission-loading, scope-checking, operator queue permission mapping and access-audit write helpers, with isolated tests; the guard is not wired into runtime routes yet
@@ -247,6 +249,7 @@ Then call endpoints under:
 
 - http://127.0.0.1:8091/api/v1/registration/drafts
 - http://127.0.0.1:8091/api/v1/registration/drafts/{draft_id}
+- http://127.0.0.1:8091/api/v1/registration/drafts/{draft_id}/completeness
 - http://127.0.0.1:8091/api/v1/registration/drafts/{draft_id}/documents
 - http://127.0.0.1:8091/api/v1/registration/person/request
 - http://127.0.0.1:8091/api/v1/registration/person/confirm
@@ -289,6 +292,7 @@ php projects/crewportglobal/app/backend/api/tests/admin_access_email_delivery_te
 php projects/crewportglobal/app/backend/api/tests/admin_access_public_routes_test.php
 php projects/crewportglobal/app/backend/api/tests/registration_person_flow_test.php
 php projects/crewportglobal/app/backend/api/tests/questionnaire_schema_test.php
+php projects/crewportglobal/app/backend/api/tests/questionnaire_completeness_test.php
 ```
 
 ## Out of scope here
