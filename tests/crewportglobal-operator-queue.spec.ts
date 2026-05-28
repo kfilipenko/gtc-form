@@ -494,6 +494,9 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   const seafarerName = `Operator Queue Seafarer ${unique}`;
   const seafarerEmail = `ui.queue.seafarer.${unique}@example.com`;
   const employerEmail = `ui.queue.verification.employer.${unique}@example.com`;
+  const companyName = `Verification Queue Marine ${unique}`;
+  const vesselName = `MV Verification Queue ${unique}`;
+  const vacancyTitle = `Verification Queue Chief Officer ${unique}`;
 
   const createResponse = await request.post('/api/v1/registration/drafts', {
     data: {
@@ -578,9 +581,24 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
       role_in_company: 'crew_manager',
       email: employerEmail,
       full_name: 'Verification Queue Employer',
-      company_name: `Verification Queue Marine ${unique}`,
+      company_name: companyName,
       country_code: 'AE',
       registration_number: `VQ-${unique}`,
+      vessel: {
+        vessel_name: vesselName,
+        vessel_type: 'Bulk Carrier',
+        imo_number: `IMO${9300000 + (unique % 500000)}`,
+        flag_country_code: 'AE',
+      },
+      vacancy: {
+        vacancy_title: vacancyTitle,
+        rank: 'Chief Officer',
+        department: 'deck',
+        vessel_type: 'Bulk Carrier',
+        join_date: '2026-09-10',
+        contract_duration: '4 months',
+        requirements: 'Verification-team demand context check.',
+      },
     },
   });
   expect(employerCreate.ok()).toBeTruthy();
@@ -654,7 +672,7 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
     await expect(page.locator('#review-workspace')).not.toContainText('Supply restricted surgery details hidden from verifier summary.');
 
     await page.goto('/team/');
-    const companyTeamTask = page.locator('#team-task-list .team-task', { hasText: `Verification Queue Marine ${unique}` }).first();
+    const companyTeamTask = page.locator('#team-task-list .team-task', { hasText: companyName }).first();
     await expect(companyTeamTask).toContainText('Review company verification.', { timeout: 40_000 });
     await expect(companyTeamTask).toContainText('Stage: Employer and authority setup');
     await expect(companyTeamTask).toContainText('Group: verification_team');
@@ -663,8 +681,22 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
     await expect(page).toHaveURL(/task_operation=review_company_verification/);
     await expect(page.locator('#queue-status')).toContainText('Task target opened');
     await expect(page.locator('#review-workspace')).toContainText('Company');
-    await expect(page.locator('#review-workspace')).toContainText(`Verification Queue Marine ${unique}`);
+    await expect(page.locator('#review-workspace')).toContainText(companyName);
+    await expect(page.locator('#review-workspace')).toContainText('Vessel');
+    await expect(page.locator('#review-workspace')).toContainText(vesselName);
+    await expect(page.locator('#review-workspace')).toContainText('Bulk Carrier');
+    await expect(page.locator('#review-workspace')).toContainText('Vacancy');
+    await expect(page.locator('#review-workspace')).toContainText(vacancyTitle);
     await expect(page.locator('#review-workspace')).toContainText('Workspace actions');
+    await expect(page.locator('#review-workspace')).not.toContainText(seafarerName);
+    await expect(page.locator('#review-workspace')).not.toContainText('Supply Scope Kin Hidden');
+    await expect(page.locator('#review-workspace')).not.toContainText('Supply restricted surgery details hidden from verifier summary.');
+
+    const companyNote = 'Company authority, vessel context and demand intake reviewed.';
+    await page.locator('#review-note').fill(companyNote);
+    await page.locator('.workspace-actions-section').locator('.queue-decision[data-decision="reviewed"]').click();
+    await expect(page.locator('#queue-status')).toContainText('verified');
+    await expect(page.locator('#latest-review-note')).toContainText(companyNote);
   }
 
   await page.addInitScript((token) => {
@@ -779,6 +811,22 @@ ORDER BY created_at DESC
 LIMIT 1;
 `);
   expect(actorContextSummary).toContain('seafarer_profile|needs_correction|verification_team|');
+
+  const companyActorContextSummary = runPsql(`
+SELECT concat_ws('|',
+  event_payload->'actor_context'->>'queue_type',
+  event_payload->'actor_context'->>'decision',
+  event_payload->'actor_context'->>'target_group_code',
+  event_payload->'actor_context'->>'required_permission_code'
+)
+FROM crewportglobal.registration_audit_events
+WHERE user_id = '${String(employer.draft_id).replace(/'/g, "''")}'::uuid
+  AND event_type = 'operator_review_decision_recorded'
+  AND event_payload->>'queue_type' = 'company_verification'
+ORDER BY created_at DESC
+LIMIT 1;
+`);
+  expect(companyActorContextSummary).toContain('company_verification|reviewed|verification_team|');
 });
 
 test('owner team task opens pending vacancy deletion confirmation panel', async ({ page, request, baseURL }) => {
@@ -1311,8 +1359,18 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       await page.goto(`/verify/?queue_type=vacancy_request&queue_item_id=${vacancyRequestId}#review-workspace`);
       await expect(page.locator('#queue-status')).toContainText('Task target opened');
       await expect(page.locator('#review-workspace')).toContainText(vacancyTitle);
+      await expect(page.locator('#review-workspace')).toContainText(`Operator Search Marine ${unique}`);
+      await expect(page.locator('#review-workspace')).toContainText(`MV Operator Search ${unique}`);
+      await expect(page.locator('#review-workspace')).toContainText('Chief Officer');
+      await expect(page.locator('#review-workspace')).toContainText('Bulk Carrier');
+      await expect(page.locator('#review-workspace')).toContainText('2026-08-15');
       await expect(page.locator('#review-workspace')).toContainText('Candidate search');
       await expect(page.locator('#review-workspace')).toContainText('Run candidate search');
+      await expect(page.locator('#review-workspace')).not.toContainText(employerEmail);
+      await expect(page.locator('#review-workspace')).not.toContainText(exactEmail);
+      await expect(page.locator('#review-workspace')).not.toContainText(mismatchEmail);
+      await expect(page.locator('#review-workspace')).not.toContainText('contact_email');
+      await expect(page.locator('#review-workspace')).not.toContainText('document_metadata');
       const workspaceVisibleAfterDeepLink = await page.locator('#review-workspace').evaluate((element) => {
         const rect = element.getBoundingClientRect();
         return rect.top >= 0 && rect.top < window.innerHeight;
