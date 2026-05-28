@@ -748,6 +748,12 @@
         'cabinet.tasks.correctProfile.target': 'Target card',
         'cabinet.tasks.correctProfile.action': 'Open card',
         'cabinet.tasks.correctProfile.restrictedReason': 'Correction requested for a restricted source card. Open the relevant card and correct only the requested section.',
+        'cabinet.tasks.correctDemand.companyTitle': 'Action required: correct employer authority data',
+        'cabinet.tasks.correctDemand.vacancyTitle': 'Action required: correct crew request data',
+        'cabinet.tasks.correctDemand.target': 'Target object',
+        'cabinet.tasks.correctDemand.companyTarget': 'Company / authority card',
+        'cabinet.tasks.correctDemand.vacancyTarget': 'Crew request / vessel demand card',
+        'cabinet.tasks.correctDemand.action': 'Open employer workspace',
         'cabinet.tasks.completeProfile.title': 'Action required: complete seafarer workspace',
         'cabinet.tasks.completeProfile.action': 'Open section',
         'cabinet.tasks.completeProfile.personal': 'Add personal/contact details and primary emergency contact.',
@@ -936,6 +942,12 @@
         'cabinet.tasks.correctProfile.target': 'Целевая карточка',
         'cabinet.tasks.correctProfile.action': 'Открыть карточку',
         'cabinet.tasks.correctProfile.restrictedReason': 'Исправление запрошено для ограниченной source card. Откройте нужную карточку и исправьте только запрошенный раздел.',
+        'cabinet.tasks.correctDemand.companyTitle': 'Требуется действие: исправьте данные полномочий работодателя',
+        'cabinet.tasks.correctDemand.vacancyTitle': 'Требуется действие: исправьте запрос экипажа',
+        'cabinet.tasks.correctDemand.target': 'Целевой объект',
+        'cabinet.tasks.correctDemand.companyTarget': 'Компания / полномочия',
+        'cabinet.tasks.correctDemand.vacancyTarget': 'Запрос экипажа / данные судна',
+        'cabinet.tasks.correctDemand.action': 'Открыть кабинет работодателя',
         'cabinet.tasks.completeProfile.title': 'Требуется действие: заполните рабочую карточку моряка',
         'cabinet.tasks.completeProfile.action': 'Открыть раздел',
         'cabinet.tasks.completeProfile.personal': 'Добавьте личные/контактные данные и основной экстренный контакт.',
@@ -1586,6 +1598,53 @@
         };
       }
 
+      function demandCorrectionTask() {
+        if (!cabinetDraft || cabinetDraft.role === 'seafarer') {
+          return null;
+        }
+        const payload = cabinetDraft.payload && typeof cabinetDraft.payload === 'object' ? cabinetDraft.payload : {};
+        const history = Array.isArray(payload.operator_review_history)
+          ? payload.operator_review_history
+          : [];
+        const currentCompany = payload.company && typeof payload.company === 'object' ? payload.company : {};
+        const currentVacancy = payload.vacancy_request && typeof payload.vacancy_request === 'object' ? payload.vacancy_request : {};
+        const currentCompanyStatus = typeof currentCompany.verification_status === 'string' ? currentCompany.verification_status : '';
+        const currentVacancyStatus = typeof currentVacancy.publication_status === 'string' ? currentVacancy.publication_status : '';
+
+        for (const review of history) {
+          if (!review || typeof review !== 'object') {
+            continue;
+          }
+          const decision = typeof review.decision === 'string' ? review.decision : '';
+          const newStatus = typeof review.new_status === 'string' ? review.new_status : '';
+          const queueType = typeof review.queue_type === 'string' ? review.queue_type : '';
+          const note = typeof review.review_note === 'string' ? review.review_note.trim() : '';
+          if (decision !== 'needs_correction' || newStatus !== 'rejected' || !note) {
+            continue;
+          }
+
+          if (queueType === 'company_verification' && currentCompanyStatus === 'rejected') {
+            return {
+              titleKey: 'cabinet.tasks.correctDemand.companyTitle',
+              targetKey: 'cabinet.tasks.correctDemand.companyTarget',
+              note,
+              href: `/post-vacancy/?draft_id=${encodeURIComponent(cabinetDraft.draft_id)}#post-vacancy-form`
+            };
+          }
+
+          if (queueType === 'vacancy_request' && currentVacancyStatus === 'rejected') {
+            return {
+              titleKey: 'cabinet.tasks.correctDemand.vacancyTitle',
+              targetKey: 'cabinet.tasks.correctDemand.vacancyTarget',
+              note,
+              href: `/post-vacancy/?draft_id=${encodeURIComponent(cabinetDraft.draft_id)}#post-vacancy-form`
+            };
+          }
+        }
+
+        return null;
+      }
+
       function emailVerificationRequired() {
         if (!cabinetDraft || !cabinetAuthUser) {
           return false;
@@ -1847,6 +1906,29 @@
         taskList.append(task);
       }
 
+      function renderDemandCorrectionTask(taskInfo) {
+        const task = document.createElement('article');
+        task.className = 'task-item is-action';
+        const title = document.createElement('h3');
+        title.textContent = t(taskInfo.titleKey);
+        const meta = document.createElement('div');
+        meta.className = 'meta-row';
+        [
+          `${t('cabinet.tasks.correctDemand.target')}: ${t(taskInfo.targetKey)}`,
+          `${t('cabinet.tasks.correctDocument.reason')}: ${taskInfo.note}`
+        ].forEach((text) => {
+          const chip = document.createElement('span');
+          chip.className = 'chip action';
+          chip.textContent = text;
+          meta.append(chip);
+        });
+        const actions = document.createElement('div');
+        actions.className = 'meta-row';
+        actions.append(actionLink(t('cabinet.tasks.correctDemand.action'), taskInfo.href));
+        task.append(title, meta, actions);
+        taskList.append(task);
+      }
+
       function renderTasks() {
         taskList.replaceChildren();
         const corrections = taskDocuments();
@@ -1854,7 +1936,8 @@
         const needsEmailVerification = emailVerificationRequired();
         const completenessTasks = seafarerCompletenessTasks();
         const profileCorrection = profileCorrectionTask();
-        let taskCount = corrections.length + completenessTasks.length + (profileCorrection ? 1 : 0) + (needsEmailVerification ? 1 : 0);
+        const demandCorrection = demandCorrectionTask();
+        let taskCount = corrections.length + completenessTasks.length + (profileCorrection ? 1 : 0) + (demandCorrection ? 1 : 0) + (needsEmailVerification ? 1 : 0);
 
         if (!cabinetDraft) {
           const task = document.createElement('article');
@@ -1882,6 +1965,10 @@
 
         if (profileCorrection) {
           renderProfileCorrectionTask(profileCorrection);
+        }
+
+        if (demandCorrection) {
+          renderDemandCorrectionTask(demandCorrection);
         }
 
         corrections.forEach((documentRecord) => {
@@ -1942,7 +2029,7 @@
           taskList.append(task);
         }
 
-        if (corrections.length === 0 && !profileCorrection && completenessTasks.length === 0 && waiting.length === 0 && cabinetDocuments.length > 0) {
+        if (corrections.length === 0 && !profileCorrection && !demandCorrection && completenessTasks.length === 0 && waiting.length === 0 && cabinetDocuments.length > 0) {
           const task = document.createElement('article');
           task.className = 'task-item is-waiting';
           const title = document.createElement('h3');

@@ -9211,6 +9211,10 @@ function upsert_company_context(string $userId, string $role, array $body): arra
                  company_type = CASE WHEN $5 = 'shipowner' THEN 'shipowner'
                                      WHEN $5 = 'crewing_manager' THEN 'crewing_manager'
                                      ELSE 'employer' END,
+                 verification_status = CASE
+                   WHEN verification_status = 'rejected' THEN 'submitted'
+                   ELSE verification_status
+                 END,
                  updated_at = now()
              WHERE company_id = $1",
             [$companyId, $companyName, $registrationNumber, $countryCode, $role]
@@ -10323,6 +10327,10 @@ function cpg_team_workbench_queue_tasks(array $access): array {
         }
 
         if ($queueType === 'vacancy_request' && $queueItemId !== '') {
+            if (!in_array($status, ['submitted_for_human_review', 'in_review', 'published'], true)) {
+                continue;
+            }
+
             if (cpg_operator_active_shortlist_draft_for_vacancy($queueItemId) !== null) {
                 continue;
             }

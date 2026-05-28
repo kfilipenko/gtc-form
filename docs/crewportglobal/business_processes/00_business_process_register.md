@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 2.0
+- Version: 2.2
 - Status: For internal review
 
 ## 1. Purpose
@@ -109,6 +109,8 @@ This documentation block starts from the following approved business controls:
 35. After a review outcome is recorded, the same operation must leave the active computed task queue unless it remains only as a control/blocked record with a clear reason; the next visible task must be computed from the new object state and assigned to the correct group or historical executor.
 36. Correction handoff must be verified end to end: `needs_correction` removes the active team task, creates an owner/responsible-party correction task, clears that correction task after resubmission and recomputes the review task for the responsible group or historical active executor.
 37. Task computation must start from the information stream and object state: seafarer supply, employer/shipowner demand account, vessel context and crew request/vacancy requirement have separate states, responsible groups, correction routes and final readiness decisions.
+38. Demand-side correction handoff must follow the same verified rule: employer/company and crew-request `needs_correction` outcomes remove the active team task, create a clear owner correction task in cabinet, clear it after `/post-vacancy/` resubmission and recompute the next `verification_team` or `review_team` task for the responsible group or historical active executor.
+39. All questionnaires must use a save-and-completeness gate: `Save` stores the draft and runs completeness/document checks; `Submit to operator review` becomes active only when required numbered sections, fields and documents are complete, valid and readable; otherwise an owner task must list the numbered sections to complete.
 
 ## 5. Intended Use
 
@@ -128,6 +130,8 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.2 | 2026-05-28 | GTC IT / AI Assistant | Added standard save-and-completeness gate for all questionnaires, including active Submit to operator review only after required numbered sections, fields and documents pass completeness/readability checks |
+| 2.1 | 2026-05-28 | GTC IT / AI Assistant | Added verified demand-side correction handoff control for employer/company and crew-request corrections, owner cabinet visibility, owner resubmission and recomputation for verification/review teams |
 | 2.0 | 2026-05-28 | GTC IT / AI Assistant | Added stream-first process-state control for seafarer supply, employer/shipowner demand account, vessel context and crew request/vacancy requirement so task computation can be unified by object state and responsible function |
 | 1.9 | 2026-05-28 | GTC IT / AI Assistant | Added verified correction-handoff control: owner correction task visibility, exact source-card link, correction disappearance after resubmission and review-task recomputation for group or historical active executor |
 | 1.8 | 2026-05-28 | GTC IT / AI Assistant | Added verified active task recomputation control: completed/correction review outcomes must remove the same active task from team workbench and expose only the next computed task or clear control/blocked record |

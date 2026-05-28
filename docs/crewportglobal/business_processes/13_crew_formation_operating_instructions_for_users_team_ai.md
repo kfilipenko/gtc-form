@@ -132,6 +132,55 @@ Ambiguous labels must be avoided.
 | `Mark reviewed` | Treat as review outcome inside review workspace. |
 | `Request deletion` | Treat as secondary controlled action with manager confirmation. |
 
+### 3.4 Save, Completeness Check And Submit Rule
+
+Every form used by seafarers, employers, vessel owners or team-supported users must follow the same user-facing rule.
+
+The user must be able to save an allowed draft or correction. Save means:
+
+1. store the entered data;
+2. keep the object in draft/correction state;
+3. run automated completeness checks;
+4. run available document format/readability checks;
+5. compute the next visible owner task or submission action.
+
+Save does not mean operator review has started.
+
+After save, the system must choose one of two states:
+
+| State after save | User-visible result | Team-visible result |
+|---|---|---|
+| Required fields and documents are complete, valid and readable | Active action: `Submit to operator review` / `Направить на проверку оператору` | Operator task may compute only after the user submits. |
+| Required fields/documents are incomplete or unreadable | Owner task lists numbered sections and missing points | No active operator-review task should be created yet. |
+
+This rule applies to all questionnaire streams:
+
+| Stream | Form examples | Submit may be enabled only after |
+|---|---|---|
+| Seafarer supply | profile, source cards, availability, certificates, documents | required profile fields, required documents and owner correction sections are complete. |
+| Employer / shipowner demand account | company profile, representative authority, commercial context | company identity, authority evidence and required contact/role fields are complete. |
+| Vessel context | vessel profile, vessel type, flag, operational details, vessel evidence | required vessel characteristics and vessel evidence are complete. |
+| Crew request / vacancy requirement | rank, department, joining date, contract terms, certificates, training and constraints | structured demand fields and required supporting data are complete. |
+
+The owner task must use numbered sections:
+
+```text
+Complete questionnaire sections. (Form: {safe object summary}; Sections: {section numbers}.)
+```
+
+Examples:
+
+| Situation | Task text |
+|---|---|
+| Missing seafarer document and availability | `Complete questionnaire sections. (Seafarer profile: Chief Officer; Sections: S-4.2, S-7.D1.)` |
+| Missing company authority evidence | `Complete questionnaire sections. (Employer authority: Ocean Manager LLC; Sections: E-1.3, E-1.D1.)` |
+| Missing vessel characteristics | `Complete questionnaire sections. (Vessel profile: Container Vessel; Sections: V-2.1, V-2.4.)` |
+| Missing crew request contract term | `Complete questionnaire sections. (Crew request: Second Engineer; Sections: R-3.2, R-4.1.)` |
+
+Users and team members must not send incomplete forms to operator review manually. If the completeness analyzer reports missing numbered items, the user must complete those sections first.
+
+AI agents may help explain missing numbered sections, but may not override the completeness gate or submit an incomplete form to operator review.
+
 ## 4. Seafarer Instructions
 
 ### 4.1 Purpose
@@ -161,9 +210,10 @@ The seafarer provides supply-side information needed for matching and crew forma
 
 | Trigger | Visible task | Link target | Output |
 |---|---|---|---|
-| Registration started | Complete seafarer profile | `/create-profile/` or cabinet card | Profile draft updated. |
+| Registration started | Complete seafarer profile | `/create-profile/` or cabinet card | Profile draft saved and completeness check runs. |
 | Documents missing | Upload required document | document upload card | Protected document metadata created. |
 | Correction requested | Correct source card | exact profile card section | Corrected data submitted. |
+| Completeness check passed | Submit to operator review | profile submit action | Operator review task computes. |
 | Availability outdated | Update availability | availability/profile card | Supply data becomes current. |
 
 ## 5. Employer / Shipowner User Instructions
@@ -195,9 +245,10 @@ The employer-side user provides demand-side data and receives approved service o
 
 | Trigger | Visible task | Link target | Output |
 |---|---|---|---|
-| Employer account exists | Complete company / authority details | employer workspace | Employer context ready for review. |
-| Vessel data missing | Add vessel context | vessel workspace | Vessel context structured. |
-| Crew need exists | Submit crew request | vacancy/request workspace | Demand record created. |
+| Employer account exists | Complete company / authority details | employer workspace | Employer draft saved and completeness check runs. |
+| Vessel data missing | Add vessel context | vessel workspace | Vessel context draft saved and completeness check runs. |
+| Crew need exists | Complete crew request | vacancy/request workspace | Demand draft saved and completeness check runs. |
+| Completeness check passed | Submit demand data to operator review | employer/vacancy submit action | Employer/vessel/request review task computes. |
 | Candidate summary approved | Review candidate summary | employer candidate view | Employer feedback recorded. |
 | Service result confirmed | Confirm commercial or follow-up action | employer/billing workspace | Billing or next request workflow starts. |
 
@@ -593,6 +644,7 @@ Review outcomes should be recorded inside the review workspace.
 | Post-action completion feedback | Workspace confirms the recorded operation, object, result and task recomputation rule | User must read the feedback and return to Team tasks when the current operation is completed or blocked. |
 | Active task recomputation | Same operation must leave the active queue after its review outcome is recorded | User must not keep working from the old active task; the next action must come from the recomputed queue, or the object must appear only as a clear control/correction record. |
 | Owner correction handoff | `needs_correction` creates an owner/responsible-party correction task | Owner must open the exact source-card/task link, correct only the requested section and resubmit. The correction task must disappear after resubmission and the review task must recompute for the responsible group or historical active executor. |
+| Demand-side correction handoff | Employer/company or crew-request `needs_correction` creates a cabinet correction task for the owner/responsible employer-side user | Owner must open the `/post-vacancy/` correction link, update the requested company, vessel or crew-request data and resubmit. The cabinet correction task must disappear after resubmission, and the next `verification_team` or `review_team` task must recompute for the responsible group or historical active executor. |
 
 ## 20. Escalation Rules
 

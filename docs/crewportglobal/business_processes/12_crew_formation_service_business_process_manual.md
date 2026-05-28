@@ -234,6 +234,78 @@ Required conditions:
 8. completed or blocked tasks must disappear, change status or show blockers based on current data;
 9. the task must not be manually kept alive after the underlying state is resolved.
 
+### 9.1 Standard Form Save And Completeness Gate
+
+Every authenticated questionnaire and workspace form must follow the same save-and-submit standard before the object can be sent to operator review.
+
+This standard applies to:
+
+1. seafarer profile / source-card forms;
+2. employer / company authority forms;
+3. vessel context forms;
+4. crew request / vacancy requirement forms;
+5. document upload sections attached to those forms.
+
+The standard rule is:
+
+```text
+Save
+-> completeness and document-readability analysis
+-> either enable Submit to operator review
+   or show a numbered completion/correction task
+```
+
+The `Save` action must remain available to the owner while editing an allowed draft or correction. Saving stores the current draft and runs automated checks, but it does not by itself send the object to operator review.
+
+The `Submit to operator review` action may become active only when:
+
+1. all required fields for the current form type are present;
+2. required documents are uploaded;
+3. uploaded documents use allowed formats;
+4. uploaded documents pass protected storage / scan checks where applicable;
+5. uploaded documents are readable enough for review;
+6. required reference-catalog fields use valid structured values;
+7. no unresolved owner correction remains for the same form object.
+
+If the form is incomplete, the system must not show an executable operator-submission action. Instead it must show an owner task listing the exact numbered sections and required points to complete.
+
+Approved owner task format:
+
+```text
+Complete questionnaire sections. (Form: {object type and safe summary}; Sections: {section numbers}.)
+```
+
+Examples:
+
+| Form object | Incomplete condition | Owner task |
+|---|---|---|
+| Seafarer profile | Missing certificate, availability or required document | `Complete questionnaire sections. (Seafarer profile: Able Seaman; Sections: 2.1, 4.3, 7.2.)` |
+| Employer / company | Missing authority evidence or company registration details | `Complete questionnaire sections. (Employer authority: ABC Shipping; Sections: 1.2, 1.4.)` |
+| Vessel context | Missing vessel type, flag or operational area | `Complete questionnaire sections. (Vessel profile: Bulk Carrier; Sections: 2.1, 2.3.)` |
+| Crew request | Missing rank, joining date, contract terms or mandatory certificates | `Complete questionnaire sections. (Crew request: Chief Officer; Sections: 3.1, 3.4, 4.2.)` |
+
+All questionnaire sections must have stable numbering. The number must be visible in the form and must be stored or derivable in the field dictionary / form schema so that tasks, audit notes and future AI checks can refer to the same section without repeating long text.
+
+Numbering standard:
+
+| Level | Example | Meaning |
+|---|---|---|
+| Form stream | `S` / `E` / `V` / `R` | Seafarer, Employer, Vessel, Request. |
+| Section number | `S-2` or `2` | Stable questionnaire section. |
+| Field point | `S-2.3` or `2.3` | Specific required item inside the section. |
+| Document point | `S-7.D1` or `7.D1` | Required document attached to the section. |
+
+Future implementation may choose the exact prefix style, but the same number must be used consistently in:
+
+1. form UI;
+2. completeness output;
+3. owner cabinet tasks;
+4. operator correction requests;
+5. audit events;
+6. AI-agent prompts and validation results.
+
+This control reduces manual operator work. Operators should receive review tasks only after the owner has completed the minimum required data and documents for the current form object.
+
 ## 10. Standard Task Display Contract
 
 Every task card should show one primary task.
@@ -456,6 +528,7 @@ The following task execution controls have been verified against the running app
 | CF-04 / CF-08 Crew request and request-supply preparation | `vacancy_request` workspace / candidate search | `review_team` | `view_review_queue` | Review-team user opens the concrete vacancy workspace, sees structured demand and vessel context, runs candidate-search preparation, and does not see candidate contact fields or broad `document_metadata`. |
 | CF-06 / CF-07 Seafarer supply intake and readiness review | `review_seafarer_profile_completeness` | `verification_team` | `start_human_review` / verification queue access | Verification-team user opens the concrete seafarer profile workspace, records review outcome and sees only safe profile/readiness summaries; restricted family, medical, identity and reference-contact values remain hidden. |
 | CF-07 Correction owner handoff after `needs_correction` | Owner correction task and re-review recomputation | Seafarer owner, then `verification_team` | owner workspace access, then `view_verification_queue` | After reviewer records `needs_correction`, the active team task disappears, cabinet shows the exact source-card correction task, owner resubmission clears the cabinet task and the review task reappears for the responsible group or historical active executor. |
+| CF-02 / CF-04 Demand-side correction owner handoff after `needs_correction` | Employer / crew-request correction task and re-review recomputation | Employer owner, then `verification_team` or `review_team` | owner `/post-vacancy/` access, then `view_verification_queue` or `view_review_queue` | After company or vacancy reviewer records `needs_correction`, the active team task disappears, cabinet shows a clear demand-side correction task, owner resubmission clears the cabinet task and the next team task reappears for the responsible group or historical active executor. |
 | Internal review workspace service controls | Review outcome and secondary action disclosure | all internal review groups | current operation permission; service debug mode for raw payload | Normal users see object context and computed operation first; raw/debug payload is hidden in normal mode; review outcomes and deletion requests remain inside secondary disclosure. |
 | Internal review workspace task guidance | Current task / completion condition | all internal review groups | current operation permission | Workspace shows the primary operation, business-process stage, working object, visibility reason and completion condition before secondary actions. |
 | Internal review workspace completion feedback | Post-action result and task transition explanation | all internal review groups | current operation permission | After a review outcome or card review is recorded, workspace feedback names the operation, object, result and recomputation rule; deletion requests name the manager-confirmation next task. |

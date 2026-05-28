@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.00
+- Version: 2.02
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -307,6 +307,8 @@ docs/crewportglobal/
   218_cpg_biz_029_team_queue_recomputation_completed_task_disappearance_report.md
   219_cpg_biz_030_correction_owner_task_visibility_handoff_report.md
   220_cpg_biz_031_information_stream_process_state_model_report.md
+  221_cpg_biz_032_employer_demand_correction_handoff_report.md
+  222_cpg_biz_033_questionnaire_save_completeness_gate_standard_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -641,6 +643,10 @@ Document 219 records the CPG-BIZ-030 correction owner task visibility and handof
 
 Document 220 records the CPG-BIZ-031 information-stream process-state model, including separate seafarer supply, employer / shipowner demand account, vessel context and crew request / vacancy requirement streams, their object states, responsible groups, final readiness decisions and future task-computation implications.
 
+Document 221 records the CPG-BIZ-032 employer and demand-side correction handoff verification, including company/vacancy `needs_correction` task disappearance, owner cabinet correction tasks, owner resubmission, recomputation for `verification_team` / `review_team`, historical active executor assignment and focused/full/API verification.
+
+Document 222 records the CPG-BIZ-033 questionnaire save and completeness-gate standard, including the rule that `Save` stores draft data and runs completeness/document checks, while `Submit to operator review` becomes active only after numbered required sections, fields and documents are complete, valid and readable.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -744,6 +750,8 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.02 | 2026-05-28 | GTC IT / AI Assistant | Added document 222 for CPG-BIZ-033 covering questionnaire save/completeness gate standard, numbered sections and submit-to-operator review boundary for all forms |
+| 2.01 | 2026-05-28 | GTC IT / AI Assistant | Added document 221 for CPG-BIZ-032 covering employer and demand-side correction handoff verification, owner cabinet correction visibility, owner resubmission and team-task recomputation |
 | 2.00 | 2026-05-28 | GTC IT / AI Assistant | Added document 220 for CPG-BIZ-031 covering information-stream process-state model, functional team work split and stream-first task computation for future UI and AI-agent alignment |
 | 1.99 | 2026-05-28 | GTC IT / AI Assistant | Added document 219 for CPG-BIZ-030 covering correction owner task visibility, exact cabinet correction link, resubmission handoff back to verification-team review and `seafarer_profile_id` historical-assignment fix |
 | 1.98 | 2026-05-28 | GTC IT / AI Assistant | Added document 218 for CPG-BIZ-029 covering direct seafarer-profile task link recovery, active team queue recomputation after review outcomes and focused/full/API verification |

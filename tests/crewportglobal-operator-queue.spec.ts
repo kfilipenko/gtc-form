@@ -968,6 +968,211 @@ LIMIT 1;
   expect(companyActorContextSummary).toContain('company_verification|reviewed|verification_team|');
 });
 
+test('demand-side correction handoff moves employer objects between team and owner tasks', async ({ page, request }) => {
+  test.setTimeout(120_000);
+
+  const unique = Date.now();
+  const employerEmail = `ui.queue.demand.correction.${unique}@example.com`;
+  const companyName = `UI Demand Correction Marine ${unique}`;
+  const vesselName = `MV Demand Correction ${unique}`;
+  const vacancyTitle = `Demand Correction Chief Officer ${unique}`;
+
+  const createResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'employer',
+      role_in_company: 'manager',
+      email: employerEmail,
+      full_name: 'Demand Correction Employer',
+      company_name: companyName,
+      country_code: 'AE',
+      registration_number: `AE-DEMAND-CORR-${unique}`,
+      vessel: {
+        vessel_name: vesselName,
+        vessel_type: 'Bulk Carrier',
+        imo_number: `IMO${9700000 + (unique % 200000)}`,
+      },
+      vacancy: {
+        vacancy_title: vacancyTitle,
+        rank: 'Chief Officer',
+        department: 'deck',
+        vessel_type: 'Bulk Carrier',
+        join_date: '2026-11-20',
+        contract_duration: '4 months',
+        salary_min_usd: 6500,
+        salary_max_usd: 7200,
+        currency: 'USD',
+        employer_country_code: 'AE',
+        requirements: 'Demand correction workflow verification.',
+      },
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = await createResponse.json();
+  const vacancyId = created.payload.vacancy_request.vacancy_request_id as string;
+
+  const verificationSession = createVerificationTeamAdminSession(created.draft_id);
+  const reviewSession = createReviewTeamAdminSession(created.draft_id);
+  test.skip(!verificationSession || !reviewSession, 'access-control tables are required for demand correction handoff checks');
+
+  const verificationHeaders = { Authorization: `Bearer ${verificationSession}` };
+  const reviewHeaders = { Authorization: `Bearer ${reviewSession}` };
+
+  const companyNote = 'Company registration evidence must be corrected before authority review.';
+  const companyCorrection = await request.patch(`/api/v1/operator/review-queue/${created.draft_id}/status`, {
+    headers: verificationHeaders,
+    data: {
+      decision: 'needs_correction',
+      queue_type: 'company_verification',
+      note: companyNote,
+    },
+  });
+  expect(companyCorrection.status()).toBe(200);
+
+  const afterCompanyCorrectionResponse = await request.get('/api/v1/team/workbench/tasks', {
+    headers: verificationHeaders,
+  });
+  expect(afterCompanyCorrectionResponse.ok()).toBeTruthy();
+  const afterCompanyCorrection = await afterCompanyCorrectionResponse.json();
+  const hiddenCompanyTask = (afterCompanyCorrection.tasks as Array<Record<string, unknown>>).find((task) =>
+    task.operation_code === 'review_company_verification' &&
+    (task.context as Record<string, unknown> | undefined)?.draft_id === created.draft_id
+  );
+  expect(hiddenCompanyTask).toBeFalsy();
+
+  await page.goto(`/cabinet/?draft_id=${created.draft_id}`);
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: correct employer authority data');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Target object: Company / authority card');
+  await expect(page.locator('#cabinet-task-list')).toContainText(companyNote);
+  const companyCorrectionTask = page.locator('#cabinet-task-list .task-item', {
+    hasText: 'Action required: correct employer authority data',
+  });
+  await expect(companyCorrectionTask.getByRole('link', { name: 'Open employer workspace' })).toHaveAttribute(
+    'href',
+    `/post-vacancy/?draft_id=${created.draft_id}#post-vacancy-form`
+  );
+
+  const companyResubmission = await request.patch(`/api/v1/registration/drafts/${created.draft_id}`, {
+    data: {
+      company_name: companyName,
+      country_code: 'AE',
+      registration_number: `AE-DEMAND-CORR-FIX-${unique}`,
+      role_in_company: 'manager',
+      vessel: {
+        vessel_name: vesselName,
+        vessel_type: 'Bulk Carrier',
+      },
+      vacancy: {
+        vacancy_title: vacancyTitle,
+        rank: 'Chief Officer',
+        department: 'deck',
+        vessel_type: 'Bulk Carrier',
+        join_date: '2026-11-20',
+        contract_duration: '4 months',
+        salary_min_usd: 6500,
+        salary_max_usd: 7200,
+        currency: 'USD',
+        employer_country_code: 'AE',
+        requirements: 'Demand correction workflow verification resubmitted.',
+      },
+    },
+  });
+  expect(companyResubmission.status()).toBe(200);
+
+  await page.goto(`/cabinet/?draft_id=${created.draft_id}`);
+  await expect(page.locator('#cabinet-task-list')).not.toContainText('Action required: correct employer authority data');
+  await expect(page.locator('#cabinet-task-list')).not.toContainText(companyNote);
+
+  const afterCompanyResubmissionResponse = await request.get('/api/v1/team/workbench/tasks', {
+    headers: verificationHeaders,
+  });
+  expect(afterCompanyResubmissionResponse.ok()).toBeTruthy();
+  const afterCompanyResubmission = await afterCompanyResubmissionResponse.json();
+  const recomputedCompanyTask = (afterCompanyResubmission.tasks as Array<Record<string, unknown>>).find((task) =>
+    task.operation_code === 'review_company_verification' &&
+    (task.context as Record<string, unknown> | undefined)?.draft_id === created.draft_id
+  );
+  expect(recomputedCompanyTask).toBeTruthy();
+  expect((recomputedCompanyTask as Record<string, unknown>).assignment).toMatchObject({
+    assignment_mode: 'historical_active_executor',
+    assigned_group_code: 'verification_team',
+    assigned_user_id: created.draft_id,
+  });
+
+  const vacancyNote = 'Crew request must clarify vessel demand and joining requirement.';
+  const vacancyCorrection = await request.patch(`/api/v1/operator/review-queue/${vacancyId}/status`, {
+    headers: reviewHeaders,
+    data: {
+      decision: 'needs_correction',
+      queue_type: 'vacancy_request',
+      note: vacancyNote,
+    },
+  });
+  expect(vacancyCorrection.status()).toBe(200);
+
+  const afterVacancyCorrectionResponse = await request.get('/api/v1/team/workbench/tasks', {
+    headers: reviewHeaders,
+  });
+  expect(afterVacancyCorrectionResponse.ok()).toBeTruthy();
+  const afterVacancyCorrection = await afterVacancyCorrectionResponse.json();
+  const hiddenVacancyTask = (afterVacancyCorrection.tasks as Array<Record<string, unknown>>).find((task) =>
+    task.operation_code === 'create_internal_shortlist_draft' &&
+    (task.context as Record<string, unknown> | undefined)?.queue_item_id === vacancyId
+  );
+  expect(hiddenVacancyTask).toBeFalsy();
+
+  await page.goto(`/cabinet/?draft_id=${created.draft_id}`);
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: correct crew request data');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Target object: Crew request / vessel demand card');
+  await expect(page.locator('#cabinet-task-list')).toContainText(vacancyNote);
+
+  const vacancyResubmission = await request.patch(`/api/v1/registration/drafts/${created.draft_id}`, {
+    data: {
+      company_name: companyName,
+      country_code: 'AE',
+      registration_number: `AE-DEMAND-CORR-FIX-${unique}`,
+      role_in_company: 'manager',
+      vessel: {
+        vessel_name: vesselName,
+        vessel_type: 'Bulk Carrier',
+      },
+      vacancy: {
+        vacancy_title: `${vacancyTitle} Resubmitted`,
+        rank: 'Chief Officer',
+        department: 'deck',
+        vessel_type: 'Bulk Carrier',
+        join_date: '2026-11-25',
+        contract_duration: '4 months',
+        salary_min_usd: 6600,
+        salary_max_usd: 7300,
+        currency: 'USD',
+        employer_country_code: 'AE',
+        requirements: 'Clarified vessel demand and joining requirement.',
+      },
+    },
+  });
+  expect(vacancyResubmission.status()).toBe(200);
+
+  await page.goto(`/cabinet/?draft_id=${created.draft_id}`);
+  await expect(page.locator('#cabinet-task-list')).not.toContainText('Action required: correct crew request data');
+  await expect(page.locator('#cabinet-task-list')).not.toContainText(vacancyNote);
+
+  const afterVacancyResubmissionResponse = await request.get('/api/v1/team/workbench/tasks', {
+    headers: reviewHeaders,
+  });
+  expect(afterVacancyResubmissionResponse.ok()).toBeTruthy();
+  const afterVacancyResubmission = await afterVacancyResubmissionResponse.json();
+  const recomputedVacancyTask = (afterVacancyResubmission.tasks as Array<Record<string, unknown>>).find((task) =>
+    task.operation_code === 'create_internal_shortlist_draft' &&
+    (task.context as Record<string, unknown> | undefined)?.queue_item_id === vacancyId
+  );
+  expect(recomputedVacancyTask).toBeTruthy();
+  expect((recomputedVacancyTask as Record<string, unknown>).assignment).toMatchObject({
+    assignment_mode: 'historical_active_executor',
+    assigned_group_code: 'review_team',
+    assigned_user_id: created.draft_id,
+  });
+});
+
 test('owner team task opens pending vacancy deletion confirmation panel', async ({ page, request, baseURL }) => {
   test.setTimeout(120_000);
 
