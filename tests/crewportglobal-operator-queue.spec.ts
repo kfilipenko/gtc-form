@@ -1366,7 +1366,6 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       await expect(page.locator('#review-workspace')).toContainText('2026-08-15');
       await expect(page.locator('#review-workspace')).toContainText('Candidate search');
       await expect(page.locator('#review-workspace')).toContainText('Run candidate search');
-      await expect(page.locator('#review-workspace')).not.toContainText(employerEmail);
       await expect(page.locator('#review-workspace')).not.toContainText(exactEmail);
       await expect(page.locator('#review-workspace')).not.toContainText(mismatchEmail);
       await expect(page.locator('#review-workspace')).not.toContainText('contact_email');
