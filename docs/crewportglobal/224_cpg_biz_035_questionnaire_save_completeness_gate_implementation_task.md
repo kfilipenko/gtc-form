@@ -5,9 +5,9 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation task for Project Owner approval
 - Source document: CPG-BIZ-034 analysis, document 223; CPG-BIZ-036 mandatory-field synchronization, document 225
-- Version: 1.3
+- Version: 1.4
 - Date: 2026-05-28
-- Status: Approved by Project Owner; Phase 0 and Phase 1 implemented, remaining phases pending
+- Status: Approved by Project Owner; Phases 0-2 implemented, remaining phases pending
 
 ## 1. Purpose
 
@@ -241,10 +241,15 @@ Phase 1 has been implemented and documented in:
 docs/crewportglobal/227_cpg_biz_038_backend_completeness_analyzer_api_contract_report.md
 ```
 
+Phase 2 has been implemented and documented in:
+
+```text
+docs/crewportglobal/228_cpg_biz_039_create_profile_completeness_gate_phase2_report.md
+```
+
 Remaining implementation phases:
 
 ```text
-Phase 2 - /create-profile/ autosave plus one Save / confirm action
 Phase 3 - /post-vacancy/ autosave plus one Save / confirm action
 Phase 4 - Owner cabinet numbered missing-section tasks
 Phase 5 - Focused regression tests and final report

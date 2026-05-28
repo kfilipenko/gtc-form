@@ -1,0 +1,118 @@
+# CPG-BIZ-039 - Create Profile Completeness Gate Phase 2 Report
+
+- Project: CrewPortGlobal.com
+- Company: GTC INFORMATION TECHNOLOGY FZ-LLC
+- Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
+- Document type: Implementation report
+- Source task: CPG-BIZ-035 Phase 2
+- Version: 1.0
+- Date: 2026-05-28
+- Status: Implemented and verified on GTC1
+
+## 1. Цель этапа
+
+Этот этап подключает анкету моряка `/create-profile/` к backend completeness endpoint, созданному на Phase 1.
+
+Цель: пользователь сохраняет черновик одной видимой кнопкой `Save / confirm data`, система проверяет полноту обязательных полей и документов по canonical `S-*` схеме и показывает пользователю, какие пункты надо заполнить до отправки оператору.
+
+Этап не отправляет анкету оператору, не создает operator-review task, не меняет статус review и не реализует автоматическое решение о трудоустройстве.
+
+## 2. Реализованное поведение
+
+| Область | Реализация |
+|---|---|
+| Единая кнопка | Основная кнопка формы теперь называется `Save / confirm data`. |
+| Section-save controls | Старые кнопки `Save section` скрыты из обычного пользовательского интерфейса. |
+| Backend completeness | После сохранения форма вызывает `GET /api/v1/registration/drafts/{draft_id}/completeness`. |
+| Missing items | Пользователь видит нумерованные `S-*` пункты из backend ответа, например `S-1.3` или `S-12.D1`. |
+| Field highlighting | Поля и секции, связанные с missing items, подсвечиваются другим цветом. |
+| Section links | Missing item является ссылкой на соответствующую секцию формы. |
+| Autosave | Изменения полей могут сохраняться в фоне после появления валидных имени и email, но не создают review task. |
+| Submit boundary | Отдельная отправка оператору в этом этапе не активируется. |
+
+## 3. Пользовательский процесс
+
+1. Пользователь заполняет анкету моряка.
+2. Поля могут сохраняться автоматически как draft data.
+3. Пользователь нажимает единственную видимую кнопку `Save / confirm data`.
+4. Система сохраняет draft.
+5. Система запускает backend completeness check.
+6. Если есть missing items, пользователь видит список `S-*` пунктов и подсветку полей.
+7. Пользователь открывает нужную секцию по ссылке, исправляет данные и снова нажимает `Save / confirm data`.
+8. До полной готовности анкета остается owner-side draft и не передается оператору.
+
+## 4. Файлы изменены
+
+| File | Change |
+|---|---|
+| `projects/crewportglobal/public/assets/crewportglobal-registration-drafts.js` | Added `getCompleteness(draftId)` helper for the shared registration draft API client. |
+| `projects/crewportglobal/public/create-profile/index.html` | Connected Save / confirm flow to completeness endpoint, added S-code rendering, section links, field highlighting, hidden section-save controls and background autosave. |
+| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regression for one visible Save / confirm action, backend `S-*` missing items and highlighted fields/sections. |
+| `tests/crewportglobal-seafarer-workspace-form.spec.ts` | Updated old section-save assertions to the approved one-button Save / confirm behavior. |
+| `docs/crewportglobal/00_documentation_register.md` | Registered document 228. |
+| `docs/crewportglobal/business_processes/00_business_process_register.md` | Added Phase 2 business-process control for `/create-profile/`. |
+| `docs/crewportglobal/224_cpg_biz_035_questionnaire_save_completeness_gate_implementation_task.md` | Marked Phase 2 as implemented and shifted remaining phases. |
+| `docs/crewportglobal/227_cpg_biz_038_backend_completeness_analyzer_api_contract_report.md` | Updated next-stage note after Phase 2 implementation. |
+| `docs/crewportglobal/228_cpg_biz_039_create_profile_completeness_gate_phase2_report.md` | Added this report. |
+
+## 5. Контроль границ
+
+| Boundary | Status |
+|---|---|
+| No DB migration | Preserved. |
+| No operator task on save | Preserved. Completeness endpoint remains no-side-effect. |
+| No automatic submit | Preserved. |
+| No matching score | Preserved. |
+| No employer-facing publication | Preserved. |
+| No broad sensitive-field exposure | Preserved; completeness response contains numbered field/document blockers and target URLs, not protected document paths. |
+
+## 6. Verification
+
+Verification commands:
+
+```bash
+node - <<'NODE'
+const fs = require('fs');
+const html = fs.readFileSync('projects/crewportglobal/public/create-profile/index.html', 'utf8');
+const scripts = Array.from(html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)).map((match) => match[1]).filter((script) => script.trim());
+scripts.forEach((script) => new Function(script));
+console.log(`checked ${scripts.length} inline script(s)`);
+NODE
+```
+
+Result: passed, checked 2 inline scripts.
+
+Focused Playwright verification:
+
+```bash
+npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-create-profile-prefill.spec.ts tests/crewportglobal-seafarer-workspace-form.spec.ts
+```
+
+Result: passed, 8 tests.
+
+The focused suite confirms:
+
+1. `/create-profile/` keeps one visible `Save / confirm data` action for draft confirmation;
+2. old section-save controls are hidden from the ordinary user flow;
+3. backend `S-*` missing items are rendered after save;
+4. missing fields and document sections are highlighted;
+5. `S-*` missing item links open the exact form section;
+6. existing draft prefill and patch flow still work;
+7. extended seafarer workspace fields still persist through save/reload;
+8. cabinet seafarer completeness tasks still derive from partial structured workspace.
+
+## 7. Следующий этап
+
+Следующий этап по плану:
+
+```text
+CPG-BIZ-035 Phase 3 - /post-vacancy/ autosave plus one Save / confirm action
+```
+
+На Phase 3 тот же стандарт должен быть применен к demand-side форме:
+
+1. одна видимая кнопка `Save / confirm data`;
+2. backend `E/V/R-*` missing items;
+3. подсветка employer, vessel и crew-request полей;
+4. отсутствие team-review task до явной submit-review операции;
+5. сохранение approval guard и data-minimization boundaries.

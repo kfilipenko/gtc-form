@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 2.6
+- Version: 2.7
 - Status: For internal review
 
 ## 1. Purpose
@@ -115,6 +115,7 @@ This documentation block starts from the following approved business controls:
 41. Mandatory fields must be synchronized across supply and demand: one visible `Save / confirm data` action runs completeness checks, field-level autosave must not create review tasks, and any matching-critical field required on one side must have a corresponding required or conditional-required field on the other side before that dimension can be used as a hard matching blocker.
 42. The canonical mandatory-field schema in backend code is the implementation source for future completeness checks, frontend required markers, owner missing-section tasks and AI validation prompts; target gaps must remain marked and must not be used as hard blockers until their structured fields exist.
 43. Backend completeness checks must use the canonical mandatory-field schema through a read-only API contract before any submit-review state change: completeness responses may report `S/E/V/R` missing fields, required document statuses, unresolved corrections and target URLs, but must not create operator tasks, change review status, change publication status or change document status.
+44. The seafarer `/create-profile/` questionnaire must expose one visible `Save / confirm data` action for saving and completeness confirmation; section-level save controls stay hidden from ordinary users, background autosave may preserve draft field changes without review side effects, and backend `S-*` missing items must be displayed with exact section links and field/section highlighting before any operator-review submission is allowed.
 
 ## 5. Intended Use
 
@@ -134,6 +135,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.7 | 2026-05-28 | GTC IT / AI Assistant | Added Phase 2 `/create-profile/` completeness-gate control: one visible Save / confirm action, hidden section-save controls, backend `S-*` missing-item rendering and highlighted fields/sections before submit-review activation |
 | 2.6 | 2026-05-28 | GTC IT / AI Assistant | Added Phase 1 backend completeness analyzer control: read-only `S/E/V/R` completeness responses must drive later Save / Submit behavior without status, task, publication or document side effects |
 | 2.5 | 2026-05-28 | GTC IT / AI Assistant | Added Phase 0 implementation control for the canonical mandatory-field schema as source for future completeness checks, frontend markers, owner tasks and AI validation while preserving target gaps from hard matching |
 | 2.4 | 2026-05-28 | GTC IT / AI Assistant | Added mandatory-field synchronization control covering one visible Save / confirm action, field-level autosave safety and supply-demand required-field parity for matching-critical dimensions |

@@ -135,9 +135,10 @@ test('extended seafarer workspace cards persist through draft save and reload', 
   await page.locator('#profile-section-contact > summary').click();
   await expect(page.locator('#create-date-of-birth')).toHaveValue('1990-04-12');
   await expect(page.locator('#create-emergency-contact-name')).toHaveValue('Maria Reyes');
+  await expect(page.locator('#profile-section-contact .workspace-section-save')).toBeHidden();
   await page.locator('#create-residence-city').fill('Sharjah');
-  await page.locator('#profile-section-contact .workspace-section-save').click();
-  await expect(page.locator('#create-contact-save-status')).toContainText('Section saved.');
+  await page.locator('#create-submit').click();
+  await expect(page.locator('#create-status')).toContainText('saved');
 
   const sectionSavedWorkspaceResponse = await request.get(`/api/v1/seafarer/workspace?draft_id=${draftId}`);
   expect(sectionSavedWorkspaceResponse.ok()).toBeTruthy();
@@ -148,8 +149,9 @@ test('extended seafarer workspace cards persist through draft save and reload', 
   await page.locator('#create-passport-expiry').fill('2030-03-20');
   await page.locator('#create-visa-status').selectOption('not_required');
   await page.locator('#create-document-notes').fill('Passport renewed and visa not required for the current target route.');
-  await page.locator('#create-document-readiness-save').click();
-  await expect(page.locator('#create-document-readiness-save-status')).toContainText('Section saved.');
+  await expect(page.locator('#create-document-readiness-save')).toBeHidden();
+  await page.locator('#create-submit').click();
+  await expect(page.locator('#create-status')).toContainText('saved');
 
   const documentReadinessDraftResponse = await request.get(`/api/v1/registration/drafts/${draftId}`);
   expect(documentReadinessDraftResponse.ok()).toBeTruthy();

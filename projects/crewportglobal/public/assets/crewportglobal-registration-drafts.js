@@ -148,6 +148,10 @@
     return response;
   }
 
+  async function getCompleteness(draftId) {
+    return requestJson(`/registration/drafts/${encodeURIComponent(draftId)}/completeness`, 'GET');
+  }
+
   async function listDocuments(draftId, formType) {
     const query = formType ? `?form_type=${encodeURIComponent(formType)}` : '';
     return requestJson(`/registration/drafts/${encodeURIComponent(draftId)}/documents${query}`, 'GET');
@@ -194,6 +198,7 @@
     createDraft,
     patchDraft,
     getDraft,
+    getCompleteness,
     createOrUpdateDraft,
     listDocuments,
     uploadDocument

@@ -278,16 +278,16 @@ This phase does not yet:
 
 ## 10. Next Planned Stage
 
-Next implementation stage:
+Next implementation stage status:
 
 ```text
-CPG-BIZ-035 Phase 2 - /create-profile/ autosave plus one Save / confirm action
+CPG-BIZ-035 Phase 2 - /create-profile/ autosave plus one Save / confirm action - implemented in document 228
 ```
 
-Planned work:
+The following stage should continue with:
 
-1. connect `/create-profile/` to the new completeness endpoint;
-2. keep field changes saveable without creating review tasks;
-3. show numbered `S-*` missing fields/documents after Save / confirm data;
-4. keep Submit to operator review disabled until `can_submit_to_operator = true`;
-5. preserve existing data-minimization and source-card correction boundaries.
+1. connecting `/post-vacancy/` to the same completeness endpoint;
+2. showing numbered `E/V/R-*` missing fields and documents after Save / confirm data;
+3. preserving Save vs Submit separation;
+4. keeping incomplete demand-side forms owner-side without active team-review tasks;
+5. preserving data-minimization and approval-guard boundaries.

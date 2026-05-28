@@ -10,6 +10,7 @@ WITH ui_users AS (
      OR email LIKE 'ui.localprefill.%@example.com'
      OR email LIKE 'ui.correction.%@example.com'
      OR email LIKE 'ui.apphistory.%@example.com'
+     OR email LIKE 'ui.completeness.%@example.com'
 ),
 ui_vacancies AS (
   SELECT vacancy_request_id
@@ -27,6 +28,7 @@ WITH ui_users AS (
      OR email LIKE 'ui.localprefill.%@example.com'
      OR email LIKE 'ui.correction.%@example.com'
      OR email LIKE 'ui.apphistory.%@example.com'
+     OR email LIKE 'ui.completeness.%@example.com'
 )
 UPDATE crewportglobal.seafarer_profiles sp
 SET review_status = 'rejected', updated_at = now()
@@ -162,6 +164,32 @@ test('create profile prefill from draft_id preserves patch flow', async ({ page 
 
   await page.reload();
   await expect(page.locator('#create-rank')).toHaveValue('Chief Officer');
+});
+
+test('create profile save confirm renders backend S-code missing items and highlights fields', async ({ page }) => {
+  await page.goto('/create-profile/');
+  await page.evaluate(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem('crewportglobal.language', 'en');
+  });
+
+  await page.goto('/create-profile/');
+  await expect(page.locator('#create-submit')).toHaveText('Save / confirm data');
+  await expect(page.locator('#profile-section-contact .workspace-section-save')).toBeHidden();
+  await expect(page.locator('#create-document-readiness-save')).toBeHidden();
+
+  await page.locator('#create-full-name').fill('Completeness Gate Seafarer');
+  await page.locator('#create-email').fill(`ui.completeness.${Date.now()}@example.com`);
+  await page.locator('#create-submit').click();
+
+  await expect(page).toHaveURL(/draft_id=/);
+  await expect(page.locator('#create-missing-list')).toContainText('S-1.3: Contact phone');
+  await expect(page.locator('#create-missing-list')).toContainText('S-12.D1: Passport / ID document upload');
+  await expect(page.locator('label:has(#create-phone)')).toHaveClass(/is-completeness-missing/);
+  await expect(page.locator('#profile-section-documents')).toHaveClass(/is-completeness-missing/);
+
+  await page.locator('#create-missing-list a', { hasText: 'S-12.D1' }).click();
+  await expect(page).toHaveURL(/#profile-section-documents$/);
 });
 
 test('create profile prefill falls back to local draft when draft_id is missing', async ({ page }) => {
