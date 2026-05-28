@@ -9,6 +9,7 @@ require_once __DIR__ . '/../lib/admin_access_flow.php';
 require_once __DIR__ . '/../lib/admin_access_storage_factory.php';
 require_once __DIR__ . '/../lib/document_uploads.php';
 require_once __DIR__ . '/../lib/identity_context.php';
+require_once __DIR__ . '/../lib/questionnaire_schema.php';
 require_once __DIR__ . '/../lib/reference_catalogs.php';
 require_once __DIR__ . '/../lib/registration_person_flow.php';
 require_once __DIR__ . '/../lib/user_auth.php';

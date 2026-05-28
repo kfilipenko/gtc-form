@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 2.4
+- Version: 2.5
 - Status: For internal review
 
 ## 1. Purpose
@@ -113,6 +113,7 @@ This documentation block starts from the following approved business controls:
 39. All questionnaires must use a save-and-completeness gate: `Save` stores the draft and runs completeness/document checks; `Submit to operator review` becomes active only when required numbered sections, fields and documents are complete, valid and readable; otherwise an owner task must list the numbered sections to complete.
 40. Implementation of the save-and-completeness gate must be based on a documented questionnaire inventory: each seafarer, employer, vessel and crew-request form must define numbered sections, save behavior, completeness checks, required document checks, submit-review boundary and owner missing-section tasks before code changes are made.
 41. Mandatory fields must be synchronized across supply and demand: one visible `Save / confirm data` action runs completeness checks, field-level autosave must not create review tasks, and any matching-critical field required on one side must have a corresponding required or conditional-required field on the other side before that dimension can be used as a hard matching blocker.
+42. The canonical mandatory-field schema in backend code is the implementation source for future completeness checks, frontend required markers, owner missing-section tasks and AI validation prompts; target gaps must remain marked and must not be used as hard blockers until their structured fields exist.
 
 ## 5. Intended Use
 
@@ -132,6 +133,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.5 | 2026-05-28 | GTC IT / AI Assistant | Added Phase 0 implementation control for the canonical mandatory-field schema as source for future completeness checks, frontend markers, owner tasks and AI validation while preserving target gaps from hard matching |
 | 2.4 | 2026-05-28 | GTC IT / AI Assistant | Added mandatory-field synchronization control covering one visible Save / confirm action, field-level autosave safety and supply-demand required-field parity for matching-critical dimensions |
 | 2.3 | 2026-05-28 | GTC IT / AI Assistant | Added questionnaire inventory implementation-control rule requiring numbered form analysis, explicit Save / Check / Submit behavior and document checks before the save-completeness gate implementation slice |
 | 2.2 | 2026-05-28 | GTC IT / AI Assistant | Added standard save-and-completeness gate for all questionnaires, including active Submit to operator review only after required numbered sections, fields and documents pass completeness/readability checks |

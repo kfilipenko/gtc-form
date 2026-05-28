@@ -288,6 +288,7 @@ php projects/crewportglobal/app/backend/api/tests/admin_access_storage_factory_t
 php projects/crewportglobal/app/backend/api/tests/admin_access_email_delivery_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_public_routes_test.php
 php projects/crewportglobal/app/backend/api/tests/registration_person_flow_test.php
+php projects/crewportglobal/app/backend/api/tests/questionnaire_schema_test.php
 ```
 
 ## Out of scope here

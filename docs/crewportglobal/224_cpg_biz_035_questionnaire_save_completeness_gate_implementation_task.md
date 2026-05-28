@@ -5,9 +5,9 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation task for Project Owner approval
 - Source document: CPG-BIZ-034 analysis, document 223; CPG-BIZ-036 mandatory-field synchronization, document 225
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-05-28
-- Status: For Project Owner approval
+- Status: Approved by Project Owner; Phase 0 implemented, remaining phases pending
 
 ## 1. Purpose
 
@@ -229,10 +229,15 @@ The task is complete when:
 
 ## 9. Next Stage After Approval
 
-After Project Owner approval, implementation should start with:
+Project Owner approval was received. Phase 0 has been implemented and documented in:
 
 ```text
-Phase 0 - Canonical mandatory field schema and synchronized supply-demand required keys
+docs/crewportglobal/226_cpg_biz_037_canonical_mandatory_field_schema_phase0_report.md
+```
+
+Remaining implementation phases:
+
+```text
 Phase 1 - Backend completeness analyzer and API contract
 Phase 2 - /create-profile/ autosave plus one Save / confirm action
 Phase 3 - /post-vacancy/ autosave plus one Save / confirm action
