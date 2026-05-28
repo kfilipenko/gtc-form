@@ -814,9 +814,15 @@
         'verify.section.candidateSearch': 'Candidate search',
         'verify.section.shortlistDraft': 'Internal shortlist draft',
         'verify.section.deletionReview': 'Vacancy deletion confirmation',
+        'verify.section.currentTask': 'Current task',
         'verify.section.workspaceActions': 'Workspace actions',
         'verify.workspaceActions.copy': 'Use these actions only after reviewing the opened internal work item. Queue rows show one primary task; review outcomes and deletion requests are handled here.',
         'verify.workspaceActions.summary': 'Review outcomes and secondary actions',
+        'verify.workspaceTask.primary': 'Primary operation',
+        'verify.workspaceTask.stage': 'Business process stage',
+        'verify.workspaceTask.object': 'Working object',
+        'verify.workspaceTask.visibility': 'Why this task is visible',
+        'verify.workspaceTask.completion': 'Completion condition',
         'verify.taskTitle.seafarerProfile': 'Review seafarer profile completeness.',
         'verify.taskTitle.companyVerification': 'Review company verification.',
         'verify.taskTitle.crewRequest': 'Review crew request completeness.',
@@ -855,6 +861,16 @@
         'verify.visibilityReason.completed': 'Shown by the current filter as a control record; no primary execution remains.',
         'verify.visibilityReason.computedOperation': 'Visible until this computed operation is completed or blocked by guard.',
         'verify.visibilityReason.status': 'Visible because workflow status is {status}.',
+        'verify.completion.seafarerProfile': 'Visible until profile and source-card readiness are reviewed, corrected or blocked by the review guard.',
+        'verify.completion.companyVerification': 'Visible until employer authority, company context and linked demand context are reviewed or sent for correction.',
+        'verify.completion.crewRequest': 'Visible until crew request completeness is reviewed and the next request-supply matching operation can be computed.',
+        'verify.completion.vacancyApplication': 'Visible until candidate presentation review is approved, rejected or blocked by the approval guard.',
+        'verify.completion.createShortlist': 'Visible until an internal shortlist draft is created or the candidate-search guard blocks creation.',
+        'verify.completion.approveInternalShortlist': 'Visible until the internal shortlist is approved, rejected or blocked by the approval guard.',
+        'verify.completion.createReviewApplications': 'Visible until candidate presentation review applications are created or blocked by guard.',
+        'verify.completion.reviewCandidatePresentation': 'Visible until candidate presentation is approved for employer-facing review or blocked by guard.',
+        'verify.completion.deletionConfirmation': 'Visible until manager confirms or rejects the deletion request.',
+        'verify.completion.genericReview': 'Visible until the responsible user records the required review outcome.',
         'verify.candidateSearch.copy': 'Read-only internal search. It does not create applications, change statuses or present candidates to employers.',
         'verify.candidateSearch.run': 'Run candidate search',
         'verify.candidateSearch.loading': 'Running read-only candidate search...',
@@ -1109,9 +1125,15 @@
         'verify.section.candidateSearch': 'Поиск кандидатов',
         'verify.section.shortlistDraft': 'Внутренний shortlist draft',
         'verify.section.deletionReview': 'Подтверждение удаления заявки',
+        'verify.section.currentTask': 'Текущая задача',
         'verify.section.workspaceActions': 'Действия в рабочей области',
         'verify.workspaceActions.copy': 'Используйте эти действия только после проверки открытого внутреннего объекта. В строке очереди показывается одна главная задача; результаты проверки и удаление обрабатываются здесь.',
         'verify.workspaceActions.summary': 'Результаты проверки и вторичные действия',
+        'verify.workspaceTask.primary': 'Главная операция',
+        'verify.workspaceTask.stage': 'Этап бизнес-процесса',
+        'verify.workspaceTask.object': 'Объект работы',
+        'verify.workspaceTask.visibility': 'Почему задача видима',
+        'verify.workspaceTask.completion': 'Условие завершения',
         'verify.taskTitle.seafarerProfile': 'Проверить полноту профиля моряка.',
         'verify.taskTitle.companyVerification': 'Проверить компанию работодателя.',
         'verify.taskTitle.crewRequest': 'Проверить полноту заявки на экипаж.',
@@ -1150,6 +1172,16 @@
         'verify.visibilityReason.completed': 'Показано текущим фильтром как контрольная запись; активной операции нет.',
         'verify.visibilityReason.computedOperation': 'Отображается до выполнения вычисленной операции или блокировки guard.',
         'verify.visibilityReason.status': 'Отображается из-за workflow status: {status}.',
+        'verify.completion.seafarerProfile': 'Видима до проверки готовности профиля и source cards, отправки на исправление или блокировки review guard.',
+        'verify.completion.companyVerification': 'Видима до проверки полномочий работодателя, данных компании и связанного demand context либо отправки на исправление.',
+        'verify.completion.crewRequest': 'Видима до проверки полноты заявки на экипаж и вычисления следующей операции request-supply matching.',
+        'verify.completion.vacancyApplication': 'Видима до утверждения, отклонения или блокировки approval guard для candidate presentation review.',
+        'verify.completion.createShortlist': 'Видима до создания внутреннего shortlist draft или блокировки candidate-search guard.',
+        'verify.completion.approveInternalShortlist': 'Видима до утверждения, отклонения или блокировки approval guard для внутреннего shortlist.',
+        'verify.completion.createReviewApplications': 'Видима до создания review-заявок кандидатов или блокировки guard.',
+        'verify.completion.reviewCandidatePresentation': 'Видима до утверждения candidate presentation для employer-facing review или блокировки guard.',
+        'verify.completion.deletionConfirmation': 'Видима до подтверждения или отклонения удаления менеджером.',
+        'verify.completion.genericReview': 'Видима до фиксации требуемого результата проверки ответственным исполнителем.',
         'verify.candidateSearch.copy': 'Внутренний read-only поиск. Он не создает отклики, не меняет статусы и не показывает кандидатов работодателю.',
         'verify.candidateSearch.run': 'Запустить поиск кандидатов',
         'verify.candidateSearch.loading': 'Выполняем read-only поиск кандидатов...',
@@ -1936,6 +1968,85 @@
           t('verify.taskState.stage', { stage: t(queueTaskStageKey(item)) }),
           t(queueTaskVisibilityReasonKey(item), { status: statusValue || '-' }),
         ];
+      }
+
+      function queueTaskCompletionConditionKey(item) {
+        if (item && activeTaskTarget && queueItemMatchesTaskTarget(item, activeTaskTarget)) {
+          const operation = activeTaskTarget.taskOperation || '';
+          if (operation === 'create_internal_shortlist_draft') {
+            return 'verify.completion.createShortlist';
+          }
+          if (operation === 'approve_internal_shortlist') {
+            return 'verify.completion.approveInternalShortlist';
+          }
+          if (operation === 'create_review_applications') {
+            return 'verify.completion.createReviewApplications';
+          }
+          if (operation === 'review_candidate_presentation') {
+            return 'verify.completion.reviewCandidatePresentation';
+          }
+          if (operation === 'confirm_vacancy_deletion' || operation === 'reject_vacancy_deletion') {
+            return 'verify.completion.deletionConfirmation';
+          }
+        }
+        if (!item || typeof item !== 'object') {
+          return 'verify.completion.genericReview';
+        }
+        if (item.queue_type === 'seafarer_profile') {
+          return 'verify.completion.seafarerProfile';
+        }
+        if (item.queue_type === 'company_verification') {
+          return 'verify.completion.companyVerification';
+        }
+        if (item.queue_type === 'vacancy_request') {
+          return 'verify.completion.crewRequest';
+        }
+        if (item.queue_type === 'vacancy_application') {
+          return 'verify.completion.vacancyApplication';
+        }
+        if (item.queue_type === 'vacancy_deletion_request') {
+          return 'verify.completion.deletionConfirmation';
+        }
+        return 'verify.completion.genericReview';
+      }
+
+      function createWorkspaceTaskContextSection(item) {
+        if (!item || typeof item !== 'object') {
+          return null;
+        }
+        const statusValue = item.status ? String(item.status) : '';
+        return createDetailSection('verify.section.currentTask', [
+          createDetailField('verify.workspaceTask.primary', t(queueTaskTitleKey(item))),
+          createDetailField('verify.workspaceTask.stage', t(queueTaskStageKey(item))),
+          createDetailField('verify.workspaceTask.object', t('verify.taskDescription', {
+            objectType: t(queueObjectTypeKey(item)),
+            summary: queueObjectSummary(item),
+          })),
+          createDetailField('verify.workspaceTask.visibility', t(queueTaskVisibilityReasonKey(item), {
+            status: statusValue || '-',
+          })),
+          createDetailField('verify.workspaceTask.completion', t(queueTaskCompletionConditionKey(item))),
+        ]);
+      }
+
+      function createDeletionReviewTaskContextItem(payload) {
+        const vacancy = payload && payload.vacancy_request && typeof payload.vacancy_request === 'object'
+          ? payload.vacancy_request
+          : {};
+        const deletion = payload && payload.deletion_request && typeof payload.deletion_request === 'object'
+          ? payload.deletion_request
+          : {};
+        return {
+          queue_type: 'vacancy_deletion_request',
+          queue_item_id: vacancy.vacancy_request_id || '',
+          status: deletion.manager_confirmation_status || deletion.status || '',
+          summary: {
+            vacancy_title: vacancy.vacancy_title,
+            rank: vacancy.rank,
+            vessel_type: vacancy.vessel_type,
+            join_date: vacancy.join_date,
+          },
+        };
       }
 
       function queueTaskHref(item, targetId) {
@@ -3466,6 +3577,7 @@
         const preferredVessels = seafarer ? parseJsonish(seafarer.preferred_vessel_types, []) : [];
 
         const sections = [
+          createWorkspaceTaskContextSection(currentQueueItemContext),
           createDetailSection('verify.section.registration', [
             createDetailField('verify.field.draftId', payload.draft_id),
             createDetailField('verify.field.role', payload.role),
@@ -3570,6 +3682,7 @@
           : '';
 
         const sections = [
+          createWorkspaceTaskContextSection(currentQueueItemContext),
           createDetailSection('verify.section.application', [
             createDetailField('verify.field.applicationId', application.vacancy_application_id),
             createDetailField('verify.field.applicationStatus', application.application_status),
@@ -4028,6 +4141,10 @@
         const deletion = payload && payload.deletion_request && typeof payload.deletion_request === 'object'
           ? payload.deletion_request
           : {};
+        const taskContextSection = createWorkspaceTaskContextSection(createDeletionReviewTaskContextItem(payload));
+        if (taskContextSection) {
+          detailsSections.appendChild(taskContextSection);
+        }
         const section = createDetailSection('verify.section.deletionReview', [
           createDetailField('verify.field.vacancyId', vacancy.vacancy_request_id),
           createDetailField('verify.field.vacancyTitle', vacancy.vacancy_title),

@@ -668,6 +668,13 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
     await expect(page.locator('#queue-status')).toContainText('Task target opened');
     await expect(page.locator('#review-workspace')).toContainText('Seafarer profile');
     await expect(page.locator('#review-workspace')).toContainText(seafarerName);
+    await expect(page.locator('#review-workspace')).toContainText('Current task');
+    await expect(page.locator('#review-workspace')).toContainText('Primary operation');
+    await expect(page.locator('#review-workspace')).toContainText('Review seafarer profile completeness.');
+    await expect(page.locator('#review-workspace')).toContainText('Business process stage');
+    await expect(page.locator('#review-workspace')).toContainText('Seafarer supply readiness review');
+    await expect(page.locator('#review-workspace')).toContainText('Completion condition');
+    await expect(page.locator('#review-workspace')).toContainText('Visible until profile and source-card readiness');
     await expect(page.locator('#review-workspace')).toContainText('Workspace actions');
     await expect(page.locator('#review-workspace')).toContainText('children: 1');
     await expect(page.locator('#review-workspace')).toContainText('medical: 2');
@@ -691,6 +698,10 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
     await expect(page.locator('#queue-status')).toContainText('Task target opened');
     await expect(page.locator('#review-workspace')).toContainText('Company');
     await expect(page.locator('#review-workspace')).toContainText(companyName);
+    await expect(page.locator('#review-workspace')).toContainText('Current task');
+    await expect(page.locator('#review-workspace')).toContainText('Review company verification.');
+    await expect(page.locator('#review-workspace')).toContainText('Employer / company verification');
+    await expect(page.locator('#review-workspace')).toContainText('Visible until employer authority');
     await expect(page.locator('#review-workspace')).toContainText('Vessel');
     await expect(page.locator('#review-workspace')).toContainText(vesselName);
     await expect(page.locator('#review-workspace')).toContainText('Bulk Carrier');
@@ -1381,6 +1392,10 @@ test('operator vacancy detail runs read-only candidate search without sensitive 
       await page.goto(`/verify/?queue_type=vacancy_request&queue_item_id=${vacancyRequestId}#review-workspace`);
       await expect(page.locator('#queue-status')).toContainText('Task target opened');
       await expect(page.locator('#review-workspace')).toContainText(vacancyTitle);
+      await expect(page.locator('#review-workspace')).toContainText('Current task');
+      await expect(page.locator('#review-workspace')).toContainText('Review crew request completeness.');
+      await expect(page.locator('#review-workspace')).toContainText('Employer demand intake review');
+      await expect(page.locator('#review-workspace')).toContainText('Visible until crew request completeness');
       await expect(page.locator('#review-workspace')).toContainText(`Operator Search Marine ${unique}`);
       await expect(page.locator('#review-workspace')).toContainText(`MV Operator Search ${unique}`);
       await expect(page.locator('#review-workspace')).toContainText('Chief Officer');
