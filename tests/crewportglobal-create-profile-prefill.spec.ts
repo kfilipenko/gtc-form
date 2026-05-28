@@ -1,8 +1,39 @@
 import { expect, test, type APIRequestContext } from '@playwright/test';
 import { execSync } from 'node:child_process';
+import fs from 'node:fs';
 
 function cleanupCreateProfileUiTestData(): void {
   const sql = `
+SELECT ud.storage_root || '/' || ud.storage_path
+FROM crewportglobal.uploaded_documents ud
+JOIN crewportglobal.users u ON u.user_id = ud.draft_id
+WHERE u.email LIKE 'ui.prefill.%@example.com'
+   OR u.email LIKE 'ui.localprefill.%@example.com'
+   OR u.email LIKE 'ui.correction.%@example.com'
+   OR u.email LIKE 'ui.apphistory.%@example.com'
+   OR u.email LIKE 'ui.completeness.%@example.com'
+   OR u.email LIKE 'ui.demandlink.%@example.com'
+   OR u.email LIKE 'ui.autosave.%@example.com'
+   OR u.email LIKE 'ui.localrestore.%@example.com'
+   OR u.email LIKE 'ui.savebutton.%@example.com'
+   OR u.email LIKE 'ui.multirole.%@example.com';
+
+DELETE FROM crewportglobal.uploaded_documents ud
+USING crewportglobal.users u
+WHERE u.user_id = ud.draft_id
+  AND (
+    u.email LIKE 'ui.prefill.%@example.com'
+    OR u.email LIKE 'ui.localprefill.%@example.com'
+    OR u.email LIKE 'ui.correction.%@example.com'
+    OR u.email LIKE 'ui.apphistory.%@example.com'
+    OR u.email LIKE 'ui.completeness.%@example.com'
+    OR u.email LIKE 'ui.demandlink.%@example.com'
+    OR u.email LIKE 'ui.autosave.%@example.com'
+    OR u.email LIKE 'ui.localrestore.%@example.com'
+    OR u.email LIKE 'ui.savebutton.%@example.com'
+    OR u.email LIKE 'ui.multirole.%@example.com'
+  );
+
 WITH ui_users AS (
   SELECT user_id
   FROM crewportglobal.users
@@ -15,6 +46,7 @@ WITH ui_users AS (
      OR email LIKE 'ui.autosave.%@example.com'
      OR email LIKE 'ui.localrestore.%@example.com'
      OR email LIKE 'ui.savebutton.%@example.com'
+     OR email LIKE 'ui.multirole.%@example.com'
 ),
 ui_vacancies AS (
   SELECT vacancy_request_id
@@ -37,6 +69,7 @@ WITH ui_users AS (
      OR email LIKE 'ui.autosave.%@example.com'
      OR email LIKE 'ui.localrestore.%@example.com'
      OR email LIKE 'ui.savebutton.%@example.com'
+     OR email LIKE 'ui.multirole.%@example.com'
 )
 UPDATE crewportglobal.seafarer_profiles sp
 SET review_status = 'rejected', updated_at = now()
@@ -52,6 +85,7 @@ WITH ui_users AS (
      OR email LIKE 'ui.autosave.%@example.com'
      OR email LIKE 'ui.localrestore.%@example.com'
      OR email LIKE 'ui.savebutton.%@example.com'
+     OR email LIKE 'ui.multirole.%@example.com'
 )
 UPDATE crewportglobal.vacancy_requests vr
 SET publication_status = 'closed', updated_at = now()
@@ -67,6 +101,7 @@ WITH ui_users AS (
      OR email LIKE 'ui.autosave.%@example.com'
      OR email LIKE 'ui.localrestore.%@example.com'
      OR email LIKE 'ui.savebutton.%@example.com'
+     OR email LIKE 'ui.multirole.%@example.com'
 ),
 ui_companies AS (
   SELECT DISTINCT cu.company_id
@@ -80,10 +115,14 @@ WHERE ec.company_id = uc.company_id
   AND ec.verification_status IN ('unverified', 'submitted', 'verified');
 `;
 
-  execSync(
-    'PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -v ON_ERROR_STOP=1 -q',
+  const output = execSync(
+    'PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -v ON_ERROR_STOP=1 -qAt',
     { input: sql, encoding: 'utf8' }
-  );
+  ).trim();
+
+  for (const filePath of output.split('\n').map((item) => item.trim()).filter(Boolean)) {
+    fs.rmSync(filePath, { force: true });
+  }
 }
 
 test.afterEach(() => {
@@ -250,6 +289,72 @@ test('create profile document upload shows exact file limit and type validation'
   });
   await page.locator('#create-document-upload-submit').click();
   await expect(page.locator('#create-document-upload-status')).toContainText('Unsupported file type');
+});
+
+test('create profile keeps seafarer save and upload active for multi-role account', async ({ page, request }) => {
+  const unique = Date.now();
+  const email = `ui.multirole.${unique}@example.com`;
+
+  const employerResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'crewing_manager',
+      email,
+      full_name: 'Multi Role Account',
+      role_in_company: 'manager',
+      company_name: `Multi Role Marine ${unique}`,
+      country_code: 'AE',
+      registration_number: `MR-${unique}`,
+    },
+  });
+  expect(employerResponse.status()).toBe(201);
+
+  const seafarerResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Multi Role Seafarer',
+      rank: 'Able Seaman',
+      department: 'deck',
+      contact_phone: '+971501234567',
+    },
+  });
+  expect(seafarerResponse.status()).toBe(201);
+  const created = await seafarerResponse.json();
+
+  await page.goto(`/create-profile/?draft_id=${created.draft_id}`);
+  await page.evaluate(() => {
+    window.localStorage.setItem('crewportglobal.language', 'en');
+  });
+  await page.reload();
+
+  await expect(page.locator('#create-status')).toContainText('prefilled');
+  await expect(page.locator('#create-document-upload-status')).toContainText('Maximum size: 10 MB');
+  await expect(page.locator('#create-document-upload-status')).not.toContainText('employer/vacancy form');
+  await expect(page.locator('#create-document-upload-submit')).toBeEnabled();
+
+  await page.locator('#profile-section-contact > summary').click();
+  await page.locator('#create-permanent-address').fill('Multi Role Seafarer Address');
+  await page.locator('#create-submit').click();
+  await expect(page.locator('#create-status')).toContainText(/saved|Complete/);
+
+  await expect.poll(async () => {
+    const draftResponse = await request.get(`/api/v1/registration/drafts/${created.draft_id}?role=seafarer`);
+    expect(draftResponse.status()).toBe(200);
+    const draftBody = await draftResponse.json();
+    const metadata = typeof draftBody.payload.seafarer_profile.document_metadata === 'string'
+      ? JSON.parse(draftBody.payload.seafarer_profile.document_metadata)
+      : draftBody.payload.seafarer_profile.document_metadata;
+    return metadata?.seafarer_workspace?.contact_and_addresses?.permanent_address || '';
+  }, { timeout: 7000 }).toBe('Multi Role Seafarer Address');
+
+  await page.locator('#create-document-upload-file').setInputFiles({
+    name: 'multi-role-passport.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF\n'),
+  });
+  await page.locator('#create-document-upload-submit').click();
+  await expect(page.locator('#create-document-upload-status')).not.toContainText('form_type');
+  await expect(page.locator('#create-document-upload-list')).toContainText('passport_or_id', { timeout: 7000 });
 });
 
 test('create profile keeps local-only field edits before backend draft exists', async ({ page }) => {

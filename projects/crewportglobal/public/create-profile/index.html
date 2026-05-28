@@ -4230,7 +4230,7 @@
             throw new Error(`Application action failed with status ${response.status}`);
           }
 
-          const refreshed = await window.CPGDrafts.getDraft(draftId);
+          const refreshed = await window.CPGDrafts.getDraft(draftId, { role: 'seafarer' });
           renderApplicationHistoryFromResponse(refreshed);
           status.textContent = t('create.applications.actionSaved');
         } catch (error) {
@@ -4399,7 +4399,7 @@
         }
 
         try {
-          const response = await window.CPGDrafts.getCompleteness(draftId);
+          const response = await window.CPGDrafts.getCompleteness(draftId, { role: 'seafarer' });
           latestCompleteness = response && response.completeness ? response.completeness : null;
           renderWorkspace();
           if (opts.showResult && latestCompleteness) {
@@ -4712,7 +4712,7 @@
           if (storedDraftId) {
             status.textContent = t('create.form.loadingDraft');
             try {
-              const fallbackResponse = await window.CPGDrafts.getDraft(storedDraftId);
+              const fallbackResponse = await window.CPGDrafts.getDraft(storedDraftId, { role: 'seafarer' });
               activeDraftRole = normalizeDraftRole(fallbackResponse && fallbackResponse.role ? fallbackResponse.role : activeDraftRole);
               updateDocumentUploadAvailability(activeDraftRole, storedDraftId);
               const fallbackProfile = fallbackResponse && fallbackResponse.payload
@@ -4741,7 +4741,7 @@
 
         status.textContent = t('create.form.loadingDraft');
         try {
-          const response = await window.CPGDrafts.getDraft(draftId);
+          const response = await window.CPGDrafts.getDraft(draftId, { role: 'seafarer' });
           activeDraftRole = normalizeDraftRole(response && response.role ? response.role : activeDraftRole);
           updateDocumentUploadAvailability(activeDraftRole, draftId);
           const profile = response && response.payload ? response.payload.seafarer_profile : null;

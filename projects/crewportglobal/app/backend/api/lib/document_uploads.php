@@ -245,11 +245,11 @@ function cpg_document_scan_file(string $path): array {
 
 function cpg_document_read_draft_context(string $draftId, string $formType): array {
     $result = api_query(
-        'SELECT u.user_id, ur.role
+        'SELECT u.user_id, array_agg(ur.role ORDER BY ur.created_at ASC) AS roles
          FROM crewportglobal.users u
          JOIN crewportglobal.user_roles ur ON ur.user_id = u.user_id
          WHERE u.user_id = $1
-         ORDER BY ur.created_at ASC
+         GROUP BY u.user_id
          LIMIT 1',
         [$draftId]
     );
@@ -258,15 +258,25 @@ function cpg_document_read_draft_context(string $draftId, string $formType): arr
         api_error(404, 'draft_not_found', 'Registration draft not found');
     }
 
-    $role = (string) $row['role'];
-    if ($formType === 'seafarer' && $role !== 'seafarer') {
+    $rolesRaw = trim((string) ($row['roles'] ?? ''), '{}');
+    $roles = $rolesRaw === ''
+        ? []
+        : array_values(array_filter(array_map(static fn(string $role): string => trim($role, '"'), explode(',', $rolesRaw))));
+    $employerRoles = ['employer', 'shipowner', 'crewing_manager'];
+    $hasSeafarerRole = in_array('seafarer', $roles, true);
+    $hasEmployerRole = count(array_intersect($roles, $employerRoles)) > 0;
+
+    if ($formType === 'seafarer' && !$hasSeafarerRole) {
         api_error(400, 'form_type_does_not_match_draft', 'form_type does not match the registration draft role');
     }
 
-    $employerRoles = ['employer', 'shipowner', 'crewing_manager'];
-    if (($formType === 'employer' || $formType === 'vessel') && !in_array($role, $employerRoles, true)) {
+    if (($formType === 'employer' || $formType === 'vessel') && !$hasEmployerRole) {
         api_error(400, 'form_type_does_not_match_draft', 'form_type does not match the registration draft role');
     }
+
+    $role = $formType === 'seafarer'
+        ? 'seafarer'
+        : (array_values(array_intersect($roles, $employerRoles))[0] ?? $roles[0] ?? '');
 
     $cardId = null;
     if ($formType === 'seafarer') {

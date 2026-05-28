@@ -1498,7 +1498,7 @@
             throw new Error(`Candidate action failed with status ${response.status}`);
           }
 
-          const refreshed = await window.CPGDrafts.getDraft(draftId);
+          const refreshed = await window.CPGDrafts.getDraft(draftId, { role: role.value || 'employer' });
           renderWorkspaceStatus(refreshed);
           status.textContent = t('post.pipeline.action.saved');
         } catch (error) {
@@ -1591,7 +1591,7 @@
 
         status.textContent = t('post.form.prefilling');
         try {
-          const response = await window.CPGDrafts.getDraft(draftId);
+          const response = await window.CPGDrafts.getDraft(draftId, { role: role.value || 'employer' });
           prefillFromDraft(response);
           refreshUploadedDocuments();
           status.textContent = t('post.form.prefilled');

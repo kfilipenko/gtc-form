@@ -1449,6 +1449,35 @@ function read_role_for_user(string $userId): ?string {
     return is_array($row) ? (string) $row['role'] : null;
 }
 
+function read_roles_for_user(string $userId): array {
+    $result = api_query(
+        'SELECT role FROM crewportglobal.user_roles WHERE user_id = $1 ORDER BY created_at ASC',
+        [$userId]
+    );
+
+    $roles = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        if (is_array($row) && is_string($row['role'] ?? null) && $row['role'] !== '') {
+            $roles[] = (string) $row['role'];
+        }
+    }
+
+    return array_values(array_unique($roles));
+}
+
+function resolve_registration_draft_role(string $userId, ?string $preferredRole = null): ?string {
+    $roles = read_roles_for_user($userId);
+    if ($roles === []) {
+        return null;
+    }
+
+    if ($preferredRole !== null && in_array($preferredRole, $roles, true)) {
+        return $preferredRole;
+    }
+
+    return $roles[0];
+}
+
 function read_primary_company_for_user(string $userId): ?array {
     $result = api_query(
         'SELECT ec.company_id, ec.company_name, ec.registration_number, ec.country_code, ec.company_type, ec.verification_status,
@@ -8819,7 +8848,7 @@ function read_vacancy_applications_for_seafarer(string $userId): array {
     return $items;
 }
 
-function build_draft_response(string $userId, string $visibilityScope = 'owner_full'): array {
+function build_draft_response(string $userId, string $visibilityScope = 'owner_full', ?string $preferredRole = null): array {
     $visibilityScope = cpg_normalize_visibility_scope($visibilityScope);
     $userResult = api_query(
         'SELECT user_id,
@@ -8839,7 +8868,7 @@ function build_draft_response(string $userId, string $visibilityScope = 'owner_f
         api_error(404, 'draft_not_found', 'Registration draft not found');
     }
 
-    $role = read_role_for_user($userId);
+    $role = resolve_registration_draft_role($userId, $preferredRole);
     if ($role === null) {
         api_error(500, 'role_missing', 'User role mapping is missing');
     }
@@ -9138,7 +9167,7 @@ function cpg_questionnaire_demand_completeness(string $userId, string $role, arr
     ]);
 }
 
-function cpg_registration_draft_completeness(string $draftId): array {
+function cpg_registration_draft_completeness(string $draftId, ?string $preferredRole = null): array {
     $userResult = api_query(
         'SELECT user_id,
                 email,
@@ -9156,7 +9185,7 @@ function cpg_registration_draft_completeness(string $draftId): array {
         api_error(404, 'draft_not_found', 'Registration draft not found');
     }
 
-    $role = read_role_for_user($draftId);
+    $role = resolve_registration_draft_role($draftId, $preferredRole);
     if ($role === null) {
         api_error(500, 'role_missing', 'User role mapping is missing');
     }
@@ -9187,7 +9216,16 @@ function handle_get_draft_completeness(string $draftId): void {
         api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
     }
 
-    api_json(200, cpg_registration_draft_completeness($uuid));
+    $roleParam = $_GET['role'] ?? null;
+    $preferredRole = null;
+    if ($roleParam !== null) {
+        $preferredRole = api_normalize_role($roleParam);
+        if ($preferredRole === null) {
+            api_error(400, 'invalid_role', 'role must be one of seafarer, employer, shipowner, crewing_manager');
+        }
+    }
+
+    api_json(200, cpg_registration_draft_completeness($uuid, $preferredRole));
 }
 
 function write_audit_event(
@@ -9614,7 +9652,17 @@ function handle_get_draft(string $draftId): void {
     if ($visibilityScope !== 'owner_full') {
         require_operator_or_team_queue_access();
     }
-    api_json(200, build_draft_response($uuid, $visibilityScope));
+
+    $roleParam = $_GET['role'] ?? null;
+    $preferredRole = null;
+    if ($roleParam !== null) {
+        $preferredRole = api_normalize_role($roleParam);
+        if ($preferredRole === null) {
+            api_error(400, 'invalid_role', 'role must be one of seafarer, employer, shipowner, crewing_manager');
+        }
+    }
+
+    api_json(200, build_draft_response($uuid, $visibilityScope, $preferredRole));
 }
 
 function handle_get_seafarer_workspace(): void {
@@ -9856,9 +9904,18 @@ function handle_patch_draft(string $draftId): void {
 
     $body = api_decode_json_body();
 
-    $role = read_role_for_user($uuid);
+    $requestedRole = api_normalize_role($body['role'] ?? null);
+    if (array_key_exists('role', $body) && $requestedRole === null) {
+        api_error(400, 'invalid_role', 'role must be one of seafarer, employer, shipowner, crewing_manager');
+    }
+
+    $role = resolve_registration_draft_role($uuid, $requestedRole);
     if ($role === null) {
         api_error(404, 'draft_not_found', 'Registration draft not found');
+    }
+
+    if ($requestedRole !== null && $role !== $requestedRole) {
+        api_error(400, 'role_not_available_for_draft', 'requested role is not available for this registration draft');
     }
 
     api_tx_begin();
@@ -9895,7 +9952,7 @@ function handle_patch_draft(string $draftId): void {
         }
 
         api_tx_commit();
-        api_json(200, build_draft_response($uuid));
+        api_json(200, build_draft_response($uuid, 'owner_full', $role));
     } catch (Throwable $error) {
         api_tx_rollback();
         api_error(500, 'draft_update_failed', $error->getMessage());

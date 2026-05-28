@@ -142,14 +142,20 @@
     return response;
   }
 
-  async function getDraft(draftId) {
-    const response = await requestJson(`/registration/drafts/${draftId}`, 'GET');
+  async function getDraft(draftId, options) {
+    const opts = options || {};
+    const role = typeof opts.role === 'string' ? opts.role.trim() : '';
+    const query = role ? `?role=${encodeURIComponent(role)}` : '';
+    const response = await requestJson(`/registration/drafts/${draftId}${query}`, 'GET');
     persistDraft(response);
     return response;
   }
 
-  async function getCompleteness(draftId) {
-    return requestJson(`/registration/drafts/${encodeURIComponent(draftId)}/completeness`, 'GET');
+  async function getCompleteness(draftId, options) {
+    const opts = options || {};
+    const role = typeof opts.role === 'string' ? opts.role.trim() : '';
+    const query = role ? `?role=${encodeURIComponent(role)}` : '';
+    return requestJson(`/registration/drafts/${encodeURIComponent(draftId)}/completeness${query}`, 'GET');
   }
 
   async function listDocuments(draftId, formType) {

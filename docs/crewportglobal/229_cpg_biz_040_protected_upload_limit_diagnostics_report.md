@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: Project Owner upload failure feedback after CPG-BIZ-039
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-05-28
 - Status: Implemented and verified on GTC1
 
@@ -15,7 +15,10 @@
 
 Проблема: пользователь мог загрузить PDF меньше 10 MB и получить ошибку без понятного объяснения. Основная причина для файлов больше 2 MB была runtime-конфигурация PHP-FPM: прикладной код разрешал файл до 10 MB, но PHP-FPM ограничивал `upload_max_filesize` значением 2 MB, а nginx не имел явного upload limit для `/api/v1/`.
 
-При дополнительной ручной проверке также выявлен второй сценарий: если открыть `/create-profile/` с `draft_id` employer/vacancy черновика и попытаться загрузить seafarer-документ, backend корректно отклоняет запрос кодом `form_type_does_not_match_draft`. До исправления UI показывал техническое сообщение вместо понятного перехода в правильную форму.
+При дополнительной ручной проверке также выявлены два связанных сценария:
+
+1. если открыть `/create-profile/` с `draft_id` employer/vacancy черновика и попытаться загрузить seafarer-документ, backend корректно отклоняет запрос кодом `form_type_does_not_match_draft`;
+2. если один аккаунт имеет несколько ролей, например `crewing_manager` и `seafarer`, backend раньше выбирал только первую роль по дате создания и мог ошибочно отклонить seafarer-документ в форме моряка.
 
 Цель: выровнять frontend, backend и runtime-лимиты, а также показывать пользователю точную причину отказа файла.
 
@@ -47,6 +50,7 @@ CPG_DOCUMENT_MAX_FILE_SIZE_BYTES = 10485760
 | Runtime limit | Для live `/api/v1/` nginx выставлен `client_max_body_size 12m`. |
 | PHP-FPM per-app limit | Добавлен `.user.ini` для API: `upload_max_filesize = 10M`, `post_max_size = 12M`. |
 | Draft-role guard in UI | `/create-profile/` больше не пытается загрузить seafarer-документ в employer/vacancy draft; вместо этого показывает ссылку на `/post-vacancy/`. |
+| Multi-role draft context | `GET/PATCH /registration/drafts/{id}`, completeness API и document upload guard теперь учитывают запрошенный контекст роли, чтобы аккаунт с ролями `seafarer` и `crewing_manager` мог сохранять и загружать документы в правильной анкете. |
 | User message | UI показывает конкретную причину отказа: type, size, runtime limit, total draft limit, file count limit, malware scan, partial upload. |
 
 ## 4. Error Codes
@@ -94,7 +98,9 @@ php8.1-fpm: active
 | File | Change |
 |---|---|
 | `projects/crewportglobal/app/backend/api/lib/document_uploads.php` | Added exact PHP upload error mapping and request-body-too-large detection before document validation. |
+| `projects/crewportglobal/app/backend/api/public/index.php` | Added role-context resolution for multi-role registration drafts so seafarer save/completeness operations do not fall into the employer branch. |
 | `projects/crewportglobal/app/backend/api/public/.user.ini` | Added per-application PHP upload/post limits aligned with the 10 MB app rule. |
+| `projects/crewportglobal/public/assets/crewportglobal-registration-drafts.js` | Added optional role query support for draft and completeness reads. |
 | `projects/crewportglobal/public/create-profile/index.html` | Added visible upload limits, client-side file validation, exact server-error messages and a guard preventing seafarer uploads into employer/vacancy drafts. |
 | `projects/crewportglobal/public/post-vacancy/index.html` | Added the same upload limit / diagnostics standard for employer-side evidence uploads. |
 | `tests/crewportglobal-create-profile-prefill.spec.ts` | Added client-side upload size/type validation regression and employer/vacancy draft role guard assertion. |
@@ -140,7 +146,7 @@ file_size_bytes = 3145744
 
 The temporary test user, DB rows and uploaded test file were removed after verification.
 
-### 7.3 Draft Role Mismatch Verification
+### 7.3 Draft Role And Multi-Role Verification
 
 An employer/vacancy draft opened through `/create-profile/?draft_id=...` now shows a clear protected-upload boundary:
 
@@ -155,6 +161,17 @@ The upload button is disabled on the seafarer upload panel and the status line l
 ```
 
 The backend guard remains unchanged and still rejects mismatched `form_type` uploads.
+
+A multi-role account with both `crewing_manager` and `seafarer` roles was also covered:
+
+```text
+GET /api/v1/registration/drafts/{draft_id}?role=seafarer
+GET /api/v1/registration/drafts/{draft_id}/completeness?role=seafarer
+PATCH /api/v1/registration/drafts/{draft_id} with role=seafarer
+POST /api/v1/registration/drafts/{draft_id}/documents with form_type=seafarer
+```
+
+Result: seafarer profile save, S-code completeness and seafarer document upload stay active for the seafarer form even when the same account also has an employer-side role.
 
 ## 8. Control Boundary
 
