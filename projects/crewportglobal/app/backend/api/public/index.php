@@ -10232,9 +10232,10 @@ function cpg_team_workbench_queue_tasks(array $access): array {
         $title = is_string($summary['vacancy_title'] ?? null) && trim((string) $summary['vacancy_title']) !== ''
             ? trim((string) $summary['vacancy_title'])
             : (is_string($item['full_name'] ?? null) ? (string) $item['full_name'] : $queueType);
+        $status = is_string($item['status'] ?? null) ? (string) $item['status'] : '';
 
         if ($queueType === 'seafarer_profile' && $queueItemId !== '') {
-            if (in_array((string) ($item['status'] ?? ''), ['approved'], true)) {
+            if (!in_array($status, ['submitted_for_human_review', 'in_review'], true)) {
                 continue;
             }
 
@@ -10245,7 +10246,7 @@ function cpg_team_workbench_queue_tasks(array $access): array {
                 [
                     'record_type' => 'seafarer_profile',
                     'record_id' => $queueItemId,
-                    'current_status' => $item['status'] ?? null,
+                    'current_status' => $status,
                     'next_status_if_executed' => 'in_review',
                     'responsible_group_after_transition' => 'verification_team',
                     'computed_from' => 'operator_review_queue_seafarer_profile',
@@ -10263,7 +10264,7 @@ function cpg_team_workbench_queue_tasks(array $access): array {
                     'queue_item_id' => $queueItemId,
                     'seafarer_profile_id' => $queueItemId,
                     'draft_id' => $item['draft_id'] ?? null,
-                    'status' => $item['status'] ?? null,
+                    'status' => $status,
                     'rank' => $summary['primary_rank'] ?? null,
                     'department' => $summary['department'] ?? null,
                     'availability_status' => $summary['availability_status'] ?? null,
@@ -10276,7 +10277,7 @@ function cpg_team_workbench_queue_tasks(array $access): array {
         }
 
         if ($queueType === 'company_verification' && $queueItemId !== '') {
-            if (in_array((string) ($item['status'] ?? ''), ['verified'], true)) {
+            if (!in_array($status, ['unverified', 'submitted'], true)) {
                 continue;
             }
 
@@ -10287,7 +10288,7 @@ function cpg_team_workbench_queue_tasks(array $access): array {
                 [
                     'record_type' => 'company_verification',
                     'record_id' => $queueItemId,
-                    'current_status' => $item['status'] ?? null,
+                    'current_status' => $status,
                     'next_status_if_executed' => 'submitted',
                     'responsible_group_after_transition' => 'verification_team',
                     'computed_from' => 'operator_review_queue_company_verification',
@@ -10307,7 +10308,7 @@ function cpg_team_workbench_queue_tasks(array $access): array {
                     'queue_item_id' => $queueItemId,
                     'company_id' => $queueItemId,
                     'draft_id' => $item['draft_id'] ?? null,
-                    'status' => $item['status'] ?? null,
+                    'status' => $status,
                     'company_name' => $summary['company_name'] ?? null,
                     'company_type' => $summary['company_type'] ?? null,
                     'country_code' => $summary['country_code'] ?? null,

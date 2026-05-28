@@ -566,6 +566,7 @@ Review outcomes should be recorded inside the review workspace.
 | Internal review workspace disclosure | Review outcomes and secondary actions are available only after opening the workspace | User reviews the object context first, then opens the disclosure when a review result or controlled secondary action is required. |
 | Current task context | Primary operation, stage, object, visibility reason and completion condition are shown at the top of the workspace | User must confirm that the displayed operation matches the intended work before recording a review outcome. |
 | Post-action completion feedback | Workspace confirms the recorded operation, object, result and task recomputation rule | User must read the feedback and return to Team tasks when the current operation is completed or blocked. |
+| Active task recomputation | Same operation must leave the active queue after its review outcome is recorded | User must not keep working from the old active task; the next action must come from the recomputed queue, or the object must appear only as a clear control/correction record. |
 
 ## 20. Escalation Rules
 

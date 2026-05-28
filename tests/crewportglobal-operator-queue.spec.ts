@@ -648,6 +648,9 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
         'verification_team',
         'view_verification_queue'
       );
+      const seafarerTaskContext = (seafarerTaskPayload as Record<string, unknown>).context as Record<string, unknown>;
+      const seafarerProfileId = String(seafarerTaskContext.queue_item_id || '');
+      expect(seafarerProfileId).toBeTruthy();
     } finally {
       await teamRequest.dispose();
     }
@@ -656,6 +659,19 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
     await page.evaluate((token) => {
       window.localStorage.setItem('crewportglobal_team_session', token);
     }, verificationTeamSession);
+    const seafarerProfileId = runPsql(`
+SELECT seafarer_profile_id::text
+FROM crewportglobal.seafarer_profiles
+WHERE user_id = '${String(seafarer.draft_id).replace(/'/g, "''")}'::uuid
+LIMIT 1;
+`).trim();
+    expect(seafarerProfileId).toBeTruthy();
+    await page.goto(`/verify/?queue_type=seafarer_profile&queue_item_id=${seafarerProfileId}#review-workspace`);
+    await expect(page.locator('#queue-status')).toContainText('Task target opened', { timeout: 40_000 });
+    await expect(page.locator('#review-workspace')).toContainText(seafarerName);
+    await expect(page.locator('#review-workspace')).toContainText('Current task');
+    await expect(page.locator('#review-workspace')).not.toContainText('Could not load draft details.');
+
     await page.goto('/team/');
     await expect(page.locator('#team-tasks-title')).toContainText('My tasks', { timeout: 40_000 });
     const seafarerTeamTask = page.locator('#team-task-list .team-task', { hasText: seafarerName }).first();
@@ -724,6 +740,18 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
     await expect(page.locator('#review-note-feedback')).toContainText('Object: (Company:');
     await expect(page.locator('#review-note-feedback')).toContainText('Return to Team tasks to see the recalculated queue.');
     await expect(page.locator('#latest-review-note')).toContainText(companyNote);
+    const afterCompanyReviewTasksResponse = await request.get('/api/v1/team/workbench/tasks', {
+      headers: {
+        Authorization: `Bearer ${verificationTeamSession}`,
+      },
+    });
+    expect(afterCompanyReviewTasksResponse.ok()).toBeTruthy();
+    const afterCompanyReviewTasks = await afterCompanyReviewTasksResponse.json();
+    const recomputedCompanyTask = (afterCompanyReviewTasks.tasks as Array<Record<string, unknown>>).find((task) =>
+      task.operation_code === 'review_company_verification' &&
+      (task.context as Record<string, unknown> | undefined)?.draft_id === employer.draft_id
+    );
+    expect(recomputedCompanyTask).toBeFalsy();
   }
 
   await page.addInitScript((token) => {
@@ -827,6 +855,20 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#review-history-list')).toContainText(note);
   await expect(page.locator('#review-history-list')).toContainText('Target: QUAL-003 Certificate of competence');
   await expect(page.locator('#details-sections')).toContainText('review: correction_requested');
+  if (verificationTeamSession) {
+    const afterCorrectionTasksResponse = await request.get('/api/v1/team/workbench/tasks', {
+      headers: {
+        Authorization: `Bearer ${verificationTeamSession}`,
+      },
+    });
+    expect(afterCorrectionTasksResponse.ok()).toBeTruthy();
+    const afterCorrectionTasks = await afterCorrectionTasksResponse.json();
+    const recomputedSeafarerTask = (afterCorrectionTasks.tasks as Array<Record<string, unknown>>).find((task) =>
+      task.operation_code === 'review_seafarer_profile_completeness' &&
+      (task.context as Record<string, unknown> | undefined)?.draft_id === seafarer.draft_id
+    );
+    expect(recomputedSeafarerTask).toBeFalsy();
+  }
   await page.locator('#review-card-status-filter').selectOption('correction_requested');
   await expect(page.locator('#details-sections')).toContainText('QUAL-003 Certificate of competence');
   await page.locator('#review-card-status-filter').selectOption('verified');

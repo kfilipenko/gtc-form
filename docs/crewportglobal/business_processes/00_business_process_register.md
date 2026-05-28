@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 1.5
+- Version: 1.8
 - Status: For internal review
 
 ## 1. Purpose
@@ -106,6 +106,7 @@ This documentation block starts from the following approved business controls:
 32. Process documentation must be verified against the running application through the describe / verify / correct / test / advance cycle before the next stage is treated as complete.
 33. Computed task execution must be verified against group and permission contracts; manager/control-only operations must not be executable by review-team or unrelated groups.
 34. Computed task assignment uses active historical executor precedence: if an active employee in the responsible group previously completed an analogous operation for the same object, later tasks for that object and group are assigned to that employee; otherwise the task remains in the group queue.
+35. After a review outcome is recorded, the same operation must leave the active computed task queue unless it remains only as a control/blocked record with a clear reason; the next visible task must be computed from the new object state and assigned to the correct group or historical executor.
 
 ## 5. Intended Use
 
@@ -125,6 +126,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.8 | 2026-05-28 | GTC IT / AI Assistant | Added verified active task recomputation control: completed/correction review outcomes must remove the same active task from team workbench and expose only the next computed task or clear control/blocked record |
 | 1.7 | 2026-05-28 | GTC IT / AI Assistant | Added verified post-action completion feedback as a control in BP-012 and BP-013, requiring review workspaces to show recorded operation, object, result and task recomputation guidance |
 | 1.6 | 2026-05-27 | GTC IT / AI Assistant | Replaced the group-queue-only assignment boundary with the verified active historical executor or group queue computed assignment rule |
 | 1.5 | 2026-05-27 | GTC IT / AI Assistant | Added the verified group-queue assignment boundary and recorded personal task assignment as the next controlled implementation stage |

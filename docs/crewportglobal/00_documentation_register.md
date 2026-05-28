@@ -304,6 +304,7 @@ docs/crewportglobal/
   215_cpg_biz_026_review_workspace_payload_secondary_action_minimization_report.md
   216_cpg_biz_027_review_workspace_primary_operation_guidance_report.md
   217_cpg_biz_028_review_workspace_completion_feedback_transition_report.md
+  218_cpg_biz_029_team_queue_recomputation_completed_task_disappearance_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -632,6 +633,8 @@ Document 208 records the CPG-BIZ-019 assignment-aware task visibility check, inc
 
 Document 209 records the CPG-BIZ-020 historical task assignment implementation, including active historical executor precedence, group-queue fallback, audit-event based assignee computation, `/api/v1/team/workbench/tasks` assignment payloads, process documentation updates and focused verification.
 
+Document 218 records the CPG-BIZ-029 team queue recomputation check, including direct `seafarer_profile` task-link recovery, active review-status filtering for computed team tasks, disappearance of completed/correction outcomes from active workbench tasks, focused/full operator queue verification and API regression.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -735,6 +738,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.98 | 2026-05-28 | GTC IT / AI Assistant | Added document 218 for CPG-BIZ-029 covering direct seafarer-profile task link recovery, active team queue recomputation after review outcomes and focused/full/API verification |
 | 1.97 | 2026-05-28 | GTC IT / AI Assistant | Added document 217 for CPG-BIZ-028 covering review workspace object-specific post-action feedback, task recomputation wording, return-to-team guidance and focused/full operator queue verification |
 | 1.96 | 2026-05-28 | GTC IT / AI Assistant | Added document 216 for CPG-BIZ-027 covering review workspace primary operation wording, business-process stage, visibility reason, completion condition and focused/full operator queue verification |
 | 1.95 | 2026-05-28 | GTC IT / AI Assistant | Added document 215 for CPG-BIZ-026 covering review workspace raw/debug payload minimization, secondary-action disclosure, focused/full operator queue verification and next process-alignment step |
