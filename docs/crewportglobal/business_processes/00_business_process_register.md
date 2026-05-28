@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 2.8
+- Version: 2.9
 - Status: For internal review
 
 ## 1. Purpose
@@ -48,6 +48,7 @@ docs/crewportglobal/business_processes/
 	  11_seafarer_field_dictionary_and_reference_catalog_alignment.md
 	  12_crew_formation_service_business_process_manual.md
 	  13_crew_formation_operating_instructions_for_users_team_ai.md
+	  14_standard_form_lifecycle_and_validation_module.md
 ```
 
 ## 3. Active Business-Process Documents
@@ -67,6 +68,7 @@ docs/crewportglobal/business_processes/
 | BP-011 | `11_seafarer_field_dictionary_and_reference_catalog_alignment.md` | Project Owner uploaded seafarer Excel source | Drafted for owner review | Seafarer Excel field dictionary and reference catalog alignment covering workbook sheets, page/card plan, reference dictionaries, future DB/API slices and controlled publication order |
 | BP-012 | `12_crew_formation_service_business_process_manual.md` | CPG-BIZ-012 / Document 199 | Drafted for owner review | Controlling end-to-end crew formation service business process from employer demand and seafarer supply to shortlist, candidate presentation, service completion, B2B billing basis and audit evidence |
 | BP-013 | `13_crew_formation_operating_instructions_for_users_team_ai.md` | CPG-BIZ-012 / Document 199 | Drafted for owner review | Practical operating instructions for seafarers, employer users, team groups, reviewers, managers, billing, Project Owner and AI agents, including computed task display rules and authority boundaries |
+| BP-014 | `14_standard_form_lifecycle_and_validation_module.md` | CPG-BIZ-041 / Document 230 | Approved standard for staged implementation | Standard form lifecycle and validation module covering role-aware draft context, save, autosave, completeness, protected upload, submit-review gate, numbered missing items and computed task integration |
 
 ## 4. Core Controls Introduced By This Block
 
@@ -117,6 +119,7 @@ This documentation block starts from the following approved business controls:
 43. Backend completeness checks must use the canonical mandatory-field schema through a read-only API contract before any submit-review state change: completeness responses may report `S/E/V/R` missing fields, required document statuses, unresolved corrections and target URLs, but must not create operator tasks, change review status, change publication status or change document status.
 44. The seafarer `/create-profile/` questionnaire must expose one visible `Save / confirm data` action for saving and completeness confirmation; section-level save controls stay hidden from ordinary users, background autosave may preserve draft field changes without review side effects, and backend `S-*` missing items must be displayed with exact section links and field/section highlighting before any operator-review submission is allowed.
 45. Protected upload panels must show allowed formats and the 10 MB single-file limit before upload; frontend validation, backend validation and runtime web/PHP upload limits must be aligned, and rejected uploads must show a specific reason instead of a generic failure whenever the system can identify it.
+46. All current and future CrewPortGlobal forms must attach to the standard form lifecycle module instead of implementing page-local rules: explicit role/form context, safe draft persistence, backend completeness, protected upload, submit-review gating, correction handoff and computed task creation must follow BP-014.
 
 ## 5. Intended Use
 
@@ -136,6 +139,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.9 | 2026-05-28 | GTC IT / AI Assistant | Added BP-014 standard form lifecycle and validation module for role-aware draft context, reusable save/completeness/upload behavior, submit-review gating and computed task integration across all forms |
 | 2.8 | 2026-05-28 | GTC IT / AI Assistant | Added protected-upload limit and diagnostics control: upload panels must show allowed formats / 10 MB limit, runtime limits must match application rules and rejected uploads must expose specific causes |
 | 2.7 | 2026-05-28 | GTC IT / AI Assistant | Added Phase 2 `/create-profile/` completeness-gate control: one visible Save / confirm action, hidden section-save controls, backend `S-*` missing-item rendering and highlighted fields/sections before submit-review activation |
 | 2.6 | 2026-05-28 | GTC IT / AI Assistant | Added Phase 1 backend completeness analyzer control: read-only `S/E/V/R` completeness responses must drive later Save / Submit behavior without status, task, publication or document side effects |

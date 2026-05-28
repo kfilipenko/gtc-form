@@ -238,6 +238,14 @@ Required conditions:
 
 Every authenticated questionnaire and workspace form must follow the same save-and-submit standard before the object can be sent to operator review.
 
+The controlling implementation standard for this rule is:
+
+```text
+docs/crewportglobal/business_processes/14_standard_form_lifecycle_and_validation_module.md
+```
+
+That standard must be used when a new form is created or an existing form is refactored. A page-specific form may map its own HTML fields to canonical field codes, but it must not create separate lifecycle rules for role context, save, completeness, protected upload, submit-review or computed task creation.
+
 This standard applies to:
 
 1. seafarer profile / source-card forms;
@@ -572,4 +580,10 @@ The companion operating instruction must be maintained in:
 docs/crewportglobal/business_processes/13_crew_formation_operating_instructions_for_users_team_ai.md
 ```
 
-After BP-012 and BP-013 are approved, the next implementation-planning stage should simplify operator task actions according to this process.
+The standard form lifecycle module must be maintained in:
+
+```text
+docs/crewportglobal/business_processes/14_standard_form_lifecycle_and_validation_module.md
+```
+
+The next implementation-planning stage should extract the already verified `/create-profile/` save/completeness behavior into a shared frontend lifecycle helper before the same standard is applied to `/post-vacancy/`.

@@ -316,6 +316,7 @@ docs/crewportglobal/
   227_cpg_biz_038_backend_completeness_analyzer_api_contract_report.md
   228_cpg_biz_039_create_profile_completeness_gate_phase2_report.md
   229_cpg_biz_040_protected_upload_limit_diagnostics_report.md
+  230_cpg_biz_041_standard_form_lifecycle_module_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -334,6 +335,7 @@ docs/crewportglobal/
     11_seafarer_field_dictionary_and_reference_catalog_alignment.md
     12_crew_formation_service_business_process_manual.md
     13_crew_formation_operating_instructions_for_users_team_ai.md
+    14_standard_form_lifecycle_and_validation_module.md
 ```
 
 ### 3.3 Product governance control
@@ -668,6 +670,8 @@ Document 228 records the CPG-BIZ-039 Phase 2 implementation for `/create-profile
 
 Document 229 records the CPG-BIZ-040 protected upload limit and diagnostics correction, including the discovered 2 MB PHP runtime mismatch, aligned nginx/PHP limits for 10 MB document uploads, exact upload error codes/messages and frontend validation on `/create-profile/` and `/post-vacancy/`.
 
+Document 230 records the CPG-BIZ-041 standard form lifecycle module decision, including BP-014, explicit role/form context, reusable Save/completeness/upload behavior, protected upload diagnostics, submit-review gating, numbered missing items and computed task integration for all current and future CrewPortGlobal forms.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -771,6 +775,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.09 | 2026-05-28 | GTC IT / AI Assistant | Added document 230 and BP-014 for the standard form lifecycle module covering role-aware context, reusable save/completeness/upload behavior and staged adoption across all forms |
 | 2.08 | 2026-05-28 | GTC IT / AI Assistant | Added document 229 for CPG-BIZ-040 covering protected upload limit diagnostics, runtime upload limit alignment, exact upload error messages and frontend upload validation |
 | 2.07 | 2026-05-28 | GTC IT / AI Assistant | Added document 228 for CPG-BIZ-039 covering Phase 2 `/create-profile/` completeness gate UI, one visible Save / confirm action, S-code missing-item display and frontend test-maintenance updates |
 | 2.06 | 2026-05-28 | GTC IT / AI Assistant | Added document 227 for CPG-BIZ-038 covering Phase 1 backend completeness analyzer, read-only completeness API contract, safe document checks and no-side-effect endpoint verification |

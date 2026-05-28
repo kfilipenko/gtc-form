@@ -136,6 +136,14 @@ Ambiguous labels must be avoided.
 
 Every form used by seafarers, employers, vessel owners or team-supported users must follow the same user-facing rule.
 
+The shared rule is governed by BP-014:
+
+```text
+docs/crewportglobal/business_processes/14_standard_form_lifecycle_and_validation_module.md
+```
+
+When a team member, developer or AI agent adds a new form, they must connect it to the same lifecycle standard instead of inventing page-local rules.
+
 The user must see one main save/confirmation action for the questionnaire.
 
 Fields may autosave while the user edits, but the visible control must remain:
@@ -724,7 +732,7 @@ When UI simplification is approved, the operator queue should be changed so that
 After BP-012 and BP-013 are reviewed by Project Owner, the next stage should be:
 
 ```text
-CPG-BIZ-013 - Operator task-action simplification based on approved crew formation process
+CPG-BIZ-042 - Shared frontend form lifecycle helper extraction
 ```
 
-That stage should convert the current multiple visible row actions into one primary computed task and a controlled internal workspace.
+That stage should extract the already verified `/create-profile/` lifecycle behavior into a shared frontend helper and then connect the same standard to `/post-vacancy/`.
