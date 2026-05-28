@@ -12,6 +12,8 @@ WITH ui_users AS (
      OR email LIKE 'ui.apphistory.%@example.com'
      OR email LIKE 'ui.completeness.%@example.com'
      OR email LIKE 'ui.demandlink.%@example.com'
+     OR email LIKE 'ui.autosave.%@example.com'
+     OR email LIKE 'ui.localrestore.%@example.com'
 ),
 ui_vacancies AS (
   SELECT vacancy_request_id
@@ -31,6 +33,8 @@ WITH ui_users AS (
      OR email LIKE 'ui.apphistory.%@example.com'
      OR email LIKE 'ui.completeness.%@example.com'
      OR email LIKE 'ui.demandlink.%@example.com'
+     OR email LIKE 'ui.autosave.%@example.com'
+     OR email LIKE 'ui.localrestore.%@example.com'
 )
 UPDATE crewportglobal.seafarer_profiles sp
 SET review_status = 'rejected', updated_at = now()
@@ -43,6 +47,8 @@ WITH ui_users AS (
   FROM crewportglobal.users
   WHERE email LIKE 'ui.apphistory.%@example.com'
      OR email LIKE 'ui.demandlink.%@example.com'
+     OR email LIKE 'ui.autosave.%@example.com'
+     OR email LIKE 'ui.localrestore.%@example.com'
 )
 UPDATE crewportglobal.vacancy_requests vr
 SET publication_status = 'closed', updated_at = now()
@@ -55,6 +61,8 @@ WITH ui_users AS (
   FROM crewportglobal.users
   WHERE email LIKE 'ui.apphistory.%@example.com'
      OR email LIKE 'ui.demandlink.%@example.com'
+     OR email LIKE 'ui.autosave.%@example.com'
+     OR email LIKE 'ui.localrestore.%@example.com'
 ),
 ui_companies AS (
   SELECT DISTINCT cu.company_id
@@ -196,6 +204,133 @@ test('create profile save confirm renders backend S-code missing items and highl
   await expect(page).toHaveURL(/#profile-section-documents$/);
 });
 
+test('create profile keeps local-only field edits before backend draft exists', async ({ page }) => {
+  await page.goto('/create-profile/');
+  await page.evaluate(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem('crewportglobal.language', 'en');
+  });
+
+  await page.goto('/create-profile/');
+  await page.locator('#create-rank').fill('Motorman');
+  await page.locator('#create-department').selectOption('engine');
+  await page.locator('#profile-section-contact > summary').click();
+  await page.locator('#create-permanent-address').fill('Local Autosave Port Road 7');
+  await page.locator('#create-emergency-contact-name').fill('Local Contact');
+  await page.locator('#profile-section-addresses > summary').click();
+  await page.locator('#create-permanent-street').fill('Local Street');
+  await page.locator('#create-registration-city').fill('Batumi');
+
+  await expect(page.locator('#create-status')).toContainText('browser');
+  await page.reload();
+  await expect(page.locator('#create-status')).toContainText('local changes');
+  await expect(page.locator('#create-rank')).toHaveValue('Motorman');
+  await expect(page.locator('#create-department')).toHaveValue('engine');
+  await page.locator('#profile-section-contact > summary').click();
+  await expect(page.locator('#create-permanent-address')).toHaveValue('Local Autosave Port Road 7');
+  await expect(page.locator('#create-emergency-contact-name')).toHaveValue('Local Contact');
+  await page.locator('#profile-section-addresses > summary').click();
+  await expect(page.locator('#create-permanent-street')).toHaveValue('Local Street');
+  await expect(page.locator('#create-registration-city')).toHaveValue('Batumi');
+});
+
+test('create profile restores existing draft edits immediately after reload', async ({ page, request }) => {
+  const email = `ui.localrestore.${Date.now()}@example.com`;
+  const createResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Immediate Restore Seafarer',
+      rank: 'Ordinary Seaman',
+      department: 'deck',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = await createResponse.json();
+
+  await page.goto(`/create-profile/?draft_id=${created.draft_id}`);
+  await page.evaluate(() => {
+    window.localStorage.setItem('crewportglobal.language', 'en');
+  });
+  await expect(page.locator('#create-status')).toContainText('prefilled');
+  await page.locator('#create-rank').fill('Bosun');
+  await page.locator('#profile-section-contact > summary').click();
+  await page.locator('#create-permanent-address').fill('Immediate Restore Address');
+  await page.locator('#create-residence-city').fill('Poti');
+
+  await page.reload();
+  await expect(page.locator('#create-status')).toContainText(/local changes|autosaved/);
+  await expect(page.locator('#create-rank')).toHaveValue('Bosun');
+  await page.locator('#profile-section-contact > summary').click();
+  await expect(page.locator('#create-permanent-address')).toHaveValue('Immediate Restore Address');
+  await expect(page.locator('#create-residence-city')).toHaveValue('Poti');
+  await expect(page.locator('#create-status')).toContainText('autosaved', { timeout: 7000 });
+});
+
+test('create profile autosaves contact and address edits before reload', async ({ page, request }) => {
+  const email = `ui.autosave.${Date.now()}@example.com`;
+  const createResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Autosave Contact Seafarer',
+      rank: 'Able Seaman',
+      department: 'deck',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = await createResponse.json();
+
+  await page.goto(`/create-profile/?draft_id=${created.draft_id}`);
+  await page.evaluate(() => {
+    window.localStorage.setItem('crewportglobal.language', 'en');
+  });
+  await expect(page.locator('#create-status')).toContainText('prefilled');
+
+  await page.locator('#profile-section-contact > summary').click();
+  await page.locator('#create-permanent-address').fill('Autosave Pier 12, Limassol');
+  await page.locator('#create-residence-city').fill('Limassol');
+  await page.locator('#create-emergency-contact-name').fill('Nina Autosave');
+  await page.locator('#create-emergency-contact-relation').fill('Spouse');
+  await page.locator('#create-emergency-contact-phone').fill('+35799123456');
+
+  await page.locator('#profile-section-addresses > summary').click();
+  await page.locator('#create-permanent-street').fill('Autosave Street');
+  await page.locator('#create-permanent-house').fill('12A');
+  await page.locator('#create-registration-city').fill('Larnaca');
+  await page.locator('#create-registration-country').fill('Cyprus');
+
+  await expect(page.locator('#create-status')).toContainText('autosaved', { timeout: 7000 });
+
+  await expect.poll(async () => {
+    const draftResponse = await request.get(`/api/v1/registration/drafts/${created.draft_id}`);
+    expect(draftResponse.status()).toBe(200);
+    const draftBody = await draftResponse.json();
+    const metadata = typeof draftBody.payload.seafarer_profile.document_metadata === 'string'
+      ? JSON.parse(draftBody.payload.seafarer_profile.document_metadata)
+      : draftBody.payload.seafarer_profile.document_metadata;
+    return {
+      emergency_contact_name: metadata?.seafarer_workspace?.contact_and_addresses?.emergency_contact_name || '',
+      permanent_address: metadata?.seafarer_workspace?.contact_and_addresses?.permanent_address || '',
+      registration_city: metadata?.seafarer_workspace?.address_details?.registration_city || '',
+    };
+  }, { timeout: 7000 }).toEqual({
+    emergency_contact_name: 'Nina Autosave',
+    permanent_address: 'Autosave Pier 12, Limassol',
+    registration_city: 'Larnaca',
+  });
+
+  await page.reload();
+  await expect(page.locator('#create-status')).toContainText('prefilled');
+  await page.locator('#profile-section-contact > summary').click();
+  await expect(page.locator('#create-permanent-address')).toHaveValue('Autosave Pier 12, Limassol');
+  await expect(page.locator('#create-residence-city')).toHaveValue('Limassol');
+  await expect(page.locator('#create-emergency-contact-name')).toHaveValue('Nina Autosave');
+  await page.locator('#profile-section-addresses > summary').click();
+  await expect(page.locator('#create-permanent-street')).toHaveValue('Autosave Street');
+  await expect(page.locator('#create-registration-city')).toHaveValue('Larnaca');
+});
+
 test('create profile demand completeness link opens exact post vacancy salary field', async ({ page, request }) => {
   const unique = Date.now();
   const email = `ui.demandlink.${unique}@example.com`;
@@ -282,7 +417,7 @@ test('create profile prefill falls back to local draft when draft_id is missing'
   await expect(page.locator('#create-availability')).toHaveValue('available_now');
   await expect(page.locator('#create-availability-date')).toHaveValue('2026-09-01');
   await expect(page.locator('#create-phone')).toHaveValue('+971500009999');
-  await expect(page.locator('#create-salary')).toHaveValue('5000.00');
+  await expect(page.locator('#create-salary')).toHaveValue('5000');
   await expect(page.locator('#create-vessel-types')).toHaveValue('LNG, Tanker');
   await expect(page.locator('#create-certificate-status')).toHaveValue('ready');
   await expect(page.locator('#create-stcw-status')).toHaveValue('ready');

@@ -2087,6 +2087,8 @@
         'create.form.saving': 'Saving seafarer draft...',
         'create.form.saved': 'Seafarer draft saved. Completeness check finished.',
         'create.form.autosaved': 'Draft autosaved.',
+        'create.form.localAutosaved': 'Draft saved in this browser. Add full name and email to save it to backend.',
+        'create.form.localRestored': 'Unsaved local changes were restored from this browser.',
         'create.form.error': 'Could not save the draft. Please try again.',
         'create.completeness.checking': 'Checking required fields and documents...',
         'create.completeness.ready': 'Profile is complete for operator-review submission.',
@@ -2578,6 +2580,8 @@
         'create.form.saving': 'Сохраняем черновик моряка...',
         'create.form.saved': 'Черновик моряка сохранен. Проверка полноты завершена.',
         'create.form.autosaved': 'Черновик сохранен автоматически.',
+        'create.form.localAutosaved': 'Черновик сохранен в этом браузере. Укажите полное имя и email, чтобы сохранить его в backend.',
+        'create.form.localRestored': 'Несохраненные локальные изменения восстановлены из этого браузера.',
         'create.form.error': 'Не удалось сохранить черновик. Попробуйте ещё раз.',
         'create.completeness.checking': 'Проверяем обязательные поля и документы...',
         'create.completeness.ready': 'Профиль полный для отправки на проверку оператору.',
@@ -2840,6 +2844,7 @@
       let latestCompleteness = null;
       let autosaveTimer = null;
       let autosaveInFlight = false;
+      let autosavePending = false;
 
       const completenessFieldTargets = {
         'S-1.1': ['create-full-name'],
@@ -2993,6 +2998,114 @@
         }
         const storedDraft = window.CPGDrafts.getStoredDraft();
         return storedDraft && typeof storedDraft.draftId === 'string' ? storedDraft.draftId.trim() : '';
+      }
+
+      function localFormStorageKey(draftId) {
+        const normalizedDraftId = typeof draftId === 'string' && draftId.trim()
+          ? draftId.trim()
+          : 'new';
+        return `crewportglobal.createProfile.localDraft.${normalizedDraftId}`;
+      }
+
+      function collectLocalFormSnapshot() {
+        const fields = {};
+        form.querySelectorAll('input, select, textarea').forEach((input) => {
+          if (!input.id || input.type === 'file') {
+            return;
+          }
+          if (input.type === 'checkbox' || input.type === 'radio') {
+            fields[input.id] = input.checked;
+            return;
+          }
+          fields[input.id] = input.value;
+        });
+
+        return {
+          version: 1,
+          draft_id: currentDraftId() || null,
+          saved_at: new Date().toISOString(),
+          fields
+        };
+      }
+
+      function persistLocalFormSnapshot(draftId) {
+        const key = localFormStorageKey(draftId || currentDraftId());
+        try {
+          window.localStorage.setItem(key, JSON.stringify(collectLocalFormSnapshot()));
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      function clearLocalFormSnapshot(draftId) {
+        try {
+          window.localStorage.removeItem(localFormStorageKey(draftId));
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      function readLocalFormSnapshot(draftId) {
+        try {
+          const raw = window.localStorage.getItem(localFormStorageKey(draftId));
+          if (!raw) {
+            return null;
+          }
+          const parsed = JSON.parse(raw);
+          return parsed && typeof parsed === 'object' && parsed.fields && typeof parsed.fields === 'object'
+            ? parsed
+            : null;
+        } catch (error) {
+          console.error(error);
+          return null;
+        }
+      }
+
+      function applyLocalFormSnapshot(snapshot) {
+        if (!snapshot || !snapshot.fields || typeof snapshot.fields !== 'object') {
+          return false;
+        }
+
+        Object.entries(snapshot.fields).forEach((entry) => {
+          const input = document.getElementById(entry[0]);
+          if (!input || input.form !== form || input.type === 'file') {
+            return;
+          }
+          const value = entry[1];
+          if (input.type === 'checkbox' || input.type === 'radio') {
+            input.checked = value === true;
+            return;
+          }
+          input.value = value === null || value === undefined ? '' : String(value);
+        });
+
+        latestCompleteness = null;
+        renderWorkspace();
+        return true;
+      }
+
+      function restoreLocalFormSnapshot(draftId) {
+        const snapshot = readLocalFormSnapshot(draftId);
+        if (!snapshot) {
+          return false;
+        }
+        const restored = applyLocalFormSnapshot(snapshot);
+        if (restored) {
+          status.removeAttribute('data-i18n');
+          status.textContent = t('create.form.localRestored');
+          if (canAutosaveCurrentDraft()) {
+            scheduleAutosave();
+          }
+        }
+        return restored;
+      }
+
+      function persistAfterBackendSave(draftId) {
+        if (typeof draftId !== 'string' || !draftId.trim()) {
+          return;
+        }
+        clearLocalFormSnapshot('new');
+        persistLocalFormSnapshot(draftId.trim());
       }
 
       function parsePreferredVesselTypes(rawValue) {
@@ -3278,10 +3391,10 @@
 
         const salaryValue = salary.value.trim();
         const salaryNumber = salaryValue ? Number(salaryValue) : null;
+        const emailValue = email.value.trim();
 
-        return {
+        const payload = {
           role: 'seafarer',
-          email: email.value.trim(),
           full_name: fullName.value.trim(),
           rank: rank.value.trim(),
           department: department.value,
@@ -3303,6 +3416,12 @@
             seafarer_workspace: collectSeafarerWorkspaceMetadata()
           }
         };
+
+        if (emailValue) {
+          payload.email = emailValue;
+        }
+
+        return payload;
       }
 
       async function saveSeafarerDraft(options) {
@@ -3326,6 +3445,7 @@
 
         if (response && response.draft_id) {
           window.history.replaceState(null, '', `?draft_id=${encodeURIComponent(response.draft_id)}`);
+          persistAfterBackendSave(response.draft_id);
         }
 
         return response;
@@ -4153,14 +4273,23 @@
         }
       }
 
+      function canAutosaveCurrentDraft() {
+        return currentDraftId() || (fullName.value.trim() && email.value.trim());
+      }
+
       function scheduleAutosave() {
         window.clearTimeout(autosaveTimer);
-        if (!fullName.value.trim() || !email.value.trim() || autosaveInFlight) {
+        if (!canAutosaveCurrentDraft()) {
+          return;
+        }
+        if (autosaveInFlight) {
+          autosavePending = true;
           return;
         }
 
         autosaveTimer = window.setTimeout(async () => {
           autosaveInFlight = true;
+          autosavePending = false;
           try {
             const response = await saveSeafarerDraft({ validate: false });
             if (response && response.draft_id) {
@@ -4173,6 +4302,9 @@
             console.error(error);
           } finally {
             autosaveInFlight = false;
+            if (autosavePending) {
+              scheduleAutosave();
+            }
           }
         }, 1000);
       }
@@ -4390,6 +4522,9 @@
         const draftId = getDraftIdFromUrl();
         if (!draftId) {
           const storedDraft = window.CPGDrafts.getStoredDraft();
+          const storedDraftId = storedDraft && typeof storedDraft.draftId === 'string'
+            ? storedDraft.draftId.trim()
+            : '';
           const localProfile = storedDraft
             && storedDraft.lastResponse
             && storedDraft.lastResponse.payload
@@ -4406,16 +4541,22 @@
             renderReviewStatus(localProfile, localOperatorReview || null);
             renderApplicationHistoryFromResponse(storedDraft.lastResponse);
             status.textContent = t('create.form.prefilledLocal');
-            if (storedDraft && typeof storedDraft.draftId === 'string' && storedDraft.draftId.trim()) {
-              await refreshCompleteness(storedDraft.draftId.trim());
+            if (storedDraftId) {
+              await refreshCompleteness(storedDraftId);
             }
+            restoreLocalFormSnapshot(storedDraftId || 'new');
             return;
           }
 
-          if (storedDraft && typeof storedDraft.draftId === 'string' && storedDraft.draftId.trim()) {
+          if (restoreLocalFormSnapshot('new')) {
+            renderApplicationHistory([]);
+            return;
+          }
+
+          if (storedDraftId) {
             status.textContent = t('create.form.loadingDraft');
             try {
-              const fallbackResponse = await window.CPGDrafts.getDraft(storedDraft.draftId.trim());
+              const fallbackResponse = await window.CPGDrafts.getDraft(storedDraftId);
               const fallbackProfile = fallbackResponse && fallbackResponse.payload
                 ? fallbackResponse.payload.seafarer_profile
                 : null;
@@ -4427,13 +4568,16 @@
                 renderReviewStatus(fallbackProfile, fallbackOperatorReview || null);
                 renderApplicationHistoryFromResponse(fallbackResponse);
                 status.textContent = t('create.form.prefilledLocal');
-                await refreshCompleteness(storedDraft.draftId.trim());
+                await refreshCompleteness(storedDraftId);
+                restoreLocalFormSnapshot(storedDraftId);
               }
             } catch (error) {
               status.textContent = t('create.form.loadError');
               console.error(error);
             }
+            return;
           }
+
           return;
         }
 
@@ -4447,6 +4591,7 @@
           renderApplicationHistoryFromResponse(response);
           status.textContent = t('create.form.prefilled');
           await refreshCompleteness(draftId);
+          restoreLocalFormSnapshot(draftId);
         } catch (error) {
           status.textContent = t('create.form.loadError');
           console.error(error);
@@ -4485,6 +4630,7 @@
         }
 
         window.clearTimeout(autosaveTimer);
+        autosavePending = false;
         submit.disabled = true;
         status.textContent = t('create.form.saving');
 
@@ -4552,11 +4698,21 @@
 
       form.querySelectorAll('input, select, textarea').forEach((input) => {
         input.addEventListener('input', () => {
+          persistLocalFormSnapshot();
           renderWorkspace();
+          if (!canAutosaveCurrentDraft()) {
+            status.removeAttribute('data-i18n');
+            status.textContent = t('create.form.localAutosaved');
+          }
           scheduleAutosave();
         });
         input.addEventListener('change', () => {
+          persistLocalFormSnapshot();
           renderWorkspace();
+          if (!canAutosaveCurrentDraft()) {
+            status.removeAttribute('data-i18n');
+            status.textContent = t('create.form.localAutosaved');
+          }
           scheduleAutosave();
         });
       });

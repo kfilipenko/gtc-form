@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: CPG-BIZ-035 Phase 2
-- Version: 1.1
+- Version: 1.3
 - Date: 2026-05-28
 - Status: Implemented and verified on GTC1
 
@@ -27,7 +27,7 @@
 | Missing items | Пользователь видит нумерованные `S-*` пункты из backend ответа, например `S-1.3` или `S-12.D1`. |
 | Field highlighting | Поля и секции, связанные с missing items, подсвечиваются другим цветом. |
 | Section links | Missing item является ссылкой на соответствующую секцию формы. |
-| Autosave | Изменения полей могут сохраняться в фоне после появления валидных имени и email, но не создают review task. |
+| Autosave | Изменения полей сохраняются немедленно в локальный browser snapshot; для существующего `draft_id` или после заполнения имени/email они дополнительно синхронизируются в backend. |
 | Submit boundary | Отдельная отправка оператору в этом этапе не активируется. |
 
 ### 2.1 Исправление перехода по demand-side замечаниям
@@ -46,10 +46,24 @@
 
 4. `/post-vacancy/` подсвечивает поле, указанное в hash, чтобы пользователь сразу видел пункт, требующий доработки.
 
+### 2.2 Исправление сохранения контактов, адресов и незавершенной анкеты
+
+После пользовательской проверки было выявлено, что изменения в разделе `Personal contact and addresses` / `Permanent and registration addresses`, а также любые поля незавершенной анкеты, могли быть потеряны при перезагрузке страницы до завершения backend autosave.
+
+Исправлено:
+
+1. Все обычные поля формы без файлового ввода сохраняются в локальный browser snapshot сразу после изменения.
+2. Если backend draft еще не может быть создан, потому что имя/email не заполнены, введенные данные все равно восстанавливаются после перезагрузки страницы.
+3. Когда появляется `draft_id` или существующий draft открыт по ссылке, восстановленные локальные значения ставятся в очередь backend autosave.
+4. Для уже существующего `draft_id` background autosave больше не зависит от повторного заполнения имени и email в форме.
+5. Пустой email не отправляется в `PATCH /api/v1/registration/drafts/{draft_id}`, поэтому существующий backend email не затирается и не вызывает ошибку валидации.
+6. Если пользователь меняет поле во время уже выполняющегося autosave, форма ставит повторное сохранение в очередь и выполняет его после завершения текущего запроса.
+7. Добавлены регрессионные тесты: локально заполненные поля восстанавливаются до создания backend draft; быстро измененные поля существующего draft восстанавливаются сразу после перезагрузки; контактные и адресные поля доходят до backend и сохраняются после reload.
+
 ## 3. Пользовательский процесс
 
 1. Пользователь заполняет анкету моряка.
-2. Поля могут сохраняться автоматически как draft data.
+2. Поля сохраняются автоматически сначала локально в браузере, затем в backend при наличии `draft_id` или минимальных данных для создания draft.
 3. Пользователь нажимает единственную видимую кнопку `Save / confirm data`.
 4. Система сохраняет draft.
 5. Система запускает backend completeness check.
@@ -63,9 +77,9 @@
 |---|---|
 | `projects/crewportglobal/app/backend/api/lib/questionnaire_schema.php` | Changed demand-side completeness target URLs from generic form anchor to exact field anchors, including `R-4.2 -> #post-salary-min`. |
 | `projects/crewportglobal/public/assets/crewportglobal-registration-drafts.js` | Added `getCompleteness(draftId)` helper for the shared registration draft API client. |
-| `projects/crewportglobal/public/create-profile/index.html` | Connected Save / confirm flow to completeness endpoint, added S-code rendering, section links, field highlighting, hidden section-save controls and background autosave; added cross-page demand-side missing-item navigation. |
+| `projects/crewportglobal/public/create-profile/index.html` | Connected Save / confirm flow to completeness endpoint, added S-code rendering, section links, field highlighting, hidden section-save controls and background autosave; added cross-page demand-side missing-item navigation; fixed existing-draft autosave for contact/address fields; added local browser snapshot restore for unsaved edits before backend draft creation. |
 | `projects/crewportglobal/public/post-vacancy/index.html` | Added hash-target field highlighting for direct demand-side missing-item links. |
-| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regression for one visible Save / confirm action, backend `S-*` missing items, highlighted fields/sections and `R-4.2` cross-page field navigation. |
+| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regressions for one visible Save / confirm action, backend `S-*` missing items, highlighted fields/sections, `R-4.2` cross-page field navigation, local-only draft restore before backend draft creation, immediate restore after reload and contact/address autosave persistence after reload. |
 | `tests/crewportglobal-seafarer-workspace-form.spec.ts` | Updated old section-save assertions to the approved one-button Save / confirm behavior. |
 | `docs/crewportglobal/00_documentation_register.md` | Registered document 228. |
 | `docs/crewportglobal/business_processes/00_business_process_register.md` | Added Phase 2 business-process control for `/create-profile/`. |
@@ -145,7 +159,23 @@ Relevant focused suite after the correction:
 npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-create-profile-prefill.spec.ts tests/crewportglobal-post-vacancy-workspace.spec.ts
 ```
 
-Result: passed, 7 tests.
+Result: passed, 10 tests.
+
+Focused contact/address persistence regression:
+
+```bash
+npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-create-profile-prefill.spec.ts -g "autosaves contact"
+```
+
+Result: passed, 1 test.
+
+Focused local restore regressions:
+
+```bash
+npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-create-profile-prefill.spec.ts -g "local-only|immediately after reload"
+```
+
+Result: passed, 2 tests.
 
 The focused suite confirms:
 
@@ -157,8 +187,11 @@ The focused suite confirms:
 6. `R-4.2` demand-side missing item opens `/post-vacancy/?draft_id=...#post-salary-min`;
 7. `/post-vacancy/` highlights the target salary minimum field;
 8. existing draft prefill and patch flow still work;
-9. extended seafarer workspace fields still persist through save/reload;
-10. cabinet seafarer completeness tasks still derive from partial structured workspace.
+9. contact and address edits autosave on an existing `draft_id` and remain after page reload;
+10. fields entered before backend draft creation are restored from local browser storage after reload;
+11. quickly edited existing-draft fields are restored immediately after reload and then synced to backend;
+12. extended seafarer workspace fields still persist through save/reload;
+13. cabinet seafarer completeness tasks still derive from partial structured workspace.
 
 ## 7. Следующий этап
 
