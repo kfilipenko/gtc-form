@@ -11,6 +11,7 @@ WITH ui_users AS (
      OR email LIKE 'ui.correction.%@example.com'
      OR email LIKE 'ui.apphistory.%@example.com'
      OR email LIKE 'ui.completeness.%@example.com'
+     OR email LIKE 'ui.demandlink.%@example.com'
 ),
 ui_vacancies AS (
   SELECT vacancy_request_id
@@ -29,6 +30,7 @@ WITH ui_users AS (
      OR email LIKE 'ui.correction.%@example.com'
      OR email LIKE 'ui.apphistory.%@example.com'
      OR email LIKE 'ui.completeness.%@example.com'
+     OR email LIKE 'ui.demandlink.%@example.com'
 )
 UPDATE crewportglobal.seafarer_profiles sp
 SET review_status = 'rejected', updated_at = now()
@@ -40,6 +42,7 @@ WITH ui_users AS (
   SELECT user_id
   FROM crewportglobal.users
   WHERE email LIKE 'ui.apphistory.%@example.com'
+     OR email LIKE 'ui.demandlink.%@example.com'
 )
 UPDATE crewportglobal.vacancy_requests vr
 SET publication_status = 'closed', updated_at = now()
@@ -51,6 +54,7 @@ WITH ui_users AS (
   SELECT user_id
   FROM crewportglobal.users
   WHERE email LIKE 'ui.apphistory.%@example.com'
+     OR email LIKE 'ui.demandlink.%@example.com'
 ),
 ui_companies AS (
   SELECT DISTINCT cu.company_id
@@ -190,6 +194,48 @@ test('create profile save confirm renders backend S-code missing items and highl
 
   await page.locator('#create-missing-list a', { hasText: 'S-12.D1' }).click();
   await expect(page).toHaveURL(/#profile-section-documents$/);
+});
+
+test('create profile demand completeness link opens exact post vacancy salary field', async ({ page, request }) => {
+  const unique = Date.now();
+  const email = `ui.demandlink.${unique}@example.com`;
+
+  const createResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'employer',
+      role_in_company: 'manager',
+      email,
+      full_name: 'Demand Link Employer',
+      company_name: `Demand Link Marine ${unique}`,
+      country_code: 'SG',
+      registration_number: `SG-DEMAND-LINK-${unique}`,
+      vessel: {
+        vessel_type: 'Bulk Carrier',
+      },
+      vacancy: {
+        vacancy_title: 'Demand Link Chief Officer',
+        rank: 'Chief Officer',
+        department: 'deck',
+        vessel_type: 'Bulk Carrier',
+        join_date: '2026-08-15',
+        contract_duration: '4 months +/- 1',
+        salary_max_usd: 7200,
+        currency: 'USD',
+        employer_country_code: 'SG',
+        requirements: 'Demand link test request with salary minimum intentionally missing.',
+      },
+    },
+  });
+  expect(createResponse.ok()).toBeTruthy();
+  const created = (await createResponse.json()) as { draft_id: string };
+
+  await page.goto(`/create-profile/?draft_id=${created.draft_id}`);
+  await expect(page.locator('#create-missing-list')).toContainText('R-4.2: Salary minimum');
+
+  await page.locator('#create-missing-list a', { hasText: 'R-4.2' }).click();
+  await expect(page).toHaveURL(new RegExp(`/post-vacancy/\\?draft_id=${created.draft_id}#post-salary-min$`));
+  await expect(page.locator('#post-salary-min')).toBeVisible();
+  await expect(page.locator('label:has(#post-salary-min)')).toHaveClass(/is-completeness-target/);
 });
 
 test('create profile prefill falls back to local draft when draft_id is missing', async ({ page }) => {

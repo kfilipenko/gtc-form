@@ -164,25 +164,25 @@ function cpg_questionnaire_mandatory_fields(): array {
             'visibility_class' => 'operator_review',
         ]),
 
-        cpg_questionnaire_field('E-1.1', 'account_contact_email', 'E', 'Work email', true, false, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('E-1.1', 'account_contact_email', 'E', 'Work email', true, false, '/post-vacancy/#post-email', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('E-1.2', 'person_or_contact_name', 'E', 'Primary contact name', true, false, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('E-1.2', 'person_or_contact_name', 'E', 'Primary contact name', true, false, '/post-vacancy/#post-full-name', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('E-1.3', 'employer_role', 'E', 'Employer role', true, false, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('E-1.3', 'employer_role', 'E', 'Employer role', true, false, '/post-vacancy/#post-role', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('E-2.1', 'company_identity', 'E', 'Company name', true, false, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('E-2.1', 'company_identity', 'E', 'Company name', true, false, '/post-vacancy/#post-company', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('E-2.2', 'company_identity', 'E', 'Company country', true, false, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('E-2.2', 'company_identity', 'E', 'Company country', true, false, '/post-vacancy/#post-country', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('E-2.3', 'company_identity', 'E', 'Company registration number', true, false, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('E-2.3', 'company_identity', 'E', 'Company registration number', true, false, '/post-vacancy/#post-registration-number', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('E-3.1', 'representative_authority', 'E', 'Role in company', true, false, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('E-3.1', 'representative_authority', 'E', 'Role in company', true, false, '/post-vacancy/#post-role-in-company', [
             'visibility_class' => 'operator_review',
         ]),
         cpg_questionnaire_field('E-4.D1', 'representative_authority', 'E', 'Company registration document', true, false, '/post-vacancy/#post-document-upload-title', [
@@ -202,18 +202,18 @@ function cpg_questionnaire_mandatory_fields(): array {
             'visibility_class' => 'operator_review',
         ]),
 
-        cpg_questionnaire_field('V-1.1', 'vessel_identity', 'V', 'Vessel name', false, false, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('V-1.1', 'vessel_identity', 'V', 'Vessel name', false, false, '/post-vacancy/#post-vessel-name', [
             'conditional_required' => 'exact_vessel_is_known',
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('V-1.2', 'vessel_identity', 'V', 'IMO number', false, false, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('V-1.2', 'vessel_identity', 'V', 'IMO number', false, false, '/post-vacancy/#post-imo', [
             'conditional_required' => 'exact_vessel_is_known',
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('V-2.1', 'vessel_type', 'V', 'Vessel type', true, true, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('V-2.1', 'vessel_type', 'V', 'Vessel type', true, true, '/post-vacancy/#post-vessel-type', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('V-2.2', 'flag_country', 'V', 'Flag country', false, true, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('V-2.2', 'flag_country', 'V', 'Flag country', false, true, '/post-vacancy/#post-country', [
             'implementation_status' => 'target_gap',
             'conditional_required' => 'exact_vessel_is_known_or_flag_constraint_is_used',
             'visibility_class' => 'operator_review',
@@ -225,28 +225,28 @@ function cpg_questionnaire_mandatory_fields(): array {
             'visibility_class' => 'operator_review',
         ]),
 
-        cpg_questionnaire_field('R-1.1', 'rank', 'R', 'Requested rank', true, true, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('R-1.1', 'rank', 'R', 'Requested rank', true, true, '/post-vacancy/#post-vacancy-title', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('R-1.2', 'department', 'R', 'Requested department', true, true, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('R-1.2', 'department', 'R', 'Requested department', true, true, '/post-vacancy/#post-department', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('R-2.1', 'vessel_type', 'R', 'Request vessel type', true, true, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('R-2.1', 'vessel_type', 'R', 'Request vessel type', true, true, '/post-vacancy/#post-vessel-type', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('R-3.1', 'availability_or_joining_date', 'R', 'Joining date', true, true, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('R-3.1', 'availability_or_joining_date', 'R', 'Joining date', true, true, '/post-vacancy/#post-join-date', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('R-4.1', 'crew_request_terms', 'R', 'Contract duration', true, false, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('R-4.1', 'crew_request_terms', 'R', 'Contract duration', true, false, '/post-vacancy/#post-duration', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('R-4.2', 'salary', 'R', 'Salary minimum', true, true, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('R-4.2', 'salary', 'R', 'Salary minimum', true, true, '/post-vacancy/#post-salary-min', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('R-4.3', 'salary', 'R', 'Salary maximum', true, true, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('R-4.3', 'salary', 'R', 'Salary maximum', true, true, '/post-vacancy/#post-salary-max', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('R-4.4', 'salary', 'R', 'Currency', true, true, '/post-vacancy/#post-vacancy-form', [
+        cpg_questionnaire_field('R-4.4', 'salary', 'R', 'Currency', true, true, '/post-vacancy/#post-salary-min', [
             'visibility_class' => 'operator_review',
         ]),
         cpg_questionnaire_field('R-5.1', 'coc', 'R', 'COC requirement', false, true, '/post-vacancy/#post-vacancy-form', [
@@ -375,7 +375,7 @@ function cpg_questionnaire_schema_validation_errors(): array {
         }
     }
 
-    foreach (['/create-profile/#profile-section-cv', '/post-vacancy/#post-vacancy-form'] as $requiredUrl) {
+    foreach (['/create-profile/#profile-section-cv', '/post-vacancy/#post-salary-min'] as $requiredUrl) {
         if (!isset($targetUrls[$requiredUrl])) {
             $errors[] = "schema: missing target_url {$requiredUrl}";
         }
@@ -383,4 +383,3 @@ function cpg_questionnaire_schema_validation_errors(): array {
 
     return $errors;
 }
-

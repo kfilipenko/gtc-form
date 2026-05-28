@@ -4048,9 +4048,32 @@
         return draftId ? `/create-profile/?draft_id=${encodeURIComponent(draftId)}` : '/create-profile/';
       }
 
+      function targetPathForMissingItem(item) {
+        const targetUrl = item && typeof item.target_url === 'string' ? item.target_url : '';
+        return targetUrl.startsWith('/post-vacancy/') ? '/post-vacancy/' : '/create-profile/';
+      }
+
+      function pathWithDraftId(path) {
+        const draftId = currentDraftId();
+        return draftId ? `${path}?draft_id=${encodeURIComponent(draftId)}` : path;
+      }
+
       function hrefForMissingItem(item) {
         const sectionId = sectionIdForMissingItem(item);
-        return `${currentCreateProfilePath()}${sectionId ? `#${encodeURIComponent(sectionId)}` : ''}`;
+        const targetPath = targetPathForMissingItem(item);
+        const basePath = targetPath === '/create-profile/' ? currentCreateProfilePath() : pathWithDraftId(targetPath);
+        return `${basePath}${sectionId ? `#${encodeURIComponent(sectionId)}` : ''}`;
+      }
+
+      function isCurrentPageHref(href) {
+        try {
+          const target = new URL(href, window.location.origin);
+          const currentPath = window.location.pathname.replace(/\/$/, '');
+          const targetPath = target.pathname.replace(/\/$/, '');
+          return currentPath === targetPath;
+        } catch (error) {
+          return true;
+        }
       }
 
       function labelForMissingItem(item) {
@@ -4211,13 +4234,17 @@
           backendMissing.forEach((entry) => {
             const item = document.createElement('li');
             const link = document.createElement('a');
-            link.href = hrefForMissingItem(entry);
+            const href = hrefForMissingItem(entry);
+            link.href = href;
             link.textContent = labelForMissingItem(entry);
             link.addEventListener('click', (event) => {
+              if (!isCurrentPageHref(href)) {
+                return;
+              }
               event.preventDefault();
               const sectionId = sectionIdForMissingItem(entry);
               if (sectionId) {
-                window.history.replaceState(null, '', hrefForMissingItem(entry));
+                window.history.replaceState(null, '', href);
                 openProfileSection(sectionId);
               }
             });

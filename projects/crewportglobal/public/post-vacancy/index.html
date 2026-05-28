@@ -85,6 +85,18 @@
       background: rgba(255, 255, 255, 0.04);
     }
 
+    .field-card.is-completeness-target {
+      border-color: rgba(255, 139, 51, 0.9);
+      background: rgba(255, 139, 51, 0.12);
+      box-shadow: 0 0 0 2px rgba(255, 139, 51, 0.18);
+    }
+
+    .field-card.is-completeness-target input,
+    .field-card.is-completeness-target select,
+    .field-card.is-completeness-target textarea {
+      border-color: rgba(255, 139, 51, 0.95);
+    }
+
     .field-card.full {
       grid-column: 1 / -1;
     }
@@ -1023,6 +1035,28 @@
         }
       }
 
+      function highlightTargetFieldFromHash() {
+        document.querySelectorAll('.is-completeness-target').forEach((element) => {
+          element.classList.remove('is-completeness-target');
+        });
+        const targetId = window.location.hash ? decodeURIComponent(window.location.hash.slice(1)) : '';
+        if (!targetId) {
+          return;
+        }
+        const target = document.getElementById(targetId);
+        const card = target ? target.closest('.field-card') : null;
+        if (!target || !card) {
+          return;
+        }
+        card.classList.add('is-completeness-target');
+        window.setTimeout(() => {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (typeof target.focus === 'function') {
+            target.focus({ preventScroll: true });
+          }
+        }, 120);
+      }
+
       function valueOrDash(value) {
         return value === null || value === undefined || String(value).trim() === '' ? '-' : String(value);
       }
@@ -1602,10 +1636,12 @@
         renderWorkspaceStatus(currentWorkspaceResponse);
         refreshUploadedDocuments();
       });
+      window.addEventListener('hashchange', highlightTargetFieldFromHash);
 
       renderWorkspaceStatus(null);
       loadExistingDraft().finally(() => {
         refreshUploadedDocuments();
+        highlightTargetFieldFromHash();
       });
     })();
   </script>

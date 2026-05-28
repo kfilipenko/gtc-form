@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: CPG-BIZ-035 Phase 2
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-05-28
 - Status: Implemented and verified on GTC1
 
@@ -30,6 +30,22 @@
 | Autosave | Изменения полей могут сохраняться в фоне после появления валидных имени и email, но не создают review task. |
 | Submit boundary | Отдельная отправка оператору в этом этапе не активируется. |
 
+### 2.1 Исправление перехода по demand-side замечаниям
+
+После визуальной проверки было выявлено, что demand-side замечание `R-4.2: Salary minimum`, показанное на `/create-profile/` для employer/demand draft, не переводило пользователя к соответствующему полю заявки судовладельца.
+
+Исправлено:
+
+1. `E-*`, `V-*` и `R-*` поля в questionnaire schema теперь имеют точные `target_url` на конкретные поля `/post-vacancy/`.
+2. `/create-profile/` различает локальные `S-*` ссылки и demand-side ссылки на `/post-vacancy/`.
+3. При переходе по `R-4.2` открывается:
+
+```text
+/post-vacancy/?draft_id=...#post-salary-min
+```
+
+4. `/post-vacancy/` подсвечивает поле, указанное в hash, чтобы пользователь сразу видел пункт, требующий доработки.
+
 ## 3. Пользовательский процесс
 
 1. Пользователь заполняет анкету моряка.
@@ -45,9 +61,11 @@
 
 | File | Change |
 |---|---|
+| `projects/crewportglobal/app/backend/api/lib/questionnaire_schema.php` | Changed demand-side completeness target URLs from generic form anchor to exact field anchors, including `R-4.2 -> #post-salary-min`. |
 | `projects/crewportglobal/public/assets/crewportglobal-registration-drafts.js` | Added `getCompleteness(draftId)` helper for the shared registration draft API client. |
-| `projects/crewportglobal/public/create-profile/index.html` | Connected Save / confirm flow to completeness endpoint, added S-code rendering, section links, field highlighting, hidden section-save controls and background autosave. |
-| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regression for one visible Save / confirm action, backend `S-*` missing items and highlighted fields/sections. |
+| `projects/crewportglobal/public/create-profile/index.html` | Connected Save / confirm flow to completeness endpoint, added S-code rendering, section links, field highlighting, hidden section-save controls and background autosave; added cross-page demand-side missing-item navigation. |
+| `projects/crewportglobal/public/post-vacancy/index.html` | Added hash-target field highlighting for direct demand-side missing-item links. |
+| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regression for one visible Save / confirm action, backend `S-*` missing items, highlighted fields/sections and `R-4.2` cross-page field navigation. |
 | `tests/crewportglobal-seafarer-workspace-form.spec.ts` | Updated old section-save assertions to the approved one-button Save / confirm behavior. |
 | `docs/crewportglobal/00_documentation_register.md` | Registered document 228. |
 | `docs/crewportglobal/business_processes/00_business_process_register.md` | Added Phase 2 business-process control for `/create-profile/`. |
@@ -82,6 +100,29 @@ NODE
 
 Result: passed, checked 2 inline scripts.
 
+Additional syntax and schema checks after demand-link correction:
+
+```bash
+php -l projects/crewportglobal/app/backend/api/lib/questionnaire_schema.php
+php projects/crewportglobal/app/backend/api/tests/questionnaire_schema_test.php
+```
+
+Result: passed.
+
+```bash
+node - <<'NODE'
+const fs = require('fs');
+for (const file of ['projects/crewportglobal/public/create-profile/index.html', 'projects/crewportglobal/public/post-vacancy/index.html']) {
+  const html = fs.readFileSync(file, 'utf8');
+  const scripts = Array.from(html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)).map((match) => match[1]).filter((script) => script.trim());
+  scripts.forEach((script) => new Function(script));
+  console.log(`${file}: checked ${scripts.length} inline script(s)`);
+}
+NODE
+```
+
+Result: passed, checked 2 inline scripts per page.
+
 Focused Playwright verification:
 
 ```bash
@@ -90,6 +131,22 @@ npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-
 
 Result: passed, 8 tests.
 
+Focused demand-link regression:
+
+```bash
+npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-create-profile-prefill.spec.ts -g "demand completeness link"
+```
+
+Result: passed, 1 test.
+
+Relevant focused suite after the correction:
+
+```bash
+npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-create-profile-prefill.spec.ts tests/crewportglobal-post-vacancy-workspace.spec.ts
+```
+
+Result: passed, 7 tests.
+
 The focused suite confirms:
 
 1. `/create-profile/` keeps one visible `Save / confirm data` action for draft confirmation;
@@ -97,9 +154,11 @@ The focused suite confirms:
 3. backend `S-*` missing items are rendered after save;
 4. missing fields and document sections are highlighted;
 5. `S-*` missing item links open the exact form section;
-6. existing draft prefill and patch flow still work;
-7. extended seafarer workspace fields still persist through save/reload;
-8. cabinet seafarer completeness tasks still derive from partial structured workspace.
+6. `R-4.2` demand-side missing item opens `/post-vacancy/?draft_id=...#post-salary-min`;
+7. `/post-vacancy/` highlights the target salary minimum field;
+8. existing draft prefill and patch flow still work;
+9. extended seafarer workspace fields still persist through save/reload;
+10. cabinet seafarer completeness tasks still derive from partial structured workspace.
 
 ## 7. Следующий этап
 
