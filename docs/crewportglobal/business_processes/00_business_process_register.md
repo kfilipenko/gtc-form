@@ -125,6 +125,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.7 | 2026-05-28 | GTC IT / AI Assistant | Added verified post-action completion feedback as a control in BP-012 and BP-013, requiring review workspaces to show recorded operation, object, result and task recomputation guidance |
 | 1.6 | 2026-05-27 | GTC IT / AI Assistant | Replaced the group-queue-only assignment boundary with the verified active historical executor or group queue computed assignment rule |
 | 1.5 | 2026-05-27 | GTC IT / AI Assistant | Added the verified group-queue assignment boundary and recorded personal task assignment as the next controlled implementation stage |
 | 1.4 | 2026-05-27 | GTC IT / AI Assistant | Added role-based computed task execution verification as a core control, covering review-team operational tasks and owner/control-only deletion confirmation |

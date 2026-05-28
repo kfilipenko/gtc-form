@@ -303,6 +303,7 @@ docs/crewportglobal/
   214_cpg_biz_025_employer_vessel_demand_task_execution_data_scope_report.md
   215_cpg_biz_026_review_workspace_payload_secondary_action_minimization_report.md
   216_cpg_biz_027_review_workspace_primary_operation_guidance_report.md
+  217_cpg_biz_028_review_workspace_completion_feedback_transition_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -734,6 +735,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.97 | 2026-05-28 | GTC IT / AI Assistant | Added document 217 for CPG-BIZ-028 covering review workspace object-specific post-action feedback, task recomputation wording, return-to-team guidance and focused/full operator queue verification |
 | 1.96 | 2026-05-28 | GTC IT / AI Assistant | Added document 216 for CPG-BIZ-027 covering review workspace primary operation wording, business-process stage, visibility reason, completion condition and focused/full operator queue verification |
 | 1.95 | 2026-05-28 | GTC IT / AI Assistant | Added document 215 for CPG-BIZ-026 covering review workspace raw/debug payload minimization, secondary-action disclosure, focused/full operator queue verification and next process-alignment step |
 | 1.94 | 2026-05-28 | GTC IT / AI Assistant | Added document 214 for CPG-BIZ-025 covering employer, vessel and vacancy demand-side task execution, data-scope verification, company verification audit context and candidate contact exclusion checks |

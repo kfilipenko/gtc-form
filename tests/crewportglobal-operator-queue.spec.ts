@@ -720,6 +720,9 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
     await openWorkspaceSecondaryActions(page);
     await page.locator('.workspace-actions-section').locator('.queue-decision[data-decision="reviewed"]').click();
     await expect(page.locator('#queue-status')).toContainText('verified');
+    await expect(page.locator('#review-note-feedback')).toContainText('Operation recorded: Review company verification.');
+    await expect(page.locator('#review-note-feedback')).toContainText('Object: (Company:');
+    await expect(page.locator('#review-note-feedback')).toContainText('Return to Team tasks to see the recalculated queue.');
     await expect(page.locator('#latest-review-note')).toContainText(companyNote);
   }
 
@@ -809,12 +812,15 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await page.locator('#review-target').selectOption('QUAL-003');
   await page.locator('.review-card-action[data-card-decision="start_review"]').click();
   await expect(page.locator('#review-note-feedback')).toContainText('QUAL-003 Certificate of competence -> under_review');
+  await expect(page.locator('#review-note-feedback')).toContainText('Continue reviewing required source cards');
   await expect(page.locator('#details-sections')).toContainText('review: under_review');
 
   await page.locator('#review-note').fill(note);
   await openWorkspaceSecondaryActions(page);
   await workspaceActions.locator('.queue-decision[data-decision="needs_correction"]').click();
   await expect(page.locator('#queue-status')).toContainText('rejected');
+  await expect(page.locator('#review-note-feedback')).toContainText('Operation recorded: Review seafarer profile completeness.');
+  await expect(page.locator('#review-note-feedback')).toContainText('The task list is recomputed from the current object state');
   await expect(page.locator('#latest-review-note')).toContainText(note);
   await expect(page.locator('#latest-review-note')).toContainText('QUAL-003 Certificate of competence');
   await expect(page.locator('#review-history-list')).toContainText('needs_correction');

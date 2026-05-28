@@ -823,6 +823,12 @@
         'verify.workspaceTask.object': 'Working object',
         'verify.workspaceTask.visibility': 'Why this task is visible',
         'verify.workspaceTask.completion': 'Completion condition',
+        'verify.postAction.result': 'Operation recorded: {operation}. Result: {result}.',
+        'verify.postAction.object': 'Object: {object}',
+        'verify.postAction.recompute': 'The task list is recomputed from the current object state; this task remains visible only while its visibility condition still applies.',
+        'verify.postAction.returnTeam': 'Return to Team tasks to see the recalculated queue.',
+        'verify.postAction.cardNext': 'Continue reviewing required source cards or return to Team tasks after blockers are resolved.',
+        'verify.postAction.deletionNext': 'Next computed task: manager deletion confirmation. Responsible group: owners.',
         'verify.taskTitle.seafarerProfile': 'Review seafarer profile completeness.',
         'verify.taskTitle.companyVerification': 'Review company verification.',
         'verify.taskTitle.crewRequest': 'Review crew request completeness.',
@@ -1134,6 +1140,12 @@
         'verify.workspaceTask.object': 'Объект работы',
         'verify.workspaceTask.visibility': 'Почему задача видима',
         'verify.workspaceTask.completion': 'Условие завершения',
+        'verify.postAction.result': 'Операция записана: {operation}. Результат: {result}.',
+        'verify.postAction.object': 'Объект: {object}',
+        'verify.postAction.recompute': 'Список задач пересчитывается по текущему состоянию объекта; эта задача видима только пока действует условие ее отображения.',
+        'verify.postAction.returnTeam': 'Вернитесь в задачи команды, чтобы увидеть пересчитанную очередь.',
+        'verify.postAction.cardNext': 'Продолжайте проверку обязательных source cards или вернитесь в задачи команды после закрытия blockers.',
+        'verify.postAction.deletionNext': 'Следующая вычисленная задача: подтверждение удаления менеджером. Ответственная группа: owners.',
         'verify.taskTitle.seafarerProfile': 'Проверить полноту профиля моряка.',
         'verify.taskTitle.companyVerification': 'Проверить компанию работодателя.',
         'verify.taskTitle.crewRequest': 'Проверить полноту заявки на экипаж.',
@@ -1512,6 +1524,42 @@
         link.textContent = t('verify.task.returnToTeam');
         link.hidden = !activeTaskTarget;
         return link;
+      }
+
+      function postActionObjectText(item) {
+        if (!item || typeof item !== 'object') {
+          return '-';
+        }
+        return t('verify.taskDescription', {
+          objectType: t(queueObjectTypeKey(item)),
+          summary: queueObjectSummary(item),
+        });
+      }
+
+      function postActionFeedbackText(item, operationLabel, resultStatus, options) {
+        const settings = options && typeof options === 'object' ? options : {};
+        const lines = [
+          t('verify.postAction.result', {
+            operation: operationLabel || '-',
+            result: resultStatus || '-',
+          }),
+          t('verify.postAction.object', {
+            object: postActionObjectText(item),
+          }),
+        ];
+        if (settings.nextKey) {
+          lines.push(t(settings.nextKey));
+        }
+        lines.push(t('verify.postAction.recompute'));
+        if (activeTaskTarget) {
+          lines.push(t('verify.postAction.returnTeam'));
+        }
+        return lines.join(' ');
+      }
+
+      function appendPostActionFeedback(existingText, item, operationLabel, resultStatus, options) {
+        const feedback = postActionFeedbackText(item, operationLabel, resultStatus, options);
+        return [existingText, feedback].filter((line) => line && String(line).trim() !== '').join(' ');
       }
 
       function queueTargetId(item) {
@@ -4337,7 +4385,14 @@
 
           const target = typeof payload.card_name === 'string' ? payload.card_name : cardCode;
           const reviewStatus = typeof payload.review_status === 'string' ? payload.review_status : decision;
-          reviewNoteFeedback.textContent = t('verify.card.saved', { target, status: reviewStatus });
+          const cardSavedText = t('verify.card.saved', { target, status: reviewStatus });
+          reviewNoteFeedback.textContent = appendPostActionFeedback(
+            cardSavedText,
+            currentQueueItemContext,
+            currentQueueItemContext ? t(queueTaskTitleKey(currentQueueItemContext)) : t('verify.card.start'),
+            reviewStatus,
+            { nextKey: 'verify.postAction.cardNext' }
+          );
           await loadDraftDetails(draftId);
           status.textContent = t('verify.card.saved', { target, status: reviewStatus });
         } catch (error) {
@@ -4397,20 +4452,38 @@
           }
 
           hideAccessPanel();
-          status.textContent = t('verify.action.saved', { decision: payload.new_status || decision });
+          const resultStatus = payload.new_status || decision;
+          const operationLabel = currentQueueItemContext
+            ? t(queueTaskTitleKey(currentQueueItemContext))
+            : t('verify.action.saved', { decision: resultStatus });
+          status.textContent = t('verify.action.saved', { decision: resultStatus });
+          let savedNoteText = '';
           if (typeof payload.review_note === 'string' && payload.review_note.trim() !== '') {
             const target = typeof payload.correction_card_name === 'string' ? payload.correction_card_name.trim() : '';
-            reviewNoteFeedback.textContent = target
+            savedNoteText = target
               ? t('verify.note.savedWithTarget', { target, note: payload.review_note.trim() })
               : t('verify.note.saved', { note: payload.review_note.trim() });
             setLatestReviewNote(payload.review_note.trim(), target);
           } else {
-            reviewNoteFeedback.textContent = '';
             setLatestReviewNote('');
+          }
+          reviewNoteFeedback.textContent = appendPostActionFeedback(
+            savedNoteText,
+            currentQueueItemContext,
+            operationLabel,
+            resultStatus
+          );
+          if (activeTaskTarget) {
+            recordTeamTaskFeedback(
+              activeTaskTarget.taskOperation || `review_${queueType || 'queue_item'}`,
+              resultStatus,
+              '',
+              payload
+            );
           }
           await loadQueue();
           await loadQueueItemDetails(draftId, queueType);
-          status.textContent = t('verify.action.saved', { decision: payload.new_status || decision });
+          status.textContent = t('verify.action.saved', { decision: resultStatus });
         } catch (error) {
           status.textContent = t('verify.action.error');
           console.error(error);
@@ -4445,7 +4518,13 @@
           }
 
           hideAccessPanel();
-          reviewNoteFeedback.textContent = t('verify.action.deleteSaved');
+          reviewNoteFeedback.textContent = appendPostActionFeedback(
+            t('verify.action.deleteSaved'),
+            currentQueueItemContext,
+            t('verify.action.deleteRequest'),
+            'pending_manager_confirmation',
+            { nextKey: 'verify.postAction.deletionNext' }
+          );
           await loadQueue();
           status.textContent = t('verify.action.deleteSaved');
         } catch (error) {
