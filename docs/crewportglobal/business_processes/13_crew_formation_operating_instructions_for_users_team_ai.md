@@ -563,6 +563,7 @@ Review outcomes should be recorded inside the review workspace.
 | Rejected | The item cannot proceed in current workflow | Manager/control or closure task computes. |
 | Hold | More information is needed or external response is pending | Follow-up task computes. |
 | Request deletion | Secondary controlled action | Manager confirmation task computes. |
+| Internal review workspace disclosure | Review outcomes and secondary actions are available only after opening the workspace | User reviews the object context first, then opens the disclosure when a review result or controlled secondary action is required. |
 
 ## 20. Escalation Rules
 

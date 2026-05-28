@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.94
+- Version: 1.95
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -301,6 +301,7 @@ docs/crewportglobal/
   212_cpg_biz_023_remaining_object_task_link_execution_report.md
   213_cpg_biz_024_supply_side_task_execution_data_scope_report.md
   214_cpg_biz_025_employer_vessel_demand_task_execution_data_scope_report.md
+  215_cpg_biz_026_review_workspace_payload_secondary_action_minimization_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -732,6 +733,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.95 | 2026-05-28 | GTC IT / AI Assistant | Added document 215 for CPG-BIZ-026 covering review workspace raw/debug payload minimization, secondary-action disclosure, focused/full operator queue verification and next process-alignment step |
 | 1.94 | 2026-05-28 | GTC IT / AI Assistant | Added document 214 for CPG-BIZ-025 covering employer, vessel and vacancy demand-side task execution, data-scope verification, company verification audit context and candidate contact exclusion checks |
 | 1.93 | 2026-05-28 | GTC IT / AI Assistant | Added document 213 for CPG-BIZ-024 covering supply-side computed task execution, seafarer workspace deep link verification, restricted data-scope checks, restricted medical denial and audit actor-context verification |
 | 1.92 | 2026-05-27 | GTC IT / AI Assistant | Added document 212 for CPG-BIZ-023 covering remaining computed task link execution for seafarer profile and company verification tasks, verification-team workbench access, exact workspace links and focused operator queue regression results |
