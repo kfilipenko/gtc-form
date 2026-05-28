@@ -368,7 +368,7 @@
             <label for="team-email">Email</label>
             <input id="team-email" name="email" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="name@example.com" required>
           </div>
-          <p class="team-note">Access is granted through owners or cpg_team group membership.</p>
+          <p class="team-note">Access is granted through approved operational group membership.</p>
 
           <div class="team-actions">
             <button class="team-button" type="button" id="request-code">Send code</button>
@@ -549,6 +549,12 @@
       if (operation === 'review_candidate_presentation') {
         return 'Approve candidate for employer presentation.';
       }
+      if (operation === 'review_seafarer_profile_completeness') {
+        return 'Review seafarer profile completeness.';
+      }
+      if (operation === 'review_company_verification') {
+        return 'Review company verification.';
+      }
       if (operation === 'confirm_vacancy_deletion') {
         return 'Confirm deletion request.';
       }
@@ -569,6 +575,12 @@
       }
       if (operation === 'review_candidate_presentation' || type === 'candidate_presentation_review') {
         return 'Candidate presentation';
+      }
+      if (operation === 'review_seafarer_profile_completeness' || type === 'seafarer_supply_review') {
+        return 'Seafarer profile';
+      }
+      if (operation === 'review_company_verification' || type === 'company_authority_review') {
+        return 'Company';
       }
       if (operation === 'confirm_vacancy_deletion' || operation === 'reject_vacancy_deletion' || type === 'vacancy_deletion_confirmation') {
         return 'Deletion request';
@@ -601,6 +613,12 @@
       }
       if (operation === 'review_candidate_presentation') {
         return 'Employer-facing candidate presentation review';
+      }
+      if (operation === 'review_seafarer_profile_completeness') {
+        return 'Seafarer supply readiness review';
+      }
+      if (operation === 'review_company_verification') {
+        return 'Employer and authority setup';
       }
       if (operation === 'confirm_vacancy_deletion' || operation === 'reject_vacancy_deletion') {
         return 'Controlled deletion confirmation';

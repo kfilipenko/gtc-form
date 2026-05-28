@@ -243,6 +243,48 @@ VALUES (
   return sessionId;
 }
 
+function createVerificationTeamAdminSession(userId: string): string | null {
+  if (!accessControlTablesReady()) {
+    return null;
+  }
+
+  const safeUserId = userId.replace(/'/g, "''");
+  const sessionId = randomUUID();
+  runPsql(`
+WITH target_group AS (
+  SELECT group_id
+  FROM crewportglobal.access_groups
+  WHERE group_code = 'verification_team'
+    AND is_active = TRUE
+  LIMIT 1
+),
+target_user AS (
+  SELECT '${safeUserId}'::uuid AS user_id
+)
+INSERT INTO crewportglobal.access_group_members (group_id, user_id, reason)
+SELECT target_group.group_id, target_user.user_id, 'playwright verification team task-link test'
+FROM target_group, target_user
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM crewportglobal.access_group_members existing
+  WHERE existing.group_id = target_group.group_id
+    AND existing.user_id = target_user.user_id
+    AND existing.membership_state = 'active'
+);
+
+INSERT INTO crewportglobal.admin_sessions (admin_session_id, user_id, expires_at, ip_address, user_agent)
+VALUES (
+  '${sessionId}'::uuid,
+  '${safeUserId}'::uuid,
+  now() + interval '30 minutes',
+  '127.0.0.1',
+  'playwright-verification-team-session'
+);
+`);
+
+  return sessionId;
+}
+
 function createOwnerAdminSession(userId: string): string | null {
   if (!accessControlTablesReady()) {
     return null;
@@ -445,9 +487,12 @@ FROM profile, rank_value, vessel_type_value;
   );
 }
 
-test('operator queue page renders submitted drafts from API', async ({ page, request }) => {
+test('operator queue page renders submitted drafts from API', async ({ page, request, baseURL }) => {
+  test.setTimeout(120_000);
+
   const unique = Date.now();
   const seafarerEmail = `ui.queue.seafarer.${unique}@example.com`;
+  const employerEmail = `ui.queue.verification.employer.${unique}@example.com`;
 
   const createResponse = await request.post('/api/v1/registration/drafts', {
     data: {
@@ -496,6 +541,92 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
     },
   });
   expect(createResponse.ok()).toBeTruthy();
+  const seafarer = await createResponse.json();
+
+  const employerCreate = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'employer',
+      role_in_company: 'crew_manager',
+      email: employerEmail,
+      full_name: 'Verification Queue Employer',
+      company_name: `Verification Queue Marine ${unique}`,
+      country_code: 'AE',
+      registration_number: `VQ-${unique}`,
+    },
+  });
+  expect(employerCreate.ok()).toBeTruthy();
+  const employer = await employerCreate.json();
+
+  const verificationTeamSession = createVerificationTeamAdminSession(seafarer.draft_id);
+  if (verificationTeamSession && baseURL) {
+    const teamRequest = await playwrightRequest.newContext({
+      baseURL,
+      extraHTTPHeaders: {
+        Authorization: `Bearer ${verificationTeamSession}`,
+      },
+    });
+    try {
+      const workbenchResponse = await teamRequest.get('/api/v1/team/workbench/tasks');
+      const workbenchBody = await workbenchResponse.text();
+      expect(workbenchResponse.ok(), workbenchBody).toBeTruthy();
+      const workbench = JSON.parse(workbenchBody);
+      const seafarerTaskPayload = (workbench.tasks as Array<Record<string, unknown>>).find((task) =>
+        task.operation_code === 'review_seafarer_profile_completeness' &&
+        (task.context as Record<string, unknown> | undefined)?.draft_id === seafarer.draft_id
+      );
+      const companyTaskPayload = (workbench.tasks as Array<Record<string, unknown>>).find((task) =>
+        task.operation_code === 'review_company_verification' &&
+        (task.context as Record<string, unknown> | undefined)?.draft_id === employer.draft_id
+      );
+      expect(seafarerTaskPayload).toBeTruthy();
+      expect(companyTaskPayload).toBeTruthy();
+      expectConcreteComputedTaskLink(seafarerTaskPayload as Record<string, unknown>);
+      expectConcreteComputedTaskLink(companyTaskPayload as Record<string, unknown>);
+      expectTaskRequiredAccess(
+        seafarerTaskPayload as Record<string, unknown>,
+        'verification_team',
+        'view_verification_queue'
+      );
+      expectTaskRequiredAccess(
+        companyTaskPayload as Record<string, unknown>,
+        'verification_team',
+        'view_verification_queue'
+      );
+    } finally {
+      await teamRequest.dispose();
+    }
+
+    await page.goto('/');
+    await page.evaluate((token) => {
+      window.localStorage.setItem('crewportglobal_team_session', token);
+    }, verificationTeamSession);
+    await page.goto('/team/');
+    await expect(page.locator('#team-tasks-title')).toContainText('My tasks', { timeout: 40_000 });
+    const seafarerTeamTask = page.locator('#team-task-list .team-task', { hasText: 'Operator Queue Seafarer' }).first();
+    await expect(seafarerTeamTask).toContainText('Review seafarer profile completeness.', { timeout: 40_000 });
+    await expect(seafarerTeamTask).toContainText('Stage: Seafarer supply readiness review');
+    await expect(seafarerTeamTask).toContainText('Group: verification_team');
+    await expect(seafarerTeamTask).toContainText('Permission: view_verification_queue');
+    await seafarerTeamTask.locator('.team-task__link').click();
+    await expect(page).toHaveURL(/task_operation=review_seafarer_profile_completeness/);
+    await expect(page.locator('#queue-status')).toContainText('Task target opened');
+    await expect(page.locator('#review-workspace')).toContainText('Seafarer profile');
+    await expect(page.locator('#review-workspace')).toContainText('Operator Queue Seafarer');
+    await expect(page.locator('#review-workspace')).toContainText('Workspace actions');
+
+    await page.goto('/team/');
+    const companyTeamTask = page.locator('#team-task-list .team-task', { hasText: `Verification Queue Marine ${unique}` }).first();
+    await expect(companyTeamTask).toContainText('Review company verification.', { timeout: 40_000 });
+    await expect(companyTeamTask).toContainText('Stage: Employer and authority setup');
+    await expect(companyTeamTask).toContainText('Group: verification_team');
+    await expect(companyTeamTask).toContainText('Permission: view_verification_queue');
+    await companyTeamTask.locator('.team-task__link').click();
+    await expect(page).toHaveURL(/task_operation=review_company_verification/);
+    await expect(page.locator('#queue-status')).toContainText('Task target opened');
+    await expect(page.locator('#review-workspace')).toContainText('Company');
+    await expect(page.locator('#review-workspace')).toContainText(`Verification Queue Marine ${unique}`);
+    await expect(page.locator('#review-workspace')).toContainText('Workspace actions');
+  }
 
   await page.addInitScript((token) => {
     window.sessionStorage.setItem('crewportglobal.operatorAccessToken', token);
@@ -567,6 +698,8 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
 });
 
 test('owner team task opens pending vacancy deletion confirmation panel', async ({ page, request, baseURL }) => {
+  test.setTimeout(120_000);
+
   const unique = Date.now();
   const employerEmail = `ui.queue.deletion.owner.${unique}@example.com`;
   const vacancyTitle = `UI Deletion Manager Review ${unique}`;
@@ -683,13 +816,14 @@ test('owner team task opens pending vacancy deletion confirmation panel', async 
     await ownerRequest.dispose();
   }
 
-  await page.addInitScript((token) => {
+  await page.goto('/');
+  await page.evaluate((token) => {
     window.localStorage.setItem('crewportglobal_team_session', token);
   }, ownerSession);
   await page.goto('/team/');
-  await expect(page.locator('#team-task-status')).toContainText('computed task');
+  await expect(page.locator('#team-task-status')).toContainText('computed task', { timeout: 40_000 });
   const deletionTask = page.locator('#team-task-list .team-task', { hasText: vacancyTitle }).first();
-  await expect(deletionTask).toContainText('Confirm deletion request.');
+  await expect(deletionTask).toContainText('Confirm deletion request.', { timeout: 40_000 });
   await expect(deletionTask).toContainText('Stage: Controlled deletion confirmation');
   await expect(deletionTask).toContainText('Visible until manager confirms or rejects the deletion request.');
   await expect(deletionTask).toContainText('Assigned employee: group queue');
@@ -710,7 +844,9 @@ test('owner team task opens pending vacancy deletion confirmation panel', async 
   await expect(deletionPanel).toContainText('Deletion decision recorded: rejected. Hidden from queue: false.');
   await expect(deletionPanel.getByRole('link', { name: 'Return to team tasks' })).toBeVisible();
   await deletionPanel.getByRole('link', { name: 'Return to team tasks' }).click();
-  await expect(page.locator('#team-task-feedback')).toContainText('Operation completed: reject_vacancy_deletion');
+  await expect(page.locator('#team-task-feedback')).toContainText('Operation completed: reject_vacancy_deletion', {
+    timeout: 40_000,
+  });
 });
 
 test('operator queue page renders and reviews vacancy applications', async ({ page, request, baseURL }) => {

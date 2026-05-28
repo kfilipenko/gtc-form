@@ -407,6 +407,20 @@ function operator_workflow_operation_requirements(): array {
             'required_permission_code' => 'approve_candidate_presentation',
             'scope' => 'queue',
         ],
+        'review_seafarer_profile_completeness' => [
+            'operation_label' => 'Review seafarer profile completeness',
+            'target_group_code' => 'verification_team',
+            'target_role_code' => 'verifier',
+            'required_permission_code' => 'view_verification_queue',
+            'scope' => 'queue',
+        ],
+        'review_company_verification' => [
+            'operation_label' => 'Review company verification',
+            'target_group_code' => 'verification_team',
+            'target_role_code' => 'verifier',
+            'required_permission_code' => 'view_verification_queue',
+            'scope' => 'queue',
+        ],
         'request_vacancy_deletion' => [
             'operation_label' => 'Request vacancy deletion',
             'target_group_code' => 'review_team',
@@ -804,6 +818,7 @@ function handle_get_admin_access_team_links(): void {
                         CPG_ADMIN_ACCESS_OWNER_GROUP,
                         CPG_ADMIN_ACCESS_TEAM_GROUP,
                         CPG_ADMIN_ACCESS_REVIEW_TEAM_GROUP,
+                        CPG_ADMIN_ACCESS_VERIFICATION_TEAM_GROUP,
                     ],
                 ],
                 'links' => CPG_ADMIN_ACCESS_TEAM_LINKS,
@@ -10218,6 +10233,93 @@ function cpg_team_workbench_queue_tasks(array $access): array {
             ? trim((string) $summary['vacancy_title'])
             : (is_string($item['full_name'] ?? null) ? (string) $item['full_name'] : $queueType);
 
+        if ($queueType === 'seafarer_profile' && $queueItemId !== '') {
+            if (in_array((string) ($item['status'] ?? ''), ['approved'], true)) {
+                continue;
+            }
+
+            $operation = operator_computed_workflow_operation(
+                'review_seafarer_profile_completeness',
+                true,
+                [],
+                [
+                    'record_type' => 'seafarer_profile',
+                    'record_id' => $queueItemId,
+                    'current_status' => $item['status'] ?? null,
+                    'next_status_if_executed' => 'in_review',
+                    'responsible_group_after_transition' => 'verification_team',
+                    'computed_from' => 'operator_review_queue_seafarer_profile',
+                ],
+                $access
+            );
+            $task = cpg_team_workbench_task_from_operation(
+                $operation,
+                'seafarer_supply_review',
+                'Review seafarer profile completeness',
+                $title,
+                '/verify/',
+                [
+                    'queue_type' => $queueType,
+                    'queue_item_id' => $queueItemId,
+                    'seafarer_profile_id' => $queueItemId,
+                    'draft_id' => $item['draft_id'] ?? null,
+                    'status' => $item['status'] ?? null,
+                    'rank' => $summary['primary_rank'] ?? null,
+                    'department' => $summary['department'] ?? null,
+                    'availability_status' => $summary['availability_status'] ?? null,
+                ]
+            );
+            if ($task !== null) {
+                $tasks[] = $task;
+            }
+            continue;
+        }
+
+        if ($queueType === 'company_verification' && $queueItemId !== '') {
+            if (in_array((string) ($item['status'] ?? ''), ['verified'], true)) {
+                continue;
+            }
+
+            $operation = operator_computed_workflow_operation(
+                'review_company_verification',
+                true,
+                [],
+                [
+                    'record_type' => 'company_verification',
+                    'record_id' => $queueItemId,
+                    'current_status' => $item['status'] ?? null,
+                    'next_status_if_executed' => 'submitted',
+                    'responsible_group_after_transition' => 'verification_team',
+                    'computed_from' => 'operator_review_queue_company_verification',
+                ],
+                $access
+            );
+            $task = cpg_team_workbench_task_from_operation(
+                $operation,
+                'company_authority_review',
+                'Review company verification',
+                is_string($summary['company_name'] ?? null) && trim((string) $summary['company_name']) !== ''
+                    ? trim((string) $summary['company_name'])
+                    : $title,
+                '/verify/',
+                [
+                    'queue_type' => $queueType,
+                    'queue_item_id' => $queueItemId,
+                    'company_id' => $queueItemId,
+                    'draft_id' => $item['draft_id'] ?? null,
+                    'status' => $item['status'] ?? null,
+                    'company_name' => $summary['company_name'] ?? null,
+                    'company_type' => $summary['company_type'] ?? null,
+                    'country_code' => $summary['country_code'] ?? null,
+                    'role_in_company' => $summary['role_in_company'] ?? null,
+                ]
+            );
+            if ($task !== null) {
+                $tasks[] = $task;
+            }
+            continue;
+        }
+
         if ($queueType === 'vacancy_request' && $queueItemId !== '') {
             if (cpg_operator_active_shortlist_draft_for_vacancy($queueItemId) !== null) {
                 continue;
@@ -11916,6 +12018,10 @@ function apply_operator_review_decision(
             'review_note' => $reviewNote,
             'correction_card_code' => $correctionCardCode,
             'correction_card_name' => $correctionCardName,
+            'seafarer_profile_id' => cpg_seafarer_profile_id_for_user($draftId),
+            'actor_context' => $workflowAccess !== null
+                ? operator_queue_decision_actor_context($workflowAccess, 'seafarer_profile', $decision)
+                : null,
         ], 'operator_review_queue');
 
         return [
@@ -12036,6 +12142,10 @@ function apply_operator_review_decision(
         'review_note' => $reviewNote,
         'correction_card_code' => $correctionCardCode,
         'correction_card_name' => $correctionCardName,
+        'company_id' => $companyId,
+        'actor_context' => $workflowAccess !== null
+            ? operator_queue_decision_actor_context($workflowAccess, 'company_verification', $decision)
+            : null,
     ], 'operator_review_queue');
 
     return [
