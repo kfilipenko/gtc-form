@@ -41,6 +41,31 @@ The executor should see one primary task at a time.
 
 Secondary actions may exist, but they should be inside the work object or a secondary menu, not displayed as competing primary actions in the queue.
 
+### 2.1 Information Stream Rule
+
+Before a task is shown to a user or AI agent, the system must identify the information stream and the object state.
+
+The operational order is:
+
+```text
+information stream
+-> object type
+-> current object state
+-> business-process stage
+-> computed operation
+-> responsible group or historical active executor
+-> visible task
+```
+
+| Stream | Working object | Main team responsibility | Task visibility principle |
+|---|---|---|---|
+| Seafarer supply | Seafarer profile, source cards, documents and availability | Complete, verify and maintain candidate readiness for matching | Show tasks to the seafarer owner, Group 2, `verification_team` or `review_team` only according to current readiness/correction state and permissions. |
+| Employer / shipowner demand account | Company, representative authority and commercial client context | Confirm authorized B2B demand-side client and service boundary | Show tasks to Group 1, Group 5, Group 3 or support only when employer-side state requires their function. |
+| Vessel context | Vessel profile, vessel type, flag and operational context | Make vessel information structured enough for crew request and matching | Show tasks to Group 1, Group 5 or `review_team` according to vessel completeness, verification and matching relevance. |
+| Crew request / vacancy requirement | Vacancy request, demand workspace and structured requirement rows | Connect employer and vessel demand with seafarer supply for matching and shortlist | Show tasks to Group 1 or `review_team` only when the request is structured enough for the current stage, or to manager/control when deletion or exception state exists. |
+
+Users and AI agents must not treat these streams as one generic queue. A seafarer correction task, employer authority task, vessel-context task and crew-request matching task have different owners, permissions, evidence and final decisions.
+
 ## 3. Standard Task Card For Users And Team
 
 ### 3.1 Required display

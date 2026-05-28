@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.99
+- Version: 2.00
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -306,6 +306,7 @@ docs/crewportglobal/
   217_cpg_biz_028_review_workspace_completion_feedback_transition_report.md
   218_cpg_biz_029_team_queue_recomputation_completed_task_disappearance_report.md
   219_cpg_biz_030_correction_owner_task_visibility_handoff_report.md
+  220_cpg_biz_031_information_stream_process_state_model_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -638,6 +639,8 @@ Document 218 records the CPG-BIZ-029 team queue recomputation check, including d
 
 Document 219 records the CPG-BIZ-030 correction owner task visibility and handoff check, including `needs_correction` disappearance from active team queue, owner cabinet correction task visibility, exact source-card correction link, resubmission back to `pending_human_review`, historical-assignee recomputation through `seafarer_profile_id`, and focused verification.
 
+Document 220 records the CPG-BIZ-031 information-stream process-state model, including separate seafarer supply, employer / shipowner demand account, vessel context and crew request / vacancy requirement streams, their object states, responsible groups, final readiness decisions and future task-computation implications.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -741,6 +744,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.00 | 2026-05-28 | GTC IT / AI Assistant | Added document 220 for CPG-BIZ-031 covering information-stream process-state model, functional team work split and stream-first task computation for future UI and AI-agent alignment |
 | 1.99 | 2026-05-28 | GTC IT / AI Assistant | Added document 219 for CPG-BIZ-030 covering correction owner task visibility, exact cabinet correction link, resubmission handoff back to verification-team review and `seafarer_profile_id` historical-assignment fix |
 | 1.98 | 2026-05-28 | GTC IT / AI Assistant | Added document 218 for CPG-BIZ-029 covering direct seafarer-profile task link recovery, active team queue recomputation after review outcomes and focused/full/API verification |
 | 1.97 | 2026-05-28 | GTC IT / AI Assistant | Added document 217 for CPG-BIZ-028 covering review workspace object-specific post-action feedback, task recomputation wording, return-to-team guidance and focused/full operator queue verification |

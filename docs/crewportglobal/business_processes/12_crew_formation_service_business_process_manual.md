@@ -147,6 +147,51 @@ The process is record-driven. Tasks are computed from records and their states.
 | CF-14 | Service completion and billing | Service result and billing basis exist | Group 3 | Prepare billing / completion record |
 | CF-15 | Retention and audit | Client follow-up and evidence are retained | Responsible manager / Group 5 | Schedule next contact or audit review |
 
+### 7.1 Information Stream And Object-State Model
+
+Crew formation tasks must be computed through the object stream first, and only then through the workflow stage.
+
+The task engine, team workbench, future AI agents and future UI revisions must use this order:
+
+```text
+information stream
+-> object type
+-> current object state
+-> business-process stage
+-> computed operation
+-> responsible group or historical active executor
+-> visible task
+-> allowed outcome
+-> next state
+```
+
+This prevents a task list from becoming a generic set of buttons. Each stream has its own forms, records, readiness decision and handoff rule.
+
+| Information stream | Primary object and forms | State signals used for task computation | Business-process stages | Main computed operations | Responsible groups | Final stream decision | Output to next process |
+|---|---|---|---|---|---|---|---|
+| Seafarer supply | Seafarer profile, source cards, protected documents, availability and consent data | `draft`, `submitted`, `correction_requested`, `pending_human_review`, `reviewed`, `match_ready`, `blocked`, missing consent or unresolved required source-card correction | CF-06 Seafarer supply intake; CF-07 Document and readiness review; CF-08 Request-supply comparison | Complete profile; correct source card; review seafarer profile completeness; review candidate evidence; review candidate readiness blockers | Group 2 for completion support; `verification_team` / Group 5 for readiness and documents; `review_team` for matching review | Candidate supply is match-ready, needs correction, blocked or unavailable | Safe candidate summary and readiness/blocker state for request-supply comparison; restricted data remains scoped |
+| Employer / shipowner demand account | Employer/company profile, representative authority, client relationship, commercial context | `draft`, `submitted`, authority evidence missing, `under_review`, `verified`, `needs_correction`, `rejected`, commercial entitlement pending | CF-01 Lead / demand entry; CF-02 Employer and authority setup; CF-05 Commercial entitlement check; CF-13 Feedback; CF-14 Billing handoff | Qualify employer-side demand; review employer and authority data; request authority correction; confirm commercial basis; record feedback; prepare billing handoff | Group 1 for client/demand intake; Group 5 for control and authority review; Group 3 for commercial/billing; Group 4 for support | Employer-side client is authorized for B2B service handling, returned for correction, paused or closed | Authorized demand-side client context, scoped employer visibility and billing/service boundary |
+| Vessel context | Vessel profile, vessel type, flag, operational context, vessel evidence documents | vessel missing, partial vessel data, `submitted`, `under_review`, `verified`, `needs_correction`, `blocked`, vessel type/category mismatch | CF-03 Vessel context setup; CF-04 Crew request structuring | Review vessel context; request vessel data correction; confirm vessel type/category readiness for demand; link vessel to crew request | Group 1 for vessel context collection; Group 5 for verification/control; `review_team` for matching relevance | Vessel context is structured enough for crew request and matching, needs correction or is blocked | Vessel characteristics available for demand requirements, matching filters and risk/control review |
+| Crew request / vacancy requirement | Crew request, vacancy request, demand workspace, structured requirement rows | `draft`, `submitted`, incomplete requirement, structured, `match_ready`, comparison ready, hard blockers, pending deletion, closed | CF-04 Crew request structuring; CF-08 Request-supply comparison; CF-09 Internal shortlist draft; CF-10 Internal approval; CF-11/CF-12 Candidate presentation | Review crew request completeness; review request-supply comparison; create internal shortlist draft; approve internal shortlist; create/review candidate presentation; confirm or reject deletion | Group 1 for intake; `review_team` for matching and shortlist; Group 5/control for exceptions; Project Owner/owners for deletion confirmation | Demand is match-ready, blocked, internally shortlisted, presentation-ready, closed or deleted by controlled approval | Human-reviewed shortlist or presentation workflow; no employer-facing candidate data until guard passes |
+
+The first three streams are the foundation:
+
+1. seafarer supply must be structured before candidate comparison;
+2. employer / shipowner demand account must be authorized before employer-facing operations;
+3. vessel context must be structured before crew request matching is reliable.
+
+The crew request / vacancy requirement stream connects the foundation streams into the matching process. It must not be treated as a standalone vacancy without employer and vessel context.
+
+### 7.2 Functional Team Work Split
+
+| Function | Primary streams | Typical responsibility | Typical handoff |
+|---|---|---|---|
+| Seafarer data completion | Seafarer supply | Help the seafarer complete profile, source cards, documents and availability without charging recruitment or placement fees | To `verification_team` / Group 5 for readiness review |
+| Employer and vessel intake | Employer / shipowner demand account; vessel context | Collect and structure company, representative, vessel and demand information | To Group 5 for authority/control review or to `review_team` for matching |
+| Verification and internal control | All streams where authority, readiness, correction or restricted data boundary matters | Verify evidence, record outcomes, create correction handoff and preserve audit evidence | To owner/responsible party for correction or to next internal process stage |
+| Matching and shortlist review | Crew request / vacancy requirement; seafarer supply | Compare structured demand with safe candidate summaries, explain blockers and create internal shortlist drafts | To internal shortlist approval and candidate presentation review |
+| Commercial and billing control | Employer / shipowner demand account; service completion | Confirm B2B service basis, billing handoff and no-fee seafarer boundary | To billing/service completion records |
+
 ## 8. Detailed Process Control Table
 
 | Step | Trigger | Inputs | DB records read | DB records created/updated | Audit evidence | Output | Next computed task |
