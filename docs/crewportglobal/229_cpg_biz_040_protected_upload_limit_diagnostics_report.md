@@ -13,7 +13,9 @@
 
 Этот этап уточняет стандарт сохранения и проверки анкет отдельным правилом для защищенной загрузки документов.
 
-Проблема: пользователь мог загрузить PDF меньше 10 MB и получить ошибку без понятного объяснения. Это происходило потому, что прикладной код разрешал файл до 10 MB, но runtime-конфигурация PHP-FPM ограничивала `upload_max_filesize` значением 2 MB, а nginx не имел явного upload limit для `/api/v1/`.
+Проблема: пользователь мог загрузить PDF меньше 10 MB и получить ошибку без понятного объяснения. Основная причина для файлов больше 2 MB была runtime-конфигурация PHP-FPM: прикладной код разрешал файл до 10 MB, но PHP-FPM ограничивал `upload_max_filesize` значением 2 MB, а nginx не имел явного upload limit для `/api/v1/`.
+
+При дополнительной ручной проверке также выявлен второй сценарий: если открыть `/create-profile/` с `draft_id` employer/vacancy черновика и попытаться загрузить seafarer-документ, backend корректно отклоняет запрос кодом `form_type_does_not_match_draft`. До исправления UI показывал техническое сообщение вместо понятного перехода в правильную форму.
 
 Цель: выровнять frontend, backend и runtime-лимиты, а также показывать пользователю точную причину отказа файла.
 
@@ -44,6 +46,7 @@ CPG_DOCUMENT_MAX_FILE_SIZE_BYTES = 10485760
 | Backend upload errors | API возвращает более точные коды для PHP upload errors и превышения request body. |
 | Runtime limit | Для live `/api/v1/` nginx выставлен `client_max_body_size 12m`. |
 | PHP-FPM per-app limit | Добавлен `.user.ini` для API: `upload_max_filesize = 10M`, `post_max_size = 12M`. |
+| Draft-role guard in UI | `/create-profile/` больше не пытается загрузить seafarer-документ в employer/vacancy draft; вместо этого показывает ссылку на `/post-vacancy/`. |
 | User message | UI показывает конкретную причину отказа: type, size, runtime limit, total draft limit, file count limit, malware scan, partial upload. |
 
 ## 4. Error Codes
@@ -57,6 +60,7 @@ CPG_DOCUMENT_MAX_FILE_SIZE_BYTES = 10485760
 | `draft_file_count_limit_exceeded` | Достигнут лимит количества файлов черновика. |
 | `empty_file_rejected` | Выбранный файл пустой. |
 | `unsupported_file_type` | Тип файла не PDF/JPG/PNG/WEBP. |
+| `form_type_does_not_match_draft` | Выбранная форма загрузки не соответствует роли текущего черновика. |
 | `malware_detected` | Файл заблокирован malware scan. |
 | `upload_partial` | Файл был получен частично. |
 | `upload_failed` | Файл не был получен системой; используется как fallback. |
@@ -91,9 +95,9 @@ php8.1-fpm: active
 |---|---|
 | `projects/crewportglobal/app/backend/api/lib/document_uploads.php` | Added exact PHP upload error mapping and request-body-too-large detection before document validation. |
 | `projects/crewportglobal/app/backend/api/public/.user.ini` | Added per-application PHP upload/post limits aligned with the 10 MB app rule. |
-| `projects/crewportglobal/public/create-profile/index.html` | Added visible upload limits, client-side file validation and exact server-error messages. |
+| `projects/crewportglobal/public/create-profile/index.html` | Added visible upload limits, client-side file validation, exact server-error messages and a guard preventing seafarer uploads into employer/vacancy drafts. |
 | `projects/crewportglobal/public/post-vacancy/index.html` | Added the same upload limit / diagnostics standard for employer-side evidence uploads. |
-| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added client-side upload size/type validation regression. |
+| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added client-side upload size/type validation regression and employer/vacancy draft role guard assertion. |
 | `tests/crewportglobal-post-vacancy-workspace.spec.ts` | Added employer-side upload size/type validation regression. |
 | `docs/crewportglobal/business_processes/00_business_process_register.md` | Added protected-upload limit and diagnostics control. |
 | `docs/crewportglobal/business_processes/12_crew_formation_service_business_process_manual.md` | Added the upload diagnostics rule to the save/completeness gate. |
@@ -135,6 +139,22 @@ file_size_bytes = 3145744
 ```
 
 The temporary test user, DB rows and uploaded test file were removed after verification.
+
+### 7.3 Draft Role Mismatch Verification
+
+An employer/vacancy draft opened through `/create-profile/?draft_id=...` now shows a clear protected-upload boundary:
+
+```text
+This draft belongs to the employer/vacancy form. Upload company, vessel and crew request evidence there.
+```
+
+The upload button is disabled on the seafarer upload panel and the status line links to:
+
+```text
+/post-vacancy/?draft_id=...#post-document-upload-title
+```
+
+The backend guard remains unchanged and still rejects mismatched `form_type` uploads.
 
 ## 8. Control Boundary
 

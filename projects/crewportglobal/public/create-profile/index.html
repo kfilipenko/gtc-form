@@ -2060,6 +2060,8 @@
         'create.upload.status.uploaded': 'Document uploaded and scanned.',
         'create.upload.status.error': 'Document upload failed. Please check file type and size.',
         'create.upload.status.errorDetail': 'Document upload failed: {message}',
+        'create.upload.status.wrongDraftRole': 'This draft belongs to the employer/vacancy form. Upload company, vessel and crew request evidence there.',
+        'create.upload.status.openVacancyForm': 'Open vacancy form',
         'create.upload.status.empty': 'No uploaded documents yet.',
         'create.upload.meta.scan': 'Scan',
         'create.upload.meta.review': 'Review',
@@ -2079,6 +2081,7 @@
         'create.upload.server.empty_file_rejected': 'The selected file is empty. Choose a readable PDF, JPG, PNG or WEBP file.',
         'create.upload.server.unsupported_file_type': 'Unsupported file type. Upload PDF, JPG, PNG or WEBP.',
         'create.upload.server.malware_detected': 'The file was blocked by malware scanning.',
+        'create.upload.server.form_type_does_not_match_draft': 'This document type does not match the current draft. Open the correct form and upload it there.',
         'create.upload.server.upload_failed': 'The file could not be received. Check the file size and try again.',
         'create.upload.server.upload_partial': 'The file was received only partially. Try uploading it again.',
         'create.upload.review.pending_human_review': 'Waiting for team review',
@@ -2567,6 +2570,8 @@
         'create.upload.status.uploaded': 'Документ загружен и просканирован.',
         'create.upload.status.error': 'Не удалось загрузить документ. Проверьте тип и размер файла.',
         'create.upload.status.errorDetail': 'Не удалось загрузить документ: {message}',
+        'create.upload.status.wrongDraftRole': 'Этот черновик относится к форме работодателя/заявки. Загружайте документы компании, судна и заявки в этой форме.',
+        'create.upload.status.openVacancyForm': 'Открыть форму вакансии',
         'create.upload.status.empty': 'Пока нет загруженных документов.',
         'create.upload.meta.scan': 'Сканирование',
         'create.upload.meta.review': 'Проверка',
@@ -2586,6 +2591,7 @@
         'create.upload.server.empty_file_rejected': 'Выбранный файл пустой. Выберите читаемый PDF, JPG, PNG или WEBP.',
         'create.upload.server.unsupported_file_type': 'Недопустимый тип файла. Загрузите PDF, JPG, PNG или WEBP.',
         'create.upload.server.malware_detected': 'Файл заблокирован проверкой на вредоносный код.',
+        'create.upload.server.form_type_does_not_match_draft': 'Тип документа не соответствует текущему черновику. Откройте правильную форму и загрузите документ там.',
         'create.upload.server.upload_failed': 'Файл не был получен системой. Проверьте размер файла и попробуйте снова.',
         'create.upload.server.upload_partial': 'Файл был получен не полностью. Попробуйте загрузить его снова.',
         'create.upload.review.pending_human_review': 'Ожидает проверки команды',
@@ -2876,6 +2882,7 @@
       let autosaveTimer = null;
       let autosaveInFlight = false;
       let autosavePending = false;
+      let activeDraftRole = '';
 
       const completenessFieldTargets = {
         'S-1.1': ['create-full-name'],
@@ -2940,6 +2947,51 @@
       function tFormat(key, values) {
         const raw = t(key);
         return Object.entries(values || {}).reduce((acc, entry) => acc.replace(`{${entry[0]}}`, String(entry[1])), raw);
+      }
+
+      function normalizeDraftRole(value) {
+        if (typeof value !== 'string') {
+          return '';
+        }
+        return value.trim().replace('-', '_');
+      }
+
+      function isSeafarerDraftRole(value) {
+        return normalizeDraftRole(value) === 'seafarer';
+      }
+
+      function postVacancyDraftUrl(draftId) {
+        const suffix = draftId ? `?draft_id=${encodeURIComponent(draftId)}` : '';
+        return `/post-vacancy/${suffix}#post-document-upload-title`;
+      }
+
+      function setUploadStatusText(text) {
+        uploadStatus.textContent = text;
+      }
+
+      function setUploadStatusWithLink(text, url, linkText) {
+        uploadStatus.textContent = '';
+        uploadStatus.appendChild(document.createTextNode(`${text} `));
+        const link = document.createElement('a');
+        link.href = url;
+        link.textContent = linkText;
+        uploadStatus.appendChild(link);
+      }
+
+      function updateDocumentUploadAvailability(role, draftId) {
+        activeDraftRole = normalizeDraftRole(role || activeDraftRole);
+        const blocksSeafarerUpload = Boolean(activeDraftRole) && !isSeafarerDraftRole(activeDraftRole);
+        uploadType.disabled = blocksSeafarerUpload;
+        uploadFile.disabled = blocksSeafarerUpload;
+        uploadSubmit.disabled = blocksSeafarerUpload;
+
+        if (blocksSeafarerUpload) {
+          setUploadStatusWithLink(
+            t('create.upload.status.wrongDraftRole'),
+            postVacancyDraftUrl(draftId || currentDraftId()),
+            t('create.upload.status.openVacancyForm')
+          );
+        }
       }
 
       function loadReferenceCatalogBindings() {
@@ -3028,6 +3080,10 @@
           return fromUrl;
         }
         const storedDraft = window.CPGDrafts.getStoredDraft();
+        const storedRole = normalizeDraftRole(storedDraft && storedDraft.role ? storedDraft.role : '');
+        if (storedRole && !isSeafarerDraftRole(storedRole)) {
+          return '';
+        }
         return storedDraft && typeof storedDraft.draftId === 'string' ? storedDraft.draftId.trim() : '';
       }
 
@@ -3473,6 +3529,8 @@
 
         const responseProfile = response && response.payload ? response.payload.seafarer_profile : null;
         const responseOperatorReview = response && response.payload ? response.payload.operator_review : null;
+        activeDraftRole = normalizeDraftRole(response && response.role ? response.role : 'seafarer');
+        updateDocumentUploadAvailability(activeDraftRole, response && response.draft_id ? response.draft_id : draftId);
         renderReviewStatus(responseProfile || {}, responseOperatorReview || null);
         renderApplicationHistoryFromResponse(response);
         window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
@@ -3953,7 +4011,7 @@
 
       async function refreshUploadedDocuments() {
         const draftId = currentDraftId();
-        if (!draftId) {
+        if (!draftId || (activeDraftRole && !isSeafarerDraftRole(activeDraftRole))) {
           renderUploadedDocuments([]);
           return;
         }
@@ -3970,6 +4028,15 @@
         const draftId = currentDraftId();
         if (!draftId) {
           uploadStatus.textContent = t('create.upload.status.saveFirst');
+          return;
+        }
+
+        if (activeDraftRole && !isSeafarerDraftRole(activeDraftRole)) {
+          setUploadStatusWithLink(
+            t('create.upload.status.wrongDraftRole'),
+            postVacancyDraftUrl(draftId),
+            t('create.upload.status.openVacancyForm')
+          );
           return;
         }
 
@@ -4604,9 +4671,16 @@
         const draftId = getDraftIdFromUrl();
         if (!draftId) {
           const storedDraft = window.CPGDrafts.getStoredDraft();
-          const storedDraftId = storedDraft && typeof storedDraft.draftId === 'string'
+          const storedDraftRole = normalizeDraftRole(storedDraft && storedDraft.role ? storedDraft.role : '');
+          const storedDraftId = storedDraft && typeof storedDraft.draftId === 'string' && (!storedDraftRole || isSeafarerDraftRole(storedDraftRole))
             ? storedDraft.draftId.trim()
             : '';
+          activeDraftRole = storedDraftRole && isSeafarerDraftRole(storedDraftRole)
+            ? storedDraftRole
+            : '';
+          if (activeDraftRole && !isSeafarerDraftRole(activeDraftRole)) {
+            updateDocumentUploadAvailability(activeDraftRole, storedDraftId);
+          }
           const localProfile = storedDraft
             && storedDraft.lastResponse
             && storedDraft.lastResponse.payload
@@ -4639,6 +4713,8 @@
             status.textContent = t('create.form.loadingDraft');
             try {
               const fallbackResponse = await window.CPGDrafts.getDraft(storedDraftId);
+              activeDraftRole = normalizeDraftRole(fallbackResponse && fallbackResponse.role ? fallbackResponse.role : activeDraftRole);
+              updateDocumentUploadAvailability(activeDraftRole, storedDraftId);
               const fallbackProfile = fallbackResponse && fallbackResponse.payload
                 ? fallbackResponse.payload.seafarer_profile
                 : null;
@@ -4666,6 +4742,8 @@
         status.textContent = t('create.form.loadingDraft');
         try {
           const response = await window.CPGDrafts.getDraft(draftId);
+          activeDraftRole = normalizeDraftRole(response && response.role ? response.role : activeDraftRole);
+          updateDocumentUploadAvailability(activeDraftRole, draftId);
           const profile = response && response.payload ? response.payload.seafarer_profile : null;
           const operatorReview = response && response.payload ? response.payload.operator_review : null;
           fillSeafarerProfile(profile || {});
@@ -4681,6 +4759,10 @@
       }
 
       const stored = window.CPGDrafts.getStoredDraft();
+      const initialStoredRole = normalizeDraftRole(stored && stored.role ? stored.role : '');
+      if (initialStoredRole && isSeafarerDraftRole(initialStoredRole)) {
+        activeDraftRole = initialStoredRole;
+      }
       if (stored.email) {
         email.value = stored.email;
       }

@@ -469,6 +469,9 @@ test('create profile demand completeness link opens exact post vacancy salary fi
 
   await page.goto(`/create-profile/?draft_id=${created.draft_id}`);
   await expect(page.locator('#create-missing-list')).toContainText('R-4.2: Salary minimum');
+  await expect(page.locator('#create-document-upload-status')).toContainText('employer/vacancy form');
+  await expect(page.locator('#create-document-upload-status a')).toHaveAttribute('href', `/post-vacancy/?draft_id=${created.draft_id}#post-document-upload-title`);
+  await expect(page.locator('#create-document-upload-submit')).toBeDisabled();
 
   await page.locator('#create-missing-list a', { hasText: 'R-4.2' }).click();
   await expect(page).toHaveURL(new RegExp(`/post-vacancy/\\?draft_id=${created.draft_id}#post-salary-min$`));
