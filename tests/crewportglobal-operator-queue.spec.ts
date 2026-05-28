@@ -613,6 +613,14 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   expect(employerCreate.ok()).toBeTruthy();
   const employer = await employerCreate.json();
 
+  const seafarerProfileId = runPsql(`
+SELECT seafarer_profile_id::text
+FROM crewportglobal.seafarer_profiles
+WHERE user_id = '${String(seafarer.draft_id).replace(/'/g, "''")}'::uuid
+LIMIT 1;
+`).trim();
+  expect(seafarerProfileId).toBeTruthy();
+
   const verificationTeamSession = createVerificationTeamAdminSession(seafarer.draft_id);
   if (verificationTeamSession && baseURL) {
     const teamRequest = await playwrightRequest.newContext({
@@ -659,13 +667,6 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
     await page.evaluate((token) => {
       window.localStorage.setItem('crewportglobal_team_session', token);
     }, verificationTeamSession);
-    const seafarerProfileId = runPsql(`
-SELECT seafarer_profile_id::text
-FROM crewportglobal.seafarer_profiles
-WHERE user_id = '${String(seafarer.draft_id).replace(/'/g, "''")}'::uuid
-LIMIT 1;
-`).trim();
-    expect(seafarerProfileId).toBeTruthy();
     await page.goto(`/verify/?queue_type=seafarer_profile&queue_item_id=${seafarerProfileId}#review-workspace`);
     await expect(page.locator('#queue-status')).toContainText('Task target opened', { timeout: 40_000 });
     await expect(page.locator('#review-workspace')).toContainText(seafarerName);
@@ -754,9 +755,11 @@ LIMIT 1;
     expect(recomputedCompanyTask).toBeFalsy();
   }
 
-  await page.addInitScript((token) => {
-    window.sessionStorage.setItem('crewportglobal.operatorAccessToken', token);
-  }, operatorAccessToken);
+  if (!verificationTeamSession) {
+    await page.addInitScript((token) => {
+      window.sessionStorage.setItem('crewportglobal.operatorAccessToken', token);
+    }, operatorAccessToken);
+  }
   await page.goto('/verify/');
 
   await expect(page.locator('#queue-status')).toContainText('Queue loaded');
@@ -869,7 +872,66 @@ LIMIT 1;
     );
     expect(recomputedSeafarerTask).toBeFalsy();
   }
+
+  await page.goto(`/cabinet/?draft_id=${seafarer.draft_id}`);
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: correct seafarer card');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Target card: QUAL-003 Certificate of competence');
+  await expect(page.locator('#cabinet-task-list')).toContainText(note);
+  await expect(page.locator('#cabinet-task-list').getByRole('link', { name: 'Open card' })).toHaveAttribute(
+    'href',
+    `/create-profile/?draft_id=${seafarer.draft_id}#profile-section-qualifications`
+  );
+
+  const resubmitCorrectionResponse = await request.patch('/api/v1/seafarer/workspace/sections/qualifications', {
+    data: {
+      draft_id: seafarer.draft_id,
+      data: {
+        coc_type: 'Second Officer',
+        coc_number: 'COC-RESUBMITTED-HANDOFF-001',
+        coc_issuing_country: 'CY',
+        coc_expiry: '2030-04-30',
+        training_courses: ['Basic Training', 'Advanced Fire Fighting'],
+      },
+    },
+  });
+  expect(resubmitCorrectionResponse.status()).toBe(200);
+  const resubmittedCorrection = await resubmitCorrectionResponse.json();
+  expect(resubmittedCorrection.workspace.card_review_states['QUAL-003'].review_status).toBe('pending_human_review');
+
+  await page.goto(`/cabinet/?draft_id=${seafarer.draft_id}`);
+  await expect(page.locator('#cabinet-task-list')).not.toContainText('Action required: correct seafarer card');
+
+  if (verificationTeamSession) {
+    const afterResubmissionTasksResponse = await request.get('/api/v1/team/workbench/tasks', {
+      headers: {
+        Authorization: `Bearer ${verificationTeamSession}`,
+      },
+    });
+    expect(afterResubmissionTasksResponse.ok()).toBeTruthy();
+    const afterResubmissionTasks = await afterResubmissionTasksResponse.json();
+    const resubmittedSeafarerTask = (afterResubmissionTasks.tasks as Array<Record<string, unknown>>).find((task) =>
+      task.operation_code === 'review_seafarer_profile_completeness' &&
+      (task.context as Record<string, unknown> | undefined)?.draft_id === seafarer.draft_id
+    );
+    expect(resubmittedSeafarerTask).toBeTruthy();
+    expectConcreteComputedTaskLink(resubmittedSeafarerTask as Record<string, unknown>);
+    expectTaskRequiredAccess(
+      resubmittedSeafarerTask as Record<string, unknown>,
+      'verification_team',
+      'view_verification_queue'
+    );
+    expect((resubmittedSeafarerTask as Record<string, unknown>).assignment).toMatchObject({
+      assignment_mode: 'historical_active_executor',
+      assigned_group_code: 'verification_team',
+      assigned_user_id: seafarer.draft_id,
+    });
+  }
+
+  await page.goto(`/verify/?queue_type=seafarer_profile&queue_item_id=${seafarerProfileId}#review-workspace`);
+  await expect(page.locator('#queue-status')).toContainText('Task target opened');
   await page.locator('#review-card-status-filter').selectOption('correction_requested');
+  await expect(page.locator('#details-sections')).not.toContainText('QUAL-003 Certificate of competence');
+  await page.locator('#review-card-status-filter').selectOption('pending_human_review');
   await expect(page.locator('#details-sections')).toContainText('QUAL-003 Certificate of competence');
   await page.locator('#review-card-status-filter').selectOption('verified');
   await expect(page.locator('#details-sections')).not.toContainText('QUAL-003 Certificate of competence');

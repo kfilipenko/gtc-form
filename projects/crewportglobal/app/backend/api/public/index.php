@@ -10126,6 +10126,7 @@ function cpg_team_workbench_assignment_patterns(array $operation, array $context
         'shortlist_draft_id',
         'vacancy_application_id',
         'candidate_user_id',
+        'seafarer_profile_id',
         'seafarer_user_id',
         'vessel_id',
         'company_id',

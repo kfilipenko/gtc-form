@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.96
+- Version: 1.99
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -305,6 +305,7 @@ docs/crewportglobal/
   216_cpg_biz_027_review_workspace_primary_operation_guidance_report.md
   217_cpg_biz_028_review_workspace_completion_feedback_transition_report.md
   218_cpg_biz_029_team_queue_recomputation_completed_task_disappearance_report.md
+  219_cpg_biz_030_correction_owner_task_visibility_handoff_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -635,6 +636,8 @@ Document 209 records the CPG-BIZ-020 historical task assignment implementation, 
 
 Document 218 records the CPG-BIZ-029 team queue recomputation check, including direct `seafarer_profile` task-link recovery, active review-status filtering for computed team tasks, disappearance of completed/correction outcomes from active workbench tasks, focused/full operator queue verification and API regression.
 
+Document 219 records the CPG-BIZ-030 correction owner task visibility and handoff check, including `needs_correction` disappearance from active team queue, owner cabinet correction task visibility, exact source-card correction link, resubmission back to `pending_human_review`, historical-assignee recomputation through `seafarer_profile_id`, and focused verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -738,6 +741,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.99 | 2026-05-28 | GTC IT / AI Assistant | Added document 219 for CPG-BIZ-030 covering correction owner task visibility, exact cabinet correction link, resubmission handoff back to verification-team review and `seafarer_profile_id` historical-assignment fix |
 | 1.98 | 2026-05-28 | GTC IT / AI Assistant | Added document 218 for CPG-BIZ-029 covering direct seafarer-profile task link recovery, active team queue recomputation after review outcomes and focused/full/API verification |
 | 1.97 | 2026-05-28 | GTC IT / AI Assistant | Added document 217 for CPG-BIZ-028 covering review workspace object-specific post-action feedback, task recomputation wording, return-to-team guidance and focused/full operator queue verification |
 | 1.96 | 2026-05-28 | GTC IT / AI Assistant | Added document 216 for CPG-BIZ-027 covering review workspace primary operation wording, business-process stage, visibility reason, completion condition and focused/full operator queue verification |

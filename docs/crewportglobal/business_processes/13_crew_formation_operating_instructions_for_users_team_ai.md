@@ -547,7 +547,7 @@ The current runtime does not use a manual assignment table. It uses:
 1. existing audit events;
 2. `actor_context.actor_user_id`;
 3. `actor_context.target_group_code`;
-4. object identifiers such as vacancy request, shortlist draft or vacancy application id;
+4. object identifiers such as vacancy request, shortlist draft, vacancy application id or `seafarer_profile_id`;
 5. active user and active group-membership checks.
 
 Users and AI agents must not create an artificial assignment outside this computed rule. If the named employee is inactive, blocked or no longer a member of the responsible group, the task must return to the group queue.
@@ -567,6 +567,7 @@ Review outcomes should be recorded inside the review workspace.
 | Current task context | Primary operation, stage, object, visibility reason and completion condition are shown at the top of the workspace | User must confirm that the displayed operation matches the intended work before recording a review outcome. |
 | Post-action completion feedback | Workspace confirms the recorded operation, object, result and task recomputation rule | User must read the feedback and return to Team tasks when the current operation is completed or blocked. |
 | Active task recomputation | Same operation must leave the active queue after its review outcome is recorded | User must not keep working from the old active task; the next action must come from the recomputed queue, or the object must appear only as a clear control/correction record. |
+| Owner correction handoff | `needs_correction` creates an owner/responsible-party correction task | Owner must open the exact source-card/task link, correct only the requested section and resubmit. The correction task must disappear after resubmission and the review task must recompute for the responsible group or historical active executor. |
 
 ## 20. Escalation Rules
 
