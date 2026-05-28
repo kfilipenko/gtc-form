@@ -498,6 +498,8 @@ The following rules are verified in the running application and must be preserve
 | Approve internal shortlist | `review_team` | `approve_candidate_presentation` | Approve only inside the concrete shortlist draft task panel and only after guard output is visible. |
 | Create candidate presentation review | `review_team` | `start_human_review` | Create review applications only from an approved internal shortlist draft. |
 | Review candidate presentation | `review_team` | `approve_candidate_presentation` | Approve or block only inside the concrete vacancy application review workspace. |
+| Review seafarer profile completeness | `verification_team` | `start_human_review` / verification queue access | Open the concrete seafarer profile workspace from the task title, review profile/readiness summaries and record the outcome. Do not copy or expose restricted family, medical, identity, child or reference-contact details. |
+| Restricted medical detail access | future restricted medical role | future dedicated medical permission | General operators must not access restricted medical details. If direct access returns `restricted_medical_capability_required`, continue with readiness summary review or escalate to the future approved medical-review workflow. |
 | Confirm or reject deletion request | `owners` / Project Owner control | `approve_access_policy_change` | This is manager/control-only. Review-team may request deletion but must not confirm or reject it. |
 
 If a task appears to a user without the required group and permission, the user must not execute it and the issue must be escalated as an access-control defect.

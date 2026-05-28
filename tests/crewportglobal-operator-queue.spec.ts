@@ -491,6 +491,7 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   test.setTimeout(120_000);
 
   const unique = Date.now();
+  const seafarerName = `Operator Queue Seafarer ${unique}`;
   const seafarerEmail = `ui.queue.seafarer.${unique}@example.com`;
   const employerEmail = `ui.queue.verification.employer.${unique}@example.com`;
 
@@ -498,7 +499,7 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
     data: {
       role: 'seafarer',
       email: seafarerEmail,
-      full_name: 'Operator Queue Seafarer',
+      full_name: seafarerName,
       rank: 'Second Officer',
       department: 'deck',
       availability_status: 'available_now',
@@ -515,9 +516,25 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
           },
           contact_and_addresses: {
             residence_city: 'Batumi',
-            emergency_contact_name: 'Nino Queue',
+            emergency_contact_name: 'Supply Scope Kin Hidden',
             emergency_contact_relation: 'Sister',
-            emergency_contact_phone: '+995555000111',
+            emergency_contact_phone: '+995555240024',
+          },
+          family_details: {
+            kin_surname: 'Supply',
+            kin_first_name: 'Scope Kin Hidden',
+            kin_relation: 'Sister',
+            kin_mobile: '+995555240024',
+            kin_email: 'supply.scope.kin.hidden@example.com',
+            children_records: 'Supply Hidden Child, Queue, Son, 2019-05-01, Male',
+          },
+          identity_documents: {
+            civil_passport_number: 'SUPPLY-PASS-SECRET-024',
+            civil_passport_authority: 'Supply Restricted Passport Authority',
+            seafarer_id_number: 'SUPPLY-SID-SECRET-024',
+            seafarer_id_expiry: '2028-02-20',
+            schengen_visa_number: 'SUPPLY-VISA-SECRET-024',
+            schengen_visa_expiry: '2026-10-10',
           },
           qualifications: {
             coc_type: 'Second Officer',
@@ -530,6 +547,18 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
             last_vessel_type: 'Container Ship',
             last_rank: 'Third Officer',
             service_to: '2026-01-20',
+          },
+          previous_employer_references: {
+            reference_company_1: 'Supply Previous Employer Safe Company',
+            reference_person_1: 'Supply Hidden Captain',
+            reference_phone_1: '+995555240025',
+            reference_email_1: 'supply.hidden.reference@example.com',
+          },
+          medical_history: {
+            signed_off_sick: 'yes',
+            sick_details: 'Supply restricted illness details hidden from verifier summary.',
+            operated: 'yes',
+            surgery_details: 'Supply restricted surgery details hidden from verifier summary.',
           },
           matching_publication: {
             candidate_summary: 'Second Officer ready for reviewed matching after document verification.',
@@ -602,7 +631,7 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
     }, verificationTeamSession);
     await page.goto('/team/');
     await expect(page.locator('#team-tasks-title')).toContainText('My tasks', { timeout: 40_000 });
-    const seafarerTeamTask = page.locator('#team-task-list .team-task', { hasText: 'Operator Queue Seafarer' }).first();
+    const seafarerTeamTask = page.locator('#team-task-list .team-task', { hasText: seafarerName }).first();
     await expect(seafarerTeamTask).toContainText('Review seafarer profile completeness.', { timeout: 40_000 });
     await expect(seafarerTeamTask).toContainText('Stage: Seafarer supply readiness review');
     await expect(seafarerTeamTask).toContainText('Group: verification_team');
@@ -611,8 +640,18 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
     await expect(page).toHaveURL(/task_operation=review_seafarer_profile_completeness/);
     await expect(page.locator('#queue-status')).toContainText('Task target opened');
     await expect(page.locator('#review-workspace')).toContainText('Seafarer profile');
-    await expect(page.locator('#review-workspace')).toContainText('Operator Queue Seafarer');
+    await expect(page.locator('#review-workspace')).toContainText(seafarerName);
     await expect(page.locator('#review-workspace')).toContainText('Workspace actions');
+    await expect(page.locator('#review-workspace')).toContainText('children: 1');
+    await expect(page.locator('#review-workspace')).toContainText('medical: 2');
+    await expect(page.locator('#review-workspace')).not.toContainText('Supply Scope Kin Hidden');
+    await expect(page.locator('#review-workspace')).not.toContainText('+995555240024');
+    await expect(page.locator('#review-workspace')).not.toContainText('Supply Hidden Child');
+    await expect(page.locator('#review-workspace')).not.toContainText('SUPPLY-PASS-SECRET-024');
+    await expect(page.locator('#review-workspace')).not.toContainText('SUPPLY-VISA-SECRET-024');
+    await expect(page.locator('#review-workspace')).not.toContainText('Supply Hidden Captain');
+    await expect(page.locator('#review-workspace')).not.toContainText('supply.hidden.reference@example.com');
+    await expect(page.locator('#review-workspace')).not.toContainText('Supply restricted surgery details hidden from verifier summary.');
 
     await page.goto('/team/');
     const companyTeamTask = page.locator('#team-task-list .team-task', { hasText: `Verification Queue Marine ${unique}` }).first();
@@ -648,7 +687,7 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#queue-body')).toContainText('Review seafarer profile completeness.');
 
   await page.locator('#filter-role').selectOption('seafarer');
-  const queueRow = page.locator('#queue-body tr', { hasText: 'Review seafarer profile completeness.' }).first();
+  const queueRow = page.locator('#queue-body tr', { hasText: seafarerName }).first();
   await expect(queueRow).toContainText('Stage: Seafarer supply readiness review');
   await expect(queueRow).toContainText('Visible because submitted data requires a human review outcome.');
   await expect(queueRow.getByRole('button', { name: /Open review workspace/ })).toHaveCount(0);
@@ -665,10 +704,40 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#details-sections')).toContainText('COC-VERIFY-001');
   await expect(page.locator('#details-sections')).toContainText('MV Verify Horizon');
   await expect(page.locator('#details-sections')).toContainText('QUAL-001 National identity documents / visa');
+  await expect(page.locator('#details-sections')).toContainText('children: 1');
+  await expect(page.locator('#details-sections')).toContainText('medical: 2');
+  await expect(page.locator('#details-sections')).not.toContainText('Supply Scope Kin Hidden');
+  await expect(page.locator('#details-sections')).not.toContainText('+995555240024');
+  await expect(page.locator('#details-sections')).not.toContainText('Supply Hidden Child');
+  await expect(page.locator('#details-sections')).not.toContainText('SUPPLY-PASS-SECRET-024');
+  await expect(page.locator('#details-sections')).not.toContainText('SUPPLY-VISA-SECRET-024');
+  await expect(page.locator('#details-sections')).not.toContainText('Supply Hidden Captain');
+  await expect(page.locator('#details-sections')).not.toContainText('supply.hidden.reference@example.com');
+  await expect(page.locator('#details-sections')).not.toContainText('Supply restricted surgery details hidden from verifier summary.');
   await expect(page.locator('#details-json')).toContainText('seafarer_review_readiness');
   await expect(page.locator('#details-json')).toContainText('sensitive_fields_redacted');
+  await expect(page.locator('#details-json')).toContainText('restricted_family_record');
+  await expect(page.locator('#details-json')).toContainText('restricted_medical_details_hidden');
   await expect(page.locator('#details-json')).toContainText(seafarerEmail);
   await expect(page.locator('#details-json')).toContainText('seafarer_profile');
+  await expect(page.locator('#details-json')).not.toContainText('Supply Scope Kin Hidden');
+  await expect(page.locator('#details-json')).not.toContainText('+995555240024');
+  await expect(page.locator('#details-json')).not.toContainText('Supply Hidden Child');
+  await expect(page.locator('#details-json')).not.toContainText('SUPPLY-PASS-SECRET-024');
+  await expect(page.locator('#details-json')).not.toContainText('SUPPLY-VISA-SECRET-024');
+  await expect(page.locator('#details-json')).not.toContainText('Supply Hidden Captain');
+  await expect(page.locator('#details-json')).not.toContainText('supply.hidden.reference@example.com');
+  await expect(page.locator('#details-json')).not.toContainText('Supply restricted surgery details hidden from verifier summary.');
+
+  const restrictedMedicalResponse = await request.get(`/api/v1/operator/seafarer-medical/${seafarer.draft_id}`, {
+    headers: {
+      Authorization: `Bearer ${operatorAccessToken}`,
+    },
+  });
+  expect(restrictedMedicalResponse.status()).toBe(403);
+  const restrictedMedicalPayload = await restrictedMedicalResponse.json();
+  expect(restrictedMedicalPayload.error).toBe('restricted_medical_capability_required');
+  expect(restrictedMedicalPayload.audit_recorded).toBe(true);
 
   await page.locator('#review-note').fill('');
   const workspaceActions = page.locator('.workspace-actions-section');
@@ -695,6 +764,21 @@ test('operator queue page renders submitted drafts from API', async ({ page, req
   await expect(page.locator('#details-sections')).toContainText('QUAL-003 Certificate of competence');
   await page.locator('#review-card-status-filter').selectOption('verified');
   await expect(page.locator('#details-sections')).not.toContainText('QUAL-003 Certificate of competence');
+
+  const actorContextSummary = runPsql(`
+SELECT concat_ws('|',
+  event_payload->'actor_context'->>'queue_type',
+  event_payload->'actor_context'->>'decision',
+  event_payload->'actor_context'->>'target_group_code',
+  event_payload->'actor_context'->>'required_permission_code'
+)
+FROM crewportglobal.registration_audit_events
+WHERE user_id = '${String(seafarer.draft_id).replace(/'/g, "''")}'::uuid
+  AND event_type = 'operator_review_decision_recorded'
+ORDER BY created_at DESC
+LIMIT 1;
+`);
+  expect(actorContextSummary).toContain('seafarer_profile|needs_correction|verification_team|');
 });
 
 test('owner team task opens pending vacancy deletion confirmation panel', async ({ page, request, baseURL }) => {

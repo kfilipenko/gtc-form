@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 1.92
+- Version: 1.93
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -299,6 +299,7 @@ docs/crewportglobal/
   210_cpg_biz_021_vacancy_request_deep_link_workspace_fix_report.md
   211_cpg_biz_022_business_process_verification_status_and_next_plan.md
   212_cpg_biz_023_remaining_object_task_link_execution_report.md
+  213_cpg_biz_024_supply_side_task_execution_data_scope_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -730,6 +731,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.93 | 2026-05-28 | GTC IT / AI Assistant | Added document 213 for CPG-BIZ-024 covering supply-side computed task execution, seafarer workspace deep link verification, restricted data-scope checks, restricted medical denial and audit actor-context verification |
 | 1.92 | 2026-05-27 | GTC IT / AI Assistant | Added document 212 for CPG-BIZ-023 covering remaining computed task link execution for seafarer profile and company verification tasks, verification-team workbench access, exact workspace links and focused operator queue regression results |
 | 1.91 | 2026-05-27 | GTC IT / AI Assistant | Added document 211 for CPG-BIZ-022 summarizing business-process stages already verified by the describe/verify/correct/test/advance method, remaining gaps and the recommended next work plan |
 | 1.90 | 2026-05-27 | GTC IT / AI Assistant | Added document 210 for CPG-BIZ-021 covering exact vacancy-request deep-link workspace loading, target-row filtering, team-session queue-decision permission checks and focused UI/API verification |
