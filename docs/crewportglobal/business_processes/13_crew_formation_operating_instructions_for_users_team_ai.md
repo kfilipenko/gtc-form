@@ -189,6 +189,15 @@ Users and team members must not send incomplete forms to operator review manuall
 
 AI agents may help explain missing numbered sections, but may not override the completeness gate or submit an incomplete form to operator review.
 
+Protected file uploads must be understandable before the user selects a file. Each upload panel must show:
+
+1. allowed formats: PDF, JPG, PNG and WEBP;
+2. maximum single-file size: 10 MB;
+3. that the draft must be saved before upload;
+4. that uploaded files are scanned and then placed into human review.
+
+If upload fails, the user must receive a specific cause whenever the system knows it. Examples include unsupported file type, empty file, file too large, request body too large, total draft upload limit, file count limit, partial upload or malware scan block. Team members and AI agents must not tell users simply that "upload failed" when a precise cause is available.
+
 Mandatory fields must be synchronized between forms. Users and team members must not mark a field optional on one side when the same field is required for matching on the other side.
 
 | Matching dimension | User instruction |

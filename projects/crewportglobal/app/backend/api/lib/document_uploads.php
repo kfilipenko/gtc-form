@@ -69,6 +69,46 @@ function cpg_document_allowed_mime_map(): array {
     ];
 }
 
+function cpg_document_upload_error(int $uploadError): array {
+    return match ($uploadError) {
+        UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => [
+            413,
+            'file_too_large_runtime_limit',
+            'Uploaded file exceeds the server upload limit',
+        ],
+        UPLOAD_ERR_PARTIAL => [
+            400,
+            'upload_partial',
+            'Uploaded file was received only partially',
+        ],
+        UPLOAD_ERR_NO_FILE => [
+            400,
+            'file_required',
+            'file is required',
+        ],
+        UPLOAD_ERR_NO_TMP_DIR => [
+            500,
+            'upload_temp_dir_missing',
+            'Upload temporary directory is not available',
+        ],
+        UPLOAD_ERR_CANT_WRITE => [
+            500,
+            'upload_temp_write_failed',
+            'Uploaded file could not be written to temporary storage',
+        ],
+        UPLOAD_ERR_EXTENSION => [
+            400,
+            'upload_blocked_by_extension',
+            'Uploaded file was blocked by the server upload extension',
+        ],
+        default => [
+            400,
+            'upload_failed',
+            'The uploaded file could not be received',
+        ],
+    };
+}
+
 function cpg_document_public_metadata(array $row): array {
     return [
         'document_id' => $row['document_id'],
@@ -494,6 +534,11 @@ function cpg_handle_post_registration_draft_document(string $draftId): void {
         api_error(415, 'unsupported_media_type', 'Content-Type must be multipart/form-data');
     }
 
+    $contentLength = isset($_SERVER['CONTENT_LENGTH']) ? (int) $_SERVER['CONTENT_LENGTH'] : 0;
+    if ($contentLength > 0 && empty($_POST) && empty($_FILES)) {
+        api_error(413, 'request_body_too_large', 'Uploaded request exceeds the server upload limit');
+    }
+
     $formType = isset($_POST['form_type']) && is_string($_POST['form_type']) ? trim($_POST['form_type']) : '';
     if (!in_array($formType, cpg_document_form_types(), true)) {
         api_error(400, 'invalid_form_type', 'form_type must be seafarer, employer or vessel');
@@ -512,7 +557,8 @@ function cpg_handle_post_registration_draft_document(string $draftId): void {
     $file = $_FILES['file'];
     $uploadError = isset($file['error']) ? (int) $file['error'] : UPLOAD_ERR_NO_FILE;
     if ($uploadError !== UPLOAD_ERR_OK) {
-        api_error(400, 'upload_failed', 'The uploaded file could not be received');
+        [$status, $error, $message] = cpg_document_upload_error($uploadError);
+        api_error($status, $error, $message);
     }
 
     $tmpName = isset($file['tmp_name']) && is_string($file['tmp_name']) ? $file['tmp_name'] : '';

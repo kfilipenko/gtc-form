@@ -276,6 +276,8 @@ The `Submit to operator review` action may become active only when:
 
 If the form is incomplete, the system must not show an executable operator-submission action. Instead it must show an owner task listing the exact numbered sections and required points to complete.
 
+Document upload controls are part of the same gate. Every form with a protected upload section must display the allowed file types and current maximum file size before upload. The frontend, backend API and runtime web/PHP limits must be aligned so that a file accepted by the published rule can reach application validation. If a file is rejected, the user must see a specific reason such as unsupported type, empty file, size limit, total draft limit, partial upload, malware scan failure or server request-size limit. A generic upload failure is not sufficient for ordinary user guidance.
+
 Approved owner task format:
 
 ```text

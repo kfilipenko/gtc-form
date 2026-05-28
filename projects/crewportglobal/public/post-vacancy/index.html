@@ -563,7 +563,7 @@
                 </label>
                 <button id="post-document-upload-submit" class="button secondary" type="button" data-i18n="post.upload.submit">Upload</button>
               </div>
-              <p id="post-document-upload-status" class="status-note" data-i18n="post.upload.status.initial">Save the vacancy request first, then upload PDF, JPG, PNG or WEBP evidence.</p>
+              <p id="post-document-upload-status" class="status-note" data-i18n="post.upload.status.initial">Allowed files: PDF, JPG, PNG or WEBP. Maximum size: 10 MB. Save the vacancy request first, then upload evidence.</p>
               <div id="post-document-action-list" class="document-action-list" aria-live="polite"></div>
               <div id="post-document-upload-list" class="document-upload-list" aria-live="polite"></div>
             </section>
@@ -687,12 +687,16 @@
         'post.upload.type.other_authority_evidence': 'Other authority evidence',
         'post.upload.file': 'File',
         'post.upload.submit': 'Upload',
-        'post.upload.status.initial': 'Save the vacancy request first, then upload PDF, JPG, PNG or WEBP evidence.',
+        'post.upload.status.initial': 'Allowed files: PDF, JPG, PNG or WEBP. Maximum size: 10 MB. Save the vacancy request first, then upload evidence.',
         'post.upload.status.saveFirst': 'Save the vacancy request first, then upload documents.',
         'post.upload.status.chooseFile': 'Choose a file to upload.',
+        'post.upload.status.emptyFile': 'The selected file is empty. Choose a readable PDF, JPG, PNG or WEBP file.',
+        'post.upload.status.tooLarge': 'The selected file is too large. Maximum size: {maxSize}.',
+        'post.upload.status.unsupportedType': 'Unsupported file type. Upload PDF, JPG, PNG or WEBP.',
         'post.upload.status.uploading': 'Uploading and scanning document...',
         'post.upload.status.uploaded': 'Document uploaded and scanned.',
         'post.upload.status.error': 'Document upload failed. Please check file type and size.',
+        'post.upload.status.errorDetail': 'Document upload failed: {message}',
         'post.upload.status.empty': 'No uploaded documents yet.',
         'post.upload.meta.scan': 'Scan',
         'post.upload.meta.review': 'Review',
@@ -704,6 +708,16 @@
         'post.upload.task.reason': 'Reason',
         'post.upload.task.uploadReplacement': 'Upload replacement',
         'post.upload.task.replacementHint': 'Choose a corrected replacement file for {document}.',
+        'post.upload.server.file_too_large': 'The selected file is too large. Maximum size: 10 MB.',
+        'post.upload.server.file_too_large_runtime_limit': 'The file reached the server upload limit before validation. Maximum supported size is 10 MB.',
+        'post.upload.server.request_body_too_large': 'The uploaded request reached the server upload limit. Maximum supported file size is 10 MB.',
+        'post.upload.server.draft_total_size_limit_exceeded': 'This draft has reached the total upload limit. Remove or replace documents before uploading more.',
+        'post.upload.server.draft_file_count_limit_exceeded': 'This draft has reached the maximum number of uploaded files.',
+        'post.upload.server.empty_file_rejected': 'The selected file is empty. Choose a readable PDF, JPG, PNG or WEBP file.',
+        'post.upload.server.unsupported_file_type': 'Unsupported file type. Upload PDF, JPG, PNG or WEBP.',
+        'post.upload.server.malware_detected': 'The file was blocked by malware scanning.',
+        'post.upload.server.upload_failed': 'The file could not be received. Check the file size and try again.',
+        'post.upload.server.upload_partial': 'The file was received only partially. Try uploading it again.',
         'post.upload.review.pending_human_review': 'Waiting for team review',
         'post.upload.review.under_review': 'Under review',
         'post.upload.review.correction_requested': 'Correction requested',
@@ -843,12 +857,16 @@
         'post.upload.type.other_authority_evidence': 'Другое подтверждение полномочий',
         'post.upload.file': 'Файл',
         'post.upload.submit': 'Загрузить',
-        'post.upload.status.initial': 'Сначала сохраните заявку, затем загрузите PDF, JPG, PNG или WEBP.',
+        'post.upload.status.initial': 'Допустимые файлы: PDF, JPG, PNG или WEBP. Максимальный размер: 10 MB. Сначала сохраните заявку, затем загрузите документ.',
         'post.upload.status.saveFirst': 'Сначала сохраните заявку, затем загрузите документы.',
         'post.upload.status.chooseFile': 'Выберите файл для загрузки.',
+        'post.upload.status.emptyFile': 'Выбранный файл пустой. Выберите читаемый PDF, JPG, PNG или WEBP.',
+        'post.upload.status.tooLarge': 'Выбранный файл слишком большой. Максимальный размер: {maxSize}.',
+        'post.upload.status.unsupportedType': 'Недопустимый тип файла. Загрузите PDF, JPG, PNG или WEBP.',
         'post.upload.status.uploading': 'Загружаем и сканируем документ...',
         'post.upload.status.uploaded': 'Документ загружен и просканирован.',
         'post.upload.status.error': 'Не удалось загрузить документ. Проверьте тип и размер файла.',
+        'post.upload.status.errorDetail': 'Не удалось загрузить документ: {message}',
         'post.upload.status.empty': 'Пока нет загруженных документов.',
         'post.upload.meta.scan': 'Сканирование',
         'post.upload.meta.review': 'Проверка',
@@ -860,6 +878,16 @@
         'post.upload.task.reason': 'Причина',
         'post.upload.task.uploadReplacement': 'Загрузить новую версию',
         'post.upload.task.replacementHint': 'Выберите исправленный файл для документа: {document}.',
+        'post.upload.server.file_too_large': 'Выбранный файл слишком большой. Максимальный размер: 10 MB.',
+        'post.upload.server.file_too_large_runtime_limit': 'Файл достиг серверного лимита загрузки до прикладной проверки. Поддерживаемый размер: до 10 MB.',
+        'post.upload.server.request_body_too_large': 'Загружаемый запрос достиг серверного лимита. Поддерживаемый размер файла: до 10 MB.',
+        'post.upload.server.draft_total_size_limit_exceeded': 'Для этого черновика достигнут общий лимит загрузок. Удалите или замените документы перед новой загрузкой.',
+        'post.upload.server.draft_file_count_limit_exceeded': 'Для этого черновика достигнут лимит количества загруженных файлов.',
+        'post.upload.server.empty_file_rejected': 'Выбранный файл пустой. Выберите читаемый PDF, JPG, PNG или WEBP.',
+        'post.upload.server.unsupported_file_type': 'Недопустимый тип файла. Загрузите PDF, JPG, PNG или WEBP.',
+        'post.upload.server.malware_detected': 'Файл заблокирован проверкой на вредоносный код.',
+        'post.upload.server.upload_failed': 'Файл не был получен системой. Проверьте размер файла и попробуйте снова.',
+        'post.upload.server.upload_partial': 'Файл был получен не полностью. Попробуйте загрузить его снова.',
         'post.upload.review.pending_human_review': 'Ожидает проверки команды',
         'post.upload.review.under_review': 'На проверке',
         'post.upload.review.correction_requested': 'Требуется исправление',
@@ -976,6 +1004,9 @@
       const uploadStatus = document.getElementById('post-document-upload-status');
       const documentActionList = document.getElementById('post-document-action-list');
       const uploadList = document.getElementById('post-document-upload-list');
+      const documentMaxFileSizeBytes = 10 * 1024 * 1024;
+      const documentAllowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+      const documentAllowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.webp'];
       let currentWorkspaceResponse = null;
 
       function getLanguage() {
@@ -1208,6 +1239,46 @@
         return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
       }
 
+      function fileHasAllowedDocumentType(file) {
+        const mimeType = file && typeof file.type === 'string' ? file.type.toLowerCase() : '';
+        const fileName = file && typeof file.name === 'string' ? file.name.toLowerCase() : '';
+        return documentAllowedMimeTypes.includes(mimeType)
+          || documentAllowedExtensions.some((extension) => fileName.endsWith(extension));
+      }
+
+      function documentUploadValidationMessage(file) {
+        if (!file) {
+          return t('post.upload.status.chooseFile');
+        }
+        if (!Number.isFinite(file.size) || file.size <= 0) {
+          return t('post.upload.status.emptyFile');
+        }
+        if (file.size > documentMaxFileSizeBytes) {
+          return tp('post.upload.status.tooLarge', {
+            maxSize: formatBytes(documentMaxFileSizeBytes)
+          });
+        }
+        if (!fileHasAllowedDocumentType(file)) {
+          return t('post.upload.status.unsupportedType');
+        }
+        return '';
+      }
+
+      function documentUploadServerErrorMessage(error) {
+        const code = error && error.payload && typeof error.payload.error === 'string'
+          ? error.payload.error
+          : '';
+        const translationKey = code ? `post.upload.server.${code}` : '';
+        const translated = translationKey ? t(translationKey) : '';
+        if (translated && translated !== translationKey) {
+          return translated;
+        }
+        if (error && typeof error.message === 'string' && error.message.trim()) {
+          return error.message.trim();
+        }
+        return t('post.upload.status.error');
+      }
+
       function currentDraftId() {
         return currentWorkspaceResponse && currentWorkspaceResponse.draft_id
           ? currentWorkspaceResponse.draft_id
@@ -1360,6 +1431,12 @@
           return;
         }
 
+        const validationMessage = documentUploadValidationMessage(file);
+        if (validationMessage) {
+          uploadStatus.textContent = validationMessage;
+          return;
+        }
+
         uploadSubmit.disabled = true;
         uploadStatus.textContent = t('post.upload.status.uploading');
 
@@ -1375,7 +1452,9 @@
             : `${t('post.upload.meta.scan')}: ${valueOrDash(response.document && response.document.scan_status)}`;
           await refreshUploadedDocuments();
         } catch (error) {
-          uploadStatus.textContent = t('post.upload.status.error');
+          uploadStatus.textContent = tp('post.upload.status.errorDetail', {
+            message: documentUploadServerErrorMessage(error)
+          });
           console.error(error);
         } finally {
           uploadSubmit.disabled = false;

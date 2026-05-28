@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.07
+- Version: 2.08
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -315,6 +315,7 @@ docs/crewportglobal/
   226_cpg_biz_037_canonical_mandatory_field_schema_phase0_report.md
   227_cpg_biz_038_backend_completeness_analyzer_api_contract_report.md
   228_cpg_biz_039_create_profile_completeness_gate_phase2_report.md
+  229_cpg_biz_040_protected_upload_limit_diagnostics_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -665,6 +666,8 @@ Document 227 records the CPG-BIZ-038 Phase 1 implementation of the backend compl
 
 Document 228 records the CPG-BIZ-039 Phase 2 implementation for `/create-profile/`, including one visible `Save / confirm data` action, background autosave, backend `S-*` completeness display, field/section highlighting for missing items and preservation of the no-submit/no-operator-task boundary.
 
+Document 229 records the CPG-BIZ-040 protected upload limit and diagnostics correction, including the discovered 2 MB PHP runtime mismatch, aligned nginx/PHP limits for 10 MB document uploads, exact upload error codes/messages and frontend validation on `/create-profile/` and `/post-vacancy/`.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -768,6 +771,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.08 | 2026-05-28 | GTC IT / AI Assistant | Added document 229 for CPG-BIZ-040 covering protected upload limit diagnostics, runtime upload limit alignment, exact upload error messages and frontend upload validation |
 | 2.07 | 2026-05-28 | GTC IT / AI Assistant | Added document 228 for CPG-BIZ-039 covering Phase 2 `/create-profile/` completeness gate UI, one visible Save / confirm action, S-code missing-item display and frontend test-maintenance updates |
 | 2.06 | 2026-05-28 | GTC IT / AI Assistant | Added document 227 for CPG-BIZ-038 covering Phase 1 backend completeness analyzer, read-only completeness API contract, safe document checks and no-side-effect endpoint verification |
 | 2.05 | 2026-05-28 | GTC IT / AI Assistant | Added document 226 for CPG-BIZ-037 covering Phase 0 canonical mandatory field schema implementation, synchronized S/E/V/R matching keys, target gaps and isolated schema validation |

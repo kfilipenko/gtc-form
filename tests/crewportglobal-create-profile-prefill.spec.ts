@@ -208,6 +208,50 @@ test('create profile save confirm renders backend S-code missing items and highl
   await expect(page).toHaveURL(/#profile-section-documents$/);
 });
 
+test('create profile document upload shows exact file limit and type validation', async ({ page, request }) => {
+  const email = `ui.savebutton.upload.${Date.now()}@example.com`;
+  const createResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Upload Validation Seafarer',
+      rank: 'Able Seaman',
+      department: 'deck',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = await createResponse.json();
+
+  await page.goto(`/create-profile/?draft_id=${created.draft_id}`);
+  await page.evaluate(() => {
+    window.localStorage.setItem('crewportglobal.language', 'en');
+  });
+  await page.reload();
+
+  await expect(page.locator('#create-document-upload-status')).toContainText('Maximum size: 10 MB');
+
+  await page.locator('#create-document-upload-file').setInputFiles({
+    name: 'too-large.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.concat([
+      Buffer.from('%PDF-1.4\n'),
+      Buffer.alloc((10 * 1024 * 1024) + 1),
+      Buffer.from('\n%%EOF\n'),
+    ]),
+  });
+  await page.locator('#create-document-upload-submit').click();
+  await expect(page.locator('#create-document-upload-status')).toContainText('too large');
+  await expect(page.locator('#create-document-upload-status')).toContainText('10.0 MB');
+
+  await page.locator('#create-document-upload-file').setInputFiles({
+    name: 'unsupported.txt',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('plain text is not an accepted evidence upload'),
+  });
+  await page.locator('#create-document-upload-submit').click();
+  await expect(page.locator('#create-document-upload-status')).toContainText('Unsupported file type');
+});
+
 test('create profile keeps local-only field edits before backend draft exists', async ({ page }) => {
   await page.goto('/create-profile/');
   await page.evaluate(() => {

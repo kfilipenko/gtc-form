@@ -62,6 +62,47 @@ test.afterEach(() => {
   cleanupPostVacancyWorkspaceTestData();
 });
 
+test('post vacancy document upload shows exact file limit and type validation', async ({ page }) => {
+  const unique = Date.now();
+  const email = `ui.postvacancy.upload.${unique}@example.com`;
+
+  await page.goto('/post-vacancy/');
+  await page.evaluate(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem('crewportglobal.language', 'en');
+  });
+  await page.goto('/post-vacancy/');
+
+  await expect(page.locator('#post-document-upload-status')).toContainText('Maximum size: 10 MB');
+
+  await page.locator('#post-email').fill(email);
+  await page.locator('#post-full-name').fill('Upload Validation Manager');
+  await page.locator('#post-company').fill(`Upload Validation Marine ${unique}`);
+  await page.locator('#post-submit').click();
+  await expect(page.locator('#post-status')).toContainText('saved successfully');
+
+  await page.locator('#post-document-upload-file').setInputFiles({
+    name: 'too-large.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.concat([
+      Buffer.from('%PDF-1.4\n'),
+      Buffer.alloc((10 * 1024 * 1024) + 1),
+      Buffer.from('\n%%EOF\n'),
+    ]),
+  });
+  await page.locator('#post-document-upload-submit').click();
+  await expect(page.locator('#post-document-upload-status')).toContainText('too large');
+  await expect(page.locator('#post-document-upload-status')).toContainText('10.0 MB');
+
+  await page.locator('#post-document-upload-file').setInputFiles({
+    name: 'unsupported.txt',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('plain text is not accepted authority evidence'),
+  });
+  await page.locator('#post-document-upload-submit').click();
+  await expect(page.locator('#post-document-upload-status')).toContainText('Unsupported file type');
+});
+
 async function acceptPresentationConsents(request: APIRequestContext, draftId: string): Promise<void> {
   for (const consentType of ['matching_preparation', 'employer_sharing']) {
     const response = await request.post('/api/v1/seafarer/consents', {
