@@ -14,6 +14,7 @@ WITH ui_users AS (
      OR email LIKE 'ui.demandlink.%@example.com'
      OR email LIKE 'ui.autosave.%@example.com'
      OR email LIKE 'ui.localrestore.%@example.com'
+     OR email LIKE 'ui.savebutton.%@example.com'
 ),
 ui_vacancies AS (
   SELECT vacancy_request_id
@@ -35,6 +36,7 @@ WITH ui_users AS (
      OR email LIKE 'ui.demandlink.%@example.com'
      OR email LIKE 'ui.autosave.%@example.com'
      OR email LIKE 'ui.localrestore.%@example.com'
+     OR email LIKE 'ui.savebutton.%@example.com'
 )
 UPDATE crewportglobal.seafarer_profiles sp
 SET review_status = 'rejected', updated_at = now()
@@ -49,6 +51,7 @@ WITH ui_users AS (
      OR email LIKE 'ui.demandlink.%@example.com'
      OR email LIKE 'ui.autosave.%@example.com'
      OR email LIKE 'ui.localrestore.%@example.com'
+     OR email LIKE 'ui.savebutton.%@example.com'
 )
 UPDATE crewportglobal.vacancy_requests vr
 SET publication_status = 'closed', updated_at = now()
@@ -63,6 +66,7 @@ WITH ui_users AS (
      OR email LIKE 'ui.demandlink.%@example.com'
      OR email LIKE 'ui.autosave.%@example.com'
      OR email LIKE 'ui.localrestore.%@example.com'
+     OR email LIKE 'ui.savebutton.%@example.com'
 ),
 ui_companies AS (
   SELECT DISTINCT cu.company_id
@@ -221,6 +225,7 @@ test('create profile keeps local-only field edits before backend draft exists', 
   await page.locator('#create-permanent-street').fill('Local Street');
   await page.locator('#create-registration-city').fill('Batumi');
 
+  await page.locator('#create-submit').click();
   await expect(page.locator('#create-status')).toContainText('browser');
   await page.reload();
   await expect(page.locator('#create-status')).toContainText('local changes');
@@ -265,6 +270,60 @@ test('create profile restores existing draft edits immediately after reload', as
   await expect(page.locator('#create-permanent-address')).toHaveValue('Immediate Restore Address');
   await expect(page.locator('#create-residence-city')).toHaveValue('Poti');
   await expect(page.locator('#create-status')).toContainText('autosaved', { timeout: 7000 });
+});
+
+test('create profile save confirm persists existing draft edits when visible email is empty', async ({ page, request }) => {
+  const email = `ui.savebutton.${Date.now()}@example.com`;
+  const createResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Save Button Seafarer',
+      rank: 'Able Seaman',
+      department: 'deck',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = await createResponse.json();
+
+  await page.goto(`/create-profile/?draft_id=${created.draft_id}`);
+  await page.evaluate(() => {
+    window.localStorage.setItem('crewportglobal.language', 'en');
+  });
+  await expect(page.locator('#create-status')).toContainText('prefilled');
+
+  await page.locator('#create-email').fill('');
+  await page.locator('#profile-section-contact > summary').click();
+  await page.locator('#create-permanent-address').fill('Save Button Pier 22');
+  await page.locator('#create-emergency-contact-name').fill('Save Button Contact');
+  await page.locator('#profile-section-addresses > summary').click();
+  await page.locator('#create-registration-city').fill('Riga');
+
+  await page.locator('#create-submit').click();
+  await expect(page.locator('#create-status')).toContainText(/saved|Complete/);
+
+  await expect.poll(async () => {
+    const draftResponse = await request.get(`/api/v1/registration/drafts/${created.draft_id}`);
+    expect(draftResponse.status()).toBe(200);
+    const draftBody = await draftResponse.json();
+    const metadata = typeof draftBody.payload.seafarer_profile.document_metadata === 'string'
+      ? JSON.parse(draftBody.payload.seafarer_profile.document_metadata)
+      : draftBody.payload.seafarer_profile.document_metadata;
+    return {
+      permanent_address: metadata?.seafarer_workspace?.contact_and_addresses?.permanent_address || '',
+      registration_city: metadata?.seafarer_workspace?.address_details?.registration_city || '',
+    };
+  }, { timeout: 7000 }).toEqual({
+    permanent_address: 'Save Button Pier 22',
+    registration_city: 'Riga',
+  });
+
+  await page.reload();
+  await expect(page.locator('#create-status')).toContainText(/prefilled|local changes/);
+  await page.locator('#profile-section-contact > summary').click();
+  await expect(page.locator('#create-permanent-address')).toHaveValue('Save Button Pier 22');
+  await page.locator('#profile-section-addresses > summary').click();
+  await expect(page.locator('#create-registration-city')).toHaveValue('Riga');
 });
 
 test('create profile autosaves contact and address edits before reload', async ({ page, request }) => {
@@ -321,7 +380,7 @@ test('create profile autosaves contact and address edits before reload', async (
   });
 
   await page.reload();
-  await expect(page.locator('#create-status')).toContainText('prefilled');
+  await expect(page.locator('#create-status')).toContainText(/prefilled|local changes|autosaved/);
   await page.locator('#profile-section-contact > summary').click();
   await expect(page.locator('#create-permanent-address')).toHaveValue('Autosave Pier 12, Limassol');
   await expect(page.locator('#create-residence-city')).toHaveValue('Limassol');

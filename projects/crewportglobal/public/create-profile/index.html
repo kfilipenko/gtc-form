@@ -3427,14 +3427,17 @@
       async function saveSeafarerDraft(options) {
         const opts = options || {};
         const validate = opts.validate !== false;
+        const draftId = currentDraftId();
 
-        if (validate && (!fullName.value.trim() || !email.value.trim())) {
+        if (validate && !draftId && (!fullName.value.trim() || !email.value.trim())) {
+          persistLocalFormSnapshot('new');
+          status.removeAttribute('data-i18n');
           status.textContent = t('create.form.validation');
           return null;
         }
 
         const response = await window.CPGDrafts.createOrUpdateDraft(buildSeafarerDraftPayload(), {
-          draftId: currentDraftId()
+          draftId
         });
 
         const responseProfile = response && response.payload ? response.payload.seafarer_profile : null;
@@ -4624,8 +4627,12 @@
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        if (!fullName.value.trim() || !email.value.trim()) {
-          status.textContent = t('create.form.validation');
+        persistLocalFormSnapshot(currentDraftId());
+        renderWorkspace();
+
+        if (!canAutosaveCurrentDraft()) {
+          status.removeAttribute('data-i18n');
+          status.textContent = t('create.form.localAutosaved');
           return;
         }
 

@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: CPG-BIZ-035 Phase 2
-- Version: 1.3
+- Version: 1.4
 - Date: 2026-05-28
 - Status: Implemented and verified on GTC1
 
@@ -27,6 +27,7 @@
 | Missing items | Пользователь видит нумерованные `S-*` пункты из backend ответа, например `S-1.3` или `S-12.D1`. |
 | Field highlighting | Поля и секции, связанные с missing items, подсвечиваются другим цветом. |
 | Section links | Missing item является ссылкой на соответствующую секцию формы. |
+| Save / confirm persistence | Кнопка `Save / confirm data` теперь сначала сохраняет введенные значения, затем запускает completeness check. |
 | Autosave | Изменения полей сохраняются немедленно в локальный browser snapshot; для существующего `draft_id` или после заполнения имени/email они дополнительно синхронизируются в backend. |
 | Submit boundary | Отдельная отправка оператору в этом этапе не активируется. |
 
@@ -60,16 +61,33 @@
 6. Если пользователь меняет поле во время уже выполняющегося autosave, форма ставит повторное сохранение в очередь и выполняет его после завершения текущего запроса.
 7. Добавлены регрессионные тесты: локально заполненные поля восстанавливаются до создания backend draft; быстро измененные поля существующего draft восстанавливаются сразу после перезагрузки; контактные и адресные поля доходят до backend и сохраняются после reload.
 
+### 2.3 Исправление кнопки `Save / confirm data` как реальной точки сохранения
+
+После дополнительной пользовательской проверки было выявлено, что кнопка `Save / confirm data` могла запускать контроль полноты, но не гарантировала сохранение введенных значений в двух случаях:
+
+1. существующий `draft_id` открыт, но видимое поле email пустое;
+2. новый черновик еще не может быть создан в backend, потому что имя/email не заполнены.
+
+Исправлено:
+
+1. При нажатии `Save / confirm data` форма всегда сначала сохраняет текущий browser snapshot.
+2. Если `draft_id` уже существует, backend save выполняется даже при пустом видимом email; существующий backend email сохраняется и не затирается пустым значением.
+3. Если backend draft еще нельзя создать из-за отсутствия имени/email, кнопка сохраняет значения локально и показывает пользователю, что черновик сохранен в браузере.
+4. Completeness check запускается только после успешного backend save или при уже существующем backend draft.
+5. Файловые поля не сохраняются в browser snapshot из-за ограничений безопасности браузера; документы по-прежнему сохраняются только через отдельный upload flow.
+6. Добавлен regression test, подтверждающий, что `Save / confirm data` сохраняет контактные и адресные поля существующего draft даже при пустом видимом email, а значения остаются после reload.
+
 ## 3. Пользовательский процесс
 
 1. Пользователь заполняет анкету моряка.
 2. Поля сохраняются автоматически сначала локально в браузере, затем в backend при наличии `draft_id` или минимальных данных для создания draft.
 3. Пользователь нажимает единственную видимую кнопку `Save / confirm data`.
-4. Система сохраняет draft.
-5. Система запускает backend completeness check.
-6. Если есть missing items, пользователь видит список `S-*` пунктов и подсветку полей.
-7. Пользователь открывает нужную секцию по ссылке, исправляет данные и снова нажимает `Save / confirm data`.
-8. До полной готовности анкета остается owner-side draft и не передается оператору.
+4. Система сначала сохраняет текущие введенные значения.
+5. Если backend draft доступен, система сохраняет значения в backend.
+6. Система запускает backend completeness check.
+7. Если есть missing items, пользователь видит список `S-*` пунктов и подсветку полей.
+8. Пользователь открывает нужную секцию по ссылке, исправляет данные и снова нажимает `Save / confirm data`.
+9. До полной готовности анкета остается owner-side draft и не передается оператору.
 
 ## 4. Файлы изменены
 
@@ -77,9 +95,9 @@
 |---|---|
 | `projects/crewportglobal/app/backend/api/lib/questionnaire_schema.php` | Changed demand-side completeness target URLs from generic form anchor to exact field anchors, including `R-4.2 -> #post-salary-min`. |
 | `projects/crewportglobal/public/assets/crewportglobal-registration-drafts.js` | Added `getCompleteness(draftId)` helper for the shared registration draft API client. |
-| `projects/crewportglobal/public/create-profile/index.html` | Connected Save / confirm flow to completeness endpoint, added S-code rendering, section links, field highlighting, hidden section-save controls and background autosave; added cross-page demand-side missing-item navigation; fixed existing-draft autosave for contact/address fields; added local browser snapshot restore for unsaved edits before backend draft creation. |
+| `projects/crewportglobal/public/create-profile/index.html` | Connected Save / confirm flow to completeness endpoint, added S-code rendering, section links, field highlighting, hidden section-save controls and background autosave; added cross-page demand-side missing-item navigation; fixed existing-draft autosave for contact/address fields; added local browser snapshot restore for unsaved edits before backend draft creation; made `Save / confirm data` perform a real local/backend save before completeness control. |
 | `projects/crewportglobal/public/post-vacancy/index.html` | Added hash-target field highlighting for direct demand-side missing-item links. |
-| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regressions for one visible Save / confirm action, backend `S-*` missing items, highlighted fields/sections, `R-4.2` cross-page field navigation, local-only draft restore before backend draft creation, immediate restore after reload and contact/address autosave persistence after reload. |
+| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regressions for one visible Save / confirm action, backend `S-*` missing items, highlighted fields/sections, `R-4.2` cross-page field navigation, local-only draft restore before backend draft creation, immediate restore after reload, contact/address autosave persistence after reload and Save / confirm persistence for existing draft edits with empty visible email. |
 | `tests/crewportglobal-seafarer-workspace-form.spec.ts` | Updated old section-save assertions to the approved one-button Save / confirm behavior. |
 | `docs/crewportglobal/00_documentation_register.md` | Registered document 228. |
 | `docs/crewportglobal/business_processes/00_business_process_register.md` | Added Phase 2 business-process control for `/create-profile/`. |
@@ -159,7 +177,7 @@ Relevant focused suite after the correction:
 npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-create-profile-prefill.spec.ts tests/crewportglobal-post-vacancy-workspace.spec.ts
 ```
 
-Result: passed, 10 tests.
+Result: passed, 11 tests.
 
 Focused contact/address persistence regression:
 
@@ -168,6 +186,14 @@ npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-
 ```
 
 Result: passed, 1 test.
+
+Focused Save / confirm persistence regressions:
+
+```bash
+npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-create-profile-prefill.spec.ts -g "local-only|save confirm persists existing draft"
+```
+
+Result: passed, 2 tests.
 
 Focused local restore regressions:
 
@@ -188,10 +214,12 @@ The focused suite confirms:
 7. `/post-vacancy/` highlights the target salary minimum field;
 8. existing draft prefill and patch flow still work;
 9. contact and address edits autosave on an existing `draft_id` and remain after page reload;
-10. fields entered before backend draft creation are restored from local browser storage after reload;
-11. quickly edited existing-draft fields are restored immediately after reload and then synced to backend;
-12. extended seafarer workspace fields still persist through save/reload;
-13. cabinet seafarer completeness tasks still derive from partial structured workspace.
+10. `Save / confirm data` saves local-only fields before backend draft creation;
+11. `Save / confirm data` saves existing draft edits to backend even when visible email is empty;
+12. fields entered before backend draft creation are restored from local browser storage after reload;
+13. quickly edited existing-draft fields are restored immediately after reload and then synced to backend;
+14. extended seafarer workspace fields still persist through save/reload;
+15. cabinet seafarer completeness tasks still derive from partial structured workspace.
 
 ## 7. Следующий этап
 
