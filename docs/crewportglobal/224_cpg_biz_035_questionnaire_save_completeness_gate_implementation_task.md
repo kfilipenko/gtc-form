@@ -4,8 +4,8 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation task for Project Owner approval
-- Source document: CPG-BIZ-034 analysis, document 223
-- Version: 1.0
+- Source document: CPG-BIZ-034 analysis, document 223; CPG-BIZ-036 mandatory-field synchronization, document 225
+- Version: 1.1
 - Date: 2026-05-28
 - Status: For Project Owner approval
 
@@ -13,7 +13,7 @@
 
 This task authorizes the next controlled implementation slice for the questionnaire save / completeness / submit standard.
 
-The implementation must ensure that seafarer, employer, vessel and crew-request questionnaires can be saved as drafts, checked automatically for completeness and submitted to operator review only when required numbered sections, fields and documents are complete.
+The implementation must ensure that seafarer, employer, vessel and crew-request questionnaires can autosave draft field values, expose one visible `Save / confirm data` action, run completeness checks from a shared mandatory-field schema and submit to operator review only when required numbered sections, fields and documents are complete.
 
 ## 2. Business Reason
 
@@ -22,7 +22,8 @@ The current forms already collect substantial data, but the current save behavio
 The required business rule is:
 
 ```text
-Save stores draft data.
+Field changes may autosave draft data.
+One Save / confirm data button runs completeness checks.
 Completeness check explains missing numbered sections.
 Submit to operator review becomes active only after the required package is complete.
 ```
@@ -30,6 +31,36 @@ Submit to operator review becomes active only after the required package is comp
 This reduces manual operator work, prevents avoidable incomplete team tasks and prepares the platform for future AI-assisted completeness review.
 
 ## 3. Implementation Scope
+
+### 3.0 Mandatory-field schema
+
+Before changing UI behavior, define a canonical mandatory-field schema based on document 225.
+
+The schema must define:
+
+```text
+field_code
+canonical_key
+stream
+label
+required_for_save
+required_for_submit
+required_for_matching
+conditional_required
+mirrored_required_key
+visibility_class
+target_url
+```
+
+The same schema must drive:
+
+1. backend completeness checks;
+2. frontend required markers;
+3. owner missing-section tasks;
+4. operator correction targets;
+5. future AI validation prompts.
+
+Required-field logic must not be duplicated separately in `/create-profile/` and `/post-vacancy/`.
 
 ### 3.1 Backend
 
@@ -108,16 +139,35 @@ Create a stable configuration or helper for these prefixes:
 
 The implementation should start with the sections defined in document 223 and may keep optional/future fields as non-blocking until Project Owner approves stricter requirements.
 
+### 3.5 Single visible save / confirm action
+
+Each questionnaire should have one visible primary save action:
+
+```text
+Save / confirm data
+```
+
+Field-level autosave may run in the background. Section-level save buttons may remain only as a temporary compatibility bridge if implementation risk requires it, but the target user model is one visible save/confirm action per questionnaire, followed by the completeness result.
+
+### 3.6 Synchronized mandatory fields
+
+Mandatory fields must be synchronized by canonical key:
+
+1. if demand requires a field for matching, supply must require the corresponding field before matching-ready status;
+2. if supply requires a field for matching-ready status, demand/vessel/request must require the corresponding field where that dimension is used;
+3. if a structured demand field does not exist yet, the implementation must either add it as part of the approved scope or keep that dimension out of hard matching until the field exists.
+
 ## 4. Required Behavioral Rules
 
-1. Saving an incomplete form must not create an active operator-review task.
-2. Saving a complete form must not automatically submit it unless the user activates `Submit to operator review`.
-3. Submit must be blocked if required numbered fields are missing.
-4. Submit must be blocked if required documents are missing, unsafe, unreadable or not clean-scanned where applicable.
-5. Submit must be blocked if unresolved owner correction tasks remain.
-6. The missing-data task must point to numbered sections, not generic text.
-7. Existing data-minimization and restricted-field rules must remain active.
-8. No automatic matching score, publication or employment decision is introduced.
+1. Field-level autosave must not create an active operator-review task.
+2. Pressing `Save / confirm data` must run completeness checks and keep the object owner-side unless the user later activates `Submit to operator review`.
+3. Saving a complete form must not automatically submit it unless the user activates `Submit to operator review`.
+4. Submit must be blocked if required numbered fields are missing.
+5. Submit must be blocked if required documents are missing, unsafe, unreadable or not clean-scanned where applicable.
+6. Submit must be blocked if unresolved owner correction tasks remain.
+7. The missing-data task must point to numbered sections, not generic text.
+8. Existing data-minimization and restricted-field rules must remain active.
+9. No automatic matching score, publication or employment decision is introduced.
 
 ## 5. DB And Migration Boundary
 
@@ -137,6 +187,8 @@ Focused tests must prove:
 
 | Test area | Required assertion |
 |---|---|
+| Mandatory schema parity | Canonical matching fields required on demand have corresponding required supply fields, and vice versa where applicable. |
+| Autosave safety | Field-level autosave stores draft data but does not create active operator-review tasks. |
 | Incomplete seafarer save | Draft is saved, missing `S-*` items are returned, no active operator review task appears. |
 | Complete seafarer submit | `Submit to operator review` succeeds and creates the expected review task. |
 | Incomplete employer/vessel/request save | Draft is saved, missing `E/V/R-*` items are returned, no active team review task appears. |
@@ -162,24 +214,28 @@ This task does not authorize:
 The task is complete when:
 
 1. all four streams have numbered completeness checks;
-2. Save and Submit are separated in backend behavior;
-3. incomplete forms remain owner-side and do not create active operator-review tasks;
-4. complete forms can be submitted to operator review by explicit user action;
-5. missing items are shown by numbered section/field/document codes;
-6. owner cabinet tasks link to the exact missing section where possible;
-7. focused tests pass;
-8. generated Playwright/test artifacts are clean;
-9. final Russian implementation report lists files changed, tests and next stage.
+2. canonical mandatory-field schema exists and drives backend/frontend checks;
+3. matching-critical mandatory fields are synchronized between supply and demand;
+4. field-level autosave does not create active operator-review tasks;
+5. one visible `Save / confirm data` action runs completeness checks for the questionnaire;
+6. Save and Submit are separated in backend behavior;
+7. incomplete forms remain owner-side and do not create active operator-review tasks;
+8. complete forms can be submitted to operator review by explicit user action;
+9. missing items are shown by numbered section/field/document codes;
+10. owner cabinet tasks link to the exact missing section where possible;
+11. focused tests pass;
+12. generated Playwright/test artifacts are clean;
+13. final Russian implementation report lists files changed, tests and next stage.
 
 ## 9. Next Stage After Approval
 
 After Project Owner approval, implementation should start with:
 
 ```text
+Phase 0 - Canonical mandatory field schema and synchronized supply-demand required keys
 Phase 1 - Backend completeness analyzer and API contract
-Phase 2 - /create-profile/ Save vs Submit behavior
-Phase 3 - /post-vacancy/ Save vs Submit behavior
+Phase 2 - /create-profile/ autosave plus one Save / confirm action
+Phase 3 - /post-vacancy/ autosave plus one Save / confirm action
 Phase 4 - Owner cabinet numbered missing-section tasks
 Phase 5 - Focused regression tests and final report
 ```
-

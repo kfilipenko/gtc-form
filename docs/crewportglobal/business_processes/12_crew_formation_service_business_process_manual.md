@@ -255,7 +255,14 @@ Save
    or show a numbered completion/correction task
 ```
 
-The `Save` action must remain available to the owner while editing an allowed draft or correction. Saving stores the current draft and runs automated checks, but it does not by itself send the object to operator review.
+The visible save model must be simple for the user:
+
+```text
+field-level autosave may store draft values while editing;
+one visible Save / confirm data action runs the completeness check.
+```
+
+The `Save / confirm data` action must remain available to the owner while editing an allowed draft or correction. Saving stores the current draft and runs automated checks, but it does not by itself send the object to operator review.
 
 The `Submit to operator review` action may become active only when:
 
@@ -303,6 +310,23 @@ Future implementation may choose the exact prefix style, but the same number mus
 4. operator correction requests;
 5. audit events;
 6. AI-agent prompts and validation results.
+
+Mandatory-field rules must also be synchronized across supply and demand. If a field is mandatory on the crew-request / vessel side because it is used for matching, the corresponding seafarer-side field must also be mandatory before the seafarer profile can become matching-ready. If a seafarer-side field is mandatory for matching readiness, the corresponding demand-side field must be mandatory where that demand object uses the same matching dimension.
+
+Examples:
+
+| Matching dimension | Seafarer-side required field | Demand/vessel/request required field |
+|---|---|---|
+| Rank | Primary rank | Requested rank / vacancy title |
+| Department | Department | Requested department |
+| Vessel type | Preferred vessel types and/or sea-service vessel type | Vessel type |
+| Timing | Availability status/date | Joining date |
+| Salary | Salary expectation | Salary min/max/currency |
+| COC / certificates | COC type, expiry and document | COC requirement |
+| Education | Education grade/specialisation when required | Education requirement when stated |
+| Training | Training courses/certificates when required | Training requirement when stated |
+
+The backend completeness schema must be the source of truth for these mandatory flags. HTML `required` attributes and frontend markers must be generated from, or kept aligned with, that schema.
 
 This control reduces manual operator work. Operators should receive review tasks only after the owner has completed the minimum required data and documents for the current form object.
 

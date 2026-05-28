@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.03
+- Version: 2.04
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -311,6 +311,7 @@ docs/crewportglobal/
   222_cpg_biz_033_questionnaire_save_completeness_gate_standard_report.md
   223_cpg_biz_034_questionnaire_inventory_save_check_submit_analysis.md
   224_cpg_biz_035_questionnaire_save_completeness_gate_implementation_task.md
+  225_cpg_biz_036_mandatory_field_synchronization_analysis.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -653,6 +654,8 @@ Document 223 records the CPG-BIZ-034 questionnaire inventory and Save / Check / 
 
 Document 224 records the CPG-BIZ-035 implementation task for the questionnaire save-completeness gate, including backend analyzer, API contract, frontend Save vs Submit behavior, owner missing-section tasks, tests, DB boundary and acceptance criteria.
 
+Document 225 records the CPG-BIZ-036 mandatory-field synchronization analysis, including one visible Save / confirm action, field-level autosave boundary, synchronized supply-demand mandatory matching keys, current HTML required-field gaps and required baseline by stream.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -756,6 +759,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.04 | 2026-05-28 | GTC IT / AI Assistant | Added document 225 for CPG-BIZ-036 covering mandatory-field synchronization, one visible Save / confirm action, field-level autosave boundary and supply-demand required-field parity for matching |
 | 2.03 | 2026-05-28 | GTC IT / AI Assistant | Added documents 223 and 224 for questionnaire inventory Save / Check / Submit analysis and the controlled implementation task for the save-completeness gate |
 | 2.02 | 2026-05-28 | GTC IT / AI Assistant | Added document 222 for CPG-BIZ-033 covering questionnaire save/completeness gate standard, numbered sections and submit-to-operator review boundary for all forms |
 | 2.01 | 2026-05-28 | GTC IT / AI Assistant | Added document 221 for CPG-BIZ-032 covering employer and demand-side correction handoff verification, owner cabinet correction visibility, owner resubmission and team-task recomputation |

@@ -7,7 +7,7 @@
 - Source task: Project Owner instruction after CPG-BIZ-033
 - Version: 1.0
 - Date: 2026-05-28
-- Status: Analysis complete; implementation task prepared separately
+- Status: Analysis complete; mandatory-field synchronization addendum prepared in document 225
 
 ## 1. Назначение
 
@@ -292,6 +292,12 @@ The next task is documented separately as:
 
 ```text
 docs/crewportglobal/224_cpg_biz_035_questionnaire_save_completeness_gate_implementation_task.md
+```
+
+Mandatory-field synchronization for that task is documented separately as:
+
+```text
+docs/crewportglobal/225_cpg_biz_036_mandatory_field_synchronization_analysis.md
 ```
 
 That task should be approved before implementation begins.

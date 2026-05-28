@@ -136,6 +136,14 @@ Ambiguous labels must be avoided.
 
 Every form used by seafarers, employers, vessel owners or team-supported users must follow the same user-facing rule.
 
+The user must see one main save/confirmation action for the questionnaire.
+
+Fields may autosave while the user edits, but the visible control must remain:
+
+```text
+Save / confirm data
+```
+
 The user must be able to save an allowed draft or correction. Save means:
 
 1. store the entered data;
@@ -180,6 +188,19 @@ Examples:
 Users and team members must not send incomplete forms to operator review manually. If the completeness analyzer reports missing numbered items, the user must complete those sections first.
 
 AI agents may help explain missing numbered sections, but may not override the completeness gate or submit an incomplete form to operator review.
+
+Mandatory fields must be synchronized between forms. Users and team members must not mark a field optional on one side when the same field is required for matching on the other side.
+
+| Matching dimension | User instruction |
+|---|---|
+| Rank / department | Seafarer profile and crew request must both contain structured values. |
+| Vessel type | Seafarer preference or experience and vessel/request type must both be structured. |
+| Timing | Seafarer availability and employer joining date must both be present. |
+| Salary | Seafarer expectation and employer salary range/currency must both be present for commercial fit. |
+| Certificates / education / training | If the demand requires it, the seafarer side must provide the matching structured evidence before the profile is treated as matching-ready. |
+| Visa / language / special operation constraints | If used as a blocker on demand, the corresponding seafarer-side field must exist and be checked; otherwise it must remain advisory, not a hard blocker. |
+
+AI agents may identify mismatched mandatory-field rules, but may not silently change the required-field matrix without Project Owner approval.
 
 ## 4. Seafarer Instructions
 
