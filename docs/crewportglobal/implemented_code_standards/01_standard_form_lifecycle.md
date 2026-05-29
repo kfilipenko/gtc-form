@@ -4,7 +4,7 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Implemented code standards
 - Document type: Implemented code standard
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-05-29
 - Status: Active
 
@@ -19,7 +19,9 @@ The standard prevents every form from creating its own copy of:
 3. exact navigation to fields requiring completion;
 4. autosave scheduling;
 5. backend-first reload after successful save;
-6. structured list-valued reference-field handling through page adapters.
+6. structured list-valued reference-field handling through page adapters;
+7. finite single-select reference-field handling through shared catalog binding;
+8. repeated-address copy helpers when a form asks for the same address more than once.
 
 ## 2. Applies To
 
@@ -65,6 +67,8 @@ Each page adapter must provide:
 | `fallbackLabel` | Safe label for unknown items. |
 | backend `updated_at` timestamp | Determines whether a local snapshot is newer than backend draft data. |
 | list-valued control mapping | Maps catalog-backed multi-select values to the canonical payload array. |
+| finite catalog select mapping | Maps matching-critical finite catalog fields to true `select` controls instead of browser `datalist` text inputs. |
+| repeated-address source mapping | Defines which source address fields can copy into the repeated address block. |
 
 ## 5. Forbidden Local Logic
 
@@ -76,9 +80,24 @@ Pages must not duplicate:
 4. section opening logic for missing items;
 5. autosave timer/in-flight/pending control;
 6. stale-local-snapshot overwrite after backend save;
-7. free-text storage for catalog-backed list fields when a structured catalog exists.
+7. free-text storage for catalog-backed list fields when a structured catalog exists;
+8. `datalist` controls for finite mandatory or matching-critical catalogs such as civil status, gender, relation or vessel type;
+9. page-local duplicate-address behavior when a shared form lifecycle helper or page adapter can provide it.
 
-## 6. Current Tests
+## 6. Reference-Field Control Standard
+
+Finite catalog-backed fields must use structured controls:
+
+| Field type | Required control | Reason |
+|---|---|---|
+| Single finite catalog | `select` populated through `CPGReferenceCatalogs.bindSelect` | The user must choose one approved value, and tests can assert the control. |
+| Multiple finite catalog | `select multiple` or approved multiselect control | Matching may compare several values and needs a stored array. |
+| Large searchable catalog | `input` + `datalist` may remain temporarily acceptable | Countries, cities, airports or institutions may need search/type-ahead until a shared searchable select exists. |
+| Free text | `input` / `textarea` | Only when no catalog or controlled value set applies. |
+
+When a finite catalog cannot be loaded, the page adapter must provide a safe fallback value list and preserve already saved legacy values on reload.
+
+## 7. Current Tests
 
 Current regression coverage includes:
 
@@ -95,7 +114,20 @@ They also check that `/create-profile/` keeps saved backend data after hard relo
 Any vessel type / Тип судна не важен
 ```
 
-## 7. Change Propagation Rule
+The `/create-profile/` regression also checks that finite catalog fields are true `select` controls:
+
+```text
+gender
+civil status
+emergency contact relation
+kin gender
+kin relation
+last vessel type
+```
+
+and that the repeated registration address can be copied from the permanent address without losing backend persistence after reload.
+
+## 8. Change Propagation Rule
 
 If missing-item navigation, highlighting or autosave behavior changes, update:
 
@@ -106,7 +138,7 @@ If missing-item navigation, highlighting or autosave behavior changes, update:
 
 After a successful backend save, the page adapter must clear or ignore older local snapshots. A local snapshot may restore form values only when it is newer than the backend `updated_at` timestamp, because otherwise a browser cache can erase saved questionnaire data after a hard reload.
 
-## 8. Next Adoption Targets
+## 9. Next Adoption Targets
 
 1. owner correction task forms;
 2. future submit-review UI;

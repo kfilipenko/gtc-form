@@ -1,4 +1,4 @@
-import { expect, test, type APIRequestContext } from '@playwright/test';
+import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 
@@ -128,6 +128,18 @@ WHERE ec.company_id = uc.company_id
 test.afterEach(() => {
   cleanupCreateProfileUiTestData();
 });
+
+async function selectFirstCatalogOption(page: Page, selector: string): Promise<string> {
+  await expect.poll(async () => page.locator(`${selector} option`).count(), { timeout: 7000 }).toBeGreaterThan(1);
+  const value = await page.locator(selector).evaluate((element) => {
+    const select = element as HTMLSelectElement;
+    const option = Array.from(select.options).find((item) => item.value.trim() !== '');
+    return option ? option.value : '';
+  });
+  expect(value).not.toBe('');
+  await page.locator(selector).selectOption(value);
+  return value;
+}
 
 async function acceptPresentationConsents(request: APIRequestContext, draftId: string): Promise<void> {
   for (const consentType of ['matching_preparation', 'employer_sharing']) {
@@ -548,6 +560,110 @@ test('create profile save confirm keeps backend data after hard reload and suppo
   await expect(page.locator('#create-residence-city')).toHaveValue('Limassol');
 });
 
+test('create profile uses catalog selects and copies permanent address to registration', async ({ page, request }) => {
+  const email = `ui.savebutton.${Date.now()}.catalogs@example.com`;
+  const createResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Catalog Select Seafarer',
+      rank: 'Able Seaman',
+      department: 'deck',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = await createResponse.json();
+
+  await page.goto(`/create-profile/?draft_id=${created.draft_id}`);
+  await page.evaluate(() => {
+    window.localStorage.setItem('crewportglobal.language', 'en');
+  });
+  await expect(page.locator('#create-status')).toContainText('prefilled');
+
+  for (const selector of [
+    '#create-gender',
+    '#create-civil-status',
+    '#create-emergency-contact-relation',
+    '#create-kin-gender',
+    '#create-kin-relation',
+    '#create-last-vessel-type',
+  ]) {
+    await expect(page.locator(selector)).toHaveJSProperty('tagName', 'SELECT');
+  }
+  await expect(page.locator('#create-vessel-types')).toHaveJSProperty('multiple', true);
+
+  await page.locator('#profile-section-contact > summary').click();
+  const gender = await selectFirstCatalogOption(page, '#create-gender');
+  const civilStatus = await selectFirstCatalogOption(page, '#create-civil-status');
+  const emergencyRelation = await selectFirstCatalogOption(page, '#create-emergency-contact-relation');
+  await page.locator('#create-residence').fill('CY');
+  await page.locator('#create-residence-city').fill('Limassol');
+
+  await page.locator('#profile-section-addresses > summary').click();
+  await page.locator('#create-permanent-street').fill('Catalog Street');
+  await page.locator('#create-permanent-house').fill('9');
+  await page.locator('#create-permanent-flat').fill('12');
+  await page.locator('#create-permanent-region').fill('Limassol District');
+  await page.locator('#create-permanent-post-code').fill('4040');
+  await page.locator('#create-permanent-comments').fill('Reception entrance');
+  await page.locator('#create-registration-same-as-permanent').check();
+
+  await expect(page.locator('#create-registration-street')).toHaveValue('Catalog Street');
+  await expect(page.locator('#create-registration-house')).toHaveValue('9');
+  await expect(page.locator('#create-registration-flat')).toHaveValue('12');
+  await expect(page.locator('#create-registration-city')).toHaveValue('Limassol');
+  await expect(page.locator('#create-registration-country')).toHaveValue('CY');
+  await expect(page.locator('#create-registration-region')).toHaveValue('Limassol District');
+  await expect(page.locator('#create-registration-post-code')).toHaveValue('4040');
+
+  await page.locator('#profile-section-family > summary').click();
+  const kinGender = await selectFirstCatalogOption(page, '#create-kin-gender');
+  const kinRelation = await selectFirstCatalogOption(page, '#create-kin-relation');
+  await page.locator('#profile-section-sea-service > summary').click();
+  const lastVesselType = await selectFirstCatalogOption(page, '#create-last-vessel-type');
+
+  await page.locator('#create-submit').click();
+  await expect(page.locator('#create-status')).toContainText(/saved|Complete/);
+
+  await expect.poll(async () => {
+    const draftResponse = await request.get(`/api/v1/registration/drafts/${created.draft_id}`);
+    expect(draftResponse.status()).toBe(200);
+    const draftBody = await draftResponse.json();
+    const metadata = typeof draftBody.payload.seafarer_profile.document_metadata === 'string'
+      ? JSON.parse(draftBody.payload.seafarer_profile.document_metadata)
+      : draftBody.payload.seafarer_profile.document_metadata;
+    return {
+      gender: metadata?.seafarer_workspace?.personal_details?.gender || '',
+      civil_status: metadata?.seafarer_workspace?.personal_details?.civil_status || '',
+      emergency_contact_relation: metadata?.seafarer_workspace?.contact_and_addresses?.emergency_contact_relation || '',
+      registration_street: metadata?.seafarer_workspace?.address_details?.registration_street || '',
+      registration_city: metadata?.seafarer_workspace?.address_details?.registration_city || '',
+      registration_country: metadata?.seafarer_workspace?.address_details?.registration_country || '',
+      kin_gender: metadata?.seafarer_workspace?.family_details?.kin_gender || '',
+      kin_relation: metadata?.seafarer_workspace?.family_details?.kin_relation || '',
+      last_vessel_type: metadata?.seafarer_workspace?.sea_service?.last_vessel_type || '',
+    };
+  }, { timeout: 7000 }).toEqual({
+    gender,
+    civil_status: civilStatus,
+    emergency_contact_relation: emergencyRelation,
+    registration_street: 'Catalog Street',
+    registration_city: 'Limassol',
+    registration_country: 'CY',
+    kin_gender: kinGender,
+    kin_relation: kinRelation,
+    last_vessel_type: lastVesselType,
+  });
+
+  await page.reload();
+  await expect(page.locator('#create-status')).toContainText(/prefilled|local changes/);
+  await page.locator('#profile-section-contact').evaluate((element) => element.setAttribute('open', ''));
+  await expect(page.locator('#create-civil-status')).toHaveValue(civilStatus);
+  await page.locator('#profile-section-addresses').evaluate((element) => element.setAttribute('open', ''));
+  await expect(page.locator('#create-registration-street')).toHaveValue('Catalog Street');
+  await expect(page.locator('#create-registration-city')).toHaveValue('Limassol');
+});
+
 test('create profile autosaves contact and address edits before reload', async ({ page, request }) => {
   const email = `ui.autosave.${Date.now()}@example.com`;
   const createResponse = await request.post('/api/v1/registration/drafts', {
@@ -572,7 +688,7 @@ test('create profile autosaves contact and address edits before reload', async (
   await page.locator('#create-permanent-address').fill('Autosave Pier 12, Limassol');
   await page.locator('#create-residence-city').fill('Limassol');
   await page.locator('#create-emergency-contact-name').fill('Nina Autosave');
-  await page.locator('#create-emergency-contact-relation').fill('Spouse');
+  await selectFirstCatalogOption(page, '#create-emergency-contact-relation');
   await page.locator('#create-emergency-contact-phone').fill('+35799123456');
 
   await page.locator('#profile-section-addresses > summary').click();

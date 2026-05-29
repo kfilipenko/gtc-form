@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Business-process standard and implementation control
 - Source task: Project Owner approval after CPG-BIZ-040 multi-role upload diagnostics
-- Version: 1.4
+- Version: 1.5
 - Date: 2026-05-29
 - Status: Approved standard for staged implementation
 
@@ -175,6 +175,9 @@ Each form page must connect to the same frontend behavior.
 | Reload safety | After reload, saved and autosaved data must still be present. |
 | Backend-first reload | After successful backend save, backend draft is the source of truth; browser local snapshot may restore only newer unsaved edits. |
 | List-valued reference field | Use structured multi-select controls for list-valued catalog fields instead of free text, with explicit neutral option when matching allows it. |
+| Finite single-select reference field | Use a true catalog-backed `select`, not `datalist`, for finite matching/control values such as civil status, gender, relation and vessel type. |
+| Repeated address fields | Provide an explicit `Same address` copy option when a form asks the user to enter substantially the same address more than once. |
+| Visual contrast | Inputs, textareas, upload lists and document metadata must remain readable in dark and light themes. |
 
 The frontend must not infer final readiness independently from visible input values when the backend analyzer is available.
 
@@ -265,7 +268,7 @@ The page-specific adapter must be small: it maps DOM fields to canonical codes a
 
 | Page / flow | Current status | Next standardization action |
 |---|---|---|
-| `/create-profile/` | Phase E.1 adopted: autosave, `Save / confirm data`, `S-*` missing items, field highlight, role-aware seafarer context, missing-item navigation/highlighting, protected upload helper, backend-first reload after save and structured vessel-type multi-select. | Keep behavior covered by create-profile regression and apply the same backend-first reload rule to future form adapters. |
+| `/create-profile/` | Phase E.2 adopted: autosave, `Save / confirm data`, `S-*` missing items, field highlight, role-aware seafarer context, missing-item navigation/highlighting, protected upload helper, backend-first reload after save, structured vessel-type multi-select, finite catalog single-selects, same-address copy and dark-theme contrast corrections. | Keep behavior covered by create-profile regression and apply the same catalog/select and same-address rules to future form adapters. |
 | `/post-vacancy/` | Phase D adopted: employer-side role-aware draft reads, `Save / confirm data`, backend `E/V/R` completeness, missing-item panel, field highlighting, exact field navigation and protected upload use shared lifecycle/upload helpers. | Keep behavior covered by post-vacancy regression and connect future submit-review gate only after backend completeness passes. |
 | `/cabinet/` correction tasks | Partially adopted: correction tasks and source-card links exist. | Use the same missing-item numbering and correction route contract. |
 | `/verify/` review workspace | Partially adopted: computed tasks and review outcomes exist. | Consume lifecycle state labels from a standard task/action contract. |
@@ -283,6 +286,7 @@ Recommended sequence:
 | Phase D | Normalize protected upload UI through a shared upload helper. | Completed for `/create-profile/` and `/post-vacancy/`: same upload validation, status rendering, uploaded-document list and correction-task rendering. |
 | Phase E | Add submit-review endpoint gated by backend completeness. | Completed: `ICS-003` submit-to-operator review gate, explicit submit endpoint, audit event and no operator task from save/autosave. |
 | Phase E.1 | Correct `/create-profile/` hard-reload persistence and vessel-type structured selection. | Completed: backend-first reload, stale local snapshot guard and `vessel_types` multi-select with `Any vessel type`. |
+| Phase E.2 | Correct `/create-profile/` finite catalog selects, repeated-address copy and upload/list contrast. | Completed: catalog-backed `select` controls for finite fields, `Same address` copy from permanent to registration address, and readable upload/document cards in dark theme. |
 | Phase F | Connect owner correction tasks to the same numbered missing-item standard. | Consistent correction and resubmission flow. |
 
 ## 13. Prohibited Shortcuts
@@ -333,7 +337,9 @@ The standard is correctly adopted for a form when:
 10. submit-review writes audit and computes the next task only after the gate passes;
 11. after successful save, hard reload restores backend data and does not let an older local snapshot erase user data;
 12. list-valued reference fields use structured selections rather than unvalidated text when a catalog exists;
-13. Playwright/API tests cover save, reload, completeness, upload and role-context behavior.
+13. finite catalog fields use true select controls and preserve selected values after save/reload;
+14. repeated-address copy helpers persist copied values after save/reload;
+15. Playwright/API tests cover save, reload, completeness, upload, role-context, catalog-select and repeated-address behavior.
 
 ## 15. Next Stage
 

@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.14
+- Version: 2.17
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -324,6 +324,7 @@ docs/crewportglobal/
   235_cpg_biz_045_submit_to_operator_review_gate_report.md
   236_cpg_biz_045a_create_profile_save_reload_vessel_multiselect_report.md
   237_cpg_biz_045b_protected_upload_success_feedback_report.md
+  238_cpg_biz_045c_create_profile_catalog_select_address_upload_contrast_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -694,6 +695,8 @@ Document 234 records the CPG-BIZ-044A implemented-code standards register, inclu
 
 Document 235 records the CPG-BIZ-045 submit-to-operator review gate implementation, including active ICS-003, explicit `POST /api/v1/registration/drafts/{draft_id}/submit-review`, draft-save status boundaries, no operator task from autosave/save, audit event creation on successful submit and focused API/UI verification.
 
+Document 238 records the CPG-BIZ-045C `/create-profile/` catalog-select, same-address and upload/readability correction, including the systemic datalist-vs-select cause, shared `bindSelect` helper, finite catalog field matrix, registration-address copy from permanent address and focused regression verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -797,6 +800,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.17 | 2026-05-29 | GTC IT / AI Assistant | Added document 238 for CPG-BIZ-045C covering `/create-profile/` finite catalog selects, same-address copy and upload/readability correction |
 | 2.16 | 2026-05-29 | GTC IT / AI Assistant | Added document 237 for CPG-BIZ-045B covering protected upload success feedback with uploaded filename and refreshed document list |
 | 2.15 | 2026-05-29 | GTC IT / AI Assistant | Added document 236 for CPG-BIZ-045A covering `/create-profile/` backend-first save/reload persistence and structured vessel-type multiselect with neutral option |
 | 2.14 | 2026-05-29 | GTC IT / AI Assistant | Added document 235 and ICS-003 for the submit-to-operator review gate, explicit submit endpoint and draft-save/no-operator-task boundary |

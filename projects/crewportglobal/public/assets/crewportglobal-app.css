@@ -612,7 +612,8 @@ html[data-cpg-theme="dark"] body.doc-body.cpg-app-page {
 .app-input,
 .app-select,
 .cpg-app-page .field-card input,
-.cpg-app-page .field-card select {
+.cpg-app-page .field-card select,
+.cpg-app-page .field-card textarea {
   width: 100%;
   min-height: 44px;
   padding: 11px 12px;
@@ -623,7 +624,8 @@ html[data-cpg-theme="dark"] body.doc-body.cpg-app-page {
 }
 
 .app-input::placeholder,
-.cpg-app-page .field-card input::placeholder {
+.cpg-app-page .field-card input::placeholder,
+.cpg-app-page .field-card textarea::placeholder {
   color: #8b9aa4;
 }
 
@@ -858,6 +860,7 @@ html[data-cpg-theme="dark"] .cpg-app-page .app-input,
 html[data-cpg-theme="dark"] .cpg-app-page .app-select,
 html[data-cpg-theme="dark"] .cpg-app-page .field-card input,
 html[data-cpg-theme="dark"] .cpg-app-page .field-card select,
+html[data-cpg-theme="dark"] .cpg-app-page .field-card textarea,
 html[data-cpg-theme="dark"] .cpg-app-page .cpg-account__field input {
   border-color: var(--app-line);
   background: rgba(7, 17, 28, 0.72);
@@ -865,7 +868,8 @@ html[data-cpg-theme="dark"] .cpg-app-page .cpg-account__field input {
 }
 
 html[data-cpg-theme="dark"] .cpg-app-page .app-input::placeholder,
-html[data-cpg-theme="dark"] .cpg-app-page .field-card input::placeholder {
+html[data-cpg-theme="dark"] .cpg-app-page .field-card input::placeholder,
+html[data-cpg-theme="dark"] .cpg-app-page .field-card textarea::placeholder {
   color: rgba(159, 180, 200, 0.72);
 }
 
@@ -1072,6 +1076,7 @@ html[data-cpg-theme="dark"] .cpg-app-page .app-empty {
 
 .cpg-app-page .field-card input,
 .cpg-app-page .field-card select,
+.cpg-app-page .field-card textarea,
 .cpg-app-page .app-input,
 .cpg-app-page .app-select,
 .cpg-app-page .queue-control select,

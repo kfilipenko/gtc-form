@@ -55,6 +55,24 @@
     return record && typeof record.display_name === 'string' ? record.display_name.trim() : '';
   }
 
+  function optionValue(record) {
+    const displayName = valueText(record);
+    if (displayName) {
+      return displayName;
+    }
+    return record && typeof record.value_code === 'string' ? record.value_code.trim() : '';
+  }
+
+  function normalizeKey(value) {
+    return String(value || '').trim().toLowerCase();
+  }
+
+  function recordsFromFallback(values) {
+    return Array.isArray(values)
+      ? values.map((value) => ({ display_name: String(value || '').trim(), value_code: String(value || '').trim() }))
+      : [];
+  }
+
   function populateDatalist(datalistTarget, values) {
     const datalist = resolveElement(datalistTarget);
     if (!(datalist instanceof HTMLDataListElement)) {
@@ -86,6 +104,80 @@
     return populateDatalist(binding.datalist, values);
   }
 
+  function populateSelect(selectTarget, values, options) {
+    const select = resolveElement(selectTarget);
+    if (!(select instanceof HTMLSelectElement)) {
+      return 0;
+    }
+
+    const opts = options || {};
+    const sourceValues = Array.isArray(values) && values.length > 0
+      ? values
+      : recordsFromFallback(opts.fallbackValues);
+    const selectedValues = select.multiple
+      ? Array.from(select.selectedOptions).map((option) => option.value)
+      : [select.value].filter(Boolean);
+
+    select.innerHTML = '';
+    const fragment = document.createDocumentFragment();
+    const used = new Set();
+
+    if (!select.multiple && opts.includeEmpty !== false) {
+      const option = document.createElement('option');
+      option.value = '';
+      option.textContent = typeof opts.placeholderText === 'string' ? opts.placeholderText : '';
+      fragment.appendChild(option);
+    }
+
+    sourceValues.forEach((record) => {
+      const value = optionValue(record);
+      const key = normalizeKey(value);
+      if (!value || used.has(key)) {
+        return;
+      }
+      used.add(key);
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = valueText(record) || value;
+      if (record && typeof record.value_code === 'string') {
+        option.dataset.valueCode = record.value_code;
+      }
+      fragment.appendChild(option);
+    });
+
+    selectedValues.forEach((value) => {
+      const normalized = normalizeKey(value);
+      if (!normalized || used.has(normalized)) {
+        return;
+      }
+      used.add(normalized);
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = value;
+      option.dataset.legacyValue = 'true';
+      fragment.appendChild(option);
+    });
+
+    select.appendChild(fragment);
+
+    if (select.multiple) {
+      Array.from(select.options).forEach((option) => {
+        option.selected = selectedValues.some((value) => normalizeKey(value) === normalizeKey(option.value));
+      });
+    } else {
+      const selectedValue = selectedValues[0] || '';
+      const hasSelectedValue = Array.from(select.options).some((option) => normalizeKey(option.value) === normalizeKey(selectedValue));
+      select.value = hasSelectedValue ? selectedValue : '';
+    }
+
+    return used.size;
+  }
+
+  async function bindSelect(binding) {
+    const values = await fetchCatalog(binding.catalogCode);
+    return populateSelect(binding.select, values, binding.options || {});
+  }
+
   async function bindCatalogs(bindings) {
     if (!Array.isArray(bindings)) {
       return [];
@@ -97,6 +189,8 @@
     fetchCatalog,
     populateDatalist,
     bindDatalist,
+    populateSelect,
+    bindSelect,
     bindCatalogs
   };
 })();

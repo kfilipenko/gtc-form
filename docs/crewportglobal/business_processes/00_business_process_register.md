@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.3
+- Version: 3.6
 - Status: For internal review
 
 ## 1. Purpose
@@ -126,6 +126,7 @@ This documentation block starts from the following approved business controls:
 50. Before programming a new function, the implementer must check the implemented-code standards register; if a canonical implementation exists it must be reused through an adapter, and if no standard exists for a reusable operation a new implemented standard must be created before duplicating logic in multiple code areas.
 51. After a successful questionnaire save, backend draft data is the source of truth on reload; browser-local snapshots may restore only newer unsaved edits, and catalog-backed list-valued fields must use structured controls rather than free text when the catalog exists.
 52. After a successful protected upload, the UI must show the uploaded filename and refreshed protected-document list; clearing the browser file input is allowed only when the accepted file remains visible in status/list feedback.
+53. Finite catalog-backed form fields must use true structured select controls instead of browser datalist text inputs; repeated address blocks should provide an explicit same-address copy option, and form/upload controls must remain readable in both dark and light themes.
 
 ## 5. Intended Use
 
@@ -145,6 +146,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.6 | 2026-05-29 | GTC IT / AI Assistant | Added finite catalog-select, same-address and form/upload contrast control for lifecycle-enabled questionnaires |
 | 3.5 | 2026-05-29 | GTC IT / AI Assistant | Added protected upload success-feedback control requiring uploaded filename and refreshed document list after upload |
 | 3.4 | 2026-05-29 | GTC IT / AI Assistant | Added backend-first reload and structured catalog list-field control after `/create-profile/` hard-reload persistence correction |
 | 3.3 | 2026-05-29 | GTC IT / AI Assistant | Added mandatory implemented-code standard lookup rule before programming new reusable functions |

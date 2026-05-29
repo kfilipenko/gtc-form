@@ -265,7 +265,7 @@
       padding: 12px;
       border: 1px solid var(--app-line);
       border-radius: 8px;
-      background: #fff;
+      background: var(--app-surface-2);
     }
 
     .document-upload-item strong {
@@ -277,6 +277,23 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
+      color: var(--app-muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .document-upload-meta span {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--app-surface);
+      color: var(--app-muted);
+    }
+
+    .document-upload-help {
+      margin: 2px 0 0;
       color: var(--app-muted);
       font-size: 13px;
       line-height: 1.45;
@@ -472,7 +489,7 @@
       min-height: 44px;
       padding: 11px 12px;
       border: 1px solid var(--app-line);
-      background: #fff;
+      background: var(--app-surface);
       color: var(--app-ink);
       border-radius: 8px;
       font: inherit;
@@ -491,6 +508,28 @@
     .field-card strong {
       color: var(--app-ink);
       font-size: 13px;
+    }
+
+    .same-address-option {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      width: fit-content;
+      max-width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--app-line);
+      border-radius: 8px;
+      background: var(--app-surface-2);
+      color: var(--app-ink);
+      font-weight: 700;
+      line-height: 1.45;
+      cursor: pointer;
+    }
+
+    .same-address-option input {
+      width: auto;
+      min-height: auto;
+      margin-top: 3px;
     }
 
     .field-card.is-completeness-missing input,
@@ -795,13 +834,15 @@
                 </label>
                 <label class="field-card">
                   <strong data-i18n="create.form.gender">Gender</strong>
-                  <input id="create-gender" type="text" list="create-gender-options" data-i18n-placeholder="create.form.gender.placeholder" placeholder="Male">
-                  <datalist id="create-gender-options"></datalist>
+                  <select id="create-gender">
+                    <option value="" data-i18n="create.form.select">Select</option>
+                  </select>
                 </label>
                 <label class="field-card">
                   <strong data-i18n="create.form.civilStatus">Civil status</strong>
-                  <input id="create-civil-status" type="text" list="create-civil-status-options" data-i18n-placeholder="create.form.civilStatus.placeholder" placeholder="Single">
-                  <datalist id="create-civil-status-options"></datalist>
+                  <select id="create-civil-status">
+                    <option value="" data-i18n="create.form.select">Select</option>
+                  </select>
                 </label>
                 <label class="field-card full">
                   <strong data-i18n="create.form.permanentAddress">Permanent address</strong>
@@ -831,8 +872,9 @@
                 </label>
                 <label class="field-card">
                   <strong data-i18n="create.form.emergencyRelation">Emergency contact relation</strong>
-                  <input id="create-emergency-contact-relation" type="text" list="create-relation-options" data-i18n-placeholder="create.form.emergencyRelation.placeholder" placeholder="Spouse">
-                  <datalist id="create-relation-options"></datalist>
+                  <select id="create-emergency-contact-relation">
+                    <option value="" data-i18n="create.form.select">Select</option>
+                  </select>
                 </label>
                 <label class="field-card full">
                   <strong data-i18n="create.form.emergencyPhone">Emergency contact phone</strong>
@@ -899,6 +941,13 @@
                   <strong data-i18n="create.form.permanentComments">Permanent address comments</strong>
                   <textarea id="create-permanent-comments" maxlength="500" data-i18n-placeholder="create.form.permanentComments.placeholder" placeholder="Address comments"></textarea>
                 </label>
+                <div class="full">
+                  <label class="same-address-option">
+                    <input id="create-registration-same-as-permanent" type="checkbox">
+                    <span data-i18n="create.form.registrationSameAsPermanent">Registration address is the same as permanent address</span>
+                  </label>
+                  <p class="field-note" data-i18n="create.form.registrationSameAsPermanent.note">Copies permanent street, house, flat, region, post code, residence city and country to the registration address fields.</p>
+                </div>
                 <label class="field-card">
                   <strong data-i18n="create.form.registrationStreet">Registration street</strong>
                   <input id="create-registration-street" type="text" data-i18n-placeholder="create.form.registrationStreet.placeholder" placeholder="Street">
@@ -965,11 +1014,15 @@
                 </label>
                 <label class="field-card">
                   <strong data-i18n="create.form.kinGender">Kin gender</strong>
-                  <input id="create-kin-gender" type="text" list="create-gender-options" data-i18n-placeholder="create.form.kinGender.placeholder" placeholder="Gender">
+                  <select id="create-kin-gender">
+                    <option value="" data-i18n="create.form.select">Select</option>
+                  </select>
                 </label>
                 <label class="field-card">
                   <strong data-i18n="create.form.kinRelation">Kin relation</strong>
-                  <input id="create-kin-relation" type="text" list="create-relation-options" data-i18n-placeholder="create.form.kinRelation.placeholder" placeholder="Relation">
+                  <select id="create-kin-relation">
+                    <option value="" data-i18n="create.form.select">Select</option>
+                  </select>
                 </label>
                 <label class="field-card">
                   <strong data-i18n="create.form.kinMobile">Kin mobile</strong>
@@ -1300,7 +1353,9 @@
                 </label>
                 <label class="field-card">
                   <strong data-i18n="create.form.lastVesselType">Last vessel type</strong>
-                  <input id="create-last-vessel-type" type="text" list="create-vessel-type-options" data-i18n-placeholder="create.form.lastVesselType.placeholder" placeholder="BULK CARRIER">
+                  <select id="create-last-vessel-type">
+                    <option value="" data-i18n="create.form.select">Select</option>
+                  </select>
                 </label>
                 <label class="field-card">
                   <strong data-i18n="create.form.lastRank">Last rank</strong>
@@ -1567,7 +1622,6 @@
               <div class="section-heading">
                 <p class="eyebrow" data-i18n="create.upload.eyebrow">Protected upload</p>
                 <h2 id="create-document-upload-title" data-i18n="create.upload.title">Upload evidence after saving the draft</h2>
-                <p class="field-note" data-i18n="create.upload.copy">Files are stored outside the public site, scanned for malware and only clean files become pending human review.</p>
               </div>
               <div class="document-upload-grid">
                 <label class="field-card">
@@ -1591,6 +1645,7 @@
                 </label>
                 <button id="create-document-upload-submit" class="button secondary" type="button" data-i18n="create.upload.submit">Upload</button>
               </div>
+              <p class="document-upload-help" data-i18n="create.upload.copy">Files are stored outside the public site, scanned for malware and only clean files become pending human review.</p>
               <p id="create-document-upload-status" class="status-note" data-i18n="create.upload.status.initial">Allowed files: PDF, JPG, PNG or WEBP. Maximum size: 10 MB. Save the draft first, then upload files.</p>
               <div id="create-document-action-list" class="document-action-list" aria-live="polite"></div>
               <div id="create-document-upload-list" class="document-upload-list" aria-live="polite"></div>
@@ -1836,6 +1891,8 @@
         'create.form.permanentPostCode.placeholder': 'Post code',
         'create.form.permanentComments': 'Permanent address comments',
         'create.form.permanentComments.placeholder': 'Address comments',
+        'create.form.registrationSameAsPermanent': 'Registration address is the same as permanent address',
+        'create.form.registrationSameAsPermanent.note': 'Copies permanent street, house, flat, region, post code, residence city and country to the registration address fields.',
         'create.form.registrationStreet': 'Registration street',
         'create.form.registrationStreet.placeholder': 'Street',
         'create.form.registrationHouse': 'Registration house',
@@ -2354,6 +2411,8 @@
         'create.form.permanentPostCode.placeholder': 'Индекс',
         'create.form.permanentComments': 'Комментарии к постоянному адресу',
         'create.form.permanentComments.placeholder': 'Комментарии к адресу',
+        'create.form.registrationSameAsPermanent': 'Адрес регистрации совпадает с постоянным адресом',
+        'create.form.registrationSameAsPermanent.note': 'Копирует улицу, дом, квартиру, регион, индекс, город проживания и страну в поля регистрационного адреса.',
         'create.form.registrationStreet': 'Улица регистрационного адреса',
         'create.form.registrationStreet.placeholder': 'Улица',
         'create.form.registrationHouse': 'Дом регистрационного адреса',
@@ -2767,6 +2826,7 @@
       const permanentRegion = document.getElementById('create-permanent-region');
       const permanentPostCode = document.getElementById('create-permanent-post-code');
       const permanentComments = document.getElementById('create-permanent-comments');
+      const registrationSameAsPermanent = document.getElementById('create-registration-same-as-permanent');
       const registrationStreet = document.getElementById('create-registration-street');
       const registrationHouse = document.getElementById('create-registration-house');
       const registrationFlat = document.getElementById('create-registration-flat');
@@ -3059,24 +3119,12 @@
             datalist: 'create-vessel-type-options'
           },
           {
-            catalogCode: 'gender_values',
-            datalist: 'create-gender-options'
-          },
-          {
-            catalogCode: 'civil_status_values',
-            datalist: 'create-civil-status-options'
-          },
-          {
             catalogCode: 'cities',
             datalist: 'create-city-options'
           },
           {
             catalogCode: 'airports',
             datalist: 'create-airport-options'
-          },
-          {
-            catalogCode: 'relation_types',
-            datalist: 'create-relation-options'
           },
           {
             catalogCode: 'religion_values',
@@ -3118,6 +3166,59 @@
           console.error(error);
           return [];
         });
+        const selectBindings = [
+          {
+            catalogCode: 'gender_values',
+            select: 'create-gender',
+            options: {
+              placeholderText: t('create.form.select'),
+              fallbackValues: ['Male', 'Female', 'Other']
+            }
+          },
+          {
+            catalogCode: 'gender_values',
+            select: 'create-kin-gender',
+            options: {
+              placeholderText: t('create.form.select'),
+              fallbackValues: ['Male', 'Female', 'Other']
+            }
+          },
+          {
+            catalogCode: 'civil_status_values',
+            select: 'create-civil-status',
+            options: {
+              placeholderText: t('create.form.select'),
+              fallbackValues: ['Single', 'Married', 'Divorced', 'Widowed']
+            }
+          },
+          {
+            catalogCode: 'relation_types',
+            select: 'create-emergency-contact-relation',
+            options: {
+              placeholderText: t('create.form.select'),
+              fallbackValues: ['Spouse', 'Parent', 'Child', 'Sibling', 'Other']
+            }
+          },
+          {
+            catalogCode: 'relation_types',
+            select: 'create-kin-relation',
+            options: {
+              placeholderText: t('create.form.select'),
+              fallbackValues: ['Spouse', 'Parent', 'Child', 'Sibling', 'Other']
+            }
+          },
+          {
+            catalogCode: 'vessel_types',
+            select: 'create-last-vessel-type',
+            options: {
+              placeholderText: t('create.form.select'),
+              fallbackValues: ['BULK CARRIER', 'CONTAINER SHIP', 'OIL TANKER', 'LNG', 'LPG']
+            }
+          }
+        ].map((binding) => window.CPGReferenceCatalogs.bindSelect(binding).catch((error) => {
+          console.error(error);
+          return 0;
+        }));
         const vesselSelectBinding = window.CPGReferenceCatalogs.fetchCatalog('vessel_types')
           .then((values) => {
             setPreferredVesselTypeOptions(values);
@@ -3128,7 +3229,7 @@
             return 0;
           });
 
-        return Promise.all([datalistBindings, vesselSelectBinding]);
+        return Promise.all([datalistBindings, ...selectBindings, vesselSelectBinding]);
       }
 
       function getDraftIdFromUrl() {
@@ -3244,6 +3345,10 @@
           }
           input.value = value === null || value === undefined ? '' : String(value);
         });
+
+        if (registrationSameAsPermanent && registrationSameAsPermanent.checked) {
+          copyPermanentAddressToRegistration();
+        }
 
         latestCompleteness = null;
         renderWorkspace();
@@ -3416,11 +3521,63 @@
         select.value = option ? normalized : fallback;
       }
 
+      function ensureSelectOption(select, value) {
+        const normalized = typeof value === 'string' ? value.trim() : '';
+        if (!normalized || !(select instanceof HTMLSelectElement) || select.multiple) {
+          return;
+        }
+        const existing = Array.from(select.options).find((option) => option.value.toLowerCase() === normalized.toLowerCase());
+        if (existing) {
+          return;
+        }
+        const option = document.createElement('option');
+        option.value = normalized;
+        option.textContent = normalized;
+        option.dataset.legacyValue = 'true';
+        select.appendChild(option);
+      }
+
       function setFieldValue(input, value) {
         if (!input || typeof value !== 'string') {
           return;
         }
+        if (input instanceof HTMLSelectElement && !input.multiple) {
+          ensureSelectOption(input, value);
+        }
         input.value = value;
+      }
+
+      const sameAddressSourceFields = new Set([
+        permanentStreet,
+        permanentHouse,
+        permanentFlat,
+        permanentRegion,
+        permanentPostCode,
+        permanentComments,
+        residenceCity,
+        residence
+      ].filter(Boolean));
+
+      function copyPermanentAddressToRegistration() {
+        setFieldValue(registrationStreet, permanentStreet.value);
+        setFieldValue(registrationHouse, permanentHouse.value);
+        setFieldValue(registrationFlat, permanentFlat.value);
+        setFieldValue(registrationCity, residenceCity.value);
+        setFieldValue(registrationCountry, residence.value);
+        setFieldValue(registrationRegion, permanentRegion.value);
+        setFieldValue(registrationPostCode, permanentPostCode.value);
+        setFieldValue(registrationComments, permanentComments.value);
+      }
+
+      function syncSameAddressIfNeeded(input) {
+        if (!registrationSameAsPermanent || !registrationSameAsPermanent.checked) {
+          return false;
+        }
+        if (input !== registrationSameAsPermanent && !sameAddressSourceFields.has(input)) {
+          return false;
+        }
+        copyPermanentAddressToRegistration();
+        return true;
       }
 
       function workspaceSection(workspace, key) {
@@ -4734,6 +4891,7 @@
           if (input === vesselTypes) {
             enforcePreferredVesselTypeAnyRule();
           }
+          syncSameAddressIfNeeded(input);
           persistLocalFormSnapshot();
           renderWorkspace();
           if (!canAutosaveCurrentDraft()) {
@@ -4746,6 +4904,7 @@
           if (input === vesselTypes) {
             enforcePreferredVesselTypeAnyRule();
           }
+          syncSameAddressIfNeeded(input);
           persistLocalFormSnapshot();
           renderWorkspace();
           if (!canAutosaveCurrentDraft()) {
