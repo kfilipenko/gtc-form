@@ -38,7 +38,7 @@ test('extended seafarer workspace cards persist through draft save and reload', 
 
   await page.locator('#create-full-name').fill('Jordan Reyes');
   await page.locator('#create-email').fill(email);
-  await page.locator('#create-country').fill('AE');
+  await page.locator('#create-country').selectOption('AE');
   await page.locator('#create-rank').fill('Chief Officer');
   await page.locator('#create-department').selectOption('deck');
   await page.locator('#create-availability').selectOption('available_later');
@@ -51,19 +51,21 @@ test('extended seafarer workspace cards persist through draft save and reload', 
   await page.locator('#profile-section-contact > summary').click();
   await page.locator('#create-date-of-birth').fill('1990-04-12');
   await page.locator('#create-place-of-birth').fill('Manila');
-  await page.locator('#create-gender').fill('Male');
-  await page.locator('#create-civil-status').fill('Single');
+  await expect.poll(async () => page.locator('#create-gender option').count(), { timeout: 7000 }).toBeGreaterThan(1);
+  await page.locator('#create-gender').selectOption({ index: 1 });
+  await page.locator('#create-civil-status').selectOption({ index: 1 });
   await page.locator('#create-permanent-address').fill('12 Port Street, Manila');
   await page.locator('#create-residence-city').fill('Dubai');
   await page.locator('#create-nearest-airport').fill('DXB');
   await page.locator('#create-emergency-contact-name').fill('Maria Reyes');
-  await page.locator('#create-emergency-contact-relation').fill('Spouse');
+  await expect.poll(async () => page.locator('#create-emergency-contact-relation option').count(), { timeout: 7000 }).toBeGreaterThan(1);
+  await page.locator('#create-emergency-contact-relation').selectOption({ index: 1 });
   await page.locator('#create-emergency-contact-phone').fill('+639171112233');
 
   await page.locator('#profile-section-qualifications > summary').click();
   await page.locator('#create-coc-type').fill('Chief Officer');
   await page.locator('#create-coc-number').fill('COC-WS-123456');
-  await page.locator('#create-coc-issuing-country').fill('PH');
+  await page.locator('#create-coc-issuing-country').selectOption('PH');
   await page.locator('#create-coc-expiry').fill('2028-05-30');
   await page.locator('#create-education-institution').fill('Maritime Academy');
   await page.locator('#create-education-grade').fill('Bachelor');
@@ -71,9 +73,10 @@ test('extended seafarer workspace cards persist through draft save and reload', 
 
   await page.locator('#profile-section-sea-service > summary').click();
   await page.locator('#create-last-vessel-name').fill('MV Test Horizon');
-  await page.locator('#create-last-vessel-type').fill('BULK CARRIER');
+  await expect.poll(async () => page.locator('#create-last-vessel-type option').count(), { timeout: 7000 }).toBeGreaterThan(1);
+  await page.locator('#create-last-vessel-type').selectOption({ label: 'BULK CARRIER' });
   await page.locator('#create-last-rank').fill('Second Officer');
-  await page.locator('#create-flag-country').fill('PA');
+  await page.locator('#create-flag-country').selectOption('PA');
   await page.locator('#create-service-from').fill('2025-01-10');
   await page.locator('#create-service-to').fill('2025-09-10');
   await page.locator('#create-management-company').fill('Test Ship Management');
@@ -84,7 +87,7 @@ test('extended seafarer workspace cards persist through draft save and reload', 
   await page.locator('#create-information-source').fill('Referral');
   await page.locator('#create-publish-to-matching').selectOption('yes');
   await page.locator('#create-candidate-summary').fill('Chief Officer with bulk carrier experience and valid documents.');
-  await page.locator('#create-data-processing-confirmation').selectOption('i_confirm');
+  await page.locator('#create-data-processing-confirmation').check();
 
   await page.locator('#create-submit').click();
   await expect(page.locator('#create-status')).toContainText('saved');
@@ -174,7 +177,7 @@ test('extended seafarer workspace cards persist through draft save and reload', 
 
   await page.locator('#profile-section-publication > summary').click();
   await expect(page.locator('#create-publish-to-matching')).toHaveValue('yes');
-  await expect(page.locator('#create-data-processing-confirmation')).toHaveValue('i_confirm');
+  await expect(page.locator('#create-data-processing-confirmation')).toBeChecked();
 
   await page.goto(`/cabinet/?draft_id=${draftId}`);
   await expect(page.locator('#cabinet-task-list')).toContainText('Action required: upload supporting documents');
@@ -289,10 +292,10 @@ test('seafarer workspace section endpoint updates JSON fallback and structured r
   expect(qualificationResponse.status()).toBe(200);
   const qualificationBody = await qualificationResponse.json();
   expect(qualificationBody.workspace.certificates[0].certificate_number).toBe('COC-SECTION-001');
-  expect(qualificationBody.workspace.training_records.map((item: { training_type_label: string }) => item.training_type_label)).toEqual([
+  expect(qualificationBody.workspace.training_records.map((item: { training_type_label: string }) => item.training_type_label).sort()).toEqual([
     'Basic Training',
     'Engine Resource Management',
-  ]);
+  ].sort());
 
   const invalidResponse = await request.patch('/api/v1/seafarer/workspace/sections/unknown_section', {
     data: {

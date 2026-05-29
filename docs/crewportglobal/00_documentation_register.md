@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.26
+- Version: 2.27
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -328,6 +328,7 @@ docs/crewportglobal/
   239_cpg_biz_046_standard_form_lifecycle_rollout_task.md
   240_cpg_biz_046_standard_form_lifecycle_rollout_report.md
   241_cpg_biz_047_employer_vessel_form_standard_rollout_report.md
+  242_cpg_biz_048_seafarer_agreement_consent_confirmation_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -706,6 +707,8 @@ Document 240 records the CPG-BIZ-046 Phase 1 implementation for `/post-vacancy/`
 
 Document 241 records the CPG-BIZ-047 employer/vessel form standard rollout, including `Vessel flag country` as a country-catalog ISO alpha-2 field stored in `vessels.flag_country_code`, a `Same as company country` helper, a separate vessel protected-upload checklist using `form_type = vessel`, updated `V-2.2` and `V-4.D1` completeness targets and focused Playwright verification.
 
+Document 242 records the CPG-BIZ-048 `/create-profile/` seafarer agreement and data-processing consent simplification, replacing multiple user-visible compatibility fields with one end-of-form checkbox confirmation, legal-page links and unchanged backend compatibility storage.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -809,6 +812,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.27 | 2026-05-29 | GTC IT / AI Assistant | Added document 242 for `/create-profile/` agreement and personal-data consent simplification with one end-of-form checkbox and unchanged compatibility storage |
 | 2.26 | 2026-05-29 | GTC IT / AI Assistant | Added document 241 for CPG-BIZ-047 employer/vessel rollout with vessel flag country catalog storage, separate vessel document checklist and updated V-stream completeness targets |
 | 2.25 | 2026-05-29 | GTC IT / AI Assistant | Added document 240 for CPG-BIZ-046 Phase 1 rollout to `/post-vacancy/`, aligning demand-side fields with matching catalogs and reusing shared protected-upload checklist behavior |
 | 2.24 | 2026-05-29 | GTC IT / AI Assistant | Updated document 239, BP-014 and ICS-001 with the matching-first principle: form standard rollout must produce comparable structured supply/demand data for automated request-offer matching |

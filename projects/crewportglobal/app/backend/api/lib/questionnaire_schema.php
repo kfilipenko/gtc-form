@@ -133,7 +133,7 @@ function cpg_questionnaire_mandatory_fields(): array {
         cpg_questionnaire_field('S-10.1', 'medical_certificate', 'S', 'Medical certificate expiry', true, true, '/create-profile/#profile-section-documents', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('S-11.1', 'data_processing_confirmation', 'S', 'Data-processing confirmation', true, false, '/create-profile/#profile-section-publication', [
+        cpg_questionnaire_field('S-11.1', 'data_processing_confirmation', 'S', 'Agreement and data-processing consent', true, false, '/create-profile/#profile-section-consent', [
             'visibility_class' => 'internal_compliance',
         ]),
         cpg_questionnaire_field('S-12.D1', 'identity_document', 'S', 'Passport / ID document upload', true, false, '/create-profile/#profile-section-documents', [

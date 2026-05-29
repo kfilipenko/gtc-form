@@ -37,13 +37,14 @@ test('Excel-aligned seafarer source cards persist and reload from draft metadata
 
   await page.locator('#create-full-name').fill('Vazgen Samvelovich Minasian');
   await page.locator('#create-email').fill(email);
-  await page.locator('#create-country').fill('AE');
+  await page.locator('#create-country').selectOption('AE');
   await page.locator('#create-rank').fill('Wiper');
   await page.locator('#create-department').selectOption('engine');
   await page.locator('#create-availability').selectOption('available_later');
   await page.locator('#create-availability-date').fill('2026-09-20');
   await page.locator('#create-phone').fill('+971501234567');
-  await page.locator('#create-vessel-types').fill('OIL TANKER');
+  await expect.poll(async () => page.locator('#create-vessel-types-options input[type="checkbox"]').count(), { timeout: 7000 }).toBeGreaterThan(1);
+  await page.locator('#create-vessel-types-options').getByLabel('OIL TANKER', { exact: true }).check();
 
   await page.locator('#profile-section-contact > summary').click();
   await page.locator('#create-surname').fill('MINASIAN');
@@ -53,8 +54,9 @@ test('Excel-aligned seafarer source cards persist and reload from draft metadata
   await page.locator('#create-religion').fill('Christian');
   await page.locator('#create-date-of-birth').fill('1998-02-28');
   await page.locator('#create-place-of-birth').fill('Novorossiysk');
-  await page.locator('#create-gender').fill('MALE');
-  await page.locator('#create-civil-status').fill('Single');
+  await expect.poll(async () => page.locator('#create-gender option').count(), { timeout: 7000 }).toBeGreaterThan(1);
+  await page.locator('#create-gender').selectOption({ index: 1 });
+  await page.locator('#create-civil-status').selectOption({ index: 1 });
 
   await page.locator('#profile-section-addresses > summary').click();
   await page.locator('#create-permanent-street').fill('Paratrooper Heroes');
@@ -63,12 +65,13 @@ test('Excel-aligned seafarer source cards persist and reload from draft metadata
   await page.locator('#create-permanent-post-code').fill('353900');
   await page.locator('#create-registration-street').fill('Registration Street');
   await page.locator('#create-registration-city').fill('NOVOROSSIYSK');
-  await page.locator('#create-registration-country').fill('RUSSIAN FEDERATION');
+  await page.locator('#create-registration-country').selectOption('RU');
 
   await page.locator('#profile-section-family > summary').click();
   await page.locator('#create-kin-surname').fill('MINASIAN');
   await page.locator('#create-kin-first-name').fill('ASMIK');
-  await page.locator('#create-kin-relation').fill('Mother');
+  await expect.poll(async () => page.locator('#create-kin-relation option').count(), { timeout: 7000 }).toBeGreaterThan(1);
+  await page.locator('#create-kin-relation').selectOption({ label: 'Mother' });
   await page.locator('#create-kin-email').fill('kin@example.com');
   await page.locator('#create-children-records').fill('Child One, First, Middle, Son, 2020-01-01, MALE');
 
@@ -101,7 +104,8 @@ test('Excel-aligned seafarer source cards persist and reload from draft metadata
 
   await page.locator('#profile-section-sea-service > summary').click();
   await page.locator('#create-last-vessel-name').fill('NIKOLAY ZUYEV');
-  await page.locator('#create-last-vessel-type').fill('OIL TANKER');
+  await expect.poll(async () => page.locator('#create-last-vessel-type option').count(), { timeout: 7000 }).toBeGreaterThan(1);
+  await page.locator('#create-last-vessel-type').selectOption({ label: 'OIL TANKER' });
   await page.locator('#create-engine-type').fill('B&W');
   await page.locator('#create-engine-power').fill('13350');
   await page.locator('#create-sea-service-history').fill('NIKOLAY ZUYEV | OIL TANKER | 120000 | B&W | 13350 | LIBERIA | SCF | Wiper | 2023-10-10 | 2024-02-13');
@@ -119,12 +123,7 @@ test('Excel-aligned seafarer source cards persist and reload from draft metadata
 
   await page.locator('#profile-section-publication > summary').click();
   await page.locator('#create-information-source').fill('Referral');
-  await page.locator('#create-data-processing-confirmation').selectOption('i_confirm');
-  await page.locator('#create-obligation-date').fill('2026-05-19');
-  await page.locator('#create-obligation-place').fill('Novorossiysk city');
-  await page.locator('#create-obligation-confirmation').selectOption('i_confirm');
-  await page.locator('#create-agreement-date').fill('2026-05-19');
-  await page.locator('#create-agreement-value').selectOption('i_agree');
+  await page.locator('#create-data-processing-confirmation').check();
 
   await page.locator('#create-submit').click();
   await expect(page.locator('#create-status')).toContainText('saved');
@@ -150,7 +149,8 @@ test('Excel-aligned seafarer source cards persist and reload from draft metadata
   expect(workspace.sea_service.engine_power).toBe('13350');
   expect(workspace.previous_employer_references.reference_company_1).toBe('SCF');
   expect(workspace.medical_history.signed_off_sick).toBe('no');
-  expect(workspace.consent_details.obligation_place).toBe('Novorossiysk city');
+  expect(workspace.matching_publication.data_processing_confirmation).toBe('i_confirm');
+  expect(workspace.consent_details.agreement_value).toBe('i_agree');
 
   await page.evaluate(() => {
     window.localStorage.clear();

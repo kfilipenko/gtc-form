@@ -682,6 +682,43 @@
       font-size: 13px;
     }
 
+    .consent-confirmation-card {
+      display: grid;
+      gap: 12px;
+      border-color: rgba(77, 208, 225, 0.45);
+      background: rgba(77, 208, 225, 0.08);
+    }
+
+    .consent-confirmation-option {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 12px;
+      align-items: flex-start;
+      color: var(--app-ink);
+      font-size: 15px;
+      line-height: 1.5;
+      cursor: pointer;
+    }
+
+    .consent-confirmation-option input {
+      width: 20px;
+      min-height: 20px;
+      margin-top: 2px;
+      padding: 0;
+      accent-color: var(--app-cyan);
+    }
+
+    .consent-confirmation-option a {
+      color: var(--app-cyan);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .consent-confirmation-option a:hover,
+    .consent-confirmation-option a:focus-visible {
+      text-decoration: underline;
+    }
+
     .same-address-option {
       display: flex;
       gap: 10px;
@@ -929,6 +966,7 @@
             <button class="button secondary section-tab" type="button" data-section-target="profile-section-publication" data-i18n="create.tab.publication">Publication</button>
             <button class="button secondary section-tab" type="button" data-section-target="profile-section-documents" data-i18n="create.tab.documents">Documents</button>
             <button class="button secondary section-tab" type="button" data-section-target="profile-section-review" data-i18n="create.tab.review">Review</button>
+            <button class="button secondary section-tab" type="button" data-section-target="profile-section-consent" data-i18n="create.tab.consent">Agreement</button>
             <button class="button secondary section-tab" type="button" data-section-target="profile-section-applications" data-i18n="create.tab.applications">Applications</button>
           </nav>
           <div>
@@ -1766,49 +1804,9 @@
                   <strong data-i18n="create.form.candidateSummary">Candidate summary</strong>
                   <textarea id="create-candidate-summary" maxlength="1200" data-i18n-placeholder="create.form.candidateSummary.placeholder" placeholder="Short professional summary for human review"></textarea>
                 </label>
-                <label class="field-card full">
-                  <strong data-i18n="create.form.dataConfirmation">Data processing confirmation</strong>
-                  <select id="create-data-processing-confirmation">
-                    <option value="" data-i18n="create.form.dataConfirmation.placeholder">Select confirmation</option>
-                    <option value="i_confirm" data-i18n="create.form.dataConfirmation.confirm">I confirm that the submitted data may be processed for profile review and matching preparation.</option>
-                    <option value="i_decline" data-i18n="create.form.dataConfirmation.decline">I do not confirm yet.</option>
-                  </select>
-                </label>
-                <label class="field-card">
-                  <strong data-i18n="create.form.obligationDate">Seafarer obligation date</strong>
-                  <input id="create-obligation-date" type="date">
-                </label>
-                <label class="field-card">
-                  <strong data-i18n="create.form.obligationPlace">Seafarer obligation place</strong>
-                  <input id="create-obligation-place" type="text" data-i18n-placeholder="create.form.obligationPlace.placeholder" placeholder="Place">
-                </label>
-                <label class="field-card">
-                  <strong data-i18n="create.form.obligationConfirmation">Obligation confirmation</strong>
-                  <select id="create-obligation-confirmation">
-                    <option value="" data-i18n="create.form.select">Select</option>
-                    <option value="i_confirm" data-i18n="create.form.confirmation.confirm">I confirm</option>
-                    <option value="i_decline" data-i18n="create.form.confirmation.decline">I decline</option>
-                  </select>
-                </label>
-                <label class="field-card">
-                  <strong data-i18n="create.form.agreementDate">Agreement date</strong>
-                  <input id="create-agreement-date" type="date">
-                </label>
-                <label class="field-card">
-                  <strong data-i18n="create.form.agreementValue">Agreement</strong>
-                  <select id="create-agreement-value">
-                    <option value="" data-i18n="create.form.select">Select</option>
-                    <option value="i_agree" data-i18n="create.form.agreement.agree">I agree</option>
-                    <option value="i_disagree" data-i18n="create.form.agreement.disagree">I disagree</option>
-                  </select>
-                </label>
-                <label class="field-card full">
-                  <strong data-i18n="create.form.sourceComments">Source / consent comments</strong>
-                  <textarea id="create-source-comments" maxlength="1000" data-i18n-placeholder="create.form.sourceComments.placeholder" placeholder="Comments"></textarea>
-                </label>
               </div>
               <div class="section-save-row">
-                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="matching_publication consent_details" data-workspace-status="create-publication-save-status" data-i18n="create.section.save">Save section</button>
+                <button class="button secondary workspace-section-save" type="button" data-workspace-section-save="matching_publication" data-workspace-status="create-publication-save-status" data-i18n="create.section.save">Save section</button>
                 <p id="create-publication-save-status" class="status-note section-save-status" aria-live="polite"></p>
               </div>
             </div>
@@ -1893,6 +1891,43 @@
             </div>
           </section>
 
+          <section id="profile-section-consent" class="form-section">
+            <div class="section-heading">
+              <p class="eyebrow" data-i18n="create.section.consent.eyebrow">Agreement and consent</p>
+              <h2 data-i18n="create.section.consent.title">Service agreement and personal data processing</h2>
+              <p class="field-note" data-i18n="create.section.consent.copy">Confirm the service terms and data-processing consent before submitting the profile for operator review.</p>
+            </div>
+            <div class="field-grid">
+              <div class="field-card full consent-confirmation-card">
+                <label class="consent-confirmation-option" for="create-data-processing-confirmation">
+                  <input id="create-data-processing-confirmation" type="checkbox" value="i_confirm">
+                  <span data-i18n="create.form.dataConfirmation.confirm">I have read and agree to the CrewPortGlobal service agreement and consent to processing my personal data for profile verification, matching preparation and communication about platform services.</span>
+                </label>
+                <p class="field-note">
+                  <a href="/legal/seafarer-candidate-agreement/" target="_blank" rel="noopener" data-i18n="create.form.dataConfirmation.agreementLink">Seafarer Candidate Agreement</a>
+                  ·
+                  <a href="/legal/privacy/" target="_blank" rel="noopener" data-i18n="create.form.dataConfirmation.privacyLink">Privacy Policy</a>
+                </p>
+              </div>
+            </div>
+            <div hidden>
+              <input id="create-obligation-date" type="date">
+              <input id="create-obligation-place" type="text">
+              <select id="create-obligation-confirmation">
+                <option value=""></option>
+                <option value="i_confirm">I confirm</option>
+                <option value="i_decline">I decline</option>
+              </select>
+              <input id="create-agreement-date" type="date">
+              <select id="create-agreement-value">
+                <option value=""></option>
+                <option value="i_agree">I agree</option>
+                <option value="i_disagree">I disagree</option>
+              </select>
+              <textarea id="create-source-comments" maxlength="1000"></textarea>
+            </div>
+          </section>
+
           <section id="profile-section-applications" class="form-section application-history" aria-labelledby="create-application-history-title">
             <div class="section-heading">
               <p class="eyebrow" data-i18n="create.section.applications.eyebrow">Application history</p>
@@ -1967,6 +2002,7 @@
         'create.tab.publication': 'Publication',
         'create.tab.documents': 'Documents',
         'create.tab.review': 'Review',
+        'create.tab.consent': 'Agreement',
         'create.tab.applications': 'Applications',
         'create.section.cv.eyebrow': 'CV basics',
         'create.section.cv.title': 'Identity, rank and availability',
@@ -2012,6 +2048,9 @@
         'create.section.review.eyebrow': 'Review package',
         'create.section.review.title': 'Save and confirm profile completeness',
         'create.section.review.copy': 'Save your profile, then review the numbered fields and documents required before operator review.',
+        'create.section.consent.eyebrow': 'Agreement and consent',
+        'create.section.consent.title': 'Service agreement and personal data processing',
+        'create.section.consent.copy': 'Confirm the service terms and data-processing consent before submitting the profile for operator review.',
         'create.section.applications.eyebrow': 'Application history',
         'create.section.applications.title': 'Track vacancy applications',
         'create.section.applications.copy': 'Submitted vacancy applications and operator review status appear here after you apply.',
@@ -2296,10 +2335,12 @@
         'create.boolean.no': 'No',
         'create.form.candidateSummary': 'Candidate summary',
         'create.form.candidateSummary.placeholder': 'Short professional summary for human review',
-        'create.form.dataConfirmation': 'Data processing confirmation',
-        'create.form.dataConfirmation.placeholder': 'Select confirmation',
-        'create.form.dataConfirmation.confirm': 'I confirm that the submitted data may be processed for profile review and matching preparation.',
+        'create.form.dataConfirmation': 'Agreement and data-processing consent',
+        'create.form.dataConfirmation.placeholder': 'Confirm agreement',
+        'create.form.dataConfirmation.confirm': 'I have read and agree to the CrewPortGlobal service agreement and consent to processing my personal data for profile verification, matching preparation and communication about platform services.',
         'create.form.dataConfirmation.decline': 'I do not confirm yet.',
+        'create.form.dataConfirmation.agreementLink': 'Seafarer Candidate Agreement',
+        'create.form.dataConfirmation.privacyLink': 'Privacy Policy',
         'create.form.obligationDate': 'Seafarer obligation date',
         'create.form.obligationPlace': 'Seafarer obligation place',
         'create.form.obligationPlace.placeholder': 'Place',
@@ -2516,6 +2557,7 @@
         'create.tab.publication': 'Публикация',
         'create.tab.documents': 'Документы',
         'create.tab.review': 'Проверка',
+        'create.tab.consent': 'Согласие',
         'create.tab.applications': 'Отклики',
         'create.section.cv.eyebrow': 'Основа CV',
         'create.section.cv.title': 'Личность, ранг и доступность',
@@ -2561,6 +2603,9 @@
         'create.section.review.eyebrow': 'Пакет проверки',
         'create.section.review.title': 'Сохранение и проверка полноты профиля',
         'create.section.review.copy': 'Сохраните профиль, затем проверьте нумерованные поля и документы, обязательные перед проверкой оператором.',
+        'create.section.consent.eyebrow': 'Договор и согласие',
+        'create.section.consent.title': 'Присоединение к договору и обработка персональных данных',
+        'create.section.consent.copy': 'Подтвердите условия сервиса и согласие на обработку данных перед отправкой профиля на проверку оператору.',
         'create.section.applications.eyebrow': 'История откликов',
         'create.section.applications.title': 'Отслеживайте отклики на вакансии',
         'create.section.applications.copy': 'Отправленные отклики и статус проверки оператором появятся здесь после подачи заявки.',
@@ -2845,10 +2890,12 @@
         'create.boolean.no': 'Нет',
         'create.form.candidateSummary': 'Краткое описание кандидата',
         'create.form.candidateSummary.placeholder': 'Краткое профессиональное описание для ручной проверки',
-        'create.form.dataConfirmation': 'Подтверждение обработки данных',
-        'create.form.dataConfirmation.placeholder': 'Выберите подтверждение',
-        'create.form.dataConfirmation.confirm': 'Я подтверждаю, что переданные данные могут обрабатываться для проверки профиля и подготовки matching.',
+        'create.form.dataConfirmation': 'Договор и согласие на обработку данных',
+        'create.form.dataConfirmation.placeholder': 'Подтвердите согласие',
+        'create.form.dataConfirmation.confirm': 'Я ознакомился и присоединяюсь к договору оказания услуг CrewPortGlobal, а также даю согласие на обработку моих персональных данных для проверки профиля, подготовки подбора и связи по услугам платформы.',
         'create.form.dataConfirmation.decline': 'Пока не подтверждаю.',
+        'create.form.dataConfirmation.agreementLink': 'Договор кандидата-моряка',
+        'create.form.dataConfirmation.privacyLink': 'Политика конфиденциальности',
         'create.form.obligationDate': 'Дата обязательства моряка',
         'create.form.obligationPlace': 'Место обязательства моряка',
         'create.form.obligationPlace.placeholder': 'Место',
@@ -3284,7 +3331,7 @@
         'S-7.2': 'profile-section-qualifications',
         'S-7.3': 'profile-section-qualifications',
         'S-10.1': 'profile-section-documents',
-        'S-11.1': 'profile-section-publication',
+        'S-11.1': 'profile-section-consent',
         'S-12.D1': 'profile-section-document-upload',
         'S-12.D2': 'profile-section-document-upload',
         'S-12.D3': 'profile-section-document-upload',
@@ -4194,6 +4241,8 @@
       }
 
       function collectSeafarerWorkspaceMetadata() {
+        const dataProcessingConfirmed = dataProcessingConfirmation.checked;
+        const agreementDateValue = agreementDate.value || (dataProcessingConfirmed ? new Date().toISOString().slice(0, 10) : null);
         const workspace = {
           personal_details: compactObject({
             date_of_birth: dateOfBirth.value || null,
@@ -4348,14 +4397,14 @@
             information_source: informationSource.value.trim(),
             publish_to_matching: publishToMatching.value,
             candidate_summary: candidateSummary.value.trim(),
-            data_processing_confirmation: dataProcessingConfirmation.value
+            data_processing_confirmation: dataProcessingConfirmed ? 'i_confirm' : 'not_confirmed'
           }),
           consent_details: compactObject({
-            obligation_date: obligationDate.value || null,
+            obligation_date: obligationDate.value || agreementDateValue,
             obligation_place: obligationPlace.value.trim(),
-            obligation_confirmation: obligationConfirmation.value,
-            agreement_date: agreementDate.value || null,
-            agreement_value: agreementValue.value,
+            obligation_confirmation: dataProcessingConfirmed ? 'i_confirm' : (obligationConfirmation.value || 'i_decline'),
+            agreement_date: agreementDateValue,
+            agreement_value: dataProcessingConfirmed ? 'i_agree' : (agreementValue.value || 'i_disagree'),
             source_comments: sourceComments.value.trim()
           })
         };
@@ -4725,7 +4774,7 @@
         setFieldValue(informationSource, publication.information_source);
         setSelectValue(publishToMatching, publication.publish_to_matching, '');
         setFieldValue(candidateSummary, publication.candidate_summary);
-        setSelectValue(dataProcessingConfirmation, publication.data_processing_confirmation, '');
+        dataProcessingConfirmation.checked = publication.data_processing_confirmation === 'i_confirm';
 
         const consent = workspaceSection(workspace, 'consent_details');
         setFieldValue(obligationDate, consent.obligation_date);
