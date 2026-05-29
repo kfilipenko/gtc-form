@@ -213,12 +213,11 @@ function cpg_questionnaire_mandatory_fields(): array {
         cpg_questionnaire_field('V-2.1', 'vessel_type', 'V', 'Vessel type', true, true, '/post-vacancy/#post-vessel-type', [
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('V-2.2', 'flag_country', 'V', 'Flag country', false, true, '/post-vacancy/#post-country', [
-            'implementation_status' => 'target_gap',
+        cpg_questionnaire_field('V-2.2', 'flag_country', 'V', 'Flag country', false, true, '/post-vacancy/#post-vessel-flag-country', [
             'conditional_required' => 'exact_vessel_is_known_or_flag_constraint_is_used',
             'visibility_class' => 'operator_review',
         ]),
-        cpg_questionnaire_field('V-4.D1', 'vessel_identity', 'V', 'Vessel particulars document', false, false, '/post-vacancy/#post-document-upload-title', [
+        cpg_questionnaire_field('V-4.D1', 'vessel_identity', 'V', 'Vessel particulars document', false, false, '/post-vacancy/#post-vessel-document-upload-title', [
             'field_type' => 'document',
             'document_type' => 'vessel_particulars',
             'conditional_required' => 'exact_vessel_is_known',

@@ -23,11 +23,14 @@ test('published reference catalogs populate seafarer and employer form suggestio
   await expect(page.locator('#post-vacancy-title option[value="Chief Officer"]')).toHaveCount(1);
   await expect(page.locator('#post-vessel-type option[value="BULK CARRIER"]')).toHaveCount(1);
   await expect(page.locator('#post-country option[value="AE"]')).toHaveCount(1);
+  await expect(page.locator('#post-vessel-flag-country option[value="AE"]')).toHaveCount(1);
 
   await page.locator('#post-vacancy-title').selectOption('Chief Officer');
   await page.locator('#post-vessel-type').selectOption('BULK CARRIER');
   await page.locator('#post-country').selectOption('AE');
+  await page.locator('#post-vessel-flag-same-company').click();
   await expect(page.locator('#post-vacancy-title')).toHaveValue('Chief Officer');
   await expect(page.locator('#post-vessel-type')).toHaveValue('BULK CARRIER');
   await expect(page.locator('#post-country')).toHaveValue('AE');
+  await expect(page.locator('#post-vessel-flag-country')).toHaveValue('AE');
 });

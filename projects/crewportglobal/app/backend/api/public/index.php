@@ -9135,6 +9135,7 @@ function cpg_questionnaire_demand_completeness(string $userId, string $role, arr
             'V-1.1' => $vessel['vessel_name'] ?? null,
             'V-1.2' => $vessel['imo_number'] ?? null,
             'V-2.1' => cpg_questionnaire_first_present($vesselType, $vessel['vessel_type_label'] ?? null, $vessel['vessel_type'] ?? null),
+            'V-2.2' => $vessel['flag_country_code'] ?? null,
             'R-1.1' => cpg_questionnaire_first_present($vacancy['required_rank_label'] ?? null, $vacancy['rank'] ?? null, $vacancy['vacancy_title'] ?? null),
             'R-1.2' => $vacancy['department'] ?? null,
             'R-2.1' => $vesselType,
@@ -9742,6 +9743,7 @@ function upsert_company_context(string $userId, string $role, array $body): arra
             ? trim($vesselBody['vessel_type'])
             : null;
         $vesselTypeValueId = cpg_workspace_reference_value_id('vessel_types', $vesselType);
+        $flagCountryCode = normalize_country_code($vesselBody['flag_country_code'] ?? $vesselBody['flag_country'] ?? null);
         $imo = isset($vesselBody['imo_number']) && is_string($vesselBody['imo_number'])
             ? trim($vesselBody['imo_number'])
             : null;
@@ -9763,9 +9765,10 @@ function upsert_company_context(string $userId, string $role, array $body): arra
                    vessel_type,
                    vessel_type_value_id,
                    vessel_type_label,
+                   flag_country_code,
                    imo_number
                  )
-                 VALUES ($1, $2, $3, $4::uuid, $5, $6)
+                 VALUES ($1, $2, $3, $4::uuid, $5, $6, $7)
                  ON CONFLICT (imo_number)
                  WHERE imo_number IS NOT NULL
                  DO UPDATE SET
@@ -9774,9 +9777,10 @@ function upsert_company_context(string $userId, string $role, array $body): arra
                    vessel_type = EXCLUDED.vessel_type,
                    vessel_type_value_id = EXCLUDED.vessel_type_value_id,
                    vessel_type_label = EXCLUDED.vessel_type_label,
+                   flag_country_code = EXCLUDED.flag_country_code,
                    updated_at = now()
                  RETURNING vessel_id',
-                [$companyId, $vesselName, $vesselType, $vesselTypeValueId, $vesselType, $imo]
+                [$companyId, $vesselName, $vesselType, $vesselTypeValueId, $vesselType, $flagCountryCode, $imo]
             );
             $vesselRow = pg_fetch_assoc($vesselInsert);
             if (is_array($vesselRow)) {

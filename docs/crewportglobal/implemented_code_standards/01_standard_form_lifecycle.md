@@ -4,7 +4,7 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Implemented code standards
 - Document type: Implemented code standard
-- Version: 1.9
+- Version: 2.0
 - Date: 2026-05-29
 - Status: Active
 
@@ -34,6 +34,7 @@ The standard prevents every form from creating its own copy of:
 10. human-readable document checklist rendering instead of technical document-type dropdowns;
 11. country-code select handling with ISO alpha-2 values and same-as-nationality copy helpers where the same country is requested more than once;
 12. matching-readiness control for fields that must be comparable between supply and demand forms.
+13. vessel-context controls that keep vessel flag/evidence separate from employer authority data.
 
 ## 2. Applies To
 
@@ -86,6 +87,7 @@ Each page adapter must provide:
 | document-first upload context | Defines whether upload appears before detailed manual fields and which canonical prefix future extraction maps to. |
 | document checklist adapter | Maps allowed document types to compact visible rows with uploaded/reviewed/replacement state and one visible row-level upload/replace button. |
 | matching counterpart mapping | Identifies whether a changed field is supply-side, demand-side, vessel-context or crew-request data and what field/catalog it must match against. |
+| vessel-context mapping | Maps vessel fields such as flag country and vessel particulars to `V-*` completeness codes and vessel storage, not employer authority storage. |
 
 ## 5. Forbidden Local Logic
 
@@ -190,6 +192,8 @@ and that the repeated registration address can be copied from the permanent addr
 
 The same regression also checks that country-code fields are catalog-backed `select` controls, that values such as `CY`, `AE` and `PH` are available from the catalog/fallback resolver, and that `Same as nationality` persists copied country values through save and hard reload.
 
+The `/post-vacancy/` regression checks the demand-side counterpart: `Vessel flag country` is a country-catalog select, `Same as company country` copies the company country ISO code, the value persists after reload and `V-2.2` is evaluated by backend completeness.
+
 ## 7A. Document-First Completion Standard
 
 When a form can be materially completed from uploaded documents, the upload panel should appear near the beginning of the owner workflow, after the minimum identity/context block and before long manual sections.
@@ -241,6 +245,7 @@ For `/post-vacancy/`, the first rollout converted these fields to catalog-backed
 | Requested rank | `seafarer_positions` | Core supply-demand position comparison. |
 | Vessel type | `vessel_types` | Vessel-experience and preference comparison. |
 | Country | `countries` | Compliance, operating context and soft scoring. |
+| Vessel flag country | `countries` | Vessel-context compliance and future soft-score / blocker explanation, stored separately from employer company country. |
 
 Page adapters must not introduce a hard matching blocker just because a field has become structured. Hard blockers are allowed only when both sides of the comparison have comparable structured values and the business-process document classifies the field as a hard requirement.
 

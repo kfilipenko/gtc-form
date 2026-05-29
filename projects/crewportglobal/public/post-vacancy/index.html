@@ -123,6 +123,20 @@
       resize: vertical;
     }
 
+    .field-helper-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .field-helper-actions .button {
+      min-height: 34px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
     .document-upload-panel {
       display: grid;
       gap: 14px;
@@ -509,6 +523,15 @@
                   <option value="" data-i18n="post.form.vesselType.select">Select vessel type</option>
                 </select>
               </label>
+              <label class="field-card">
+                <strong data-i18n="post.form.vesselFlagCountry">Vessel flag country</strong>
+                <select id="post-vessel-flag-country">
+                  <option value="" data-i18n="post.form.vesselFlagCountry.select">Select flag country</option>
+                </select>
+                <span class="field-helper-actions">
+                  <button id="post-vessel-flag-same-company" class="button secondary" type="button" data-i18n="post.form.vesselFlagCountry.sameAsCompany">Same as company country</button>
+                </span>
+              </label>
               <label class="field-card full">
                 <strong data-i18n="post.form.imo">IMO number</strong>
                 <input id="post-imo" type="text" data-i18n-placeholder="post.form.imo.placeholder" placeholder="IMO9001234">
@@ -617,6 +640,35 @@
               <p id="post-document-upload-status" class="status-note" data-i18n="post.upload.status.initial">Allowed files: PDF, JPG, PNG or WEBP. Maximum size: 10 MB. Save the vacancy request first, then upload evidence.</p>
               <div id="post-document-action-list" class="document-action-list" aria-live="polite"></div>
             </section>
+            <section class="document-upload-panel" aria-labelledby="post-vessel-document-upload-title">
+              <div>
+                <p class="eyebrow" data-i18n="post.vesselUpload.eyebrow">Protected vessel upload</p>
+                <h2 id="post-vessel-document-upload-title" data-i18n="post.vesselUpload.title">Upload vessel evidence after saving</h2>
+                <p class="status-note" data-i18n="post.vesselUpload.copy">Upload vessel documents from the checklist. Each row shows the uploaded file and processing status.</p>
+              </div>
+              <div id="post-vessel-document-upload-list" class="document-upload-list document-type-list" aria-live="polite"></div>
+              <div class="document-upload-grid document-upload-legacy" hidden>
+                <label class="field-card">
+                  <strong data-i18n="post.upload.type">Document type</strong>
+                  <select id="post-vessel-document-upload-type">
+                    <option value="vessel_registration" data-i18n="post.upload.type.vessel_registration">Vessel registration</option>
+                    <option value="vessel_particulars" data-i18n="post.upload.type.vessel_particulars">Vessel particulars</option>
+                    <option value="classification_certificate" data-i18n="post.upload.type.classification_certificate">Classification certificate</option>
+                    <option value="insurance_certificate" data-i18n="post.upload.type.insurance_certificate">Insurance certificate</option>
+                    <option value="safety_management_certificate" data-i18n="post.upload.type.safety_management_certificate">Safety management certificate</option>
+                    <option value="crew_request_support" data-i18n="post.upload.type.crew_request_support">Crew request support</option>
+                    <option value="other_vessel_evidence" data-i18n="post.upload.type.other_vessel_evidence">Other vessel evidence</option>
+                  </select>
+                </label>
+                <label class="field-card">
+                  <strong data-i18n="post.upload.file">File</strong>
+                  <input id="post-vessel-document-upload-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp">
+                </label>
+                <button id="post-vessel-document-upload-submit" class="button secondary" type="button" data-i18n="post.upload.submit">Upload</button>
+              </div>
+              <p id="post-vessel-document-upload-status" class="status-note" data-i18n="post.upload.status.initial">Allowed files: PDF, JPG, PNG or WEBP. Maximum size: 10 MB. Save the vacancy request first, then upload evidence.</p>
+              <div id="post-vessel-document-action-list" class="document-action-list" aria-live="polite"></div>
+            </section>
             <section class="candidate-pipeline" aria-labelledby="post-candidate-pipeline-title">
               <div class="candidate-pipeline__head">
                 <span id="post-candidate-pipeline-title" data-i18n="post.pipeline.title">Presented candidates</span>
@@ -703,6 +755,11 @@
         'post.form.vesselType': 'Vessel type',
         'post.form.vesselType.placeholder': 'Bulk Carrier',
         'post.form.vesselType.select': 'Select vessel type',
+        'post.form.vesselFlagCountry': 'Vessel flag country',
+        'post.form.vesselFlagCountry.select': 'Select flag country',
+        'post.form.vesselFlagCountry.sameAsCompany': 'Same as company country',
+        'post.form.vesselFlagCountry.copied': 'Vessel flag country copied from company country.',
+        'post.form.vesselFlagCountry.noCompanyCountry': 'Select company country first.',
         'post.form.imo': 'IMO number',
         'post.form.imo.placeholder': 'IMO9001234',
         'post.form.vacancyTitle': 'Vacancy title / rank',
@@ -739,6 +796,13 @@
         'post.upload.type.service_request_document': 'Service request document',
         'post.upload.type.billing_or_commercial_evidence': 'Billing / commercial evidence',
         'post.upload.type.other_authority_evidence': 'Other authority evidence',
+        'post.upload.type.vessel_registration': 'Vessel registration',
+        'post.upload.type.vessel_particulars': 'Vessel particulars',
+        'post.upload.type.classification_certificate': 'Classification certificate',
+        'post.upload.type.insurance_certificate': 'Insurance certificate',
+        'post.upload.type.safety_management_certificate': 'Safety management certificate',
+        'post.upload.type.crew_request_support': 'Crew request support',
+        'post.upload.type.other_vessel_evidence': 'Other vessel evidence',
         'post.upload.file': 'File',
         'post.upload.submit': 'Upload',
         'post.upload.status.initial': 'Allowed files: PDF, JPG, PNG or WEBP. Maximum size: 10 MB. Save the vacancy request first, then upload evidence.',
@@ -800,6 +864,16 @@
         'post.upload.typeDescription.service_request_document': 'Service request or order document for CrewPortGlobal processing.',
         'post.upload.typeDescription.billing_or_commercial_evidence': 'Billing or commercial evidence for future service-fee processing.',
         'post.upload.typeDescription.other_authority_evidence': 'Other supporting evidence for authority or demand review.',
+        'post.upload.typeDescription.vessel_registration': 'Registration document identifying the vessel.',
+        'post.upload.typeDescription.vessel_particulars': 'Vessel particulars used to verify identity, type, flag and operating context.',
+        'post.upload.typeDescription.classification_certificate': 'Classification certificate or class evidence for vessel verification.',
+        'post.upload.typeDescription.insurance_certificate': 'Insurance evidence relevant to vessel operation.',
+        'post.upload.typeDescription.safety_management_certificate': 'Safety management certificate or equivalent ISM-related evidence.',
+        'post.upload.typeDescription.crew_request_support': 'Document supporting the specific crew request or vacancy demand.',
+        'post.upload.typeDescription.other_vessel_evidence': 'Other vessel evidence for operator review.',
+        'post.vesselUpload.eyebrow': 'Protected vessel upload',
+        'post.vesselUpload.title': 'Upload vessel evidence after saving',
+        'post.vesselUpload.copy': 'Upload vessel documents from the checklist. Each row shows the uploaded file and processing status.',
         'post.form.submit': 'Save / confirm data',
         'post.form.submitReview': 'Submit to operator review',
         'post.form.status': 'This form saves employer, company, vessel and vacancy request context in backend.',
@@ -914,6 +988,11 @@
         'post.form.vesselType': 'Тип судна',
         'post.form.vesselType.placeholder': 'Bulk Carrier',
         'post.form.vesselType.select': 'Выберите тип судна',
+        'post.form.vesselFlagCountry': 'Страна флага судна',
+        'post.form.vesselFlagCountry.select': 'Выберите страну флага',
+        'post.form.vesselFlagCountry.sameAsCompany': 'Как страна компании',
+        'post.form.vesselFlagCountry.copied': 'Страна флага судна скопирована из страны компании.',
+        'post.form.vesselFlagCountry.noCompanyCountry': 'Сначала выберите страну компании.',
         'post.form.imo': 'Номер IMO',
         'post.form.imo.placeholder': 'IMO9001234',
         'post.form.vacancyTitle': 'Вакансия / должность',
@@ -950,6 +1029,13 @@
         'post.upload.type.service_request_document': 'Документ сервисного запроса',
         'post.upload.type.billing_or_commercial_evidence': 'Платежное / коммерческое подтверждение',
         'post.upload.type.other_authority_evidence': 'Другое подтверждение полномочий',
+        'post.upload.type.vessel_registration': 'Регистрация судна',
+        'post.upload.type.vessel_particulars': 'Сведения о судне',
+        'post.upload.type.classification_certificate': 'Классификационное свидетельство',
+        'post.upload.type.insurance_certificate': 'Страховой документ',
+        'post.upload.type.safety_management_certificate': 'Свидетельство управления безопасностью',
+        'post.upload.type.crew_request_support': 'Документ к запросу экипажа',
+        'post.upload.type.other_vessel_evidence': 'Другое подтверждение по судну',
         'post.upload.file': 'Файл',
         'post.upload.submit': 'Загрузить',
         'post.upload.status.initial': 'Допустимые файлы: PDF, JPG, PNG или WEBP. Максимальный размер: 10 MB. Сначала сохраните заявку, затем загрузите документ.',
@@ -1011,6 +1097,16 @@
         'post.upload.typeDescription.service_request_document': 'Сервисный запрос или заказ на обработку CrewPortGlobal.',
         'post.upload.typeDescription.billing_or_commercial_evidence': 'Платежное или коммерческое подтверждение для будущей обработки вознаграждения.',
         'post.upload.typeDescription.other_authority_evidence': 'Другое подтверждение полномочий или проверки заявки.',
+        'post.upload.typeDescription.vessel_registration': 'Регистрационный документ, идентифицирующий судно.',
+        'post.upload.typeDescription.vessel_particulars': 'Сведения о судне для проверки идентичности, типа, флага и операционного контекста.',
+        'post.upload.typeDescription.classification_certificate': 'Классификационное свидетельство или подтверждение класса судна.',
+        'post.upload.typeDescription.insurance_certificate': 'Страховой документ, связанный с эксплуатацией судна.',
+        'post.upload.typeDescription.safety_management_certificate': 'Свидетельство управления безопасностью или равнозначное ISM-подтверждение.',
+        'post.upload.typeDescription.crew_request_support': 'Документ, подтверждающий конкретный запрос на экипаж или вакансию.',
+        'post.upload.typeDescription.other_vessel_evidence': 'Другое подтверждение по судну для проверки оператором.',
+        'post.vesselUpload.eyebrow': 'Защищенная загрузка по судну',
+        'post.vesselUpload.title': 'Загрузите документы судна после сохранения',
+        'post.vesselUpload.copy': 'Загрузите документы судна из списка. Каждая строка показывает загруженный файл и статус обработки.',
         'post.form.submit': 'Сохранить / подтвердить данные',
         'post.form.submitReview': 'Направить на проверку оператору',
         'post.form.status': 'Эта форма сохраняет работодателя, компанию, судно и заявку на вакансию в backend.',
@@ -1117,6 +1213,8 @@
       const registrationNumber = document.getElementById('post-registration-number');
       const vesselName = document.getElementById('post-vessel-name');
       const vesselType = document.getElementById('post-vessel-type');
+      const vesselFlagCountry = document.getElementById('post-vessel-flag-country');
+      const vesselFlagSameCompany = document.getElementById('post-vessel-flag-same-company');
       const imo = document.getElementById('post-imo');
       const vacancyTitle = document.getElementById('post-vacancy-title');
       const department = document.getElementById('post-department');
@@ -1139,6 +1237,12 @@
       const uploadStatus = document.getElementById('post-document-upload-status');
       const documentActionList = document.getElementById('post-document-action-list');
       const uploadList = document.getElementById('post-document-upload-list');
+      const vesselUploadType = document.getElementById('post-vessel-document-upload-type');
+      const vesselUploadFile = document.getElementById('post-vessel-document-upload-file');
+      const vesselUploadSubmit = document.getElementById('post-vessel-document-upload-submit');
+      const vesselUploadStatus = document.getElementById('post-vessel-document-upload-status');
+      const vesselDocumentActionList = document.getElementById('post-vessel-document-action-list');
+      const vesselUploadList = document.getElementById('post-vessel-document-upload-list');
       const completenessSummary = document.getElementById('post-completeness-summary');
       const missingList = document.getElementById('post-missing-list');
       let currentWorkspaceResponse = null;
@@ -1158,7 +1262,8 @@
         'V-1.1': ['post-vessel-name'],
         'V-1.2': ['post-imo'],
         'V-2.1': ['post-vessel-type'],
-        'V-4.D1': ['post-document-upload-type'],
+        'V-2.2': ['post-vessel-flag-country'],
+        'V-4.D1': ['post-vessel-document-upload-type'],
         'R-1.1': ['post-vacancy-title'],
         'R-1.2': ['post-department'],
         'R-2.1': ['post-vessel-type'],
@@ -1173,9 +1278,10 @@
         targets[fieldCode] = completenessFieldTargets[fieldCode][0];
         return targets;
       }, {});
-      ['E-4.D1', 'E-4.D2', 'E-4.D3', 'V-4.D1'].forEach((fieldCode) => {
+      ['E-4.D1', 'E-4.D2', 'E-4.D3'].forEach((fieldCode) => {
         completenessSectionTargets[fieldCode] = 'post-document-upload-title';
       });
+      completenessSectionTargets['V-4.D1'] = 'post-vessel-document-upload-title';
 
       const completenessNavigator = window.CPGFormLifecycle.createCompletenessNavigator({
         fieldTargets: completenessFieldTargets,
@@ -1222,6 +1328,16 @@
             options: {
               placeholderText: t('post.form.vesselType.select'),
               fallbackValues: ['BULK CARRIER', 'CONTAINER SHIP', 'OIL TANKER', 'OSV']
+            }
+          }),
+          window.CPGReferenceCatalogs.bindSelect({
+            catalogCode: 'countries',
+            select: 'post-vessel-flag-country',
+            options: {
+              countryIsoValue: true,
+              showCodeInLabel: true,
+              placeholderText: t('post.form.vesselFlagCountry.select'),
+              fallbackValues: ['AE', 'CY', 'GB', 'PH', 'SG', 'US']
             }
           }),
           window.CPGReferenceCatalogs.bindSelect({
@@ -1484,6 +1600,7 @@
       }
 
       let documentChecklist = null;
+      let vesselDocumentChecklist = null;
       const protectedUpload = window.CPGProtectedUpload.createController({
         nodes: {
           type: uploadType,
@@ -1523,12 +1640,60 @@
         valueOrDash,
         formatDate: (value) => String(value || '').slice(0, 10) || '-'
       });
+      const vesselProtectedUpload = window.CPGProtectedUpload.createController({
+        nodes: {
+          type: vesselUploadType,
+          file: vesselUploadFile,
+          submit: vesselUploadSubmit,
+          status: vesselUploadStatus,
+          actionList: vesselDocumentActionList,
+          list: null
+        },
+        translationPrefix: 'post.upload',
+        formType: 'vessel',
+        listFormType: 'vessel',
+        getDraftId: currentDraftId,
+        t,
+        tFormat: tp,
+        valueOrDash,
+        onUploaded: async (response, draftId) => {
+          await refreshCompleteness(draftId);
+        },
+        onRefreshed: async (response) => {
+          if (vesselDocumentChecklist) {
+            vesselDocumentChecklist.render(response.documents || []);
+          }
+        }
+      });
+      vesselDocumentChecklist = window.CPGProtectedUpload.createDocumentChecklist({
+        controller: vesselProtectedUpload,
+        nodes: {
+          type: vesselUploadType,
+          file: vesselUploadFile,
+          status: vesselUploadStatus,
+          list: vesselUploadList
+        },
+        translationPrefix: 'post.upload',
+        t,
+        tFormat: tp,
+        valueOrDash,
+        formatDate: (value) => String(value || '').slice(0, 10) || '-'
+      });
 
       async function refreshUploadedDocuments() {
-        if (!currentDraftId() && documentChecklist) {
-          documentChecklist.render([]);
+        if (!currentDraftId()) {
+          if (documentChecklist) {
+            documentChecklist.render([]);
+          }
+          if (vesselDocumentChecklist) {
+            vesselDocumentChecklist.render([]);
+          }
+          return;
         }
-        await protectedUpload.refreshUploadedDocuments();
+        await Promise.all([
+          protectedUpload.refreshUploadedDocuments(),
+          vesselProtectedUpload.refreshUploadedDocuments()
+        ]);
       }
 
       async function uploadSelectedDocument() {
@@ -1642,6 +1807,7 @@
         setSelectValue(roleInCompany, companyPayload.role_in_company);
         setValue(vesselName, vesselPayload.vessel_name);
         setValue(vesselType, vacancyPayload.vessel_type || vesselPayload.vessel_type);
+        setValue(vesselFlagCountry, vesselPayload.flag_country_code);
         setValue(imo, vesselPayload.imo_number);
         setValue(vacancyTitle, vacancyPayload.vacancy_title || vacancyPayload.rank);
         setSelectValue(department, vacancyPayload.department);
@@ -1698,6 +1864,7 @@
           vessel: {
             vessel_name: vesselName.value.trim(),
             vessel_type: vesselType.value.trim(),
+            flag_country_code: vesselFlagCountry.value.trim().toUpperCase(),
             imo_number: imo.value.trim()
           }
         };
@@ -1837,6 +2004,16 @@
       });
 
       uploadSubmit.addEventListener('click', uploadSelectedDocument);
+      vesselUploadSubmit.addEventListener('click', () => vesselProtectedUpload.uploadSelectedDocument());
+      vesselFlagSameCompany.addEventListener('click', () => {
+        const selectedCountry = country.value.trim().toUpperCase();
+        if (!selectedCountry) {
+          status.textContent = t('post.form.vesselFlagCountry.noCompanyCountry');
+          return;
+        }
+        setValue(vesselFlagCountry, selectedCountry);
+        status.textContent = t('post.form.vesselFlagCountry.copied');
+      });
 
       window.addEventListener('crewportglobal:languagechange', () => {
         renderWorkspaceStatus(currentWorkspaceResponse);
@@ -1849,6 +2026,9 @@
       renderCompleteness(null);
       if (documentChecklist) {
         documentChecklist.render([]);
+      }
+      if (vesselDocumentChecklist) {
+        vesselDocumentChecklist.render([]);
       }
       catalogBindingsReady.finally(() => loadExistingDraft()).finally(() => {
         refreshUploadedDocuments();

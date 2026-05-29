@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.25
+- Version: 2.26
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -327,6 +327,7 @@ docs/crewportglobal/
   238_cpg_biz_045c_create_profile_catalog_select_address_upload_contrast_report.md
   239_cpg_biz_046_standard_form_lifecycle_rollout_task.md
   240_cpg_biz_046_standard_form_lifecycle_rollout_report.md
+  241_cpg_biz_047_employer_vessel_form_standard_rollout_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -703,6 +704,8 @@ Document 239 defines the CPG-BIZ-046 approval task for rolling out the approved 
 
 Document 240 records the CPG-BIZ-046 Phase 1 implementation for `/post-vacancy/`, including demand-side catalog-backed country, vessel type and requested-rank controls, shared `createDocumentChecklist(config)` protected-upload adoption, supply-demand matching synchronization matrix, no DB migration, no scoring/employment decision logic and focused Playwright verification.
 
+Document 241 records the CPG-BIZ-047 employer/vessel form standard rollout, including `Vessel flag country` as a country-catalog ISO alpha-2 field stored in `vessels.flag_country_code`, a `Same as company country` helper, a separate vessel protected-upload checklist using `form_type = vessel`, updated `V-2.2` and `V-4.D1` completeness targets and focused Playwright verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -806,6 +809,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.26 | 2026-05-29 | GTC IT / AI Assistant | Added document 241 for CPG-BIZ-047 employer/vessel rollout with vessel flag country catalog storage, separate vessel document checklist and updated V-stream completeness targets |
 | 2.25 | 2026-05-29 | GTC IT / AI Assistant | Added document 240 for CPG-BIZ-046 Phase 1 rollout to `/post-vacancy/`, aligning demand-side fields with matching catalogs and reusing shared protected-upload checklist behavior |
 | 2.24 | 2026-05-29 | GTC IT / AI Assistant | Updated document 239, BP-014 and ICS-001 with the matching-first principle: form standard rollout must produce comparable structured supply/demand data for automated request-offer matching |
 | 2.23 | 2026-05-29 | GTC IT / AI Assistant | Added document 239 as the CPG-BIZ-046 approval task for rolling out the approved standard form lifecycle to remaining active forms |

@@ -110,6 +110,15 @@ test('post vacancy document upload shows exact file limit and type validation', 
     buffer: Buffer.from('plain text is not accepted authority evidence'),
   });
   await expect(page.locator('#post-document-upload-status')).toContainText('Unsupported file type');
+
+  const vesselParticularsInput = page.locator('#post-vessel-document-upload-list .document-type-row[data-document-type="vessel_particulars"] .document-type-row__file-input');
+  await vesselParticularsInput.setInputFiles({
+    name: 'vessel-particulars.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF\n'),
+  });
+  await expect(page.locator('#post-vessel-document-upload-status')).toContainText('Document uploaded');
+  await expect(page.locator('#post-vessel-document-upload-list .document-type-row[data-document-type="vessel_particulars"]')).toContainText('vessel-particulars.pdf');
 });
 
 test('post vacancy save confirm renders demand completeness items and opens exact fields', async ({ page }) => {
@@ -188,6 +197,8 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await page.locator('#post-registration-number').fill(`AE-PV-${unique}`);
   await page.locator('#post-vessel-name').fill(`MV Workspace ${unique}`);
   await selectMatchingValue(page, '#post-vessel-type', 'BULK CARRIER');
+  await page.locator('#post-vessel-flag-same-company').click();
+  await expect(page.locator('#post-vessel-flag-country')).toHaveValue('AE');
   await page.locator('#post-imo').fill(`IMO${9400000 + (unique % 500000)}`);
   await selectMatchingValue(page, '#post-vacancy-title', firstTitle);
   await page.locator('#post-department').selectOption('deck');
@@ -246,6 +257,7 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await expect(page.locator('#post-role')).toHaveValue('shipowner');
   await expect(page.locator('#post-role-in-company')).toHaveValue('owner');
   await expect(page.locator('#post-company')).toHaveValue(company);
+  await expect(page.locator('#post-vessel-flag-country')).toHaveValue('AE');
   await expect(page.locator('#post-vacancy-title')).toHaveValue(firstTitle);
   await expect(page.locator('#post-salary-min')).toHaveValue(/^7000(\.00)?$/);
   await expect(page.locator('#post-salary-max')).toHaveValue(/^7600(\.00)?$/);

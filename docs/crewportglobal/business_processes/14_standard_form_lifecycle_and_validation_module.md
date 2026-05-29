@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Business-process standard and implementation control
 - Source task: Project Owner approval after CPG-BIZ-040 multi-role upload diagnostics
-- Version: 2.2
+- Version: 2.3
 - Date: 2026-05-29
 - Status: Approved standard for staged implementation
 
@@ -89,6 +89,16 @@ For this reason, form lifecycle work must preserve these rules:
 The streams may appear on one page, but they must remain distinguishable in validation and task computation.
 
 They must also remain mappable for matching. A demand-side field such as requested rank, vessel type, joining date, salary range, certificate requirement or operating area must have a known seafarer-side counterpart before it is used as a blocker or score input.
+
+Vessel context must remain distinct from employer authority. For example:
+
+```text
+company country -> E-2.2 / employer company context
+vessel flag country -> V-2.2 / vessel context
+vessel particulars document -> V-4.D1 / vessel evidence
+```
+
+This separation lets the system later explain whether a blocker belongs to the employer account, the vessel, the crew request or the candidate supply profile.
 
 ## 4. Standard Lifecycle States
 
@@ -206,6 +216,7 @@ Each form page must connect to the same frontend behavior.
 | Finite single-select reference field | Use a true catalog-backed `select`, not `datalist`, for finite matching/control values such as civil status, gender, relation and vessel type. |
 | Country-code reference field | Use the approved `countries` catalog through a true `select`; show country names but store comparable ISO alpha-2 codes. |
 | Repeated country fields | Provide an explicit copy action such as `Same as nationality` when the user is likely to repeat the same country across several fields. |
+| Demand-side repeated country fields | Provide explicit copy actions such as `Same as company country` for vessel flag country when it reduces repeated input but keep the destination field independently editable. |
 | Repeated address fields | Provide an explicit `Same address` copy option when a form asks the user to enter substantially the same address more than once. |
 | Visual contrast | Inputs, textareas, upload lists and document metadata must remain readable in dark and light themes. |
 | Matching-critical field | Use the shared catalog/normalization expected by the opposite side, and document any temporary compatibility mapping. |
@@ -424,16 +435,17 @@ The standard is correctly adopted for a form when:
 15. document-heavy forms place upload early enough to support document-first completion;
 16. finite document catalogs render as a human-readable checklist with replacement states;
 17. future AI/OCR extraction context is documented without bypassing owner confirmation or human review;
-18. Playwright/API tests cover save, reload, completeness, upload, role-context, catalog-select, document checklist, document-first placement and repeated-address behavior.
+18. vessel-context fields and documents remain mapped to `V-*` codes and vessel form type, not employer authority form type;
+19. Playwright/API tests cover save, reload, completeness, upload, role-context, catalog-select, document checklist, document-first placement and repeated-address/repeated-country behavior.
 
 ## 15. Next Stage
 
-The Phase E submit-to-operator review gate, the `/create-profile/` field-control corrections and the first `/post-vacancy/` matching-first rollout are complete.
+The Phase E submit-to-operator review gate, the `/create-profile/` field-control corrections, the first `/post-vacancy/` matching-first rollout and the CPG-BIZ-047 vessel-context rollout are complete.
 
 The next rollout stage is:
 
 ```text
-CPG-BIZ-047 - Standard form lifecycle rollout to employer company and vessel forms
+CPG-BIZ-048 - Employer and vessel submit-review readiness and owner correction handoff verification
 ```
 
-That stage should apply this standard to employer company and vessel forms with a matching-first field audit. The rollout must prove that fields needed for automated request-offer matching are structured, persistent, synchronized across supply/demand where applicable and not used as hard blockers until both sides are comparable.
+That stage should verify that complete employer, vessel and crew-request data can move through submit-review, correction handoff and task recomputation without losing the standard lifecycle boundaries.

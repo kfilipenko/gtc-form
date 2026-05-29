@@ -4,7 +4,7 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Implemented code standards
 - Document type: Implemented code standard
-- Version: 1.2
+- Version: 1.3
 - Date: 2026-05-29
 - Status: Active
 
@@ -124,6 +124,15 @@ The `/create-profile/` regression also checks that a successful upload status in
 
 The document-correction regression checks that row-level replacement closes the old correction task only after a clean replacement and that employer authorization evidence uses the same checklist replacement path.
 
+The `/post-vacancy/` regression also checks that employer and vessel evidence can use separate checklist adapters on the same page:
+
+```text
+form_type = employer -> authority evidence
+form_type = vessel   -> vessel particulars and vessel evidence
+```
+
+This prevents vessel documents from being treated as company authority documents and keeps future matching evidence tied to the correct `V-*` stream.
+
 ## 8. Change Propagation Rule
 
 If protected upload behavior changes, update:
@@ -137,4 +146,5 @@ If protected upload behavior changes, update:
 
 1. owner correction upload forms;
 2. team review document workspaces;
-3. future company/vessel profile document forms.
+3. future company/vessel profile document forms;
+4. future AI/OCR document extraction adapters that read from protected storage but keep owner confirmation and human review gates.

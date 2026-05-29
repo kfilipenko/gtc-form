@@ -7,7 +7,7 @@
 - Source request: Project Owner approval after manual `/create-profile/` nationality/country persistence test
 - Version: 1.1
 - Date: 2026-05-29
-- Status: Approved by Project Owner; Phase 1 implemented through document 240
+- Status: Approved by Project Owner; `/post-vacancy/` Phase 1 and CPG-BIZ-047 vessel-context rollout implemented through documents 240 and 241
 
 ## 1. Purpose
 

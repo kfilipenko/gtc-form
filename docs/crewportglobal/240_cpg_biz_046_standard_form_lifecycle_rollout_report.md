@@ -165,17 +165,15 @@ Result: passed.
 
 ## 10. Next Planned Stage
 
-Next stage:
+Next stage after this report was executed as document 241:
 
 ```text
-CPG-BIZ-047 - Standard form lifecycle rollout to employer company and vessel forms
+CPG-BIZ-048 - Employer and vessel submit-review readiness and owner correction handoff verification
 ```
 
-That stage should:
+That next stage should:
 
-1. inspect active employer/company and vessel forms;
-2. reuse the same lifecycle, catalog and upload helpers;
-3. align vessel/company fields with matching needs;
-4. prove save/reload persistence;
-5. keep document upload as a protected checklist;
-6. update tests and standards without copying helper logic.
+1. verify complete employer/vessel/crew-request submit-review readiness;
+2. prove owner correction handoff for `E/V/R` missing or rejected evidence;
+3. confirm computed team task recomputation after correction/resubmission;
+4. keep matching-first boundaries and no automatic employment decision.
