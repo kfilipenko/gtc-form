@@ -91,7 +91,7 @@ Finite catalog-backed fields must use structured controls:
 | Field type | Required control | Reason |
 |---|---|---|
 | Single finite catalog | `select` populated through `CPGReferenceCatalogs.bindSelect` | The user must choose one approved value, and tests can assert the control. |
-| Multiple finite catalog | `select multiple` or approved multiselect control | Matching may compare several values and needs a stored array. |
+| Multiple finite catalog | Explicit multi-choice control, such as checkboxes or an approved searchable multiselect, backed by a stored array | Matching may compare several values; the user must see how to select several values without hidden Ctrl/Shift keyboard behavior. |
 | Large searchable catalog | `input` + `datalist` may remain temporarily acceptable | Countries, cities, airports or institutions may need search/type-ahead until a shared searchable select exists. |
 | Free text | `input` / `textarea` | Only when no catalog or controlled value set applies. |
 
@@ -108,11 +108,13 @@ tests/crewportglobal-post-vacancy-workspace.spec.ts
 
 The tests check that missing items are rendered, highlighted and opened by exact links.
 
-They also check that `/create-profile/` keeps saved backend data after hard reload and that `Preferred vessel types` is stored as a structured multi-select value with an explicit neutral option:
+They also check that `/create-profile/` keeps saved backend data after hard reload and that `Preferred vessel types` is stored as a structured multi-value array with an explicit neutral option:
 
 ```text
 Any vessel type / Тип судна не важен
 ```
+
+For user-facing forms, native browser `select multiple` is not sufficient by itself for finite catalog fields because the multiple-selection behavior is not obvious to ordinary users. The visible control should show one explicit checkbox/toggle per option or an approved searchable multiselect component. A hidden/select-backed adapter may remain only as an implementation detail when it preserves the existing payload and test contract.
 
 The `/create-profile/` regression also checks that finite catalog fields are true `select` controls:
 

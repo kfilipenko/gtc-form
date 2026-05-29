@@ -505,6 +505,50 @@
       overflow-y: auto;
     }
 
+    .multi-choice-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+      max-height: 260px;
+      padding: 10px;
+      overflow-y: auto;
+      border: 1px solid var(--app-line);
+      border-radius: 8px;
+      background: var(--app-surface);
+    }
+
+    .multi-choice-option {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      min-height: 40px;
+      padding: 9px 10px;
+      border: 1px solid var(--app-line);
+      border-radius: 8px;
+      background: var(--app-surface-2);
+      color: var(--app-ink);
+      cursor: pointer;
+    }
+
+    .multi-choice-option.is-selected {
+      border-color: var(--app-cyan);
+      background: rgba(77, 208, 225, 0.12);
+    }
+
+    .multi-choice-option input[type="checkbox"] {
+      width: 18px;
+      min-height: 18px;
+      margin-top: 1px;
+      padding: 0;
+      accent-color: var(--app-cyan);
+    }
+
+    .multi-choice-option span {
+      overflow-wrap: anywhere;
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
     .field-card strong {
       color: var(--app-ink);
       font-size: 13px;
@@ -534,7 +578,8 @@
 
     .field-card.is-completeness-missing input,
     .field-card.is-completeness-missing select,
-    .field-card.is-completeness-missing textarea {
+    .field-card.is-completeness-missing textarea,
+    .field-card.is-completeness-missing .multi-choice-list {
       border-color: #f97316;
       background: #fff7ed;
       box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.18);
@@ -805,14 +850,14 @@
                 <strong data-i18n="create.form.salary">Salary expectation (USD)</strong>
                 <input id="create-salary" type="number" min="0" step="0.01" data-i18n-placeholder="create.form.salary.placeholder" placeholder="4500">
               </label>
-              <label class="field-card full">
-                <strong data-i18n="create.form.vesselTypes">Preferred vessel types</strong>
-                <select id="create-vessel-types" multiple size="6" aria-describedby="create-vessel-types-note">
+              <div class="field-card full" id="create-vessel-types-card">
+                <strong id="create-vessel-types-label" data-i18n="create.form.vesselTypes">Preferred vessel types</strong>
+                <select id="create-vessel-types" multiple hidden aria-hidden="true" aria-describedby="create-vessel-types-note">
                   <option value="Any vessel type" data-i18n="create.form.vesselTypes.any">Any vessel type</option>
                 </select>
-                <datalist id="create-vessel-type-options"></datalist>
-                <span id="create-vessel-types-note" class="field-note" data-i18n="create.form.vesselTypes.note">Select one or more vessel types. Choose “Any vessel type” when vessel type is not important.</span>
-              </label>
+                <div id="create-vessel-types-options" class="multi-choice-list" role="group" aria-labelledby="create-vessel-types-label" aria-describedby="create-vessel-types-note"></div>
+                <span id="create-vessel-types-note" class="field-note" data-i18n="create.form.vesselTypes.note">Tick one or more vessel types. Choose “Any vessel type” when vessel type is not important.</span>
+              </div>
             </div>
           </section>
 
@@ -1845,7 +1890,7 @@
         'create.form.vesselTypes': 'Preferred vessel types',
         'create.form.vesselTypes.placeholder': 'Bulk Carrier, Container, LNG',
         'create.form.vesselTypes.any': 'Any vessel type',
-        'create.form.vesselTypes.note': 'Select one or more vessel types. Choose “Any vessel type” when vessel type is not important.',
+        'create.form.vesselTypes.note': 'Tick one or more vessel types. Choose “Any vessel type” when vessel type is not important.',
         'create.form.dateOfBirth': 'Date of birth',
         'create.form.placeOfBirth': 'Place of birth',
         'create.form.placeOfBirth.placeholder': 'Manila',
@@ -2365,7 +2410,7 @@
         'create.form.vesselTypes': 'Предпочтительные типы судов',
         'create.form.vesselTypes.placeholder': 'Балкер, Контейнеровоз, LNG',
         'create.form.vesselTypes.any': 'Тип судна не важен',
-        'create.form.vesselTypes.note': 'Выберите один или несколько типов судов. Если тип судна не важен, выберите соответствующий вариант.',
+        'create.form.vesselTypes.note': 'Отметьте один или несколько типов судов. Если тип судна не важен, выберите соответствующий вариант.',
         'create.form.dateOfBirth': 'Дата рождения',
         'create.form.placeOfBirth': 'Место рождения',
         'create.form.placeOfBirth.placeholder': 'Манила',
@@ -2797,6 +2842,7 @@
       const contactPhone = document.getElementById('create-phone');
       const salary = document.getElementById('create-salary');
       const vesselTypes = document.getElementById('create-vessel-types');
+      const vesselTypesOptions = document.getElementById('create-vessel-types-options');
       const certificateStatus = document.getElementById('create-certificate-status');
       const stcwStatus = document.getElementById('create-stcw-status');
       const passportExpiry = document.getElementById('create-passport-expiry');
@@ -3115,10 +3161,6 @@
             datalist: 'create-rank-options'
           },
           {
-            catalogCode: 'vessel_types',
-            datalist: 'create-vessel-type-options'
-          },
-          {
             catalogCode: 'cities',
             datalist: 'create-city-options'
           },
@@ -3416,6 +3458,7 @@
         if (option) {
           option.textContent = t('create.form.vesselTypes.any');
         }
+        renderPreferredVesselTypeChoices();
       }
 
       function ensurePreferredVesselTypeOption(value) {
@@ -3432,6 +3475,53 @@
         option.textContent = normalized;
         vesselTypes.appendChild(option);
         return option;
+      }
+
+      function renderPreferredVesselTypeChoices() {
+        if (!vesselTypesOptions) {
+          return;
+        }
+        vesselTypesOptions.innerHTML = '';
+        Array.from(vesselTypes.options).forEach((option) => {
+          const label = document.createElement('label');
+          label.className = 'multi-choice-option';
+          if (option.value === anyVesselTypeValue) {
+            label.classList.add('is-neutral');
+          }
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = option.value;
+          checkbox.checked = option.selected;
+
+          const text = document.createElement('span');
+          text.textContent = option.textContent || option.value;
+
+          label.appendChild(checkbox);
+          label.appendChild(text);
+          vesselTypesOptions.appendChild(label);
+        });
+        syncPreferredVesselTypeChoices();
+      }
+
+      function syncPreferredVesselTypeChoices() {
+        if (!vesselTypesOptions) {
+          return;
+        }
+        const selected = new Set(selectedPreferredVesselTypes().map((value) => value.toLowerCase()));
+        vesselTypesOptions.querySelectorAll('.multi-choice-option').forEach((label) => {
+          const checkbox = label.querySelector('input[type="checkbox"]');
+          if (!(checkbox instanceof HTMLInputElement)) {
+            return;
+          }
+          const checked = selected.has(checkbox.value.toLowerCase());
+          checkbox.checked = checked;
+          label.classList.toggle('is-selected', checked);
+        });
+      }
+
+      function notifyPreferredVesselTypeSelectionChanged() {
+        vesselTypes.dispatchEvent(new Event('change', { bubbles: true }));
       }
 
       function selectedPreferredVesselTypes() {
@@ -3455,6 +3545,7 @@
         }
 
         preferredVesselTypeSelection = selectedPreferredVesselTypes();
+        syncPreferredVesselTypeChoices();
       }
 
       function applyPreferredVesselTypeSelection(values) {
@@ -3467,6 +3558,7 @@
           option.selected = wanted.has(option.value.toLowerCase());
         });
         enforcePreferredVesselTypeAnyRule();
+        syncPreferredVesselTypeChoices();
       }
 
       function setPreferredVesselTypeOptions(catalogValues) {
@@ -3491,6 +3583,7 @@
           vesselTypes.appendChild(option);
         });
 
+        renderPreferredVesselTypeChoices();
         applyPreferredVesselTypeSelection(selected.length ? selected : preferredVesselTypeSelection);
       }
 
@@ -4885,6 +4978,23 @@
 
         updateApplicationStatus(applicationId, action);
       });
+
+      if (vesselTypesOptions) {
+        vesselTypesOptions.addEventListener('change', (event) => {
+          const checkbox = event.target instanceof HTMLInputElement && event.target.type === 'checkbox'
+            ? event.target
+            : null;
+          if (!checkbox) {
+            return;
+          }
+          const values = Array.from(vesselTypesOptions.querySelectorAll('input[type="checkbox"]'))
+            .filter((item) => item instanceof HTMLInputElement && item.checked)
+            .map((item) => item.value)
+            .filter(Boolean);
+          applyPreferredVesselTypeSelection(values);
+          notifyPreferredVesselTypeSelectionChanged();
+        });
+      }
 
       form.querySelectorAll('input, select, textarea').forEach((input) => {
         input.addEventListener('input', () => {

@@ -268,7 +268,7 @@ The page-specific adapter must be small: it maps DOM fields to canonical codes a
 
 | Page / flow | Current status | Next standardization action |
 |---|---|---|
-| `/create-profile/` | Phase E.2 adopted: autosave, `Save / confirm data`, `S-*` missing items, field highlight, role-aware seafarer context, missing-item navigation/highlighting, protected upload helper, backend-first reload after save, structured vessel-type multi-select, finite catalog single-selects, same-address copy and dark-theme contrast corrections. | Keep behavior covered by create-profile regression and apply the same catalog/select and same-address rules to future form adapters. |
+| `/create-profile/` | Phase E.3 adopted: autosave, `Save / confirm data`, `S-*` missing items, field highlight, role-aware seafarer context, missing-item navigation/highlighting, protected upload helper, backend-first reload after save, explicit checkbox multi-choice for preferred vessel types, finite catalog single-selects, same-address copy and dark-theme contrast corrections. | Keep behavior covered by create-profile regression and apply the same catalog/select, multi-choice and same-address rules to future form adapters. |
 | `/post-vacancy/` | Phase D adopted: employer-side role-aware draft reads, `Save / confirm data`, backend `E/V/R` completeness, missing-item panel, field highlighting, exact field navigation and protected upload use shared lifecycle/upload helpers. | Keep behavior covered by post-vacancy regression and connect future submit-review gate only after backend completeness passes. |
 | `/cabinet/` correction tasks | Partially adopted: correction tasks and source-card links exist. | Use the same missing-item numbering and correction route contract. |
 | `/verify/` review workspace | Partially adopted: computed tasks and review outcomes exist. | Consume lifecycle state labels from a standard task/action contract. |
@@ -287,6 +287,7 @@ Recommended sequence:
 | Phase E | Add submit-review endpoint gated by backend completeness. | Completed: `ICS-003` submit-to-operator review gate, explicit submit endpoint, audit event and no operator task from save/autosave. |
 | Phase E.1 | Correct `/create-profile/` hard-reload persistence and vessel-type structured selection. | Completed: backend-first reload, stale local snapshot guard and `vessel_types` multi-select with `Any vessel type`. |
 | Phase E.2 | Correct `/create-profile/` finite catalog selects, repeated-address copy and upload/list contrast. | Completed: catalog-backed `select` controls for finite fields, `Same address` copy from permanent to registration address, and readable upload/document cards in dark theme. |
+| Phase E.3 | Replace hidden multi-select UX with explicit multi-choice control for `/create-profile/` preferred vessel types. | Completed: visible checkbox choices backed by the same structured `preferred_vessel_types` array, with `Any vessel type` kept mutually exclusive. |
 | Phase F | Connect owner correction tasks to the same numbered missing-item standard. | Consistent correction and resubmission flow. |
 
 ## 13. Prohibited Shortcuts

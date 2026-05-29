@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: Project Owner runtime testing of `/create-profile/`
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-05-29
 - Status: Implemented and verified on GTC1
 
@@ -36,8 +36,10 @@
 ```text
 finite catalog field -> true select
 large searchable catalog -> input + datalist временно допустим
-multi-value catalog -> select multiple / approved multiselect
+multi-value catalog -> explicit multi-choice control / approved searchable multiselect
 ```
+
+Additional manual testing showed that native browser `select multiple` is not sufficient for ordinary users: the list is connected to the catalog, but multiple selection depends on hidden Ctrl/Shift behavior. The accepted standard is now an explicit multi-choice control. In `/create-profile/`, `Preferred vessel types` is shown as visible checkboxes while preserving the same structured stored array for backend save, autosave and matching.
 
 ## 3. Измененные справочники формы
 
@@ -49,7 +51,7 @@ multi-value catalog -> select multiple / approved multiselect
 | `Kin gender` | `input + datalist` | `select` | `gender_values` | single |
 | `Kin relation` | `input + datalist` | `select` | `relation_types` | single |
 | `Last vessel type` | `input + datalist` | `select` | `vessel_types` | single |
-| `Preferred vessel types` | `select multiple` | unchanged | `vessel_types` | multiple |
+| `Preferred vessel types` | `select multiple` | visible checkbox multi-choice backed by structured hidden select | `vessel_types` | multiple |
 
 Большие справочники, где нужен поиск или ввод кода, временно оставлены как `input + datalist`: страны, города, аэропорты, учебные заведения, религия и отдельные профессиональные справочники. Для них отдельный searchable-select стандарт может быть выделен позже.
 
@@ -116,6 +118,7 @@ docs/crewportglobal/business_processes/00_business_process_register.md
 ```text
 finite catalog-backed fields must use true select controls;
 browser datalist is not accepted for finite mandatory or matching-critical choices;
+multi-value finite catalogs must show explicit choices, not only native select multiple;
 repeated address blocks should provide explicit same-address copy when applicable;
 form controls and upload lists must remain readable in dark and light themes.
 ```
@@ -126,8 +129,8 @@ form controls and upload lists must remain readable in dark and light themes.
 |---|---|
 | `projects/crewportglobal/public/assets/crewportglobal-reference-catalogs.js` | Added reusable catalog-backed `bindSelect()` / `populateSelect()` helper with fallback and legacy-value preservation. |
 | `projects/crewportglobal/public/assets/crewportglobal-app.css` | Added textarea coverage to shared/dark form-control contrast rules. |
-| `projects/crewportglobal/public/create-profile/index.html` | Converted finite catalog fields to true selects, added same-address copy option, improved upload/list contrast and moved upload processing help text. |
-| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regression for catalog selects, same-address copy, backend save and reload persistence; updated relation field handling from text fill to select. |
+| `projects/crewportglobal/public/create-profile/index.html` | Converted finite catalog fields to true selects, replaced preferred-vessel native multi-select UX with visible checkbox multi-choice, added same-address copy option, improved upload/list contrast and moved upload processing help text. |
+| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regression for catalog selects, explicit preferred-vessel checkbox selection, same-address copy, backend save and reload persistence; updated relation field handling from text fill to select. |
 | `docs/crewportglobal/implemented_code_standards/01_standard_form_lifecycle.md` | Added finite catalog select and repeated-address standard. |
 | `docs/crewportglobal/business_processes/14_standard_form_lifecycle_and_validation_module.md` | Added Phase E.2 lifecycle control. |
 | `docs/crewportglobal/business_processes/00_business_process_register.md` | Added control 53 and revision record. |
@@ -175,7 +178,7 @@ The test confirms:
 
 1. multi-role seafarer upload remains active for the correct role/form context;
 2. finite catalog fields render as `select`;
-3. `Preferred vessel types` remains a multi-select;
+3. `Preferred vessel types` is selected through visible checkboxes while preserving a structured multi-value payload;
 4. same-address copy fills registration fields;
 5. selected catalog values and copied address values persist in backend metadata;
 6. hard reload restores saved catalog/address values;

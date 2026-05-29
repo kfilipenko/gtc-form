@@ -141,6 +141,14 @@ async function selectFirstCatalogOption(page: Page, selector: string): Promise<s
   return value;
 }
 
+async function selectPreferredVesselTypes(page: Page, values: string[]): Promise<void> {
+  await expect.poll(async () => page.locator('#create-vessel-types-options input[type="checkbox"]').count(), { timeout: 7000 }).toBeGreaterThan(1);
+  for (const value of values) {
+    await page.locator('#create-vessel-types-options').getByLabel(value, { exact: true }).check();
+  }
+  await expect(page.locator('#create-vessel-types')).toHaveValues(values);
+}
+
 async function acceptPresentationConsents(request: APIRequestContext, draftId: string): Promise<void> {
   for (const consentType of ['matching_preparation', 'employer_sharing']) {
     const response = await request.post('/api/v1/seafarer/consents', {
@@ -179,7 +187,7 @@ test('create profile prefill from draft_id preserves patch flow', async ({ page 
   await page.locator('#create-availability-date').fill('2026-08-15');
   await page.locator('#create-phone').fill('+971501112233');
   await page.locator('#create-salary').fill('4600');
-  await page.locator('#create-vessel-types').selectOption(['BULK CARRIER', 'CONTAINER SHIP']);
+  await selectPreferredVesselTypes(page, ['BULK CARRIER', 'CONTAINER SHIP']);
   await page.locator('#create-certificate-status').selectOption('ready');
   await page.locator('#create-stcw-status').selectOption('collecting');
   await page.locator('#create-passport-expiry').fill('2028-08-15');
@@ -510,7 +518,7 @@ test('create profile save confirm keeps backend data after hard reload and suppo
   });
   await expect(page.locator('#create-status')).toContainText('prefilled');
 
-  await page.locator('#create-vessel-types').selectOption('Any vessel type');
+  await selectPreferredVesselTypes(page, ['Any vessel type']);
   await page.locator('#profile-section-contact').evaluate((element) => element.setAttribute('open', ''));
   await page.locator('#create-permanent-address').fill('Reload Persistence Deck 7');
   await page.locator('#create-residence-city').fill('Limassol');
@@ -591,6 +599,9 @@ test('create profile uses catalog selects and copies permanent address to regist
     await expect(page.locator(selector)).toHaveJSProperty('tagName', 'SELECT');
   }
   await expect(page.locator('#create-vessel-types')).toHaveJSProperty('multiple', true);
+  await expect(page.locator('#create-vessel-types')).toBeHidden();
+  await expect(page.locator('#create-vessel-types-options')).toBeVisible();
+  await expect.poll(async () => page.locator('#create-vessel-types-options input[type="checkbox"]').count(), { timeout: 7000 }).toBeGreaterThan(1);
 
   await page.locator('#profile-section-contact > summary').click();
   const gender = await selectFirstCatalogOption(page, '#create-gender');
@@ -794,7 +805,7 @@ test('create profile prefill falls back to local draft when draft_id is missing'
   await page.locator('#create-availability-date').fill('2026-09-01');
   await page.locator('#create-phone').fill('+971500009999');
   await page.locator('#create-salary').fill('5000');
-  await page.locator('#create-vessel-types').selectOption(['LNG', 'OIL TANKER']);
+  await selectPreferredVesselTypes(page, ['LNG', 'OIL TANKER']);
   await page.locator('#create-certificate-status').selectOption('ready');
   await page.locator('#create-stcw-status').selectOption('ready');
   await page.locator('#create-passport-expiry').fill('2029-01-10');
