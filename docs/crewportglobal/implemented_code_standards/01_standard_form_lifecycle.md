@@ -4,7 +4,7 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Implemented code standards
 - Document type: Implemented code standard
-- Version: 1.4
+- Version: 1.5
 - Date: 2026-05-29
 - Status: Active
 
@@ -72,7 +72,7 @@ Each page adapter must provide:
 | finite catalog select mapping | Maps matching-critical finite catalog fields to true `select` controls instead of browser `datalist` text inputs. |
 | repeated-address source mapping | Defines which source address fields can copy into the repeated address block. |
 | document-first upload context | Defines whether upload appears before detailed manual fields and which canonical prefix future extraction maps to. |
-| document checklist adapter | Maps allowed document types to visible cards with uploaded/reviewed/replacement state. |
+| document checklist adapter | Maps allowed document types to compact visible rows with uploaded/reviewed/replacement state and row-level upload controls. |
 
 ## 5. Forbidden Local Logic
 
@@ -160,15 +160,18 @@ The upload panel must remain protected-upload only until a dedicated AI/OCR extr
 
 AI/OCR assistance must not submit a profile, approve documents, create shortlist decisions or make employment decisions.
 
-For fixed document catalogs, the owner UI should show one document card per allowed document type. Each card should show:
+For fixed document catalogs, the owner UI should show one compact document row per allowed document type. Each row should show:
 
 1. document name in human language;
-2. latest uploaded filename when present;
-3. scan status;
-4. human/agent review status;
-5. verified/confirmed state when `review_status = verified`;
-6. replacement-required state when `review_status` is `correction_requested` or `rejected`;
-7. a clear action to select the document type for upload or replacement.
+2. short description only on hover / tooltip, hidden by default;
+3. latest uploaded filename when present;
+4. scan status;
+5. human/agent review status;
+6. verified/confirmed state when `review_status = verified`;
+7. replacement-required state when `review_status` is `correction_requested` or `rejected`;
+8. row-level file selection and upload/replace action.
+
+The document list must not be rendered as large reading cards when the user needs a fast upload menu. Selecting a row file must not rerender the list before upload, because browsers clear selected `File` objects when their input node is replaced.
 
 The technical `document_type` control may remain hidden as an adapter detail only when the visible checklist is the user-facing control.
 

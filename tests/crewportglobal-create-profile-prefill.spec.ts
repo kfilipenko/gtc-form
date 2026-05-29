@@ -289,8 +289,9 @@ test('create profile document upload shows exact file limit and type validation'
 
   await expect(page.locator('#profile-section-document-upload')).toHaveAttribute('data-extraction-mode', 'future_ai_assisted_confirmation');
   await expect(page.locator('#create-document-upload-type')).toBeHidden();
-  await expect(page.locator('#create-document-upload-list .document-type-card')).toHaveCount(10);
-  await page.locator('#create-document-upload-list .document-type-card', { hasText: 'Medical certificate' }).click();
+  await expect(page.locator('#create-document-upload-list .document-type-row')).toHaveCount(10);
+  const medicalDocumentRow = page.locator('#create-document-upload-list .document-type-row', { hasText: 'Medical certificate' });
+  await medicalDocumentRow.locator('.document-type-row__title').click();
   await expect(page.locator('#create-document-upload-type')).toHaveValue('medical_certificate');
   await expect(page.locator('#create-document-upload-status')).toContainText('Medical certificate selected');
   await expect.poll(async () => page.evaluate(() => {
@@ -300,7 +301,7 @@ test('create profile document upload shows exact file limit and type validation'
   })).toBe(true);
   await expect(page.locator('#create-document-upload-status')).toContainText('Maximum size: 10 MB');
 
-  await page.locator('#create-document-upload-file').setInputFiles({
+  await medicalDocumentRow.locator('input[type="file"]').setInputFiles({
     name: 'too-large.pdf',
     mimeType: 'application/pdf',
     buffer: Buffer.concat([
@@ -309,16 +310,16 @@ test('create profile document upload shows exact file limit and type validation'
       Buffer.from('\n%%EOF\n'),
     ]),
   });
-  await page.locator('#create-document-upload-submit').click();
+  await medicalDocumentRow.locator('.document-type-row__upload button').click();
   await expect(page.locator('#create-document-upload-status')).toContainText('too large');
   await expect(page.locator('#create-document-upload-status')).toContainText('10.0 MB');
 
-  await page.locator('#create-document-upload-file').setInputFiles({
+  await medicalDocumentRow.locator('input[type="file"]').setInputFiles({
     name: 'unsupported.txt',
     mimeType: 'text/plain',
     buffer: Buffer.from('plain text is not an accepted evidence upload'),
   });
-  await page.locator('#create-document-upload-submit').click();
+  await medicalDocumentRow.locator('.document-type-row__upload button').click();
   await expect(page.locator('#create-document-upload-status')).toContainText('Unsupported file type');
 });
 
@@ -378,15 +379,16 @@ test('create profile keeps seafarer save and upload active for multi-role accoun
     return metadata?.seafarer_workspace?.contact_and_addresses?.permanent_address || '';
   }, { timeout: 7000 }).toBe('Multi Role Seafarer Address');
 
-  await page.locator('#create-document-upload-file').setInputFiles({
+  const passportDocumentRow = page.locator('#create-document-upload-list .document-type-row', { hasText: 'Passport / ID' });
+  await passportDocumentRow.locator('input[type="file"]').setInputFiles({
     name: 'multi-role-passport.pdf',
     mimeType: 'application/pdf',
     buffer: Buffer.from('%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF\n'),
   });
-  await page.locator('#create-document-upload-submit').click();
+  await passportDocumentRow.locator('.document-type-row__upload button').click();
   await expect(page.locator('#create-document-upload-status')).not.toContainText('form_type');
   await expect(page.locator('#create-document-upload-status')).toContainText('multi-role-passport.pdf');
-  await expect(page.locator('#create-document-upload-status')).toContainText('listed below');
+  await expect(page.locator('#create-document-upload-status')).toContainText('document list');
   await expect(page.locator('#create-document-upload-list')).toContainText('multi-role-passport.pdf', { timeout: 7000 });
   await expect(page.locator('#create-document-upload-list')).toContainText('Passport / ID', { timeout: 7000 });
   await expect(page.locator('#create-document-upload-list')).toContainText('Pending team review', { timeout: 7000 });

@@ -224,46 +224,59 @@
 
     .document-type-list {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 10px;
+      gap: 8px;
     }
 
-    .document-type-card {
+    .document-type-row {
       display: grid;
-      gap: 8px;
+      grid-template-columns: minmax(220px, 1fr) minmax(250px, 340px);
+      gap: 12px;
+      align-items: center;
       width: 100%;
-      min-height: 148px;
-      padding: 12px;
+      min-height: 72px;
+      padding: 10px 12px;
       border: 1px solid var(--app-line);
       border-radius: 8px;
       background: var(--app-surface);
       color: var(--app-ink);
       text-align: left;
-      cursor: pointer;
     }
 
-    .document-type-card:hover,
-    .document-type-card:focus-visible,
-    .document-type-card.is-selected {
+    .document-type-row:hover,
+    .document-type-row:focus-within,
+    .document-type-row.is-selected {
       border-color: rgba(82, 198, 220, 0.9);
       box-shadow: 0 0 0 2px rgba(82, 198, 220, 0.18);
       outline: none;
     }
 
-    .document-type-card__head {
+    .document-type-row__main {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .document-type-row__head {
       display: flex;
       gap: 8px;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
+      min-width: 0;
     }
 
-    .document-type-card__title {
+    .document-type-row__title {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--app-ink);
       font-weight: 800;
       line-height: 1.25;
+      text-align: left;
       overflow-wrap: anywhere;
+      cursor: help;
     }
 
-    .document-type-card__status {
+    .document-type-row__status {
       flex: 0 0 auto;
       padding: 4px 8px;
       border: 1px solid var(--app-line);
@@ -275,41 +288,84 @@
       white-space: nowrap;
     }
 
-    .document-type-card__status.is-ok {
+    .document-type-row__status.is-ok {
       border-color: rgba(61, 190, 127, 0.55);
       color: #75d99f;
     }
 
-    .document-type-card__status.is-warning {
+    .document-type-row__status.is-warning {
       border-color: rgba(217, 153, 44, 0.7);
       color: #ffbd66;
     }
 
-    .document-type-card__status.is-action {
+    .document-type-row__status.is-action {
       border-color: rgba(255, 120, 96, 0.7);
       color: #ff9c8a;
     }
 
-    .document-type-card__body {
-      display: grid;
-      gap: 5px;
+    .document-type-row__meta {
+      margin: 0;
       color: var(--app-muted);
       font-size: 13px;
       line-height: 1.45;
-    }
-
-    .document-type-card__body p {
-      margin: 0;
       overflow-wrap: anywhere;
     }
 
-    .document-type-card__action {
-      align-self: end;
-      width: fit-content;
-      min-height: 30px;
-      padding: 6px 9px;
-      border-radius: 8px;
+    .document-type-row__reason {
+      margin: 0;
+      color: #ffb39f;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .document-type-row__upload {
+      display: grid;
+      grid-template-columns: minmax(120px, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .document-type-row__file {
+      position: relative;
+      display: inline-flex;
+      min-width: 0;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .document-type-row__file input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .document-type-row__file-name {
+      grid-column: 1 / -1;
+      min-width: 0;
+      color: var(--app-muted);
       font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .document-upload-legacy {
+      display: none;
+    }
+
+    @media (max-width: 780px) {
+      .document-type-row {
+        grid-template-columns: 1fr;
+      }
+
+      .document-type-row__head,
+      .document-type-row__upload {
+        align-items: stretch;
+      }
     }
 
     .document-action-list {
@@ -959,7 +1015,7 @@
               </div>
               <div class="field-card full">
                 <strong data-i18n="create.upload.checklistTitle">Document checklist</strong>
-                <p class="field-note" data-i18n="create.upload.checklistHelp">Choose the document card you want to upload or replace. Verified documents remain visible here.</p>
+                <p class="field-note" data-i18n="create.upload.checklistHelp">Upload or replace documents from the list. Hover over a document name for a short description.</p>
                 <select id="create-document-upload-type" hidden aria-hidden="true">
                   <option value="passport_or_id" data-i18n="create.upload.type.passport_or_id">Passport / ID</option>
                   <option value="seamans_book" data-i18n="create.upload.type.seamans_book">Seaman's book</option>
@@ -974,7 +1030,7 @@
                 </select>
                 <div id="create-document-upload-list" class="document-upload-list document-type-list" aria-live="polite"></div>
               </div>
-              <div class="document-upload-grid">
+              <div class="document-upload-grid document-upload-legacy" hidden>
                 <label class="field-card">
                   <strong data-i18n="create.upload.file">File</strong>
                   <input id="create-document-upload-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp">
@@ -2244,7 +2300,7 @@
         'create.upload.title': 'Upload documents after saving the draft',
         'create.upload.copy': 'Files are stored outside the public site, scanned for malware and only clean files become pending human review.',
         'create.upload.checklistTitle': 'Document checklist',
-        'create.upload.checklistHelp': 'Choose the document card you want to upload or replace. Verified documents remain visible here.',
+        'create.upload.checklistHelp': 'Upload or replace documents from the list. Hover over a document name for a short description.',
         'create.upload.type': 'Document type',
         'create.upload.type.passport_or_id': 'Passport / ID',
         'create.upload.type.seamans_book': "Seaman's book",
@@ -2256,8 +2312,20 @@
         'create.upload.type.training_certificate': 'Training certificate',
         'create.upload.type.language_certificate': 'Language certificate',
         'create.upload.type.other_professional_evidence': 'Other evidence',
+        'create.upload.typeDescription.passport_or_id': 'Identity document used to verify personal data and expiry date.',
+        'create.upload.typeDescription.seamans_book': 'Seafarer book used to confirm maritime identity and service record.',
+        'create.upload.typeDescription.certificate_of_competency': 'Certificate confirming rank and professional competence.',
+        'create.upload.typeDescription.stcw_certificate': 'STCW training evidence required for safety and compliance checks.',
+        'create.upload.typeDescription.medical_certificate': 'Medical fitness document used only in restricted review workflows.',
+        'create.upload.typeDescription.maritime_cv': 'Professional CV for operator review and matching preparation.',
+        'create.upload.typeDescription.experience_record': 'Sea service or experience evidence supporting previous positions.',
+        'create.upload.typeDescription.training_certificate': 'Additional training or course certificate.',
+        'create.upload.typeDescription.language_certificate': 'Language skill evidence when available.',
+        'create.upload.typeDescription.other_professional_evidence': 'Other professional evidence requested by the operator.',
         'create.upload.file': 'File',
         'create.upload.submit': 'Upload',
+        'create.upload.row.chooseFile': 'Choose file',
+        'create.upload.row.noFileSelected': 'No file selected',
         'create.upload.status.initial': 'Allowed files: PDF, JPG, PNG or WEBP. Maximum size: 10 MB. Save the draft first, then upload files.',
         'create.upload.status.saveFirst': 'Save the draft first, then upload documents.',
         'create.upload.status.chooseFile': 'Choose a file to upload.',
@@ -2267,7 +2335,7 @@
         'create.upload.status.selectedType': '{document} selected. Allowed files: PDF, JPG, PNG or WEBP. Maximum size: 10 MB.',
         'create.upload.status.uploading': 'Uploading and scanning document...',
         'create.upload.status.uploaded': 'Document uploaded and scanned.',
-        'create.upload.status.uploadedDetail': 'Document uploaded and scanned: {filename}. It is listed below.',
+        'create.upload.status.uploadedDetail': 'Document uploaded and scanned: {filename}. It is shown in the document list.',
         'create.upload.status.error': 'Document upload failed. Please check file type and size.',
         'create.upload.status.errorDetail': 'Document upload failed: {message}',
         'create.upload.status.wrongDraftRole': 'This draft belongs to the employer/vacancy form. Upload company, vessel and crew request evidence there.',
@@ -2780,7 +2848,7 @@
         'create.upload.title': 'Загрузите документы после сохранения черновика',
         'create.upload.copy': 'Файлы хранятся вне публичного сайта, проходят проверку на вредоносный код, и только чистые файлы попадают на ручную проверку.',
         'create.upload.checklistTitle': 'Список документов',
-        'create.upload.checklistHelp': 'Выберите карточку документа, который нужно загрузить или заменить. Проверенные документы остаются видимыми здесь.',
+        'create.upload.checklistHelp': 'Загрузите или замените документы из списка. Наведите на название документа, чтобы увидеть краткое описание.',
         'create.upload.type': 'Тип документа',
         'create.upload.type.passport_or_id': 'Паспорт / ID',
         'create.upload.type.seamans_book': 'Мореходная книжка',
@@ -2792,8 +2860,20 @@
         'create.upload.type.training_certificate': 'Сертификат обучения',
         'create.upload.type.language_certificate': 'Языковой сертификат',
         'create.upload.type.other_professional_evidence': 'Другое подтверждение',
+        'create.upload.typeDescription.passport_or_id': 'Документ личности для проверки персональных данных и срока действия.',
+        'create.upload.typeDescription.seamans_book': 'Мореходная книжка для подтверждения морского статуса и стажа.',
+        'create.upload.typeDescription.certificate_of_competency': 'Документ, подтверждающий должность и профессиональную компетенцию.',
+        'create.upload.typeDescription.stcw_certificate': 'Сертификат STCW для проверки обучения и обязательных требований.',
+        'create.upload.typeDescription.medical_certificate': 'Медицинский документ, доступный только в ограниченном процессе проверки.',
+        'create.upload.typeDescription.maritime_cv': 'Профессиональное CV для проверки оператором и подготовки matching.',
+        'create.upload.typeDescription.experience_record': 'Подтверждение морского стажа или предыдущего опыта.',
+        'create.upload.typeDescription.training_certificate': 'Дополнительный сертификат обучения или курса.',
+        'create.upload.typeDescription.language_certificate': 'Подтверждение знания языка при наличии.',
+        'create.upload.typeDescription.other_professional_evidence': 'Другое профессиональное подтверждение по запросу оператора.',
         'create.upload.file': 'Файл',
         'create.upload.submit': 'Загрузить',
+        'create.upload.row.chooseFile': 'Выбрать файл',
+        'create.upload.row.noFileSelected': 'Файл не выбран',
         'create.upload.status.initial': 'Допустимые файлы: PDF, JPG, PNG или WEBP. Максимальный размер: 10 MB. Сначала сохраните черновик, затем загрузите файл.',
         'create.upload.status.saveFirst': 'Сначала сохраните черновик, затем загрузите документы.',
         'create.upload.status.chooseFile': 'Выберите файл для загрузки.',
@@ -2803,7 +2883,7 @@
         'create.upload.status.selectedType': 'Выбран документ: {document}. Допустимые файлы: PDF, JPG, PNG или WEBP. Максимальный размер: 10 MB.',
         'create.upload.status.uploading': 'Загружаем и сканируем документ...',
         'create.upload.status.uploaded': 'Документ загружен и просканирован.',
-        'create.upload.status.uploadedDetail': 'Документ загружен и просканирован: {filename}. Он показан в списке ниже.',
+        'create.upload.status.uploadedDetail': 'Документ загружен и просканирован: {filename}. Он показан в списке документов.',
         'create.upload.status.error': 'Не удалось загрузить документ. Проверьте тип и размер файла.',
         'create.upload.status.errorDetail': 'Не удалось загрузить документ: {message}',
         'create.upload.status.wrongDraftRole': 'Этот черновик относится к форме работодателя/заявки. Загружайте документы компании, судна и заявки в этой форме.',
@@ -3246,6 +3326,12 @@
         return option ? option.textContent.trim() : valueOrDash(value);
       }
 
+      function documentUploadTypeDescription(value) {
+        const descriptionKey = `create.upload.typeDescription.${value}`;
+        const translated = t(descriptionKey);
+        return translated && translated !== descriptionKey ? translated : t('create.upload.checklistHelp');
+      }
+
       function latestDocumentForType(documents, documentType) {
         return (Array.isArray(documents) ? documents : [])
           .filter((documentRecord) => documentRecord && documentRecord.document_type === documentType)
@@ -3289,12 +3375,18 @@
         };
       }
 
-      function selectDocumentUploadType(documentType, focusFile = true) {
+      function selectDocumentUploadType(documentType, focusFile = true, rerender = true) {
         if (!uploadType || !documentType) {
           return;
         }
         uploadType.value = documentType;
-        renderDocumentChecklist(latestUploadedDocuments);
+        if (rerender) {
+          renderDocumentChecklist(latestUploadedDocuments);
+        } else if (uploadList) {
+          uploadList.querySelectorAll('.document-type-row').forEach((row) => {
+            row.classList.toggle('is-selected', row.dataset.documentType === documentType);
+          });
+        }
         if (uploadStatus) {
           uploadStatus.textContent = tFormat('create.upload.status.selectedType', {
             document: documentUploadTypeLabel(documentType)
@@ -3315,66 +3407,106 @@
         documentUploadTypeValues().forEach((documentType) => {
           const documentRecord = latestDocumentForType(latestUploadedDocuments, documentType);
           const status = documentCardStatus(documentRecord);
-          const card = document.createElement('button');
-          card.type = 'button';
-          card.className = 'document-type-card';
-          card.dataset.documentType = documentType;
-          card.setAttribute('aria-pressed', uploadType.value === documentType ? 'true' : 'false');
+          const row = document.createElement('article');
+          row.className = 'document-type-row';
+          row.dataset.documentType = documentType;
           if (uploadType.value === documentType) {
-            card.classList.add('is-selected');
+            row.classList.add('is-selected');
           }
 
+          const main = document.createElement('div');
+          main.className = 'document-type-row__main';
           const head = document.createElement('div');
-          head.className = 'document-type-card__head';
-          const title = document.createElement('span');
-          title.className = 'document-type-card__title';
+          head.className = 'document-type-row__head';
+          const title = document.createElement('button');
+          title.type = 'button';
+          title.className = 'document-type-row__title';
           title.textContent = documentUploadTypeLabel(documentType);
+          title.title = documentUploadTypeDescription(documentType);
+          title.setAttribute('aria-label', `${documentUploadTypeLabel(documentType)}. ${documentUploadTypeDescription(documentType)}`);
+          title.addEventListener('click', () => selectDocumentUploadType(documentType, false));
           head.appendChild(title);
           const statusChip = document.createElement('span');
-          statusChip.className = `document-type-card__status ${status.className}`.trim();
+          statusChip.className = `document-type-row__status ${status.className}`.trim();
           statusChip.textContent = t(status.key);
           head.appendChild(statusChip);
-          card.appendChild(head);
+          main.appendChild(head);
 
-          const body = document.createElement('div');
-          body.className = 'document-type-card__body';
+          const meta = document.createElement('p');
+          meta.className = 'document-type-row__meta';
           if (documentRecord) {
-            const filename = document.createElement('p');
-            filename.textContent = `${t('create.upload.card.latestFile')}: ${valueOrDash(documentRecord.original_filename)}`;
-            body.appendChild(filename);
-            const meta = document.createElement('p');
             meta.textContent = [
+              valueOrDash(documentRecord.original_filename),
               `${t('create.upload.meta.scan')}: ${valueOrDash(documentRecord.scan_status)}`,
               `${t('create.upload.meta.review')}: ${protectedUpload.reviewStatusLabel(documentRecord.review_status)}`,
               `${t('create.upload.meta.size')}: ${protectedUpload.formatBytes(documentRecord.file_size_bytes)}`
             ].join(' | ');
-            body.appendChild(meta);
+            main.appendChild(meta);
             if (documentRecord.reviewed_at) {
               const reviewed = document.createElement('p');
+              reviewed.className = 'document-type-row__meta';
               reviewed.textContent = `${t('create.upload.card.reviewedAt')}: ${shortDate(documentRecord.reviewed_at)}`;
-              body.appendChild(reviewed);
+              main.appendChild(reviewed);
             }
             if (documentRecord.review_note && actionRequiredDocumentReviewStatuses.includes(documentRecord.review_status)) {
               const reason = document.createElement('p');
+              reason.className = 'document-type-row__reason';
               reason.textContent = `${t('create.upload.card.reason')}: ${documentRecord.review_note}`;
-              body.appendChild(reason);
+              main.appendChild(reason);
             }
           } else {
-            const empty = document.createElement('p');
-            empty.textContent = t('create.upload.card.noFile');
-            body.appendChild(empty);
+            meta.textContent = t('create.upload.card.noFile');
+            main.appendChild(meta);
           }
-          card.appendChild(body);
+          row.appendChild(main);
 
-          const action = document.createElement('span');
-          action.className = 'button secondary document-type-card__action';
-          action.textContent = documentRecord && actionRequiredDocumentReviewStatuses.includes(documentRecord.review_status)
+          const uploadControls = document.createElement('div');
+          uploadControls.className = 'document-type-row__upload';
+          const fileLabel = document.createElement('label');
+          fileLabel.className = 'button secondary document-type-row__file';
+          const fileText = document.createElement('span');
+          fileText.textContent = t('create.upload.row.chooseFile');
+          fileLabel.appendChild(fileText);
+          const rowFile = document.createElement('input');
+          rowFile.type = 'file';
+          rowFile.accept = '.pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp';
+          rowFile.setAttribute('aria-label', `${t('create.upload.row.chooseFile')}: ${documentUploadTypeLabel(documentType)}`);
+          fileLabel.appendChild(rowFile);
+          uploadControls.appendChild(fileLabel);
+
+          const uploadButton = document.createElement('button');
+          uploadButton.type = 'button';
+          uploadButton.className = 'button secondary';
+          uploadButton.textContent = documentRecord && actionRequiredDocumentReviewStatuses.includes(documentRecord.review_status)
             ? t('create.upload.card.replace')
-            : t('create.upload.card.select');
-          card.appendChild(action);
+            : t('create.upload.submit');
+          uploadControls.appendChild(uploadButton);
 
-          card.addEventListener('click', () => selectDocumentUploadType(documentType));
-          uploadList.appendChild(card);
+          const selectedFile = document.createElement('span');
+          selectedFile.className = 'document-type-row__file-name';
+          selectedFile.textContent = t('create.upload.row.noFileSelected');
+          uploadControls.appendChild(selectedFile);
+
+          rowFile.addEventListener('change', () => {
+            selectDocumentUploadType(documentType, false, false);
+            selectedFile.textContent = rowFile.files && rowFile.files[0]
+              ? rowFile.files[0].name
+              : t('create.upload.row.noFileSelected');
+          });
+          uploadButton.addEventListener('click', async () => {
+            const file = rowFile.files && rowFile.files[0] ? rowFile.files[0] : null;
+            selectDocumentUploadType(documentType, false, false);
+            uploadButton.disabled = true;
+            try {
+              await protectedUpload.uploadFileForType(documentType, file, rowFile);
+              selectedFile.textContent = t('create.upload.row.noFileSelected');
+            } finally {
+              uploadButton.disabled = false;
+            }
+          });
+
+          row.appendChild(uploadControls);
+          uploadList.appendChild(row);
         });
       }
 

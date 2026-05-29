@@ -128,7 +128,7 @@ This documentation block starts from the following approved business controls:
 52. After a successful protected upload, the UI must show the uploaded filename and refreshed protected-document list; clearing the browser file input is allowed only when the accepted file remains visible in status/list feedback.
 53. Finite catalog-backed form fields must use true structured select controls instead of browser datalist text inputs; repeated address blocks should provide an explicit same-address copy option, and form/upload controls must remain readable in both dark and light themes.
 54. Evidence-heavy forms must support document-first completion: protected upload should appear immediately after the minimum identity/context block, future AI/OCR extraction may suggest mapped field values only after protected upload and scan, and accepted form data still requires owner confirmation and human review gates.
-55. Fixed document-type catalogs must render as a human-readable document checklist showing not-uploaded, uploaded/scanned, pending review, verified and replacement-required states; visible technical document-type dropdowns are not the primary user control when cards can explain the required evidence.
+55. Fixed document-type catalogs must render as a compact human-readable document checklist: one row per document type, hidden hover description, row-level upload/replace control, uploaded filename and processing status under the document name; visible technical document-type dropdowns are not the primary user control.
 
 ## 5. Intended Use
 
@@ -148,6 +148,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.9 | 2026-05-29 | GTC IT / AI Assistant | Refined fixed document checklist control from document cards to compact row-level upload list with hidden hover descriptions and no file-input rerender before upload |
 | 3.8 | 2026-05-29 | GTC IT / AI Assistant | Added document-checklist control for fixed protected-upload document catalogs and replacement-required states |
 | 3.7 | 2026-05-29 | GTC IT / AI Assistant | Added document-first completion control for evidence-heavy forms and future AI/OCR extraction with owner-confirmation boundary |
 | 3.6 | 2026-05-29 | GTC IT / AI Assistant | Added finite catalog-select, same-address and form/upload contrast control for lifecycle-enabled questionnaires |

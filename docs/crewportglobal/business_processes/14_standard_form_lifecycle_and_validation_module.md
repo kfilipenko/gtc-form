@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Business-process standard and implementation control
 - Source task: Project Owner approval after CPG-BIZ-040 multi-role upload diagnostics
-- Version: 1.7
+- Version: 1.8
 - Date: 2026-05-29
 - Status: Approved standard for staged implementation
 
@@ -172,7 +172,7 @@ Each form page must connect to the same frontend behavior.
 | Submit-review button | Hidden or disabled until backend `can_submit_to_operator = true`. |
 | Upload panel | Show allowed formats and 10 MB file limit before upload. |
 | Document-first placement | For evidence-heavy forms, place protected upload after the minimum identity/context block and before long manual sections. |
-| Document checklist | When document types are finite, show a human-readable checklist/card list with upload, review and replacement state instead of a visible technical dropdown. |
+| Document checklist | When document types are finite, show a compact human-readable row list with row-level upload, review and replacement state instead of a visible technical dropdown. |
 | Upload failure | Show precise failure reason when available. |
 | Upload success | Show the uploaded filename and refresh the protected-document list so the user can see the accepted file even after the file input is cleared. |
 | Reload safety | After reload, saved and autosaved data must still be present. |
@@ -209,7 +209,15 @@ When the form has a finite set of accepted document types, the user-facing contr
 4. verified by operator/agent;
 5. replacement required with review reason when available.
 
-The technical `document_type` value may remain hidden for API submission, but users should select document cards, not decode internal document-type values.
+The technical `document_type` value may remain hidden for API submission, but users should use compact document rows, not decode internal document-type values.
+
+Each document row must keep the upload workflow short:
+
+1. document name is always visible;
+2. short description is available on hover / tooltip only;
+3. uploaded filename and status appear under the document name;
+4. file selection and upload/replace action appear in the same row;
+5. selecting a file must not rerender the row before upload, because replacing the file input clears the selected browser file.
 
 ### 7.1 Document-first profile completion
 
@@ -325,10 +333,10 @@ Recommended sequence:
 | Phase D | Normalize protected upload UI through a shared upload helper. | Completed for `/create-profile/` and `/post-vacancy/`: same upload validation, status rendering, uploaded-document list and correction-task rendering. |
 | Phase E | Add submit-review endpoint gated by backend completeness. | Completed: `ICS-003` submit-to-operator review gate, explicit submit endpoint, audit event and no operator task from save/autosave. |
 | Phase E.1 | Correct `/create-profile/` hard-reload persistence and vessel-type structured selection. | Completed: backend-first reload, stale local snapshot guard and `vessel_types` multi-select with `Any vessel type`. |
-| Phase E.2 | Correct `/create-profile/` finite catalog selects, repeated-address copy and upload/list contrast. | Completed: catalog-backed `select` controls for finite fields, `Same address` copy from permanent to registration address, and readable upload/document cards in dark theme. |
+| Phase E.2 | Correct `/create-profile/` finite catalog selects, repeated-address copy and upload/list contrast. | Completed: catalog-backed `select` controls for finite fields, `Same address` copy from permanent to registration address, and readable upload/document rows in dark theme. |
 | Phase E.3 | Replace hidden multi-select UX with explicit multi-choice control for `/create-profile/` preferred vessel types. | Completed: visible checkbox choices backed by the same structured `preferred_vessel_types` array, with `Any vessel type` kept mutually exclusive. |
 | Phase E.4 | Move `/create-profile/` protected upload into document-first placement and reserve extraction context. | Completed: upload appears immediately after identity/rank/availability, keeps the shared protected-upload helper and includes future AI-assisted confirmation context without OCR side effects. |
-| Phase E.5 | Replace visible document-type dropdown with human-readable document checklist. | Completed: fixed seafarer document types render as cards showing not-uploaded, pending review, verified and replacement-required states while preserving hidden `document_type` for API upload. |
+| Phase E.5 | Replace visible document-type dropdown with human-readable document checklist. | Completed: fixed seafarer document types render as compact upload rows showing not-uploaded, uploaded filename, pending review, verified and replacement-required states while preserving hidden `document_type` for API upload. |
 | Phase F | Connect owner correction tasks to the same numbered missing-item standard. | Consistent correction and resubmission flow. |
 
 ## 13. Prohibited Shortcuts

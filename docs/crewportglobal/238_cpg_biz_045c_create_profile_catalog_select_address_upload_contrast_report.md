@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: Project Owner runtime testing of `/create-profile/`
-- Version: 1.3
+- Version: 1.4
 - Date: 2026-05-29
 - Status: Implemented and verified on GTC1
 
@@ -179,7 +179,7 @@ data-extraction-mode="future_ai_assisted_confirmation"
 
 После дополнительной проверки Project Owner утверждено, что фиксированный список документов не должен выглядеть как технический выпадающий справочник.
 
-В `/create-profile/` видимый `Document type` dropdown заменен на список карточек:
+В `/create-profile/` видимый `Document type` dropdown заменен на компактный список документов:
 
 1. Passport / ID;
 2. Seaman's book;
@@ -192,7 +192,17 @@ data-extraction-mode="future_ai_assisted_confirmation"
 9. Language certificate;
 10. Other evidence.
 
-Каждая карточка показывает:
+Каждая строка списка показывает:
+
+1. название документа;
+2. короткое описание только через hover / `title`, без превращения блока загрузки в страницу для чтения;
+3. исходное имя последнего загруженного файла под названием документа;
+4. scan status;
+5. human/agent review status;
+6. размер файла;
+7. row-level upload / replace control справа от названия.
+
+Состояния строки:
 
 | State | User-facing meaning |
 |---|---|
@@ -208,7 +218,9 @@ data-extraction-mode="future_ai_assisted_confirmation"
 select#create-document-upload-type[hidden]
 ```
 
-Пользователь выбирает карточку документа, затем выбирает файл и нажимает `Upload`. Если документ не прошел проверку, карточка показывает `Replacement required` и та же карточка выбирается для загрузки замены.
+Пользователь выбирает файл в строке нужного документа и нажимает `Upload`. Если документ не прошел проверку, та же строка показывает `Replacement required` и используется для загрузки замены.
+
+Во время тестирования была найдена и исправлена системная ошибка строковой загрузки: выбор файла не должен перерисовывать список документов до нажатия `Upload`, иначе браузер теряет выбранный `File` object. Теперь выбор типа документа обновляется без перерисовки строки, а upload использует общий `crewportglobal-protected-upload.js` controller.
 
 Для безопасного owner-view API добавлено поле:
 
@@ -222,11 +234,12 @@ reviewed_at
 
 | File | Change |
 |---|---|
-| `projects/crewportglobal/app/backend/api/lib/document_uploads.php` | Added safe `reviewed_at` to owner-visible uploaded-document metadata so verified document cards can show confirmation date. |
+| `projects/crewportglobal/app/backend/api/lib/document_uploads.php` | Added safe `reviewed_at` to owner-visible uploaded-document metadata so verified document rows can show confirmation date. |
 | `projects/crewportglobal/public/assets/crewportglobal-reference-catalogs.js` | Added reusable catalog-backed `bindSelect()` / `populateSelect()` helper with fallback and legacy-value preservation. |
+| `projects/crewportglobal/public/assets/crewportglobal-protected-upload.js` | Exposed `uploadFileForType()` so row-level document checklist upload controls reuse the shared protected-upload standard. |
 | `projects/crewportglobal/public/assets/crewportglobal-app.css` | Added textarea coverage to shared/dark form-control contrast rules. |
-| `projects/crewportglobal/public/create-profile/index.html` | Converted finite catalog fields to true selects, replaced preferred-vessel native multi-select UX with visible checkbox multi-choice, added same-address copy option, improved upload/list contrast, moved upload processing help text, moved protected upload into document-first placement after identity/rank/availability and replaced visible document-type dropdown with human document checklist cards. |
-| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regression for catalog selects, explicit preferred-vessel checkbox selection, same-address copy, backend save and reload persistence, document-first upload placement/extraction context and document-card selection/status rendering. |
+| `projects/crewportglobal/public/create-profile/index.html` | Converted finite catalog fields to true selects, replaced preferred-vessel native multi-select UX with visible checkbox multi-choice, added same-address copy option, improved upload/list contrast, moved upload processing help text, moved protected upload into document-first placement after identity/rank/availability and replaced visible document-type dropdown with compact row-level document checklist upload. |
+| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regression for catalog selects, explicit preferred-vessel checkbox selection, same-address copy, backend save and reload persistence, document-first upload placement/extraction context and row-level document upload/status rendering. |
 | `docs/crewportglobal/implemented_code_standards/01_standard_form_lifecycle.md` | Added finite catalog select, repeated-address, document-first completion and human document checklist standards. |
 | `docs/crewportglobal/implemented_code_standards/00_implemented_code_standards_register.md` | Updated ICS-001/ICS-002 to include document-first completion and document-checklist adapters through the standard lifecycle/upload model. |
 | `docs/crewportglobal/business_processes/14_standard_form_lifecycle_and_validation_module.md` | Added Phase E.5 lifecycle control, document-checklist behavior and future AI/OCR confirmation boundary. |
@@ -288,8 +301,9 @@ The test confirms:
 7. contact/address autosave still works;
 8. protected upload appears before long manual sections and after identity/rank/availability;
 9. document upload keeps the future AI-assisted confirmation context without OCR side effects;
-10. document type selection is performed through visible document cards while hidden `document_type` preserves API compatibility;
-11. uploaded documents appear under the relevant card with pending/verified/replacement states instead of a separate generic uploaded-file list.
+10. document type selection and upload are performed through visible compact document rows while hidden `document_type` preserves API compatibility;
+11. uploaded documents appear under the relevant document name with pending/verified/replacement states instead of a separate generic uploaded-file list;
+12. selecting a file in a document row does not rerender the list before upload, so the chosen file is not lost.
 
 ## 12. Remaining Controlled Gaps
 
@@ -297,7 +311,7 @@ The test confirms:
 2. The same-address option is currently implemented for permanent-to-registration address in `/create-profile/`; future forms should use the same standard when they contain repeated address blocks.
 3. Full visual screenshot regression is not yet automated; current coverage is DOM/state and focused functional behavior.
 4. AI/OCR document extraction is intentionally not implemented in this stage; only the placement, standard and future extraction contract are prepared.
-5. Owner-visible document cards show safe review state and `reviewed_at`; detailed reviewer identity remains internal audit data.
+5. Owner-visible document rows show safe review state and `reviewed_at`; detailed reviewer identity remains internal audit data.
 
 ## 13. Next Stage
 

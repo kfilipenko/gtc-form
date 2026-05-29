@@ -289,7 +289,7 @@
       }
     }
 
-    async function uploadSelectedDocument() {
+    async function uploadDocumentFile(documentType, file, fileNode) {
       const draftId = getDraftId();
       if (!draftId) {
         setStatusText(tr('status.saveFirst'));
@@ -306,7 +306,6 @@
         return;
       }
 
-      const file = nodes.file && nodes.file.files && nodes.file.files[0] ? nodes.file.files[0] : null;
       const message = validationMessage(file);
       if (message) {
         setStatusText(message);
@@ -320,10 +319,12 @@
         const selectedFileName = file && typeof file.name === 'string' ? file.name : '';
         const response = await uploadDocument(draftId, {
           formType,
-          documentType: nodes.type ? nodes.type.value : '',
+          documentType: documentType || (nodes.type ? nodes.type.value : ''),
           file
         });
-        if (nodes.file) {
+        if (fileNode) {
+          fileNode.value = '';
+        } else if (nodes.file) {
           nodes.file.value = '';
         }
         const uploadedFileName = response.document && typeof response.document.original_filename === 'string'
@@ -350,6 +351,11 @@
       }
     }
 
+    async function uploadSelectedDocument() {
+      const file = nodes.file && nodes.file.files && nodes.file.files[0] ? nodes.file.files[0] : null;
+      return uploadDocumentFile(nodes.type ? nodes.type.value : '', file, nodes.file || null);
+    }
+
     return {
       formatBytes,
       fileHasAllowedDocumentType: (file) => fileHasAllowedDocumentType(file, allowedMimeTypes, allowedExtensions),
@@ -362,6 +368,7 @@
       renderUploadedDocuments,
       refreshUploadedDocuments,
       uploadSelectedDocument,
+      uploadFileForType: uploadDocumentFile,
       setStatusText,
       setStatusWithLink,
       setControlsDisabled
