@@ -375,8 +375,249 @@
     };
   }
 
+  function createDocumentChecklist(config) {
+    const options = config || {};
+    const doc = options.document || document;
+    const controller = options.controller;
+    const nodes = options.nodes || {};
+    const prefix = options.translationPrefix || 'upload';
+    const displayValue = typeof options.valueOrDash === 'function' ? options.valueOrDash : valueOrDash;
+    const t = typeof options.t === 'function' ? options.t : (key) => key;
+    const tFormat = typeof options.tFormat === 'function'
+      ? options.tFormat
+      : (key, values) => defaultFormat(t(key), values);
+    const actionRequiredStatuses = Array.isArray(options.actionRequiredStatuses)
+      ? options.actionRequiredStatuses
+      : ACTION_REQUIRED_STATUSES;
+    const formatDate = typeof options.formatDate === 'function'
+      ? options.formatDate
+      : (value) => displayValue(value);
+    const getDescription = typeof options.getDescription === 'function'
+      ? options.getDescription
+      : (documentType) => {
+        const descriptionKey = `${prefix}.typeDescription.${documentType}`;
+        const translated = t(descriptionKey);
+        return translated && translated !== descriptionKey ? translated : t(`${prefix}.checklistHelp`);
+      };
+
+    let latestDocuments = [];
+
+    function tr(suffix) {
+      return t(`${prefix}.${suffix}`);
+    }
+
+    function trFormat(suffix, values) {
+      return tFormat(`${prefix}.${suffix}`, values);
+    }
+
+    function documentTypeValues() {
+      return nodes.type && nodes.type.options
+        ? Array.from(nodes.type.options).map((option) => option.value).filter(Boolean)
+        : [];
+    }
+
+    function documentTypeLabel(value) {
+      if (!nodes.type || !nodes.type.options) {
+        return displayValue(value);
+      }
+      const option = Array.from(nodes.type.options).find((item) => item.value === value);
+      return option ? option.textContent.trim() : displayValue(value);
+    }
+
+    function latestDocumentForType(documents, documentType) {
+      return (Array.isArray(documents) ? documents : [])
+        .filter((documentRecord) => documentRecord && documentRecord.document_type === documentType)
+        .sort((left, right) => String(right.uploaded_at || '').localeCompare(String(left.uploaded_at || '')))[0] || null;
+    }
+
+    function statusForDocument(documentRecord) {
+      if (!documentRecord) {
+        return {
+          key: `${prefix}.card.notUploaded`,
+          className: ''
+        };
+      }
+      if (actionRequiredStatuses.includes(documentRecord.review_status)) {
+        return {
+          key: `${prefix}.card.needsReplacement`,
+          className: 'is-action'
+        };
+      }
+      if (documentRecord.review_status === 'verified') {
+        return {
+          key: `${prefix}.card.verified`,
+          className: 'is-ok'
+        };
+      }
+      if (documentRecord.scan_status && documentRecord.scan_status !== 'clean') {
+        return {
+          key: `${prefix}.card.scanBlocked`,
+          className: 'is-action'
+        };
+      }
+      if (documentRecord.review_status === 'pending_human_review' || documentRecord.review_status === 'under_review') {
+        return {
+          key: `${prefix}.card.pendingReview`,
+          className: 'is-warning'
+        };
+      }
+      return {
+        key: `${prefix}.card.uploaded`,
+        className: 'is-warning'
+      };
+    }
+
+    function selectDocumentType(documentType, focusFile = false, rerender = true) {
+      if (!nodes.type || !documentType) {
+        return;
+      }
+      nodes.type.value = documentType;
+      if (rerender) {
+        render(latestDocuments);
+      } else if (nodes.list) {
+        nodes.list.querySelectorAll('.document-type-row').forEach((row) => {
+          row.classList.toggle('is-selected', row.dataset.documentType === documentType);
+        });
+      }
+      if (nodes.status) {
+        nodes.status.textContent = trFormat('status.selectedType', {
+          document: documentTypeLabel(documentType)
+        });
+      }
+      if (focusFile && nodes.file && typeof nodes.file.focus === 'function') {
+        nodes.file.focus();
+      }
+    }
+
+    function render(documents) {
+      latestDocuments = Array.isArray(documents) ? documents : [];
+      if (!nodes.list || !controller) {
+        return;
+      }
+      nodes.list.innerHTML = '';
+
+      documentTypeValues().forEach((documentType) => {
+        const documentRecord = latestDocumentForType(latestDocuments, documentType);
+        const status = statusForDocument(documentRecord);
+        const row = doc.createElement('article');
+        row.className = 'document-type-row';
+        row.dataset.documentType = documentType;
+        if (nodes.type && nodes.type.value === documentType) {
+          row.classList.add('is-selected');
+        }
+
+        const main = doc.createElement('div');
+        main.className = 'document-type-row__main';
+
+        const head = doc.createElement('div');
+        head.className = 'document-type-row__head';
+        const title = doc.createElement('button');
+        title.type = 'button';
+        title.className = 'document-type-row__title';
+        title.textContent = documentTypeLabel(documentType);
+        title.title = getDescription(documentType);
+        title.setAttribute('aria-label', `${documentTypeLabel(documentType)}. ${getDescription(documentType)}`);
+        title.addEventListener('click', () => selectDocumentType(documentType, false));
+        head.appendChild(title);
+
+        const statusChip = doc.createElement('span');
+        statusChip.className = `document-type-row__status ${status.className}`.trim();
+        statusChip.textContent = t(status.key);
+        head.appendChild(statusChip);
+        main.appendChild(head);
+
+        const meta = doc.createElement('p');
+        meta.className = 'document-type-row__meta';
+        if (documentRecord) {
+          meta.textContent = [
+            displayValue(documentRecord.original_filename),
+            `${tr('meta.scan')}: ${displayValue(documentRecord.scan_status)}`,
+            `${tr('meta.review')}: ${controller.reviewStatusLabel(documentRecord.review_status)}`,
+            `${tr('meta.size')}: ${controller.formatBytes(documentRecord.file_size_bytes)}`
+          ].join(' | ');
+          main.appendChild(meta);
+
+          if (documentRecord.reviewed_at) {
+            const reviewed = doc.createElement('p');
+            reviewed.className = 'document-type-row__meta';
+            reviewed.textContent = `${tr('card.reviewedAt')}: ${formatDate(documentRecord.reviewed_at)}`;
+            main.appendChild(reviewed);
+          }
+
+          if (documentRecord.review_note && actionRequiredStatuses.includes(documentRecord.review_status)) {
+            const reason = doc.createElement('p');
+            reason.className = 'document-type-row__reason';
+            reason.textContent = `${tr('card.reason')}: ${documentRecord.review_note}`;
+            main.appendChild(reason);
+          }
+        } else {
+          meta.textContent = tr('card.noFile');
+          main.appendChild(meta);
+        }
+        row.appendChild(main);
+
+        const uploadControls = doc.createElement('div');
+        uploadControls.className = 'document-type-row__upload';
+        const rowFile = doc.createElement('input');
+        rowFile.type = 'file';
+        rowFile.className = 'document-type-row__file-input';
+        rowFile.accept = DEFAULT_ALLOWED_EXTENSIONS.concat(DEFAULT_ALLOWED_MIME_TYPES).join(',');
+        rowFile.setAttribute('aria-label', `${tr('submit')}: ${documentTypeLabel(documentType)}`);
+        uploadControls.appendChild(rowFile);
+
+        const uploadButton = doc.createElement('button');
+        uploadButton.type = 'button';
+        uploadButton.className = 'button secondary';
+        uploadButton.textContent = documentRecord && actionRequiredStatuses.includes(documentRecord.review_status)
+          ? tr('card.replace')
+          : tr('submit');
+        uploadButton.setAttribute('aria-label', `${uploadButton.textContent}: ${documentTypeLabel(documentType)}`);
+        uploadControls.appendChild(uploadButton);
+
+        const uploadRowFile = async () => {
+          const file = rowFile.files && rowFile.files[0] ? rowFile.files[0] : null;
+          if (!file) {
+            return;
+          }
+          selectDocumentType(documentType, false, false);
+          const previousLabel = uploadButton.textContent;
+          uploadButton.disabled = true;
+          uploadButton.textContent = tr('row.uploading');
+          try {
+            await controller.uploadFileForType(documentType, file, rowFile);
+          } finally {
+            uploadButton.disabled = false;
+            uploadButton.textContent = previousLabel;
+          }
+        };
+
+        rowFile.addEventListener('change', uploadRowFile);
+        uploadButton.addEventListener('click', () => {
+          selectDocumentType(documentType, false, false);
+          rowFile.value = '';
+          if (typeof rowFile.click === 'function') {
+            rowFile.click();
+          }
+        });
+
+        row.appendChild(uploadControls);
+        nodes.list.appendChild(row);
+      });
+    }
+
+    return {
+      render,
+      selectDocumentType,
+      latestDocumentForType: (documentType) => latestDocumentForType(latestDocuments, documentType),
+      documentTypeValues,
+      documentTypeLabel,
+      getLatestDocuments: () => latestDocuments.slice()
+    };
+  }
+
   window.CPGProtectedUpload = {
     createController,
+    createDocumentChecklist,
     formatBytes,
     fileHasAllowedDocumentType,
     DEFAULT_MAX_FILE_SIZE_BYTES,

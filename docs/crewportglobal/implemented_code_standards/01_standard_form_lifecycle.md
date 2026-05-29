@@ -4,13 +4,21 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Implemented code standards
 - Document type: Implemented code standard
-- Version: 1.7
+- Version: 1.9
 - Date: 2026-05-29
 - Status: Active
 
 ## 1. Purpose
 
 This standard defines the reusable frontend lifecycle behavior for large CrewPortGlobal forms.
+
+The standard exists to support the main platform objective:
+
+```text
+collect structured seafarer supply and shipowner demand data so the system can later perform reliable automated request-offer matching.
+```
+
+Form controls, persistence and completeness gates are therefore not isolated UI features. They are the input discipline for future matching, blocker explanation, shortlist preparation and human approval workflows.
 
 The standard prevents every form from creating its own copy of:
 
@@ -24,7 +32,8 @@ The standard prevents every form from creating its own copy of:
 8. repeated-address copy helpers when a form asks for the same address more than once;
 9. document-first completion placement for forms where uploaded evidence can later prefill structured fields;
 10. human-readable document checklist rendering instead of technical document-type dropdowns;
-11. country-code select handling with ISO alpha-2 values and same-as-nationality copy helpers where the same country is requested more than once.
+11. country-code select handling with ISO alpha-2 values and same-as-nationality copy helpers where the same country is requested more than once;
+12. matching-readiness control for fields that must be comparable between supply and demand forms.
 
 ## 2. Applies To
 
@@ -76,6 +85,7 @@ Each page adapter must provide:
 | repeated-country source mapping | Defines when `Same as nationality` or a similar source-country copy button is allowed. |
 | document-first upload context | Defines whether upload appears before detailed manual fields and which canonical prefix future extraction maps to. |
 | document checklist adapter | Maps allowed document types to compact visible rows with uploaded/reviewed/replacement state and one visible row-level upload/replace button. |
+| matching counterpart mapping | Identifies whether a changed field is supply-side, demand-side, vessel-context or crew-request data and what field/catalog it must match against. |
 
 ## 5. Forbidden Local Logic
 
@@ -92,7 +102,9 @@ Pages must not duplicate:
 9. page-local duplicate-address behavior when a shared form lifecycle helper or page adapter can provide it;
 10. country-code free text when the approved `countries` catalog is available and the field expects a country code;
 11. burying protected document upload after all manual fields when documents are expected to become the first source for future AI/OCR prefill;
-12. exposing document upload primarily through a technical dropdown when a fixed document checklist can show the required evidence more clearly.
+12. exposing document upload primarily through a technical dropdown when a fixed document checklist can show the required evidence more clearly;
+13. adding free-text or page-local values for matching-critical demand/supply fields when a shared catalog or compatibility mapping exists;
+14. adding a hard matching blocker for a field that is not structured on both the demand and supply sides.
 
 ## 6. Reference-Field Control Standard
 
@@ -109,6 +121,40 @@ Finite catalog-backed fields must use structured controls:
 When a finite catalog cannot be loaded, the page adapter must provide a safe fallback value list and preserve already saved legacy values on reload.
 
 When a form asks for several country-code fields and one field is an obvious source value, the page may expose an explicit copy helper. In `/create-profile/`, `Nationality` can be copied to residence/current/registration/COC/flag country through `Same as nationality`. The copy must dispatch the normal form-change event so autosave, backend save, completeness and reload behavior remain standard.
+
+## 6A. Matching-Readiness Field Standard
+
+Any field that may affect automated request-offer matching must be classified before or during implementation.
+
+| Classification | Requirement |
+|---|---|
+| Hard blocker candidate | Both sides must have comparable structured values and an approved blocker meaning. |
+| Soft score candidate | Both sides should have structured or normalized values, but missing/partial data may reduce confidence rather than block. |
+| Evidence-backed field | The value should be linked to uploaded/verified evidence when possible. |
+| Compliance-only field | The field may be required for review but must not enter matching or employer-safe payloads unless separately approved. |
+| Display-only field | The field must not create matching blockers or requiredness parity by itself. |
+
+For every matching-critical field, the adapter or implementation report must identify:
+
+1. stream: `seafarer_supply`, `employer_company`, `vessel_context` or `crew_request`;
+2. canonical key;
+3. reference catalog or normalization rule;
+4. opposite-side counterpart;
+5. requiredness on each side;
+6. whether the value may be used for hard blocker, soft score or evidence explanation.
+
+Examples:
+
+| Matching concept | Demand-side field | Supply-side field | Required control |
+|---|---|---|---|
+| Rank | requested rank | primary/acceptable rank | Shared rank catalog. |
+| Department | requested department | seafarer department | Shared department catalog. |
+| Vessel type | vessel/request vessel type | preferred/experienced vessel type | Shared vessel type catalog or approved matching category. |
+| Joining / availability | joining date | availability status/date | Date/status normalization. |
+| Salary | salary range | salary expectation | Numeric value and currency. |
+| Country / flag / location | flag/country/port context | nationality/current country/visa readiness | Country catalog and, where used, port catalog. |
+
+When the opposite side is missing, the field may still be collected, but it must be documented as `matching_gap` and must not become a hard blocker.
 
 ## 7. Current Tests
 
@@ -183,6 +229,20 @@ For fixed document catalogs, the owner UI should show one compact document row p
 The document list must not be rendered as large reading cards when the user needs a fast upload menu. The user-facing row must not require two separate visible actions such as `Choose file` and `Upload`. A hidden file input may remain only as a technical browser adapter behind the visible `Upload` / `Replace` button. Selecting a row file must not rerender the list before upload, because browsers clear selected `File` objects when their input node is replaced.
 
 The technical `document_type` control may remain hidden as an adapter detail only when the visible checklist is the user-facing control.
+
+## 7B. Demand-Side Matching Field Rollout
+
+When this standard is applied to employer, vessel or crew-request forms, the first fields to normalize should be the fields needed for request-offer matching.
+
+For `/post-vacancy/`, the first rollout converted these fields to catalog-backed controls:
+
+| Field | Catalog | Matching purpose |
+|---|---|---|
+| Requested rank | `seafarer_positions` | Core supply-demand position comparison. |
+| Vessel type | `vessel_types` | Vessel-experience and preference comparison. |
+| Country | `countries` | Compliance, operating context and soft scoring. |
+
+Page adapters must not introduce a hard matching blocker just because a field has become structured. Hard blockers are allowed only when both sides of the comparison have comparable structured values and the business-process document classifies the field as a hard requirement.
 
 ## 8. Change Propagation Rule
 

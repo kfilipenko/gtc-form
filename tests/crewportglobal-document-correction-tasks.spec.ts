@@ -184,23 +184,20 @@ test('seafarer document correction task remains after unsafe replacement and clo
   expect((await unsafeReplacement.json()).error).toBe('malware_detected');
 
   await page.goto(`/create-profile/?draft_id=${created.draft_id}`);
-  await expect(page.locator('#create-document-action-list')).toContainText('Action required: upload corrected document');
-  await expect(page.locator('#create-document-action-list')).toContainText('Medical certificate');
-  await expect(page.locator('#create-document-action-list')).toContainText(note);
-  await expect(page.locator('#create-document-action-list')).toContainText('Upload replacement');
+  const medicalRow = page.locator('.document-type-row[data-document-type="medical_certificate"]');
+  await expect(medicalRow).toContainText('Medical certificate');
+  await expect(medicalRow).toContainText('Replacement required');
+  await expect(medicalRow).toContainText(note);
+  await expect(medicalRow.getByRole('button', { name: /Replace document/i })).toBeVisible();
 
-  await page.locator('#create-document-action-list .document-replacement-action').click();
-  await expect(page.locator('#create-document-upload-type')).toHaveValue('medical_certificate');
-  await page.locator('#create-document-upload-file').setInputFiles({
+  await medicalRow.locator('.document-type-row__file-input').setInputFiles({
     name: 'new-medical.pdf',
     mimeType: 'application/pdf',
     buffer: minimalPdfBuffer('New valid medical certificate.'),
   });
-  await page.locator('#create-document-upload-submit').click();
   await expect(page.locator('#create-document-upload-status')).toContainText('uploaded and scanned');
-  await expect(page.locator('#create-document-action-list')).toBeHidden();
   await expect(page.locator('#create-document-upload-list')).toContainText('new-medical.pdf');
-  await expect(page.locator('#create-document-upload-list')).toContainText('Pending human review');
+  await expect(page.locator('#create-document-upload-list')).toContainText('Waiting for team review');
 
   const documents = await visibleDocuments(request, created.draft_id, 'seafarer');
   expect(documents).toHaveLength(1);
@@ -260,16 +257,15 @@ test('employer document correction task closes after authority evidence replacem
 
   await page.locator('#post-document-action-list .document-replacement-action').click();
   await expect(page.locator('#post-document-upload-type')).toHaveValue('authorization_letter');
-  await page.locator('#post-document-upload-file').setInputFiles({
+  await page.locator('.document-type-row[data-document-type="authorization_letter"] .document-type-row__file-input').setInputFiles({
     name: 'new-authorization.pdf',
     mimeType: 'application/pdf',
     buffer: minimalPdfBuffer('New valid authorization letter.'),
   });
-  await page.locator('#post-document-upload-submit').click();
   await expect(page.locator('#post-document-upload-status')).toContainText('uploaded and scanned');
   await expect(page.locator('#post-document-action-list')).toBeHidden();
   await expect(page.locator('#post-document-upload-list')).toContainText('new-authorization.pdf');
-  await expect(page.locator('#post-document-upload-list')).toContainText('Pending human review');
+  await expect(page.locator('#post-document-upload-list')).toContainText('Waiting for team review');
 
   const documents = await visibleDocuments(request, created.draft_id, 'employer');
   expect(documents).toHaveLength(1);

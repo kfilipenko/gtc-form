@@ -1,4 +1,4 @@
-import { expect, test, type APIRequestContext } from '@playwright/test';
+import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 import { execSync } from 'node:child_process';
 
 function cleanupPostVacancyWorkspaceTestData(): void {
@@ -62,6 +62,16 @@ test.afterEach(() => {
   cleanupPostVacancyWorkspaceTestData();
 });
 
+async function selectMatchingValue(page: Page, selector: string, preferredValue: string): Promise<void> {
+  const locator = page.locator(selector);
+  await expect.poll(async () => locator.locator('option').count()).toBeGreaterThan(1);
+  const values = await locator.locator('option').evaluateAll((options: HTMLOptionElement[]) => (
+    options.map((option) => option.value).filter(Boolean)
+  ));
+  const selected = values.find((value) => value.toLowerCase() === preferredValue.toLowerCase()) || values[0];
+  await locator.selectOption(selected);
+}
+
 test('post vacancy document upload shows exact file limit and type validation', async ({ page }) => {
   const unique = Date.now();
   const email = `ui.postvacancy.upload.${unique}@example.com`;
@@ -81,7 +91,8 @@ test('post vacancy document upload shows exact file limit and type validation', 
   await page.locator('#post-submit').click();
   await expect(page.locator('#post-status')).toContainText('saved successfully');
 
-  await page.locator('#post-document-upload-file').setInputFiles({
+  const companyRegistrationInput = page.locator('.document-type-row[data-document-type="company_registration"] .document-type-row__file-input');
+  await companyRegistrationInput.setInputFiles({
     name: 'too-large.pdf',
     mimeType: 'application/pdf',
     buffer: Buffer.concat([
@@ -90,16 +101,14 @@ test('post vacancy document upload shows exact file limit and type validation', 
       Buffer.from('\n%%EOF\n'),
     ]),
   });
-  await page.locator('#post-document-upload-submit').click();
   await expect(page.locator('#post-document-upload-status')).toContainText('too large');
   await expect(page.locator('#post-document-upload-status')).toContainText('10.0 MB');
 
-  await page.locator('#post-document-upload-file').setInputFiles({
+  await companyRegistrationInput.setInputFiles({
     name: 'unsupported.txt',
     mimeType: 'text/plain',
     buffer: Buffer.from('plain text is not accepted authority evidence'),
   });
-  await page.locator('#post-document-upload-submit').click();
   await expect(page.locator('#post-document-upload-status')).toContainText('Unsupported file type');
 });
 
@@ -116,7 +125,7 @@ test('post vacancy save confirm renders demand completeness items and opens exac
 
   await page.locator('#post-email').fill(email);
   await page.locator('#post-company').fill(`Completeness Demand Marine ${unique}`);
-  await page.locator('#post-country').fill('AE');
+  await selectMatchingValue(page, '#post-country', 'AE');
   await page.locator('#post-registration-number').fill(`AE-COMPLETE-${unique}`);
   await page.locator('#post-submit').click();
 
@@ -160,8 +169,8 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   const unique = Date.now();
   const email = `ui.postvacancy.${unique}@example.com`;
   const company = `Post Vacancy Marine ${unique}`;
-  const firstTitle = `Chief Officer ${unique}`;
-  const updatedTitle = `Master ${unique}`;
+  const firstTitle = 'Chief Officer';
+  const updatedTitle = 'Master';
 
   await page.goto('/post-vacancy/');
   await page.evaluate(() => {
@@ -175,12 +184,12 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await page.locator('#post-role').selectOption('shipowner');
   await page.locator('#post-role-in-company').selectOption('owner');
   await page.locator('#post-company').fill(company);
-  await page.locator('#post-country').fill('AE');
+  await selectMatchingValue(page, '#post-country', 'AE');
   await page.locator('#post-registration-number').fill(`AE-PV-${unique}`);
   await page.locator('#post-vessel-name').fill(`MV Workspace ${unique}`);
-  await page.locator('#post-vessel-type').fill('Bulk Carrier');
+  await selectMatchingValue(page, '#post-vessel-type', 'BULK CARRIER');
   await page.locator('#post-imo').fill(`IMO${9400000 + (unique % 500000)}`);
-  await page.locator('#post-vacancy-title').fill(firstTitle);
+  await selectMatchingValue(page, '#post-vacancy-title', firstTitle);
   await page.locator('#post-department').selectOption('deck');
   await page.locator('#post-join-date').fill('2026-10-15');
   await page.locator('#post-duration').fill('4 months +/- 1');
@@ -241,7 +250,7 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await expect(page.locator('#post-salary-min')).toHaveValue(/^7000(\.00)?$/);
   await expect(page.locator('#post-salary-max')).toHaveValue(/^7600(\.00)?$/);
 
-  await page.locator('#post-vacancy-title').fill(updatedTitle);
+  await selectMatchingValue(page, '#post-vacancy-title', updatedTitle);
   await page.locator('#post-submit').click();
   await expect(page.locator('#post-status')).toContainText('saved successfully');
 

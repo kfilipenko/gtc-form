@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Business-process standard and implementation control
 - Source task: Project Owner approval after CPG-BIZ-040 multi-role upload diagnostics
-- Version: 2.0
+- Version: 2.2
 - Date: 2026-05-29
 - Status: Approved standard for staged implementation
 
@@ -21,7 +21,11 @@ The standard exists because the portal now has several data-intake streams that 
 4. crew request / vacancy requirement forms;
 5. document upload and correction forms linked to those streams.
 
-The purpose is to avoid creating separate ad hoc rules for every page. Each current and future form must connect to the same lifecycle model for:
+The purpose is to avoid creating separate ad hoc rules for every page. The standard also exists to make supply and demand data comparable for automated request-offer matching.
+
+Forms must not collect data only for local display. When a field can affect crew matching, it must be structured, synchronized with the opposite side where applicable and preserved in a form suitable for automated comparison.
+
+Each current and future form must connect to the same lifecycle model for:
 
 1. draft context;
 2. role context;
@@ -53,6 +57,25 @@ form configuration
 
 The page may render controls and messages, but the backend lifecycle contract remains the source of truth.
 
+### 2.1 Matching-first data principle
+
+The business goal of this standard is:
+
+```text
+shipowner demand + vessel context + crew request requirements
+matched against
+verified seafarer supply data
+```
+
+For this reason, form lifecycle work must preserve these rules:
+
+1. matching-critical fields must use structured values when a catalog exists;
+2. demand-side and supply-side fields must use the same catalog or a documented compatibility mapping;
+3. values intended for comparison must be stored as stable codes, IDs, normalized dates, numbers or arrays of codes, not uncontrolled labels;
+4. a hard blocker must not be introduced unless both sides have comparable structured data;
+5. if only one side has a required matching field, the missing opposite-side field or requiredness gap must be documented before the field is used for automated matching;
+6. evidence and compliance fields may remain outside matching, but their non-matching purpose must be clear.
+
 ## 3. Covered Information Streams
 
 | Stream | Object | Prefix | Main owner | Main team group | Final readiness decision |
@@ -64,6 +87,8 @@ The page may render controls and messages, but the backend lifecycle contract re
 | Document evidence | `uploaded_documents` | `*.D*` | Uploading owner | Verification/review group | Evidence accepted or correction required |
 
 The streams may appear on one page, but they must remain distinguishable in validation and task computation.
+
+They must also remain mappable for matching. A demand-side field such as requested rank, vessel type, joining date, salary range, certificate requirement or operating area must have a known seafarer-side counterpart before it is used as a blocker or score input.
 
 ## 4. Standard Lifecycle States
 
@@ -183,6 +208,7 @@ Each form page must connect to the same frontend behavior.
 | Repeated country fields | Provide an explicit copy action such as `Same as nationality` when the user is likely to repeat the same country across several fields. |
 | Repeated address fields | Provide an explicit `Same address` copy option when a form asks the user to enter substantially the same address more than once. |
 | Visual contrast | Inputs, textareas, upload lists and document metadata must remain readable in dark and light themes. |
+| Matching-critical field | Use the shared catalog/normalization expected by the opposite side, and document any temporary compatibility mapping. |
 
 The frontend must not infer final readiness independently from visible input values when the backend analyzer is available.
 
@@ -252,6 +278,8 @@ Future AI/OCR extraction must not make employment decisions, approve candidate p
 ## 8. Canonical Numbering Standard
 
 Every required item must have a stable code.
+
+The code must support both user correction and future matching diagnostics. When a candidate is blocked or scored lower, the system should be able to point back to the numbered form item that produced the condition.
 
 | Prefix | Stream | Example |
 |---|---|---|
@@ -400,12 +428,12 @@ The standard is correctly adopted for a form when:
 
 ## 15. Next Stage
 
-The Phase E submit-to-operator review gate is complete.
+The Phase E submit-to-operator review gate, the `/create-profile/` field-control corrections and the first `/post-vacancy/` matching-first rollout are complete.
 
-The next implementation stage should apply the same gate to owner correction resubmission:
+The next rollout stage is:
 
 ```text
-CPG-BIZ-046 - Owner correction resubmission gate and computed task recomputation alignment
+CPG-BIZ-047 - Standard form lifecycle rollout to employer company and vessel forms
 ```
 
-That phase should ensure that owner corrections use the same save -> completeness -> explicit submit sequence and that computed tasks disappear/reappear according to the approved process-state model.
+That stage should apply this standard to employer company and vessel forms with a matching-first field audit. The rollout must prove that fields needed for automated request-offer matching are structured, persistent, synchronized across supply/demand where applicable and not used as hard blockers until both sides are comparable.

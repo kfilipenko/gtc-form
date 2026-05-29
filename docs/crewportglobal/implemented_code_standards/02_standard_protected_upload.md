@@ -4,7 +4,7 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Implemented code standards
 - Document type: Implemented code standard
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-05-29
 - Status: Active
 
@@ -46,6 +46,7 @@ Canonical API:
 
 ```text
 window.CPGProtectedUpload.createController(config)
+window.CPGProtectedUpload.createDocumentChecklist(config)
 ```
 
 ## 4. Standard Rules
@@ -63,6 +64,7 @@ The canonical helper enforces:
 | Document list rendering | Shared rendering for uploaded documents |
 | Correction/replacement task rendering | Shared rendering for `correction_requested` and `rejected` documents |
 | Successful upload feedback | Status must include the uploaded filename and the refreshed document list must show the uploaded record. |
+| Fixed document catalogs | Shared compact row-level checklist with one visible `Upload` / `Replace` button per document type. |
 
 ## 5. Adapter Contract
 
@@ -83,6 +85,14 @@ Each page adapter must provide:
 | optional `beforeUpload` | Role/form gate before upload. |
 | optional `onUploaded` | Page-specific refresh, such as completeness re-check. |
 
+For finite document catalogs, page adapters should use:
+
+```text
+window.CPGProtectedUpload.createDocumentChecklist(config)
+```
+
+The checklist adapter receives the protected-upload controller, document type nodes, list node, translation adapter and optional document-type metadata. It renders one compact row per document type and delegates actual upload, validation, error handling and list refresh back to the canonical controller.
+
 ## 6. Forbidden Local Logic
 
 Pages must not duplicate:
@@ -94,6 +104,7 @@ Pages must not duplicate:
 5. correction/replacement document task rendering;
 6. upload button disable/enable flow;
 7. successful-upload filename/status handling.
+8. compact document checklist rendering for fixed document catalogs.
 
 Page-specific differences must be passed as adapter configuration.
 
@@ -104,11 +115,14 @@ Current regression coverage includes:
 ```text
 tests/crewportglobal-create-profile-prefill.spec.ts
 tests/crewportglobal-post-vacancy-workspace.spec.ts
+tests/crewportglobal-document-correction-tasks.spec.ts
 ```
 
 The tests check exact `10 MB` validation, unsupported file validation, seafarer draft role behavior and demand-side completeness behavior after standard adoption.
 
 The `/create-profile/` regression also checks that a successful upload status includes the uploaded filename and that the refreshed protected-document list shows the uploaded file and document type.
+
+The document-correction regression checks that row-level replacement closes the old correction task only after a clean replacement and that employer authorization evidence uses the same checklist replacement path.
 
 ## 8. Change Propagation Rule
 

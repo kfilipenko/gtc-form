@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.22
+- Version: 2.25
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -325,6 +325,8 @@ docs/crewportglobal/
   236_cpg_biz_045a_create_profile_save_reload_vessel_multiselect_report.md
   237_cpg_biz_045b_protected_upload_success_feedback_report.md
   238_cpg_biz_045c_create_profile_catalog_select_address_upload_contrast_report.md
+  239_cpg_biz_046_standard_form_lifecycle_rollout_task.md
+  240_cpg_biz_046_standard_form_lifecycle_rollout_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -697,6 +699,10 @@ Document 235 records the CPG-BIZ-045 submit-to-operator review gate implementati
 
 Document 238 records the CPG-BIZ-045C `/create-profile/` catalog-select, country-select, same-address/same-nationality, upload/readability, document-first profile-completion and human document-checklist correction, including the systemic datalist-vs-select cause, shared `bindSelect` helper, finite catalog field matrix, ISO alpha-2 country-value handling, registration-address copy from permanent address, same-as-nationality copy for repeated country fields, protected upload placement after identity/rank/availability, compact one-button row-level document upload list with hover descriptions and review/replacement states, future AI/OCR extraction boundary and focused regression verification.
 
+Document 239 defines the CPG-BIZ-046 approval task for rolling out the approved standard form lifecycle from `/create-profile/` to the remaining active CrewPortGlobal forms, especially employer, vessel, crew-request and authorization evidence forms, with mandatory reuse of shared lifecycle, protected-upload, reference-catalog and submit-review standards before new code is written. Version 1.1 adds the matching-first principle: the rollout must synchronize supply and demand fields for future automated request-offer matching, classify changed fields by blocker/score/evidence/compliance use and avoid hard blockers until both sides have comparable structured data.
+
+Document 240 records the CPG-BIZ-046 Phase 1 implementation for `/post-vacancy/`, including demand-side catalog-backed country, vessel type and requested-rank controls, shared `createDocumentChecklist(config)` protected-upload adoption, supply-demand matching synchronization matrix, no DB migration, no scoring/employment decision logic and focused Playwright verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -800,6 +806,9 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.25 | 2026-05-29 | GTC IT / AI Assistant | Added document 240 for CPG-BIZ-046 Phase 1 rollout to `/post-vacancy/`, aligning demand-side fields with matching catalogs and reusing shared protected-upload checklist behavior |
+| 2.24 | 2026-05-29 | GTC IT / AI Assistant | Updated document 239, BP-014 and ICS-001 with the matching-first principle: form standard rollout must produce comparable structured supply/demand data for automated request-offer matching |
+| 2.23 | 2026-05-29 | GTC IT / AI Assistant | Added document 239 as the CPG-BIZ-046 approval task for rolling out the approved standard form lifecycle to remaining active forms |
 | 2.22 | 2026-05-29 | GTC IT / AI Assistant | Extended document 238 and ICS/BP standards with catalog-backed country selects, ISO alpha-2 values and same-as-nationality copy helpers for repeated country fields |
 | 2.21 | 2026-05-29 | GTC IT / AI Assistant | Refined document 238 and upload standards to use one visible row-level Upload/Replace button that opens file selection and starts upload after choice |
 | 2.20 | 2026-05-29 | GTC IT / AI Assistant | Refined document 238 and upload standards from document cards to compact row-level document upload list with hidden hover descriptions and row-level file controls |
