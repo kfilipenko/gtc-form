@@ -90,6 +90,17 @@ test('post vacancy document upload shows exact file limit and type validation', 
   await expect(page.locator('#post-vessel-document-upload-file')).toBeHidden();
   await expect(page.locator('#post-document-upload-list .document-type-row[data-document-type="company_registration"] .document-type-row__title')).toBeVisible();
   await expect(page.locator('#post-vessel-document-upload-list .document-type-row[data-document-type="vessel_particulars"] .document-type-row__title')).toBeVisible();
+  await expect.poll(async () => page.evaluate(() => (
+    document.documentElement.scrollWidth <= document.documentElement.clientWidth + 2
+  ))).toBe(true);
+
+  await page.setViewportSize({ width: 390, height: 900 });
+  await expect(page.locator('#post-document-upload-list .document-type-row[data-document-type="company_registration"] .document-type-row__title')).toBeVisible();
+  await expect(page.locator('#post-vessel-document-upload-list .document-type-row[data-document-type="vessel_particulars"] .document-type-row__title')).toBeVisible();
+  await expect.poll(async () => page.evaluate(() => (
+    document.documentElement.scrollWidth <= document.documentElement.clientWidth + 2
+  ))).toBe(true);
+  await page.setViewportSize({ width: 1280, height: 720 });
 
   await page.locator('#post-email').fill(email);
   await page.locator('#post-full-name').fill('Upload Validation Manager');

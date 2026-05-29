@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: Continuation after document 240 and Project Owner approval
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-05-29
 - Status: Implemented and verified on GTC1
 
@@ -40,7 +40,7 @@
 
 | File | Изменение |
 |---|---|
-| `projects/crewportglobal/public/post-vacancy/index.html` | Добавлено поле `#post-vessel-flag-country`, helper `Same as company country`, отдельный vessel evidence checklist, исправлено отображение employer/vessel upload как checklist без видимых legacy `select` / `Choose file` controls, обновлены completeness targets. |
+| `projects/crewportglobal/public/post-vacancy/index.html` | Добавлено поле `#post-vessel-flag-country`, helper `Same as company country`, отдельный vessel evidence checklist, исправлено отображение employer/vessel upload как checklist без видимых legacy `select` / `Choose file` controls, уплотнен адаптивный layout страницы и обновлены completeness targets. |
 | `projects/crewportglobal/app/backend/api/public/index.php` | `upsert_company_context()` сохраняет `vessels.flag_country_code`; demand completeness возвращает значение `V-2.2`. |
 | `projects/crewportglobal/app/backend/api/lib/questionnaire_schema.php` | `V-2.2` переведен с target gap на реальное поле; `V-4.D1` ведет к vessel upload checklist. |
 | `tests/crewportglobal-reference-catalog-form-bindings.spec.ts` | Добавлена проверка catalog-backed flag country и copy helper. |
@@ -75,6 +75,13 @@ vessel checklist   -> form_type vessel
 3. в строке документа показываются исходное имя файла и статус обработки;
 4. пользователь видит одну кнопку `Upload` в строке документа;
 5. технический `Document type` dropdown и отдельный `Choose file` control скрыты и не используются как видимый интерфейс.
+
+После дополнительной визуальной проверки форма также уплотнена:
+
+1. рабочая форма больше не ограничена узкой левой колонкой рядом с короткой справочной панелью;
+2. справочная панель перенесена в компактный блок ниже рабочей формы;
+3. document checklist использует адаптивные колонки на широком экране;
+4. на мобильном экране строки документов переходят в один столбец без горизонтального переполнения.
 
 Поле `Vessel flag country`:
 
@@ -125,7 +132,8 @@ The test suite confirms:
 3. vessel document upload works through the vessel checklist;
 4. `vessel_particulars.pdf` becomes visible in the vessel document row;
 5. employer and vessel legacy upload selects/file inputs are hidden from the visible UI;
-6. `/post-vacancy/` still saves, reloads and moves through the existing human-review publication flow.
+6. document checklist remains visible and does not create horizontal overflow on desktop or mobile viewport;
+7. `/post-vacancy/` still saves, reloads and moves through the existing human-review publication flow.
 
 ## 7. Controlled Gaps
 
