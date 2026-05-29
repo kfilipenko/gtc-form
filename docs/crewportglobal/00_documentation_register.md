@@ -695,7 +695,7 @@ Document 234 records the CPG-BIZ-044A implemented-code standards register, inclu
 
 Document 235 records the CPG-BIZ-045 submit-to-operator review gate implementation, including active ICS-003, explicit `POST /api/v1/registration/drafts/{draft_id}/submit-review`, draft-save status boundaries, no operator task from autosave/save, audit event creation on successful submit and focused API/UI verification.
 
-Document 238 records the CPG-BIZ-045C `/create-profile/` catalog-select, same-address and upload/readability correction, including the systemic datalist-vs-select cause, shared `bindSelect` helper, finite catalog field matrix, registration-address copy from permanent address and focused regression verification.
+Document 238 records the CPG-BIZ-045C `/create-profile/` catalog-select, same-address, upload/readability, document-first profile-completion and human document-checklist correction, including the systemic datalist-vs-select cause, shared `bindSelect` helper, finite catalog field matrix, registration-address copy from permanent address, protected upload placement after identity/rank/availability, visible document cards with review/replacement states, future AI/OCR extraction boundary and focused regression verification.
 
 Mandatory control statement:
 
@@ -800,6 +800,8 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.19 | 2026-05-29 | GTC IT / AI Assistant | Updated document 238 and upload standards with human-readable document checklist cards, safe reviewed_at display and replacement-required states |
+| 2.18 | 2026-05-29 | GTC IT / AI Assistant | Updated document 238 and implemented-code standards with document-first `/create-profile/` protected upload placement and future AI/OCR extraction boundary |
 | 2.17 | 2026-05-29 | GTC IT / AI Assistant | Added document 238 for CPG-BIZ-045C covering `/create-profile/` finite catalog selects, same-address copy and upload/readability correction |
 | 2.16 | 2026-05-29 | GTC IT / AI Assistant | Added document 237 for CPG-BIZ-045B covering protected upload success feedback with uploaded filename and refreshed document list |
 | 2.15 | 2026-05-29 | GTC IT / AI Assistant | Added document 236 for CPG-BIZ-045A covering `/create-profile/` backend-first save/reload persistence and structured vessel-type multiselect with neutral option |

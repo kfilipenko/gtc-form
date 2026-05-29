@@ -261,10 +261,10 @@ test('create profile save confirm renders backend S-code missing items and highl
   await expect(page.locator('#create-missing-list')).toContainText('S-1.3: Contact phone');
   await expect(page.locator('#create-missing-list')).toContainText('S-12.D1: Passport / ID document upload');
   await expect(page.locator('label:has(#create-phone)')).toHaveClass(/is-completeness-missing/);
-  await expect(page.locator('#profile-section-documents')).toHaveClass(/is-completeness-missing/);
+  await expect(page.locator('#profile-section-document-upload')).toHaveClass(/is-completeness-missing/);
 
   await page.locator('#create-missing-list a', { hasText: 'S-12.D1' }).click();
-  await expect(page).toHaveURL(/#profile-section-documents$/);
+  await expect(page).toHaveURL(/#profile-section-document-upload$/);
 });
 
 test('create profile document upload shows exact file limit and type validation', async ({ page, request }) => {
@@ -287,6 +287,17 @@ test('create profile document upload shows exact file limit and type validation'
   });
   await page.reload();
 
+  await expect(page.locator('#profile-section-document-upload')).toHaveAttribute('data-extraction-mode', 'future_ai_assisted_confirmation');
+  await expect(page.locator('#create-document-upload-type')).toBeHidden();
+  await expect(page.locator('#create-document-upload-list .document-type-card')).toHaveCount(10);
+  await page.locator('#create-document-upload-list .document-type-card', { hasText: 'Medical certificate' }).click();
+  await expect(page.locator('#create-document-upload-type')).toHaveValue('medical_certificate');
+  await expect(page.locator('#create-document-upload-status')).toContainText('Medical certificate selected');
+  await expect.poll(async () => page.evaluate(() => {
+    const upload = document.getElementById('profile-section-document-upload');
+    const contact = document.getElementById('profile-section-contact');
+    return Boolean(upload && contact && upload.compareDocumentPosition(contact) & Node.DOCUMENT_POSITION_FOLLOWING);
+  })).toBe(true);
   await expect(page.locator('#create-document-upload-status')).toContainText('Maximum size: 10 MB');
 
   await page.locator('#create-document-upload-file').setInputFiles({
@@ -377,7 +388,8 @@ test('create profile keeps seafarer save and upload active for multi-role accoun
   await expect(page.locator('#create-document-upload-status')).toContainText('multi-role-passport.pdf');
   await expect(page.locator('#create-document-upload-status')).toContainText('listed below');
   await expect(page.locator('#create-document-upload-list')).toContainText('multi-role-passport.pdf', { timeout: 7000 });
-  await expect(page.locator('#create-document-upload-list')).toContainText('passport_or_id', { timeout: 7000 });
+  await expect(page.locator('#create-document-upload-list')).toContainText('Passport / ID', { timeout: 7000 });
+  await expect(page.locator('#create-document-upload-list')).toContainText('Pending team review', { timeout: 7000 });
 });
 
 test('create profile keeps local-only field edits before backend draft exists', async ({ page }) => {

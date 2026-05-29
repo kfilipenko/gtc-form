@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Business-process standard and implementation control
 - Source task: Project Owner approval after CPG-BIZ-040 multi-role upload diagnostics
-- Version: 1.5
+- Version: 1.7
 - Date: 2026-05-29
 - Status: Approved standard for staged implementation
 
@@ -31,7 +31,8 @@ The purpose is to avoid creating separate ad hoc rules for every page. Each curr
 6. submit-review gating;
 7. owner correction tasks;
 8. team task computation;
-9. audit evidence.
+9. audit evidence;
+10. document-first completion when uploaded evidence can later prefill form fields.
 
 ## 2. Operating Principle
 
@@ -170,6 +171,8 @@ Each form page must connect to the same frontend behavior.
 | Highlighting | Mark required incomplete fields/sections with consistent visual state. |
 | Submit-review button | Hidden or disabled until backend `can_submit_to_operator = true`. |
 | Upload panel | Show allowed formats and 10 MB file limit before upload. |
+| Document-first placement | For evidence-heavy forms, place protected upload after the minimum identity/context block and before long manual sections. |
+| Document checklist | When document types are finite, show a human-readable checklist/card list with upload, review and replacement state instead of a visible technical dropdown. |
 | Upload failure | Show precise failure reason when available. |
 | Upload success | Show the uploaded filename and refresh the protected-document list so the user can see the accepted file even after the file input is cleared. |
 | Reload safety | After reload, saved and autosaved data must still be present. |
@@ -197,6 +200,42 @@ Every document upload panel must use the same policy.
 | Error message | User sees the exact known reason, not only generic failure. |
 
 The multi-role account case is a mandatory regression scenario: an account with both employer-side and seafarer-side roles must still be able to save and upload documents in the correct form context.
+
+When the form has a finite set of accepted document types, the user-facing control must be a document checklist. The checklist must show:
+
+1. not uploaded;
+2. uploaded and scanned;
+3. pending team review;
+4. verified by operator/agent;
+5. replacement required with review reason when available.
+
+The technical `document_type` value may remain hidden for API submission, but users should select document cards, not decode internal document-type values.
+
+### 7.1 Document-first profile completion
+
+For seafarer supply, the standard operating order is:
+
+```text
+minimum identity/context fields
+-> protected document upload
+-> manual completion of fields not available from documents
+-> Save / confirm data
+-> submit to operator review only after backend completeness passes
+```
+
+This order prepares the portal for future AI/OCR assistance without changing the current controlled upload boundary.
+
+Future AI/OCR extraction must:
+
+1. classify the uploaded document type;
+2. extract candidate values;
+3. map values to canonical numbered fields;
+4. mark confidence and ambiguity;
+5. require owner confirmation before accepted values are written into form data;
+6. leave non-extracted values as numbered missing items;
+7. preserve human review and approval guards.
+
+Future AI/OCR extraction must not make employment decisions, approve candidate presentation, or bypass operator review.
 
 ## 8. Canonical Numbering Standard
 
@@ -268,7 +307,7 @@ The page-specific adapter must be small: it maps DOM fields to canonical codes a
 
 | Page / flow | Current status | Next standardization action |
 |---|---|---|
-| `/create-profile/` | Phase E.3 adopted: autosave, `Save / confirm data`, `S-*` missing items, field highlight, role-aware seafarer context, missing-item navigation/highlighting, protected upload helper, backend-first reload after save, explicit checkbox multi-choice for preferred vessel types, finite catalog single-selects, same-address copy and dark-theme contrast corrections. | Keep behavior covered by create-profile regression and apply the same catalog/select, multi-choice and same-address rules to future form adapters. |
+| `/create-profile/` | Phase E.5 adopted: autosave, `Save / confirm data`, `S-*` missing items, field highlight, role-aware seafarer context, document-first protected upload placement, human-readable document checklist, missing-item navigation/highlighting, protected upload helper, backend-first reload after save, explicit checkbox multi-choice for preferred vessel types, finite catalog single-selects, same-address copy and dark-theme contrast corrections. | Keep behavior covered by create-profile regression and apply the same catalog/select, multi-choice, same-address, document-checklist and document-first upload rules to future form adapters. |
 | `/post-vacancy/` | Phase D adopted: employer-side role-aware draft reads, `Save / confirm data`, backend `E/V/R` completeness, missing-item panel, field highlighting, exact field navigation and protected upload use shared lifecycle/upload helpers. | Keep behavior covered by post-vacancy regression and connect future submit-review gate only after backend completeness passes. |
 | `/cabinet/` correction tasks | Partially adopted: correction tasks and source-card links exist. | Use the same missing-item numbering and correction route contract. |
 | `/verify/` review workspace | Partially adopted: computed tasks and review outcomes exist. | Consume lifecycle state labels from a standard task/action contract. |
@@ -288,6 +327,8 @@ Recommended sequence:
 | Phase E.1 | Correct `/create-profile/` hard-reload persistence and vessel-type structured selection. | Completed: backend-first reload, stale local snapshot guard and `vessel_types` multi-select with `Any vessel type`. |
 | Phase E.2 | Correct `/create-profile/` finite catalog selects, repeated-address copy and upload/list contrast. | Completed: catalog-backed `select` controls for finite fields, `Same address` copy from permanent to registration address, and readable upload/document cards in dark theme. |
 | Phase E.3 | Replace hidden multi-select UX with explicit multi-choice control for `/create-profile/` preferred vessel types. | Completed: visible checkbox choices backed by the same structured `preferred_vessel_types` array, with `Any vessel type` kept mutually exclusive. |
+| Phase E.4 | Move `/create-profile/` protected upload into document-first placement and reserve extraction context. | Completed: upload appears immediately after identity/rank/availability, keeps the shared protected-upload helper and includes future AI-assisted confirmation context without OCR side effects. |
+| Phase E.5 | Replace visible document-type dropdown with human-readable document checklist. | Completed: fixed seafarer document types render as cards showing not-uploaded, pending review, verified and replacement-required states while preserving hidden `document_type` for API upload. |
 | Phase F | Connect owner correction tasks to the same numbered missing-item standard. | Consistent correction and resubmission flow. |
 
 ## 13. Prohibited Shortcuts
@@ -340,7 +381,10 @@ The standard is correctly adopted for a form when:
 12. list-valued reference fields use structured selections rather than unvalidated text when a catalog exists;
 13. finite catalog fields use true select controls and preserve selected values after save/reload;
 14. repeated-address copy helpers persist copied values after save/reload;
-15. Playwright/API tests cover save, reload, completeness, upload, role-context, catalog-select and repeated-address behavior.
+15. document-heavy forms place upload early enough to support document-first completion;
+16. finite document catalogs render as a human-readable checklist with replacement states;
+17. future AI/OCR extraction context is documented without bypassing owner confirmation or human review;
+18. Playwright/API tests cover save, reload, completeness, upload, role-context, catalog-select, document checklist, document-first placement and repeated-address behavior.
 
 ## 15. Next Stage
 

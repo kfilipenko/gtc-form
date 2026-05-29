@@ -121,6 +121,7 @@ function cpg_document_public_metadata(array $row): array {
         'review_status' => $row['review_status'],
         'scan_status' => $row['scan_status'],
         'uploaded_at' => $row['uploaded_at'],
+        'reviewed_at' => $row['reviewed_at'] ?? null,
         'valid_from' => $row['valid_from'] ?? null,
         'valid_until' => $row['valid_until'] ?? null,
         'review_note' => $row['review_note'] ?? null,
@@ -480,6 +481,7 @@ function cpg_document_read_documents(string $draftId, ?string $formType = null):
                 review_status,
                 scan_status,
                 uploaded_at,
+                reviewed_at,
                 valid_from,
                 valid_until,
                 review_note

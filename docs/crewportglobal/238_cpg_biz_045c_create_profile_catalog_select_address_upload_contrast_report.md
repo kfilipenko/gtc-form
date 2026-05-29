@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: Project Owner runtime testing of `/create-profile/`
-- Version: 1.1
+- Version: 1.3
 - Date: 2026-05-29
 - Status: Implemented and verified on GTC1
 
@@ -19,7 +19,9 @@
 2. исключить потерю выбора после сохранения и перезагрузки;
 3. сократить повторный ввод адресов через опцию `Same address`;
 4. улучшить читаемость списка загруженных документов и полей формы в темной теме;
-5. закрепить правило в стандарте формы, чтобы аналогичные формы использовали общий механизм.
+5. закрепить правило в стандарте формы, чтобы аналогичные формы использовали общий механизм;
+6. перенести загрузку документов в начало анкеты как основу будущего document-first заполнения профиля;
+7. заменить технический выбор типа документа на понятный список документов со статусами.
 
 ## 2. Найденная системная причина
 
@@ -123,25 +125,126 @@ repeated address blocks should provide explicit same-address copy when applicabl
 form controls and upload lists must remain readable in dark and light themes.
 ```
 
-## 8. Files Changed
+## 8. Document-First Profile Completion
+
+После проверки Project Owner утвержден новый принцип:
+
+```text
+документы загружаются в начале анкеты
+-> система в будущем извлекает данные из документов
+-> пользователь подтверждает предложенные значения
+-> недостающие сведения остаются нумерованными missing items
+```
+
+В `/create-profile/` блок защищенной загрузки перенесен сразу после:
+
+```text
+Identity, rank and availability
+```
+
+Это сделано потому, что документы моряка являются естественным первичным источником данных для:
+
+1. паспорта / ID;
+2. seaman's book;
+3. COC / endorsement;
+4. STCW / training certificates;
+5. medical certificate;
+6. maritime CV / experience records;
+7. visa and other professional evidence.
+
+Текущий этап не включает OCR, AI extraction или автоматическое заполнение. Но UI уже подготовлен к будущей обработке через явный extraction context:
+
+```text
+data-document-first-context="seafarer_profile"
+data-extraction-field-prefix="S"
+data-extraction-mode="future_ai_assisted_confirmation"
+```
+
+### 8.1 Future AI document extraction workflow
+
+Будущий AI/OCR workflow должен выполняться в таком порядке:
+
+| Step | Purpose | Control |
+|---|---|---|
+| Protected upload | Получить файл в защищенное хранилище | Файл не публичный, проходит malware scan |
+| Document classification | Определить тип документа | `passport`, `seamans_book`, `coc`, `medical_certificate`, `visa`, `cv`, etc. |
+| OCR / AI extraction | Извлечь кандидаты значений | Извлеченные данные не становятся финальными автоматически |
+| Canonical mapping | Сопоставить значения с `S-*` полями и справочниками | Rank, department, vessel type, country, certificate, visa |
+| Confidence review | Отметить уверенность | `high_confidence`, `needs_user_confirmation`, `ambiguous`, `not_extracted` |
+| Owner confirmation | Пользователь принимает или исправляет значения | Без подтверждения владельца данные не считаются принятыми |
+| Missing item generation | Показать то, чего нет в документах | Нумерованные `S-*` items остаются в checklist |
+| Operator review | Команда проверяет итоговый профиль и evidence | AI не принимает employment / presentation decisions |
+
+## 9. Human Document Checklist
+
+После дополнительной проверки Project Owner утверждено, что фиксированный список документов не должен выглядеть как технический выпадающий справочник.
+
+В `/create-profile/` видимый `Document type` dropdown заменен на список карточек:
+
+1. Passport / ID;
+2. Seaman's book;
+3. Certificate of competency;
+4. STCW certificate;
+5. Medical certificate;
+6. Maritime CV;
+7. Experience record;
+8. Training certificate;
+9. Language certificate;
+10. Other evidence.
+
+Каждая карточка показывает:
+
+| State | User-facing meaning |
+|---|---|
+| `not uploaded` | Документ пока не загружен. |
+| `uploaded / clean` | Документ загружен и прошел scan. |
+| `pending_human_review` / `under_review` | Документ ожидает проверки команды. |
+| `verified` | Документ подтвержден оператором / агентом через review workflow. |
+| `correction_requested` / `rejected` | Требуется замена документа; показывается причина, если она есть. |
+
+Технический `document_type` сохранен как hidden adapter value для API:
+
+```text
+select#create-document-upload-type[hidden]
+```
+
+Пользователь выбирает карточку документа, затем выбирает файл и нажимает `Upload`. Если документ не прошел проверку, карточка показывает `Replacement required` и та же карточка выбирается для загрузки замены.
+
+Для безопасного owner-view API добавлено поле:
+
+```text
+reviewed_at
+```
+
+Оно позволяет показывать дату подтверждения документа без раскрытия служебных данных исполнителя.
+
+## 10. Files Changed
 
 | File | Change |
 |---|---|
+| `projects/crewportglobal/app/backend/api/lib/document_uploads.php` | Added safe `reviewed_at` to owner-visible uploaded-document metadata so verified document cards can show confirmation date. |
 | `projects/crewportglobal/public/assets/crewportglobal-reference-catalogs.js` | Added reusable catalog-backed `bindSelect()` / `populateSelect()` helper with fallback and legacy-value preservation. |
 | `projects/crewportglobal/public/assets/crewportglobal-app.css` | Added textarea coverage to shared/dark form-control contrast rules. |
-| `projects/crewportglobal/public/create-profile/index.html` | Converted finite catalog fields to true selects, replaced preferred-vessel native multi-select UX with visible checkbox multi-choice, added same-address copy option, improved upload/list contrast and moved upload processing help text. |
-| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regression for catalog selects, explicit preferred-vessel checkbox selection, same-address copy, backend save and reload persistence; updated relation field handling from text fill to select. |
-| `docs/crewportglobal/implemented_code_standards/01_standard_form_lifecycle.md` | Added finite catalog select and repeated-address standard. |
-| `docs/crewportglobal/business_processes/14_standard_form_lifecycle_and_validation_module.md` | Added Phase E.2 lifecycle control. |
-| `docs/crewportglobal/business_processes/00_business_process_register.md` | Added control 53 and revision record. |
-| `docs/crewportglobal/00_documentation_register.md` | Registered document 238. |
+| `projects/crewportglobal/public/create-profile/index.html` | Converted finite catalog fields to true selects, replaced preferred-vessel native multi-select UX with visible checkbox multi-choice, added same-address copy option, improved upload/list contrast, moved upload processing help text, moved protected upload into document-first placement after identity/rank/availability and replaced visible document-type dropdown with human document checklist cards. |
+| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regression for catalog selects, explicit preferred-vessel checkbox selection, same-address copy, backend save and reload persistence, document-first upload placement/extraction context and document-card selection/status rendering. |
+| `docs/crewportglobal/implemented_code_standards/01_standard_form_lifecycle.md` | Added finite catalog select, repeated-address, document-first completion and human document checklist standards. |
+| `docs/crewportglobal/implemented_code_standards/00_implemented_code_standards_register.md` | Updated ICS-001/ICS-002 to include document-first completion and document-checklist adapters through the standard lifecycle/upload model. |
+| `docs/crewportglobal/business_processes/14_standard_form_lifecycle_and_validation_module.md` | Added Phase E.5 lifecycle control, document-checklist behavior and future AI/OCR confirmation boundary. |
+| `docs/crewportglobal/business_processes/00_business_process_register.md` | Added controls 54-55 and revision records for document-first completion and document-checklist upload UI. |
+| `docs/crewportglobal/00_documentation_register.md` | Updated document 238 description and revision record. |
 
-## 9. Verification
+## 11. Verification
 
-### 9.1 Syntax
+### 11.1 Syntax
 
 ```bash
 php -l projects/crewportglobal/app/backend/api/public/index.php
+```
+
+Result: passed.
+
+```bash
+php -l projects/crewportglobal/app/backend/api/lib/document_uploads.php
 ```
 
 Result: passed.
@@ -166,13 +269,13 @@ NODE
 
 Result: checked 2 inline scripts.
 
-### 9.2 Focused Regression
+### 11.2 Focused Regression
 
 ```bash
-npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-create-profile-prefill.spec.ts -g "catalog selects|autosaves contact|multi-role"
+npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-create-profile-prefill.spec.ts
 ```
 
-Result: 3 passed.
+Result: 14 passed.
 
 The test confirms:
 
@@ -182,15 +285,21 @@ The test confirms:
 4. same-address copy fills registration fields;
 5. selected catalog values and copied address values persist in backend metadata;
 6. hard reload restores saved catalog/address values;
-7. contact/address autosave still works.
+7. contact/address autosave still works;
+8. protected upload appears before long manual sections and after identity/rank/availability;
+9. document upload keeps the future AI-assisted confirmation context without OCR side effects;
+10. document type selection is performed through visible document cards while hidden `document_type` preserves API compatibility;
+11. uploaded documents appear under the relevant card with pending/verified/replacement states instead of a separate generic uploaded-file list.
 
-## 10. Remaining Controlled Gaps
+## 12. Remaining Controlled Gaps
 
 1. Large searchable catalogs still use `input + datalist`; a future shared searchable-select control may replace them.
 2. The same-address option is currently implemented for permanent-to-registration address in `/create-profile/`; future forms should use the same standard when they contain repeated address blocks.
 3. Full visual screenshot regression is not yet automated; current coverage is DOM/state and focused functional behavior.
+4. AI/OCR document extraction is intentionally not implemented in this stage; only the placement, standard and future extraction contract are prepared.
+5. Owner-visible document cards show safe review state and `reviewed_at`; detailed reviewer identity remains internal audit data.
 
-## 11. Next Stage
+## 13. Next Stage
 
 This stage is complete.
 

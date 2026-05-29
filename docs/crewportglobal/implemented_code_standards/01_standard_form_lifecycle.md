@@ -4,7 +4,7 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Implemented code standards
 - Document type: Implemented code standard
-- Version: 1.2
+- Version: 1.4
 - Date: 2026-05-29
 - Status: Active
 
@@ -21,7 +21,9 @@ The standard prevents every form from creating its own copy of:
 5. backend-first reload after successful save;
 6. structured list-valued reference-field handling through page adapters;
 7. finite single-select reference-field handling through shared catalog binding;
-8. repeated-address copy helpers when a form asks for the same address more than once.
+8. repeated-address copy helpers when a form asks for the same address more than once;
+9. document-first completion placement for forms where uploaded evidence can later prefill structured fields;
+10. human-readable document checklist rendering instead of technical document-type dropdowns.
 
 ## 2. Applies To
 
@@ -69,6 +71,8 @@ Each page adapter must provide:
 | list-valued control mapping | Maps catalog-backed multi-select values to the canonical payload array. |
 | finite catalog select mapping | Maps matching-critical finite catalog fields to true `select` controls instead of browser `datalist` text inputs. |
 | repeated-address source mapping | Defines which source address fields can copy into the repeated address block. |
+| document-first upload context | Defines whether upload appears before detailed manual fields and which canonical prefix future extraction maps to. |
+| document checklist adapter | Maps allowed document types to visible cards with uploaded/reviewed/replacement state. |
 
 ## 5. Forbidden Local Logic
 
@@ -82,7 +86,9 @@ Pages must not duplicate:
 6. stale-local-snapshot overwrite after backend save;
 7. free-text storage for catalog-backed list fields when a structured catalog exists;
 8. `datalist` controls for finite mandatory or matching-critical catalogs such as civil status, gender, relation or vessel type;
-9. page-local duplicate-address behavior when a shared form lifecycle helper or page adapter can provide it.
+9. page-local duplicate-address behavior when a shared form lifecycle helper or page adapter can provide it;
+10. burying protected document upload after all manual fields when documents are expected to become the first source for future AI/OCR prefill.
+11. exposing document upload primarily through a technical dropdown when a fixed document checklist can show the required evidence more clearly.
 
 ## 6. Reference-Field Control Standard
 
@@ -128,6 +134,43 @@ last vessel type
 ```
 
 and that the repeated registration address can be copied from the permanent address without losing backend persistence after reload.
+
+## 7A. Document-First Completion Standard
+
+When a form can be materially completed from uploaded documents, the upload panel should appear near the beginning of the owner workflow, after the minimum identity/context block and before long manual sections.
+
+For `/create-profile/`, this means:
+
+```text
+Identity, rank and availability
+-> Protected document upload
+-> Manual profile details
+-> Review package
+```
+
+The upload panel must remain protected-upload only until a dedicated AI/OCR extraction workflow is implemented. Future extraction must follow this sequence:
+
+1. protected upload and malware scan;
+2. document classification;
+3. OCR / AI extraction into candidate field values;
+4. canonical field mapping to `S-*`, `E-*`, `V-*` or `R-*` fields;
+5. confidence status per value;
+6. owner confirmation before writing extracted values as accepted form data;
+7. numbered missing-item request for values not found in documents.
+
+AI/OCR assistance must not submit a profile, approve documents, create shortlist decisions or make employment decisions.
+
+For fixed document catalogs, the owner UI should show one document card per allowed document type. Each card should show:
+
+1. document name in human language;
+2. latest uploaded filename when present;
+3. scan status;
+4. human/agent review status;
+5. verified/confirmed state when `review_status = verified`;
+6. replacement-required state when `review_status` is `correction_requested` or `rejected`;
+7. a clear action to select the document type for upload or replacement.
+
+The technical `document_type` control may remain hidden as an adapter detail only when the visible checklist is the user-facing control.
 
 ## 8. Change Propagation Rule
 
