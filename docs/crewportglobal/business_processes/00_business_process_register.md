@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.0
+- Version: 3.1
 - Status: For internal review
 
 ## 1. Purpose
@@ -121,6 +121,7 @@ This documentation block starts from the following approved business controls:
 45. Protected upload panels must show allowed formats and the 10 MB single-file limit before upload; frontend validation, backend validation and runtime web/PHP upload limits must be aligned, and rejected uploads must show a specific reason instead of a generic failure whenever the system can identify it.
 46. All current and future CrewPortGlobal forms must attach to the standard form lifecycle module instead of implementing page-local rules: explicit role/form context, safe draft persistence, backend completeness, protected upload, submit-review gating, correction handoff and computed task creation must follow BP-014.
 47. The first shared frontend lifecycle helper has been extracted. Future form pages must reuse the shared missing-item navigation/highlighting and autosave controller instead of copying page-local lifecycle logic.
+48. The employer-side `/post-vacancy/` demand form must use the standard lifecycle completeness gate: after `Save / confirm data`, backend `E/V/R` missing items must be shown as exact links to company, vessel, crew-request or upload fields before any future operator-review submission can be enabled.
 
 ## 5. Intended Use
 
@@ -140,6 +141,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.1 | 2026-05-28 | GTC IT / AI Assistant | Added Phase C demand-side lifecycle completeness control for `/post-vacancy/`, including E/V/R missing-item rendering and exact field navigation before future submit-review gating |
 | 3.0 | 2026-05-28 | GTC IT / AI Assistant | Added Phase B shared frontend lifecycle helper control after extracting `/create-profile/` missing-item navigation/highlighting and autosave behavior into a reusable module |
 | 2.9 | 2026-05-28 | GTC IT / AI Assistant | Added BP-014 standard form lifecycle and validation module for role-aware draft context, reusable save/completeness/upload behavior, submit-review gating and computed task integration across all forms |
 | 2.8 | 2026-05-28 | GTC IT / AI Assistant | Added protected-upload limit and diagnostics control: upload panels must show allowed formats / 10 MB limit, runtime limits must match application rules and rejected uploads must expose specific causes |

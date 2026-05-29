@@ -85,7 +85,9 @@
       background: rgba(255, 255, 255, 0.04);
     }
 
-    .field-card.is-completeness-target {
+    .field-card.is-completeness-target,
+    .field-card.is-completeness-missing,
+    .document-upload-panel.is-completeness-missing {
       border-color: rgba(255, 139, 51, 0.9);
       background: rgba(255, 139, 51, 0.12);
       box-shadow: 0 0 0 2px rgba(255, 139, 51, 0.18);
@@ -93,7 +95,10 @@
 
     .field-card.is-completeness-target input,
     .field-card.is-completeness-target select,
-    .field-card.is-completeness-target textarea {
+    .field-card.is-completeness-target textarea,
+    .field-card.is-completeness-missing input,
+    .field-card.is-completeness-missing select,
+    .field-card.is-completeness-missing textarea {
       border-color: rgba(255, 139, 51, 0.95);
     }
 
@@ -253,6 +258,40 @@
     .workspace-next-action strong {
       color: var(--text-on-dark);
       line-height: 1.5;
+    }
+
+    .completeness-panel {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .completeness-panel h2,
+    .completeness-panel p {
+      margin: 0;
+    }
+
+    .completeness-panel p,
+    .completeness-panel li {
+      color: var(--muted-on-dark);
+      line-height: 1.55;
+    }
+
+    .completeness-panel a {
+      color: var(--accent);
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .completeness-list {
+      display: grid;
+      gap: 6px;
+      margin: 0;
+      padding-left: 20px;
     }
 
     .candidate-pipeline {
@@ -509,7 +548,7 @@
               </label>
             </div>
             <div class="inline-actions">
-              <button id="post-submit" class="button primary" type="submit" data-i18n="post.form.submit">Save Vacancy Request</button>
+              <button id="post-submit" class="button primary" type="submit" data-i18n="post.form.submit">Save / confirm data</button>
             </div>
             <p id="post-status" class="status-note" data-i18n="post.form.status">This form saves employer, company, vessel and vacancy request context in backend.</p>
             <p id="post-status-detail" class="status-note"></p>
@@ -535,6 +574,12 @@
                 <strong id="post-next-action" data-i18n="post.workspace.next.initial">Save company and vacancy details to submit them for human review.</strong>
               </div>
             </div>
+            <section id="post-completeness-panel" class="completeness-panel" aria-labelledby="post-completeness-title">
+              <p class="eyebrow" data-i18n="post.completeness.eyebrow">Completeness check</p>
+              <h2 id="post-completeness-title" data-i18n="post.completeness.title">Save and check demand readiness</h2>
+              <p id="post-completeness-summary" data-i18n="post.completeness.initial">Save the form to check numbered company, vessel and crew-request fields before operator review.</p>
+              <ol id="post-missing-list" class="completeness-list"></ol>
+            </section>
             <section class="document-upload-panel" aria-labelledby="post-document-upload-title">
               <div>
                 <p class="eyebrow" data-i18n="post.upload.eyebrow">Protected upload</p>
@@ -723,7 +768,7 @@
         'post.upload.review.correction_requested': 'Correction requested',
         'post.upload.review.rejected': 'Rejected',
         'post.upload.review.verified': 'Verified',
-        'post.form.submit': 'Save Vacancy Request',
+        'post.form.submit': 'Save / confirm data',
         'post.form.status': 'This form saves employer, company, vessel and vacancy request context in backend.',
         'post.form.validation': 'Work email and company name are required.',
         'post.form.saving': 'Saving vacancy request...',
@@ -733,6 +778,15 @@
         'post.form.prefilled': 'Saved employer workspace loaded.',
         'post.form.prefillError': 'Could not load saved employer workspace. You can continue with a new request.',
         'post.form.savedDetail': 'Draft ID: {draftId} | Company type: {companyType} | Verification: {verificationStatus} | Contact role: {roleInCompany} | Vacancy: {vacancyStatus}',
+        'post.completeness.eyebrow': 'Completeness check',
+        'post.completeness.title': 'Save and check demand readiness',
+        'post.completeness.initial': 'Save the form to check numbered company, vessel and crew-request fields before operator review.',
+        'post.completeness.loading': 'Checking company, vessel and crew-request completeness...',
+        'post.completeness.ready': 'Ready for operator review. Required company, vessel and crew-request items are complete.',
+        'post.completeness.missing': 'Complete numbered items before operator review: {count}.',
+        'post.completeness.empty': 'No missing required items.',
+        'post.completeness.error': 'Could not check completeness. Save again or reload the draft.',
+        'post.completeness.openSection': 'Open section',
         'post.workspace.company': 'Company verification',
         'post.workspace.vacancy': 'Vacancy request',
         'post.workspace.publication': 'Public vacancy board',
@@ -893,7 +947,7 @@
         'post.upload.review.correction_requested': 'Требуется исправление',
         'post.upload.review.rejected': 'Отклонен',
         'post.upload.review.verified': 'Проверен',
-        'post.form.submit': 'Сохранить заявку на вакансию',
+        'post.form.submit': 'Сохранить / подтвердить данные',
         'post.form.status': 'Эта форма сохраняет работодателя, компанию, судно и заявку на вакансию в backend.',
         'post.form.validation': 'Укажите рабочий email и название компании.',
         'post.form.saving': 'Сохраняем заявку на вакансию...',
@@ -903,6 +957,15 @@
         'post.form.prefilled': 'Сохраненное рабочее пространство работодателя загружено.',
         'post.form.prefillError': 'Не удалось загрузить сохраненное рабочее пространство. Можно продолжить с новой заявкой.',
         'post.form.savedDetail': 'Draft ID: {draftId} | Тип компании: {companyType} | Верификация: {verificationStatus} | Роль контакта: {roleInCompany} | Вакансия: {vacancyStatus}',
+        'post.completeness.eyebrow': 'Пакет проверки',
+        'post.completeness.title': 'Сохранение и проверка полноты заявки',
+        'post.completeness.initial': 'Сохраните форму, чтобы проверить нумерованные поля компании, судна и заявки перед проверкой оператором.',
+        'post.completeness.loading': 'Проверяем полноту компании, судна и заявки...',
+        'post.completeness.ready': 'Готово к проверке оператором. Обязательные пункты компании, судна и заявки заполнены.',
+        'post.completeness.missing': 'Заполните нумерованные пункты перед проверкой оператором: {count}.',
+        'post.completeness.empty': 'Нет недостающих обязательных пунктов.',
+        'post.completeness.error': 'Не удалось проверить полноту. Сохраните еще раз или перезагрузите черновик.',
+        'post.completeness.openSection': 'Открыть раздел',
         'post.workspace.company': 'Проверка компании',
         'post.workspace.vacancy': 'Заявка на вакансию',
         'post.workspace.publication': 'Публичная доска вакансий',
@@ -965,6 +1028,7 @@
     };
   </script>
   <script src="../assets/crewportglobal-registration-drafts.js"></script>
+  <script src="../assets/crewportglobal-form-lifecycle.js"></script>
   <script src="../assets/crewportglobal-reference-catalogs.js"></script>
   <script src="../assets/crewportglobal-public-i18n.js" defer></script>
   <script>
@@ -1004,10 +1068,54 @@
       const uploadStatus = document.getElementById('post-document-upload-status');
       const documentActionList = document.getElementById('post-document-action-list');
       const uploadList = document.getElementById('post-document-upload-list');
+      const completenessSummary = document.getElementById('post-completeness-summary');
+      const missingList = document.getElementById('post-missing-list');
       const documentMaxFileSizeBytes = 10 * 1024 * 1024;
       const documentAllowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
       const documentAllowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.webp'];
       let currentWorkspaceResponse = null;
+      let latestCompleteness = null;
+
+      const completenessFieldTargets = {
+        'E-1.1': ['post-email'],
+        'E-1.2': ['post-full-name'],
+        'E-1.3': ['post-role'],
+        'E-2.1': ['post-company'],
+        'E-2.2': ['post-country'],
+        'E-2.3': ['post-registration-number'],
+        'E-3.1': ['post-role-in-company'],
+        'E-4.D1': ['post-document-upload-type'],
+        'E-4.D2': ['post-document-upload-type'],
+        'E-4.D3': ['post-document-upload-type'],
+        'V-1.1': ['post-vessel-name'],
+        'V-1.2': ['post-imo'],
+        'V-2.1': ['post-vessel-type'],
+        'V-4.D1': ['post-document-upload-type'],
+        'R-1.1': ['post-vacancy-title'],
+        'R-1.2': ['post-department'],
+        'R-2.1': ['post-vessel-type'],
+        'R-3.1': ['post-join-date'],
+        'R-4.1': ['post-duration'],
+        'R-4.2': ['post-salary-min'],
+        'R-4.3': ['post-salary-max'],
+        'R-4.4': ['post-salary-min']
+      };
+
+      const completenessSectionTargets = Object.keys(completenessFieldTargets).reduce((targets, fieldCode) => {
+        targets[fieldCode] = completenessFieldTargets[fieldCode][0];
+        return targets;
+      }, {});
+      ['E-4.D1', 'E-4.D2', 'E-4.D3', 'V-4.D1'].forEach((fieldCode) => {
+        completenessSectionTargets[fieldCode] = 'post-document-upload-title';
+      });
+
+      const completenessNavigator = window.CPGFormLifecycle.createCompletenessNavigator({
+        fieldTargets: completenessFieldTargets,
+        sectionTargets: completenessSectionTargets,
+        defaultPath: '/post-vacancy/',
+        getDraftId: currentDraftId,
+        fallbackLabel: () => t('post.completeness.openSection')
+      });
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -1086,6 +1194,42 @@
             target.focus({ preventScroll: true });
           }
         }, 120);
+      }
+
+      function renderCompleteness(completeness) {
+        if (!completeness) {
+          completenessSummary.textContent = t('post.completeness.initial');
+          missingList.innerHTML = '';
+          completenessNavigator.clearHighlights();
+          return;
+        }
+
+        latestCompleteness = completeness;
+        const missingItems = Array.isArray(completeness.missing_items) ? completeness.missing_items : [];
+        const canSubmit = completeness.can_submit_to_operator === true;
+        completenessSummary.textContent = canSubmit
+          ? t('post.completeness.ready')
+          : tp('post.completeness.missing', { count: missingItems.length });
+        completenessNavigator.renderMissingList(missingList, missingItems, t('post.completeness.empty'));
+      }
+
+      async function refreshCompleteness(draftId) {
+        if (!draftId) {
+          renderCompleteness(null);
+          return null;
+        }
+
+        completenessSummary.textContent = t('post.completeness.loading');
+        try {
+          const response = await window.CPGDrafts.getCompleteness(draftId, { role: role.value || 'employer' });
+          const completeness = response && response.completeness ? response.completeness : null;
+          renderCompleteness(completeness);
+          return completeness;
+        } catch (error) {
+          completenessSummary.textContent = t('post.completeness.error');
+          console.error(error);
+          return null;
+        }
       }
 
       function valueOrDash(value) {
@@ -1451,6 +1595,7 @@
             ? t('post.upload.status.uploaded')
             : `${t('post.upload.meta.scan')}: ${valueOrDash(response.document && response.document.scan_status)}`;
           await refreshUploadedDocuments();
+          await refreshCompleteness(draftId);
         } catch (error) {
           uploadStatus.textContent = tp('post.upload.status.errorDetail', {
             message: documentUploadServerErrorMessage(error)
@@ -1594,6 +1739,7 @@
           const response = await window.CPGDrafts.getDraft(draftId, { role: role.value || 'employer' });
           prefillFromDraft(response);
           refreshUploadedDocuments();
+          refreshCompleteness(response.draft_id);
           status.textContent = t('post.form.prefilled');
         } catch (error) {
           status.textContent = t('post.form.prefillError');
@@ -1674,6 +1820,7 @@
           const companyPayload = response && response.payload && response.payload.company ? response.payload.company : {};
           const vacancyResponse = response && response.payload && response.payload.vacancy_request ? response.payload.vacancy_request : {};
           renderWorkspaceStatus(response);
+          await refreshCompleteness(response.draft_id);
           statusDetail.textContent = tp('post.form.savedDetail', {
             draftId: response.draft_id || '-',
             companyType: companyPayload.company_type || '-',
@@ -1713,11 +1860,13 @@
 
       window.addEventListener('crewportglobal:languagechange', () => {
         renderWorkspaceStatus(currentWorkspaceResponse);
+        renderCompleteness(latestCompleteness);
         refreshUploadedDocuments();
       });
       window.addEventListener('hashchange', highlightTargetFieldFromHash);
 
       renderWorkspaceStatus(null);
+      renderCompleteness(null);
       loadExistingDraft().finally(() => {
         refreshUploadedDocuments();
         highlightTargetFieldFromHash();

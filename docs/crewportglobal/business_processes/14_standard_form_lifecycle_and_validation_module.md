@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Business-process standard and implementation control
 - Source task: Project Owner approval after CPG-BIZ-040 multi-role upload diagnostics
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-05-28
 - Status: Approved standard for staged implementation
 
@@ -263,7 +263,7 @@ The page-specific adapter must be small: it maps DOM fields to canonical codes a
 | Page / flow | Current status | Next standardization action |
 |---|---|---|
 | `/create-profile/` | Phase B adopted: autosave, `Save / confirm data`, `S-*` missing items, field highlight, role-aware seafarer context and protected upload diagnostics exist; missing-item navigation/highlighting and autosave controller now use the shared frontend lifecycle helper. | Keep behavior covered by create-profile regression and reuse the same helper in later forms. |
-| `/post-vacancy/` | Partially adopted: employer-side upload diagnostics and role-aware draft reads exist; full `E/V/R` Save/completeness UI is still next. | Apply the same one-button completeness gate for employer, vessel and crew request streams. |
+| `/post-vacancy/` | Phase C adopted: employer-side role-aware draft reads, protected upload diagnostics, `Save / confirm data`, backend `E/V/R` completeness, missing-item panel, field highlighting and exact field navigation are implemented. | Keep behavior covered by post-vacancy regression; next normalize upload UI through shared upload helper. |
 | `/cabinet/` correction tasks | Partially adopted: correction tasks and source-card links exist. | Use the same missing-item numbering and correction route contract. |
 | `/verify/` review workspace | Partially adopted: computed tasks and review outcomes exist. | Consume lifecycle state labels from a standard task/action contract. |
 | `/team/` task lists | Partially adopted: task title, stage and visibility condition exist. | Continue aligning task state with lifecycle result and object stream. |
@@ -276,7 +276,7 @@ Recommended sequence:
 |---|---|---|
 | Phase A | Document this standard and register it. | BP-014 and project report. |
 | Phase B | Extract frontend lifecycle helper without changing user-visible behavior. | Completed for `/create-profile/`: shared module and regression tests. |
-| Phase C | Apply full `Save / confirm data` completeness gate to `/post-vacancy/`. | `E/V/R` missing items, highlights and submit boundary. |
+| Phase C | Apply full `Save / confirm data` completeness gate to `/post-vacancy/`. | Completed for employer/company, vessel and crew-request missing items, highlighting and field navigation. |
 | Phase D | Normalize protected upload UI through a shared upload helper. | Same upload behavior on all forms. |
 | Phase E | Add submit-review endpoint gated by backend completeness. | Controlled state transition and team task creation. |
 | Phase F | Connect owner correction tasks to the same numbered missing-item standard. | Consistent correction and resubmission flow. |
@@ -310,12 +310,12 @@ The standard is correctly adopted for a form when:
 
 ## 15. Next Stage
 
-The Phase B extraction is complete for `/create-profile/`.
+The Phase C `/post-vacancy/` completeness-gate adoption is complete.
 
-The next implementation stage should apply the standard to the employer-side demand form:
+The next implementation stage should normalize upload behavior through a shared helper:
 
 ```text
-CPG-BIZ-043 - Apply standard Save/completeness lifecycle to /post-vacancy/
+CPG-BIZ-044 - Shared protected upload helper normalization
 ```
 
-That phase should connect `/post-vacancy/` to the shared lifecycle helper and backend completeness so employer/company, vessel and crew-request streams show `E-*`, `V-*` and `R-*` missing items before any operator-review submission is possible.
+That phase should move current protected-upload validation and status rendering from `/create-profile/` and `/post-vacancy/` into a reusable frontend helper while preserving allowed formats, 10 MB limit, role/form context and exact backend error messages.

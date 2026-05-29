@@ -103,6 +103,41 @@ test('post vacancy document upload shows exact file limit and type validation', 
   await expect(page.locator('#post-document-upload-status')).toContainText('Unsupported file type');
 });
 
+test('post vacancy save confirm renders demand completeness items and opens exact fields', async ({ page }) => {
+  const unique = Date.now();
+  const email = `ui.postvacancy.completeness.${unique}@example.com`;
+
+  await page.goto('/post-vacancy/');
+  await page.evaluate(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem('crewportglobal.language', 'en');
+  });
+  await page.goto('/post-vacancy/');
+
+  await page.locator('#post-email').fill(email);
+  await page.locator('#post-company').fill(`Completeness Demand Marine ${unique}`);
+  await page.locator('#post-country').fill('AE');
+  await page.locator('#post-registration-number').fill(`AE-COMPLETE-${unique}`);
+  await page.locator('#post-submit').click();
+
+  await expect(page.locator('#post-status')).toContainText('saved successfully');
+  await expect(page.locator('#post-completeness-summary')).toContainText('Complete numbered items');
+  await expect(page.locator('#post-missing-list')).toContainText('E-1.2: Primary contact name');
+  await expect(page.locator('#post-missing-list')).toContainText('E-4.D1: Company registration document');
+  await expect(page.locator('#post-missing-list')).toContainText('V-2.1: Vessel type');
+  await expect(page.locator('#post-missing-list')).toContainText('R-1.1: Requested rank');
+  await expect(page.locator('#post-missing-list')).toContainText('R-3.1: Joining date');
+  await expect(page.locator('label:has(#post-vessel-type)')).toHaveClass(/is-completeness-missing/);
+
+  const draftId = await page.evaluate(() => new URLSearchParams(window.location.search).get('draft_id') || '');
+  expect(draftId).not.toBe('');
+
+  await page.locator('#post-missing-list a', { hasText: 'R-3.1' }).click();
+  await expect(page).toHaveURL(new RegExp(`/post-vacancy/\\?draft_id=${draftId}#post-join-date$`));
+  await expect(page.locator('label:has(#post-join-date)')).toHaveClass(/is-completeness-missing/);
+  await expect(page.locator('#post-join-date')).toBeFocused();
+});
+
 async function acceptPresentationConsents(request: APIRequestContext, draftId: string): Promise<void> {
   for (const consentType of ['matching_preparation', 'employer_sharing']) {
     const response = await request.post('/api/v1/seafarer/consents', {
