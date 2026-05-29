@@ -278,7 +278,7 @@ Recommended sequence:
 | Phase B | Extract frontend lifecycle helper without changing user-visible behavior. | Completed for `/create-profile/`: shared module and regression tests. |
 | Phase C | Apply full `Save / confirm data` completeness gate to `/post-vacancy/`. | Completed for employer/company, vessel and crew-request missing items, highlighting and field navigation. |
 | Phase D | Normalize protected upload UI through a shared upload helper. | Completed for `/create-profile/` and `/post-vacancy/`: same upload validation, status rendering, uploaded-document list and correction-task rendering. |
-| Phase E | Add submit-review endpoint gated by backend completeness. | Controlled state transition and team task creation. |
+| Phase E | Add submit-review endpoint gated by backend completeness. | Completed: `ICS-003` submit-to-operator review gate, explicit submit endpoint, audit event and no operator task from save/autosave. |
 | Phase F | Connect owner correction tasks to the same numbered missing-item standard. | Consistent correction and resubmission flow. |
 
 ## 13. Prohibited Shortcuts
@@ -311,6 +311,7 @@ The current lifecycle-related implemented standards are:
 |---|---|---|
 | `ICS-001` | Standard form lifecycle | `projects/crewportglobal/public/assets/crewportglobal-form-lifecycle.js` |
 | `ICS-002` | Standard protected upload | `projects/crewportglobal/public/assets/crewportglobal-protected-upload.js` |
+| `ICS-003` | Submit-to-operator review gate | `projects/crewportglobal/app/backend/api/public/index.php` / `handle_post_draft_submit_review()` |
 
 ## 14. Acceptance Criteria
 
@@ -329,12 +330,12 @@ The standard is correctly adopted for a form when:
 
 ## 15. Next Stage
 
-The Phase D shared protected-upload helper normalization is complete.
+The Phase E submit-to-operator review gate is complete.
 
-The next implementation stage should add submit-review gating:
+The next implementation stage should apply the same gate to owner correction resubmission:
 
 ```text
-CPG-BIZ-045 - Submit-to-operator review gate
+CPG-BIZ-046 - Owner correction resubmission gate and computed task recomputation alignment
 ```
 
-That phase should enable operator-review submission only after backend completeness passes, write audit evidence and compute the next team task without bypassing role, assignment, visibility or data-minimization controls.
+That phase should ensure that owner corrections use the same save -> completeness -> explicit submit sequence and that computed tasks disappear/reappear according to the approved process-state model.

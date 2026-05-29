@@ -167,6 +167,67 @@ async function acceptPresentationConsents(request: APIRequestContext, draftId: s
   }
 }
 
+async function uploadCleanApiDocument(
+  request: APIRequestContext,
+  draftId: string,
+  formType: string,
+  documentType: string,
+  name: string
+): Promise<Record<string, unknown>> {
+  const response = await request.post(`/registration/drafts/${draftId}/documents`, {
+    multipart: {
+      form_type: formType,
+      document_type: documentType,
+      file: {
+        name,
+        mimeType: 'application/pdf',
+        buffer: minimalPdfBuffer(`${formType}-${documentType}`),
+      },
+    },
+  });
+  expect(response.status()).toBe(201);
+  const body = await response.json();
+  expect(body.document.scan_status).toBe('clean');
+  expect(body.document.review_status).toBe('pending_human_review');
+  expect(body.document.upload_state).toBe('stored_protected');
+  return body.document as Record<string, unknown>;
+}
+
+async function uploadRequiredSeafarerDocuments(request: APIRequestContext, draftId: string, prefix: string): Promise<void> {
+  await uploadCleanApiDocument(request, draftId, 'seafarer', 'passport_or_id', `${prefix}-passport.pdf`);
+  await uploadCleanApiDocument(request, draftId, 'seafarer', 'medical_certificate', `${prefix}-medical.pdf`);
+  await uploadCleanApiDocument(request, draftId, 'seafarer', 'maritime_cv', `${prefix}-cv.pdf`);
+}
+
+async function uploadRequiredDemandDocuments(
+  request: APIRequestContext,
+  draftId: string,
+  prefix: string,
+  options: { includeVessel?: boolean } = {}
+): Promise<void> {
+  await uploadCleanApiDocument(request, draftId, 'employer', 'company_registration', `${prefix}-company-registration.pdf`);
+  await uploadCleanApiDocument(request, draftId, 'employer', 'representative_id', `${prefix}-representative-id.pdf`);
+  await uploadCleanApiDocument(request, draftId, 'employer', 'authorization_letter', `${prefix}-authorization-letter.pdf`);
+  if (options.includeVessel !== false) {
+    await uploadCleanApiDocument(request, draftId, 'vessel', 'vessel_particulars', `${prefix}-vessel-particulars.pdf`);
+  }
+}
+
+async function submitDraftForOperatorReview(
+  request: APIRequestContext,
+  draftId: string,
+  role: 'seafarer' | 'employer'
+): Promise<Record<string, any>> {
+  const submitResponse = await request.post(`/registration/drafts/${draftId}/submit-review`, {
+    data: {
+      role,
+    },
+  });
+  const submitBodyText = await submitResponse.text();
+  expect(submitResponse.ok(), submitBodyText).toBeTruthy();
+  return JSON.parse(submitBodyText) as Record<string, any>;
+}
+
 function readLatestDocumentAudit(documentId: string, eventType: string): Record<string, string> {
   const safeDocumentId = documentId.replace(/'/g, "''");
   const safeEventType = eventType.replace(/'/g, "''");
@@ -769,6 +830,97 @@ test('questionnaire completeness endpoint reports demand streams and required do
   expect(body.side_effects.created_operator_task).toBe(false);
 });
 
+test('submit review gate blocks incomplete seafarer draft without creating operator task', async ({ request }) => {
+  const unique = Date.now();
+  const email = `api.submitgate.blocked.${unique}@example.com`;
+
+  const createResponse = await request.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Blocked Submit Candidate',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = (await createResponse.json()) as DraftResponse;
+  expect((created.payload.seafarer_profile as Record<string, unknown>).review_status).toBe('draft');
+
+  const submitResponse = await request.post(`/registration/drafts/${created.draft_id}/submit-review`, {
+    data: {
+      role: 'seafarer',
+    },
+  });
+  expect(submitResponse.status()).toBe(409);
+  const body = await submitResponse.json();
+  expect(body.error).toBe('submit_review_gate_blocked');
+  expect(body.completeness.can_submit_to_operator).toBe(false);
+  expect(body.side_effects).toEqual(
+    expect.objectContaining({
+      created_operator_task: false,
+      changed_review_status: false,
+      changed_publication_status: false,
+    })
+  );
+
+  const queueResponse = await request.get('/operator/review-queue');
+  expect(queueResponse.status()).toBe(200);
+  const queueBody = await queueResponse.json();
+  const queueItem = queueBody.queue.find((item: Record<string, unknown>) => item.draft_id === created.draft_id);
+  expect(queueItem).toBeUndefined();
+});
+
+test('submit review gate submits complete seafarer draft after required documents are present', async ({ request }) => {
+  const unique = Date.now();
+  const email = `api.submitgate.seafarer.${unique}@example.com`;
+
+  const createResponse = await request.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Complete Submit Candidate',
+      rank: 'Able Seaman',
+      department: 'deck',
+      availability_status: 'available_now',
+      nationality_code: 'UA',
+      residence_country_code: 'AE',
+      preferred_vessel_types: ['Bulk Carrier'],
+      salary_expectation_usd: 3200,
+      contact_phone: '+971500000123',
+      document_metadata: {
+        passport_expiry: '2030-01-01',
+        medical_expiry: '2028-01-01',
+        seafarer_workspace: {
+          matching_publication: {
+            data_processing_confirmation: 'i_confirm',
+          },
+        },
+      },
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = (await createResponse.json()) as DraftResponse;
+  expect((created.payload.seafarer_profile as Record<string, unknown>).review_status).toBe('draft');
+
+  await uploadRequiredSeafarerDocuments(request, created.draft_id, 'submit');
+
+  const completenessResponse = await request.get(`/registration/drafts/${created.draft_id}/completeness?role=seafarer`);
+  expect(completenessResponse.status()).toBe(200);
+  const completenessBody = await completenessResponse.json();
+  expect(completenessBody.completeness.can_submit_to_operator).toBe(true);
+
+  const submitBody = await submitDraftForOperatorReview(request, created.draft_id, 'seafarer');
+  expect(submitBody.submit_review_gate.gate_status).toBe('passed');
+  expect(submitBody.side_effects.changed_review_status).toBe(true);
+  expect((submitBody.payload.seafarer_profile as Record<string, unknown>).review_status).toBe('submitted_for_human_review');
+
+  const queueResponse = await request.get('/operator/review-queue');
+  expect(queueResponse.status()).toBe(200);
+  const queueBody = await queueResponse.json();
+  const queueItem = queueBody.queue.find((item: Record<string, unknown>) => item.draft_id === created.draft_id && item.queue_type === 'seafarer_profile');
+  expect(queueItem).toBeTruthy();
+  expect(queueItem.status).toBe('submitted_for_human_review');
+});
+
 test('seafarer document upload stores clean PDF metadata and protected file', async ({ request }) => {
   const unique = Date.now();
   const email = `api.upload.seafarer.${unique}@example.com`;
@@ -1245,7 +1397,7 @@ test('employer vacancy request flows through review to public vacancy board', as
   const vacancy = created.payload.vacancy_request as Record<string, unknown>;
   expect(vacancy.vacancy_title).toBe('Chief Officer');
   expect(vacancy.department).toBe('deck');
-  expect(vacancy.publication_status).toBe('submitted_for_human_review');
+  expect(vacancy.publication_status).toBe('draft');
   expect(vacancy.required_rank_label).toBe('Chief Officer');
   expect(typeof vacancy.required_rank_value_id).toBe('string');
   expect(vacancy.vessel_type_label).toBe('Bulk Carrier');
@@ -1403,6 +1555,14 @@ test('employer vacancy request flows through review to public vacancy board', as
       source: 'operator_structured',
     })
   );
+
+  await uploadRequiredDemandDocuments(request, created.draft_id, 'company', { includeVessel: true });
+
+  const submitted = (await submitDraftForOperatorReview(request, created.draft_id, 'employer')) as DraftResponse & {
+    side_effects: Record<string, unknown>;
+  };
+  expect(submitted.side_effects.changed_publication_status).toBe(true);
+  expect((submitted.payload.vacancy_request as Record<string, unknown>).publication_status).toBe('submitted_for_human_review');
 
   const queueResponse = await request.get('/operator/review-queue');
   expect(queueResponse.status()).toBe(200);
@@ -2231,27 +2391,71 @@ test('operator candidate search returns read-only exact matches and blockers', a
 
 test('operator review queue returns submitted seafarer and company drafts', async ({ request }) => {
   const unique = Date.now();
+  const seafarerEmail = `api.queue.seafarer.${unique}@example.com`;
+  const employerEmail = `api.queue.employer.${unique}@example.com`;
+  const vacancyTitle = `Queue Request Chief Officer ${unique}`;
 
   const seafarerCreate = await request.post('/registration/drafts', {
     data: {
       role: 'seafarer',
-      email: `api.queue.seafarer.${unique}@example.com`,
+      email: seafarerEmail,
       full_name: 'Queue Seafarer',
+      rank: 'Able Seaman',
+      department: 'deck',
       availability_status: 'available_now',
+      nationality_code: 'UA',
+      residence_country_code: 'AE',
+      preferred_vessel_types: ['Bulk Carrier'],
+      salary_expectation_usd: 3200,
+      contact_phone: '+971500000221',
+      document_metadata: {
+        passport_expiry: '2030-01-01',
+        medical_expiry: '2028-01-01',
+        seafarer_workspace: {
+          matching_publication: {
+            data_processing_confirmation: 'i_confirm',
+          },
+        },
+      },
     },
   });
   expect(seafarerCreate.status()).toBe(201);
+  const seafarer = (await seafarerCreate.json()) as DraftResponse;
+  await uploadRequiredSeafarerDocuments(request, seafarer.draft_id, 'queue-seafarer');
+  await submitDraftForOperatorReview(request, seafarer.draft_id, 'seafarer');
 
   const companyCreate = await request.post('/registration/drafts', {
     data: {
       role: 'employer',
-      email: `api.queue.employer.${unique}@example.com`,
+      role_in_company: 'manager',
+      email: employerEmail,
       full_name: 'Queue Employer',
       company_name: 'Queue Marine LLC',
       country_code: 'AE',
+      registration_number: `AE-QUEUE-${unique}`,
+      vessel: {
+        vessel_name: 'MV Queue Review',
+        vessel_type: 'Bulk Carrier',
+        imo_number: 'IMO9304321',
+      },
+      vacancy: {
+        vacancy_title: vacancyTitle,
+        rank: 'Chief Officer',
+        department: 'deck',
+        vessel_type: 'Bulk Carrier',
+        join_date: '2026-08-15',
+        contract_duration: '4 months',
+        salary_min_usd: 6500,
+        salary_max_usd: 7200,
+        currency: 'USD',
+        requirements: 'Synthetic queue visibility test.',
+      },
     },
   });
   expect(companyCreate.status()).toBe(201);
+  const company = (await companyCreate.json()) as DraftResponse;
+  await uploadRequiredDemandDocuments(request, company.draft_id, 'queue-employer', { includeVessel: true });
+  await submitDraftForOperatorReview(request, company.draft_id, 'employer');
 
   const queueResponse = await request.get('/operator/review-queue');
   expect(queueResponse.status()).toBe(200);
@@ -2266,11 +2470,19 @@ test('operator review queue returns submitted seafarer and company drafts', asyn
   expect(Array.isArray(queueBody.queue)).toBe(true);
   expect(queueBody.count).toBeGreaterThan(0);
 
-  const hasSeafarer = queueBody.queue.some((item) => item.queue_type === 'seafarer_profile' && item.role === 'seafarer');
-  const hasCompany = queueBody.queue.some((item) => item.queue_type === 'company_verification' && item.role === 'employer');
+  const hasSeafarer = queueBody.queue.some((item) => {
+    return item.queue_type === 'seafarer_profile' && item.role === 'seafarer' && item.draft_id === seafarer.draft_id;
+  });
+  const hasCompany = queueBody.queue.some((item) => {
+    return item.queue_type === 'company_verification' && item.role === 'employer' && item.draft_id === company.draft_id;
+  });
+  const hasVacancy = queueBody.queue.some((item) => {
+    return item.queue_type === 'vacancy_request' && item.role === 'employer' && JSON.stringify(item).includes(vacancyTitle);
+  });
 
   expect(hasSeafarer).toBe(true);
   expect(hasCompany).toBe(true);
+  expect(hasVacancy).toBe(true);
 });
 
 test('operator queue accepts account session with review team membership', async () => {
@@ -2306,6 +2518,9 @@ test('operator queue accepts account session with review team membership', async
         vessel_type: 'Container Ship',
         join_date: '2026-10-10',
         contract_duration: '4 months',
+        salary_min_usd: 4200,
+        salary_max_usd: 4800,
+        currency: 'USD',
         requirements: 'Synthetic account-session operator access test.',
       },
     },
@@ -2345,6 +2560,10 @@ WHERE u.user_id = '${accountUserId.replace(/'/g, "''")}'::uuid;
   const meBody = await meResponse.text();
   expect(meResponse.ok(), meBody).toBeTruthy();
   expect(JSON.parse(meBody).authenticated).toBe(true);
+
+  await uploadRequiredDemandDocuments(accountContext, created.draft_id, 'account-session', { includeVessel: false });
+  const submitBody = await submitDraftForOperatorReview(accountContext, created.draft_id, 'employer');
+  expect(submitBody.submit_review_gate.gate_status).toBe('passed');
 
   const queueResponse = await accountContext.get('/operator/review-queue');
   const queueBody = await queueResponse.text();
@@ -2392,6 +2611,9 @@ test('operator can request vacancy deletion without physical delete', async ({ r
         vessel_type: 'Bulk Carrier',
         join_date: '2026-09-20',
         contract_duration: '3 months',
+        salary_min_usd: 3800,
+        salary_max_usd: 4200,
+        currency: 'USD',
         requirements: 'Synthetic vacancy deletion request test.',
       },
     },
@@ -2400,6 +2622,9 @@ test('operator can request vacancy deletion without physical delete', async ({ r
   const created = (await createResponse.json()) as DraftResponse;
   const vacancy = created.payload.vacancy_request as Record<string, unknown>;
   const vacancyId = vacancy.vacancy_request_id as string;
+
+  await uploadRequiredDemandDocuments(request, created.draft_id, 'delete-request', { includeVessel: true });
+  await submitDraftForOperatorReview(request, created.draft_id, 'employer');
 
   const queueBeforeResponse = await request.get('/operator/review-queue');
   expect(queueBeforeResponse.status()).toBe(200);
@@ -2595,12 +2820,30 @@ test('operator decision endpoint updates draft review status', async ({ request 
       role: 'seafarer',
       email,
       full_name: 'Operator Decision Seafarer',
+      rank: 'Able Seaman',
+      department: 'deck',
       availability_status: 'available_now',
+      nationality_code: 'UA',
+      residence_country_code: 'AE',
+      preferred_vessel_types: ['Bulk Carrier'],
+      salary_expectation_usd: 3200,
+      contact_phone: '+971500000331',
+      document_metadata: {
+        passport_expiry: '2030-01-01',
+        medical_expiry: '2028-01-01',
+        seafarer_workspace: {
+          matching_publication: {
+            data_processing_confirmation: 'i_confirm',
+          },
+        },
+      },
     },
   });
   expect(createResponse.status()).toBe(201);
 
   const created = (await createResponse.json()) as DraftResponse;
+  await uploadRequiredSeafarerDocuments(request, created.draft_id, 'operator-decision');
+  await submitDraftForOperatorReview(request, created.draft_id, 'seafarer');
 
   const decisionResponse = await request.patch(`/operator/review-queue/${created.draft_id}/status`, {
     data: {

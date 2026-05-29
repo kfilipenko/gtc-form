@@ -7816,7 +7816,10 @@ function upsert_vacancy_request(string $userId, string $companyId, ?string $vess
                  required_seaman_book_validity_days = COALESCE($22, required_seaman_book_validity_days),
                  required_medical_validity_days = COALESCE($23, required_medical_validity_days),
                  demand_workspace = COALESCE(demand_workspace, jsonb_build_object()) || COALESCE($24::jsonb, jsonb_build_object()),
-                 publication_status = $25,
+                 publication_status = CASE
+                   WHEN publication_status IN (\'submitted_for_human_review\', \'in_review\', \'published\', \'closed\') THEN publication_status
+                   ELSE $25
+                 END,
                  updated_at = now()
              WHERE vacancy_request_id = $1
              RETURNING vacancy_request_id',
@@ -7845,7 +7848,7 @@ function upsert_vacancy_request(string $userId, string $companyId, ?string $vess
                 $vacancy['required_seaman_book_validity_days'],
                 $vacancy['required_medical_validity_days'],
                 cpg_workspace_json($vacancy['demand_workspace']),
-                'submitted_for_human_review',
+                'draft',
             ]
         );
 
@@ -7941,7 +7944,7 @@ function upsert_vacancy_request(string $userId, string $companyId, ?string $vess
             $vacancy['required_seaman_book_validity_days'],
             $vacancy['required_medical_validity_days'],
             cpg_workspace_json($vacancy['demand_workspace']),
-            'submitted_for_human_review',
+            'draft',
         ]
     );
 
@@ -9228,6 +9231,178 @@ function handle_get_draft_completeness(string $draftId): void {
     api_json(200, cpg_registration_draft_completeness($uuid, $preferredRole));
 }
 
+function cpg_draft_submit_review_blocked_payload(string $draftId, ?string $preferredRole = null): array {
+    $result = cpg_registration_draft_completeness($draftId, $preferredRole);
+    $result['ok'] = false;
+    $result['error'] = 'submit_review_gate_blocked';
+    $result['message'] = 'Questionnaire cannot be submitted for operator review until required fields, documents and corrections are complete';
+    $result['submit_review_gate'] = [
+        'gate_status' => 'blocked',
+        'blocker_codes' => array_values(array_unique(array_map(
+            static fn(array $item): string => is_string($item['blocker_code'] ?? null) ? (string) $item['blocker_code'] : 'unknown_blocker',
+            is_array($result['completeness']['missing_items'] ?? null) ? $result['completeness']['missing_items'] : []
+        ))),
+        'missing_item_count' => (int) ($result['completeness']['counts']['missing_items'] ?? 0),
+        'unresolved_correction_count' => (int) ($result['completeness']['counts']['unresolved_corrections'] ?? 0),
+    ];
+    $result['side_effects'] = [
+        'created_operator_task' => false,
+        'changed_review_status' => false,
+        'changed_publication_status' => false,
+        'changed_company_verification_status' => false,
+        'changed_document_status' => false,
+    ];
+    return $result;
+}
+
+function handle_post_draft_submit_review(string $draftId): void {
+    $uuid = api_normalize_uuid($draftId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
+    }
+
+    $body = api_decode_json_body();
+    $requestedRole = array_key_exists('role', $body) ? api_normalize_role($body['role']) : null;
+    if (array_key_exists('role', $body) && $requestedRole === null) {
+        api_error(400, 'invalid_role', 'role must be one of seafarer, employer, shipowner, crewing_manager');
+    }
+
+    $preflight = cpg_registration_draft_completeness($uuid, $requestedRole);
+    $role = is_string($preflight['role'] ?? null) ? (string) $preflight['role'] : '';
+    $completeness = is_array($preflight['completeness'] ?? null) ? $preflight['completeness'] : [];
+    if (($completeness['can_submit_to_operator'] ?? false) !== true) {
+        api_json(409, cpg_draft_submit_review_blocked_payload($uuid, $requestedRole));
+    }
+
+    api_tx_begin();
+    try {
+        api_query(
+            "UPDATE crewportglobal.users
+             SET registration_status = 'submitted_for_human_review',
+                 updated_at = now()
+             WHERE user_id = $1",
+            [$uuid]
+        );
+
+        $sideEffects = [
+            'created_operator_task' => false,
+            'computed_operator_task_ready' => true,
+            'changed_review_status' => false,
+            'changed_publication_status' => false,
+            'changed_company_verification_status' => false,
+            'changed_document_status' => false,
+        ];
+        $companyId = null;
+        $vesselId = null;
+        $vacancyRequestId = null;
+        $previousStatuses = [];
+        $newStatuses = [];
+        $queueTypes = [];
+
+        if ($role === 'seafarer') {
+            $current = cpg_fetch_one_assoc(
+                'SELECT review_status
+                 FROM crewportglobal.seafarer_profiles
+                 WHERE user_id = $1
+                 LIMIT 1',
+                [$uuid]
+            );
+            if ($current === null) {
+                api_error(404, 'seafarer_profile_not_found', 'Seafarer profile not found');
+            }
+            $previousStatus = (string) ($current['review_status'] ?? '');
+            api_query(
+                "UPDATE crewportglobal.seafarer_profiles
+                 SET review_status = 'submitted_for_human_review',
+                     updated_at = now()
+                 WHERE user_id = $1",
+                [$uuid]
+            );
+            $previousStatuses['seafarer_profile'] = $previousStatus;
+            $newStatuses['seafarer_profile'] = 'submitted_for_human_review';
+            $sideEffects['changed_review_status'] = $previousStatus !== 'submitted_for_human_review';
+            $queueTypes[] = 'seafarer_profile';
+        } else {
+            $company = read_primary_company_for_user($uuid);
+            if ($company === null || !is_string($company['company_id'] ?? null)) {
+                api_error(404, 'company_not_found', 'Company context not found');
+            }
+            $companyId = (string) $company['company_id'];
+            $previousCompanyStatus = (string) ($company['verification_status'] ?? '');
+            $newCompanyStatus = $previousCompanyStatus === 'verified' ? 'verified' : 'submitted';
+            api_query(
+                'UPDATE crewportglobal.employer_companies
+                 SET verification_status = $2,
+                     updated_at = now()
+                 WHERE company_id = $1',
+                [$companyId, $newCompanyStatus]
+            );
+            $previousStatuses['company_verification'] = $previousCompanyStatus;
+            $newStatuses['company_verification'] = $newCompanyStatus;
+            $sideEffects['changed_company_verification_status'] = $previousCompanyStatus !== $newCompanyStatus;
+            if ($newCompanyStatus === 'submitted') {
+                $queueTypes[] = 'company_verification';
+            }
+
+            $vacancy = read_latest_vacancy_for_company($companyId, $uuid);
+            if ($vacancy === null || !is_string($vacancy['vacancy_request_id'] ?? null)) {
+                api_error(404, 'vacancy_request_not_found', 'Crew request context not found');
+            }
+            $vacancyRequestId = (string) $vacancy['vacancy_request_id'];
+            $vesselId = is_string($vacancy['vessel_id'] ?? null) && (string) $vacancy['vessel_id'] !== ''
+                ? (string) $vacancy['vessel_id']
+                : null;
+            $previousVacancyStatus = (string) ($vacancy['publication_status'] ?? '');
+            $newVacancyStatus = $previousVacancyStatus === 'published' ? 'published' : 'submitted_for_human_review';
+            api_query(
+                'UPDATE crewportglobal.vacancy_requests
+                 SET publication_status = $2,
+                     updated_at = now()
+                 WHERE vacancy_request_id = $1',
+                [$vacancyRequestId, $newVacancyStatus]
+            );
+            $previousStatuses['vacancy_request'] = $previousVacancyStatus;
+            $newStatuses['vacancy_request'] = $newVacancyStatus;
+            $sideEffects['changed_publication_status'] = $previousVacancyStatus !== $newVacancyStatus;
+            if ($newVacancyStatus === 'submitted_for_human_review') {
+                $queueTypes[] = 'vacancy_request';
+            }
+        }
+
+        write_audit_event('registration_draft_submitted_for_operator_review', $uuid, $companyId, $vesselId, [
+            'role' => $role,
+            'submit_review_gate' => [
+                'gate_status' => 'passed',
+                'schema_version' => $completeness['schema_version'] ?? null,
+                'overall_status' => $completeness['overall_status'] ?? null,
+                'missing_item_count' => (int) ($completeness['counts']['missing_items'] ?? 0),
+                'required_field_count' => (int) ($completeness['counts']['required_fields'] ?? 0),
+                'required_document_count' => (int) ($completeness['counts']['required_documents'] ?? 0),
+                'unresolved_correction_count' => (int) ($completeness['counts']['unresolved_corrections'] ?? 0),
+            ],
+            'previous_statuses' => $previousStatuses,
+            'new_statuses' => $newStatuses,
+            'computed_queue_types' => $queueTypes,
+            'vacancy_request_id' => $vacancyRequestId,
+        ], 'registration_submit_review_gate');
+
+        api_tx_commit();
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'submit_review_failed', $error->getMessage());
+    }
+
+    $freshCompleteness = cpg_registration_draft_completeness($uuid, $role);
+    $response = build_draft_response($uuid, 'owner_full', $role);
+    $response['completeness'] = $freshCompleteness['completeness'] ?? null;
+    $response['submit_review_gate'] = [
+        'gate_status' => 'passed',
+        'submitted_for_operator_review' => true,
+    ];
+    $response['side_effects'] = $sideEffects;
+    api_json(200, $response);
+}
+
 function write_audit_event(
     string $eventType,
     string $userId,
@@ -9438,7 +9613,10 @@ function upsert_seafarer_profile(string $userId, array $body, string $email): vo
            contact_phone = COALESCE(EXCLUDED.contact_phone, crewportglobal.seafarer_profiles.contact_phone),
            contact_email = COALESCE(EXCLUDED.contact_email, crewportglobal.seafarer_profiles.contact_email),
            document_metadata = COALESCE($14::jsonb, crewportglobal.seafarer_profiles.document_metadata),
-           review_status = EXCLUDED.review_status,
+           review_status = CASE
+               WHEN crewportglobal.seafarer_profiles.review_status IN (\'submitted_for_human_review\', \'in_review\', \'approved\') THEN crewportglobal.seafarer_profiles.review_status
+               ELSE EXCLUDED.review_status
+           END,
            updated_at = now()',
         [
             $userId,
@@ -9455,7 +9633,7 @@ function upsert_seafarer_profile(string $userId, array $body, string $email): vo
             $contactPhone,
             $email,
             $documentMetadataJson,
-            'submitted_for_human_review',
+            'draft',
         ]
     );
 
@@ -9508,7 +9686,7 @@ function upsert_company_context(string $userId, string $role, array $body): arra
                                      WHEN $5 = 'crewing_manager' THEN 'crewing_manager'
                                      ELSE 'employer' END,
                  verification_status = CASE
-                   WHEN verification_status = 'rejected' THEN 'submitted'
+                   WHEN verification_status = 'rejected' THEN 'draft'
                    ELSE verification_status
                  END,
                  updated_at = now()
@@ -9537,7 +9715,7 @@ function upsert_company_context(string $userId, string $role, array $body): arra
                $6
              )
              RETURNING company_id",
-            [$companyName, $registrationNumber, $countryCode, $role, 'unverified', $userId]
+            [$companyName, $registrationNumber, $countryCode, $role, 'draft', $userId]
         );
         $insertRow = pg_fetch_assoc($insertResult);
         if (!is_array($insertRow)) {
@@ -10097,7 +10275,7 @@ function read_operator_review_queue(?array $access = null): array {
              ORDER BY ur.created_at ASC
              LIMIT 1
          ) ur ON TRUE
-         WHERE vr.publication_status IN ('draft', 'submitted_for_human_review', 'in_review', 'published', 'rejected', 'closed')
+         WHERE vr.publication_status IN ('submitted_for_human_review', 'in_review', 'published', 'rejected', 'closed')
            AND COALESCE(vr.demand_workspace->'deletion_request'->>'status', '') <> 'pending_manager_confirmation'
          ORDER BY vr.updated_at DESC, vr.created_at DESC
          LIMIT 2000"
@@ -10597,7 +10775,7 @@ function cpg_team_workbench_queue_tasks(array $access): array {
         }
 
         if ($queueType === 'company_verification' && $queueItemId !== '') {
-            if (!in_array($status, ['unverified', 'submitted'], true)) {
+            if ($status !== 'submitted') {
                 continue;
             }
 
@@ -13305,6 +13483,14 @@ if (preg_match('#^/registration/drafts/([^/]+)/completeness$#', $path, $matches)
     }
     header('Allow: GET');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if (preg_match('#^/registration/drafts/([^/]+)/submit-review$#', $path, $matches) === 1) {
+    if ($method === 'POST') {
+        handle_post_draft_submit_review($matches[1]);
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
 }
 
 if (preg_match('#^/registration/drafts/([^/]+)$#', $path, $matches) === 1) {

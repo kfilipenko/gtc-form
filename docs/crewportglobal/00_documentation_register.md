@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.13
+- Version: 2.14
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -321,6 +321,7 @@ docs/crewportglobal/
   232_cpg_biz_043_post_vacancy_lifecycle_completeness_gate_report.md
   233_cpg_biz_044_shared_protected_upload_helper_report.md
   234_cpg_biz_044a_implemented_code_standards_register_report.md
+  235_cpg_biz_045_submit_to_operator_review_gate_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -344,6 +345,7 @@ docs/crewportglobal/
     00_implemented_code_standards_register.md
     01_standard_form_lifecycle.md
     02_standard_protected_upload.md
+    03_standard_submit_review_gate.md
 ```
 
 ### 3.3 Product governance control
@@ -688,6 +690,8 @@ Document 233 records the CPG-BIZ-044 shared protected upload helper normalizatio
 
 Document 234 records the CPG-BIZ-044A implemented-code standards register, including the mandatory pre-coding gate requiring standard lookup before programming, reuse of existing canonical modules, creation of new standards for reusable functions and registration of ICS-001/ICS-002.
 
+Document 235 records the CPG-BIZ-045 submit-to-operator review gate implementation, including active ICS-003, explicit `POST /api/v1/registration/drafts/{draft_id}/submit-review`, draft-save status boundaries, no operator task from autosave/save, audit event creation on successful submit and focused API/UI verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -791,6 +795,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.14 | 2026-05-29 | GTC IT / AI Assistant | Added document 235 and ICS-003 for the submit-to-operator review gate, explicit submit endpoint and draft-save/no-operator-task boundary |
 | 2.13 | 2026-05-29 | GTC IT / AI Assistant | Added implemented-code standards block and document 234 for the mandatory pre-coding standard lookup/reuse rule |
 | 2.12 | 2026-05-29 | GTC IT / AI Assistant | Added document 233 for CPG-BIZ-044 covering shared protected upload helper normalization across `/create-profile/` and `/post-vacancy/` |
 | 2.11 | 2026-05-28 | GTC IT / AI Assistant | Added document 232 for CPG-BIZ-043 covering demand-side `/post-vacancy/` lifecycle completeness gate, E/V/R missing-item navigation and focused regression verification |

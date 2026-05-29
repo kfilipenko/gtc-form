@@ -158,6 +158,15 @@
     return requestJson(`/registration/drafts/${encodeURIComponent(draftId)}/completeness${query}`, 'GET');
   }
 
+  async function submitForOperatorReview(draftId, options) {
+    const opts = options || {};
+    const role = typeof opts.role === 'string' ? opts.role.trim() : '';
+    const payload = role ? { role } : {};
+    const response = await requestJson(`/registration/drafts/${encodeURIComponent(draftId)}/submit-review`, 'POST', payload);
+    persistDraft(response);
+    return response;
+  }
+
   async function listDocuments(draftId, formType) {
     const query = formType ? `?form_type=${encodeURIComponent(formType)}` : '';
     return requestJson(`/registration/drafts/${encodeURIComponent(draftId)}/documents${query}`, 'GET');
@@ -205,6 +214,7 @@
     patchDraft,
     getDraft,
     getCompleteness,
+    submitForOperatorReview,
     createOrUpdateDraft,
     listDocuments,
     uploadDocument

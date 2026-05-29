@@ -191,10 +191,9 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await page.locator('#post-submit').click();
 
   await expect(page.locator('#post-status')).toContainText('saved successfully');
-  await expect(page.locator('#post-company-status')).toHaveText('unverified');
-  await expect(page.locator('#post-vacancy-status')).toHaveText('submitted_for_human_review');
+  await expect(page.locator('#post-company-status')).toHaveText('draft');
+  await expect(page.locator('#post-vacancy-status')).toHaveText('draft');
   await expect(page.locator('#post-publication-status')).toHaveText('Not public');
-  await expect(page.locator('#post-next-action')).toContainText('waiting for operator review');
   await expect(page).toHaveURL(/draft_id=/);
 
   const draftId = await page.evaluate(() => {
@@ -203,8 +202,37 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   });
   expect(draftId).not.toBe('');
 
+  for (const [formType, documentType, name] of [
+    ['employer', 'company_registration', 'company-registration.pdf'],
+    ['employer', 'representative_id', 'representative-id.pdf'],
+    ['vessel', 'vessel_particulars', 'vessel-particulars.pdf'],
+  ] as const) {
+    const uploadResponse = await request.post(`/api/v1/registration/drafts/${draftId}/documents`, {
+      multipart: {
+        form_type: formType,
+        document_type: documentType,
+        file: {
+          name,
+          mimeType: 'application/pdf',
+          buffer: Buffer.from('%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF\n'),
+        },
+      },
+    });
+    expect(uploadResponse.ok()).toBeTruthy();
+  }
+
+  const submitReviewResponse = await request.post(`/api/v1/registration/drafts/${draftId}/submit-review`, {
+    data: {
+      role: 'shipowner',
+    },
+  });
+  expect(submitReviewResponse.ok()).toBeTruthy();
+
   await page.goto(`/post-vacancy/?draft_id=${draftId}`);
   await expect(page.locator('#post-status')).toContainText('loaded');
+  await expect(page.locator('#post-company-status')).toHaveText('submitted');
+  await expect(page.locator('#post-vacancy-status')).toHaveText('submitted_for_human_review');
+  await expect(page.locator('#post-next-action')).toContainText('waiting for operator review');
   await expect(page.locator('#post-email')).toHaveValue(email);
   await expect(page.locator('#post-role')).toHaveValue('shipowner');
   await expect(page.locator('#post-role-in-company')).toHaveValue('owner');

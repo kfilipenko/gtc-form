@@ -90,12 +90,12 @@ Each implemented standard should have a dedicated document with:
 |---|---|---|---|---|
 | ICS-001 | Standard form lifecycle | `projects/crewportglobal/public/assets/crewportglobal-form-lifecycle.js` | `/create-profile/`, `/post-vacancy/` | Active |
 | ICS-002 | Standard protected upload | `projects/crewportglobal/public/assets/crewportglobal-protected-upload.js` | `/create-profile/`, `/post-vacancy/` | Active |
+| ICS-003 | Submit-to-operator review gate | `projects/crewportglobal/app/backend/api/public/index.php` / `handle_post_draft_submit_review()` plus `window.CPGDrafts.submitForOperatorReview()` | `/create-profile/`, `/post-vacancy/` | Active |
 
 ## 6. Planned Implemented Standards
 
 | Planned ID | Standard | Expected canonical implementation area | Reason |
 |---|---|---|---|
-| ICS-003 | Submit-to-operator review gate | Backend API helper and frontend adapter | Needed before creating operator review tasks from completed forms. |
 | ICS-004 | Computed task model | Backend task computation helper/service | Needed to unify task stage, assignee, visibility condition and object link logic. |
 | ICS-005 | Task display and deep-link model | Shared frontend task renderer + backend task payload contract | Needed to prevent task lists from showing non-executable buttons or generic queues. |
 | ICS-006 | Approval guard model | Backend guard helper/service | Needed for internal shortlist, presentation and employer-facing guard consistency. |

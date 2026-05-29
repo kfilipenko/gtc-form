@@ -1628,6 +1628,7 @@
           <div class="form-footer">
             <div class="section-actions">
               <button id="create-submit" class="button primary" type="submit" data-i18n="create.form.submit">Save Seafarer Draft</button>
+              <button id="create-submit-review" class="button secondary" type="button" data-i18n="create.form.submitReview" hidden disabled>Submit to operator review</button>
               <a class="button secondary" href="https://crewportglobal.com/onboarding/seafarer-registration/" data-i18n="create.form.nextCta">Open onboarding checklist</a>
             </div>
             <p id="create-status" class="status-note" data-i18n="create.form.status">This form saves your seafarer draft in backend and keeps your draft ID for the next steps.</p>
@@ -2098,6 +2099,7 @@
         'create.visaStatus.required': 'Required',
         'create.visaStatus.ready': 'Ready',
         'create.form.submit': 'Save / confirm data',
+        'create.form.submitReview': 'Submit to operator review',
         'create.form.nextCta': 'Open onboarding checklist',
         'create.form.status': 'This form saves your seafarer draft and checks the numbered fields and documents required before operator review.',
         'create.form.validation': 'Full name and email are required.',
@@ -2107,6 +2109,10 @@
         'create.form.localAutosaved': 'Draft saved in this browser. Add full name and email to save it to backend.',
         'create.form.localRestored': 'Unsaved local changes were restored from this browser.',
         'create.form.error': 'Could not save the draft. Please try again.',
+        'create.form.submitReviewSaving': 'Submitting profile for operator review...',
+        'create.form.submitReviewSaved': 'Profile submitted for operator review.',
+        'create.form.submitReviewBlocked': 'Complete the numbered items before submitting to operator review.',
+        'create.form.submitReviewError': 'Could not submit the profile for operator review. Save and try again.',
         'create.completeness.checking': 'Checking required fields and documents...',
         'create.completeness.ready': 'Profile is complete for operator-review submission.',
         'create.completeness.missing': 'Profile saved. Complete {count} numbered item(s) before operator review.',
@@ -2608,6 +2614,7 @@
         'create.visaStatus.required': 'Требуется',
         'create.visaStatus.ready': 'Готово',
         'create.form.submit': 'Save / confirm data',
+        'create.form.submitReview': 'Направить на проверку оператору',
         'create.form.nextCta': 'Открыть чек-лист онбординга',
         'create.form.status': 'Эта форма сохраняет черновик моряка и проверяет нумерованные поля и документы перед проверкой оператором.',
         'create.form.validation': 'Укажите полное имя и email.',
@@ -2617,6 +2624,10 @@
         'create.form.localAutosaved': 'Черновик сохранен в этом браузере. Укажите полное имя и email, чтобы сохранить его в backend.',
         'create.form.localRestored': 'Несохраненные локальные изменения восстановлены из этого браузера.',
         'create.form.error': 'Не удалось сохранить черновик. Попробуйте ещё раз.',
+        'create.form.submitReviewSaving': 'Направляем профиль на проверку оператору...',
+        'create.form.submitReviewSaved': 'Профиль направлен на проверку оператору.',
+        'create.form.submitReviewBlocked': 'Заполните нумерованные пункты перед отправкой на проверку оператору.',
+        'create.form.submitReviewError': 'Не удалось направить профиль на проверку оператору. Сохраните и попробуйте ещё раз.',
         'create.completeness.checking': 'Проверяем обязательные поля и документы...',
         'create.completeness.ready': 'Профиль полный для отправки на проверку оператору.',
         'create.completeness.missing': 'Профиль сохранен. Заполните нумерованные пункты перед проверкой оператором: {count}.',
@@ -2700,6 +2711,7 @@
       const form = document.getElementById('create-profile-form');
       const status = document.getElementById('create-status');
       const submit = document.getElementById('create-submit');
+      const submitReview = document.getElementById('create-submit-review');
       const fullName = document.getElementById('create-full-name');
       const email = document.getElementById('create-email');
       const country = document.getElementById('create-country');
@@ -4170,6 +4182,12 @@
         const contactLabel = email.value.trim() && contactPhone.value.trim()
           ? t('create.progress.contactReady')
           : t('create.progress.contactMissing');
+        const canSubmitToOperator = latestCompleteness && latestCompleteness.can_submit_to_operator === true;
+
+        if (submitReview) {
+          submitReview.hidden = !canSubmitToOperator;
+          submitReview.disabled = !canSubmitToOperator;
+        }
 
         progressValue.textContent = `${percent}%`;
         summaryRank.textContent = rankLabel;
@@ -4478,6 +4496,54 @@
           submit.disabled = false;
         }
       });
+
+      if (submitReview) {
+        submitReview.addEventListener('click', async () => {
+          const draftId = currentDraftId();
+          if (!draftId && !canAutosaveCurrentDraft()) {
+            status.textContent = t('create.form.validation');
+            return;
+          }
+
+          autosaveController.cancel();
+          submitReview.disabled = true;
+          submit.disabled = true;
+          status.textContent = t('create.form.submitReviewSaving');
+
+          try {
+            const saved = await saveSeafarerDraft();
+            const savedDraftId = saved && saved.draft_id ? saved.draft_id : currentDraftId();
+            const completeness = await refreshCompleteness(savedDraftId, { showChecking: true, showResult: true });
+            if (!completeness || completeness.can_submit_to_operator !== true) {
+              status.textContent = t('create.form.submitReviewBlocked');
+              return;
+            }
+
+            const response = await window.CPGDrafts.submitForOperatorReview(savedDraftId, { role: 'seafarer' });
+            const responseProfile = response && response.payload ? response.payload.seafarer_profile : null;
+            const responseOperatorReview = response && response.payload ? response.payload.operator_review : null;
+            latestCompleteness = response && response.completeness ? response.completeness : latestCompleteness;
+            renderReviewStatus(responseProfile || {}, responseOperatorReview || null);
+            renderApplicationHistoryFromResponse(response);
+            renderWorkspace();
+            status.textContent = t('create.form.submitReviewSaved');
+          } catch (error) {
+            if (error && error.status === 409 && error.payload && error.payload.completeness) {
+              latestCompleteness = error.payload.completeness;
+              renderWorkspace();
+              status.textContent = t('create.form.submitReviewBlocked');
+            } else {
+              status.textContent = t('create.form.submitReviewError');
+              console.error(error);
+            }
+          } finally {
+            submit.disabled = false;
+            if (submitReview) {
+              submitReview.disabled = !(latestCompleteness && latestCompleteness.can_submit_to_operator === true);
+            }
+          }
+        });
+      }
 
       uploadSubmit.addEventListener('click', uploadSelectedDocument);
       documentReadinessSave.addEventListener('click', saveDocumentReadiness);

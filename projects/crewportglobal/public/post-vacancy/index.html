@@ -549,6 +549,7 @@
             </div>
             <div class="inline-actions">
               <button id="post-submit" class="button primary" type="submit" data-i18n="post.form.submit">Save / confirm data</button>
+              <button id="post-submit-review" class="button secondary" type="button" data-i18n="post.form.submitReview" hidden disabled>Submit to operator review</button>
             </div>
             <p id="post-status" class="status-note" data-i18n="post.form.status">This form saves employer, company, vessel and vacancy request context in backend.</p>
             <p id="post-status-detail" class="status-note"></p>
@@ -769,11 +770,16 @@
         'post.upload.review.rejected': 'Rejected',
         'post.upload.review.verified': 'Verified',
         'post.form.submit': 'Save / confirm data',
+        'post.form.submitReview': 'Submit to operator review',
         'post.form.status': 'This form saves employer, company, vessel and vacancy request context in backend.',
         'post.form.validation': 'Work email and company name are required.',
         'post.form.saving': 'Saving vacancy request...',
         'post.form.saved': 'Vacancy request saved successfully.',
         'post.form.error': 'Could not save vacancy request. Please try again.',
+        'post.form.submitReviewSaving': 'Submitting company, vessel and crew request for operator review...',
+        'post.form.submitReviewSaved': 'Company, vessel and crew request submitted for operator review.',
+        'post.form.submitReviewBlocked': 'Complete the numbered items before submitting to operator review.',
+        'post.form.submitReviewError': 'Could not submit for operator review. Save and try again.',
         'post.form.prefilling': 'Loading saved employer workspace...',
         'post.form.prefilled': 'Saved employer workspace loaded.',
         'post.form.prefillError': 'Could not load saved employer workspace. You can continue with a new request.',
@@ -948,11 +954,16 @@
         'post.upload.review.rejected': 'Отклонен',
         'post.upload.review.verified': 'Проверен',
         'post.form.submit': 'Сохранить / подтвердить данные',
+        'post.form.submitReview': 'Направить на проверку оператору',
         'post.form.status': 'Эта форма сохраняет работодателя, компанию, судно и заявку на вакансию в backend.',
         'post.form.validation': 'Укажите рабочий email и название компании.',
         'post.form.saving': 'Сохраняем заявку на вакансию...',
         'post.form.saved': 'Заявка на вакансию успешно сохранена.',
         'post.form.error': 'Не удалось сохранить заявку на вакансию. Попробуйте ещё раз.',
+        'post.form.submitReviewSaving': 'Направляем компанию, судно и заявку на проверку оператору...',
+        'post.form.submitReviewSaved': 'Компания, судно и заявка направлены на проверку оператору.',
+        'post.form.submitReviewBlocked': 'Заполните нумерованные пункты перед отправкой на проверку оператору.',
+        'post.form.submitReviewError': 'Не удалось направить на проверку оператору. Сохраните и попробуйте ещё раз.',
         'post.form.prefilling': 'Загружаем сохраненное рабочее пространство работодателя...',
         'post.form.prefilled': 'Сохраненное рабочее пространство работодателя загружено.',
         'post.form.prefillError': 'Не удалось загрузить сохраненное рабочее пространство. Можно продолжить с новой заявкой.',
@@ -1038,6 +1049,7 @@
       const status = document.getElementById('post-status');
       const statusDetail = document.getElementById('post-status-detail');
       const submit = document.getElementById('post-submit');
+      const submitReview = document.getElementById('post-submit-review');
       const email = document.getElementById('post-email');
       const fullName = document.getElementById('post-full-name');
       const role = document.getElementById('post-role');
@@ -1199,12 +1211,20 @@
           completenessSummary.textContent = t('post.completeness.initial');
           missingList.innerHTML = '';
           completenessNavigator.clearHighlights();
+          if (submitReview) {
+            submitReview.hidden = true;
+            submitReview.disabled = true;
+          }
           return;
         }
 
         latestCompleteness = completeness;
         const missingItems = Array.isArray(completeness.missing_items) ? completeness.missing_items : [];
         const canSubmit = completeness.can_submit_to_operator === true;
+        if (submitReview) {
+          submitReview.hidden = !canSubmit;
+          submitReview.disabled = !canSubmit;
+        }
         completenessSummary.textContent = canSubmit
           ? t('post.completeness.ready')
           : tp('post.completeness.missing', { count: missingItems.length });
@@ -1556,81 +1576,90 @@
 
       loadReferenceCatalogBindings();
 
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
+      function buildPostDraftPayload() {
+        const payload = {
+          role: role.value,
+          email: email.value.trim(),
+          full_name: fullName.value.trim(),
+          role_in_company: roleInCompany.value,
+          company_name: company.value.trim(),
+          country_code: country.value.trim().toUpperCase(),
+          registration_number: registrationNumber.value.trim(),
+          vessel: {
+            vessel_name: vesselName.value.trim(),
+            vessel_type: vesselType.value.trim(),
+            imo_number: imo.value.trim()
+          }
+        };
 
+        if (!payload.vessel.vessel_name) {
+          delete payload.vessel;
+        }
+
+        const vacancyPayload = {
+          vacancy_title: vacancyTitle.value.trim(),
+          rank: vacancyTitle.value.trim(),
+          department: department.value,
+          vessel_type: vesselType.value.trim(),
+          join_date: joinDate.value,
+          contract_duration: duration.value.trim(),
+          salary_min_usd: salaryMin.value,
+          salary_max_usd: salaryMax.value,
+          currency: 'USD',
+          employer_country_code: country.value.trim().toUpperCase(),
+          requirements: requirements.value.trim()
+        };
+        const hasVacancyData = Object.keys(vacancyPayload).some((key) => {
+          if (key === 'currency' || key === 'employer_country_code' || key === 'vessel_type') {
+            return false;
+          }
+          return String(vacancyPayload[key] || '').trim() !== '';
+        });
+        if (hasVacancyData) {
+          payload.vacancy = vacancyPayload;
+        }
+
+        return payload;
+      }
+
+      async function savePostDraftForCompleteness() {
         if (!email.value.trim() || !company.value.trim()) {
           status.textContent = t('post.form.validation');
-          return;
+          return null;
         }
+
+        const response = await window.CPGDrafts.createOrUpdateDraft(buildPostDraftPayload(), {
+          draftId: getDraftIdFromUrl()
+        });
+
+        status.textContent = t('post.form.saved');
+        const companyPayload = response && response.payload && response.payload.company ? response.payload.company : {};
+        const vacancyResponse = response && response.payload && response.payload.vacancy_request ? response.payload.vacancy_request : {};
+        renderWorkspaceStatus(response);
+        await refreshCompleteness(response.draft_id);
+        statusDetail.textContent = tp('post.form.savedDetail', {
+          draftId: response.draft_id || '-',
+          companyType: companyPayload.company_type || '-',
+          verificationStatus: companyPayload.verification_status || '-',
+          roleInCompany: companyPayload.role_in_company || roleInCompany.value,
+          vacancyStatus: vacancyResponse.publication_status || '-'
+        });
+        window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
+        window.localStorage.setItem('crewportglobal.registration.role', role.value === 'crewing_manager' ? 'crewing-manager' : role.value);
+        window.history.replaceState(null, '', `?draft_id=${encodeURIComponent(response.draft_id)}`);
+        refreshUploadedDocuments();
+        return response;
+      }
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
 
         submit.disabled = true;
         status.textContent = t('post.form.saving');
         statusDetail.textContent = '';
 
         try {
-          const payload = {
-            role: role.value,
-            email: email.value.trim(),
-            full_name: fullName.value.trim(),
-            role_in_company: roleInCompany.value,
-            company_name: company.value.trim(),
-            country_code: country.value.trim().toUpperCase(),
-            registration_number: registrationNumber.value.trim(),
-            vessel: {
-              vessel_name: vesselName.value.trim(),
-              vessel_type: vesselType.value.trim(),
-              imo_number: imo.value.trim()
-            }
-          };
-
-          if (!payload.vessel.vessel_name) {
-            delete payload.vessel;
-          }
-
-          const vacancyPayload = {
-            vacancy_title: vacancyTitle.value.trim(),
-            rank: vacancyTitle.value.trim(),
-            department: department.value,
-            vessel_type: vesselType.value.trim(),
-            join_date: joinDate.value,
-            contract_duration: duration.value.trim(),
-            salary_min_usd: salaryMin.value,
-            salary_max_usd: salaryMax.value,
-            currency: 'USD',
-            employer_country_code: country.value.trim().toUpperCase(),
-            requirements: requirements.value.trim()
-          };
-          const hasVacancyData = Object.keys(vacancyPayload).some((key) => {
-            if (key === 'currency' || key === 'employer_country_code' || key === 'vessel_type') {
-              return false;
-            }
-            return String(vacancyPayload[key] || '').trim() !== '';
-          });
-          if (hasVacancyData) {
-            payload.vacancy = vacancyPayload;
-          }
-
-          const response = await window.CPGDrafts.createOrUpdateDraft(payload, {
-            draftId: getDraftIdFromUrl()
-          });
-
-          status.textContent = t('post.form.saved');
-          const companyPayload = response && response.payload && response.payload.company ? response.payload.company : {};
-          const vacancyResponse = response && response.payload && response.payload.vacancy_request ? response.payload.vacancy_request : {};
-          renderWorkspaceStatus(response);
-          await refreshCompleteness(response.draft_id);
-          statusDetail.textContent = tp('post.form.savedDetail', {
-            draftId: response.draft_id || '-',
-            companyType: companyPayload.company_type || '-',
-            verificationStatus: companyPayload.verification_status || '-',
-            roleInCompany: companyPayload.role_in_company || roleInCompany.value,
-            vacancyStatus: vacancyResponse.publication_status || '-'
-          });
-          window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
-          window.localStorage.setItem('crewportglobal.registration.role', role.value === 'crewing_manager' ? 'crewing-manager' : role.value);
-          window.history.replaceState(null, '', `?draft_id=${encodeURIComponent(response.draft_id)}`);
-          refreshUploadedDocuments();
+          await savePostDraftForCompleteness();
         } catch (error) {
           status.textContent = t('post.form.error');
           statusDetail.textContent = '';
@@ -1639,6 +1668,48 @@
           submit.disabled = false;
         }
       });
+
+      if (submitReview) {
+        submitReview.addEventListener('click', async () => {
+          submit.disabled = true;
+          submitReview.disabled = true;
+          status.textContent = t('post.form.submitReviewSaving');
+          statusDetail.textContent = '';
+
+          try {
+            const saved = await savePostDraftForCompleteness();
+            if (!saved || !saved.draft_id) {
+              return;
+            }
+
+            const completeness = latestCompleteness || await refreshCompleteness(saved.draft_id);
+            if (!completeness || completeness.can_submit_to_operator !== true) {
+              status.textContent = t('post.form.submitReviewBlocked');
+              return;
+            }
+
+            const response = await window.CPGDrafts.submitForOperatorReview(saved.draft_id, { role: role.value || 'employer' });
+            renderWorkspaceStatus(response);
+            latestCompleteness = response && response.completeness ? response.completeness : latestCompleteness;
+            renderCompleteness(latestCompleteness);
+            status.textContent = t('post.form.submitReviewSaved');
+          } catch (error) {
+            if (error && error.status === 409 && error.payload && error.payload.completeness) {
+              latestCompleteness = error.payload.completeness;
+              renderCompleteness(latestCompleteness);
+              status.textContent = t('post.form.submitReviewBlocked');
+            } else {
+              status.textContent = t('post.form.submitReviewError');
+              console.error(error);
+            }
+          } finally {
+            submit.disabled = false;
+            if (submitReview) {
+              submitReview.disabled = !(latestCompleteness && latestCompleteness.can_submit_to_operator === true);
+            }
+          }
+        });
+      }
 
       candidateList.addEventListener('click', (event) => {
         const target = event.target instanceof Element ? event.target.closest('.candidate-action') : null;
