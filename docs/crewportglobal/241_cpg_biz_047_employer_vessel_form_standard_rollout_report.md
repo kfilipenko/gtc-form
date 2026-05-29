@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: Continuation after document 240 and Project Owner approval
-- Version: 1.2
+- Version: 1.3
 - Date: 2026-05-29
 - Status: Implemented and verified on GTC1
 
@@ -83,6 +83,12 @@ vessel checklist   -> form_type vessel
 3. document checklist использует адаптивные колонки на широком экране;
 4. на мобильном экране строки документов переходят в один столбец без горизонтального переполнения.
 
+После ручного контроля Project Owner выявил, что глобальный `crewportglobal-app.css` подключался после page-specific CSS и возвращал `.app-market-grid` в две колонки. Исправление:
+
+1. глобальный app stylesheet подключается до page-specific CSS;
+2. для `/post-vacancy/` добавлен усиленный override `.cpg-app-page .flow-grid.app-market-grid`;
+3. Playwright проверяет computed `grid-template-columns` для основного flow grid и требует один столбец.
+
 Поле `Vessel flag country`:
 
 1. использует общий `countries` catalog;
@@ -132,8 +138,9 @@ The test suite confirms:
 3. vessel document upload works through the vessel checklist;
 4. `vessel_particulars.pdf` becomes visible in the vessel document row;
 5. employer and vessel legacy upload selects/file inputs are hidden from the visible UI;
-6. document checklist remains visible and does not create horizontal overflow on desktop or mobile viewport;
-7. `/post-vacancy/` still saves, reloads and moves through the existing human-review publication flow.
+6. main `flow-grid` is computed as one column, not the global two-column `app-market-grid`;
+7. document checklist remains visible and does not create horizontal overflow on desktop or mobile viewport;
+8. `/post-vacancy/` still saves, reloads and moves through the existing human-review publication flow.
 
 ## 7. Controlled Gaps
 

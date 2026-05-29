@@ -90,6 +90,11 @@ test('post vacancy document upload shows exact file limit and type validation', 
   await expect(page.locator('#post-vessel-document-upload-file')).toBeHidden();
   await expect(page.locator('#post-document-upload-list .document-type-row[data-document-type="company_registration"] .document-type-row__title')).toBeVisible();
   await expect(page.locator('#post-vessel-document-upload-list .document-type-row[data-document-type="vessel_particulars"] .document-type-row__title')).toBeVisible();
+  await expect.poll(async () => page.evaluate(() => {
+    const flowGrid = document.querySelector('.flow-grid');
+    const columns = flowGrid ? window.getComputedStyle(flowGrid).gridTemplateColumns.trim().split(/\s+/).filter(Boolean) : [];
+    return columns.length;
+  })).toBe(1);
   await expect.poll(async () => page.evaluate(() => (
     document.documentElement.scrollWidth <= document.documentElement.clientWidth + 2
   ))).toBe(true);
