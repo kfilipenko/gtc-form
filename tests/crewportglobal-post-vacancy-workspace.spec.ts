@@ -84,6 +84,12 @@ test('post vacancy document upload shows exact file limit and type validation', 
   await page.goto('/post-vacancy/');
 
   await expect(page.locator('#post-document-upload-status')).toContainText('Maximum size: 10 MB');
+  await expect(page.locator('#post-document-upload-type')).toBeHidden();
+  await expect(page.locator('#post-document-upload-file')).toBeHidden();
+  await expect(page.locator('#post-vessel-document-upload-type')).toBeHidden();
+  await expect(page.locator('#post-vessel-document-upload-file')).toBeHidden();
+  await expect(page.locator('#post-document-upload-list .document-type-row[data-document-type="company_registration"] .document-type-row__title')).toBeVisible();
+  await expect(page.locator('#post-vessel-document-upload-list .document-type-row[data-document-type="vessel_particulars"] .document-type-row__title')).toBeVisible();
 
   await page.locator('#post-email').fill(email);
   await page.locator('#post-full-name').fill('Upload Validation Manager');

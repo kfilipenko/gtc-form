@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: Continuation after document 240 and Project Owner approval
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-05-29
 - Status: Implemented and verified on GTC1
 
@@ -40,7 +40,7 @@
 
 | File | Изменение |
 |---|---|
-| `projects/crewportglobal/public/post-vacancy/index.html` | Добавлено поле `#post-vessel-flag-country`, helper `Same as company country`, отдельный vessel evidence checklist и обновлены completeness targets. |
+| `projects/crewportglobal/public/post-vacancy/index.html` | Добавлено поле `#post-vessel-flag-country`, helper `Same as company country`, отдельный vessel evidence checklist, исправлено отображение employer/vessel upload как checklist без видимых legacy `select` / `Choose file` controls, обновлены completeness targets. |
 | `projects/crewportglobal/app/backend/api/public/index.php` | `upsert_company_context()` сохраняет `vessels.flag_country_code`; demand completeness возвращает значение `V-2.2`. |
 | `projects/crewportglobal/app/backend/api/lib/questionnaire_schema.php` | `V-2.2` переведен с target gap на реальное поле; `V-4.D1` ведет к vessel upload checklist. |
 | `tests/crewportglobal-reference-catalog-form-bindings.spec.ts` | Добавлена проверка catalog-backed flag country и copy helper. |
@@ -67,6 +67,14 @@ vessel checklist   -> form_type vessel
 ```
 
 Это важно для будущей автоматизации: документы работодателя подтверждают полномочия, а документы судна подтверждают объект, на который подбирается экипаж.
+
+Визуальный слой загрузки документов приведен к стандарту, уже примененному на `/create-profile/`:
+
+1. перечень документов отображается как основной список;
+2. название документа имеет краткое описание через hover/title;
+3. в строке документа показываются исходное имя файла и статус обработки;
+4. пользователь видит одну кнопку `Upload` в строке документа;
+5. технический `Document type` dropdown и отдельный `Choose file` control скрыты и не используются как видимый интерфейс.
 
 Поле `Vessel flag country`:
 
@@ -116,7 +124,8 @@ The test suite confirms:
 2. `Same as company country` copies and persists the ISO country code;
 3. vessel document upload works through the vessel checklist;
 4. `vessel_particulars.pdf` becomes visible in the vessel document row;
-5. `/post-vacancy/` still saves, reloads and moves through the existing human-review publication flow.
+5. employer and vessel legacy upload selects/file inputs are hidden from the visible UI;
+6. `/post-vacancy/` still saves, reloads and moves through the existing human-review publication flow.
 
 ## 7. Controlled Gaps
 
