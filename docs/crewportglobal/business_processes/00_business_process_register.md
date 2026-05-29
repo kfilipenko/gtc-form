@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.1
+- Version: 3.2
 - Status: For internal review
 
 ## 1. Purpose
@@ -122,6 +122,7 @@ This documentation block starts from the following approved business controls:
 46. All current and future CrewPortGlobal forms must attach to the standard form lifecycle module instead of implementing page-local rules: explicit role/form context, safe draft persistence, backend completeness, protected upload, submit-review gating, correction handoff and computed task creation must follow BP-014.
 47. The first shared frontend lifecycle helper has been extracted. Future form pages must reuse the shared missing-item navigation/highlighting and autosave controller instead of copying page-local lifecycle logic.
 48. The employer-side `/post-vacancy/` demand form must use the standard lifecycle completeness gate: after `Save / confirm data`, backend `E/V/R` missing items must be shown as exact links to company, vessel, crew-request or upload fields before any future operator-review submission can be enabled.
+49. Protected upload behavior must be provided through a shared frontend helper for all current and future forms: allowed formats, 10 MB single-file limit, exact backend upload errors, uploaded-document list rendering and document-correction task rendering must not be reimplemented independently per page.
 
 ## 5. Intended Use
 
@@ -141,6 +142,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.2 | 2026-05-29 | GTC IT / AI Assistant | Added Phase D shared protected upload helper control for reusable validation, status rendering and document task rendering across current and future forms |
 | 3.1 | 2026-05-28 | GTC IT / AI Assistant | Added Phase C demand-side lifecycle completeness control for `/post-vacancy/`, including E/V/R missing-item rendering and exact field navigation before future submit-review gating |
 | 3.0 | 2026-05-28 | GTC IT / AI Assistant | Added Phase B shared frontend lifecycle helper control after extracting `/create-profile/` missing-item navigation/highlighting and autosave behavior into a reusable module |
 | 2.9 | 2026-05-28 | GTC IT / AI Assistant | Added BP-014 standard form lifecycle and validation module for role-aware draft context, reusable save/completeness/upload behavior, submit-review gating and computed task integration across all forms |

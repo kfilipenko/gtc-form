@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Business-process standard and implementation control
 - Source task: Project Owner approval after CPG-BIZ-040 multi-role upload diagnostics
-- Version: 1.2
+- Version: 1.3
 - Date: 2026-05-28
 - Status: Approved standard for staged implementation
 
@@ -252,8 +252,8 @@ Recommended frontend modules:
 | Module | Responsibility |
 |---|---|
 | `crewportglobal-registration-drafts.js` | Draft get/patch/completeness API client with explicit role support. |
-| future `crewportglobal-form-lifecycle.js` | Autosave, Save/confirm, missing-item rendering and target navigation. |
-| future `crewportglobal-protected-upload.js` | Shared upload validation, status rendering and error messages. |
+| `crewportglobal-form-lifecycle.js` | Autosave, Save/confirm, missing-item rendering and target navigation. |
+| `crewportglobal-protected-upload.js` | Shared upload validation, status rendering, uploaded document list and document-correction task rendering. |
 | page-specific adapter | Field mapping between HTML controls and canonical field codes. |
 
 The page-specific adapter must be small: it maps DOM fields to canonical codes and leaves the lifecycle rules to the shared module.
@@ -262,8 +262,8 @@ The page-specific adapter must be small: it maps DOM fields to canonical codes a
 
 | Page / flow | Current status | Next standardization action |
 |---|---|---|
-| `/create-profile/` | Phase B adopted: autosave, `Save / confirm data`, `S-*` missing items, field highlight, role-aware seafarer context and protected upload diagnostics exist; missing-item navigation/highlighting and autosave controller now use the shared frontend lifecycle helper. | Keep behavior covered by create-profile regression and reuse the same helper in later forms. |
-| `/post-vacancy/` | Phase C adopted: employer-side role-aware draft reads, protected upload diagnostics, `Save / confirm data`, backend `E/V/R` completeness, missing-item panel, field highlighting and exact field navigation are implemented. | Keep behavior covered by post-vacancy regression; next normalize upload UI through shared upload helper. |
+| `/create-profile/` | Phase D adopted: autosave, `Save / confirm data`, `S-*` missing items, field highlight, role-aware seafarer context, missing-item navigation/highlighting and protected upload use shared lifecycle/upload helpers. | Keep behavior covered by create-profile regression and connect future submit-review gate only after backend completeness passes. |
+| `/post-vacancy/` | Phase D adopted: employer-side role-aware draft reads, `Save / confirm data`, backend `E/V/R` completeness, missing-item panel, field highlighting, exact field navigation and protected upload use shared lifecycle/upload helpers. | Keep behavior covered by post-vacancy regression and connect future submit-review gate only after backend completeness passes. |
 | `/cabinet/` correction tasks | Partially adopted: correction tasks and source-card links exist. | Use the same missing-item numbering and correction route contract. |
 | `/verify/` review workspace | Partially adopted: computed tasks and review outcomes exist. | Consume lifecycle state labels from a standard task/action contract. |
 | `/team/` task lists | Partially adopted: task title, stage and visibility condition exist. | Continue aligning task state with lifecycle result and object stream. |
@@ -277,7 +277,7 @@ Recommended sequence:
 | Phase A | Document this standard and register it. | BP-014 and project report. |
 | Phase B | Extract frontend lifecycle helper without changing user-visible behavior. | Completed for `/create-profile/`: shared module and regression tests. |
 | Phase C | Apply full `Save / confirm data` completeness gate to `/post-vacancy/`. | Completed for employer/company, vessel and crew-request missing items, highlighting and field navigation. |
-| Phase D | Normalize protected upload UI through a shared upload helper. | Same upload behavior on all forms. |
+| Phase D | Normalize protected upload UI through a shared upload helper. | Completed for `/create-profile/` and `/post-vacancy/`: same upload validation, status rendering, uploaded-document list and correction-task rendering. |
 | Phase E | Add submit-review endpoint gated by backend completeness. | Controlled state transition and team task creation. |
 | Phase F | Connect owner correction tasks to the same numbered missing-item standard. | Consistent correction and resubmission flow. |
 
@@ -310,12 +310,12 @@ The standard is correctly adopted for a form when:
 
 ## 15. Next Stage
 
-The Phase C `/post-vacancy/` completeness-gate adoption is complete.
+The Phase D shared protected-upload helper normalization is complete.
 
-The next implementation stage should normalize upload behavior through a shared helper:
+The next implementation stage should add submit-review gating:
 
 ```text
-CPG-BIZ-044 - Shared protected upload helper normalization
+CPG-BIZ-045 - Submit-to-operator review gate
 ```
 
-That phase should move current protected-upload validation and status rendering from `/create-profile/` and `/post-vacancy/` into a reusable frontend helper while preserving allowed formats, 10 MB limit, role/form context and exact backend error messages.
+That phase should enable operator-review submission only after backend completeness passes, write audit evidence and compute the next team task without bypassing role, assignment, visibility or data-minimization controls.

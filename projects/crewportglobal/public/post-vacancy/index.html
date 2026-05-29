@@ -1029,6 +1029,7 @@
   </script>
   <script src="../assets/crewportglobal-registration-drafts.js"></script>
   <script src="../assets/crewportglobal-form-lifecycle.js"></script>
+  <script src="../assets/crewportglobal-protected-upload.js"></script>
   <script src="../assets/crewportglobal-reference-catalogs.js"></script>
   <script src="../assets/crewportglobal-public-i18n.js" defer></script>
   <script>
@@ -1070,9 +1071,6 @@
       const uploadList = document.getElementById('post-document-upload-list');
       const completenessSummary = document.getElementById('post-completeness-summary');
       const missingList = document.getElementById('post-missing-list');
-      const documentMaxFileSizeBytes = 10 * 1024 * 1024;
-      const documentAllowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
-      const documentAllowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.webp'];
       let currentWorkspaceResponse = null;
       let latestCompleteness = null;
 
@@ -1372,238 +1370,39 @@
         return input instanceof HTMLTextAreaElement ? input.value.trim() : '';
       }
 
-      function formatBytes(value) {
-        const bytes = Number(value);
-        if (!Number.isFinite(bytes) || bytes <= 0) {
-          return '-';
-        }
-        if (bytes < 1024 * 1024) {
-          return `${Math.ceil(bytes / 1024)} KB`;
-        }
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-      }
-
-      function fileHasAllowedDocumentType(file) {
-        const mimeType = file && typeof file.type === 'string' ? file.type.toLowerCase() : '';
-        const fileName = file && typeof file.name === 'string' ? file.name.toLowerCase() : '';
-        return documentAllowedMimeTypes.includes(mimeType)
-          || documentAllowedExtensions.some((extension) => fileName.endsWith(extension));
-      }
-
-      function documentUploadValidationMessage(file) {
-        if (!file) {
-          return t('post.upload.status.chooseFile');
-        }
-        if (!Number.isFinite(file.size) || file.size <= 0) {
-          return t('post.upload.status.emptyFile');
-        }
-        if (file.size > documentMaxFileSizeBytes) {
-          return tp('post.upload.status.tooLarge', {
-            maxSize: formatBytes(documentMaxFileSizeBytes)
-          });
-        }
-        if (!fileHasAllowedDocumentType(file)) {
-          return t('post.upload.status.unsupportedType');
-        }
-        return '';
-      }
-
-      function documentUploadServerErrorMessage(error) {
-        const code = error && error.payload && typeof error.payload.error === 'string'
-          ? error.payload.error
-          : '';
-        const translationKey = code ? `post.upload.server.${code}` : '';
-        const translated = translationKey ? t(translationKey) : '';
-        if (translated && translated !== translationKey) {
-          return translated;
-        }
-        if (error && typeof error.message === 'string' && error.message.trim()) {
-          return error.message.trim();
-        }
-        return t('post.upload.status.error');
-      }
-
       function currentDraftId() {
         return currentWorkspaceResponse && currentWorkspaceResponse.draft_id
           ? currentWorkspaceResponse.draft_id
           : getDraftIdFromUrl();
       }
 
-      function documentTypeLabel(value) {
-        const option = Array.from(uploadType.options).find((item) => item.value === value);
-        return option ? option.textContent.trim() : valueOrDash(value);
-      }
-
-      function reviewStatusLabel(value) {
-        const normalized = typeof value === 'string' ? value.trim() : '';
-        return normalized ? t(`post.upload.review.${normalized}`) : '-';
-      }
-
-      function documentsNeedingAction(documents) {
-        return Array.isArray(documents)
-          ? documents.filter((documentRecord) => (
-            ['correction_requested', 'rejected'].includes(documentRecord.review_status)
-            && typeof documentRecord.review_note === 'string'
-            && documentRecord.review_note.trim() !== ''
-          ))
-          : [];
-      }
-
-      function renderDocumentActionTasks(documents) {
-        documentActionList.innerHTML = '';
-        const tasks = documentsNeedingAction(documents);
-        documentActionList.hidden = tasks.length === 0;
-        tasks.forEach((documentRecord) => {
-          const task = document.createElement('article');
-          task.className = 'document-action-task';
-
-          const title = document.createElement('strong');
-          title.textContent = t('post.upload.task.title');
-          task.appendChild(title);
-
-          const meta = document.createElement('div');
-          meta.className = 'document-action-task__meta';
-          [
-            `${t('post.upload.task.document')}: ${documentTypeLabel(documentRecord.document_type)}`,
-            `${t('post.upload.task.status')}: ${reviewStatusLabel(documentRecord.review_status)}`,
-            `${t('post.upload.task.reason')}: ${documentRecord.review_note.trim()}`
-          ].forEach((text) => {
-            const line = document.createElement('p');
-            line.textContent = text;
-            meta.appendChild(line);
-          });
-          task.appendChild(meta);
-
-          const actions = document.createElement('div');
-          actions.className = 'document-action-task__actions';
-          const button = document.createElement('button');
-          button.type = 'button';
-          button.className = 'button primary document-replacement-action';
-          button.textContent = t('post.upload.task.uploadReplacement');
-          button.addEventListener('click', () => {
-            if (documentRecord.document_type) {
-              uploadType.value = documentRecord.document_type;
-            }
-            uploadStatus.textContent = tp('post.upload.task.replacementHint', {
-              document: documentTypeLabel(documentRecord.document_type)
-            });
-            uploadFile.focus();
-          });
-          actions.appendChild(button);
-          task.appendChild(actions);
-
-          documentActionList.appendChild(task);
-        });
-      }
-
-      function renderUploadedDocuments(documents) {
-        renderDocumentActionTasks(documents);
-        uploadList.innerHTML = '';
-        if (!Array.isArray(documents) || documents.length === 0) {
-          const empty = document.createElement('p');
-          empty.className = 'status-note';
-          empty.textContent = t('post.upload.status.empty');
-          uploadList.appendChild(empty);
-          return;
+      const protectedUpload = window.CPGProtectedUpload.createController({
+        nodes: {
+          type: uploadType,
+          file: uploadFile,
+          submit: uploadSubmit,
+          status: uploadStatus,
+          actionList: documentActionList,
+          list: uploadList
+        },
+        translationPrefix: 'post.upload',
+        formType: 'employer',
+        listFormType: 'employer',
+        getDraftId: currentDraftId,
+        t,
+        tFormat: tp,
+        valueOrDash,
+        onUploaded: async (response, draftId) => {
+          await refreshCompleteness(draftId);
         }
-
-        documents.forEach((documentRecord) => {
-          const item = document.createElement('article');
-          item.className = 'document-upload-item';
-
-          const title = document.createElement('strong');
-          title.textContent = documentRecord.original_filename || documentRecord.document_type || '-';
-          item.appendChild(title);
-
-          const meta = document.createElement('div');
-          meta.className = 'document-upload-meta';
-          [
-            `${t('post.upload.type')}: ${valueOrDash(documentRecord.document_type)}`,
-            `${t('post.upload.meta.scan')}: ${valueOrDash(documentRecord.scan_status)}`,
-            `${t('post.upload.meta.review')}: ${valueOrDash(documentRecord.review_status)}`,
-            `${t('post.upload.meta.size')}: ${formatBytes(documentRecord.file_size_bytes)}`
-          ].forEach((text) => {
-            const chip = document.createElement('span');
-            chip.textContent = text;
-            meta.appendChild(chip);
-          });
-          item.appendChild(meta);
-
-          if (documentRecord.review_note && ['correction_requested', 'rejected'].includes(documentRecord.review_status)) {
-            const reason = document.createElement('p');
-            reason.className = 'status-note';
-            reason.textContent = `${t('post.upload.task.reason')}: ${documentRecord.review_note}`;
-            item.appendChild(reason);
-          }
-
-          if (documentRecord.scan_status === 'clean' && documentRecord.review_status === 'pending_human_review') {
-            const note = document.createElement('p');
-            note.className = 'status-note';
-            note.textContent = t('post.upload.meta.cleanReady');
-            item.appendChild(note);
-          }
-
-          uploadList.appendChild(item);
-        });
-      }
+      });
 
       async function refreshUploadedDocuments() {
-        const draftId = currentDraftId();
-        if (!draftId) {
-          renderUploadedDocuments([]);
-          return;
-        }
-
-        try {
-          const response = await window.CPGDrafts.listDocuments(draftId, 'employer');
-          renderUploadedDocuments(response.documents || []);
-        } catch (error) {
-          console.error(error);
-        }
+        await protectedUpload.refreshUploadedDocuments();
       }
 
       async function uploadSelectedDocument() {
-        const draftId = currentDraftId();
-        if (!draftId) {
-          uploadStatus.textContent = t('post.upload.status.saveFirst');
-          return;
-        }
-
-        const file = uploadFile.files && uploadFile.files[0] ? uploadFile.files[0] : null;
-        if (!file) {
-          uploadStatus.textContent = t('post.upload.status.chooseFile');
-          return;
-        }
-
-        const validationMessage = documentUploadValidationMessage(file);
-        if (validationMessage) {
-          uploadStatus.textContent = validationMessage;
-          return;
-        }
-
-        uploadSubmit.disabled = true;
-        uploadStatus.textContent = t('post.upload.status.uploading');
-
-        try {
-          const response = await window.CPGDrafts.uploadDocument(draftId, {
-            formType: 'employer',
-            documentType: uploadType.value,
-            file
-          });
-          uploadFile.value = '';
-          uploadStatus.textContent = response.document && response.document.scan_status === 'clean'
-            ? t('post.upload.status.uploaded')
-            : `${t('post.upload.meta.scan')}: ${valueOrDash(response.document && response.document.scan_status)}`;
-          await refreshUploadedDocuments();
-          await refreshCompleteness(draftId);
-        } catch (error) {
-          uploadStatus.textContent = tp('post.upload.status.errorDetail', {
-            message: documentUploadServerErrorMessage(error)
-          });
-          console.error(error);
-        } finally {
-          uploadSubmit.disabled = false;
-        }
+        await protectedUpload.uploadSelectedDocument();
       }
 
       function setCandidateActionsDisabled(disabled) {
