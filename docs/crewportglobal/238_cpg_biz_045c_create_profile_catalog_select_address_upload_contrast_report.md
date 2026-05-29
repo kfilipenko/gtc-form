@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: Project Owner runtime testing of `/create-profile/`
-- Version: 1.5
+- Version: 1.6
 - Date: 2026-05-29
 - Status: Implemented and verified on GTC1
 
@@ -23,6 +23,7 @@
 6. перенести загрузку документов в начало анкеты как основу будущего document-first заполнения профиля;
 7. заменить технический выбор типа документа на понятный список документов со статусами;
 8. упростить строку документа до одной видимой кнопки `Upload` / `Replace`, которая открывает выбор файла и сразу запускает upload после выбора.
+9. подключить справочник стран к повторяющимся country-полям и добавить быстрый выбор `Same as nationality` для пользователей с одним гражданством.
 
 ## 2. Найденная системная причина
 
@@ -44,6 +45,8 @@ multi-value catalog -> explicit multi-choice control / approved searchable multi
 
 Additional manual testing showed that native browser `select multiple` is not sufficient for ordinary users: the list is connected to the catalog, but multiple selection depends on hidden Ctrl/Shift behavior. The accepted standard is now an explicit multi-choice control. In `/create-profile/`, `Preferred vessel types` is shown as visible checkboxes while preserving the same structured stored array for backend save, autosave and matching.
 
+Follow-up manual testing found the same class of problem in country-code fields. `Nationality`, `Residence country`, `Current country`, `Registration country`, `COC issuing country` and `Flag country` were still text-style controls, so the user could type arbitrary fragments and no country catalog was opened. These fields now use the shared `countries` catalog through true `select` controls. The selected stored value is a normalized ISO alpha-2 country code such as `CY`, `AE` or `PH`.
+
 ## 3. Измененные справочники формы
 
 | Поле | Старый контроль | Новый контроль | Справочник | Тип выбора |
@@ -55,8 +58,14 @@ Additional manual testing showed that native browser `select multiple` is not su
 | `Kin relation` | `input + datalist` | `select` | `relation_types` | single |
 | `Last vessel type` | `input + datalist` | `select` | `vessel_types` | single |
 | `Preferred vessel types` | `select multiple` | visible checkbox multi-choice backed by structured hidden select | `vessel_types` | multiple |
+| `Nationality` | `input` | `select` | `countries` | single ISO alpha-2 code |
+| `Residence country` | `input` | `select` + `Same as nationality` | `countries` | single ISO alpha-2 code |
+| `Current country` | `input` | `select` + `Same as nationality` | `countries` | single ISO alpha-2 code |
+| `Registration country` | `input + datalist` | `select` + `Same as nationality` | `countries` | single ISO alpha-2 code |
+| `COC issuing country` | `input + datalist` | `select` + `Same as nationality` | `countries` | single ISO alpha-2 code |
+| `Flag country` | `input + datalist` | `select` + `Same as nationality` | `countries` | single ISO alpha-2 code |
 
-Большие справочники, где нужен поиск или ввод кода, временно оставлены как `input + datalist`: страны, города, аэропорты, учебные заведения, религия и отдельные профессиональные справочники. Для них отдельный searchable-select стандарт может быть выделен позже.
+Большие справочники, где нужен поиск или ввод свободного значения, временно оставлены как `input + datalist`: города, аэропорты, учебные заведения, религия и отдельные профессиональные справочники. Для них отдельный searchable-select стандарт может быть выделен позже.
 
 ## 4. Общий код стандарта
 
@@ -75,6 +84,7 @@ window.CPGReferenceCatalogs.populateSelect()
 3. сохраняет ранее выбранное значение при асинхронной загрузке справочника;
 4. добавляет fallback-значения, если каталог временно недоступен;
 5. сохраняет legacy-значение, если оно уже записано в черновике, но отсутствует в текущем каталоге.
+6. для `countries` умеет показывать человекочитаемое название страны, но сохранять ISO alpha-2 код в поле анкеты.
 
 ## 5. Same Address
 
@@ -96,6 +106,31 @@ Registration address is the same as permanent address
 8. permanent address comments.
 
 Скопированные значения сохраняются как обычные поля формы и остаются после backend save и hard reload.
+
+## 5A. Same As Nationality
+
+Для полей, которые часто совпадают с гражданством моряка, добавлена явная кнопка:
+
+```text
+Same as nationality / Как гражданство
+```
+
+Кнопка доступна рядом с:
+
+1. residence country;
+2. current country;
+3. registration country;
+4. COC issuing country;
+5. flag country.
+
+Если у пользователя одно гражданство, он выбирает `Nationality` один раз и копирует это значение в остальные country-поля без ручного повторного поиска. Если фактическая страна отличается, поле остается обычным `select` и может быть выбрано отдельно.
+
+Копирование выполняется через тот же механизм `setFieldValue()` и вызывает обычный `change` event, поэтому:
+
+1. autosave сохраняет значение;
+2. backend save получает структурированный код;
+3. hard reload восстанавливает выбранное значение из сохраненного draft;
+4. completeness analyzer видит обычное заполненное country-поле.
 
 ## 6. Upload And Contrast Cleanup
 
@@ -123,6 +158,8 @@ finite catalog-backed fields must use true select controls;
 browser datalist is not accepted for finite mandatory or matching-critical choices;
 multi-value finite catalogs must show explicit choices, not only native select multiple;
 repeated address blocks should provide explicit same-address copy when applicable;
+country-code fields must use country catalog selects with ISO alpha-2 stored values;
+repeated country fields may expose explicit same-as-nationality copy where applicable;
 form controls and upload lists must remain readable in dark and light themes.
 ```
 
@@ -240,11 +277,11 @@ reviewed_at
 | File | Change |
 |---|---|
 | `projects/crewportglobal/app/backend/api/lib/document_uploads.php` | Added safe `reviewed_at` to owner-visible uploaded-document metadata so verified document rows can show confirmation date. |
-| `projects/crewportglobal/public/assets/crewportglobal-reference-catalogs.js` | Added reusable catalog-backed `bindSelect()` / `populateSelect()` helper with fallback and legacy-value preservation. |
+| `projects/crewportglobal/public/assets/crewportglobal-reference-catalogs.js` | Added reusable catalog-backed `bindSelect()` / `populateSelect()` helper with fallback, legacy-value preservation and country display-name to ISO alpha-2 value resolution. |
 | `projects/crewportglobal/public/assets/crewportglobal-protected-upload.js` | Exposed `uploadFileForType()` so row-level document checklist upload controls reuse the shared protected-upload standard. |
 | `projects/crewportglobal/public/assets/crewportglobal-app.css` | Added textarea coverage to shared/dark form-control contrast rules. |
-| `projects/crewportglobal/public/create-profile/index.html` | Converted finite catalog fields to true selects, replaced preferred-vessel native multi-select UX with visible checkbox multi-choice, added same-address copy option, improved upload/list contrast, moved upload processing help text, moved protected upload into document-first placement after identity/rank/availability, replaced visible document-type dropdown with compact row-level document checklist upload and simplified each row to one visible `Upload` / `Replace` button. |
-| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regression for catalog selects, explicit preferred-vessel checkbox selection, same-address copy, backend save and reload persistence, document-first upload placement/extraction context, one-button row upload and row-level document upload/status rendering. |
+| `projects/crewportglobal/public/create-profile/index.html` | Converted finite catalog fields and country-code fields to true selects, replaced preferred-vessel native multi-select UX with visible checkbox multi-choice, added same-address and same-as-nationality copy options, improved upload/list contrast, moved upload processing help text, moved protected upload into document-first placement after identity/rank/availability, replaced visible document-type dropdown with compact row-level document checklist upload and simplified each row to one visible `Upload` / `Replace` button. |
+| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regression for catalog selects, country catalog selects, same-as-nationality copy, explicit preferred-vessel checkbox selection, same-address copy, backend save and reload persistence, document-first upload placement/extraction context, one-button row upload and row-level document upload/status rendering. |
 | `docs/crewportglobal/implemented_code_standards/01_standard_form_lifecycle.md` | Added finite catalog select, repeated-address, document-first completion and human document checklist standards. |
 | `docs/crewportglobal/implemented_code_standards/00_implemented_code_standards_register.md` | Updated ICS-001/ICS-002 to include document-first completion and document-checklist adapters through the standard lifecycle/upload model. |
 | `docs/crewportglobal/business_processes/14_standard_form_lifecycle_and_validation_module.md` | Added Phase E.5 lifecycle control, document-checklist behavior and future AI/OCR confirmation boundary. |
@@ -299,21 +336,23 @@ The test confirms:
 
 1. multi-role seafarer upload remains active for the correct role/form context;
 2. finite catalog fields render as `select`;
-3. `Preferred vessel types` is selected through visible checkboxes while preserving a structured multi-value payload;
-4. same-address copy fills registration fields;
-5. selected catalog values and copied address values persist in backend metadata;
-6. hard reload restores saved catalog/address values;
-7. contact/address autosave still works;
-8. protected upload appears before long manual sections and after identity/rank/availability;
-9. document upload keeps the future AI-assisted confirmation context without OCR side effects;
-10. document type selection and upload are performed through visible compact document rows while hidden `document_type` preserves API compatibility;
-11. uploaded documents appear under the relevant document name with pending/verified/replacement states instead of a separate generic uploaded-file list;
-12. each document row exposes one visible `Upload` / `Replace` button instead of separate choose-file and upload actions;
-13. selecting a file in a document row does not rerender the list before upload, so the chosen file is not lost.
+3. country fields render as catalog-backed `select` controls and store ISO alpha-2 values;
+4. `Same as nationality` copies nationality to related country fields and persists through save/reload;
+5. `Preferred vessel types` is selected through visible checkboxes while preserving a structured multi-value payload;
+6. same-address copy fills registration fields;
+7. selected catalog values and copied address values persist in backend metadata;
+8. hard reload restores saved catalog/address values;
+9. contact/address autosave still works;
+10. protected upload appears before long manual sections and after identity/rank/availability;
+11. document upload keeps the future AI-assisted confirmation context without OCR side effects;
+12. document type selection and upload are performed through visible compact document rows while hidden `document_type` preserves API compatibility;
+13. uploaded documents appear under the relevant document name with pending/verified/replacement states instead of a separate generic uploaded-file list;
+14. each document row exposes one visible `Upload` / `Replace` button instead of separate choose-file and upload actions;
+15. selecting a file in a document row does not rerender the list before upload, so the chosen file is not lost.
 
 ## 12. Remaining Controlled Gaps
 
-1. Large searchable catalogs still use `input + datalist`; a future shared searchable-select control may replace them.
+1. Large searchable catalogs still use `input + datalist`; a future shared searchable-select control may replace them. Country-code fields are no longer in that exception group when the field is expected to store a country code.
 2. The same-address option is currently implemented for permanent-to-registration address in `/create-profile/`; future forms should use the same standard when they contain repeated address blocks.
 3. Full visual screenshot regression is not yet automated; current coverage is DOM/state and focused functional behavior.
 4. AI/OCR document extraction is intentionally not implemented in this stage; only the placement, standard and future extraction contract are prepared.

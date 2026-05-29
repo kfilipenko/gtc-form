@@ -704,6 +704,28 @@
       margin-top: 3px;
     }
 
+    .field-inline-action {
+      width: fit-content;
+      min-height: 34px;
+      margin-top: 8px;
+      padding: 7px 10px;
+      border: 1px solid var(--app-line);
+      border-radius: 8px;
+      background: var(--app-surface-2);
+      color: var(--app-cyan);
+      font-weight: 800;
+      line-height: 1.2;
+      cursor: pointer;
+    }
+
+    .field-inline-action:hover,
+    .field-inline-action:focus-visible {
+      border-color: var(--app-cyan);
+      background: rgba(77, 208, 225, 0.12);
+      color: var(--app-ink);
+      outline: none;
+    }
+
     .field-card.is-completeness-missing input,
     .field-card.is-completeness-missing select,
     .field-card.is-completeness-missing textarea,
@@ -964,16 +986,24 @@
               </label>
               <label class="field-card">
                 <strong data-i18n="create.form.nationality">Nationality (country code)</strong>
-                <input id="create-nationality" type="text" maxlength="2" autocomplete="country" data-i18n-placeholder="create.form.nationality.placeholder" placeholder="PH">
+                <select id="create-nationality" autocomplete="country-name">
+                  <option value="" data-i18n="create.form.country.select">Select country</option>
+                </select>
               </label>
-              <label class="field-card">
+              <div class="field-card">
                 <strong data-i18n="create.form.residence">Residence country code</strong>
-                <input id="create-residence" type="text" maxlength="2" data-i18n-placeholder="create.form.residence.placeholder" placeholder="AE">
-              </label>
-              <label class="field-card">
+                <select id="create-residence">
+                  <option value="" data-i18n="create.form.country.select">Select country</option>
+                </select>
+                <button class="field-inline-action" type="button" data-copy-nationality-target="create-residence" data-i18n="create.form.sameAsNationality">Same as nationality</button>
+              </div>
+              <div class="field-card">
                 <strong data-i18n="create.form.country">Current country code</strong>
-                <input id="create-country" type="text" maxlength="2" data-i18n-placeholder="create.form.country.placeholder" placeholder="AE">
-              </label>
+                <select id="create-country">
+                  <option value="" data-i18n="create.form.country.select">Select country</option>
+                </select>
+                <button class="field-inline-action" type="button" data-copy-nationality-target="create-country" data-i18n="create.form.sameAsNationality">Same as nationality</button>
+              </div>
               <label class="field-card">
                 <strong data-i18n="create.form.salary">Salary expectation (USD)</strong>
                 <input id="create-salary" type="number" min="0" step="0.01" data-i18n-placeholder="create.form.salary.placeholder" placeholder="4500">
@@ -1172,10 +1202,13 @@
                   <strong data-i18n="create.form.registrationCity">Registration city</strong>
                   <input id="create-registration-city" type="text" list="create-city-options" data-i18n-placeholder="create.form.registrationCity.placeholder" placeholder="City">
                 </label>
-                <label class="field-card">
+                <div class="field-card">
                   <strong data-i18n="create.form.registrationCountry">Registration country</strong>
-                  <input id="create-registration-country" type="text" list="create-country-options" data-i18n-placeholder="create.form.registrationCountry.placeholder" placeholder="Country">
-                </label>
+                  <select id="create-registration-country">
+                    <option value="" data-i18n="create.form.country.select">Select country</option>
+                  </select>
+                  <button class="field-inline-action" type="button" data-copy-nationality-target="create-registration-country" data-i18n="create.form.sameAsNationality">Same as nationality</button>
+                </div>
                 <label class="field-card">
                   <strong data-i18n="create.form.registrationRegion">Registration region</strong>
                   <input id="create-registration-region" type="text" data-i18n-placeholder="create.form.registrationRegion.placeholder" placeholder="Region">
@@ -1441,11 +1474,14 @@
                   <strong data-i18n="create.form.cocNumber">COC number</strong>
                   <input id="create-coc-number" type="text" data-i18n-placeholder="create.form.cocNumber.placeholder" placeholder="COC-123456">
                 </label>
-                <label class="field-card">
+                <div class="field-card">
                   <strong data-i18n="create.form.cocCountry">COC issuing country</strong>
-                  <input id="create-coc-issuing-country" type="text" list="create-country-options" data-i18n-placeholder="create.form.cocCountry.placeholder" placeholder="PH">
+                  <select id="create-coc-issuing-country">
+                    <option value="" data-i18n="create.form.country.select">Select country</option>
+                  </select>
+                  <button class="field-inline-action" type="button" data-copy-nationality-target="create-coc-issuing-country" data-i18n="create.form.sameAsNationality">Same as nationality</button>
                   <datalist id="create-country-options"></datalist>
-                </label>
+                </div>
                 <label class="field-card">
                   <strong data-i18n="create.form.cocInstitute">COC institute</strong>
                   <input id="create-coc-institute" type="text" list="create-endorsement-institute-options" data-i18n-placeholder="create.form.cocInstitute.placeholder" placeholder="Institute">
@@ -1569,10 +1605,13 @@
                   <strong data-i18n="create.form.lastRank">Last rank</strong>
                   <input id="create-last-rank" type="text" list="create-rank-options" data-i18n-placeholder="create.form.lastRank.placeholder" placeholder="Second Officer">
                 </label>
-                <label class="field-card">
+                <div class="field-card">
                   <strong data-i18n="create.form.flagCountry">Flag country</strong>
-                  <input id="create-flag-country" type="text" list="create-country-options" data-i18n-placeholder="create.form.flagCountry.placeholder" placeholder="PA">
-                </label>
+                  <select id="create-flag-country">
+                    <option value="" data-i18n="create.form.country.select">Select country</option>
+                  </select>
+                  <button class="field-inline-action" type="button" data-copy-nationality-target="create-flag-country" data-i18n="create.form.sameAsNationality">Same as nationality</button>
+                </div>
                 <label class="field-card">
                   <strong data-i18n="create.form.serviceFrom">Service from</strong>
                   <input id="create-service-from" type="date">
@@ -1997,6 +2036,8 @@
         'create.form.email.placeholder': 'seafarer@example.com',
         'create.form.country': 'Current country code',
         'create.form.country.placeholder': 'AE',
+        'create.form.country.select': 'Select country',
+        'create.form.sameAsNationality': 'Same as nationality',
         'create.form.rank': 'Rank',
         'create.form.rank.placeholder': 'Chief Officer',
         'create.form.department': 'Department',
@@ -2544,6 +2585,8 @@
         'create.form.email.placeholder': 'seafarer@example.com',
         'create.form.country': 'Текущая страна (код)',
         'create.form.country.placeholder': 'AE',
+        'create.form.country.select': 'Выберите страну',
+        'create.form.sameAsNationality': 'Как гражданство',
         'create.form.rank': 'Ранг',
         'create.form.rank.placeholder': 'Старший помощник капитана',
         'create.form.department': 'Департамент',
@@ -3599,7 +3642,43 @@
           console.error(error);
           return [];
         });
+        const countrySelectOptions = {
+          placeholderText: t('create.form.country.select'),
+          countryIsoValue: true,
+          showCodeInLabel: true,
+          fallbackValues: ['AE', 'CY', 'PH', 'QA', 'SG', 'IN', 'RU', 'UA', 'US', 'GB']
+        };
         const selectBindings = [
+          {
+            catalogCode: 'countries',
+            select: 'create-nationality',
+            options: countrySelectOptions
+          },
+          {
+            catalogCode: 'countries',
+            select: 'create-residence',
+            options: countrySelectOptions
+          },
+          {
+            catalogCode: 'countries',
+            select: 'create-country',
+            options: countrySelectOptions
+          },
+          {
+            catalogCode: 'countries',
+            select: 'create-registration-country',
+            options: countrySelectOptions
+          },
+          {
+            catalogCode: 'countries',
+            select: 'create-coc-issuing-country',
+            options: countrySelectOptions
+          },
+          {
+            catalogCode: 'countries',
+            select: 'create-flag-country',
+            options: countrySelectOptions
+          },
           {
             catalogCode: 'gender_values',
             select: 'create-gender',
@@ -3776,7 +3855,7 @@
             input.checked = value === true;
             return;
           }
-          input.value = value === null || value === undefined ? '' : String(value);
+          setFieldValue(input, value === null || value === undefined ? '' : String(value));
         });
 
         if (registrationSameAsPermanent && registrationSameAsPermanent.checked) {
@@ -4062,6 +4141,21 @@
         }
         copyPermanentAddressToRegistration();
         return true;
+      }
+
+      function copyNationalityToCountryField(targetId) {
+        const target = document.getElementById(targetId);
+        const value = nationality && typeof nationality.value === 'string'
+          ? nationality.value.trim()
+          : '';
+        if (!target || !value) {
+          if (nationality && typeof nationality.focus === 'function') {
+            nationality.focus();
+          }
+          return;
+        }
+        setFieldValue(target, value);
+        target.dispatchEvent(new Event('change', { bubbles: true }));
       }
 
       function workspaceSection(workspace, key) {
@@ -5021,7 +5115,7 @@
           email.value = profile.contact_email;
         }
         if (typeof profile.country_code === 'string' && profile.country_code.trim()) {
-          country.value = profile.country_code;
+          setFieldValue(country, profile.country_code);
         }
         if (typeof profile.primary_rank === 'string') {
           rank.value = profile.primary_rank;
@@ -5031,10 +5125,10 @@
           department.value = option ? profile.department : '';
         }
         if (typeof profile.nationality_code === 'string') {
-          nationality.value = profile.nationality_code;
+          setFieldValue(nationality, profile.nationality_code);
         }
         if (typeof profile.residence_country_code === 'string') {
-          residence.value = profile.residence_country_code;
+          setFieldValue(residence, profile.residence_country_code);
         }
         if (typeof profile.availability_status === 'string') {
           const availabilityOption = Array.from(availability.options).find((item) => item.value === profile.availability_status);
@@ -5336,6 +5430,12 @@
         button.addEventListener('click', () => {
           const targetId = button.getAttribute('data-section-target') || '';
           openProfileSection(targetId);
+        });
+      });
+
+      document.querySelectorAll('[data-copy-nationality-target]').forEach((button) => {
+        button.addEventListener('click', () => {
+          copyNationalityToCountryField(button.getAttribute('data-copy-nationality-target') || '');
         });
       });
 

@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Business-process standard and implementation control
 - Source task: Project Owner approval after CPG-BIZ-040 multi-role upload diagnostics
-- Version: 1.9
+- Version: 2.0
 - Date: 2026-05-29
 - Status: Approved standard for staged implementation
 
@@ -179,6 +179,8 @@ Each form page must connect to the same frontend behavior.
 | Backend-first reload | After successful backend save, backend draft is the source of truth; browser local snapshot may restore only newer unsaved edits. |
 | List-valued reference field | Use structured multi-select controls for list-valued catalog fields instead of free text, with explicit neutral option when matching allows it. |
 | Finite single-select reference field | Use a true catalog-backed `select`, not `datalist`, for finite matching/control values such as civil status, gender, relation and vessel type. |
+| Country-code reference field | Use the approved `countries` catalog through a true `select`; show country names but store comparable ISO alpha-2 codes. |
+| Repeated country fields | Provide an explicit copy action such as `Same as nationality` when the user is likely to repeat the same country across several fields. |
 | Repeated address fields | Provide an explicit `Same address` copy option when a form asks the user to enter substantially the same address more than once. |
 | Visual contrast | Inputs, textareas, upload lists and document metadata must remain readable in dark and light themes. |
 

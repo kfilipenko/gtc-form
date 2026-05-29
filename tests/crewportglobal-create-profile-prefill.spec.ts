@@ -141,6 +141,11 @@ async function selectFirstCatalogOption(page: Page, selector: string): Promise<s
   return value;
 }
 
+async function selectCountryCode(page: Page, selector: string, code: string): Promise<void> {
+  await expect(page.locator(`${selector} option[value="${code}"]`)).toHaveCount(1, { timeout: 7000 });
+  await page.locator(selector).selectOption(code);
+}
+
 async function selectPreferredVesselTypes(page: Page, values: string[]): Promise<void> {
   await expect.poll(async () => page.locator('#create-vessel-types-options input[type="checkbox"]').count(), { timeout: 7000 }).toBeGreaterThan(1);
   for (const value of values) {
@@ -178,11 +183,11 @@ test('create profile prefill from draft_id preserves patch flow', async ({ page 
 
   await page.locator('#create-full-name').fill('Alex Marinov');
   await page.locator('#create-email').fill(`ui.prefill.${Date.now()}@example.com`);
-  await page.locator('#create-country').fill('AE');
+  await selectCountryCode(page, '#create-country', 'AE');
   await page.locator('#create-rank').fill('Second Officer');
   await page.locator('#create-department').selectOption('deck');
-  await page.locator('#create-nationality').fill('PH');
-  await page.locator('#create-residence').fill('AE');
+  await selectCountryCode(page, '#create-nationality', 'PH');
+  await selectCountryCode(page, '#create-residence', 'AE');
   await page.locator('#create-availability').selectOption('available_later');
   await page.locator('#create-availability-date').fill('2026-08-15');
   await page.locator('#create-phone').fill('+971501112233');
@@ -609,6 +614,12 @@ test('create profile uses catalog selects and copies permanent address to regist
   await expect(page.locator('#create-status')).toContainText('prefilled');
 
   for (const selector of [
+    '#create-nationality',
+    '#create-residence',
+    '#create-country',
+    '#create-registration-country',
+    '#create-coc-issuing-country',
+    '#create-flag-country',
     '#create-gender',
     '#create-civil-status',
     '#create-emergency-contact-relation',
@@ -627,7 +638,11 @@ test('create profile uses catalog selects and copies permanent address to regist
   const gender = await selectFirstCatalogOption(page, '#create-gender');
   const civilStatus = await selectFirstCatalogOption(page, '#create-civil-status');
   const emergencyRelation = await selectFirstCatalogOption(page, '#create-emergency-contact-relation');
-  await page.locator('#create-residence').fill('CY');
+  await selectCountryCode(page, '#create-nationality', 'CY');
+  await page.locator('[data-copy-nationality-target="create-residence"]').click();
+  await expect(page.locator('#create-residence')).toHaveValue('CY');
+  await page.locator('[data-copy-nationality-target="create-country"]').click();
+  await expect(page.locator('#create-country')).toHaveValue('CY');
   await page.locator('#create-residence-city').fill('Limassol');
 
   await page.locator('#profile-section-addresses > summary').click();
@@ -726,7 +741,7 @@ test('create profile autosaves contact and address edits before reload', async (
   await page.locator('#create-permanent-street').fill('Autosave Street');
   await page.locator('#create-permanent-house').fill('12A');
   await page.locator('#create-registration-city').fill('Larnaca');
-  await page.locator('#create-registration-country').fill('Cyprus');
+  await selectCountryCode(page, '#create-registration-country', 'CY');
 
   await expect(page.locator('#create-status')).toContainText('autosaved', { timeout: 7000 });
 
@@ -816,11 +831,11 @@ test('create profile prefill falls back to local draft when draft_id is missing'
   await page.goto('/create-profile/');
   await page.locator('#create-full-name').fill('Nikolai Sidorov');
   await page.locator('#create-email').fill(email);
-  await page.locator('#create-country').fill('AE');
+  await selectCountryCode(page, '#create-country', 'AE');
   await page.locator('#create-rank').fill('Electrical Officer');
   await page.locator('#create-department').selectOption('engine');
-  await page.locator('#create-nationality').fill('IN');
-  await page.locator('#create-residence').fill('AE');
+  await selectCountryCode(page, '#create-nationality', 'IN');
+  await selectCountryCode(page, '#create-residence', 'AE');
   await page.locator('#create-availability').selectOption('available_now');
   await page.locator('#create-availability-date').fill('2026-09-01');
   await page.locator('#create-phone').fill('+971500009999');

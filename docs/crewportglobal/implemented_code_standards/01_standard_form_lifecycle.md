@@ -4,7 +4,7 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Implemented code standards
 - Document type: Implemented code standard
-- Version: 1.6
+- Version: 1.7
 - Date: 2026-05-29
 - Status: Active
 
@@ -23,7 +23,8 @@ The standard prevents every form from creating its own copy of:
 7. finite single-select reference-field handling through shared catalog binding;
 8. repeated-address copy helpers when a form asks for the same address more than once;
 9. document-first completion placement for forms where uploaded evidence can later prefill structured fields;
-10. human-readable document checklist rendering instead of technical document-type dropdowns.
+10. human-readable document checklist rendering instead of technical document-type dropdowns;
+11. country-code select handling with ISO alpha-2 values and same-as-nationality copy helpers where the same country is requested more than once.
 
 ## 2. Applies To
 
@@ -70,7 +71,9 @@ Each page adapter must provide:
 | backend `updated_at` timestamp | Determines whether a local snapshot is newer than backend draft data. |
 | list-valued control mapping | Maps catalog-backed multi-select values to the canonical payload array. |
 | finite catalog select mapping | Maps matching-critical finite catalog fields to true `select` controls instead of browser `datalist` text inputs. |
+| country-code select mapping | Maps country catalogs to stable ISO alpha-2 values when the stored field is a country code. |
 | repeated-address source mapping | Defines which source address fields can copy into the repeated address block. |
+| repeated-country source mapping | Defines when `Same as nationality` or a similar source-country copy button is allowed. |
 | document-first upload context | Defines whether upload appears before detailed manual fields and which canonical prefix future extraction maps to. |
 | document checklist adapter | Maps allowed document types to compact visible rows with uploaded/reviewed/replacement state and one visible row-level upload/replace button. |
 
@@ -87,8 +90,9 @@ Pages must not duplicate:
 7. free-text storage for catalog-backed list fields when a structured catalog exists;
 8. `datalist` controls for finite mandatory or matching-critical catalogs such as civil status, gender, relation or vessel type;
 9. page-local duplicate-address behavior when a shared form lifecycle helper or page adapter can provide it;
-10. burying protected document upload after all manual fields when documents are expected to become the first source for future AI/OCR prefill.
-11. exposing document upload primarily through a technical dropdown when a fixed document checklist can show the required evidence more clearly.
+10. country-code free text when the approved `countries` catalog is available and the field expects a country code;
+11. burying protected document upload after all manual fields when documents are expected to become the first source for future AI/OCR prefill;
+12. exposing document upload primarily through a technical dropdown when a fixed document checklist can show the required evidence more clearly.
 
 ## 6. Reference-Field Control Standard
 
@@ -97,11 +101,14 @@ Finite catalog-backed fields must use structured controls:
 | Field type | Required control | Reason |
 |---|---|---|
 | Single finite catalog | `select` populated through `CPGReferenceCatalogs.bindSelect` | The user must choose one approved value, and tests can assert the control. |
+| Country-code catalog | `select` populated through `CPGReferenceCatalogs.bindSelect` with ISO alpha-2 values | The user sees country names but the saved value stays comparable for matching and validation. |
 | Multiple finite catalog | Explicit multi-choice control, such as checkboxes or an approved searchable multiselect, backed by a stored array | Matching may compare several values; the user must see how to select several values without hidden Ctrl/Shift keyboard behavior. |
-| Large searchable catalog | `input` + `datalist` may remain temporarily acceptable | Countries, cities, airports or institutions may need search/type-ahead until a shared searchable select exists. |
+| Large searchable catalog | `input` + `datalist` may remain temporarily acceptable | Cities, airports or institutions may need search/type-ahead until a shared searchable select exists. |
 | Free text | `input` / `textarea` | Only when no catalog or controlled value set applies. |
 
 When a finite catalog cannot be loaded, the page adapter must provide a safe fallback value list and preserve already saved legacy values on reload.
+
+When a form asks for several country-code fields and one field is an obvious source value, the page may expose an explicit copy helper. In `/create-profile/`, `Nationality` can be copied to residence/current/registration/COC/flag country through `Same as nationality`. The copy must dispatch the normal form-change event so autosave, backend save, completeness and reload behavior remain standard.
 
 ## 7. Current Tests
 
@@ -134,6 +141,8 @@ last vessel type
 ```
 
 and that the repeated registration address can be copied from the permanent address without losing backend persistence after reload.
+
+The same regression also checks that country-code fields are catalog-backed `select` controls, that values such as `CY`, `AE` and `PH` are available from the catalog/fallback resolver, and that `Same as nationality` persists copied country values through save and hard reload.
 
 ## 7A. Document-First Completion Standard
 

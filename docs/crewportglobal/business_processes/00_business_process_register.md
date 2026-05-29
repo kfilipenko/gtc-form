@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.10
+- Version: 3.11
 - Status: For internal review
 
 ## 1. Purpose
@@ -129,6 +129,7 @@ This documentation block starts from the following approved business controls:
 53. Finite catalog-backed form fields must use true structured select controls instead of browser datalist text inputs; repeated address blocks should provide an explicit same-address copy option, and form/upload controls must remain readable in both dark and light themes.
 54. Evidence-heavy forms must support document-first completion: protected upload should appear immediately after the minimum identity/context block, future AI/OCR extraction may suggest mapped field values only after protected upload and scan, and accepted form data still requires owner confirmation and human review gates.
 55. Fixed document-type catalogs must render as a compact human-readable document checklist: one row per document type, hidden hover description, one visible row-level upload/replace button, uploaded filename and processing status under the document name; visible technical document-type dropdowns and separate visible file-picker controls are not the primary user control.
+56. Country-code fields must use the approved country catalog through a true select and store comparable ISO alpha-2 values; when a form asks for repeated country values, an explicit copy helper such as `Same as nationality` should be provided where it reduces duplicate user input without hiding the ability to choose a different country.
 
 ## 5. Intended Use
 
@@ -148,6 +149,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.11 | 2026-05-29 | GTC IT / AI Assistant | Added country-code catalog select and same-as-nationality copy helper control to the standard form lifecycle |
 | 3.10 | 2026-05-29 | GTC IT / AI Assistant | Refined fixed document checklist control to one visible row-level Upload/Replace button that opens file selection and starts upload immediately after file choice |
 | 3.9 | 2026-05-29 | GTC IT / AI Assistant | Refined fixed document checklist control from document cards to compact row-level upload list with hidden hover descriptions and no file-input rerender before upload |
 | 3.8 | 2026-05-29 | GTC IT / AI Assistant | Added document-checklist control for fixed protected-upload document catalogs and replacement-required states |

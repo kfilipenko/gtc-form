@@ -55,12 +55,100 @@
     return record && typeof record.display_name === 'string' ? record.display_name.trim() : '';
   }
 
-  function optionValue(record) {
+  function normalizeCountryName(value) {
+    return String(value || '')
+      .trim()
+      .toUpperCase()
+      .replace(/&/g, 'AND')
+      .replace(/[^A-Z0-9]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  const countryIsoOverrides = new Map([
+    ['BOLIVIA PLURINATIONAL STATE OF', 'BO'],
+    ['BRUNEI DARUSSALAM', 'BN'],
+    ['CAPE VERDE', 'CV'],
+    ['CONGO DEMOCRATIC REPUBLIC OF THE', 'CD'],
+    ['CONGO THE DEMOCRATIC REPUBLIC OF THE', 'CD'],
+    ['CONGO REPUBLIC OF THE', 'CG'],
+    ['COTE D IVOIRE', 'CI'],
+    ['CZECH REPUBLIC', 'CZ'],
+    ['IRAN ISLAMIC REPUBLIC OF', 'IR'],
+    ['KOREA DEMOCRATIC PEOPLE S REPUBLIC OF', 'KP'],
+    ['KOREA REPUBLIC OF', 'KR'],
+    ['LAO PEOPLE S DEMOCRATIC REPUBLIC', 'LA'],
+    ['MACEDONIA THE FORMER YUGOSLAV REPUBLIC OF', 'MK'],
+    ['MICRONESIA FEDERATED STATES OF', 'FM'],
+    ['MOLDOVA REPUBLIC OF', 'MD'],
+    ['RUSSIAN FEDERATION', 'RU'],
+    ['SYRIAN ARAB REPUBLIC', 'SY'],
+    ['TAIWAN PROVINCE OF CHINA', 'TW'],
+    ['TANZANIA UNITED REPUBLIC OF', 'TZ'],
+    ['VENEZUELA BOLIVARIAN REPUBLIC OF', 'VE'],
+    ['VIET NAM', 'VN']
+  ]);
+
+  let countryIsoByDisplayName = null;
+
+  const isoRegionCodes = 'AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS XK YE YT ZA ZM ZW'
+    .split(' ');
+
+  function resolveCountryIsoCode(displayName) {
+    const normalized = normalizeCountryName(displayName);
+    if (!normalized) {
+      return '';
+    }
+    if (/^[A-Z]{2}$/.test(normalized)) {
+      return normalized;
+    }
+    if (countryIsoOverrides.has(normalized)) {
+      return countryIsoOverrides.get(normalized);
+    }
+    if (countryIsoByDisplayName === null) {
+      countryIsoByDisplayName = new Map();
+      try {
+        if (typeof Intl !== 'undefined' && typeof Intl.DisplayNames === 'function') {
+          const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+          isoRegionCodes.forEach((code) => {
+            const name = displayNames.of(code);
+            countryIsoByDisplayName.set(normalizeCountryName(name), code);
+          });
+        }
+      } catch (error) {
+        countryIsoByDisplayName = new Map();
+      }
+    }
+    return countryIsoByDisplayName.get(normalized) || '';
+  }
+
+  function optionValue(record, options) {
+    const opts = options || {};
+    if (opts.countryIsoValue) {
+      const countryCode = resolveCountryIsoCode(valueText(record));
+      if (countryCode) {
+        return countryCode;
+      }
+    }
+    if (opts.preferValueCode && record && typeof record.value_code === 'string' && record.value_code.trim()) {
+      return record.value_code.trim();
+    }
     const displayName = valueText(record);
     if (displayName) {
       return displayName;
     }
     return record && typeof record.value_code === 'string' ? record.value_code.trim() : '';
+  }
+
+  function optionLabel(record, value, options) {
+    const displayName = valueText(record);
+    const code = options && options.countryIsoValue
+      ? value
+      : (record && typeof record.value_code === 'string' ? record.value_code.trim() : '');
+    if (options && options.showCodeInLabel && displayName && code && normalizeKey(displayName) !== normalizeKey(code)) {
+      return `${displayName} (${code})`;
+    }
+    return displayName || value;
   }
 
   function normalizeKey(value) {
@@ -130,7 +218,7 @@
     }
 
     sourceValues.forEach((record) => {
-      const value = optionValue(record);
+      const value = optionValue(record, opts);
       const key = normalizeKey(value);
       if (!value || used.has(key)) {
         return;
@@ -138,7 +226,7 @@
       used.add(key);
       const option = document.createElement('option');
       option.value = value;
-      option.textContent = valueText(record) || value;
+      option.textContent = optionLabel(record, value, opts);
       if (record && typeof record.value_code === 'string') {
         option.dataset.valueCode = record.value_code;
       }
