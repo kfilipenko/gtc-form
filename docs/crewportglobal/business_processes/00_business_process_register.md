@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.2
+- Version: 3.3
 - Status: For internal review
 
 ## 1. Purpose
@@ -123,6 +123,7 @@ This documentation block starts from the following approved business controls:
 47. The first shared frontend lifecycle helper has been extracted. Future form pages must reuse the shared missing-item navigation/highlighting and autosave controller instead of copying page-local lifecycle logic.
 48. The employer-side `/post-vacancy/` demand form must use the standard lifecycle completeness gate: after `Save / confirm data`, backend `E/V/R` missing items must be shown as exact links to company, vessel, crew-request or upload fields before any future operator-review submission can be enabled.
 49. Protected upload behavior must be provided through a shared frontend helper for all current and future forms: allowed formats, 10 MB single-file limit, exact backend upload errors, uploaded-document list rendering and document-correction task rendering must not be reimplemented independently per page.
+50. Before programming a new function, the implementer must check the implemented-code standards register; if a canonical implementation exists it must be reused through an adapter, and if no standard exists for a reusable operation a new implemented standard must be created before duplicating logic in multiple code areas.
 
 ## 5. Intended Use
 
@@ -142,6 +143,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.3 | 2026-05-29 | GTC IT / AI Assistant | Added mandatory implemented-code standard lookup rule before programming new reusable functions |
 | 3.2 | 2026-05-29 | GTC IT / AI Assistant | Added Phase D shared protected upload helper control for reusable validation, status rendering and document task rendering across current and future forms |
 | 3.1 | 2026-05-28 | GTC IT / AI Assistant | Added Phase C demand-side lifecycle completeness control for `/post-vacancy/`, including E/V/R missing-item rendering and exact field navigation before future submit-review gating |
 | 3.0 | 2026-05-28 | GTC IT / AI Assistant | Added Phase B shared frontend lifecycle helper control after extracting `/create-profile/` missing-item navigation/highlighting and autosave behavior into a reusable module |

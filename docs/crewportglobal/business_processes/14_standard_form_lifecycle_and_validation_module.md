@@ -293,6 +293,25 @@ Implementation must not:
 6. treat uploaded documents as accepted until scan and review requirements are satisfied;
 7. make automatic employment decisions or final candidate approval.
 
+## 13A. Implemented Code Standard Control
+
+Before programming any new lifecycle, upload, completeness, submit-review, correction or task workflow function, the implementer must check:
+
+```text
+docs/crewportglobal/implemented_code_standards/00_implemented_code_standards_register.md
+```
+
+If an implemented standard exists, the new work must use the existing canonical module/helper/service through an adapter or configuration layer.
+
+If no implemented standard exists and the function is likely to be reused in multiple parts of the application, a new implemented standard and canonical implementation must be created before broad implementation.
+
+The current lifecycle-related implemented standards are:
+
+| ID | Standard | Canonical implementation |
+|---|---|---|
+| `ICS-001` | Standard form lifecycle | `projects/crewportglobal/public/assets/crewportglobal-form-lifecycle.js` |
+| `ICS-002` | Standard protected upload | `projects/crewportglobal/public/assets/crewportglobal-protected-upload.js` |
+
 ## 14. Acceptance Criteria
 
 The standard is correctly adopted for a form when:
