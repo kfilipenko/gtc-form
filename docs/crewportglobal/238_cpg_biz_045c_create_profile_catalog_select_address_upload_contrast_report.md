@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: Project Owner runtime testing of `/create-profile/`
-- Version: 1.4
+- Version: 1.5
 - Date: 2026-05-29
 - Status: Implemented and verified on GTC1
 
@@ -21,7 +21,8 @@
 4. улучшить читаемость списка загруженных документов и полей формы в темной теме;
 5. закрепить правило в стандарте формы, чтобы аналогичные формы использовали общий механизм;
 6. перенести загрузку документов в начало анкеты как основу будущего document-first заполнения профиля;
-7. заменить технический выбор типа документа на понятный список документов со статусами.
+7. заменить технический выбор типа документа на понятный список документов со статусами;
+8. упростить строку документа до одной видимой кнопки `Upload` / `Replace`, которая открывает выбор файла и сразу запускает upload после выбора.
 
 ## 2. Найденная системная причина
 
@@ -200,7 +201,7 @@ data-extraction-mode="future_ai_assisted_confirmation"
 4. scan status;
 5. human/agent review status;
 6. размер файла;
-7. row-level upload / replace control справа от названия.
+7. one-button row-level `Upload` / `Replace` control справа от названия.
 
 Состояния строки:
 
@@ -218,9 +219,13 @@ data-extraction-mode="future_ai_assisted_confirmation"
 select#create-document-upload-type[hidden]
 ```
 
-Пользователь выбирает файл в строке нужного документа и нажимает `Upload`. Если документ не прошел проверку, та же строка показывает `Replacement required` и используется для загрузки замены.
+Пользователь нажимает единственную видимую кнопку `Upload` или `Replace` в строке нужного документа. Кнопка открывает системный выбор файла; после выбора файла upload запускается сразу, без отдельной второй кнопки `Choose file`.
 
-Во время тестирования была найдена и исправлена системная ошибка строковой загрузки: выбор файла не должен перерисовывать список документов до нажатия `Upload`, иначе браузер теряет выбранный `File` object. Теперь выбор типа документа обновляется без перерисовки строки, а upload использует общий `crewportglobal-protected-upload.js` controller.
+Если документ не прошел проверку, та же строка показывает `Replacement required` и используется для загрузки замены через ту же кнопку.
+
+Во время тестирования была найдена и исправлена системная ошибка строковой загрузки: выбор файла не должен перерисовывать список документов до upload, иначе браузер теряет выбранный `File` object. Теперь выбор типа документа обновляется без перерисовки строки, а upload использует общий `crewportglobal-protected-upload.js` controller.
+
+Технический file input остается в DOM только как браузерный механизм открытия системного выбора файла. Он скрыт от пользователя и не является отдельным видимым действием.
 
 Для безопасного owner-view API добавлено поле:
 
@@ -238,8 +243,8 @@ reviewed_at
 | `projects/crewportglobal/public/assets/crewportglobal-reference-catalogs.js` | Added reusable catalog-backed `bindSelect()` / `populateSelect()` helper with fallback and legacy-value preservation. |
 | `projects/crewportglobal/public/assets/crewportglobal-protected-upload.js` | Exposed `uploadFileForType()` so row-level document checklist upload controls reuse the shared protected-upload standard. |
 | `projects/crewportglobal/public/assets/crewportglobal-app.css` | Added textarea coverage to shared/dark form-control contrast rules. |
-| `projects/crewportglobal/public/create-profile/index.html` | Converted finite catalog fields to true selects, replaced preferred-vessel native multi-select UX with visible checkbox multi-choice, added same-address copy option, improved upload/list contrast, moved upload processing help text, moved protected upload into document-first placement after identity/rank/availability and replaced visible document-type dropdown with compact row-level document checklist upload. |
-| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regression for catalog selects, explicit preferred-vessel checkbox selection, same-address copy, backend save and reload persistence, document-first upload placement/extraction context and row-level document upload/status rendering. |
+| `projects/crewportglobal/public/create-profile/index.html` | Converted finite catalog fields to true selects, replaced preferred-vessel native multi-select UX with visible checkbox multi-choice, added same-address copy option, improved upload/list contrast, moved upload processing help text, moved protected upload into document-first placement after identity/rank/availability, replaced visible document-type dropdown with compact row-level document checklist upload and simplified each row to one visible `Upload` / `Replace` button. |
+| `tests/crewportglobal-create-profile-prefill.spec.ts` | Added regression for catalog selects, explicit preferred-vessel checkbox selection, same-address copy, backend save and reload persistence, document-first upload placement/extraction context, one-button row upload and row-level document upload/status rendering. |
 | `docs/crewportglobal/implemented_code_standards/01_standard_form_lifecycle.md` | Added finite catalog select, repeated-address, document-first completion and human document checklist standards. |
 | `docs/crewportglobal/implemented_code_standards/00_implemented_code_standards_register.md` | Updated ICS-001/ICS-002 to include document-first completion and document-checklist adapters through the standard lifecycle/upload model. |
 | `docs/crewportglobal/business_processes/14_standard_form_lifecycle_and_validation_module.md` | Added Phase E.5 lifecycle control, document-checklist behavior and future AI/OCR confirmation boundary. |
@@ -303,7 +308,8 @@ The test confirms:
 9. document upload keeps the future AI-assisted confirmation context without OCR side effects;
 10. document type selection and upload are performed through visible compact document rows while hidden `document_type` preserves API compatibility;
 11. uploaded documents appear under the relevant document name with pending/verified/replacement states instead of a separate generic uploaded-file list;
-12. selecting a file in a document row does not rerender the list before upload, so the chosen file is not lost.
+12. each document row exposes one visible `Upload` / `Replace` button instead of separate choose-file and upload actions;
+13. selecting a file in a document row does not rerender the list before upload, so the chosen file is not lost.
 
 ## 12. Remaining Controlled Gaps
 

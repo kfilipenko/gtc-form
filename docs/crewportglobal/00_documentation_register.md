@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.17
+- Version: 2.21
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -695,7 +695,7 @@ Document 234 records the CPG-BIZ-044A implemented-code standards register, inclu
 
 Document 235 records the CPG-BIZ-045 submit-to-operator review gate implementation, including active ICS-003, explicit `POST /api/v1/registration/drafts/{draft_id}/submit-review`, draft-save status boundaries, no operator task from autosave/save, audit event creation on successful submit and focused API/UI verification.
 
-Document 238 records the CPG-BIZ-045C `/create-profile/` catalog-select, same-address, upload/readability, document-first profile-completion and human document-checklist correction, including the systemic datalist-vs-select cause, shared `bindSelect` helper, finite catalog field matrix, registration-address copy from permanent address, protected upload placement after identity/rank/availability, compact row-level document upload list with hover descriptions and review/replacement states, future AI/OCR extraction boundary and focused regression verification.
+Document 238 records the CPG-BIZ-045C `/create-profile/` catalog-select, same-address, upload/readability, document-first profile-completion and human document-checklist correction, including the systemic datalist-vs-select cause, shared `bindSelect` helper, finite catalog field matrix, registration-address copy from permanent address, protected upload placement after identity/rank/availability, compact one-button row-level document upload list with hover descriptions and review/replacement states, future AI/OCR extraction boundary and focused regression verification.
 
 Mandatory control statement:
 
@@ -800,6 +800,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.21 | 2026-05-29 | GTC IT / AI Assistant | Refined document 238 and upload standards to use one visible row-level Upload/Replace button that opens file selection and starts upload after choice |
 | 2.20 | 2026-05-29 | GTC IT / AI Assistant | Refined document 238 and upload standards from document cards to compact row-level document upload list with hidden hover descriptions and row-level file controls |
 | 2.19 | 2026-05-29 | GTC IT / AI Assistant | Updated document 238 and upload standards with human-readable document checklist cards, safe reviewed_at display and replacement-required states |
 | 2.18 | 2026-05-29 | GTC IT / AI Assistant | Updated document 238 and implemented-code standards with document-first `/create-profile/` protected upload placement and future AI/OCR extraction boundary |

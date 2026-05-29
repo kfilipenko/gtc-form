@@ -319,38 +319,20 @@
     }
 
     .document-type-row__upload {
-      display: grid;
-      grid-template-columns: minmax(120px, 1fr) auto;
-      gap: 8px;
+      display: flex;
       align-items: center;
+      justify-content: flex-end;
     }
 
-    .document-type-row__file {
-      position: relative;
-      display: inline-flex;
-      min-width: 0;
-      min-height: 38px;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      cursor: pointer;
-    }
-
-    .document-type-row__file input {
+    .document-type-row__file-input {
       position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
-
-    .document-type-row__file-name {
-      grid-column: 1 / -1;
-      min-width: 0;
-      color: var(--app-muted);
-      font-size: 12px;
+      width: 1px;
+      height: 1px;
       overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      opacity: 0;
+      pointer-events: none;
     }
 
     .document-upload-legacy {
@@ -2324,8 +2306,7 @@
         'create.upload.typeDescription.other_professional_evidence': 'Other professional evidence requested by the operator.',
         'create.upload.file': 'File',
         'create.upload.submit': 'Upload',
-        'create.upload.row.chooseFile': 'Choose file',
-        'create.upload.row.noFileSelected': 'No file selected',
+        'create.upload.row.uploading': 'Uploading...',
         'create.upload.status.initial': 'Allowed files: PDF, JPG, PNG or WEBP. Maximum size: 10 MB. Save the draft first, then upload files.',
         'create.upload.status.saveFirst': 'Save the draft first, then upload documents.',
         'create.upload.status.chooseFile': 'Choose a file to upload.',
@@ -2872,8 +2853,7 @@
         'create.upload.typeDescription.other_professional_evidence': 'Другое профессиональное подтверждение по запросу оператора.',
         'create.upload.file': 'Файл',
         'create.upload.submit': 'Загрузить',
-        'create.upload.row.chooseFile': 'Выбрать файл',
-        'create.upload.row.noFileSelected': 'Файл не выбран',
+        'create.upload.row.uploading': 'Загрузка...',
         'create.upload.status.initial': 'Допустимые файлы: PDF, JPG, PNG или WEBP. Максимальный размер: 10 MB. Сначала сохраните черновик, затем загрузите файл.',
         'create.upload.status.saveFirst': 'Сначала сохраните черновик, затем загрузите документы.',
         'create.upload.status.chooseFile': 'Выберите файл для загрузки.',
@@ -3462,17 +3442,12 @@
 
           const uploadControls = document.createElement('div');
           uploadControls.className = 'document-type-row__upload';
-          const fileLabel = document.createElement('label');
-          fileLabel.className = 'button secondary document-type-row__file';
-          const fileText = document.createElement('span');
-          fileText.textContent = t('create.upload.row.chooseFile');
-          fileLabel.appendChild(fileText);
           const rowFile = document.createElement('input');
           rowFile.type = 'file';
+          rowFile.className = 'document-type-row__file-input';
           rowFile.accept = '.pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp';
-          rowFile.setAttribute('aria-label', `${t('create.upload.row.chooseFile')}: ${documentUploadTypeLabel(documentType)}`);
-          fileLabel.appendChild(rowFile);
-          uploadControls.appendChild(fileLabel);
+          rowFile.setAttribute('aria-label', `${t('create.upload.submit')}: ${documentUploadTypeLabel(documentType)}`);
+          uploadControls.appendChild(rowFile);
 
           const uploadButton = document.createElement('button');
           uploadButton.type = 'button';
@@ -3480,28 +3455,34 @@
           uploadButton.textContent = documentRecord && actionRequiredDocumentReviewStatuses.includes(documentRecord.review_status)
             ? t('create.upload.card.replace')
             : t('create.upload.submit');
+          uploadButton.setAttribute('aria-label', `${uploadButton.textContent}: ${documentUploadTypeLabel(documentType)}`);
           uploadControls.appendChild(uploadButton);
 
-          const selectedFile = document.createElement('span');
-          selectedFile.className = 'document-type-row__file-name';
-          selectedFile.textContent = t('create.upload.row.noFileSelected');
-          uploadControls.appendChild(selectedFile);
-
-          rowFile.addEventListener('change', () => {
-            selectDocumentUploadType(documentType, false, false);
-            selectedFile.textContent = rowFile.files && rowFile.files[0]
-              ? rowFile.files[0].name
-              : t('create.upload.row.noFileSelected');
-          });
-          uploadButton.addEventListener('click', async () => {
+          const uploadRowFile = async () => {
             const file = rowFile.files && rowFile.files[0] ? rowFile.files[0] : null;
+            if (!file) {
+              return;
+            }
             selectDocumentUploadType(documentType, false, false);
+            const previousLabel = uploadButton.textContent;
             uploadButton.disabled = true;
+            uploadButton.textContent = t('create.upload.row.uploading');
             try {
               await protectedUpload.uploadFileForType(documentType, file, rowFile);
-              selectedFile.textContent = t('create.upload.row.noFileSelected');
             } finally {
               uploadButton.disabled = false;
+              uploadButton.textContent = previousLabel;
+            }
+          };
+
+          rowFile.addEventListener('change', () => {
+            uploadRowFile();
+          });
+          uploadButton.addEventListener('click', () => {
+            selectDocumentUploadType(documentType, false, false);
+            rowFile.value = '';
+            if (typeof rowFile.click === 'function') {
+              rowFile.click();
             }
           });
 

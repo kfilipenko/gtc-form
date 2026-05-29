@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Business-process standard and implementation control
 - Source task: Project Owner approval after CPG-BIZ-040 multi-role upload diagnostics
-- Version: 1.8
+- Version: 1.9
 - Date: 2026-05-29
 - Status: Approved standard for staged implementation
 
@@ -172,7 +172,7 @@ Each form page must connect to the same frontend behavior.
 | Submit-review button | Hidden or disabled until backend `can_submit_to_operator = true`. |
 | Upload panel | Show allowed formats and 10 MB file limit before upload. |
 | Document-first placement | For evidence-heavy forms, place protected upload after the minimum identity/context block and before long manual sections. |
-| Document checklist | When document types are finite, show a compact human-readable row list with row-level upload, review and replacement state instead of a visible technical dropdown. |
+| Document checklist | When document types are finite, show a compact human-readable row list with one visible row-level upload/replace button, review state and replacement state instead of a visible technical dropdown. |
 | Upload failure | Show precise failure reason when available. |
 | Upload success | Show the uploaded filename and refresh the protected-document list so the user can see the accepted file even after the file input is cleared. |
 | Reload safety | After reload, saved and autosaved data must still be present. |
@@ -216,8 +216,10 @@ Each document row must keep the upload workflow short:
 1. document name is always visible;
 2. short description is available on hover / tooltip only;
 3. uploaded filename and status appear under the document name;
-4. file selection and upload/replace action appear in the same row;
+4. one visible upload/replace button appears in the same row and opens the browser file picker;
 5. selecting a file must not rerender the row before upload, because replacing the file input clears the selected browser file.
+
+The file input may remain hidden as a technical adapter, but it must not be presented as a separate user decision. After the user chooses a file through the row button, upload starts immediately and the row refreshes to show the accepted filename or a precise validation error.
 
 ### 7.1 Document-first profile completion
 
@@ -315,7 +317,7 @@ The page-specific adapter must be small: it maps DOM fields to canonical codes a
 
 | Page / flow | Current status | Next standardization action |
 |---|---|---|
-| `/create-profile/` | Phase E.5 adopted: autosave, `Save / confirm data`, `S-*` missing items, field highlight, role-aware seafarer context, document-first protected upload placement, human-readable document checklist, missing-item navigation/highlighting, protected upload helper, backend-first reload after save, explicit checkbox multi-choice for preferred vessel types, finite catalog single-selects, same-address copy and dark-theme contrast corrections. | Keep behavior covered by create-profile regression and apply the same catalog/select, multi-choice, same-address, document-checklist and document-first upload rules to future form adapters. |
+| `/create-profile/` | Phase E.5 adopted: autosave, `Save / confirm data`, `S-*` missing items, field highlight, role-aware seafarer context, document-first protected upload placement, human-readable one-button document checklist, missing-item navigation/highlighting, protected upload helper, backend-first reload after save, explicit checkbox multi-choice for preferred vessel types, finite catalog single-selects, same-address copy and dark-theme contrast corrections. | Keep behavior covered by create-profile regression and apply the same catalog/select, multi-choice, same-address, one-button document-checklist and document-first upload rules to future form adapters. |
 | `/post-vacancy/` | Phase D adopted: employer-side role-aware draft reads, `Save / confirm data`, backend `E/V/R` completeness, missing-item panel, field highlighting, exact field navigation and protected upload use shared lifecycle/upload helpers. | Keep behavior covered by post-vacancy regression and connect future submit-review gate only after backend completeness passes. |
 | `/cabinet/` correction tasks | Partially adopted: correction tasks and source-card links exist. | Use the same missing-item numbering and correction route contract. |
 | `/verify/` review workspace | Partially adopted: computed tasks and review outcomes exist. | Consume lifecycle state labels from a standard task/action contract. |
@@ -336,7 +338,7 @@ Recommended sequence:
 | Phase E.2 | Correct `/create-profile/` finite catalog selects, repeated-address copy and upload/list contrast. | Completed: catalog-backed `select` controls for finite fields, `Same address` copy from permanent to registration address, and readable upload/document rows in dark theme. |
 | Phase E.3 | Replace hidden multi-select UX with explicit multi-choice control for `/create-profile/` preferred vessel types. | Completed: visible checkbox choices backed by the same structured `preferred_vessel_types` array, with `Any vessel type` kept mutually exclusive. |
 | Phase E.4 | Move `/create-profile/` protected upload into document-first placement and reserve extraction context. | Completed: upload appears immediately after identity/rank/availability, keeps the shared protected-upload helper and includes future AI-assisted confirmation context without OCR side effects. |
-| Phase E.5 | Replace visible document-type dropdown with human-readable document checklist. | Completed: fixed seafarer document types render as compact upload rows showing not-uploaded, uploaded filename, pending review, verified and replacement-required states while preserving hidden `document_type` for API upload. |
+| Phase E.5 | Replace visible document-type dropdown with human-readable document checklist. | Completed: fixed seafarer document types render as compact one-button upload rows showing not-uploaded, uploaded filename, pending review, verified and replacement-required states while preserving hidden `document_type` for API upload. |
 | Phase F | Connect owner correction tasks to the same numbered missing-item standard. | Consistent correction and resubmission flow. |
 
 ## 13. Prohibited Shortcuts

@@ -5,7 +5,7 @@
 - Documentation block: Implemented code standards
 - Document type: Dedicated implemented-standard register
 - Format: Markdown
-- Version: 1.2
+- Version: 1.3
 - Date: 2026-05-29
 - Status: Active implementation control
 
@@ -89,7 +89,7 @@ Each implemented standard should have a dedicated document with:
 | ID | Standard | Canonical implementation | Current adopters | Status |
 |---|---|---|---|---|
 | ICS-001 | Standard form lifecycle, including document-first completion placement where applicable | `projects/crewportglobal/public/assets/crewportglobal-form-lifecycle.js` plus page adapter context | `/create-profile/`, `/post-vacancy/` | Active |
-| ICS-002 | Standard protected upload, including compact row-level document checklist adapters for finite document catalogs | `projects/crewportglobal/public/assets/crewportglobal-protected-upload.js` plus page checklist adapter | `/create-profile/`, `/post-vacancy/` | Active |
+| ICS-002 | Standard protected upload, including compact one-button row-level document checklist adapters for finite document catalogs | `projects/crewportglobal/public/assets/crewportglobal-protected-upload.js` plus page checklist adapter | `/create-profile/`, `/post-vacancy/` | Active |
 | ICS-003 | Submit-to-operator review gate | `projects/crewportglobal/app/backend/api/public/index.php` / `handle_post_draft_submit_review()` plus `window.CPGDrafts.submitForOperatorReview()` | `/create-profile/`, `/post-vacancy/` | Active |
 
 ## 6. Planned Implemented Standards

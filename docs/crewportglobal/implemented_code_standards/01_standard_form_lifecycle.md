@@ -4,7 +4,7 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Implemented code standards
 - Document type: Implemented code standard
-- Version: 1.5
+- Version: 1.6
 - Date: 2026-05-29
 - Status: Active
 
@@ -72,7 +72,7 @@ Each page adapter must provide:
 | finite catalog select mapping | Maps matching-critical finite catalog fields to true `select` controls instead of browser `datalist` text inputs. |
 | repeated-address source mapping | Defines which source address fields can copy into the repeated address block. |
 | document-first upload context | Defines whether upload appears before detailed manual fields and which canonical prefix future extraction maps to. |
-| document checklist adapter | Maps allowed document types to compact visible rows with uploaded/reviewed/replacement state and row-level upload controls. |
+| document checklist adapter | Maps allowed document types to compact visible rows with uploaded/reviewed/replacement state and one visible row-level upload/replace button. |
 
 ## 5. Forbidden Local Logic
 
@@ -169,9 +169,9 @@ For fixed document catalogs, the owner UI should show one compact document row p
 5. human/agent review status;
 6. verified/confirmed state when `review_status = verified`;
 7. replacement-required state when `review_status` is `correction_requested` or `rejected`;
-8. row-level file selection and upload/replace action.
+8. one visible row-level upload/replace button that opens the browser file picker and uploads immediately after file selection.
 
-The document list must not be rendered as large reading cards when the user needs a fast upload menu. Selecting a row file must not rerender the list before upload, because browsers clear selected `File` objects when their input node is replaced.
+The document list must not be rendered as large reading cards when the user needs a fast upload menu. The user-facing row must not require two separate visible actions such as `Choose file` and `Upload`. A hidden file input may remain only as a technical browser adapter behind the visible `Upload` / `Replace` button. Selecting a row file must not rerender the list before upload, because browsers clear selected `File` objects when their input node is replaced.
 
 The technical `document_type` control may remain hidden as an adapter detail only when the visible checklist is the user-facing control.
 
