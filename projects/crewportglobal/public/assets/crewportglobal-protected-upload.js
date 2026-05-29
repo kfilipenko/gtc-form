@@ -81,6 +81,12 @@
       return tFormat(key(suffix), values);
     }
 
+    function hasTranslation(suffix) {
+      const translationKey = key(suffix);
+      const translated = t(translationKey);
+      return Boolean(translated && translated !== translationKey);
+    }
+
     function setStatusText(text) {
       if (nodes.status) {
         nodes.status.textContent = text || '';
@@ -311,6 +317,7 @@
       setStatusText(tr('status.uploading'));
 
       try {
+        const selectedFileName = file && typeof file.name === 'string' ? file.name : '';
         const response = await uploadDocument(draftId, {
           formType,
           documentType: nodes.type ? nodes.type.value : '',
@@ -319,10 +326,19 @@
         if (nodes.file) {
           nodes.file.value = '';
         }
+        const uploadedFileName = response.document && typeof response.document.original_filename === 'string'
+          ? response.document.original_filename
+          : selectedFileName;
+        const uploadedStatus = hasTranslation('status.uploadedDetail')
+          ? trFormat('status.uploadedDetail', { filename: uploadedFileName || '-' })
+          : `${tr('status.uploaded')} ${uploadedFileName || ''}`.trim();
         setStatusText(response.document && response.document.scan_status === 'clean'
-          ? tr('status.uploaded')
+          ? uploadedStatus
           : `${tr('meta.scan')}: ${displayValue(response.document && response.document.scan_status)}`);
         await refreshUploadedDocuments();
+        if (nodes.list && typeof nodes.list.scrollIntoView === 'function') {
+          nodes.list.scrollIntoView({ block: 'nearest' });
+        }
         await onUploaded(response, draftId);
       } catch (error) {
         setStatusText(trFormat('status.errorDetail', {

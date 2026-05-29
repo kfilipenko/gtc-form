@@ -323,6 +323,7 @@ docs/crewportglobal/
   234_cpg_biz_044a_implemented_code_standards_register_report.md
   235_cpg_biz_045_submit_to_operator_review_gate_report.md
   236_cpg_biz_045a_create_profile_save_reload_vessel_multiselect_report.md
+  237_cpg_biz_045b_protected_upload_success_feedback_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -796,6 +797,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.16 | 2026-05-29 | GTC IT / AI Assistant | Added document 237 for CPG-BIZ-045B covering protected upload success feedback with uploaded filename and refreshed document list |
 | 2.15 | 2026-05-29 | GTC IT / AI Assistant | Added document 236 for CPG-BIZ-045A covering `/create-profile/` backend-first save/reload persistence and structured vessel-type multiselect with neutral option |
 | 2.14 | 2026-05-29 | GTC IT / AI Assistant | Added document 235 and ICS-003 for the submit-to-operator review gate, explicit submit endpoint and draft-save/no-operator-task boundary |
 | 2.13 | 2026-05-29 | GTC IT / AI Assistant | Added implemented-code standards block and document 234 for the mandatory pre-coding standard lookup/reuse rule |

@@ -354,6 +354,9 @@ test('create profile keeps seafarer save and upload active for multi-role accoun
   });
   await page.locator('#create-document-upload-submit').click();
   await expect(page.locator('#create-document-upload-status')).not.toContainText('form_type');
+  await expect(page.locator('#create-document-upload-status')).toContainText('multi-role-passport.pdf');
+  await expect(page.locator('#create-document-upload-status')).toContainText('listed below');
+  await expect(page.locator('#create-document-upload-list')).toContainText('multi-role-passport.pdf', { timeout: 7000 });
   await expect(page.locator('#create-document-upload-list')).toContainText('passport_or_id', { timeout: 7000 });
 });
 

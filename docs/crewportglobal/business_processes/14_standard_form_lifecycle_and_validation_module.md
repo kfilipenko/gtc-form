@@ -171,6 +171,7 @@ Each form page must connect to the same frontend behavior.
 | Submit-review button | Hidden or disabled until backend `can_submit_to_operator = true`. |
 | Upload panel | Show allowed formats and 10 MB file limit before upload. |
 | Upload failure | Show precise failure reason when available. |
+| Upload success | Show the uploaded filename and refresh the protected-document list so the user can see the accepted file even after the file input is cleared. |
 | Reload safety | After reload, saved and autosaved data must still be present. |
 | Backend-first reload | After successful backend save, backend draft is the source of truth; browser local snapshot may restore only newer unsaved edits. |
 | List-valued reference field | Use structured multi-select controls for list-valued catalog fields instead of free text, with explicit neutral option when matching allows it. |
@@ -327,11 +328,12 @@ The standard is correctly adopted for a form when:
 5. incomplete fields are visually marked;
 6. protected upload rules are visible before upload;
 7. upload errors are specific;
-8. submit-review is disabled until backend completeness passes;
-9. submit-review writes audit and computes the next task only after the gate passes;
-10. after successful save, hard reload restores backend data and does not let an older local snapshot erase user data;
-11. list-valued reference fields use structured selections rather than unvalidated text when a catalog exists;
-12. Playwright/API tests cover save, reload, completeness, upload and role-context behavior.
+8. successful upload status includes the uploaded filename and the refreshed protected-document list shows the uploaded file;
+9. submit-review is disabled until backend completeness passes;
+10. submit-review writes audit and computes the next task only after the gate passes;
+11. after successful save, hard reload restores backend data and does not let an older local snapshot erase user data;
+12. list-valued reference fields use structured selections rather than unvalidated text when a catalog exists;
+13. Playwright/API tests cover save, reload, completeness, upload and role-context behavior.
 
 ## 15. Next Stage
 

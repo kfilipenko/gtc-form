@@ -4,7 +4,7 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Implemented code standards
 - Document type: Implemented code standard
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-05-29
 - Status: Active
 
@@ -62,6 +62,7 @@ The canonical helper enforces:
 | Backend error handling | Code-based translation with fallback to exact backend message |
 | Document list rendering | Shared rendering for uploaded documents |
 | Correction/replacement task rendering | Shared rendering for `correction_requested` and `rejected` documents |
+| Successful upload feedback | Status must include the uploaded filename and the refreshed document list must show the uploaded record. |
 
 ## 5. Adapter Contract
 
@@ -91,7 +92,8 @@ Pages must not duplicate:
 3. backend upload error decoding;
 4. uploaded document list rendering;
 5. correction/replacement document task rendering;
-6. upload button disable/enable flow.
+6. upload button disable/enable flow;
+7. successful-upload filename/status handling.
 
 Page-specific differences must be passed as adapter configuration.
 
@@ -105,6 +107,8 @@ tests/crewportglobal-post-vacancy-workspace.spec.ts
 ```
 
 The tests check exact `10 MB` validation, unsupported file validation, seafarer draft role behavior and demand-side completeness behavior after standard adoption.
+
+The `/create-profile/` regression also checks that a successful upload status includes the uploaded filename and that the refreshed protected-document list shows the uploaded file and document type.
 
 ## 8. Change Propagation Rule
 
