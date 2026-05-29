@@ -167,7 +167,7 @@ test('create profile prefill from draft_id preserves patch flow', async ({ page 
   await page.locator('#create-availability-date').fill('2026-08-15');
   await page.locator('#create-phone').fill('+971501112233');
   await page.locator('#create-salary').fill('4600');
-  await page.locator('#create-vessel-types').fill('Bulk Carrier, Container');
+  await page.locator('#create-vessel-types').selectOption(['BULK CARRIER', 'CONTAINER SHIP']);
   await page.locator('#create-certificate-status').selectOption('ready');
   await page.locator('#create-stcw-status').selectOption('collecting');
   await page.locator('#create-passport-expiry').fill('2028-08-15');
@@ -205,7 +205,7 @@ test('create profile prefill from draft_id preserves patch flow', async ({ page 
   await expect(page.locator('#create-availability-date')).toHaveValue('2026-08-15');
   await expect(page.locator('#create-phone')).toHaveValue('+971501112233');
   await expect(page.locator('#create-salary')).toHaveValue('4600.00');
-  await expect(page.locator('#create-vessel-types')).toHaveValue('Bulk Carrier, Container');
+  await expect(page.locator('#create-vessel-types')).toHaveValues(['BULK CARRIER', 'CONTAINER SHIP']);
   await expect(page.locator('#create-certificate-status')).toHaveValue('ready');
   await expect(page.locator('#create-stcw-status')).toHaveValue('collecting');
   await expect(page.locator('#create-passport-expiry')).toHaveValue('2028-08-15');
@@ -475,6 +475,76 @@ test('create profile save confirm persists existing draft edits when visible ema
   await expect(page.locator('#create-registration-city')).toHaveValue('Riga');
 });
 
+test('create profile save confirm keeps backend data after hard reload and supports any vessel type', async ({ page, request }) => {
+  const email = `ui.savebutton.${Date.now()}.reload@example.com`;
+  const createResponse = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email,
+      full_name: 'Reload Persistence Seafarer',
+      rank: 'Able Seaman',
+      department: 'deck',
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = await createResponse.json();
+
+  await page.goto(`/create-profile/?draft_id=${created.draft_id}`);
+  await page.evaluate(() => {
+    window.localStorage.setItem('crewportglobal.language', 'en');
+  });
+  await expect(page.locator('#create-status')).toContainText('prefilled');
+
+  await page.locator('#create-vessel-types').selectOption('Any vessel type');
+  await page.locator('#profile-section-contact').evaluate((element) => element.setAttribute('open', ''));
+  await page.locator('#create-permanent-address').fill('Reload Persistence Deck 7');
+  await page.locator('#create-residence-city').fill('Limassol');
+  await page.locator('#create-submit').click();
+  await expect(page.locator('#create-status')).toContainText(/saved|Complete/);
+
+  await expect.poll(async () => {
+    const draftResponse = await request.get(`/api/v1/registration/drafts/${created.draft_id}`);
+    expect(draftResponse.status()).toBe(200);
+    const draftBody = await draftResponse.json();
+    const profile = draftBody.payload.seafarer_profile;
+    const metadata = typeof profile.document_metadata === 'string'
+      ? JSON.parse(profile.document_metadata)
+      : profile.document_metadata;
+    const preferredVesselTypes = typeof profile.preferred_vessel_types === 'string'
+      ? JSON.parse(profile.preferred_vessel_types)
+      : profile.preferred_vessel_types;
+    return {
+      permanent_address: metadata?.seafarer_workspace?.contact_and_addresses?.permanent_address || '',
+      residence_city: metadata?.seafarer_workspace?.contact_and_addresses?.residence_city || '',
+      preferred_vessel_types: Array.isArray(preferredVesselTypes) ? preferredVesselTypes : [],
+    };
+  }, { timeout: 7000 }).toEqual({
+    permanent_address: 'Reload Persistence Deck 7',
+    residence_city: 'Limassol',
+    preferred_vessel_types: ['Any vessel type'],
+  });
+
+  await page.evaluate((draftId) => {
+    window.localStorage.setItem(`crewportglobal.createProfile.localDraft.${draftId}`, JSON.stringify({
+      version: 1,
+      draft_id: draftId,
+      saved_at: '2000-01-01T00:00:00.000Z',
+      fields: {
+        'create-permanent-address': '',
+        'create-residence-city': '',
+        'create-vessel-types': [],
+      },
+    }));
+  }, created.draft_id);
+
+  await page.reload();
+  await expect(page.locator('#create-status')).toContainText('prefilled');
+  await expect(page.locator('#create-vessel-types')).toHaveValues(['Any vessel type']);
+  await page.locator('#profile-section-contact').evaluate((element) => element.setAttribute('open', ''));
+  await expect(page.locator('#create-permanent-address')).toHaveValue('Reload Persistence Deck 7');
+  await expect(page.locator('#create-residence-city')).toHaveValue('Limassol');
+});
+
 test('create profile autosaves contact and address edits before reload', async ({ page, request }) => {
   const email = `ui.autosave.${Date.now()}@example.com`;
   const createResponse = await request.post('/api/v1/registration/drafts', {
@@ -605,7 +675,7 @@ test('create profile prefill falls back to local draft when draft_id is missing'
   await page.locator('#create-availability-date').fill('2026-09-01');
   await page.locator('#create-phone').fill('+971500009999');
   await page.locator('#create-salary').fill('5000');
-  await page.locator('#create-vessel-types').fill('LNG, Tanker');
+  await page.locator('#create-vessel-types').selectOption(['LNG', 'OIL TANKER']);
   await page.locator('#create-certificate-status').selectOption('ready');
   await page.locator('#create-stcw-status').selectOption('ready');
   await page.locator('#create-passport-expiry').fill('2029-01-10');
@@ -628,8 +698,8 @@ test('create profile prefill falls back to local draft when draft_id is missing'
   await expect(page.locator('#create-availability')).toHaveValue('available_now');
   await expect(page.locator('#create-availability-date')).toHaveValue('2026-09-01');
   await expect(page.locator('#create-phone')).toHaveValue('+971500009999');
-  await expect(page.locator('#create-salary')).toHaveValue('5000');
-  await expect(page.locator('#create-vessel-types')).toHaveValue('LNG, Tanker');
+  await expect(page.locator('#create-salary')).toHaveValue('5000.00');
+  await expect(page.locator('#create-vessel-types')).toHaveValues(['LNG', 'OIL TANKER']);
   await expect(page.locator('#create-certificate-status')).toHaveValue('ready');
   await expect(page.locator('#create-stcw-status')).toHaveValue('ready');
   await expect(page.locator('#create-passport-expiry')).toHaveValue('2029-01-10');

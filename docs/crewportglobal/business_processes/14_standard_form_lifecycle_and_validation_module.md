@@ -5,8 +5,8 @@
 - Documentation block: Business processes and operating model
 - Document type: Business-process standard and implementation control
 - Source task: Project Owner approval after CPG-BIZ-040 multi-role upload diagnostics
-- Version: 1.3
-- Date: 2026-05-28
+- Version: 1.4
+- Date: 2026-05-29
 - Status: Approved standard for staged implementation
 
 ## 1. Purpose
@@ -172,6 +172,8 @@ Each form page must connect to the same frontend behavior.
 | Upload panel | Show allowed formats and 10 MB file limit before upload. |
 | Upload failure | Show precise failure reason when available. |
 | Reload safety | After reload, saved and autosaved data must still be present. |
+| Backend-first reload | After successful backend save, backend draft is the source of truth; browser local snapshot may restore only newer unsaved edits. |
+| List-valued reference field | Use structured multi-select controls for list-valued catalog fields instead of free text, with explicit neutral option when matching allows it. |
 
 The frontend must not infer final readiness independently from visible input values when the backend analyzer is available.
 
@@ -262,7 +264,7 @@ The page-specific adapter must be small: it maps DOM fields to canonical codes a
 
 | Page / flow | Current status | Next standardization action |
 |---|---|---|
-| `/create-profile/` | Phase D adopted: autosave, `Save / confirm data`, `S-*` missing items, field highlight, role-aware seafarer context, missing-item navigation/highlighting and protected upload use shared lifecycle/upload helpers. | Keep behavior covered by create-profile regression and connect future submit-review gate only after backend completeness passes. |
+| `/create-profile/` | Phase E.1 adopted: autosave, `Save / confirm data`, `S-*` missing items, field highlight, role-aware seafarer context, missing-item navigation/highlighting, protected upload helper, backend-first reload after save and structured vessel-type multi-select. | Keep behavior covered by create-profile regression and apply the same backend-first reload rule to future form adapters. |
 | `/post-vacancy/` | Phase D adopted: employer-side role-aware draft reads, `Save / confirm data`, backend `E/V/R` completeness, missing-item panel, field highlighting, exact field navigation and protected upload use shared lifecycle/upload helpers. | Keep behavior covered by post-vacancy regression and connect future submit-review gate only after backend completeness passes. |
 | `/cabinet/` correction tasks | Partially adopted: correction tasks and source-card links exist. | Use the same missing-item numbering and correction route contract. |
 | `/verify/` review workspace | Partially adopted: computed tasks and review outcomes exist. | Consume lifecycle state labels from a standard task/action contract. |
@@ -279,6 +281,7 @@ Recommended sequence:
 | Phase C | Apply full `Save / confirm data` completeness gate to `/post-vacancy/`. | Completed for employer/company, vessel and crew-request missing items, highlighting and field navigation. |
 | Phase D | Normalize protected upload UI through a shared upload helper. | Completed for `/create-profile/` and `/post-vacancy/`: same upload validation, status rendering, uploaded-document list and correction-task rendering. |
 | Phase E | Add submit-review endpoint gated by backend completeness. | Completed: `ICS-003` submit-to-operator review gate, explicit submit endpoint, audit event and no operator task from save/autosave. |
+| Phase E.1 | Correct `/create-profile/` hard-reload persistence and vessel-type structured selection. | Completed: backend-first reload, stale local snapshot guard and `vessel_types` multi-select with `Any vessel type`. |
 | Phase F | Connect owner correction tasks to the same numbered missing-item standard. | Consistent correction and resubmission flow. |
 
 ## 13. Prohibited Shortcuts
@@ -326,7 +329,9 @@ The standard is correctly adopted for a form when:
 7. upload errors are specific;
 8. submit-review is disabled until backend completeness passes;
 9. submit-review writes audit and computes the next task only after the gate passes;
-10. Playwright/API tests cover save, reload, completeness, upload and role-context behavior.
+10. after successful save, hard reload restores backend data and does not let an older local snapshot erase user data;
+11. list-valued reference fields use structured selections rather than unvalidated text when a catalog exists;
+12. Playwright/API tests cover save, reload, completeness, upload and role-context behavior.
 
 ## 15. Next Stage
 

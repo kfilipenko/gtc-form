@@ -483,6 +483,11 @@
       resize: vertical;
     }
 
+    .field-card select[multiple] {
+      min-height: 150px;
+      overflow-y: auto;
+    }
+
     .field-card strong {
       color: var(--app-ink);
       font-size: 13px;
@@ -763,8 +768,11 @@
               </label>
               <label class="field-card full">
                 <strong data-i18n="create.form.vesselTypes">Preferred vessel types</strong>
-                <input id="create-vessel-types" type="text" list="create-vessel-type-options" data-i18n-placeholder="create.form.vesselTypes.placeholder" placeholder="Bulk Carrier, Container, LNG">
+                <select id="create-vessel-types" multiple size="6" aria-describedby="create-vessel-types-note">
+                  <option value="Any vessel type" data-i18n="create.form.vesselTypes.any">Any vessel type</option>
+                </select>
                 <datalist id="create-vessel-type-options"></datalist>
+                <span id="create-vessel-types-note" class="field-note" data-i18n="create.form.vesselTypes.note">Select one or more vessel types. Choose “Any vessel type” when vessel type is not important.</span>
               </label>
             </div>
           </section>
@@ -1781,6 +1789,8 @@
         'create.form.salary.placeholder': '4500',
         'create.form.vesselTypes': 'Preferred vessel types',
         'create.form.vesselTypes.placeholder': 'Bulk Carrier, Container, LNG',
+        'create.form.vesselTypes.any': 'Any vessel type',
+        'create.form.vesselTypes.note': 'Select one or more vessel types. Choose “Any vessel type” when vessel type is not important.',
         'create.form.dateOfBirth': 'Date of birth',
         'create.form.placeOfBirth': 'Place of birth',
         'create.form.placeOfBirth.placeholder': 'Manila',
@@ -2296,6 +2306,8 @@
         'create.form.salary.placeholder': '4500',
         'create.form.vesselTypes': 'Предпочтительные типы судов',
         'create.form.vesselTypes.placeholder': 'Балкер, Контейнеровоз, LNG',
+        'create.form.vesselTypes.any': 'Тип судна не важен',
+        'create.form.vesselTypes.note': 'Выберите один или несколько типов судов. Если тип судна не важен, выберите соответствующий вариант.',
         'create.form.dateOfBirth': 'Дата рождения',
         'create.form.placeOfBirth': 'Место рождения',
         'create.form.placeOfBirth.placeholder': 'Манила',
@@ -2891,6 +2903,8 @@
       let latestApplications = [];
       let latestCompleteness = null;
       let activeDraftRole = '';
+      let preferredVesselTypeSelection = [];
+      const anyVesselTypeValue = 'Any vessel type';
 
       const completenessFieldTargets = {
         'S-1.1': ['create-full-name'],
@@ -3033,7 +3047,7 @@
         if (!window.CPGReferenceCatalogs) {
           return Promise.resolve([]);
         }
-        return window.CPGReferenceCatalogs.bindCatalogs([
+        const datalistBindings = window.CPGReferenceCatalogs.bindCatalogs([
           {
             catalogCode: 'seafarer_positions',
             datalist: 'create-rank-options'
@@ -3102,6 +3116,17 @@
           console.error(error);
           return [];
         });
+        const vesselSelectBinding = window.CPGReferenceCatalogs.fetchCatalog('vessel_types')
+          .then((values) => {
+            setPreferredVesselTypeOptions(values);
+            return values.length;
+          })
+          .catch((error) => {
+            console.error(error);
+            return 0;
+          });
+
+        return Promise.all([datalistBindings, vesselSelectBinding]);
       }
 
       function getDraftIdFromUrl() {
@@ -3133,6 +3158,10 @@
         const fields = {};
         form.querySelectorAll('input, select, textarea').forEach((input) => {
           if (!input.id || input.type === 'file') {
+            return;
+          }
+          if (input instanceof HTMLSelectElement && input.multiple) {
+            fields[input.id] = Array.from(input.selectedOptions).map((option) => option.value);
             return;
           }
           if (input.type === 'checkbox' || input.type === 'radio') {
@@ -3194,6 +3223,19 @@
             return;
           }
           const value = entry[1];
+          if (input instanceof HTMLSelectElement && input.multiple) {
+            const values = Array.isArray(value)
+              ? value.filter((item) => typeof item === 'string')
+              : String(value || '').split(',').map((item) => item.trim()).filter(Boolean);
+            if (input === vesselTypes) {
+              applyPreferredVesselTypeSelection(values);
+            } else {
+              Array.from(input.options).forEach((option) => {
+                option.selected = values.some((item) => item.toLowerCase() === option.value.toLowerCase());
+              });
+            }
+            return;
+          }
           if (input.type === 'checkbox' || input.type === 'radio') {
             input.checked = value === true;
             return;
@@ -3206,9 +3248,22 @@
         return true;
       }
 
-      function restoreLocalFormSnapshot(draftId) {
+      function dateToTime(value) {
+        const timestamp = typeof value === 'string' && value.trim()
+          ? Date.parse(value)
+          : NaN;
+        return Number.isFinite(timestamp) ? timestamp : null;
+      }
+
+      function restoreLocalFormSnapshot(draftId, options) {
+        const opts = options || {};
         const snapshot = readLocalFormSnapshot(draftId);
         if (!snapshot) {
+          return false;
+        }
+        const newerThan = dateToTime(opts.newerThan);
+        const snapshotTime = dateToTime(snapshot.saved_at);
+        if (newerThan !== null && (snapshotTime === null || snapshotTime <= newerThan)) {
           return false;
         }
         const restored = applyLocalFormSnapshot(snapshot);
@@ -3227,26 +3282,109 @@
           return;
         }
         clearLocalFormSnapshot('new');
-        persistLocalFormSnapshot(draftId.trim());
+        clearLocalFormSnapshot(draftId.trim());
       }
 
-      function parsePreferredVesselTypes(rawValue) {
+      function parsePreferredVesselTypeList(rawValue) {
         if (Array.isArray(rawValue)) {
-          return rawValue.filter((item) => typeof item === 'string').join(', ');
+          return rawValue.filter((item) => typeof item === 'string' && item.trim()).map((item) => item.trim());
         }
 
         if (typeof rawValue === 'string' && rawValue.trim()) {
           try {
             const parsed = JSON.parse(rawValue);
             if (Array.isArray(parsed)) {
-              return parsed.filter((item) => typeof item === 'string').join(', ');
+              return parsed.filter((item) => typeof item === 'string' && item.trim()).map((item) => item.trim());
             }
           } catch (error) {
-            return rawValue;
+            return rawValue.split(',').map((item) => item.trim()).filter(Boolean);
           }
         }
 
-        return '';
+        return [];
+      }
+
+      function updateAnyVesselTypeLabel() {
+        const option = Array.from(vesselTypes.options).find((item) => item.value === anyVesselTypeValue);
+        if (option) {
+          option.textContent = t('create.form.vesselTypes.any');
+        }
+      }
+
+      function ensurePreferredVesselTypeOption(value) {
+        const normalized = typeof value === 'string' ? value.trim() : '';
+        if (!normalized) {
+          return null;
+        }
+        const existing = Array.from(vesselTypes.options).find((option) => option.value.toLowerCase() === normalized.toLowerCase());
+        if (existing) {
+          return existing;
+        }
+        const option = document.createElement('option');
+        option.value = normalized;
+        option.textContent = normalized;
+        vesselTypes.appendChild(option);
+        return option;
+      }
+
+      function selectedPreferredVesselTypes() {
+        return Array.from(vesselTypes.selectedOptions)
+          .map((option) => option.value.trim())
+          .filter(Boolean);
+      }
+
+      function enforcePreferredVesselTypeAnyRule() {
+        const selected = selectedPreferredVesselTypes();
+        const hasAny = selected.includes(anyVesselTypeValue);
+        const hadAny = preferredVesselTypeSelection.includes(anyVesselTypeValue);
+
+        if (hasAny && selected.length > 1) {
+          const keepAny = !hadAny;
+          Array.from(vesselTypes.options).forEach((option) => {
+            option.selected = keepAny
+              ? option.value === anyVesselTypeValue
+              : option.value !== anyVesselTypeValue && option.selected;
+          });
+        }
+
+        preferredVesselTypeSelection = selectedPreferredVesselTypes();
+      }
+
+      function applyPreferredVesselTypeSelection(values) {
+        const cleanValues = Array.isArray(values)
+          ? values.map((item) => String(item || '').trim()).filter(Boolean)
+          : [];
+        const wanted = new Set(cleanValues.map((item) => item.toLowerCase()));
+        cleanValues.forEach((value) => ensurePreferredVesselTypeOption(value));
+        Array.from(vesselTypes.options).forEach((option) => {
+          option.selected = wanted.has(option.value.toLowerCase());
+        });
+        enforcePreferredVesselTypeAnyRule();
+      }
+
+      function setPreferredVesselTypeOptions(catalogValues) {
+        const selected = selectedPreferredVesselTypes();
+        vesselTypes.innerHTML = '';
+
+        const anyOption = document.createElement('option');
+        anyOption.value = anyVesselTypeValue;
+        anyOption.textContent = t('create.form.vesselTypes.any');
+        vesselTypes.appendChild(anyOption);
+
+        const used = new Set([anyVesselTypeValue.toLowerCase()]);
+        (Array.isArray(catalogValues) ? catalogValues : []).forEach((record) => {
+          const displayName = record && typeof record.display_name === 'string' ? record.display_name.trim() : '';
+          if (!displayName || used.has(displayName.toLowerCase())) {
+            return;
+          }
+          used.add(displayName.toLowerCase());
+          const option = document.createElement('option');
+          option.value = displayName;
+          option.textContent = displayName;
+          vesselTypes.appendChild(option);
+        });
+
+        applyPreferredVesselTypeSelection(selected.length ? selected : preferredVesselTypeSelection);
       }
 
       function parseDocumentMetadata(rawValue) {
@@ -3506,10 +3644,7 @@
       }
 
       function buildSeafarerDraftPayload() {
-        const preferredVesselTypes = vesselTypes.value
-          .split(',')
-          .map((item) => item.trim())
-          .filter(Boolean);
+        const preferredVesselTypes = selectedPreferredVesselTypes();
 
         const salaryValue = salary.value.trim();
         const salaryNumber = salaryValue ? Number(salaryValue) : null;
@@ -4274,7 +4409,7 @@
         if (typeof profile.contact_phone === 'string') {
           contactPhone.value = profile.contact_phone;
         }
-        vesselTypes.value = parsePreferredVesselTypes(profile.preferred_vessel_types);
+        applyPreferredVesselTypeSelection(parsePreferredVesselTypeList(profile.preferred_vessel_types));
 
         const documentMetadata = parseDocumentMetadata(profile.document_metadata);
         setSelectValue(certificateStatus, documentMetadata.certificate_status, 'unknown');
@@ -4362,6 +4497,33 @@
           if (activeDraftRole && !isSeafarerDraftRole(activeDraftRole)) {
             updateDocumentUploadAvailability(activeDraftRole, storedDraftId);
           }
+
+          if (storedDraftId) {
+            status.textContent = t('create.form.loadingDraft');
+            try {
+              const fallbackResponse = await window.CPGDrafts.getDraft(storedDraftId, { role: 'seafarer' });
+              activeDraftRole = normalizeDraftRole(fallbackResponse && fallbackResponse.role ? fallbackResponse.role : activeDraftRole);
+              updateDocumentUploadAvailability(activeDraftRole, storedDraftId);
+              const fallbackProfile = fallbackResponse && fallbackResponse.payload
+                ? fallbackResponse.payload.seafarer_profile
+                : null;
+              const fallbackOperatorReview = fallbackResponse && fallbackResponse.payload
+                ? fallbackResponse.payload.operator_review
+                : null;
+              if (fallbackProfile && typeof fallbackProfile === 'object') {
+                fillSeafarerProfile(fallbackProfile);
+                renderReviewStatus(fallbackProfile, fallbackOperatorReview || null);
+                renderApplicationHistoryFromResponse(fallbackResponse);
+                status.textContent = t('create.form.prefilledLocal');
+                await refreshCompleteness(storedDraftId);
+                restoreLocalFormSnapshot(storedDraftId, { newerThan: fallbackResponse.updated_at });
+                return;
+              }
+            } catch (error) {
+              console.error(error);
+            }
+          }
+
           const localProfile = storedDraft
             && storedDraft.lastResponse
             && storedDraft.lastResponse.payload
@@ -4390,33 +4552,6 @@
             return;
           }
 
-          if (storedDraftId) {
-            status.textContent = t('create.form.loadingDraft');
-            try {
-              const fallbackResponse = await window.CPGDrafts.getDraft(storedDraftId, { role: 'seafarer' });
-              activeDraftRole = normalizeDraftRole(fallbackResponse && fallbackResponse.role ? fallbackResponse.role : activeDraftRole);
-              updateDocumentUploadAvailability(activeDraftRole, storedDraftId);
-              const fallbackProfile = fallbackResponse && fallbackResponse.payload
-                ? fallbackResponse.payload.seafarer_profile
-                : null;
-              const fallbackOperatorReview = fallbackResponse && fallbackResponse.payload
-                ? fallbackResponse.payload.operator_review
-                : null;
-              if (fallbackProfile && typeof fallbackProfile === 'object') {
-                fillSeafarerProfile(fallbackProfile);
-                renderReviewStatus(fallbackProfile, fallbackOperatorReview || null);
-                renderApplicationHistoryFromResponse(fallbackResponse);
-                status.textContent = t('create.form.prefilledLocal');
-                await refreshCompleteness(storedDraftId);
-                restoreLocalFormSnapshot(storedDraftId);
-              }
-            } catch (error) {
-              status.textContent = t('create.form.loadError');
-              console.error(error);
-            }
-            return;
-          }
-
           return;
         }
 
@@ -4432,7 +4567,7 @@
           renderApplicationHistoryFromResponse(response);
           status.textContent = t('create.form.prefilled');
           await refreshCompleteness(draftId);
-          restoreLocalFormSnapshot(draftId);
+          restoreLocalFormSnapshot(draftId, { newerThan: response.updated_at });
         } catch (error) {
           status.textContent = t('create.form.loadError');
           console.error(error);
@@ -4594,6 +4729,9 @@
 
       form.querySelectorAll('input, select, textarea').forEach((input) => {
         input.addEventListener('input', () => {
+          if (input === vesselTypes) {
+            enforcePreferredVesselTypeAnyRule();
+          }
           persistLocalFormSnapshot();
           renderWorkspace();
           if (!canAutosaveCurrentDraft()) {
@@ -4603,6 +4741,9 @@
           scheduleAutosave();
         });
         input.addEventListener('change', () => {
+          if (input === vesselTypes) {
+            enforcePreferredVesselTypeAnyRule();
+          }
           persistLocalFormSnapshot();
           renderWorkspace();
           if (!canAutosaveCurrentDraft()) {
@@ -4614,6 +4755,7 @@
       });
 
       window.addEventListener('crewportglobal:languagechange', () => {
+        updateAnyVesselTypeLabel();
         renderWorkspace();
         renderApplicationHistory(latestApplications);
       });
