@@ -7,7 +7,23 @@
 - Source task: Project Owner request to compact and clarify `/onboarding/seafarer-registration/`; follow-up clarification that the page is a final confirmation before operator review
 - Version: 1.0
 - Date: 2026-05-30
-- Status: Implemented and verified locally
+- Status: Superseded by CPG-BIZ-051 on 2026-05-30; route retired from active seafarer flow
+
+## 0. Superseded Control Note
+
+This document records the temporary compact redesign of `/onboarding/seafarer-registration/`.
+
+After Project Owner review, the active seafarer route was simplified again:
+
+```text
+/create-profile/#profile-section-consent
+```
+
+is now the single final agreement and consent point for the seafarer profile. The `/onboarding/seafarer-registration/` page is no longer part of the required seafarer user journey. The controlling implementation report is:
+
+```text
+docs/crewportglobal/245_cpg_biz_051_seafarer_consent_consolidation_site_menu_report.md
+```
 
 ## 1. Назначение страницы
 

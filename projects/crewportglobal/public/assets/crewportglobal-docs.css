@@ -822,13 +822,24 @@ html[data-cpg-theme="light"] .cpg-account__field input {
   box-shadow: 0 20px 44px rgba(0, 0, 0, 0.28);
 }
 
-.site-nav--documents .nav-menu__panel {
+.site-nav--documents .nav-menu__panel,
+.nav-menu--home .nav-menu__panel,
+.nav-menu--seafarers .nav-menu__panel,
+.nav-menu--employers .nav-menu__panel {
   right: auto;
   left: 0;
 }
 
+.nav-menu--documents .nav-menu__panel,
+.nav-menu--team .nav-menu__panel,
+.nav-menu--registration .nav-menu__panel {
+  width: min(340px, calc(100vw - 48px));
+}
+
 .nav-menu__panel .nav-link {
   width: 100%;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 .nav-section-label {

@@ -70,13 +70,12 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - The public website still consumes the shared browser runtime in public/assets/crewportglobal-public-i18n.js and page-local dictionaries in public/index.html; automatic emission from JSON catalogs into publish-time dictionaries remains a future integration step.
 - The validator now reads JSON catalogs from projects/crewportglobal/i18n/ when present in addition to the existing publish-time dictionaries.
 
-## Onboarding
+## Seafarer final confirmation
 
-- Public seafarer acceptance flow lives at public/onboarding/seafarer-registration/index.html.
-- The page now reuses the shared public language runtime and respects the global crewportglobal.language state.
-- The page stores the acceptance draft locally in the browser and does not mutate shared auth state.
-- Required no-fee, data-accuracy and Trust Center acknowledgements are captured as real checkbox controls before later identity workstreams are introduced.
-- The current frontend-only route ends at pending_human_review as a local UI state and keeps backend, database writes, auth, payments and OpenClaw configuration out of scope.
+- Seafarer final service-agreement and personal-data confirmation now lives inside public/create-profile/index.html.
+- The final profile checkbox consolidates service agreement accession, personal-data consent, data/document accuracy, no-fee acknowledgement, optional-services acknowledgement and complaint-policy acknowledgement.
+- The former public/onboarding/seafarer-registration route is retired from the user journey so seafarers do not pass through two separate consent screens.
+- Required acknowledgements are saved with the seafarer draft context and remain tied to the data and uploaded documents being submitted for operator review.
 
 ## Isolated database planning
 

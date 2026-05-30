@@ -13,6 +13,90 @@
     { href: '/legal/verification-policy/', key: 'nav.trustSafety', label: 'Trust & Safety' },
   ];
 
+  const SITE_MENU_GROUPS = [
+    {
+      className: 'home',
+      key: 'nav.homeGroup',
+      label: 'Home',
+      menuKey: 'nav.homeGroupMenu',
+      links: [
+        { href: '/', key: 'nav.home', label: 'Home' },
+        { href: '/about/', key: 'nav.projectScope', label: 'Project Scope' },
+        { href: '/how-it-works/', key: 'nav.howItWorks', label: 'How It Works' },
+        { href: '/language.html', key: 'nav.languageFallback', label: 'Language fallback' },
+      ],
+    },
+    {
+      className: 'seafarers',
+      key: 'nav.seafarerPages',
+      label: 'For Seafarers',
+      menuKey: 'nav.seafarerPagesMenu',
+      links: [
+        { href: '/for-seafarers/', key: 'nav.forSeafarers', label: 'For Seafarers' },
+        { href: '/create-profile/', key: 'nav.createProfile', label: 'Create Profile' },
+        { href: '/vacancies/', key: 'nav.vacancies', label: 'Vacancies' },
+        { href: '/vacancies/detail/', key: 'nav.vacancyDetail', label: 'Vacancy Detail' },
+      ],
+    },
+    {
+      className: 'employers',
+      key: 'nav.employerPages',
+      label: 'For Employers',
+      menuKey: 'nav.employerPagesMenu',
+      links: [
+        { href: '/for-shipowners/', key: 'nav.forShipowners', label: 'For Employers' },
+        { href: '/post-vacancy/', key: 'nav.postVacancy', label: 'Post Vacancy' },
+      ],
+    },
+    {
+      className: 'documents',
+      key: 'nav.documents',
+      label: 'Documents',
+      menuKey: 'nav.documentsMenu',
+      links: [
+        { href: '/legal/terms/', key: 'nav.terms', label: 'Terms' },
+        { href: '/legal/privacy/', key: 'nav.privacy', label: 'Privacy' },
+        { href: '/legal/no-recruitment-fees/', key: 'nav.noRecruitmentFees', label: 'No Recruitment Fees' },
+        { href: '/legal/seafarer-candidate-agreement/', key: 'nav.seafarerAgreement', label: 'Seafarer Agreement' },
+        { href: '/legal/shipowner-service-terms/', key: 'nav.shipownerAgreement', label: 'Shipowner Agreement' },
+        { href: '/legal/recruitment-and-matching-policy/', key: 'nav.matchingPolicy', label: 'Matching Policy' },
+        { href: '/legal/verification-policy/', key: 'nav.verificationPolicy', label: 'Verification Policy' },
+        { href: '/legal/complaints/', key: 'nav.complaints', label: 'Complaints' },
+      ],
+    },
+    {
+      className: 'team',
+      key: 'nav.teamPages',
+      label: 'Team',
+      menuKey: 'nav.teamPagesMenu',
+      links: [
+        { href: '/team/', key: 'nav.teamPortal', label: 'Team Portal' },
+        { href: '/team/documents/', key: 'nav.teamDocuments', label: 'Team Documents' },
+        { href: '/team/matching/', key: 'nav.teamMatching', label: 'Request-Supply Comparison' },
+        { href: '/team/registry/', key: 'nav.teamRegistry', label: 'Registry Detail' },
+        { href: '/team/shortlists/', key: 'nav.teamShortlists', label: 'Shortlist Drafts' },
+        { href: '/verify/', key: 'nav.operatorQueue', label: 'Operator Queue' },
+        { href: '/admin/access/', key: 'nav.adminAccess', label: 'Access Admin' },
+      ],
+    },
+    {
+      className: 'registration',
+      key: 'nav.registrationCabinet',
+      label: 'Registration / Cabinet',
+      menuKey: 'nav.registrationCabinetMenu',
+      links: [
+        { href: '/register/', key: 'nav.loginRegister', label: 'Login / Register' },
+        { href: '/register/authorization/', key: 'nav.registerAuthorization', label: 'Authorization' },
+        { href: '/register/authorization/selected/', key: 'nav.registerAuthorizationSelected', label: 'Selected Authorization' },
+        { href: '/register/authorization/seafarer-specialist/', key: 'nav.registerAuthorizationSeafarer', label: 'Seafarer Authorization' },
+        { href: '/register/authorization/buyer-employer/', key: 'nav.registerAuthorizationEmployer', label: 'Employer Authorization' },
+        { href: '/register/confirm/', key: 'nav.registerConfirm', label: 'Email Confirmation' },
+        { href: '/register/next/', key: 'nav.registerNext', label: 'Next Step' },
+        { href: '/cabinet/', key: 'nav.myCabinet', label: 'My Cabinet' },
+      ],
+    },
+  ];
+
   const OPERATOR_LANES = [
     { lane: 'all', key: 'operator.lane.all', label: 'All work' },
     { lane: 'verifier', key: 'operator.role.verifier', label: 'Verifier' },
@@ -52,6 +136,24 @@
       '  </div>',
       '</details>',
     ].join('\n');
+  }
+
+  function createSiteMenuGroup(group, activeHref) {
+    return [
+      `<details class="nav-menu nav-menu--${group.className}">`,
+      '  <summary class="nav-menu__summary">',
+      `    <span data-i18n="${group.key}">${group.label}</span>`,
+      '    <span class="nav-menu__chevron" aria-hidden="true">▾</span>',
+      '  </summary>',
+      `  <div class="nav-menu__panel" data-i18n-aria-label="${group.menuKey}">`,
+      group.links.map((item) => createLink(item, activeHref)).join('\n').split('\n').map((line) => `    ${line}`).join('\n'),
+      '  </div>',
+      '</details>',
+    ].join('\n');
+  }
+
+  function createSiteMenuGroups(activeHref) {
+    return SITE_MENU_GROUPS.map((group) => createSiteMenuGroup(group, activeHref)).join('\n');
   }
 
   function createOperatorRolesMenu() {
@@ -635,8 +737,7 @@
   function renderApplicationNav(activeHref) {
     return [
       '<nav class="site-nav site-nav--application" aria-label="Application navigation" data-i18n-aria-label="nav.applicationMenu">',
-      createApplicationLinks(activeHref).split('\n').map((line) => `  ${line}`).join('\n'),
-      `  ${createDocumentsMenu().split('\n').join('\n  ')}`,
+      createSiteMenuGroups(activeHref).split('\n').map((line) => `  ${line}`).join('\n'),
       '</nav>',
     ].join('\n');
   }
@@ -644,9 +745,7 @@
   function renderDocumentsNav(activeHref) {
     return [
       '<nav class="site-nav site-nav--documents" aria-label="Document navigation" data-i18n-aria-label="nav.documentsMenu">',
-      createApplicationLinks('').split('\n').map((line) => `  ${line}`).join('\n'),
-      '  <span class="nav-section-label" data-i18n="nav.documents">Documents</span>',
-      createDocumentLinks(activeHref).split('\n').map((line) => `  ${line}`).join('\n'),
+      createSiteMenuGroups(activeHref).split('\n').map((line) => `  ${line}`).join('\n'),
       '</nav>',
     ].join('\n');
   }
@@ -656,8 +755,7 @@
       '<nav class="site-nav site-nav--operator" aria-label="Operator portal navigation" data-i18n-aria-label="operator.nav.menu">',
       '  <a class="nav-link is-active" href="https://crewportglobal.com/verify/" data-i18n="verify.nav.queue">Operator Queue</a>',
       `  ${createOperatorRolesMenu().split('\n').join('\n  ')}`,
-      `  ${createPublicAppMenu().split('\n').join('\n  ')}`,
-      `  ${createReferenceDocumentsMenu().split('\n').join('\n  ')}`,
+      createSiteMenuGroups('/verify/').split('\n').map((line) => `  ${line}`).join('\n'),
       '</nav>',
     ].join('\n');
   }

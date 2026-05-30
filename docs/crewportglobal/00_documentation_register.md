@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.30
+- Version: 2.31
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -331,6 +331,7 @@ docs/crewportglobal/
   242_cpg_biz_048_seafarer_agreement_consent_confirmation_report.md
   243_cpg_biz_049_create_profile_compact_workspace_header_report.md
   244_cpg_biz_050_seafarer_onboarding_acceptance_compact_page_report.md
+  245_cpg_biz_051_seafarer_consent_consolidation_site_menu_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -713,7 +714,9 @@ Document 242 records the CPG-BIZ-048 `/create-profile/` seafarer agreement and d
 
 Document 243 records the CPG-BIZ-049 `/create-profile/` compact workspace header redesign, removing the stretched hero layout, shortening explanatory text and converting the right-side status content into a compact responsive control strip.
 
-Document 244 records the CPG-BIZ-050 `/onboarding/seafarer-registration/` compact final seafarer review-confirmation page redesign, clarifying that the page is the final declaration before operator review rather than a preliminary questionnaire, moving route/completeness status into compact context and adding Russian page translations.
+Document 244 records the CPG-BIZ-050 `/onboarding/seafarer-registration/` compact final seafarer review-confirmation page redesign, clarifying that the page is the final declaration before operator review rather than a preliminary questionnaire, moving route/completeness status into compact context and adding Russian page translations. This route status was later superseded by document 245, which retires the route from the required seafarer flow.
+
+Document 245 records the CPG-BIZ-051 consolidation of final seafarer consent into `/create-profile/`, retirement of `/onboarding/seafarer-registration/` from the active user route, backend structured consent flags and a role-grouped rough site menu across public, registration, cabinet, team and admin pages for full portal audit.
 
 Mandatory control statement:
 
@@ -818,6 +821,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.31 | 2026-05-30 | GTC IT / AI Assistant | Added document 245 for consolidated `/create-profile/` seafarer consent, structured consent flags, retired onboarding route and role-grouped full-site audit menu |
 | 2.30 | 2026-05-30 | GTC IT / AI Assistant | Clarified document 244 and `/onboarding/seafarer-registration/` wording as final seafarer confirmation before operator review rather than preliminary onboarding |
 | 2.29 | 2026-05-30 | GTC IT / AI Assistant | Added document 244 for compact `/onboarding/seafarer-registration/` acceptance page redesign and purpose clarification |
 | 2.28 | 2026-05-29 | GTC IT / AI Assistant | Added document 243 for `/create-profile/` compact workspace header redesign and reduced first-screen empty space |

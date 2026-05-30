@@ -151,6 +151,12 @@ test('Excel-aligned seafarer source cards persist and reload from draft metadata
   expect(workspace.medical_history.signed_off_sick).toBe('no');
   expect(workspace.matching_publication.data_processing_confirmation).toBe('i_confirm');
   expect(workspace.consent_details.agreement_value).toBe('i_agree');
+  expect(workspace.consent_details.agreement_confirmed).toBe(true);
+  expect(workspace.consent_details.personal_data_consent).toBe(true);
+  expect(workspace.consent_details.no_fee_acknowledged).toBe(true);
+  expect(workspace.consent_details.optional_services_acknowledged).toBe(true);
+  expect(workspace.consent_details.data_accuracy_confirmed).toBe(true);
+  expect(workspace.consent_details.complaint_policy_acknowledged).toBe(true);
 
   await page.evaluate(() => {
     window.localStorage.clear();

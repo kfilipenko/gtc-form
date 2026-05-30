@@ -1635,6 +1635,36 @@ function normalize_date_fields(array $source, array $fields): array {
     return $result;
 }
 
+function normalize_boolean_fields(array $source, array $fields): array {
+    $result = [];
+    foreach ($fields as $field) {
+        if (!array_key_exists($field, $source)) {
+            continue;
+        }
+
+        $value = $source[$field];
+        if (is_bool($value)) {
+            $result[$field] = $value;
+            continue;
+        }
+
+        if (is_int($value)) {
+            $result[$field] = $value === 1;
+            continue;
+        }
+
+        if (is_string($value)) {
+            $normalized = strtolower(trim($value));
+            if (in_array($normalized, ['true', '1', 'yes', 'y', 'i_confirm', 'i_agree'], true)) {
+                $result[$field] = true;
+            } elseif (in_array($normalized, ['false', '0', 'no', 'n', 'i_decline', 'i_disagree'], true)) {
+                $result[$field] = false;
+            }
+        }
+    }
+    return $result;
+}
+
 function normalize_csv_text_list(mixed $value, int $maxItems = 12, int $maxItemLength = 160): array {
     if (!is_string($value) && !is_array($value)) {
         return [];
@@ -1928,11 +1958,20 @@ function normalize_seafarer_workspace_metadata(mixed $value): array {
                 'obligation_place',
                 'obligation_confirmation',
                 'agreement_value',
+                'consent_bundle_version',
                 'source_comments',
             ], 1000),
             normalize_date_fields($consentDetails, [
                 'obligation_date',
                 'agreement_date',
+            ]),
+            normalize_boolean_fields($consentDetails, [
+                'agreement_confirmed',
+                'personal_data_consent',
+                'no_fee_acknowledged',
+                'optional_services_acknowledged',
+                'data_accuracy_confirmed',
+                'complaint_policy_acknowledged',
             ])
         );
         if ($consentData !== []) {
@@ -9047,6 +9086,25 @@ function cpg_questionnaire_seafarer_completeness(string $userId, array $userRow)
         $publication['data_processing_confirmation'] ?? null,
         $consent['data_processing_confirmation'] ?? null
     );
+    $structuredConsentFields = [
+        'agreement_confirmed',
+        'personal_data_consent',
+        'no_fee_acknowledged',
+        'optional_services_acknowledged',
+        'data_accuracy_confirmed',
+        'complaint_policy_acknowledged',
+    ];
+    $hasStructuredConsent = false;
+    $structuredConsentComplete = true;
+    foreach ($structuredConsentFields as $field) {
+        if (array_key_exists($field, $consent)) {
+            $hasStructuredConsent = true;
+        }
+        if (($consent[$field] ?? false) !== true) {
+            $structuredConsentComplete = false;
+        }
+    }
+    $finalConsentReady = $dataProcessing === 'i_confirm' && (!$hasStructuredConsent || $structuredConsentComplete);
 
     $availabilityStatus = $profile['availability_status'] ?? null;
     $rank = $profile['primary_rank'] ?? null;
@@ -9073,7 +9131,7 @@ function cpg_questionnaire_seafarer_completeness(string $userId, array $userRow)
             'S-7.2' => cpg_questionnaire_first_present($qualification['coc_issuing_country'] ?? null, $primaryCertificate['issuing_country_code'] ?? null),
             'S-7.3' => cpg_questionnaire_first_present($qualification['coc_expiry'] ?? null, $primaryCertificate['expires_at'] ?? null),
             'S-10.1' => cpg_questionnaire_first_present($metadata['medical_expiry'] ?? null, $primaryMedical['medical_certificate_expires_at'] ?? null),
-            'S-11.1' => $dataProcessing === 'i_confirm' ? $dataProcessing : null,
+            'S-11.1' => $finalConsentReady ? $dataProcessing : null,
         ],
         'documents' => cpg_document_read_documents($userId, 'seafarer'),
         'conditions' => [

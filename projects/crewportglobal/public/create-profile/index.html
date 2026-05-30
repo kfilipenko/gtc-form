@@ -1945,12 +1945,16 @@
               <div class="field-card full consent-confirmation-card">
                 <label class="consent-confirmation-option" for="create-data-processing-confirmation">
                   <input id="create-data-processing-confirmation" type="checkbox" value="i_confirm">
-                  <span data-i18n="create.form.dataConfirmation.confirm">I have read and agree to the CrewPortGlobal service agreement and consent to processing my personal data for profile verification, matching preparation and communication about platform services.</span>
+                  <span data-i18n="create.form.dataConfirmation.confirm">I join the CrewPortGlobal service agreement, consent to personal-data processing, confirm that my submitted data and documents are accurate and belong to me, understand the no-fee rule, understand that optional paid services are not a condition for access to work, and agree to the Privacy Policy and Complaint Handling Procedure.</span>
                 </label>
                 <p class="field-note">
                   <a href="/legal/seafarer-candidate-agreement/" target="_blank" rel="noopener" data-i18n="create.form.dataConfirmation.agreementLink">Seafarer Candidate Agreement</a>
                   ·
                   <a href="/legal/privacy/" target="_blank" rel="noopener" data-i18n="create.form.dataConfirmation.privacyLink">Privacy Policy</a>
+                  ·
+                  <a href="/legal/no-recruitment-fees/" target="_blank" rel="noopener" data-i18n="create.form.dataConfirmation.noFeeLink">No Recruitment Fees Policy</a>
+                  ·
+                  <a href="/legal/complaints/" target="_blank" rel="noopener" data-i18n="create.form.dataConfirmation.complaintsLink">Complaint Handling Procedure</a>
                 </p>
               </div>
             </div>
@@ -1986,7 +1990,7 @@
             <div class="section-actions">
               <button id="create-submit" class="button primary" type="submit" data-i18n="create.form.submit">Save Seafarer Draft</button>
               <button id="create-submit-review" class="button secondary" type="button" data-i18n="create.form.submitReview" hidden disabled>Submit to operator review</button>
-              <a class="button secondary" href="https://crewportglobal.com/onboarding/seafarer-registration/" data-i18n="create.form.nextCta">Open onboarding checklist</a>
+              <a class="button secondary" href="#profile-section-consent" data-i18n="create.form.nextCta">Open final confirmation</a>
             </div>
             <p id="create-status" class="status-note" data-i18n="create.form.status">This form saves your seafarer draft in backend and keeps your draft ID for the next steps.</p>
           </div>
@@ -2381,10 +2385,12 @@
         'create.form.candidateSummary.placeholder': 'Short professional summary for human review',
         'create.form.dataConfirmation': 'Agreement and data-processing consent',
         'create.form.dataConfirmation.placeholder': 'Confirm agreement',
-        'create.form.dataConfirmation.confirm': 'I have read and agree to the CrewPortGlobal service agreement and consent to processing my personal data for profile verification, matching preparation and communication about platform services.',
+        'create.form.dataConfirmation.confirm': 'I join the CrewPortGlobal service agreement, consent to personal-data processing, confirm that my submitted data and documents are accurate and belong to me, understand the no-fee rule, understand that optional paid services are not a condition for access to work, and agree to the Privacy Policy and Complaint Handling Procedure.',
         'create.form.dataConfirmation.decline': 'I do not confirm yet.',
         'create.form.dataConfirmation.agreementLink': 'Seafarer Candidate Agreement',
         'create.form.dataConfirmation.privacyLink': 'Privacy Policy',
+        'create.form.dataConfirmation.noFeeLink': 'No Recruitment Fees Policy',
+        'create.form.dataConfirmation.complaintsLink': 'Complaint Handling Procedure',
         'create.form.obligationDate': 'Seafarer obligation date',
         'create.form.obligationPlace': 'Seafarer obligation place',
         'create.form.obligationPlace.placeholder': 'Place',
@@ -2497,7 +2503,7 @@
         'create.visaStatus.ready': 'Ready',
         'create.form.submit': 'Save / confirm data',
         'create.form.submitReview': 'Submit to operator review',
-        'create.form.nextCta': 'Open onboarding checklist',
+        'create.form.nextCta': 'Open final confirmation',
         'create.form.status': 'This form saves your seafarer draft and checks the numbered fields and documents required before operator review.',
         'create.form.validation': 'Full name and email are required.',
         'create.form.saving': 'Saving seafarer draft...',
@@ -2936,10 +2942,12 @@
         'create.form.candidateSummary.placeholder': 'Краткое профессиональное описание для ручной проверки',
         'create.form.dataConfirmation': 'Договор и согласие на обработку данных',
         'create.form.dataConfirmation.placeholder': 'Подтвердите согласие',
-        'create.form.dataConfirmation.confirm': 'Я ознакомился и присоединяюсь к договору оказания услуг CrewPortGlobal, а также даю согласие на обработку моих персональных данных для проверки профиля, подготовки подбора и связи по услугам платформы.',
+        'create.form.dataConfirmation.confirm': 'Я присоединяюсь к договору оказания услуг CrewPortGlobal, даю согласие на обработку персональных данных, подтверждаю достоверность предоставленных сведений и документов и то, что они принадлежат мне, понимаю правило отсутствия платы за трудоустройство, понимаю, что дополнительные платные услуги не являются условием доступа к работе, и соглашаюсь с Privacy Policy и Complaint Handling Procedure.',
         'create.form.dataConfirmation.decline': 'Пока не подтверждаю.',
         'create.form.dataConfirmation.agreementLink': 'Договор кандидата-моряка',
         'create.form.dataConfirmation.privacyLink': 'Политика конфиденциальности',
+        'create.form.dataConfirmation.noFeeLink': 'Политика отсутствия платы за трудоустройство',
+        'create.form.dataConfirmation.complaintsLink': 'Процедура рассмотрения жалоб',
         'create.form.obligationDate': 'Дата обязательства моряка',
         'create.form.obligationPlace': 'Место обязательства моряка',
         'create.form.obligationPlace.placeholder': 'Место',
@@ -3052,7 +3060,7 @@
         'create.visaStatus.ready': 'Готово',
         'create.form.submit': 'Save / confirm data',
         'create.form.submitReview': 'Направить на проверку оператору',
-        'create.form.nextCta': 'Открыть чек-лист онбординга',
+        'create.form.nextCta': 'Открыть финальное подтверждение',
         'create.form.status': 'Эта форма сохраняет черновик моряка и проверяет нумерованные поля и документы перед проверкой оператором.',
         'create.form.validation': 'Укажите полное имя и email.',
         'create.form.saving': 'Сохраняем черновик моряка...',
@@ -4287,6 +4295,14 @@
       function collectSeafarerWorkspaceMetadata() {
         const dataProcessingConfirmed = dataProcessingConfirmation.checked;
         const agreementDateValue = agreementDate.value || (dataProcessingConfirmed ? new Date().toISOString().slice(0, 10) : null);
+        const consentFlags = {
+          agreement_confirmed: dataProcessingConfirmed,
+          personal_data_consent: dataProcessingConfirmed,
+          no_fee_acknowledged: dataProcessingConfirmed,
+          optional_services_acknowledged: dataProcessingConfirmed,
+          data_accuracy_confirmed: dataProcessingConfirmed,
+          complaint_policy_acknowledged: dataProcessingConfirmed
+        };
         const workspace = {
           personal_details: compactObject({
             date_of_birth: dateOfBirth.value || null,
@@ -4449,6 +4465,13 @@
             obligation_confirmation: dataProcessingConfirmed ? 'i_confirm' : (obligationConfirmation.value || 'i_decline'),
             agreement_date: agreementDateValue,
             agreement_value: dataProcessingConfirmed ? 'i_agree' : (agreementValue.value || 'i_disagree'),
+            consent_bundle_version: 'cpg-seafarer-final-confirmation-2026-05-30',
+            agreement_confirmed: consentFlags.agreement_confirmed,
+            personal_data_consent: consentFlags.personal_data_consent,
+            no_fee_acknowledged: consentFlags.no_fee_acknowledged,
+            optional_services_acknowledged: consentFlags.optional_services_acknowledged,
+            data_accuracy_confirmed: consentFlags.data_accuracy_confirmed,
+            complaint_policy_acknowledged: consentFlags.complaint_policy_acknowledged,
             source_comments: sourceComments.value.trim()
           })
         };
@@ -4818,9 +4841,17 @@
         setFieldValue(informationSource, publication.information_source);
         setSelectValue(publishToMatching, publication.publish_to_matching, '');
         setFieldValue(candidateSummary, publication.candidate_summary);
-        dataProcessingConfirmation.checked = publication.data_processing_confirmation === 'i_confirm';
 
         const consent = workspaceSection(workspace, 'consent_details');
+        const structuredConsentConfirmed = [
+          'agreement_confirmed',
+          'personal_data_consent',
+          'no_fee_acknowledged',
+          'optional_services_acknowledged',
+          'data_accuracy_confirmed',
+          'complaint_policy_acknowledged'
+        ].every((key) => consent[key] === true);
+        dataProcessingConfirmation.checked = publication.data_processing_confirmation === 'i_confirm' || structuredConsentConfirmed;
         setFieldValue(obligationDate, consent.obligation_date);
         setFieldValue(obligationPlace, consent.obligation_place);
         setSelectValue(obligationConfirmation, consent.obligation_confirmation, '');

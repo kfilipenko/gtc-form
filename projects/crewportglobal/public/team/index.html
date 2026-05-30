@@ -10,6 +10,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/assets/crewportglobal-docs.css">
   <style>
     :root {
       --team-bg: #eef4f7;
@@ -361,6 +362,8 @@
         <button class="team-button danger" type="button" id="logout-button" hidden>Logout</button>
       </header>
 
+      <div data-cpg-navigation="application" data-cpg-nav-active="/team/"></div>
+
       <section class="team-panel team-login" id="login-panel" aria-labelledby="login-title">
         <h2 class="team-section-title" id="login-title">Team code login</h2>
         <form class="team-form" id="team-access-form">
@@ -404,6 +407,8 @@
     </div>
   </main>
 
+  <script src="/assets/crewportglobal-public-i18n.js"></script>
+  <script src="/assets/crewportglobal-navigation.js"></script>
   <script>
     const TEAM_SESSION_KEY = 'crewportglobal_team_session';
     const ADMIN_SESSION_KEY = 'crewportglobal_admin_session';
