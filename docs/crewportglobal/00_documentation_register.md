@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.32
+- Version: 2.33
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -333,6 +333,7 @@ docs/crewportglobal/
   244_cpg_biz_050_seafarer_onboarding_acceptance_compact_page_report.md
   245_cpg_biz_051_seafarer_consent_consolidation_site_menu_report.md
   246_cpg_biz_052_commercial_operating_cycle_report.md
+  247_cpg_biz_053_functional_page_inventory_against_bp015.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -722,6 +723,8 @@ Document 245 records the CPG-BIZ-051 consolidation of final seafarer consent int
 
 Document 246 records the CPG-BIZ-052 commercial operating cycle and BP-015 business-process manual, covering marketing, registration, service packages, request processing, embarkation success, monthly service evidence, billing, retention and repeat marketing as a circular company process.
 
+Document 247 records the CPG-BIZ-053 functional page inventory against BP-015, classifying current public, registration, workspace, team, admin and legal routes as keep, compact, merge, hide from navigation or retire, with `/how-it-works/` reduced to a compact BP-015 infographic on the homepage.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -825,6 +828,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.33 | 2026-05-30 | GTC IT / AI Assistant | Added document 247 for CPG-BIZ-053 functional page inventory against BP-015, including route classification, `/how-it-works/` homepage infographic decision, target role-based menu and next implementation sequence |
 | 2.32 | 2026-05-30 | GTC IT / AI Assistant | Added document 246 and BP-015 commercial operating cycle covering marketing, subscriptions/packages, request processing, embarkation, monthly service evidence, billing, retention and repeat marketing |
 | 2.31 | 2026-05-30 | GTC IT / AI Assistant | Added document 245 for consolidated `/create-profile/` seafarer consent, structured consent flags, retired onboarding route and role-grouped full-site audit menu |
 | 2.30 | 2026-05-30 | GTC IT / AI Assistant | Clarified document 244 and `/onboarding/seafarer-registration/` wording as final seafarer confirmation before operator review rather than preliminary onboarding |
