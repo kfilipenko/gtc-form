@@ -194,6 +194,89 @@
       line-height: 1.2;
     }
 
+    .bp-cycle {
+      display: grid;
+      gap: 18px;
+      padding: 28px;
+    }
+
+    .bp-cycle-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .bp-cycle-flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .bp-step {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      min-width: 0;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(78, 196, 213, 0.18);
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .bp-step__number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: rgba(78, 196, 213, 0.18);
+      color: var(--paper-strong);
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .bp-step h3 {
+      margin: 0;
+      color: var(--paper-strong);
+      font-size: 16px;
+      letter-spacing: 0;
+      line-height: 1.25;
+    }
+
+    .bp-step p {
+      grid-column: 2;
+      margin: -2px 0 0;
+      color: var(--muted-on-dark);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .bp-cycle-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .bp-cycle-control {
+      min-width: 0;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 139, 61, 0.22);
+      background: rgba(255, 139, 61, 0.08);
+      color: var(--muted-on-dark);
+      line-height: 1.45;
+    }
+
+    .bp-cycle-control strong {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--paper-strong);
+    }
+
     .live-vacancy-list {
       display: grid;
       gap: 14px;
@@ -406,6 +489,8 @@
       .cta-grid,
       .registry-count-grid,
       .registry-preview-grid,
+      .bp-cycle-flow,
+      .bp-cycle-controls,
       .live-dashboard,
       .vacancy-meta {
         grid-template-columns: 1fr;
@@ -503,6 +588,63 @@
             <p data-i18n="home.boundary.copy">Automated comparison supports operators; final presentation remains controlled.</p>
           </section>
         </aside>
+      </section>
+
+      <section class="card bp-cycle section-card" id="home-process-cycle">
+        <div class="bp-cycle-header">
+          <div>
+            <p class="eyebrow" data-i18n="home.bp.eyebrow">BP-015 operating cycle</p>
+            <h2 class="section-title" data-i18n="home.bp.title">From registration to crew delivery, billing evidence and repeat voyage.</h2>
+          </div>
+          <a class="button secondary" href="https://crewportglobal.com/register/" data-i18n="home.bp.cta">Start registration</a>
+        </div>
+        <div class="bp-cycle-flow" aria-label="CrewPortGlobal commercial operating cycle" data-i18n-aria-label="home.bp.aria">
+          <article class="bp-step">
+            <span class="bp-step__number">1</span>
+            <h3 data-i18n="home.bp.step1.title">Register</h3>
+            <p data-i18n="home.bp.step1.copy">Seafarer or employer creates an account and chooses the correct work route.</p>
+          </article>
+          <article class="bp-step">
+            <span class="bp-step__number">2</span>
+            <h3 data-i18n="home.bp.step2.title">Complete data</h3>
+            <p data-i18n="home.bp.step2.copy">Profile, company, vessel and crew request fields are saved as comparable structured data.</p>
+          </article>
+          <article class="bp-step">
+            <span class="bp-step__number">3</span>
+            <h3 data-i18n="home.bp.step3.title">Verify</h3>
+            <p data-i18n="home.bp.step3.copy">Team review checks authority, documents, no-fee consent and readiness blockers.</p>
+          </article>
+          <article class="bp-step">
+            <span class="bp-step__number">4</span>
+            <h3 data-i18n="home.bp.step4.title">Match</h3>
+            <p data-i18n="home.bp.step4.copy">Demand is compared with candidate supply before a shortlist can be created.</p>
+          </article>
+          <article class="bp-step">
+            <span class="bp-step__number">5</span>
+            <h3 data-i18n="home.bp.step5.title">Present</h3>
+            <p data-i18n="home.bp.step5.copy">Only reviewed, employer-safe candidate information is presented to the client.</p>
+          </article>
+          <article class="bp-step">
+            <span class="bp-step__number">6</span>
+            <h3 data-i18n="home.bp.step6.title">Confirm boarding</h3>
+            <p data-i18n="home.bp.step6.copy">Embarkation evidence confirms that the selected seafarer has joined the vessel.</p>
+          </article>
+          <article class="bp-step">
+            <span class="bp-step__number">7</span>
+            <h3 data-i18n="home.bp.step7.title">Bill service</h3>
+            <p data-i18n="home.bp.step7.copy">Actual service and work-period evidence becomes the basis for B2B billing.</p>
+          </article>
+          <article class="bp-step">
+            <span class="bp-step__number">8</span>
+            <h3 data-i18n="home.bp.step8.title">Repeat cycle</h3>
+            <p data-i18n="home.bp.step8.copy">Availability and repeat demand return the seafarer and employer into the next cycle.</p>
+          </article>
+        </div>
+        <div class="bp-cycle-controls">
+          <p class="bp-cycle-control"><strong data-i18n="home.bp.control1.title">Human control</strong><span data-i18n="home.bp.control1.copy">No automatic employment decision.</span></p>
+          <p class="bp-cycle-control"><strong data-i18n="home.bp.control2.title">No-fee boundary</strong><span data-i18n="home.bp.control2.copy">Seafarers do not pay recruitment or placement fees.</span></p>
+          <p class="bp-cycle-control"><strong data-i18n="home.bp.control3.title">Evidence trail</strong><span data-i18n="home.bp.control3.copy">Each material operation must leave a record.</span></p>
+        </div>
       </section>
 
       <section class="card vacancy-board section-card" id="home-registry-summary">
@@ -634,7 +776,7 @@
             <li data-i18n="home.value.workflow.item4">The personal cabinet is assembled from confirmed capability cards.</li>
           </ul>
           <div class="mini-actions">
-            <a class="button secondary" href="https://crewportglobal.com/how-it-works/" data-i18n="home.value.workflow.cta">How It Works</a>
+            <a class="button secondary" href="#home-process-cycle" data-i18n="home.value.workflow.cta">View process cycle</a>
           </div>
         </article>
       </section>
@@ -686,7 +828,7 @@
         'home.hero.eyebrow': 'Maritime crew matching workspace',
         'home.hero.lead': 'Live crew requests, vessels and seafarer profiles are already registered. Public preview stays contact-free; operational work stays protected.',
         'home.hero.registryCta': 'Show registry data',
-        'home.hero.primaryCta': 'How It Works',
+        'home.hero.primaryCta': 'BP-015 Cycle',
         'home.hero.secondaryCta': 'Trust & Safety',
         'home.hero.vacanciesCta': 'View vacancies',
         'home.hero.seafarerInfoCta': 'For Seafarers',
@@ -726,6 +868,32 @@
         'home.boundary.eyebrow': 'Trust rules',
         'home.boundary.title': 'Matching is reviewed before presentation',
         'home.boundary.copy': 'Automated comparison supports operators; final presentation remains controlled.',
+        'home.bp.eyebrow': 'BP-015 operating cycle',
+        'home.bp.title': 'From registration to crew delivery, billing evidence and repeat voyage.',
+        'home.bp.cta': 'Start registration',
+        'home.bp.aria': 'CrewPortGlobal commercial operating cycle',
+        'home.bp.step1.title': 'Register',
+        'home.bp.step1.copy': 'Seafarer or employer creates an account and chooses the correct work route.',
+        'home.bp.step2.title': 'Complete data',
+        'home.bp.step2.copy': 'Profile, company, vessel and crew request fields are saved as comparable structured data.',
+        'home.bp.step3.title': 'Verify',
+        'home.bp.step3.copy': 'Team review checks authority, documents, no-fee consent and readiness blockers.',
+        'home.bp.step4.title': 'Match',
+        'home.bp.step4.copy': 'Demand is compared with candidate supply before a shortlist can be created.',
+        'home.bp.step5.title': 'Present',
+        'home.bp.step5.copy': 'Only reviewed, employer-safe candidate information is presented to the client.',
+        'home.bp.step6.title': 'Confirm boarding',
+        'home.bp.step6.copy': 'Embarkation evidence confirms that the selected seafarer has joined the vessel.',
+        'home.bp.step7.title': 'Bill service',
+        'home.bp.step7.copy': 'Actual service and work-period evidence becomes the basis for B2B billing.',
+        'home.bp.step8.title': 'Repeat cycle',
+        'home.bp.step8.copy': 'Availability and repeat demand return the seafarer and employer into the next cycle.',
+        'home.bp.control1.title': 'Human control',
+        'home.bp.control1.copy': 'No automatic employment decision.',
+        'home.bp.control2.title': 'No-fee boundary',
+        'home.bp.control2.copy': 'Seafarers do not pay recruitment or placement fees.',
+        'home.bp.control3.title': 'Evidence trail',
+        'home.bp.control3.copy': 'Each material operation must leave a record.',
         'home.search.eyebrow': 'Service model',
         'home.search.title': 'The platform compares demand with supply after verified registration.',
         'home.search.copy': 'Open a topic for the minimum matching model. Full policies remain in the document section.',
@@ -821,7 +989,7 @@
         'home.value.workflow.item2': 'Authentication confirms access to the service account and validates contact channels.',
         'home.value.workflow.item3': 'Authorization grants roles, visibility and rights only on proven grounds.',
         'home.value.workflow.item4': 'The personal cabinet is assembled from confirmed capability cards.',
-        'home.value.workflow.cta': 'How It Works',
+        'home.value.workflow.cta': 'View process cycle',
         'home.trust.fees.title': 'No recruitment fee promise stays explicit.',
         'home.trust.fees.copy': 'Seafarers do not pay recruitment, placement or employment-access fees for access to the core matching service through CrewPortGlobal.',
         'home.trust.review.eyebrow': 'Human review',
@@ -848,7 +1016,7 @@
         'home.hero.eyebrow': 'Рабочая среда подбора морских экипажей',
         'home.hero.lead': 'Заявки, суда и профили моряков уже зарегистрированы в системе. Публичный просмотр не раскрывает контакты; операционная работа остается защищенной.',
         'home.hero.registryCta': 'Показать данные',
-        'home.hero.primaryCta': 'Как это работает',
+        'home.hero.primaryCta': 'Цикл BP-015',
         'home.hero.secondaryCta': 'Доверие и безопасность',
         'home.hero.vacanciesCta': 'Смотреть вакансии',
         'home.hero.seafarerInfoCta': 'Для моряков',
@@ -888,6 +1056,32 @@
         'home.boundary.eyebrow': 'Правила доверия',
         'home.boundary.title': 'Сопоставление проверяется до представления',
         'home.boundary.copy': 'Автоматическое сравнение помогает оператору; финальное представление остается контролируемым.',
+        'home.bp.eyebrow': 'Операционный цикл BP-015',
+        'home.bp.title': 'От регистрации до передачи экипажа, доказательств услуги и следующего рейса.',
+        'home.bp.cta': 'Начать регистрацию',
+        'home.bp.aria': 'Коммерческий операционный цикл CrewPortGlobal',
+        'home.bp.step1.title': 'Регистрация',
+        'home.bp.step1.copy': 'Моряк или работодатель создаёт аккаунт и выбирает правильный рабочий маршрут.',
+        'home.bp.step2.title': 'Заполнение данных',
+        'home.bp.step2.copy': 'Профиль, компания, судно и заявка сохраняются как сопоставимые структурированные данные.',
+        'home.bp.step3.title': 'Проверка',
+        'home.bp.step3.copy': 'Команда проверяет полномочия, документы, согласия без сборов и блокеры готовности.',
+        'home.bp.step4.title': 'Сопоставление',
+        'home.bp.step4.copy': 'Спрос сравнивается с предложением кандидатов до создания shortlist.',
+        'home.bp.step5.title': 'Представление',
+        'home.bp.step5.copy': 'Клиенту показываются только проверенные и безопасные для работодателя данные кандидата.',
+        'home.bp.step6.title': 'Посадка на судно',
+        'home.bp.step6.copy': 'Доказательство посадки подтверждает, что выбранный моряк вышел на судно.',
+        'home.bp.step7.title': 'Расчёт услуги',
+        'home.bp.step7.copy': 'Доказательства фактической услуги и периода работы становятся основой B2B-счёта.',
+        'home.bp.step8.title': 'Повторный цикл',
+        'home.bp.step8.copy': 'Доступность и повторный спрос возвращают моряка и работодателя в следующий цикл.',
+        'home.bp.control1.title': 'Человеческий контроль',
+        'home.bp.control1.copy': 'Нет автоматического решения о трудоустройстве.',
+        'home.bp.control2.title': 'Правило без сборов',
+        'home.bp.control2.copy': 'Моряки не платят за подбор или трудоустройство.',
+        'home.bp.control3.title': 'Доказательная база',
+        'home.bp.control3.copy': 'Каждая существенная операция оставляет запись.',
         'home.search.eyebrow': 'Модель сервиса',
         'home.search.title': 'Платформа сравнивает спрос и предложение после проверенной регистрации.',
         'home.search.copy': 'Откройте пункт, чтобы увидеть минимальную модель сопоставления. Полные правила остаются в разделе документов.',
@@ -983,7 +1177,7 @@
         'home.value.workflow.item2': 'Аутентификация подтверждает доступ к сервисному аккаунту и проверяет каналы связи.',
         'home.value.workflow.item3': 'Авторизация выдаёт роли, видимость и права только на доказанном основании.',
         'home.value.workflow.item4': 'Личный кабинет собирается из подтверждённых карточек возможностей.',
-        'home.value.workflow.cta': 'Как это работает',
+        'home.value.workflow.cta': 'Посмотреть цикл процесса',
         'home.trust.fees.title': 'Обещание без рекрутинговых сборов остаётся явным.',
         'home.trust.fees.copy': 'Моряки не платят рекрутинговые, placement- или employment-access сборы за доступ к базовому сервису сопоставления через CrewPortGlobal.',
         'home.trust.review.eyebrow': 'Ручная проверка',

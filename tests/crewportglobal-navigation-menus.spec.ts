@@ -11,7 +11,6 @@ const appPages = [
 const documentPages = [
   { path: '/for-seafarers/', active: 'For Seafarers' },
   { path: '/for-shipowners/', active: 'For Employers' },
-  { path: '/how-it-works/', active: 'How It Works' },
   { path: '/legal/verification-policy/', active: 'Verification Policy' },
 ];
 
@@ -21,18 +20,14 @@ const fullSiteGroups = [
   { className: 'employers', title: 'For Employers' },
   { className: 'documents', title: 'Documents' },
   { className: 'team', title: 'Team' },
-  { className: 'registration', title: 'Registration / Cabinet' },
+  { className: 'registration', title: 'Login / Cabinet' },
 ];
 
 const fullSiteLinks = [
   { name: 'Home', href: 'https://crewportglobal.com/' },
-  { name: 'Project Scope', href: 'https://crewportglobal.com/about/' },
-  { name: 'How It Works', href: 'https://crewportglobal.com/how-it-works/' },
-  { name: 'Language fallback', href: 'https://crewportglobal.com/language.html' },
   { name: 'For Seafarers', href: 'https://crewportglobal.com/for-seafarers/' },
   { name: 'Create Profile', href: 'https://crewportglobal.com/create-profile/' },
   { name: 'Vacancies', href: 'https://crewportglobal.com/vacancies/' },
-  { name: 'Vacancy Detail', href: 'https://crewportglobal.com/vacancies/detail/' },
   { name: 'For Employers', href: 'https://crewportglobal.com/for-shipowners/' },
   { name: 'Post Vacancy', href: 'https://crewportglobal.com/post-vacancy/' },
   { name: 'Terms', href: 'https://crewportglobal.com/legal/terms/' },
@@ -51,12 +46,6 @@ const fullSiteLinks = [
   { name: 'Operator Queue', href: 'https://crewportglobal.com/verify/' },
   { name: 'Access Admin', href: 'https://crewportglobal.com/admin/access/' },
   { name: 'Login / Register', href: 'https://crewportglobal.com/register/' },
-  { name: 'Authorization', href: 'https://crewportglobal.com/register/authorization/' },
-  { name: 'Selected Authorization', href: 'https://crewportglobal.com/register/authorization/selected/' },
-  { name: 'Seafarer Authorization', href: 'https://crewportglobal.com/register/authorization/seafarer-specialist/' },
-  { name: 'Employer Authorization', href: 'https://crewportglobal.com/register/authorization/buyer-employer/' },
-  { name: 'Email Confirmation', href: 'https://crewportglobal.com/register/confirm/' },
-  { name: 'Next Step', href: 'https://crewportglobal.com/register/next/' },
   { name: 'My Cabinet', href: 'https://crewportglobal.com/cabinet/' },
 ];
 

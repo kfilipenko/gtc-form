@@ -26,8 +26,8 @@ related_links:
     href: https://crewportglobal.com/register/
   - label: Browse Vacancies
     href: https://crewportglobal.com/vacancies/
-  - label: How It Works
-    href: https://crewportglobal.com/how-it-works/
+  - label: BP-015 Cycle
+    href: https://crewportglobal.com/#home-process-cycle
   - label: Verification Policy
     href: https://crewportglobal.com/legal/verification-policy/
 ---

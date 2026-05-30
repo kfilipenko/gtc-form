@@ -132,11 +132,12 @@ test('homepage and vacancies CTAs match their destinations', async ({ page }) =>
   const main = page.locator('main');
 
   await expect(page.locator('.site-menu-group--registration a[href="https://crewportglobal.com/register/"]').first()).toHaveText('Login / Register');
-  await expect(main.locator('a[href="https://crewportglobal.com/how-it-works/"]').first()).toHaveText('How It Works');
+  await expect(main.locator('#home-process-cycle')).toContainText('BP-015 operating cycle');
+  await expect(main.locator('a[href="#home-process-cycle"]').first()).toHaveText('View process cycle');
   await expect(main.locator('a[href="https://crewportglobal.com/legal/verification-policy/"]').first()).toContainText('Trust');
   await expect(main.locator('a[href="https://crewportglobal.com/for-seafarers/"]').first()).toHaveText('For Seafarers');
   await expect(main.locator('a[href="https://crewportglobal.com/vacancies/"]').first()).toHaveText('View vacancies');
-  await expect(page.locator('main a[href="https://crewportglobal.com/register/"]')).toHaveCount(0);
+  await expect(page.locator('main a[href="https://crewportglobal.com/register/"]')).toHaveText('Start registration');
   await expect(page.locator('main a[href="https://crewportglobal.com/create-profile/"]')).toHaveCount(0);
   await expect(page.locator('main a[href="https://crewportglobal.com/post-vacancy/"]')).toHaveCount(0);
   await expect(main.locator('select')).toHaveCount(0);

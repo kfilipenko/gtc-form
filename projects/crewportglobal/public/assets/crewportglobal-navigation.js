@@ -7,10 +7,14 @@
   ];
 
   const DOCUMENT_LINKS = [
-    { href: '/for-seafarers/', key: 'nav.forSeafarers', label: 'For Seafarers' },
-    { href: '/for-shipowners/', key: 'nav.forShipowners', label: 'For Employers' },
-    { href: '/how-it-works/', key: 'nav.howItWorks', label: 'How It Works' },
-    { href: '/legal/verification-policy/', key: 'nav.trustSafety', label: 'Trust & Safety' },
+    { href: '/legal/terms/', key: 'nav.terms', label: 'Terms' },
+    { href: '/legal/privacy/', key: 'nav.privacy', label: 'Privacy' },
+    { href: '/legal/no-recruitment-fees/', key: 'nav.noRecruitmentFees', label: 'No Recruitment Fees' },
+    { href: '/legal/seafarer-candidate-agreement/', key: 'nav.seafarerAgreement', label: 'Seafarer Agreement' },
+    { href: '/legal/shipowner-service-terms/', key: 'nav.shipownerAgreement', label: 'Shipowner Agreement' },
+    { href: '/legal/recruitment-and-matching-policy/', key: 'nav.matchingPolicy', label: 'Matching Policy' },
+    { href: '/legal/verification-policy/', key: 'nav.verificationPolicy', label: 'Verification Policy' },
+    { href: '/legal/complaints/', key: 'nav.complaints', label: 'Complaints' },
   ];
 
   const SITE_MENU_GROUPS = [
@@ -21,9 +25,6 @@
       menuKey: 'nav.homeGroupMenu',
       links: [
         { href: '/', key: 'nav.home', label: 'Home' },
-        { href: '/about/', key: 'nav.projectScope', label: 'Project Scope' },
-        { href: '/how-it-works/', key: 'nav.howItWorks', label: 'How It Works' },
-        { href: '/language.html', key: 'nav.languageFallback', label: 'Language fallback' },
       ],
     },
     {
@@ -35,7 +36,6 @@
         { href: '/for-seafarers/', key: 'nav.forSeafarers', label: 'For Seafarers' },
         { href: '/create-profile/', key: 'nav.createProfile', label: 'Create Profile' },
         { href: '/vacancies/', key: 'nav.vacancies', label: 'Vacancies' },
-        { href: '/vacancies/detail/', key: 'nav.vacancyDetail', label: 'Vacancy Detail' },
       ],
     },
     {
@@ -81,17 +81,11 @@
     },
     {
       className: 'registration',
-      key: 'nav.registrationCabinet',
-      label: 'Registration / Cabinet',
+      key: 'nav.loginCabinet',
+      label: 'Login / Cabinet',
       menuKey: 'nav.registrationCabinetMenu',
       links: [
         { href: '/register/', key: 'nav.loginRegister', label: 'Login / Register' },
-        { href: '/register/authorization/', key: 'nav.registerAuthorization', label: 'Authorization' },
-        { href: '/register/authorization/selected/', key: 'nav.registerAuthorizationSelected', label: 'Selected Authorization' },
-        { href: '/register/authorization/seafarer-specialist/', key: 'nav.registerAuthorizationSeafarer', label: 'Seafarer Authorization' },
-        { href: '/register/authorization/buyer-employer/', key: 'nav.registerAuthorizationEmployer', label: 'Employer Authorization' },
-        { href: '/register/confirm/', key: 'nav.registerConfirm', label: 'Email Confirmation' },
-        { href: '/register/next/', key: 'nav.registerNext', label: 'Next Step' },
         { href: '/cabinet/', key: 'nav.myCabinet', label: 'My Cabinet' },
       ],
     },

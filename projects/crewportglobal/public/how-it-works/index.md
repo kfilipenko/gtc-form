@@ -1,10 +1,10 @@
 ---
 category: Overview
-nav_label: How It Works
-summary: Explains the practical action-first workflow for seafarers, employers and human-reviewed maritime hiring support.
+nav_label: BP-015 Cycle
+summary: Shows the compact operating cycle from registration to matching, billing evidence and repeat work.
 ---
 
-# CrewPortGlobal — How It Works
+# CrewPortGlobal — BP-015 Cycle
 
 CrewPortGlobal is being prepared as a practical maritime jobs and crew workflow platform where useful actions appear before long declarations.
 

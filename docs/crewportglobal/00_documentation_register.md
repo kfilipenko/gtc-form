@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.33
+- Version: 2.34
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -725,6 +725,8 @@ Document 246 records the CPG-BIZ-052 commercial operating cycle and BP-015 busin
 
 Document 247 records the CPG-BIZ-053 functional page inventory against BP-015, classifying current public, registration, workspace, team, admin and legal routes as keep, compact, merge, hide from navigation or retire, with `/how-it-works/` reduced to a compact BP-015 infographic on the homepage.
 
+Document 248 records the CPG-BIZ-054 implementation of the functional public navigation and homepage BP-015 infographic, including the simplified role-based menu, Documents/Trust Center legal grouping, `/how-it-works/` support-route reduction, active public-link replacement and focused navigation/homepage regression verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -828,6 +830,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.34 | 2026-05-30 | GTC IT / AI Assistant | Added document 248 for CPG-BIZ-054 functional public navigation and homepage BP-015 infographic implementation, including role-based menu simplification and `/how-it-works/` support-route reduction |
 | 2.33 | 2026-05-30 | GTC IT / AI Assistant | Added document 247 for CPG-BIZ-053 functional page inventory against BP-015, including route classification, `/how-it-works/` homepage infographic decision, target role-based menu and next implementation sequence |
 | 2.32 | 2026-05-30 | GTC IT / AI Assistant | Added document 246 and BP-015 commercial operating cycle covering marketing, subscriptions/packages, request processing, embarkation, monthly service evidence, billing, retention and repeat marketing |
 | 2.31 | 2026-05-30 | GTC IT / AI Assistant | Added document 245 for consolidated `/create-profile/` seafarer consent, structured consent flags, retired onboarding route and role-grouped full-site audit menu |
