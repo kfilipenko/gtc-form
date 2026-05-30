@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.28
+- Version: 2.30
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -330,6 +330,7 @@ docs/crewportglobal/
   241_cpg_biz_047_employer_vessel_form_standard_rollout_report.md
   242_cpg_biz_048_seafarer_agreement_consent_confirmation_report.md
   243_cpg_biz_049_create_profile_compact_workspace_header_report.md
+  244_cpg_biz_050_seafarer_onboarding_acceptance_compact_page_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -712,6 +713,8 @@ Document 242 records the CPG-BIZ-048 `/create-profile/` seafarer agreement and d
 
 Document 243 records the CPG-BIZ-049 `/create-profile/` compact workspace header redesign, removing the stretched hero layout, shortening explanatory text and converting the right-side status content into a compact responsive control strip.
 
+Document 244 records the CPG-BIZ-050 `/onboarding/seafarer-registration/` compact final seafarer review-confirmation page redesign, clarifying that the page is the final declaration before operator review rather than a preliminary questionnaire, moving route/completeness status into compact context and adding Russian page translations.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -815,6 +818,8 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.30 | 2026-05-30 | GTC IT / AI Assistant | Clarified document 244 and `/onboarding/seafarer-registration/` wording as final seafarer confirmation before operator review rather than preliminary onboarding |
+| 2.29 | 2026-05-30 | GTC IT / AI Assistant | Added document 244 for compact `/onboarding/seafarer-registration/` acceptance page redesign and purpose clarification |
 | 2.28 | 2026-05-29 | GTC IT / AI Assistant | Added document 243 for `/create-profile/` compact workspace header redesign and reduced first-screen empty space |
 | 2.27 | 2026-05-29 | GTC IT / AI Assistant | Added document 242 for `/create-profile/` agreement and personal-data consent simplification with one end-of-form checkbox and unchanged compatibility storage |
 | 2.26 | 2026-05-29 | GTC IT / AI Assistant | Added document 241 for CPG-BIZ-047 employer/vessel rollout with vessel flag country catalog storage, separate vessel document checklist and updated V-stream completeness targets |

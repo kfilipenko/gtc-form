@@ -12,22 +12,27 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="stylesheet" href="../../assets/crewportglobal-docs.css">
   <style>
+    .onboarding-page {
+      display: grid;
+      gap: 14px;
+    }
+
     .flow-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
-      gap: 22px;
-      margin-top: 22px;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.34fr);
+      gap: 14px;
+      align-items: start;
     }
 
     .flow-stack {
       display: grid;
-      gap: 22px;
+      gap: 14px;
     }
 
     .field-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
+      gap: 12px;
     }
 
     .field,
@@ -50,8 +55,8 @@
 
     .field input {
       width: 100%;
-      padding: 14px 16px;
-      border-radius: 16px;
+      padding: 11px 12px;
+      border-radius: 8px;
       border: 1px solid var(--line);
       background: rgba(255, 255, 255, 0.06);
       color: var(--text-on-dark);
@@ -60,8 +65,8 @@
 
     .field select {
       width: 100%;
-      padding: 14px 16px;
-      border-radius: 16px;
+      padding: 11px 12px;
+      border-radius: 8px;
       border: 1px solid var(--line);
       background: rgba(255, 255, 255, 0.06);
       color: var(--text-on-dark);
@@ -78,7 +83,7 @@
     .info-list,
     .state-note {
       color: var(--muted-on-dark);
-      line-height: 1.6;
+      line-height: 1.45;
     }
 
     .inline-actions,
@@ -96,9 +101,9 @@
     }
 
     .checklist {
-      padding: 18px;
+      padding: 12px;
       border: 1px solid var(--line);
-      border-radius: 24px;
+      border-radius: 10px;
       background: rgba(255, 255, 255, 0.04);
     }
 
@@ -115,9 +120,9 @@
     }
 
     .role-toggle {
-      padding: 18px;
+      padding: 12px;
       border: 1px solid var(--line);
-      border-radius: 24px;
+      border-radius: 10px;
       background: rgba(255, 255, 255, 0.04);
     }
 
@@ -147,39 +152,81 @@
     .hero-facts h2,
     .route-summary h2 {
       margin: 0;
-      font-size: 28px;
+      font-size: 22px;
       letter-spacing: 0;
+    }
+
+    .compact-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.46fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .compact-hero h1 {
+      max-width: 26ch;
+      margin-bottom: 10px;
+      font-size: clamp(30px, 3.4vw, 44px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .compact-hero .lead {
+      max-width: 70ch;
+      margin-bottom: 10px;
+      line-height: 1.45;
+    }
+
+    .compact-hero .trust-note {
+      margin: 0;
+      color: var(--teal);
+      font-weight: 700;
+    }
+
+    .hero-actions,
+    .summary-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
     }
 
     .hero-facts {
       display: grid;
-      gap: 16px;
+      gap: 10px;
     }
 
     .hero-fact-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
+      gap: 8px;
     }
 
     .hero-fact {
-      padding: 16px;
-      border-radius: 18px;
+      padding: 10px 12px;
+      border-radius: 8px;
       border: 1px solid var(--line);
       background: rgba(255, 255, 255, 0.04);
     }
 
     .hero-fact strong {
       display: block;
-      margin-bottom: 6px;
+      margin-bottom: 2px;
+    }
+
+    .support-card {
+      padding: 14px;
+    }
+
+    .support-card h2 {
+      font-size: 18px;
     }
 
     .route-summary {
       display: grid;
-      gap: 16px;
-      padding: 22px;
+      gap: 12px;
+      padding: 14px;
       border: 1px solid var(--line);
-      border-radius: 24px;
+      border-radius: 10px;
       background: rgba(255, 255, 255, 0.04);
     }
 
@@ -190,13 +237,18 @@
 
     .state-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .flow-grid > aside .state-grid,
+    .flow-grid > aside .completeness-grid {
+      grid-template-columns: 1fr;
     }
 
     .state-card {
-      padding: 16px;
-      border-radius: 18px;
+      padding: 10px 12px;
+      border-radius: 8px;
       border: 1px solid var(--line);
       background: rgba(255, 255, 255, 0.04);
     }
@@ -208,8 +260,8 @@
     }
 
     .state-value {
-      margin-top: 8px;
-      font-size: 18px;
+      margin-top: 4px;
+      font-size: 15px;
       font-weight: 700;
       color: var(--paper-strong);
     }
@@ -230,10 +282,10 @@
 
     .completeness-summary {
       display: grid;
-      gap: 16px;
-      padding: 22px;
+      gap: 12px;
+      padding: 14px;
       border: 1px solid var(--line);
-      border-radius: 24px;
+      border-radius: 10px;
       background: rgba(255, 255, 255, 0.04);
     }
 
@@ -249,8 +301,8 @@
     }
 
     .completeness-card {
-      padding: 16px;
-      border-radius: 18px;
+      padding: 10px 12px;
+      border-radius: 8px;
       border: 1px solid var(--line);
       background: rgba(255, 255, 255, 0.04);
     }
@@ -273,7 +325,7 @@
       margin: 0;
       padding-left: 18px;
       color: var(--muted-on-dark);
-      line-height: 1.6;
+      line-height: 1.45;
     }
 
     .completeness-list li.is-complete {
@@ -288,11 +340,24 @@
 
     @media (max-width: 980px) {
       .flow-grid,
+      .compact-hero,
       .hero-fact-grid,
       .field-grid,
       .state-grid,
       .completeness-grid {
         grid-template-columns: 1fr;
+      }
+
+      .compact-hero h1 {
+        font-size: 32px;
+      }
+
+      .compact-hero .lead {
+        font-size: 16px;
+      }
+
+      .compact-hero .hero-facts {
+        display: none;
       }
     }
   </style>
@@ -326,36 +391,37 @@
     <div data-cpg-navigation="application" data-cpg-nav-active="/create-profile/"></div>
     <script src="../../assets/crewportglobal-navigation.js"></script>
 
-    <main class="doc-main">
-      <section class="doc-hero card">
+    <main class="doc-main onboarding-page">
+      <section class="doc-hero card compact-hero">
         <div>
           <p class="eyebrow" data-i18n="reg.eyebrow">Onboarding</p>
-          <h1 data-i18n="reg.title">Seafarer onboarding acceptance with explicit controls.</h1>
-          <p class="lead" data-i18n="reg.lead">Record your no-fee and consent acknowledgements directly on the page while CrewPortGlobal keeps authentication as a separate later-stage workstream.</p>
+          <h1 data-i18n="reg.title">Final seafarer confirmation before review.</h1>
+          <p class="lead" data-i18n="reg.lead">Confirm that the submitted data and documents are accurate, that the no-fee rule is understood and that the profile may be sent to operator review.</p>
           <p class="trust-note" data-i18n="reg.trustNote">CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#registrationForm" data-i18n="reg.startForm">Open acceptance form</a>
+            <a class="button secondary" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/" data-i18n="reg.reviewAgreement">Review agreement</a>
+            <a class="button secondary" href="https://crewportglobal.com/legal/privacy/" data-i18n="reg.reviewPrivacy">Review privacy</a>
+          </div>
         </div>
         <div class="hero-facts">
           <div>
             <span class="meta-label" data-i18n="reg.primaryFocusLabel">Primary focus</span>
-            <strong data-i18n="reg.primaryFocusValue">Acceptance-first route to pending human review</strong>
+            <strong data-i18n="reg.primaryFocusValue">Final declaration before operator review</strong>
           </div>
           <div class="hero-fact-grid">
             <div class="hero-fact">
-              <strong data-i18n="reg.factNoFeeTitle">No-fee baseline</strong>
-              <span data-i18n="reg.factNoFeeBody">You do not pay to create a profile or enter the matching flow.</span>
+              <strong data-i18n="reg.factNoFeeTitle">No seafarer fee</strong>
+              <span data-i18n="reg.factNoFeeBody">Profile intake is not paid by the seafarer.</span>
             </div>
             <div class="hero-fact">
-              <strong data-i18n="reg.factLocalTitle">Project-local onboarding</strong>
-              <span data-i18n="reg.factLocalBody">Your acceptance draft is saved to backend and mirrored locally in this browser for continuity between onboarding steps.</span>
+              <strong data-i18n="reg.factLocalTitle">Draft continuity</strong>
+              <span data-i18n="reg.factLocalBody">The route stores a backend draft and local browser copy.</span>
             </div>
             <div class="hero-fact">
-              <strong data-i18n="reg.factReviewTitle">Human-review handoff</strong>
-              <span data-i18n="reg.factReviewBody">This slice ends at pending human review and does not create shared authentication or account activation.</span>
+              <strong data-i18n="reg.factReviewTitle">Human review</strong>
+              <span data-i18n="reg.factReviewBody">Final confirmation does not create an automatic employment decision.</span>
             </div>
-          </div>
-          <div class="hero-actions">
-            <a class="button primary" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/" data-i18n="reg.reviewAgreement">Review agreement</a>
-            <a class="button secondary" href="https://crewportglobal.com/legal/privacy/" data-i18n="reg.reviewPrivacy">Review privacy</a>
           </div>
         </div>
       </section>
@@ -363,53 +429,10 @@
       <section class="flow-grid">
         <article class="card flow-stack">
           <div>
-            <p class="eyebrow" data-i18n="reg.formEyebrow">Registration flow</p>
-            <h2 data-i18n="reg.formTitle">Save your onboarding acceptance draft</h2>
-            <p class="lead" data-i18n="reg.formLead">The form below saves your contact details and required acknowledgements to backend draft endpoints and mirrors the state locally in this browser.</p>
+            <p class="eyebrow" data-i18n="reg.formEyebrow">Acceptance form</p>
+            <h2 data-i18n="reg.formTitle">Confirm and save review declaration</h2>
+            <p class="lead" data-i18n="reg.formLead">Use this step after the seafarer profile has been prepared; it records the declarations required before operator review.</p>
           </div>
-
-          <section class="route-summary" aria-live="polite">
-            <p class="eyebrow" data-i18n="reg.routeEyebrow">Route state</p>
-            <h2 data-i18n="reg.routeTitle">Acceptance-first progress</h2>
-            <p class="state-note" data-i18n="reg.routeLead">The UI keeps no-fee acknowledgement and consent dependency visible before the route can end in pending human review.</p>
-            <div class="state-grid">
-              <article id="draft-state-card" class="state-card is-pending">
-                <span class="meta-label" data-i18n="reg.routeDraftLabel">Draft intake</span>
-                <strong id="draft-state-value" class="state-value">Not started</strong>
-              </article>
-              <article id="no-fee-state-card" class="state-card is-pending">
-                <span class="meta-label" data-i18n="reg.routeNoFeeLabel">No-fee acknowledgement</span>
-                <strong id="no-fee-state-value" class="state-value">Pending</strong>
-              </article>
-              <article id="consent-state-card" class="state-card is-pending">
-                <span class="meta-label" data-i18n="reg.routeConsentLabel">Consent dependency</span>
-                <strong id="consent-state-value" class="state-value">Pending</strong>
-              </article>
-              <article id="route-final-card" class="state-card is-pending">
-                <span class="meta-label" data-i18n="reg.routeFinalLabel">Final route state</span>
-                <strong id="route-final-value" class="state-value">Not started</strong>
-              </article>
-            </div>
-            <p id="routeStateHint" class="state-note"></p>
-          </section>
-
-          <section class="completeness-summary" aria-live="polite">
-            <p class="eyebrow" data-i18n="reg.completeEyebrow">Completeness check</p>
-            <h2 data-i18n="reg.completeTitle">What is complete and what is still missing</h2>
-            <p class="state-note" data-i18n="reg.completeLead">This frontend-only check explains why the route cannot continue yet and when the page can move to pending human review.</p>
-            <div class="completeness-grid">
-              <article id="completeness-required-card" class="completeness-card is-pending">
-                <span class="meta-label" data-i18n="reg.completeRequiredLabel">Required items</span>
-                <strong id="completeness-required-value" class="state-value">0 / 5 complete</strong>
-              </article>
-              <article id="completeness-ready-card" class="completeness-card is-pending">
-                <span class="meta-label" data-i18n="reg.completeReadyLabel">Ready to continue</span>
-                <strong id="completeness-ready-value" class="state-value">Not ready</strong>
-              </article>
-            </div>
-            <ul id="completeness-list" class="completeness-list"></ul>
-            <p id="completeness-hint" class="state-note"></p>
-          </section>
 
           <form id="registrationForm" class="flow-form" novalidate>
             <div class="field-grid">
@@ -423,19 +446,19 @@
                 <div class="field-hint" data-i18n="reg.roleHint">This completeness slice is limited to the seafarer route only.</div>
               </div>
 
-              <div class="field full">
+              <div class="field">
                 <label for="fullName" data-i18n="reg.nameLabel">Full name</label>
                 <input id="fullName" name="fullName" type="text" autocomplete="name" data-i18n-placeholder="reg.namePlaceholder" placeholder="As shown in your maritime documents">
                 <div class="field-hint" data-i18n="reg.nameHint">Stored locally in this browser to prefill later CrewPortGlobal onboarding steps as the basic profile draft.</div>
               </div>
 
-              <div class="field full">
+              <div class="field">
                 <label for="email" data-i18n="reg.emailLabel">Email address</label>
                 <input id="email" name="email" type="email" autocomplete="email" inputmode="email" required data-i18n-placeholder="reg.emailPlaceholder" placeholder="captain@example.com">
                 <div class="field-hint" data-i18n="reg.emailHint">Used as a contact reference for the acceptance draft only. No shared account is created on this page.</div>
               </div>
 
-              <div class="field full">
+              <div class="field">
                 <label for="availability" data-i18n="reg.availabilityLabel">Availability</label>
                 <select id="availability" name="availability">
                   <option value="" data-i18n="reg.availabilityPlaceholder">Select availability</option>
@@ -481,6 +504,47 @@
         </article>
 
         <aside class="flow-stack">
+          <section class="route-summary" aria-live="polite">
+            <p class="eyebrow" data-i18n="reg.routeEyebrow">Route state</p>
+            <h2 data-i18n="reg.routeTitle">Acceptance progress</h2>
+            <div class="state-grid">
+              <article id="draft-state-card" class="state-card is-pending">
+                <span class="meta-label" data-i18n="reg.routeDraftLabel">Draft intake</span>
+                <strong id="draft-state-value" class="state-value">Not started</strong>
+              </article>
+              <article id="no-fee-state-card" class="state-card is-pending">
+                <span class="meta-label" data-i18n="reg.routeNoFeeLabel">No-fee acknowledgement</span>
+                <strong id="no-fee-state-value" class="state-value">Pending</strong>
+              </article>
+              <article id="consent-state-card" class="state-card is-pending">
+                <span class="meta-label" data-i18n="reg.routeConsentLabel">Consent dependency</span>
+                <strong id="consent-state-value" class="state-value">Pending</strong>
+              </article>
+              <article id="route-final-card" class="state-card is-pending">
+                <span class="meta-label" data-i18n="reg.routeFinalLabel">Final route state</span>
+                <strong id="route-final-value" class="state-value">Not started</strong>
+              </article>
+            </div>
+            <p id="routeStateHint" class="state-note"></p>
+          </section>
+
+          <section class="completeness-summary" aria-live="polite">
+            <p class="eyebrow" data-i18n="reg.completeEyebrow">Completeness check</p>
+            <h2 data-i18n="reg.completeTitle">Required items</h2>
+            <div class="completeness-grid">
+              <article id="completeness-required-card" class="completeness-card is-pending">
+                <span class="meta-label" data-i18n="reg.completeRequiredLabel">Required items</span>
+                <strong id="completeness-required-value" class="state-value">0 / 5 complete</strong>
+              </article>
+              <article id="completeness-ready-card" class="completeness-card is-pending">
+                <span class="meta-label" data-i18n="reg.completeReadyLabel">Ready to continue</span>
+                <strong id="completeness-ready-value" class="state-value">Not ready</strong>
+              </article>
+            </div>
+            <ul id="completeness-list" class="completeness-list"></ul>
+            <p id="completeness-hint" class="state-note"></p>
+          </section>
+
           <section class="card support-card">
             <p class="eyebrow" data-i18n="reg.nextEyebrow">What happens next</p>
             <h2 data-i18n="reg.nextTitle">After submit</h2>
@@ -517,28 +581,29 @@
         'site.pageTitle': 'CrewPortGlobal | Seafarer Onboarding Acceptance',
         'site.metaDescription': 'Record CrewPortGlobal seafarer onboarding acceptance under an explicit no-fee and document-consent flow.',
         'reg.eyebrow': 'Onboarding',
-        'reg.title': 'Seafarer onboarding acceptance with explicit controls.',
-        'reg.lead': 'Record your no-fee and consent acknowledgements directly on the page while CrewPortGlobal keeps authentication as a separate later-stage workstream.',
+        'reg.title': 'Final seafarer confirmation before review.',
+        'reg.lead': 'Confirm that the submitted data and documents are accurate, that the no-fee rule is understood and that the profile may be sent to operator review.',
         'reg.trustNote': 'CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.',
+        'reg.startForm': 'Open acceptance form',
         'reg.primaryFocusLabel': 'Primary focus',
-        'reg.primaryFocusValue': 'Acceptance-first route to pending human review',
-        'reg.factNoFeeTitle': 'No-fee baseline',
-        'reg.factNoFeeBody': 'You do not pay to create a profile or enter the matching flow.',
-        'reg.factLocalTitle': 'Project-local onboarding',
-        'reg.factLocalBody': 'Your acceptance draft is saved to backend and mirrored locally in this browser for continuity between onboarding steps.',
-        'reg.factReviewTitle': 'Human-review handoff',
-        'reg.factReviewBody': 'This slice ends at pending human review and does not create shared authentication or account activation.',
+        'reg.primaryFocusValue': 'Final declaration before operator review',
+        'reg.factNoFeeTitle': 'No seafarer fee',
+        'reg.factNoFeeBody': 'Profile intake is not paid by the seafarer.',
+        'reg.factLocalTitle': 'Draft continuity',
+        'reg.factLocalBody': 'The route stores a backend draft and local browser copy.',
+        'reg.factReviewTitle': 'Human review',
+        'reg.factReviewBody': 'Final confirmation does not create an automatic employment decision.',
         'reg.reviewAgreement': 'Review agreement',
         'reg.reviewPrivacy': 'Review privacy',
-        'reg.formEyebrow': 'Registration flow',
-        'reg.formTitle': 'Save your onboarding acceptance draft',
-        'reg.formLead': 'The form below saves your contact details and required acknowledgements to backend draft endpoints and mirrors the state locally in this browser.',
+        'reg.formEyebrow': 'Acceptance form',
+        'reg.formTitle': 'Confirm and save review declaration',
+        'reg.formLead': 'Use this step after the seafarer profile has been prepared; it records the declarations required before operator review.',
         'reg.routeEyebrow': 'Route state',
-        'reg.routeTitle': 'Acceptance-first progress',
-        'reg.routeLead': 'The UI keeps no-fee acknowledgement and consent dependency visible before the route can end in pending human review.',
+        'reg.routeTitle': 'Acceptance progress',
+        'reg.routeLead': 'The UI keeps no-fee acknowledgement and consent dependency visible before the route can move to operator review.',
         'reg.completeEyebrow': 'Completeness check',
-        'reg.completeTitle': 'What is complete and what is still missing',
-        'reg.completeLead': 'This frontend-only check explains why the route cannot continue yet and when the page can move to pending human review.',
+        'reg.completeTitle': 'Required items',
+        'reg.completeLead': 'This check explains why the final declaration cannot be saved yet and when the page can move to operator review.',
         'reg.completeRequiredLabel': 'Required items',
         'reg.completeReadyLabel': 'Ready to continue',
         'reg.routeDraftLabel': 'Draft intake',
@@ -547,7 +612,7 @@
         'reg.routeFinalLabel': 'Final route state',
         'reg.roleTitle': 'Seafarer role confirmation.',
         'reg.roleBody': 'I confirm that I am registering in the seafarer route and not as a shipowner or business client.',
-        'reg.roleHint': 'This completeness slice is limited to the seafarer route only.',
+        'reg.roleHint': 'This final declaration belongs to the seafarer route only.',
         'reg.nameLabel': 'Full name',
         'reg.namePlaceholder': 'As shown in your maritime documents',
         'reg.nameHint': 'Stored locally in this browser to prefill later CrewPortGlobal onboarding steps as the basic profile draft.',
@@ -559,7 +624,7 @@
         'reg.availabilityNow': 'Available now',
         'reg.availabilityThirty': 'Available within 30 days',
         'reg.availabilityAhead': 'Planning ahead',
-        'reg.availabilityHint': 'Availability is required for the completeness check, but remains frontend-only in this slice.',
+        'reg.availabilityHint': 'Availability is required before the profile can be submitted for review.',
         'reg.ackEyebrow': 'Required acknowledgements',
         'reg.ackNoFeeTitle': 'No recruitment fees.',
         'reg.ackNoFeeBody': 'I understand that CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees.',
@@ -569,14 +634,14 @@
         'reg.ackAccuracyBody': 'I confirm that the information and documents I submit are accurate and belong to me.',
         'reg.ackPrivacyTitle': 'Trust Center acceptance.',
         'reg.ackPrivacyBody': 'I agree to the Seafarer Candidate Agreement, Privacy Policy and Complaint Handling Procedure.',
-        'reg.submit': 'Save acceptance draft',
+        'reg.submit': 'Save final confirmation',
         'reg.submitSaving': 'Saving draft...',
         'reg.reviewLegalBaseline': 'Review legal baseline',
         'reg.nextEyebrow': 'What happens next',
-        'reg.nextTitle': 'After submit',
-        'reg.nextItem1': 'Your acceptance draft is saved locally in this browser.',
-        'reg.nextItem2': 'You can review the legal and verification documents before any dedicated identity flow is introduced.',
-        'reg.nextItem3': 'CrewPortGlobal authentication and workspace access will be added later as a separate project stage.',
+        'reg.nextTitle': 'After confirmation',
+        'reg.nextItem1': 'The final declaration is saved as part of the review package.',
+        'reg.nextItem2': 'The operator can review the profile, documents and acknowledgements.',
+        'reg.nextItem3': 'No employer sharing or employment decision happens automatically.',
         'reg.helpEyebrow': 'Need help?',
         'reg.helpTitle': 'Support and trust links',
         'reg.supportNoFees': 'No Recruitment Fees Policy',
@@ -584,7 +649,7 @@
         'reg.supportComplaints': 'Complaint Handling Procedure',
         'reg.reviewBoundaryEyebrow': 'Review boundary',
         'reg.reviewBoundaryTitle': 'Human review remains required',
-        'reg.reviewBoundaryBody': 'Seafarer-facing acceptance copy remains under human-review control and may fall back to English until reviewed translations are approved.',
+        'reg.reviewBoundaryBody': 'Final confirmation only authorizes controlled operator review; employer sharing still requires later approval.',
         'reg.stateDraftNotStarted': 'Not started',
         'reg.stateDraftStarted': 'Started',
         'reg.statePending': 'Pending',
@@ -593,18 +658,18 @@
         'reg.stateIncomplete': 'Incomplete',
         'reg.stateRequired': 'Required',
         'reg.stateNotReady': 'Not ready yet',
-        'reg.stateReady': 'Ready for human review',
+        'reg.stateReady': 'Ready for operator review',
         'reg.routeNotStarted': 'Not started',
         'reg.routeIncomplete': 'Incomplete',
         'reg.routePendingConsent': 'Pending consent',
-        'reg.routePendingHumanReview': 'Pending human review',
+        'reg.routePendingHumanReview': 'Pending operator review',
         'reg.routeStateHintNotStarted': 'The route remains at not_started until the draft intake begins in this browser.',
-        'reg.routeStateHintIncomplete': 'The route is incomplete. Finish the required inputs and acknowledgements before the page can move toward pending human review.',
-        'reg.routeStateHintPendingConsent': 'Required no-fee and consent acknowledgements must be satisfied before the draft can be handed off to pending human review.',
-        'reg.routeStateHintPendingHumanReview': 'This acceptance-first flow ends with submitted for human review after backend draft save and local continuity update.',
+        'reg.routeStateHintIncomplete': 'The final declaration is incomplete. Finish the required inputs and acknowledgements before operator review.',
+        'reg.routeStateHintPendingConsent': 'Required no-fee and consent acknowledgements must be satisfied before operator review.',
+        'reg.routeStateHintPendingHumanReview': 'The final confirmation has been saved and the profile package awaits operator review.',
         'reg.completeValuePattern': '{complete} / {total} complete',
         'reg.completeHintIncomplete': 'The page cannot continue yet because one or more required items are still missing.',
-        'reg.completeHintReady': 'All required items are complete. Saving the draft can now move the page to pending human review.',
+        'reg.completeHintReady': 'All required items are complete. Saving the final confirmation can now move the page to operator review.',
         'reg.completeItemRole': 'Seafarer role is confirmed',
         'reg.completeItemProfile': 'Basic profile draft is present',
         'reg.completeItemEmail': 'Contact email is present',
@@ -617,8 +682,116 @@
         'reg.errorCompletenessRequired': 'Complete all required items before saving the draft.',
         'reg.errorEmailRequired': 'Email is required.',
         'reg.errorAcknowledgementsRequired': 'All required acknowledgements must be accepted before registration.',
-        'reg.successSaved': 'Acceptance draft saved to backend with final UI state pending human review and local continuity preserved for the next steps.',
-        'reg.errorSaveFailed': 'Saving the acceptance draft failed.'
+        'reg.successSaved': 'Final confirmation saved; the profile package is pending operator review.',
+        'reg.errorSaveFailed': 'Saving the final confirmation failed.'
+      },
+      ru: {
+        'site.pageTitle': 'CrewPortGlobal | Подтверждение onboarding моряка',
+        'site.metaDescription': 'Подтверждение маршрута моряка, отсутствия платы за трудоустройство и согласия с документами CrewPortGlobal.',
+        'reg.eyebrow': 'Onboarding',
+        'reg.title': 'Финальное подтверждение моряка перед проверкой.',
+        'reg.lead': 'Подтвердите достоверность данных и документов, отсутствие платы за трудоустройство и согласие направить профиль на проверку оператору.',
+        'reg.trustNote': 'CrewPortGlobal не взимает с моряков плату за подбор, трудоустройство или доступ к вакансиям.',
+        'reg.startForm': 'Открыть форму подтверждения',
+        'reg.primaryFocusLabel': 'Назначение страницы',
+        'reg.primaryFocusValue': 'Финальная декларация перед проверкой оператором',
+        'reg.factNoFeeTitle': 'Без платы моряка',
+        'reg.factNoFeeBody': 'Создание профиля не оплачивается моряком.',
+        'reg.factLocalTitle': 'Сохранение черновика',
+        'reg.factLocalBody': 'Маршрут сохраняет backend draft и локальную копию браузера.',
+        'reg.factReviewTitle': 'Ручная проверка',
+        'reg.factReviewBody': 'Финальное подтверждение не является автоматическим решением о найме.',
+        'reg.reviewAgreement': 'Соглашение',
+        'reg.reviewPrivacy': 'Privacy',
+        'reg.formEyebrow': 'Форма подтверждения',
+        'reg.formTitle': 'Подтвердите и сохраните декларацию для проверки',
+        'reg.formLead': 'Этот шаг используется после подготовки профиля моряка и фиксирует подтверждения перед проверкой оператором.',
+        'reg.routeEyebrow': 'Состояние маршрута',
+        'reg.routeTitle': 'Прогресс подтверждения',
+        'reg.routeLead': 'UI удерживает no-fee и consent confirmations до передачи на проверку оператору.',
+        'reg.completeEyebrow': 'Проверка полноты',
+        'reg.completeTitle': 'Обязательные пункты',
+        'reg.completeLead': 'Проверка объясняет, почему финальное подтверждение еще нельзя сохранить.',
+        'reg.completeRequiredLabel': 'Обязательные пункты',
+        'reg.completeReadyLabel': 'Готовность',
+        'reg.routeDraftLabel': 'Черновик',
+        'reg.routeNoFeeLabel': 'No-fee',
+        'reg.routeConsentLabel': 'Consent',
+        'reg.routeFinalLabel': 'Финальный статус',
+        'reg.roleTitle': 'Подтверждение роли моряка.',
+        'reg.roleBody': 'Я подтверждаю, что регистрируюсь как моряк, а не как судовладелец или бизнес-клиент.',
+        'reg.roleHint': 'Финальная декларация относится только к маршруту моряка.',
+        'reg.nameLabel': 'Полное имя',
+        'reg.namePlaceholder': 'Как в морских документах',
+        'reg.nameHint': 'Используется для черновика базового профиля.',
+        'reg.emailLabel': 'Email',
+        'reg.emailPlaceholder': 'captain@example.com',
+        'reg.emailHint': 'Контакт для черновика подтверждения. Общая учетная запись здесь не создается.',
+        'reg.availabilityLabel': 'Доступность',
+        'reg.availabilityPlaceholder': 'Выберите доступность',
+        'reg.availabilityNow': 'Доступен сейчас',
+        'reg.availabilityThirty': 'Доступен в течение 30 дней',
+        'reg.availabilityAhead': 'Планирую заранее',
+        'reg.availabilityHint': 'Доступность требуется перед передачей профиля на проверку.',
+        'reg.ackEyebrow': 'Обязательные подтверждения',
+        'reg.ackNoFeeTitle': 'Без платы за трудоустройство.',
+        'reg.ackNoFeeBody': 'Я понимаю, что CrewPortGlobal не взимает с моряков плату за подбор, трудоустройство или доступ к вакансиям.',
+        'reg.ackOptionalTitle': 'Дополнительные услуги отдельно.',
+        'reg.ackOptionalBody': 'Я понимаю, что возможные дополнительные платные услуги не являются условием доступа к работе.',
+        'reg.ackAccuracyTitle': 'Достоверность данных.',
+        'reg.ackAccuracyBody': 'Я подтверждаю, что предоставленные сведения и документы верны и принадлежат мне.',
+        'reg.ackPrivacyTitle': 'Принятие документов Trust Center.',
+        'reg.ackPrivacyBody': 'Я согласен с Seafarer Candidate Agreement, Privacy Policy и Complaint Handling Procedure.',
+        'reg.submit': 'Сохранить финальное подтверждение',
+        'reg.submitSaving': 'Сохраняем...',
+        'reg.reviewLegalBaseline': 'Документы Trust Center',
+        'reg.nextEyebrow': 'Следующий шаг',
+        'reg.nextTitle': 'После подтверждения',
+        'reg.nextItem1': 'Финальная декларация сохраняется как часть пакета проверки.',
+        'reg.nextItem2': 'Оператор проверяет профиль, документы и подтверждения.',
+        'reg.nextItem3': 'Передача работодателю и решение о найме не выполняются автоматически.',
+        'reg.helpEyebrow': 'Помощь',
+        'reg.helpTitle': 'Ссылки Trust Center',
+        'reg.supportNoFees': 'No Recruitment Fees Policy',
+        'reg.supportPrivacy': 'Privacy Policy',
+        'reg.supportComplaints': 'Complaint Handling Procedure',
+        'reg.reviewBoundaryEyebrow': 'Граница проверки',
+        'reg.reviewBoundaryTitle': 'Требуется ручная проверка',
+        'reg.reviewBoundaryBody': 'Финальное подтверждение разрешает только контролируемую проверку оператором; передача работодателю требует отдельного одобрения.',
+        'reg.stateDraftNotStarted': 'Не начато',
+        'reg.stateDraftStarted': 'Начато',
+        'reg.statePending': 'Ожидает',
+        'reg.stateAcknowledged': 'Подтверждено',
+        'reg.stateSatisfied': 'Выполнено',
+        'reg.stateIncomplete': 'Не заполнено',
+        'reg.stateRequired': 'Требуется',
+        'reg.stateNotReady': 'Не готово',
+        'reg.stateReady': 'Готово к проверке оператором',
+        'reg.routeNotStarted': 'Не начато',
+        'reg.routeIncomplete': 'Не заполнено',
+        'reg.routePendingConsent': 'Ожидает согласия',
+        'reg.routePendingHumanReview': 'Ожидает проверки оператором',
+        'reg.routeStateHintNotStarted': 'Маршрут не начат, пока пользователь не внесет данные.',
+        'reg.routeStateHintIncomplete': 'Финальная декларация не заполнена. Завершите обязательные поля и подтверждения.',
+        'reg.routeStateHintPendingConsent': 'Обязательные no-fee и consent подтверждения должны быть выполнены перед проверкой оператором.',
+        'reg.routeStateHintPendingHumanReview': 'Финальное подтверждение сохранено; пакет профиля ожидает проверки оператором.',
+        'reg.completeValuePattern': '{complete} / {total} выполнено',
+        'reg.completeHintIncomplete': 'Нельзя продолжить: есть незаполненные обязательные пункты.',
+        'reg.completeHintReady': 'Все обязательные пункты выполнены. Можно сохранить финальное подтверждение и передать пакет на проверку.',
+        'reg.completeItemRole': 'Роль моряка подтверждена',
+        'reg.completeItemProfile': 'Базовый профиль указан',
+        'reg.completeItemEmail': 'Контактный email указан',
+        'reg.completeItemAvailability': 'Доступность указана',
+        'reg.completeItemNoFee': 'No-fee подтверждение принято',
+        'reg.completeItemPrivacy': 'Trust Center acceptance подтвержден',
+        'reg.completeItemDone': 'Готово',
+        'reg.completeItemMissing': 'Не заполнено',
+        'reg.completeItemRequired': 'Обязательно',
+        'reg.errorCompletenessRequired': 'Заполните все обязательные пункты перед сохранением.',
+        'reg.errorEmailRequired': 'Email обязателен.',
+        'reg.errorAcknowledgementsRequired': 'Обязательные подтверждения должны быть приняты.',
+        'reg.successSaved': 'Финальное подтверждение сохранено; пакет профиля ожидает проверки оператором.',
+        'reg.errorSaveFailed': 'Не удалось сохранить финальное подтверждение.'
       }
     };
   </script>
