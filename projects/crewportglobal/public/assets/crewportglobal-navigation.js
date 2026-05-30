@@ -140,20 +140,21 @@
 
   function createSiteMenuGroup(group, activeHref) {
     return [
-      `<details class="nav-menu nav-menu--${group.className}">`,
-      '  <summary class="nav-menu__summary">',
-      `    <span data-i18n="${group.key}">${group.label}</span>`,
-      '    <span class="nav-menu__chevron" aria-hidden="true">▾</span>',
-      '  </summary>',
-      `  <div class="nav-menu__panel" data-i18n-aria-label="${group.menuKey}">`,
+      `<section class="site-menu-group site-menu-group--${group.className}" aria-label="${group.label}" data-i18n-aria-label="${group.menuKey}">`,
+      `  <h2 class="site-menu-group__title" data-i18n="${group.key}">${group.label}</h2>`,
+      '  <div class="site-menu-group__links">',
       group.links.map((item) => createLink(item, activeHref)).join('\n').split('\n').map((line) => `    ${line}`).join('\n'),
       '  </div>',
-      '</details>',
+      '</section>',
     ].join('\n');
   }
 
   function createSiteMenuGroups(activeHref) {
-    return SITE_MENU_GROUPS.map((group) => createSiteMenuGroup(group, activeHref)).join('\n');
+    return [
+      '<div class="site-map-nav" data-i18n-aria-label="nav.fullSiteMenu">',
+      SITE_MENU_GROUPS.map((group) => createSiteMenuGroup(group, activeHref)).join('\n').split('\n').map((line) => `  ${line}`).join('\n'),
+      '</div>',
+    ].join('\n');
   }
 
   function createOperatorRolesMenu() {

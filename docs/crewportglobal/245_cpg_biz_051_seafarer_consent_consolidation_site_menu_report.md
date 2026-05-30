@@ -5,9 +5,9 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: Project Owner instruction to consolidate seafarer consent into `/create-profile/`, retire duplicate onboarding route and expose all active portal pages through a role-grouped navigation menu
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-05-30
-- Status: Implemented and verified locally
+- Status: Implemented and verified locally; visible full-site menu correction applied
 
 ## 1. Цель
 
@@ -97,6 +97,8 @@ consent_details.agreement_value = i_agree
 
 Это меню является черновым рабочим инструментом для аудита сайта. После полного обхода страниц оно должно быть сокращено до финальной пользовательской навигации.
 
+После визуальной проверки Project Owner меню было уточнено: пункты больше не скрыты внутри dropdown-групп. Все группы меню выводятся открытым блоком-картой сайта в верхней навигационной зоне, чтобы Project Owner мог видеть полный перечень страниц без поиска по вторичным ссылкам.
+
 ## 6. Shared Navigation Coverage
 
 Проверено, что все public HTML routes в `projects/crewportglobal/public` имеют mount point:
@@ -107,15 +109,23 @@ data-cpg-navigation
 
 Страницы команды и admin/cabinet, у которых раньше не было общей навигации, подключены к shared navigation helper.
 
+Для исключения устаревшего кэша все public HTML pages получили versioned asset references:
+
+```text
+crewportglobal-docs.css?v=20260530-menu-audit
+crewportglobal-navigation.js?v=20260530-menu-audit
+crewportglobal-public-i18n.js?v=20260530-menu-audit
+```
+
 ## 7. Измененные файлы
 
 | File | Change |
 |---|---|
 | `projects/crewportglobal/public/create-profile/index.html` | Расширен финальный consent checkbox; добавлены structured consent flags; CTA больше не ведет на retired onboarding route. |
 | `projects/crewportglobal/app/backend/api/public/index.php` | Добавлена нормализация boolean flags и проверка структурированного consent в `S-11.1`. |
-| `projects/crewportglobal/public/assets/crewportglobal-navigation.js` | Добавлено роль-группированное черновое меню всех страниц портала. |
+| `projects/crewportglobal/public/assets/crewportglobal-navigation.js` | Добавлено роль-группированное черновое меню всех страниц портала; после визуального замечания Project Owner меню переведено из dropdown в открытый visible site-map block. |
 | `projects/crewportglobal/public/assets/crewportglobal-public-i18n.js` | Добавлены EN/RU/PT ключи для новых групп и пунктов меню. |
-| `projects/crewportglobal/public/assets/crewportglobal-docs.css` | Добавлены стили для широких dropdown menu groups. |
+| `projects/crewportglobal/public/assets/crewportglobal-docs.css` | Добавлены стили для открытого role-grouped site-map menu. |
 | `projects/crewportglobal/public/onboarding/seafarer-registration/index.html` | Удалена retired page из активного маршрута. |
 | `projects/crewportglobal/public/team/index.html` and team subpages | Подключена shared navigation. |
 | `projects/crewportglobal/public/admin/access/index.html` | Подключена shared navigation. |
@@ -189,12 +199,21 @@ npx playwright test -c playwright.crewportglobal.api.config.ts tests/crewportglo
 
 Result: 2 passed.
 
+```bash
+npx playwright test -c playwright.crewportglobal.config.ts tests/crewportglobal-navigation-menus.spec.ts
+```
+
+Result: 8 passed.
+
+The navigation suite confirms that the top navigation exposes the full site menu and that the listed routes can be opened from the menu model.
+
 ## 9. Remaining Controlled Notes
 
 1. Документ 244 остается исторической записью предыдущего решения, но его route больше не является активным маршрутом моряка.
 2. Новое меню намеренно показывает все страницы, включая командные и admin routes, чтобы Project Owner мог пройти по порталу и определить лишние страницы.
 3. После утверждения финальной структуры меню нужно будет сократить внешний public menu до понятной навигации без служебных страниц.
 4. Если потребуется мягкая совместимость для старых внешних ссылок, можно позже добавить короткий redirect/support page вместо deleted route. Сейчас route исключен из обязательного маршрута.
+5. На время аудита меню отображается открыто, а не dropdown-списком, потому что задача этапа - обнаружить все страницы и убрать скрытую навигацию.
 
 ## 10. Следующий этап
 

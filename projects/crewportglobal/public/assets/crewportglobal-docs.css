@@ -747,6 +747,7 @@ html[data-cpg-theme="light"] .cpg-account__field input {
   margin-top: 14px;
   padding: 10px;
   flex-wrap: wrap;
+  align-items: flex-start;
 }
 
 .nav-link,
@@ -852,6 +853,63 @@ html[data-cpg-theme="light"] .cpg-account__field input {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.site-map-nav {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.site-menu-group {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(126, 201, 217, 0.18);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.site-menu-group__title {
+  margin: 0;
+  color: var(--muted-on-dark);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.site-menu-group__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.site-menu-group .nav-link {
+  min-height: 34px;
+  padding: 8px 10px;
+  border-color: rgba(126, 201, 217, 0.16);
+  border-radius: 12px;
+  background: rgba(5, 15, 26, 0.32);
+  color: var(--text-on-dark);
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.site-menu-group .nav-link.is-active {
+  color: #06111b;
+  background: var(--teal);
+  border-color: transparent;
+}
+
+.site-menu-group .nav-link:hover,
+.site-menu-group .nav-link:focus-visible {
+  color: #06111b;
+  background: var(--teal);
+  outline: none;
 }
 
 .doc-main {

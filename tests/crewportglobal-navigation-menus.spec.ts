@@ -12,27 +12,69 @@ const documentPages = [
   { path: '/for-seafarers/', active: 'For Seafarers' },
   { path: '/for-shipowners/', active: 'For Employers' },
   { path: '/how-it-works/', active: 'How It Works' },
-  { path: '/legal/verification-policy/', active: 'Trust & Safety' },
+  { path: '/legal/verification-policy/', active: 'Verification Policy' },
 ];
 
-const appLinks = [
+const fullSiteGroups = [
+  { className: 'home', title: 'Home' },
+  { className: 'seafarers', title: 'For Seafarers' },
+  { className: 'employers', title: 'For Employers' },
+  { className: 'documents', title: 'Documents' },
+  { className: 'team', title: 'Team' },
+  { className: 'registration', title: 'Registration / Cabinet' },
+];
+
+const fullSiteLinks = [
   { name: 'Home', href: 'https://crewportglobal.com/' },
-  { name: 'Vacancies', href: 'https://crewportglobal.com/vacancies/' },
-];
-
-const privateFunctionalNavKeys = [
-  'nav.createProfile',
-  'nav.postVacancy',
-];
-
-const documentLinks = [
-  { name: 'For Seafarers', href: 'https://crewportglobal.com/for-seafarers/' },
-  { name: 'For Employers', href: 'https://crewportglobal.com/for-shipowners/' },
+  { name: 'Project Scope', href: 'https://crewportglobal.com/about/' },
   { name: 'How It Works', href: 'https://crewportglobal.com/how-it-works/' },
-  { name: 'Trust & Safety', href: 'https://crewportglobal.com/legal/verification-policy/' },
+  { name: 'Language fallback', href: 'https://crewportglobal.com/language.html' },
+  { name: 'For Seafarers', href: 'https://crewportglobal.com/for-seafarers/' },
+  { name: 'Create Profile', href: 'https://crewportglobal.com/create-profile/' },
+  { name: 'Vacancies', href: 'https://crewportglobal.com/vacancies/' },
+  { name: 'Vacancy Detail', href: 'https://crewportglobal.com/vacancies/detail/' },
+  { name: 'For Employers', href: 'https://crewportglobal.com/for-shipowners/' },
+  { name: 'Post Vacancy', href: 'https://crewportglobal.com/post-vacancy/' },
+  { name: 'Terms', href: 'https://crewportglobal.com/legal/terms/' },
+  { name: 'Privacy', href: 'https://crewportglobal.com/legal/privacy/' },
+  { name: 'No Recruitment Fees', href: 'https://crewportglobal.com/legal/no-recruitment-fees/' },
+  { name: 'Seafarer Agreement', href: 'https://crewportglobal.com/legal/seafarer-candidate-agreement/' },
+  { name: 'Shipowner Agreement', href: 'https://crewportglobal.com/legal/shipowner-service-terms/' },
+  { name: 'Matching Policy', href: 'https://crewportglobal.com/legal/recruitment-and-matching-policy/' },
+  { name: 'Verification Policy', href: 'https://crewportglobal.com/legal/verification-policy/' },
+  { name: 'Complaints', href: 'https://crewportglobal.com/legal/complaints/' },
+  { name: 'Team Portal', href: 'https://crewportglobal.com/team/' },
+  { name: 'Document Review', href: 'https://crewportglobal.com/team/documents/' },
+  { name: 'Request-Supply Comparison', href: 'https://crewportglobal.com/team/matching/' },
+  { name: 'Registry Detail', href: 'https://crewportglobal.com/team/registry/' },
+  { name: 'Shortlist Drafts', href: 'https://crewportglobal.com/team/shortlists/' },
+  { name: 'Operator Queue', href: 'https://crewportglobal.com/verify/' },
+  { name: 'Access Admin', href: 'https://crewportglobal.com/admin/access/' },
+  { name: 'Login / Register', href: 'https://crewportglobal.com/register/' },
+  { name: 'Authorization', href: 'https://crewportglobal.com/register/authorization/' },
+  { name: 'Selected Authorization', href: 'https://crewportglobal.com/register/authorization/selected/' },
+  { name: 'Seafarer Authorization', href: 'https://crewportglobal.com/register/authorization/seafarer-specialist/' },
+  { name: 'Employer Authorization', href: 'https://crewportglobal.com/register/authorization/buyer-employer/' },
+  { name: 'Email Confirmation', href: 'https://crewportglobal.com/register/confirm/' },
+  { name: 'Next Step', href: 'https://crewportglobal.com/register/next/' },
+  { name: 'My Cabinet', href: 'https://crewportglobal.com/cabinet/' },
 ];
 
-test('public and direct functional URLs expose simplified Application menu with Documents dropdown', async ({ page }) => {
+async function expectFullSiteMenu(nav) {
+  await expect(nav.locator('.site-map-nav')).toBeVisible();
+
+  for (const group of fullSiteGroups) {
+    await expect(nav.locator(`.site-menu-group--${group.className} .site-menu-group__title`)).toHaveText(group.title);
+  }
+
+  for (const link of fullSiteLinks) {
+    const locator = nav.locator(`a[href="${link.href}"]`).first();
+    await expect(locator, `${link.href} should be visible in the full site menu`).toBeVisible();
+    await expect(locator).toContainText(link.name);
+  }
+}
+
+test('public and direct functional URLs expose visible role-grouped full site menu', async ({ page }) => {
   for (const path of appPages) {
     await page.goto(path);
 
@@ -49,29 +91,7 @@ test('public and direct functional URLs expose simplified Application menu with 
 
     const nav = page.locator('nav.site-nav--application');
     await expect(nav).toBeVisible();
-
-    for (const link of appLinks) {
-      await expect(nav.getByRole('link', { name: link.name })).toHaveAttribute('href', link.href);
-    }
-
-    for (const key of privateFunctionalNavKeys) {
-      await expect(nav.locator(`:scope > a[data-i18n="${key}"]`)).toHaveCount(0);
-    }
-
-    await expect(nav.locator(':scope > a[data-i18n="nav.forSeafarers"]')).toHaveCount(0);
-    await expect(nav.locator(':scope > a[data-i18n="nav.forShipowners"]')).toHaveCount(0);
-    await expect(nav.locator(':scope > a[data-i18n="nav.howItWorks"]')).toHaveCount(0);
-    await expect(nav.locator(':scope > a[data-i18n="nav.trustSafety"]')).toHaveCount(0);
-
-    const documentsMenu = nav.locator('details.nav-menu--documents');
-    await expect(documentsMenu.locator('summary')).toContainText('Documents');
-    await expect(documentsMenu.locator('.nav-menu__panel')).toBeHidden();
-
-    await documentsMenu.locator('summary').click();
-
-    for (const link of documentLinks) {
-      await expect(documentsMenu.getByRole('link', { name: link.name })).toHaveAttribute('href', link.href);
-    }
+    await expectFullSiteMenu(nav);
   }
 });
 
@@ -152,7 +172,7 @@ test('compact functional screens do not create page-level horizontal overflow on
   }
 });
 
-test('document pages expose simplified Documents menu without public functional links', async ({ page }) => {
+test('document pages expose visible role-grouped full site menu', async ({ page }) => {
   for (const item of documentPages) {
     await page.goto(item.path);
 
@@ -162,26 +182,12 @@ test('document pages expose simplified Documents menu without public functional 
 
     const nav = page.locator('nav.site-nav--documents');
     await expect(nav).toBeVisible();
-
-    for (const link of appLinks) {
-      await expect(nav.getByRole('link', { name: link.name })).toHaveAttribute('href', link.href);
-    }
-
-    await expect(nav.locator('.nav-section-label')).toHaveText('Documents');
+    await expectFullSiteMenu(nav);
     await expect(nav.getByRole('link', { name: item.active })).toHaveClass(/is-active/);
-
-    for (const link of documentLinks) {
-      await expect(nav.getByRole('link', { name: link.name })).toHaveAttribute('href', link.href);
-    }
-
-    await expect(nav.locator('details.nav-menu--application-pages')).toHaveCount(0);
-    for (const key of privateFunctionalNavKeys) {
-      await expect(nav.locator(`a[data-i18n="${key}"]`)).toHaveCount(0);
-    }
   }
 });
 
-test('document page menu controls expose public application and document targets', async ({ page }) => {
+test('document page menu exposes all public, team, registration and document targets', async ({ page }) => {
   await page.goto('/legal/verification-policy/');
 
   const account = page.locator('.site-header .cpg-account');
@@ -194,19 +200,7 @@ test('document page menu controls expose public application and document targets
   await account.locator('summary').click();
 
   const nav = page.locator('nav.site-nav--documents');
-  for (const link of appLinks) {
-    const locator = nav.getByRole('link', { name: link.name });
-    await expect(locator).toBeVisible();
-    await expect(locator).toHaveAttribute('href', link.href);
-  }
-
-  await expect(nav.locator('details.nav-menu--application-pages')).toHaveCount(0);
-
-  for (const link of documentLinks) {
-    const locator = nav.getByRole('link', { name: link.name });
-    await expect(locator).toBeVisible();
-    await expect(locator).toHaveAttribute('href', link.href);
-  }
+  await expectFullSiteMenu(nav);
 });
 
 test('document URLs remain directly accessible without redirects', async ({ page }) => {
@@ -217,19 +211,15 @@ test('document URLs remain directly accessible without redirects', async ({ page
   }
 });
 
-test('operator page exposes dedicated Operator navigation with separated public links', async ({ page }) => {
+test('operator page exposes dedicated Operator navigation and full site menu', async ({ page }) => {
   await page.goto('/verify/');
 
   const nav = page.locator('nav.site-nav--operator');
   await expect(nav).toBeVisible();
-  await expect(nav.getByRole('link', { name: 'Operator Queue' })).toHaveAttribute(
+  await expect(nav.getByRole('link', { name: 'Operator Queue' }).first()).toHaveAttribute(
     'href',
     'https://crewportglobal.com/verify/',
   );
-
-  await expect(nav.locator(':scope > a[data-i18n="nav.home"]')).toHaveCount(0);
-  await expect(nav.locator(':scope > a[data-i18n="nav.vacancies"]')).toHaveCount(0);
-  await expect(nav.locator(':scope > a[data-i18n="nav.forSeafarers"]')).toHaveCount(0);
 
   const roleMenu = nav.locator('details.nav-menu--operator-roles');
   await expect(roleMenu.locator('summary')).toContainText('Role lanes');
@@ -238,21 +228,5 @@ test('operator page exposes dedicated Operator navigation with separated public 
   await expect(roleMenu.getByRole('button', { name: 'Reviewer' })).toBeVisible();
   await roleMenu.getByRole('button', { name: 'Reviewer' }).click();
   await expect(page.locator('.operator-lane-button[data-operator-lane="reviewer"]')).toHaveClass(/is-active/);
-
-  const publicAppMenu = nav.locator('details.nav-menu--application');
-  await expect(publicAppMenu.locator('summary')).toContainText('Public app');
-  await publicAppMenu.locator('summary').click();
-  for (const link of appLinks) {
-    await expect(publicAppMenu.getByRole('link', { name: link.name })).toHaveAttribute('href', link.href);
-  }
-  for (const key of privateFunctionalNavKeys) {
-    await expect(publicAppMenu.locator(`a[data-i18n="${key}"]`)).toHaveCount(0);
-  }
-
-  const referenceDocsMenu = nav.locator('details.nav-menu--documents');
-  await expect(referenceDocsMenu.locator('summary')).toContainText('Reference documents');
-  await referenceDocsMenu.locator('summary').click();
-  for (const link of documentLinks) {
-    await expect(referenceDocsMenu.getByRole('link', { name: link.name })).toHaveAttribute('href', link.href);
-  }
+  await expectFullSiteMenu(nav);
 });
