@@ -29,8 +29,8 @@
     }
 
     .profile-hero {
-      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.42fr);
-      align-items: stretch;
+      grid-template-columns: minmax(0, 1fr);
+      align-items: start;
     }
 
     .profile-hero-card,
@@ -38,7 +38,7 @@
     .profile-sidebar,
     .profile-form,
     .step-card {
-      padding: 22px;
+      padding: 18px;
     }
 
     .profile-hero-card,
@@ -51,16 +51,22 @@
 
     .profile-hero-card {
       display: grid;
-      gap: 18px;
+      gap: 12px;
     }
 
     .profile-title {
       margin: 0;
-      max-width: 18ch;
+      max-width: 32ch;
       color: var(--app-ink);
-      font-size: clamp(36px, 5vw, 58px);
-      line-height: 1.02;
+      font-size: clamp(30px, 3.4vw, 44px);
+      line-height: 1.08;
       letter-spacing: 0;
+    }
+
+    .profile-hero .lead-copy {
+      max-width: 72ch;
+      margin: 0;
+      line-height: 1.5;
     }
 
     .lead-copy,
@@ -97,8 +103,8 @@
     .summary-card {
       display: grid;
       gap: 6px;
-      min-height: 84px;
-      padding: 14px;
+      min-height: 68px;
+      padding: 12px;
       border: 1px solid var(--app-line);
       background: var(--app-surface-2);
       border-radius: 8px;
@@ -107,7 +113,7 @@
     .readiness-card strong,
     .summary-card strong {
       color: var(--app-ink);
-      font-size: clamp(20px, 2vw, 28px);
+      font-size: clamp(18px, 1.7vw, 26px);
       line-height: 1;
     }
 
@@ -436,19 +442,35 @@
 
     .profile-status-panel {
       display: grid;
-      gap: 14px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      padding: 12px 16px;
     }
 
     .status-row {
       display: grid;
-      gap: 8px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid var(--app-line);
+      gap: 4px;
+      min-width: 0;
+      padding: 0 14px;
+      border-right: 1px solid var(--app-line);
     }
 
     .status-row:last-child {
-      padding-bottom: 0;
-      border-bottom: 0;
+      border-right: 0;
+    }
+
+    .status-row strong {
+      color: var(--app-ink);
+      font-size: 14px;
+      line-height: 1.25;
+    }
+
+    .status-row p,
+    .status-row .status-note {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
     }
 
     .profile-workspace {
@@ -830,13 +852,17 @@
     @media (max-width: 1040px) {
       .profile-hero,
       .profile-workspace,
-      .step-grid,
-      .readiness-grid {
+      .step-grid {
         grid-template-columns: 1fr;
       }
 
       .profile-sidebar {
         position: static;
+        order: 2;
+      }
+
+      .profile-form {
+        order: 1;
       }
 
       .section-tabs {
@@ -863,6 +889,24 @@
       .profile-title {
         max-width: none;
         font-size: 34px;
+      }
+
+      .readiness-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .profile-status-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .status-row {
+        padding: 10px 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--app-line);
+      }
+
+      .status-row:last-child {
+        border-bottom: 0;
       }
 
       .inline-actions .button,
@@ -904,8 +948,8 @@
       <section class="profile-hero">
         <article class="card profile-hero-card">
           <p class="eyebrow" data-i18n="create.hero.eyebrow">Seafarer workspace</p>
-          <h1 class="profile-title" data-i18n="create.hero.title">Build a ready-to-review maritime CV.</h1>
-          <p class="lead-copy" data-i18n="create.hero.copy">Keep rank, availability, vessel preferences and document readiness in one practical profile before you apply to reviewed vacancies.</p>
+          <h1 class="profile-title" data-i18n="create.hero.title">Maritime CV workspace.</h1>
+          <p class="lead-copy" data-i18n="create.hero.copy">Keep rank, availability, documents and vessel preferences ready for matching review.</p>
           <div class="inline-actions">
             <a class="button primary" href="#create-profile-form" data-i18n="create.hero.primaryCta">Open CV workspace</a>
             <a class="button secondary" href="https://crewportglobal.com/vacancies/" data-i18n="create.hero.secondaryCta">View Vacancies</a>
@@ -937,11 +981,11 @@
           </div>
           <div class="status-row">
             <strong data-i18n="create.side.fees.title">No recruitment fee</strong>
-            <p data-i18n="create.side.fees.copy">CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees to enter the profile workflow.</p>
+            <p data-i18n="create.side.fees.copy">No seafarer recruitment, placement or employment-access fee is charged for profile intake.</p>
           </div>
           <div class="status-row">
             <strong data-i18n="create.side.privacy.title">Private until reviewed</strong>
-            <p data-i18n="create.side.privacy.copy">Your draft remains an intake profile. Public presentation or employer sharing requires the controlled review workflow.</p>
+            <p data-i18n="create.side.privacy.copy">Employer sharing requires controlled review and approval.</p>
           </div>
         </aside>
       </section>
@@ -1984,8 +2028,8 @@
     window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
       en: {
         'create.hero.eyebrow': 'Seafarer workspace',
-        'create.hero.title': 'Build a ready-to-review maritime CV.',
-        'create.hero.copy': 'Keep rank, availability, vessel preferences and document readiness in one practical profile before you apply to reviewed vacancies.',
+        'create.hero.title': 'Maritime CV workspace.',
+        'create.hero.copy': 'Keep rank, availability, documents and vessel preferences ready for matching review.',
         'create.hero.primaryCta': 'Open CV workspace',
         'create.hero.secondaryCta': 'View Vacancies',
         'create.workspace.eyebrow': 'Workspace',
@@ -2518,9 +2562,9 @@
         'create.missing.medicalExpiry': 'Medical expiry',
         'create.side.review.title': 'Review status',
         'create.side.fees.title': 'No recruitment fee',
-        'create.side.fees.copy': 'CrewPortGlobal does not charge seafarers recruitment, placement or employment-access fees to enter the profile workflow.',
+        'create.side.fees.copy': 'No seafarer recruitment, placement or employment-access fee is charged for profile intake.',
         'create.side.privacy.title': 'Private until reviewed',
-        'create.side.privacy.copy': 'Your draft remains an intake profile. Public presentation or employer sharing requires the controlled review workflow.',
+        'create.side.privacy.copy': 'Employer sharing requires controlled review and approval.',
         'create.step1.eyebrow': 'Step 1',
         'create.step1.title': 'Build CV basics',
         'create.step1.item1': 'Rank, department and availability',
@@ -2539,8 +2583,8 @@
       },
       ru: {
         'create.hero.eyebrow': 'Рабочее место моряка',
-        'create.hero.title': 'Соберите морское CV для проверки.',
-        'create.hero.copy': 'Держите должность, доступность, типы судов и готовность документов в одном практичном профиле перед откликом на проверенные вакансии.',
+        'create.hero.title': 'Морское CV для проверки.',
+        'create.hero.copy': 'Сохраните должность, доступность, документы и предпочтения по судам для подбора.',
         'create.hero.primaryCta': 'Открыть CV workspace',
         'create.hero.secondaryCta': 'Смотреть вакансии',
         'create.workspace.eyebrow': 'Workspace',
@@ -3073,9 +3117,9 @@
         'create.missing.medicalExpiry': 'Срок мед. справки',
         'create.side.review.title': 'Статус проверки',
         'create.side.fees.title': 'Без рекрутинговых сборов',
-        'create.side.fees.copy': 'CrewPortGlobal не взимает с моряков сборы за рекрутинг, трудоустройство или доступ к профилю.',
+        'create.side.fees.copy': 'За создание профиля и участие в проверке плата с моряка не взимается.',
         'create.side.privacy.title': 'Приватно до проверки',
-        'create.side.privacy.copy': 'Черновик остается входящим профилем. Публичное представление или передача работодателю требуют контролируемой проверки.',
+        'create.side.privacy.copy': 'Передача данных работодателю возможна только после контролируемой проверки и одобрения.',
         'create.step1.eyebrow': 'Шаг 1',
         'create.step1.title': 'Соберите основу CV',
         'create.step1.item1': 'Ранг, департамент и доступность',
