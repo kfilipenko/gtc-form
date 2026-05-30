@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.14
+- Version: 3.15
 - Status: For internal review
 
 ## 1. Purpose
@@ -49,6 +49,7 @@ docs/crewportglobal/business_processes/
 	  12_crew_formation_service_business_process_manual.md
 	  13_crew_formation_operating_instructions_for_users_team_ai.md
 	  14_standard_form_lifecycle_and_validation_module.md
+	  15_crewportglobal_commercial_operating_cycle.md
 ```
 
 ## 3. Active Business-Process Documents
@@ -69,6 +70,7 @@ docs/crewportglobal/business_processes/
 | BP-012 | `12_crew_formation_service_business_process_manual.md` | CPG-BIZ-012 / Document 199 | Drafted for owner review | Controlling end-to-end crew formation service business process from employer demand and seafarer supply to shortlist, candidate presentation, service completion, B2B billing basis and audit evidence |
 | BP-013 | `13_crew_formation_operating_instructions_for_users_team_ai.md` | CPG-BIZ-012 / Document 199 | Drafted for owner review | Practical operating instructions for seafarers, employer users, team groups, reviewers, managers, billing, Project Owner and AI agents, including computed task display rules and authority boundaries |
 | BP-014 | `14_standard_form_lifecycle_and_validation_module.md` | CPG-BIZ-041 / Document 230 | Approved standard for staged implementation | Standard form lifecycle and validation module covering role-aware draft context, save, autosave, completeness, protected upload, submit-review gate, numbered missing items and computed task integration |
+| BP-015 | `15_crewportglobal_commercial_operating_cycle.md` | CPG-BIZ-052 / Document 246 | Drafted for owner review | Full circular commercial operating cycle from marketing and registration to service packages, request processing, embarkation, monthly service evidence, billing, retention and repeat marketing |
 
 ## 4. Core Controls Introduced By This Block
 
@@ -132,6 +134,7 @@ This documentation block starts from the following approved business controls:
 56. Country-code fields must use the approved country catalog through a true select and store comparable ISO alpha-2 values; when a form asks for repeated country values, an explicit copy helper such as `Same as nationality` should be provided where it reduces duplicate user input without hiding the ability to choose a different country.
 57. Standard form lifecycle controls exist to support automated request-offer matching: matching-critical fields must be structured, synchronized across supply/demand where applicable, stored as comparable codes or normalized values and kept out of hard-blocker logic until both sides are comparable.
 58. Vessel context must not be hidden inside employer authority evidence: vessel flag country, vessel particulars and vessel-related evidence must be collected as vessel-stream data so future matching, blocker explanation and review tasks can distinguish company authority from vessel readiness.
+59. CrewPortGlobal must be operated as a circular commercial service cycle: marketing, registration, verification, service package, demand/supply matching, shortlist, employer decision, embarkation evidence, monthly service confirmation, billing, closure and repeat marketing must be connected by records, computed tasks, evidence and audit events.
 
 ## 5. Intended Use
 
@@ -151,6 +154,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.15 | 2026-05-30 | GTC IT / AI Assistant | Added BP-015 commercial operating cycle covering marketing, registration, service packages, request processing, embarkation success, monthly service evidence, billing, retention and repeat marketing as a circular process |
 | 3.14 | 2026-05-29 | GTC IT / AI Assistant | Added CPG-BIZ-047 vessel-context rollout control: flag country and vessel evidence are separate V-stream data for matching readiness, not employer authority fields |
 | 3.13 | 2026-05-29 | GTC IT / AI Assistant | Updated BP-014 after CPG-BIZ-046 Phase 1: `/post-vacancy/` now applies matching-first catalog controls and shared protected-upload checklist behavior |
 | 3.12 | 2026-05-29 | GTC IT / AI Assistant | Added matching-first field synchronization control to BP-014 and the CPG-BIZ-046 rollout task so form standards support automated request-offer matching rather than UI consistency alone |
