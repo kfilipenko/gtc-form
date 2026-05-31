@@ -140,8 +140,8 @@ test('homepage and vacancies CTAs match their destinations', async ({ page }) =>
   await expect(account.getByRole('link', { name: 'Registration' })).toHaveAttribute('href', 'https://crewportglobal.com/register/');
   await account.locator('summary').click();
   await expect(main.locator('#home-process-cycle')).toContainText('BP-015 operating cycle');
-  await expect(main.locator('a[href="#home-process-cycle"]').first()).toHaveText('View process cycle');
-  await expect(main.locator('a[href="https://crewportglobal.com/legal/verification-policy/"]').first()).toContainText('Trust');
+  await expect(main.locator('a[href="#home-process-cycle"]')).toHaveCount(0);
+  await expect(main.locator('a[href="https://crewportglobal.com/legal/verification-policy/"]')).toHaveCount(0);
   await expect(main.locator('a[href="https://crewportglobal.com/for-seafarers/"]').first()).toHaveText('For Seafarers');
   await expect(main.locator('a[href="https://crewportglobal.com/vacancies/"]').first()).toHaveText('View vacancies');
   await expect(page.locator('main a[href="https://crewportglobal.com/register/"]')).toHaveText('Start registration');
@@ -151,6 +151,11 @@ test('homepage and vacancies CTAs match their destinations', async ({ page }) =>
   await expect(main.locator('input')).toHaveCount(0);
   await expect(main).not.toContainText('Create Seafarer Profile');
   await expect(main).not.toContainText('Prepare Vacancy Request');
+  await expect(main).not.toContainText('Human control');
+  await expect(main).not.toContainText('No automatic employment decision');
+  await expect(main).not.toContainText('Employer-side clients describe demand');
+  await expect(main).not.toContainText('Seafarers provide professional supply data');
+  await expect(main).not.toContainText('How the platform works');
 
   await page.goto('/vacancies/index.html');
 

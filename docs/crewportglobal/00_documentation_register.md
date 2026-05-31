@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.35
+- Version: 2.37
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -336,6 +336,8 @@ docs/crewportglobal/
   247_cpg_biz_053_functional_page_inventory_against_bp015.md
   248_cpg_biz_054_functional_public_navigation_home_bp015_infographic_report.md
   249_cpg_biz_055_compact_public_menu_visual_correction_report.md
+  250_cpg_biz_056_home_public_vacancy_board_text_minimization_report.md
+  251_cpg_biz_057_home_post_board_explanatory_sections_removal_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -731,6 +733,10 @@ Document 248 records the CPG-BIZ-054 implementation of the functional public nav
 
 Document 249 records the CPG-BIZ-055 visual correction of the public site menu after Project Owner review, including one-line compact role groups, hover explanations, removal of duplicated login/registration menu entries, mobile overflow correction and focused navigation/homepage regression verification.
 
+Document 250 records the CPG-BIZ-056 minimization of the homepage public vacancy board, including removal of explanatory demand/supply cards, short vacancy-board status text, compact empty state, retained live-vacancy rendering and focused homepage/vacancy-board regression verification.
+
+Document 251 records the CPG-BIZ-057 removal of remaining explanatory homepage sections after the public vacancy board, including removal of the public Human control card, cleanup of post-board value/trust/CTA sections and focused homepage/vacancy-board regression verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -834,6 +840,8 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.37 | 2026-05-31 | GTC IT / AI Assistant | Added document 251 for removing remaining explanatory homepage sections after the public vacancy board and removing the public Human control card |
+| 2.36 | 2026-05-31 | GTC IT / AI Assistant | Added document 250 for homepage public vacancy board text minimization, removing explanatory demand/supply cards and keeping compact live status plus board action |
 | 2.35 | 2026-05-31 | GTC IT / AI Assistant | Added document 249 for compact public menu visual correction, including one-line role groups, hover explanations, removal of duplicated login/cabinet group and mobile overflow verification |
 | 2.34 | 2026-05-30 | GTC IT / AI Assistant | Added document 248 for CPG-BIZ-054 functional public navigation and homepage BP-015 infographic implementation, including role-based menu simplification and `/how-it-works/` support-route reduction |
 | 2.33 | 2026-05-30 | GTC IT / AI Assistant | Added document 247 for CPG-BIZ-053 functional page inventory against BP-015, including route classification, `/how-it-works/` homepage infographic decision, target role-based menu and next implementation sequence |

@@ -13,10 +13,7 @@
   <style>
     .home-grid,
     .search-grid,
-    .vacancy-grid,
-    .value-grid,
-    .trust-grid,
-    .cta-grid {
+    .vacancy-grid {
       display: grid;
       gap: 18px;
     }
@@ -29,10 +26,7 @@
     .hero-copy,
     .hero-aside,
     .vacancy-search,
-    .vacancy-board,
-    .value-panel,
-    .trust-panel,
-    .cta-panel {
+    .vacancy-board {
       padding: 28px;
     }
 
@@ -78,9 +72,6 @@
 
     .hero-aside section,
     .vacancy-card,
-    .value-card,
-    .trust-card,
-    .cta-card,
     .search-field {
       padding: 20px;
       border-radius: 20px;
@@ -90,10 +81,7 @@
 
     .hero-aside h2,
     .section-title,
-    .vacancy-card h3,
-    .value-card h3,
-    .trust-card h3,
-    .cta-card h3 {
+    .vacancy-card h3 {
       margin: 0 0 10px;
       font-size: 24px;
       letter-spacing: 0;
@@ -141,10 +129,7 @@
     }
 
     .search-field strong,
-    .value-card strong,
-    .trust-card strong,
-    .vacancy-card strong,
-    .cta-card strong {
+    .vacancy-card strong {
       color: var(--paper-strong);
     }
 
@@ -163,10 +148,7 @@
       color: var(--muted-on-dark);
     }
 
-    .vacancy-grid,
-    .value-grid,
-    .trust-grid,
-    .cta-grid {
+    .vacancy-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
@@ -257,7 +239,7 @@
 
     .bp-cycle-controls {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
     }
 
@@ -312,6 +294,25 @@
       border-radius: 999px;
       border: 1px solid var(--line);
       background: rgba(255, 255, 255, 0.04);
+    }
+
+    .board-empty-line {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(126, 201, 217, 0.18);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .board-empty-line strong {
+      color: var(--paper-strong);
+      font-size: 18px;
+      line-height: 1.25;
     }
 
     .registry-count-grid {
@@ -475,18 +476,10 @@
       gap: 10px;
     }
 
-    .cta-card {
-      display: grid;
-      gap: 14px;
-    }
-
     @media (max-width: 980px) {
       .home-grid,
       .search-grid,
       .vacancy-grid,
-      .value-grid,
-      .trust-grid,
-      .cta-grid,
       .registry-count-grid,
       .registry-preview-grid,
       .bp-cycle-flow,
@@ -585,7 +578,7 @@
           <section class="app-panel">
             <p class="eyebrow" data-i18n="home.boundary.eyebrow">Trust rules</p>
             <h2 data-i18n="home.boundary.title">Matching is reviewed before presentation</h2>
-            <p data-i18n="home.boundary.copy">Automated comparison supports operators; final presentation remains controlled.</p>
+            <p data-i18n="home.boundary.copy">Data comparison supports operators; final presentation remains controlled.</p>
           </section>
         </aside>
       </section>
@@ -641,7 +634,6 @@
           </article>
         </div>
         <div class="bp-cycle-controls">
-          <p class="bp-cycle-control"><strong data-i18n="home.bp.control1.title">Human control</strong><span data-i18n="home.bp.control1.copy">No automatic employment decision.</span></p>
           <p class="bp-cycle-control"><strong data-i18n="home.bp.control2.title">No-fee boundary</strong><span data-i18n="home.bp.control2.copy">Seafarers do not pay recruitment or placement fees.</span></p>
           <p class="bp-cycle-control"><strong data-i18n="home.bp.control3.title">Evidence trail</strong><span data-i18n="home.bp.control3.copy">Each material operation must leave a record.</span></p>
         </div>
@@ -711,113 +703,12 @@
       <section class="card vacancy-board section-card">
         <p class="eyebrow" data-i18n="home.board.eyebrow">Latest vacancies</p>
         <h2 class="section-title" data-i18n="home.board.title">Current public vacancy board</h2>
-        <p id="home-board-copy" class="section-copy" data-i18n="home.board.copy">Public vacancies are shown only when reviewed employer-side demand is ready for publication. Operational registration and request preparation are handled after authenticated access.</p>
+        <p id="home-board-copy" class="section-copy" data-i18n="home.board.copy">No public vacancies yet.</p>
         <div id="home-live-vacancies" class="live-vacancy-list" hidden></div>
-        <div class="vacancy-grid">
-          <article class="vacancy-card">
-            <div>
-              <p class="eyebrow" data-i18n="home.board.card1.eyebrow">Public availability</p>
-              <h3 data-i18n="home.board.card1.title">No public vacancies available yet</h3>
-            </div>
-            <p class="empty-state" data-i18n="home.board.card1.copy">When reviewed vacancies are ready, this board will show position, vessel type, salary, joining date, contract duration and employer context.</p>
-            <span class="vacancy-status" data-i18n="home.board.card1.status">Current preview</span>
-          </article>
-          <article class="vacancy-card">
-            <div>
-              <p class="eyebrow" data-i18n="home.board.card2.eyebrow">Demand side</p>
-              <h3 data-i18n="home.board.card2.title">Employer-side client provides the hiring need</h3>
-            </div>
-            <p class="empty-state" data-i18n="home.board.card2.copy">The buyer side defines the crew request and pays for employer-side services. Authority to submit demand must be confirmed.</p>
-            <span class="vacancy-status" data-i18n="home.board.card2.status">Buyer / demand</span>
-          </article>
-          <article class="vacancy-card">
-            <div>
-              <p class="eyebrow" data-i18n="home.board.card3.eyebrow">Supply side</p>
-              <h3 data-i18n="home.board.card3.title">Seafarer profile provides professional availability</h3>
-            </div>
-            <p class="empty-state" data-i18n="home.board.card3.copy">The seafarer side provides qualifications, readiness and work preferences for reviewed matching against employer demand.</p>
-            <span class="vacancy-status" data-i18n="home.board.card3.status">Workforce / supply</span>
-          </article>
+        <div id="home-board-empty" class="board-empty-line">
+          <strong data-i18n="home.board.emptyTitle">No public vacancies yet</strong>
+          <a class="button secondary" href="https://crewportglobal.com/vacancies/" data-i18n="home.board.openBoard">Open board</a>
         </div>
-      </section>
-
-      <section class="value-grid">
-        <article class="card value-panel value-card">
-          <p class="eyebrow" data-i18n="home.value.employers.eyebrow">For employers</p>
-          <h3 data-i18n="home.value.employers.title">Employer-side clients describe demand and buying context.</h3>
-          <ul class="feature-list">
-            <li data-i18n="home.value.employers.item1">Company and vessel context are collected after authenticated access.</li>
-            <li data-i18n="home.value.employers.item2">Crew need is recorded through rank, vessel, salary, joining date and contract conditions.</li>
-            <li data-i18n="home.value.employers.item3">Authority evidence defines who may act for the company or request.</li>
-            <li data-i18n="home.value.employers.item4">Only reviewed demand can be published or used for candidate presentation.</li>
-            <li data-i18n="home.value.employers.item5">The employer-side client remains the main payer for core services.</li>
-            <li data-i18n="home.value.employers.item6">Operational access is scoped to the client, company, vessel or assigned task.</li>
-          </ul>
-        </article>
-        <article class="card value-panel value-card">
-          <p class="eyebrow" data-i18n="home.value.seafarers.eyebrow">For seafarers</p>
-          <h3 data-i18n="home.value.seafarers.title">Seafarers provide professional supply data.</h3>
-          <ul class="feature-list">
-            <li data-i18n="home.value.seafarers.item1">Rank, department, availability and contact readiness support matching.</li>
-            <li data-i18n="home.value.seafarers.item2">Documents and certificates are reviewed as part of professional readiness.</li>
-            <li data-i18n="home.value.seafarers.item3">Expected compensation and contract preferences are compared with demand.</li>
-            <li data-i18n="home.value.seafarers.item4">Candidate presentation is not automatic and requires human review.</li>
-            <li data-i18n="home.value.seafarers.item5">Seafarer data is not visible to broad groups by default.</li>
-            <li data-i18n="home.value.seafarers.item6">Mandatory recruitment or placement fees for seafarers are prohibited.</li>
-          </ul>
-        </article>
-        <article class="card value-panel value-card">
-          <p class="eyebrow" data-i18n="home.value.workflow.eyebrow">How the platform works</p>
-          <h3 data-i18n="home.value.workflow.title">Registration, authentication and authorization are separate steps.</h3>
-          <ul class="feature-list">
-            <li data-i18n="home.value.workflow.item1">Registration creates a physical-person and user card.</li>
-            <li data-i18n="home.value.workflow.item2">Authentication confirms access to the service account and validates contact channels.</li>
-            <li data-i18n="home.value.workflow.item3">Authorization grants roles, visibility and rights only on proven grounds.</li>
-            <li data-i18n="home.value.workflow.item4">The personal cabinet is assembled from confirmed capability cards.</li>
-          </ul>
-          <div class="mini-actions">
-            <a class="button secondary" href="#home-process-cycle" data-i18n="home.value.workflow.cta">View process cycle</a>
-          </div>
-        </article>
-      </section>
-
-      <section class="trust-grid">
-        <article class="card trust-panel trust-card">
-          <p class="eyebrow">Trust &amp; Safety</p>
-          <h3 data-i18n="home.trust.fees.title">No recruitment fee promise stays explicit.</h3>
-          <p class="support-copy" data-i18n="home.trust.fees.copy">Seafarers do not pay recruitment, placement or employment-access fees for access to the core matching service through CrewPortGlobal.</p>
-        </article>
-        <article class="card trust-panel trust-card">
-          <p class="eyebrow" data-i18n="home.trust.review.eyebrow">Human review</p>
-          <h3 data-i18n="home.trust.review.title">Approval does not happen automatically.</h3>
-          <p class="support-copy" data-i18n="home.trust.review.copy">Employer demand records and seafarer supply records are reviewed before wider candidate presentation or public publication.</p>
-        </article>
-        <article class="card trust-panel trust-card">
-          <p class="eyebrow" data-i18n="home.trust.live.eyebrow">Live publication</p>
-          <h3 data-i18n="home.trust.live.title">Public vacancies appear only when real data is ready.</h3>
-          <p class="support-copy" data-i18n="home.trust.live.copy">CrewPortGlobal publishes live vacancies only when reviewed employer data exists and the vacancy is ready for public display.</p>
-        </article>
-      </section>
-
-      <section class="cta-grid">
-        <article class="card cta-panel cta-card">
-          <p class="eyebrow" data-i18n="home.cta.seafarer.eyebrow">Public information</p>
-          <h3 data-i18n="home.cta.seafarer.title">Read the seafarer-side service overview</h3>
-          <p class="status-note" data-i18n="home.cta.seafarer.copy">The public document explains no-fee boundaries, professional data readiness and how seafarer supply will be reviewed.</p>
-          <a class="button secondary" href="https://crewportglobal.com/for-seafarers/" data-i18n="home.hero.seafarerInfoCta">For Seafarers</a>
-        </article>
-        <article class="card cta-panel cta-card">
-          <p class="eyebrow" data-i18n="home.cta.employer.eyebrow">Public information</p>
-          <h3 data-i18n="home.cta.employer.title">Read the employer-side service overview</h3>
-          <p class="status-note" data-i18n="home.cta.employer.copy">The public document explains employer-side demand, authority evidence, reviewed requests and the buyer-side commercial model.</p>
-          <a class="button secondary" href="https://crewportglobal.com/for-shipowners/" data-i18n="home.hero.employerInfoCta">For Employers</a>
-        </article>
-        <article class="card cta-panel cta-card">
-          <p class="eyebrow" data-i18n="home.cta.trust.eyebrow">Trust center</p>
-          <h3 data-i18n="home.cta.trust.title">Review how trust, safety and verification are handled</h3>
-          <p class="status-note" data-i18n="home.cta.trust.copy">Open the verification policy, no-fee rule and workflow explanation before you continue.</p>
-          <a class="button secondary" href="https://crewportglobal.com/legal/verification-policy/" data-i18n="home.cta.trust.button">Open Trust &amp; Safety</a>
-        </article>
       </section>
     </main>
   </div>
@@ -858,7 +749,8 @@
         'home.live.vessel': 'Vessel',
         'home.live.join': 'Join',
         'home.live.country': 'Country',
-        'home.board.copyAvailable': 'Reviewed public vacancies are available now. Open the board for public information and reviewed listings.',
+        'home.board.copyAvailable': 'Public vacancies are available.',
+        'home.board.copyUnavailable': 'Vacancy board is temporarily unavailable.',
         'home.seafarers.eyebrow': 'For seafarers',
         'home.seafarers.title': 'Seafarer supply is a professional resource',
         'home.seafarers.copy': 'Rank, certificates, availability and preferences are structured for reviewed matching.',
@@ -867,7 +759,7 @@
         'home.employers.copy': 'Company, vessel and crew requirements are recorded as comparable demand data.',
         'home.boundary.eyebrow': 'Trust rules',
         'home.boundary.title': 'Matching is reviewed before presentation',
-        'home.boundary.copy': 'Automated comparison supports operators; final presentation remains controlled.',
+        'home.boundary.copy': 'Data comparison supports operators; final presentation remains controlled.',
         'home.bp.eyebrow': 'BP-015 operating cycle',
         'home.bp.title': 'From registration to crew delivery, billing evidence and repeat voyage.',
         'home.bp.cta': 'Start registration',
@@ -888,8 +780,6 @@
         'home.bp.step7.copy': 'Actual service and work-period evidence becomes the basis for B2B billing.',
         'home.bp.step8.title': 'Repeat cycle',
         'home.bp.step8.copy': 'Availability and repeat demand return the seafarer and employer into the next cycle.',
-        'home.bp.control1.title': 'Human control',
-        'home.bp.control1.copy': 'No automatic employment decision.',
         'home.bp.control2.title': 'No-fee boundary',
         'home.bp.control2.copy': 'Seafarers do not pay recruitment or placement fees.',
         'home.bp.control3.title': 'Evidence trail',
@@ -949,67 +839,9 @@
         'home.registry.safeNote': 'This view shows operational counts and structured matching hints only. Contact details remain inside protected workflows.',
         'home.board.eyebrow': 'Latest vacancies',
         'home.board.title': 'Current public vacancy board',
-        'home.board.copy': 'Public vacancies are shown only when reviewed employer-side demand is ready for publication. Operational registration and request preparation are handled after authenticated access.',
-        'home.board.card1.eyebrow': 'Public availability',
-        'home.board.card1.title': 'No public vacancies available yet',
-        'home.board.card1.copy': 'When reviewed vacancies are ready, this board will show position, vessel type, salary, joining date, contract duration and employer context.',
-        'home.board.card1.status': 'Current preview',
-        'home.board.card1.cta': 'Public vacancy information',
-        'home.board.card2.eyebrow': 'Demand side',
-        'home.board.card2.title': 'Employer-side client provides the hiring need',
-        'home.board.card2.copy': 'The buyer side defines the crew request and pays for employer-side services. Authority to submit demand must be confirmed.',
-        'home.board.card2.status': 'Buyer / demand',
-        'home.board.card2.cta': 'Employer-side information',
-        'home.board.card3.eyebrow': 'Supply side',
-        'home.board.card3.title': 'Seafarer profile provides professional availability',
-        'home.board.card3.copy': 'The seafarer side provides qualifications, readiness and work preferences for reviewed matching against employer demand.',
-        'home.board.card3.status': 'Workforce / supply',
-        'home.board.card3.cta': 'Seafarer information',
-        'home.value.employers.eyebrow': 'For employers',
-        'home.value.employers.title': 'Employer-side clients describe demand and buying context.',
-        'home.value.employers.item1': 'Company and vessel context are collected after authenticated access.',
-        'home.value.employers.item2': 'Crew need is recorded through rank, vessel, salary, joining date and contract conditions.',
-        'home.value.employers.item3': 'Authority evidence defines who may act for the company or request.',
-        'home.value.employers.item4': 'Only reviewed demand can be published or used for candidate presentation.',
-        'home.value.employers.item5': 'The employer-side client remains the main payer for core services.',
-        'home.value.employers.item6': 'Operational access is scoped to the client, company, vessel or assigned task.',
-        'home.value.employers.cta': 'Employer-side information',
-        'home.value.seafarers.eyebrow': 'For seafarers',
-        'home.value.seafarers.title': 'Seafarers provide professional supply data.',
-        'home.value.seafarers.item1': 'Rank, department, availability and contact readiness support matching.',
-        'home.value.seafarers.item2': 'Documents and certificates are reviewed as part of professional readiness.',
-        'home.value.seafarers.item3': 'Expected compensation and contract preferences are compared with demand.',
-        'home.value.seafarers.item4': 'Candidate presentation is not automatic and requires human review.',
-        'home.value.seafarers.item5': 'Seafarer data is not visible to broad groups by default.',
-        'home.value.seafarers.item6': 'Mandatory recruitment or placement fees for seafarers are prohibited.',
-        'home.value.seafarers.cta': 'Seafarer information',
-        'home.value.workflow.eyebrow': 'How the platform works',
-        'home.value.workflow.title': 'Registration, authentication and authorization are separate steps.',
-        'home.value.workflow.item1': 'Registration creates a physical-person and user card.',
-        'home.value.workflow.item2': 'Authentication confirms access to the service account and validates contact channels.',
-        'home.value.workflow.item3': 'Authorization grants roles, visibility and rights only on proven grounds.',
-        'home.value.workflow.item4': 'The personal cabinet is assembled from confirmed capability cards.',
-        'home.value.workflow.cta': 'View process cycle',
-        'home.trust.fees.title': 'No recruitment fee promise stays explicit.',
-        'home.trust.fees.copy': 'Seafarers do not pay recruitment, placement or employment-access fees for access to the core matching service through CrewPortGlobal.',
-        'home.trust.review.eyebrow': 'Human review',
-        'home.trust.review.title': 'Approval does not happen automatically.',
-        'home.trust.review.copy': 'Employer demand records and seafarer supply records are reviewed before wider candidate presentation or public publication.',
-        'home.trust.live.eyebrow': 'Live publication',
-        'home.trust.live.title': 'Public vacancies appear only when real data is ready.',
-        'home.trust.live.copy': 'CrewPortGlobal publishes live vacancies only when reviewed employer data exists and the vacancy is ready for public display.',
-        'home.cta.seafarer.eyebrow': 'Public information',
-        'home.cta.seafarer.title': 'Read the seafarer-side service overview',
-        'home.cta.seafarer.copy': 'The public document explains no-fee boundaries, professional data readiness and how seafarer supply will be reviewed.',
-        'home.cta.seafarer.button': 'For Seafarers',
-        'home.cta.employer.eyebrow': 'Public information',
-        'home.cta.employer.title': 'Read the employer-side service overview',
-        'home.cta.employer.copy': 'The public document explains employer-side demand, authority evidence, reviewed requests and the buyer-side commercial model.',
-        'home.cta.employer.button': 'For Employers',
-        'home.cta.trust.eyebrow': 'Trust center',
-        'home.cta.trust.title': 'Review how trust, safety and verification are handled',
-        'home.cta.trust.copy': 'Open the verification policy, no-fee rule and workflow explanation before you continue.',
-        'home.cta.trust.button': 'Open Trust & Safety'
+        'home.board.copy': 'No public vacancies yet.',
+        'home.board.emptyTitle': 'No public vacancies yet',
+        'home.board.openBoard': 'Open board'
       },
       ru: {
         'home.title': 'CrewPortGlobal сопоставляет спрос на экипаж с проверенными данными моряков.',
@@ -1046,7 +878,8 @@
         'home.live.vessel': 'Судно',
         'home.live.join': 'Посадка',
         'home.live.country': 'Страна',
-        'home.board.copyAvailable': 'Проверенные публичные вакансии уже доступны. Откройте доску для публичной информации и проверенных публикаций.',
+        'home.board.copyAvailable': 'Публичные вакансии доступны.',
+        'home.board.copyUnavailable': 'Доска вакансий временно недоступна.',
         'home.seafarers.eyebrow': 'Для моряков',
         'home.seafarers.title': 'Моряк является профессиональным ресурсом',
         'home.seafarers.copy': 'Должность, сертификаты, доступность и предпочтения структурируются для проверенного подбора.',
@@ -1055,7 +888,7 @@
         'home.employers.copy': 'Компания, судно и требования к экипажу записываются как сопоставимые данные спроса.',
         'home.boundary.eyebrow': 'Правила доверия',
         'home.boundary.title': 'Сопоставление проверяется до представления',
-        'home.boundary.copy': 'Автоматическое сравнение помогает оператору; финальное представление остается контролируемым.',
+        'home.boundary.copy': 'Сравнение данных помогает оператору; финальное представление остается контролируемым.',
         'home.bp.eyebrow': 'Операционный цикл BP-015',
         'home.bp.title': 'От регистрации до передачи экипажа, доказательств услуги и следующего рейса.',
         'home.bp.cta': 'Начать регистрацию',
@@ -1076,8 +909,6 @@
         'home.bp.step7.copy': 'Доказательства фактической услуги и периода работы становятся основой B2B-счёта.',
         'home.bp.step8.title': 'Повторный цикл',
         'home.bp.step8.copy': 'Доступность и повторный спрос возвращают моряка и работодателя в следующий цикл.',
-        'home.bp.control1.title': 'Человеческий контроль',
-        'home.bp.control1.copy': 'Нет автоматического решения о трудоустройстве.',
         'home.bp.control2.title': 'Правило без сборов',
         'home.bp.control2.copy': 'Моряки не платят за подбор или трудоустройство.',
         'home.bp.control3.title': 'Доказательная база',
@@ -1137,67 +968,9 @@
         'home.registry.safeNote': 'Этот вид показывает только операционные счетчики и структурированные признаки для сопоставления. Контактные данные остаются в защищённых процессах.',
         'home.board.eyebrow': 'Последние вакансии',
         'home.board.title': 'Текущая публичная доска вакансий',
-        'home.board.copy': 'Публичные вакансии показываются только когда проверенный спрос со стороны работодателя готов к публикации. Операционная регистрация и подготовка запросов выполняются после аутентифицированного доступа.',
-        'home.board.card1.eyebrow': 'Публичная доступность',
-        'home.board.card1.title': 'Публичных вакансий пока нет',
-        'home.board.card1.copy': 'Когда проверенные вакансии будут готовы, здесь появятся должность, тип судна, зарплата, дата посадки, длительность контракта и данные работодателя.',
-        'home.board.card1.status': 'Текущий превью-режим',
-        'home.board.card1.cta': 'Публичная информация о вакансиях',
-        'home.board.card2.eyebrow': 'Сторона спроса',
-        'home.board.card2.title': 'Клиент со стороны работодателя задаёт потребность в экипаже',
-        'home.board.card2.copy': 'Сторона покупателя описывает запрос на экипаж и оплачивает услуги работодателя. Право подавать спрос должно быть подтверждено.',
-        'home.board.card2.status': 'Покупатель / спрос',
-        'home.board.card2.cta': 'Информация для работодателей',
-        'home.board.card3.eyebrow': 'Сторона предложения',
-        'home.board.card3.title': 'Профиль моряка отражает профессиональную доступность',
-        'home.board.card3.copy': 'Сторона моряка предоставляет квалификацию, готовность и рабочие предпочтения для проверенного сопоставления со спросом работодателя.',
-        'home.board.card3.status': 'Рабочая сила / предложение',
-        'home.board.card3.cta': 'Информация для моряков',
-        'home.value.employers.eyebrow': 'Для работодателей',
-        'home.value.employers.title': 'Клиенты со стороны работодателя описывают спрос и покупательский контекст.',
-        'home.value.employers.item1': 'Контекст компании и судна собирается после аутентифицированного доступа.',
-        'home.value.employers.item2': 'Потребность в экипаже фиксируется через должность, судно, оплату, дату посадки и условия контракта.',
-        'home.value.employers.item3': 'Доказательство полномочий определяет, кто может действовать от имени компании или запроса.',
-        'home.value.employers.item4': 'Только проверенный спрос может публиковаться или использоваться для представления кандидатов.',
-        'home.value.employers.item5': 'Клиент со стороны работодателя остаётся основным плательщиком базовых услуг.',
-        'home.value.employers.item6': 'Операционный доступ ограничивается клиентом, компанией, судном или назначенной задачей.',
-        'home.value.employers.cta': 'Информация для работодателей',
-        'home.value.seafarers.eyebrow': 'Для моряков',
-        'home.value.seafarers.title': 'Моряки предоставляют профессиональные данные предложения.',
-        'home.value.seafarers.item1': 'Должность, департамент, доступность и готовность контактов помогают сопоставлению.',
-        'home.value.seafarers.item2': 'Документы и сертификаты проверяются как часть профессиональной готовности.',
-        'home.value.seafarers.item3': 'Ожидания по оплате и предпочтения по контракту сравниваются со спросом.',
-        'home.value.seafarers.item4': 'Представление кандидата не происходит автоматически и требует ручной проверки.',
-        'home.value.seafarers.item5': 'Данные моряка не видны широким группам по умолчанию.',
-        'home.value.seafarers.item6': 'Обязательные рекрутинговые или placement-сборы для моряков запрещены.',
-        'home.value.seafarers.cta': 'Информация для моряков',
-        'home.value.workflow.eyebrow': 'Как работает платформа',
-        'home.value.workflow.title': 'Регистрация, аутентификация и авторизация разделены.',
-        'home.value.workflow.item1': 'Регистрация создаёт карточку физического лица и пользователя.',
-        'home.value.workflow.item2': 'Аутентификация подтверждает доступ к сервисному аккаунту и проверяет каналы связи.',
-        'home.value.workflow.item3': 'Авторизация выдаёт роли, видимость и права только на доказанном основании.',
-        'home.value.workflow.item4': 'Личный кабинет собирается из подтверждённых карточек возможностей.',
-        'home.value.workflow.cta': 'Посмотреть цикл процесса',
-        'home.trust.fees.title': 'Обещание без рекрутинговых сборов остаётся явным.',
-        'home.trust.fees.copy': 'Моряки не платят рекрутинговые, placement- или employment-access сборы за доступ к базовому сервису сопоставления через CrewPortGlobal.',
-        'home.trust.review.eyebrow': 'Ручная проверка',
-        'home.trust.review.title': 'Одобрение не происходит автоматически.',
-        'home.trust.review.copy': 'Записи спроса работодателей и предложения моряков проверяются до более широкой публикации или представления кандидатов.',
-        'home.trust.live.eyebrow': 'Живая публикация',
-        'home.trust.live.title': 'Публичные вакансии появляются только при готовности реальных данных.',
-        'home.trust.live.copy': 'CrewPortGlobal публикует живые вакансии только тогда, когда есть проверенные данные работодателя и вакансия готова к публичному показу.',
-        'home.cta.seafarer.eyebrow': 'Публичная информация',
-        'home.cta.seafarer.title': 'Ознакомьтесь с обзором сервиса для моряков',
-        'home.cta.seafarer.copy': 'Публичный документ объясняет границы отсутствия сборов, готовность профессиональных данных и порядок проверки предложения моряка.',
-        'home.cta.seafarer.button': 'Для моряков',
-        'home.cta.employer.eyebrow': 'Публичная информация',
-        'home.cta.employer.title': 'Ознакомьтесь с обзором сервиса для работодателей',
-        'home.cta.employer.copy': 'Публичный документ объясняет спрос работодателя, доказательство полномочий, проверенные запросы и коммерческую модель стороны покупателя.',
-        'home.cta.employer.button': 'Для работодателей',
-        'home.cta.trust.eyebrow': 'Центр доверия',
-        'home.cta.trust.title': 'Посмотрите, как устроены доверие, безопасность и проверка',
-        'home.cta.trust.copy': 'Откройте политику проверки, правило без сборов и описание процесса перед продолжением.',
-        'home.cta.trust.button': 'Открыть доверие и безопасность'
+        'home.board.copy': 'Публичных вакансий пока нет.',
+        'home.board.emptyTitle': 'Публичных вакансий пока нет',
+        'home.board.openBoard': 'Открыть доску'
       }
     };
   </script>
@@ -1209,6 +982,7 @@
       const boardStatus = document.getElementById('home-board-status');
       const boardCopy = document.getElementById('home-board-copy');
       const liveVacancies = document.getElementById('home-live-vacancies');
+      const boardEmpty = document.getElementById('home-board-empty');
       const registryVacancyCount = document.getElementById('home-registry-vacancy-count');
       const registryVesselCount = document.getElementById('home-registry-vessel-count');
       const registrySeafarerCount = document.getElementById('home-registry-seafarer-count');
@@ -1381,8 +1155,10 @@
         if (latestLoadState === 'error') {
           apiStatus.textContent = t('home.live.api.offline');
           boardStatus.textContent = t('home.live.board.empty');
+          boardCopy.textContent = t('home.board.copyUnavailable');
           liveVacancies.hidden = true;
           liveVacancies.innerHTML = '';
+          boardEmpty.hidden = false;
           return;
         }
 
@@ -1399,6 +1175,7 @@
         liveVacancies.innerHTML = '';
         if (count === 0) {
           liveVacancies.hidden = true;
+          boardEmpty.hidden = false;
           return;
         }
 
@@ -1406,6 +1183,7 @@
           liveVacancies.appendChild(renderVacancy(vacancy));
         });
         liveVacancies.hidden = false;
+        boardEmpty.hidden = true;
       }
 
       function renderRegistryState() {
