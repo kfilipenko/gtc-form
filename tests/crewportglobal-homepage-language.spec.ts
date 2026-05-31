@@ -68,9 +68,12 @@ test('same-page selector translates the homepage and persists after reload', asy
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
   await expect(page.locator('.landing-title')).toContainText('CrewPortGlobal сопоставляет спрос на экипаж с проверенными данными моряков.');
   await expect(page.locator('.site-nav')).toContainText('Документы');
-  await expect(page.locator('.site-menu-group--employers')).toContainText('Для работодателей');
-  await expect(page.locator('.site-menu-group--employers a[href="https://crewportglobal.com/for-shipowners/"]')).toBeVisible();
-  await expect(page.locator('.site-nav')).toContainText('Вход / Регистрация');
+  await expect(page.locator('.nav-menu--employers summary')).toContainText('Работодатели');
+  await expect(page.locator('.nav-menu--employers summary')).toHaveAttribute('title', 'Действия для регистрации работодателя, судов и заявок на экипаж.');
+  await page.locator('.nav-menu--employers summary').click();
+  await expect(page.locator('.nav-menu--employers a[href="https://crewportglobal.com/for-shipowners/"]')).toBeVisible();
+  await expect(page.locator('.site-header')).toContainText('Аккаунт / Войти');
+  await expect(page.locator('.site-nav')).not.toContainText('Вход / Регистрация');
   await expect(page.locator('.landing-lead')).toContainText('Заявки, суда и профили моряков уже зарегистрированы в системе.');
   await expect.poll(() => page.evaluate(() => window.localStorage.getItem('crewportglobal.language'))).toBe('ru');
 
@@ -78,7 +81,7 @@ test('same-page selector translates the homepage and persists after reload', asy
 
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
   await expect(page.locator('.landing-title')).toContainText('CrewPortGlobal сопоставляет спрос на экипаж с проверенными данными моряков.');
-  await expect(page.locator('.site-menu-group--employers')).toContainText('Для работодателей');
+  await expect(page.locator('.nav-menu--employers summary')).toContainText('Работодатели');
   await expect(page.locator('.landing-lead')).toContainText('Заявки, суда и профили моряков уже зарегистрированы в системе.');
 });
 
@@ -110,7 +113,7 @@ test('homepage falls back to English for missing non-English page translations',
   await page.locator('.language-option').filter({ hasText: 'Português' }).click();
 
   await expect(page.locator('#current-language-label')).toHaveText('Português');
-  await expect(page.locator('.site-menu-group--employers')).toContainText('Para empregadores');
+  await expect(page.locator('.nav-menu--employers summary')).toContainText('Empregadores');
   await expect(page.locator('.landing-title')).toContainText('CrewPortGlobal matches crew demand with verified seafarer supply.');
   await expect(page.locator('.vacancy-board').filter({ hasText: 'Latest vacancies' })).toContainText('Current public vacancy board');
 });
@@ -131,7 +134,11 @@ test('homepage and vacancies CTAs match their destinations', async ({ page }) =>
 
   const main = page.locator('main');
 
-  await expect(page.locator('.site-menu-group--registration a[href="https://crewportglobal.com/register/"]').first()).toHaveText('Login / Register');
+  const account = page.locator('.site-header .cpg-account');
+  await expect(account.locator('summary')).toHaveText(/Account \/ Login/);
+  await account.locator('summary').click();
+  await expect(account.getByRole('link', { name: 'Registration' })).toHaveAttribute('href', 'https://crewportglobal.com/register/');
+  await account.locator('summary').click();
   await expect(main.locator('#home-process-cycle')).toContainText('BP-015 operating cycle');
   await expect(main.locator('a[href="#home-process-cycle"]').first()).toHaveText('View process cycle');
   await expect(main.locator('a[href="https://crewportglobal.com/legal/verification-policy/"]').first()).toContainText('Trust');
@@ -221,7 +228,9 @@ test('create-profile holds the consolidated seafarer final consent and no onboar
 
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
   await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
-  await expect(page.locator('.site-menu-group--seafarers')).toContainText('Создать профиль');
+  await expect(page.locator('.nav-menu--seafarers summary')).toContainText('Моряки');
+  await page.locator('.nav-menu--seafarers summary').click();
+  await expect(page.locator('.nav-menu--seafarers a[href="https://crewportglobal.com/create-profile/"]')).toContainText('Создать профиль');
   await expect(page.locator('body')).toContainText('правило отсутствия платы за трудоустройство');
   await expect(page.locator('body')).toContainText('дополнительные платные услуги не являются условием доступа к работе');
   await expect(page.locator('a[href="/legal/complaints/"]')).toHaveCount(1);

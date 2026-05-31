@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.34
+- Version: 2.35
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -334,6 +334,8 @@ docs/crewportglobal/
   245_cpg_biz_051_seafarer_consent_consolidation_site_menu_report.md
   246_cpg_biz_052_commercial_operating_cycle_report.md
   247_cpg_biz_053_functional_page_inventory_against_bp015.md
+  248_cpg_biz_054_functional_public_navigation_home_bp015_infographic_report.md
+  249_cpg_biz_055_compact_public_menu_visual_correction_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -727,6 +729,8 @@ Document 247 records the CPG-BIZ-053 functional page inventory against BP-015, c
 
 Document 248 records the CPG-BIZ-054 implementation of the functional public navigation and homepage BP-015 infographic, including the simplified role-based menu, Documents/Trust Center legal grouping, `/how-it-works/` support-route reduction, active public-link replacement and focused navigation/homepage regression verification.
 
+Document 249 records the CPG-BIZ-055 visual correction of the public site menu after Project Owner review, including one-line compact role groups, hover explanations, removal of duplicated login/registration menu entries, mobile overflow correction and focused navigation/homepage regression verification.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -830,6 +834,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.35 | 2026-05-31 | GTC IT / AI Assistant | Added document 249 for compact public menu visual correction, including one-line role groups, hover explanations, removal of duplicated login/cabinet group and mobile overflow verification |
 | 2.34 | 2026-05-30 | GTC IT / AI Assistant | Added document 248 for CPG-BIZ-054 functional public navigation and homepage BP-015 infographic implementation, including role-based menu simplification and `/how-it-works/` support-route reduction |
 | 2.33 | 2026-05-30 | GTC IT / AI Assistant | Added document 247 for CPG-BIZ-053 functional page inventory against BP-015, including route classification, `/how-it-works/` homepage infographic decision, target role-based menu and next implementation sequence |
 | 2.32 | 2026-05-30 | GTC IT / AI Assistant | Added document 246 and BP-015 commercial operating cycle covering marketing, subscriptions/packages, request processing, embarkation, monthly service evidence, billing, retention and repeat marketing |

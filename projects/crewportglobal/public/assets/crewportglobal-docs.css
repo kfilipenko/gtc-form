@@ -745,9 +745,10 @@ html[data-cpg-theme="light"] .cpg-account__field input {
   position: relative;
   z-index: 35;
   margin-top: 14px;
-  padding: 10px;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  padding: 8px 10px;
+  flex-wrap: nowrap;
+  align-items: center;
+  overflow: visible;
 }
 
 .nav-link,
@@ -762,6 +763,7 @@ html[data-cpg-theme="light"] .cpg-account__field input {
 
 .nav-link.is-active,
 .nav-menu[open] > .nav-menu__summary,
+.nav-menu__summary.is-active,
 .nav-link:hover,
 .nav-menu__summary:hover,
 .home-link:hover,
@@ -801,6 +803,7 @@ html[data-cpg-theme="light"] .cpg-account__field input {
 }
 
 .nav-menu[open] > .nav-menu__summary,
+.nav-menu__summary.is-active,
 .nav-menu__summary:hover,
 .nav-menu__summary:focus-visible {
   color: #06111b;
@@ -857,9 +860,42 @@ html[data-cpg-theme="light"] .cpg-account__field input {
 
 .site-map-nav {
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 10px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  overflow: visible;
+}
+
+.site-map-nav > .nav-link,
+.site-map-nav .nav-menu__summary {
+  min-height: 42px;
+  padding: 10px 14px;
+  border-color: rgba(126, 201, 217, 0.18);
+  border-radius: 999px;
+  background: rgba(5, 15, 26, 0.32);
+  color: var(--text-on-dark);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.site-map-nav > .nav-link.is-active,
+.site-map-nav .nav-menu__summary.is-active,
+.site-map-nav .nav-menu[open] > .nav-menu__summary {
+  color: #06111b;
+  background: var(--teal);
+  border-color: transparent;
+}
+
+.site-map-nav .nav-menu {
+  flex: 0 0 auto;
+}
+
+.site-map-nav .nav-menu__panel {
+  top: calc(100% + 8px);
 }
 
 .site-menu-group {
@@ -1282,6 +1318,20 @@ html[data-cpg-theme="light"] .cpg-account__field input {
     position: static;
     width: 100%;
     margin-top: 8px;
+  }
+
+  .site-map-nav {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .site-map-nav .nav-menu {
+    width: auto;
+  }
+
+  .site-map-nav > .nav-link,
+  .site-map-nav .nav-menu__summary {
+    width: auto;
   }
 
   .card {

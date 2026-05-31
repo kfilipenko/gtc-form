@@ -23,29 +23,35 @@
       key: 'nav.homeGroup',
       label: 'Home',
       menuKey: 'nav.homeGroupMenu',
+      hintKey: 'nav.homeGroupHint',
+      hint: 'Open the main public page with live registry indicators and BP-015 cycle.',
       links: [
-        { href: '/', key: 'nav.home', label: 'Home' },
+        { href: '/', key: 'nav.home', label: 'Home', hintKey: 'nav.homeHint', hint: 'Main public entry page.' },
       ],
     },
     {
       className: 'seafarers',
       key: 'nav.seafarerPages',
-      label: 'For Seafarers',
+      label: 'Seafarers',
       menuKey: 'nav.seafarerPagesMenu',
+      hintKey: 'nav.seafarerPagesHint',
+      hint: 'Actions for seafarer registration, profile completion and vacancy review.',
       links: [
-        { href: '/for-seafarers/', key: 'nav.forSeafarers', label: 'For Seafarers' },
-        { href: '/create-profile/', key: 'nav.createProfile', label: 'Create Profile' },
-        { href: '/vacancies/', key: 'nav.vacancies', label: 'Vacancies' },
+        { href: '/for-seafarers/', key: 'nav.forSeafarers', label: 'For Seafarers', hint: 'Seafarer service entry page.' },
+        { href: '/create-profile/', key: 'nav.createProfile', label: 'Create Profile', hint: 'Complete the seafarer profile and documents.' },
+        { href: '/vacancies/', key: 'nav.vacancies', label: 'Vacancies', hint: 'Open reviewed vacancy information.' },
       ],
     },
     {
       className: 'employers',
       key: 'nav.employerPages',
-      label: 'For Employers',
+      label: 'Employers',
       menuKey: 'nav.employerPagesMenu',
+      hintKey: 'nav.employerPagesHint',
+      hint: 'Actions for employer registration, vessel data and crew requests.',
       links: [
-        { href: '/for-shipowners/', key: 'nav.forShipowners', label: 'For Employers' },
-        { href: '/post-vacancy/', key: 'nav.postVacancy', label: 'Post Vacancy' },
+        { href: '/for-shipowners/', key: 'nav.forShipowners', label: 'For Employers', hint: 'Employer service entry page.' },
+        { href: '/post-vacancy/', key: 'nav.postVacancy', label: 'Post Vacancy', hint: 'Add company, vessel and crew request data.' },
       ],
     },
     {
@@ -53,15 +59,17 @@
       key: 'nav.documents',
       label: 'Documents',
       menuKey: 'nav.documentsMenu',
+      hintKey: 'nav.documentsHint',
+      hint: 'Open legal, trust and policy documents.',
       links: [
-        { href: '/legal/terms/', key: 'nav.terms', label: 'Terms' },
-        { href: '/legal/privacy/', key: 'nav.privacy', label: 'Privacy' },
-        { href: '/legal/no-recruitment-fees/', key: 'nav.noRecruitmentFees', label: 'No Recruitment Fees' },
-        { href: '/legal/seafarer-candidate-agreement/', key: 'nav.seafarerAgreement', label: 'Seafarer Agreement' },
-        { href: '/legal/shipowner-service-terms/', key: 'nav.shipownerAgreement', label: 'Shipowner Agreement' },
-        { href: '/legal/recruitment-and-matching-policy/', key: 'nav.matchingPolicy', label: 'Matching Policy' },
-        { href: '/legal/verification-policy/', key: 'nav.verificationPolicy', label: 'Verification Policy' },
-        { href: '/legal/complaints/', key: 'nav.complaints', label: 'Complaints' },
+        { href: '/legal/terms/', key: 'nav.terms', label: 'Terms', hint: 'Platform terms.' },
+        { href: '/legal/privacy/', key: 'nav.privacy', label: 'Privacy', hint: 'Privacy policy.' },
+        { href: '/legal/no-recruitment-fees/', key: 'nav.noRecruitmentFees', label: 'No Recruitment Fees', hint: 'No-fee rule for seafarers.' },
+        { href: '/legal/seafarer-candidate-agreement/', key: 'nav.seafarerAgreement', label: 'Seafarer Agreement', hint: 'Candidate agreement.' },
+        { href: '/legal/shipowner-service-terms/', key: 'nav.shipownerAgreement', label: 'Shipowner Agreement', hint: 'B2B service terms.' },
+        { href: '/legal/recruitment-and-matching-policy/', key: 'nav.matchingPolicy', label: 'Matching Policy', hint: 'Human-reviewed matching policy.' },
+        { href: '/legal/verification-policy/', key: 'nav.verificationPolicy', label: 'Verification Policy', hint: 'Verification policy.' },
+        { href: '/legal/complaints/', key: 'nav.complaints', label: 'Complaints', hint: 'Complaint handling procedure.' },
       ],
     },
     {
@@ -69,24 +77,16 @@
       key: 'nav.teamPages',
       label: 'Team',
       menuKey: 'nav.teamPagesMenu',
+      hintKey: 'nav.teamPagesHint',
+      hint: 'Protected team workspaces for computed tasks and operations.',
       links: [
-        { href: '/team/', key: 'nav.teamPortal', label: 'Team Portal' },
-        { href: '/team/documents/', key: 'nav.teamDocuments', label: 'Team Documents' },
-        { href: '/team/matching/', key: 'nav.teamMatching', label: 'Request-Supply Comparison' },
-        { href: '/team/registry/', key: 'nav.teamRegistry', label: 'Registry Detail' },
-        { href: '/team/shortlists/', key: 'nav.teamShortlists', label: 'Shortlist Drafts' },
-        { href: '/verify/', key: 'nav.operatorQueue', label: 'Operator Queue' },
-        { href: '/admin/access/', key: 'nav.adminAccess', label: 'Access Admin' },
-      ],
-    },
-    {
-      className: 'registration',
-      key: 'nav.loginCabinet',
-      label: 'Login / Cabinet',
-      menuKey: 'nav.registrationCabinetMenu',
-      links: [
-        { href: '/register/', key: 'nav.loginRegister', label: 'Login / Register' },
-        { href: '/cabinet/', key: 'nav.myCabinet', label: 'My Cabinet' },
+        { href: '/team/', key: 'nav.teamPortal', label: 'Team Portal', hint: 'Computed team task list.' },
+        { href: '/team/documents/', key: 'nav.teamDocuments', label: 'Team Documents', hint: 'Protected document review.' },
+        { href: '/team/matching/', key: 'nav.teamMatching', label: 'Request-Supply Comparison', hint: 'Compare crew request and candidate supply.' },
+        { href: '/team/registry/', key: 'nav.teamRegistry', label: 'Registry Detail', hint: 'Safe internal registry view.' },
+        { href: '/team/shortlists/', key: 'nav.teamShortlists', label: 'Shortlist Drafts', hint: 'Internal shortlist drafts.' },
+        { href: '/verify/', key: 'nav.operatorQueue', label: 'Operator Queue', hint: 'Operator workbench.' },
+        { href: '/admin/access/', key: 'nav.adminAccess', label: 'Access Admin', hint: 'Protected access administration.' },
       ],
     },
   ];
@@ -105,9 +105,23 @@
     return `${SITE_ORIGIN}${href}`;
   }
 
+  function escapeAttribute(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function titleAttributes(item) {
+    const titleKey = item.hintKey || item.key;
+    const title = item.hint || item.label;
+    return ` title="${escapeAttribute(title)}" data-i18n-title="${titleKey}"`;
+  }
+
   function createLink(item, activeHref) {
     const active = activeHref && item.href === activeHref ? ' is-active' : '';
-    return `<a class="nav-link${active}" href="${absoluteHref(item.href)}" data-i18n="${item.key}">${item.label}</a>`;
+    return `<a class="nav-link${active}" href="${absoluteHref(item.href)}" data-i18n="${item.key}"${titleAttributes(item)}>${item.label}</a>`;
   }
 
   function createApplicationLinks(activeHref) {
@@ -133,13 +147,23 @@
   }
 
   function createSiteMenuGroup(group, activeHref) {
+    const isActive = group.links.some((item) => item.href === activeHref);
+    const active = isActive ? ' is-active' : '';
+    if (group.links.length === 1) {
+      const item = group.links[0];
+      return `<a class="nav-link site-menu-group-link site-menu-group-link--${group.className}${active}" href="${absoluteHref(item.href)}" data-i18n="${group.key}"${titleAttributes(group)}>${group.label}</a>`;
+    }
+
     return [
-      `<section class="site-menu-group site-menu-group--${group.className}" aria-label="${group.label}" data-i18n-aria-label="${group.menuKey}">`,
-      `  <h2 class="site-menu-group__title" data-i18n="${group.key}">${group.label}</h2>`,
-      '  <div class="site-menu-group__links">',
+      `<details class="nav-menu nav-menu--site-group nav-menu--${group.className}">`,
+      `  <summary class="nav-menu__summary${active}"${titleAttributes(group)} aria-label="${escapeAttribute(group.label)}" data-i18n-aria-label="${group.menuKey}">`,
+      `    <span data-i18n="${group.key}">${group.label}</span>`,
+      '    <span class="nav-menu__chevron" aria-hidden="true">▾</span>',
+      '  </summary>',
+      `  <div class="nav-menu__panel" data-i18n-aria-label="${group.menuKey}">`,
       group.links.map((item) => createLink(item, activeHref)).join('\n').split('\n').map((line) => `    ${line}`).join('\n'),
       '  </div>',
-      '</section>',
+      '</details>',
     ].join('\n');
   }
 

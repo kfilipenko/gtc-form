@@ -16,11 +16,10 @@ const documentPages = [
 
 const fullSiteGroups = [
   { className: 'home', title: 'Home' },
-  { className: 'seafarers', title: 'For Seafarers' },
-  { className: 'employers', title: 'For Employers' },
+  { className: 'seafarers', title: 'Seafarers' },
+  { className: 'employers', title: 'Employers' },
   { className: 'documents', title: 'Documents' },
   { className: 'team', title: 'Team' },
-  { className: 'registration', title: 'Login / Cabinet' },
 ];
 
 const fullSiteLinks = [
@@ -45,15 +44,25 @@ const fullSiteLinks = [
   { name: 'Shortlist Drafts', href: 'https://crewportglobal.com/team/shortlists/' },
   { name: 'Operator Queue', href: 'https://crewportglobal.com/verify/' },
   { name: 'Access Admin', href: 'https://crewportglobal.com/admin/access/' },
-  { name: 'Login / Register', href: 'https://crewportglobal.com/register/' },
-  { name: 'My Cabinet', href: 'https://crewportglobal.com/cabinet/' },
 ];
 
 async function expectFullSiteMenu(nav) {
   await expect(nav.locator('.site-map-nav')).toBeVisible();
 
   for (const group of fullSiteGroups) {
-    await expect(nav.locator(`.site-menu-group--${group.className} .site-menu-group__title`)).toHaveText(group.title);
+    if (group.className === 'home') {
+      await expect(nav.locator('.site-map-nav > .site-menu-group-link--home')).toHaveText(group.title);
+      continue;
+    }
+
+    await expect(nav.locator(`details.nav-menu--${group.className} summary`)).toContainText(group.title);
+  }
+
+  for (const menu of await nav.locator('details.nav-menu--site-group').all()) {
+    const open = await menu.evaluate((element) => element.hasAttribute('open'));
+    if (!open) {
+      await menu.locator('summary').click();
+    }
   }
 
   for (const link of fullSiteLinks) {
