@@ -138,17 +138,16 @@ test('homepage dashboard shows live API status and latest reviewed vacancy', asy
 
   await page.goto('/');
 
-  await expect(page.locator('#home-api-status')).toContainText('Online');
-  await expect(page.locator('#home-board-status')).toContainText('published');
-  await expect(page.locator('#home-live-vacancy-count')).not.toHaveText('0');
   await expect(page.locator('#home-live-vacancies')).toContainText(title);
   await expect(page.locator('#home-live-vacancies')).toContainText('Homepage Marine');
   await expect(page.locator('#home-live-vacancies')).toContainText('USD 5200.00 - 5800.00');
+  await expect(page.locator('#home-hero-proof')).toBeVisible();
   await expect(page.locator('#home-registry-vacancy-count')).not.toHaveText('0');
   await expect(page.locator('#home-registry-vessel-count')).not.toHaveText('0');
   await expect(page.locator('#home-registry-seafarer-count')).not.toHaveText('0');
-  await expect(page.locator('[data-i18n="home.hero.registryCta"]')).toBeVisible();
-  await page.locator('[data-i18n="home.hero.registryCta"]').click();
+  await expect(page.locator('[data-i18n="home.audience.seafarer.cta"]')).toHaveAttribute('href', 'https://crewportglobal.com/register/?role=seafarer');
+  await expect(page.locator('[data-i18n="home.audience.employer.cta"]')).toHaveAttribute('href', 'https://crewportglobal.com/register/?role=employer');
+  await page.locator('#home-registry-summary').scrollIntoViewIfNeeded();
   await expect(page.locator('#home-registry-summary')).toBeInViewport({ ratio: 0.2 });
   const registryAppearsBeforeVacancyBoard = await page.evaluate(() => {
     const registry = document.getElementById('home-registry-summary');

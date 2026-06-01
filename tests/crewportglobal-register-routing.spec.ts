@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('public register page creates a physical-person request without role routing', async ({ page }) => {
+test('public register page creates a platform participant request and routes by role', async ({ page }) => {
   await page.route('**/api/v1/registration/person/request', async (route) => {
     const request = route.request();
     const body = JSON.parse(request.postData() || '{}');
@@ -19,10 +19,10 @@ test('public register page creates a physical-person request without role routin
     });
   });
 
-  await page.goto('/register/');
+  await page.goto('/register/?role=seafarer');
 
-  await expect(page.locator('h1')).toContainText('Create a physical person');
-  await expect(page.locator('[data-role]')).toHaveCount(0);
+  await expect(page.locator('h1')).toContainText('Create your platform participant account');
+  await expect(page.locator('#role')).toHaveValue('seafarer');
   await expect(page.locator('main a[href="https://crewportglobal.com/create-profile/"]')).toHaveCount(0);
   await expect(page.locator('main a[href="https://crewportglobal.com/post-vacancy/"]')).toHaveCount(0);
 
@@ -34,13 +34,13 @@ test('public register page creates a physical-person request without role routin
   await page.locator('#email').fill(email);
   await page.locator('#phone').fill('+15550123');
   await page.locator('#country').fill('United States');
+  await page.locator('#password').fill('SecurePass123!');
+  await page.locator('#confirm-password').fill('SecurePass123!');
   await page.locator('#terms').check();
   await page.locator('#consent').check();
   await page.locator('#register-submit').click();
 
-  await expect(page).toHaveURL(/\/register\/$/);
-  await expect(page.locator('#register-status')).toContainText('Confirmation link sent');
-  await expect(page.locator('#register-next-steps')).toBeVisible();
+  await expect(page).toHaveURL(/\/create-profile\/\?draft_id=[0-9a-f-]{36}$/);
 
   await expect.poll(() => page.evaluate(() => {
     const payload = JSON.parse(window.localStorage.getItem('crewportglobal.registration.person') || '{}');
@@ -49,9 +49,10 @@ test('public register page creates a physical-person request without role routin
       payload.authorization_state,
       payload.capability_state,
       payload.email,
-      payload.person_id,
+      payload.role,
+      Boolean(payload.person_id),
     ].join('|');
-  })).toBe(`email_confirmation_sent|not_granted|not_requested|${email}|11111111-1111-4111-8111-111111111111`);
+  })).toBe(`password_credential_registered|not_granted|not_requested|${email}|seafarer|true`);
 });
 
 test('email confirmation page posts token and routes to registration sequence', async ({ page }) => {

@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.39
+- Version: 2.41
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -340,6 +340,8 @@ docs/crewportglobal/
   251_cpg_biz_057_home_post_board_explanatory_sections_removal_report.md
   252_cpg_biz_058_home_registry_counter_compaction_report.md
   253_cpg_biz_059_home_marketing_entry_cleanup_report.md
+  254_cpg_biz_060_home_conversion_rebuild_and_role_registration_task.md
+  255_cpg_biz_060_home_conversion_rebuild_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -743,6 +745,10 @@ Document 252 records the CPG-BIZ-058 compaction of homepage registry counter car
 
 Document 253 records the CPG-BIZ-059 homepage marketing-entry cleanup, including removal of the remaining hero explanatory text, conversion of registry counters to a two-row three-column table, removal of public control cards, hover-only BP-015 explanations, live-registry title refresh and removal of the service-model explanatory block.
 
+Document 254 defines the CPG-BIZ-060 Project Owner approval task for rebuilding the homepage as a conversion-focused entry point with separate seafarer and employer scenarios, platform-participant registration wording, role-based post-registration routing, compact trust proof, partner/social-proof preparation and conversion measurement requirements.
+
+Document 255 records the CPG-BIZ-060 implementation of the conversion-focused homepage rebuild, including seafarer/employer scenario CTAs, platform-participant registration wording, role preselection, and post-registration routing to the seafarer profile or employer vacancy workspace.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -846,6 +852,8 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.41 | 2026-06-01 | GTC IT / AI Assistant | Added document 255 for the CPG-BIZ-060 conversion homepage implementation and role-based post-registration routing |
+| 2.40 | 2026-06-01 | GTC IT / AI Assistant | Added document 254 for the homepage conversion rebuild and role-based platform participant registration task |
 | 2.39 | 2026-06-01 | GTC IT / AI Assistant | Added document 253 for homepage marketing-entry cleanup, registry counter table layout, hover-only BP-015 explanations and removal of service-model explanatory block |
 | 2.38 | 2026-05-31 | GTC IT / AI Assistant | Added document 252 for compact homepage registry counter cards with labels above numeric values and verified label fit |
 | 2.37 | 2026-05-31 | GTC IT / AI Assistant | Added document 251 for removing remaining explanatory homepage sections after the public vacancy board and removing the public Human control card |

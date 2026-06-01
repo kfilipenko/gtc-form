@@ -44,6 +44,153 @@
       color: var(--paper-strong);
     }
 
+    .landing-subtitle {
+      max-width: 720px;
+      margin: 0;
+      color: var(--muted-on-dark);
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    .audience-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .audience-card {
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(78, 196, 213, 0.24);
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    .audience-card h2,
+    .proof-card h3 {
+      margin: 0;
+      color: var(--paper-strong);
+      font-size: clamp(22px, 3vw, 30px);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .audience-card p,
+    .proof-card p {
+      margin: 0;
+      color: var(--muted-on-dark);
+      line-height: 1.55;
+    }
+
+    .trust-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .trust-strip span {
+      min-width: 0;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(121, 226, 166, 0.24);
+      background: rgba(121, 226, 166, 0.08);
+      color: var(--paper-strong);
+      font-weight: 800;
+      line-height: 1.25;
+      text-align: center;
+    }
+
+    .proof-card {
+      display: grid;
+      gap: 14px;
+    }
+
+    .partners-panel {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(78, 196, 213, 0.22);
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .partners-panel summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--paper-strong);
+      font-size: 20px;
+      font-weight: 800;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .partners-panel summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .partners-panel summary::after {
+      content: "+";
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--paper-strong);
+    }
+
+    .partners-panel[open] summary::after {
+      content: "-";
+    }
+
+    .partner-list,
+    .story-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .partner-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(126, 201, 217, 0.16);
+      color: var(--text-on-dark);
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .partner-logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      flex: 0 0 38px;
+      border-radius: 12px;
+      background: rgba(78, 196, 213, 0.18);
+      color: var(--paper-strong);
+      font-weight: 900;
+    }
+
+    .story-list li {
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      color: var(--muted-on-dark);
+      line-height: 1.45;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
     .section-copy,
     .support-copy,
     .empty-state,
@@ -508,6 +655,8 @@
 
     @media (max-width: 980px) {
       .home-grid,
+      .audience-grid,
+      .trust-strip,
       .search-grid,
       .vacancy-grid,
       .registry-preview-grid,
@@ -555,9 +704,27 @@
     <main class="doc-main">
       <section class="home-grid app-hero">
         <article class="hero-copy app-hero-main">
-          <p class="app-kicker" data-i18n="home.hero.eyebrow">Maritime crew matching workspace</p>
-          <h1 class="landing-title" data-i18n="home.title">CrewPortGlobal matches crew demand with verified seafarer supply.</h1>
-          <div class="registry-count-grid" aria-live="polite">
+          <p class="app-kicker" data-i18n="home.hero.eyebrow">Crew contracts and verified crew requests</p>
+          <h1 class="landing-title" data-i18n="home.title">Find work at sea. Close crew requests faster.</h1>
+          <p class="landing-subtitle" data-i18n="home.hero.subtitle">The platform connects seafarers and maritime employers through a transparent, verifiable workflow without unnecessary bureaucracy at the start.</p>
+          <div class="audience-grid" aria-label="Choose your route" data-i18n-aria-label="home.audience.aria">
+            <section class="audience-card">
+              <h2 data-i18n="home.audience.seafarer.title">I am a seafarer</h2>
+              <p data-i18n="home.audience.seafarer.copy">Find a contract faster: create a seafarer profile in 2 minutes, with no recruitment fees.</p>
+              <a class="button primary" href="https://crewportglobal.com/register/?role=seafarer" data-i18n="home.audience.seafarer.cta">Create profile in 2 minutes</a>
+            </section>
+            <section class="audience-card">
+              <h2 data-i18n="home.audience.employer.title">I need crew</h2>
+              <p data-i18n="home.audience.employer.copy">Close crew needs predictably: structured requests and reviewed candidates in one process.</p>
+              <a class="button primary" href="https://crewportglobal.com/register/?role=employer" data-i18n="home.audience.employer.cta">Post crew request in 3 minutes</a>
+            </section>
+          </div>
+          <div class="trust-strip" aria-label="Trust points" data-i18n-aria-label="home.trust.aria">
+            <span data-i18n="home.trust.noFees">No seafarer fees</span>
+            <span data-i18n="home.trust.reviewed">Reviewed employer data</span>
+            <span data-i18n="home.trust.support">Transparent support process</span>
+          </div>
+          <div id="home-hero-proof" class="registry-count-grid" aria-live="polite" hidden>
             <span class="registry-count-label" data-i18n="home.registry.requests">Requests</span>
             <span class="registry-count-label" data-i18n="home.registry.vessels">Vessels</span>
             <span class="registry-count-label" data-i18n="home.registry.seafarers">Seafarers</span>
@@ -565,45 +732,25 @@
             <strong id="home-registry-vessel-count">0</strong>
             <strong id="home-registry-seafarer-count">0</strong>
           </div>
-          <div class="actions app-actions">
-            <a class="button primary" href="#home-registry-summary" data-i18n="home.hero.registryCta">Show registry data</a>
-            <a class="button secondary" href="https://crewportglobal.com/vacancies/" data-i18n="home.hero.vacanciesCta">View vacancies</a>
-            <a class="button secondary" href="https://crewportglobal.com/for-shipowners/" data-i18n="home.hero.employerInfoCta">For Employers</a>
-            <a class="button secondary" href="https://crewportglobal.com/for-seafarers/" data-i18n="home.hero.seafarerInfoCta">For Seafarers</a>
-          </div>
-          <div class="live-dashboard" aria-live="polite">
-            <span>
-              <strong id="home-api-status" data-i18n="home.live.api.loading">Checking</strong>
-              <span data-i18n="home.live.api.label">API status</span>
-            </span>
-            <span>
-              <strong id="home-board-status" data-i18n="home.live.board.loading">Loading</strong>
-              <span data-i18n="home.live.board.label">Vacancy board</span>
-            </span>
-            <span>
-              <strong id="home-live-vacancy-count" data-i18n="home.stat.vacancies.value">0</strong>
-              <span data-i18n="home.stat.vacancies.label">reviewed public vacancies</span>
-            </span>
-          </div>
-          <p class="trust-note app-chip good" data-i18n="home.hero.trust">No recruitment fees for seafarers. Candidate presentation requires review and consent.</p>
         </article>
 
-        <aside class="hero-aside app-hero-media">
+        <aside class="hero-aside app-hero-media proof-card">
           <img src="assets/maritime-operations.jpg" alt="Container ship unloading at port">
+          <details class="partners-panel">
+            <summary data-i18n="home.partners.title">Our Partners</summary>
+            <ul class="partner-list" aria-label="Partner preview" data-i18n-aria-label="home.partners.aria">
+              <li><span class="partner-logo" aria-hidden="true">AM</span><span data-i18n="home.partners.demo1">Atlas Marine Demo</span></li>
+              <li><span class="partner-logo" aria-hidden="true">OS</span><span data-i18n="home.partners.demo2">Ocean Star Crew Demo</span></li>
+              <li><span class="partner-logo" aria-hidden="true">NS</span><span data-i18n="home.partners.demo3">NorthSea Fleet Demo</span></li>
+            </ul>
+          </details>
           <section class="app-panel">
-            <p class="eyebrow" data-i18n="home.seafarers.eyebrow">For seafarers</p>
-            <h2 data-i18n="home.seafarers.title">Seafarer supply is a professional resource</h2>
-            <p data-i18n="home.seafarers.copy">Rank, certificates, availability and preferences are structured for reviewed matching.</p>
-          </section>
-          <section class="app-panel">
-            <p class="eyebrow" data-i18n="home.employers.eyebrow">For employers</p>
-            <h2 data-i18n="home.employers.title">Employer-side demand is the paying client side</h2>
-            <p data-i18n="home.employers.copy">Company, vessel and crew requirements are recorded as comparable demand data.</p>
-          </section>
-          <section class="app-panel">
-            <p class="eyebrow" data-i18n="home.boundary.eyebrow">Trust rules</p>
-            <h2 data-i18n="home.boundary.title">Matching is reviewed before presentation</h2>
-            <p data-i18n="home.boundary.copy">Data comparison supports operators; final presentation remains controlled.</p>
+            <p class="eyebrow" data-i18n="home.stories.eyebrow">Short stories</p>
+            <h3 data-i18n="home.stories.title">What users expect from the platform</h3>
+            <ul class="story-list">
+              <li data-i18n="home.stories.seafarer">A seafarer prepares one reusable profile instead of repeating the same documents for every opportunity.</li>
+              <li data-i18n="home.stories.employer">An employer submits a structured crew request and receives candidates through one controlled process.</li>
+            </ul>
           </section>
         </aside>
       </section>
@@ -704,8 +851,29 @@
   <script>
     window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
       en: {
-        'home.title': 'CrewPortGlobal matches crew demand with verified seafarer supply.',
-        'home.hero.eyebrow': 'Maritime crew matching workspace',
+        'home.title': 'Find work at sea. Close crew requests faster.',
+        'home.hero.eyebrow': 'Crew contracts and verified crew requests',
+        'home.hero.subtitle': 'The platform connects seafarers and maritime employers through a transparent, verifiable workflow without unnecessary bureaucracy at the start.',
+        'home.audience.aria': 'Choose your route',
+        'home.audience.seafarer.title': 'I am a seafarer',
+        'home.audience.seafarer.copy': 'Find a contract faster: create a seafarer profile in 2 minutes, with no recruitment fees.',
+        'home.audience.seafarer.cta': 'Create profile in 2 minutes',
+        'home.audience.employer.title': 'I need crew',
+        'home.audience.employer.copy': 'Close crew needs predictably: structured requests and reviewed candidates in one process.',
+        'home.audience.employer.cta': 'Post crew request in 3 minutes',
+        'home.trust.aria': 'Trust points',
+        'home.trust.noFees': 'No seafarer fees',
+        'home.trust.reviewed': 'Reviewed employer data',
+        'home.trust.support': 'Transparent support process',
+        'home.partners.title': 'Our Partners',
+        'home.partners.aria': 'Partner preview',
+        'home.partners.demo1': 'Atlas Marine Demo',
+        'home.partners.demo2': 'Ocean Star Crew Demo',
+        'home.partners.demo3': 'NorthSea Fleet Demo',
+        'home.stories.eyebrow': 'Short stories',
+        'home.stories.title': 'What users expect from the platform',
+        'home.stories.seafarer': 'A seafarer prepares one reusable profile instead of repeating the same documents for every opportunity.',
+        'home.stories.employer': 'An employer submits a structured crew request and receives candidates through one controlled process.',
         'home.hero.registryCta': 'Show registry data',
         'home.hero.primaryCta': 'BP-015 Cycle',
         'home.hero.secondaryCta': 'Trust & Safety',
@@ -806,8 +974,29 @@
         'home.board.openBoard': 'Open board'
       },
       ru: {
-        'home.title': 'CrewPortGlobal сопоставляет спрос на экипаж с проверенными данными моряков.',
-        'home.hero.eyebrow': 'Рабочая среда подбора морских экипажей',
+        'home.title': 'Найдите работу в море. Закрывайте заявки на экипаж быстрее.',
+        'home.hero.eyebrow': 'Контракты для моряков и проверенные заявки на экипаж',
+        'home.hero.subtitle': 'Платформа соединяет моряков и судовладельцев через прозрачный проверяемый процесс без лишней бюрократии на старте.',
+        'home.audience.aria': 'Выберите свой маршрут',
+        'home.audience.seafarer.title': 'Я моряк',
+        'home.audience.seafarer.copy': 'Найдите контракт быстрее: профиль моряка за 2 минуты, без рекрутинговых сборов.',
+        'home.audience.seafarer.cta': 'Создать профиль за 2 минуты',
+        'home.audience.employer.title': 'Мне нужен экипаж',
+        'home.audience.employer.copy': 'Закрывайте экипаж предсказуемо: структурированная заявка и проверенные кандидаты в одном процессе.',
+        'home.audience.employer.cta': 'Разместить заявку за 3 минуты',
+        'home.trust.aria': 'Доверительные признаки',
+        'home.trust.noFees': 'Без комиссий для моряков',
+        'home.trust.reviewed': 'Проверка работодателей и данных',
+        'home.trust.support': 'Прозрачный процесс и поддержка',
+        'home.partners.title': 'Наши партнеры',
+        'home.partners.aria': 'Предпросмотр партнеров',
+        'home.partners.demo1': 'Atlas Marine Demo',
+        'home.partners.demo2': 'Ocean Star Crew Demo',
+        'home.partners.demo3': 'NorthSea Fleet Demo',
+        'home.stories.eyebrow': 'Короткие истории',
+        'home.stories.title': 'Что пользователи ждут от платформы',
+        'home.stories.seafarer': 'Моряк готовит один повторно используемый профиль вместо повторной отправки тех же документов для каждой возможности.',
+        'home.stories.employer': 'Работодатель подает структурированную заявку на экипаж и получает кандидатов через один контролируемый процесс.',
         'home.hero.registryCta': 'Показать данные',
         'home.hero.primaryCta': 'Цикл BP-015',
         'home.hero.secondaryCta': 'Доверие и безопасность',
@@ -912,12 +1101,10 @@
   <script src="assets/crewportglobal-public-i18n.js?v=20260530-menu-audit" defer></script>
   <script>
     (function () {
-      const vacancyCount = document.getElementById('home-live-vacancy-count');
-      const apiStatus = document.getElementById('home-api-status');
-      const boardStatus = document.getElementById('home-board-status');
       const boardCopy = document.getElementById('home-board-copy');
       const liveVacancies = document.getElementById('home-live-vacancies');
       const boardEmpty = document.getElementById('home-board-empty');
+      const heroProof = document.getElementById('home-hero-proof');
       const registryVacancyCount = document.getElementById('home-registry-vacancy-count');
       const registryVesselCount = document.getElementById('home-registry-vessel-count');
       const registrySeafarerCount = document.getElementById('home-registry-seafarer-count');
@@ -1085,11 +1272,8 @@
 
       function renderLiveState() {
         const count = latestVacancies.length;
-        vacancyCount.textContent = String(count);
 
         if (latestLoadState === 'error') {
-          apiStatus.textContent = t('home.live.api.offline');
-          boardStatus.textContent = t('home.live.board.empty');
           boardCopy.textContent = t('home.board.copyUnavailable');
           liveVacancies.hidden = true;
           liveVacancies.innerHTML = '';
@@ -1097,12 +1281,6 @@
           return;
         }
 
-        apiStatus.textContent = latestLoadState === 'loaded'
-          ? t('home.live.api.online')
-          : t('home.live.api.loading');
-        boardStatus.textContent = count > 0
-          ? t('home.live.board.available', { count })
-          : t('home.live.board.empty');
         boardCopy.textContent = count > 0
           ? t('home.board.copyAvailable')
           : t('home.board.copy');
@@ -1126,6 +1304,10 @@
         registryVacancyCount.textContent = String(counts.vacancy_requests || 0);
         registryVesselCount.textContent = String(counts.vessels || 0);
         registrySeafarerCount.textContent = String(counts.seafarers || 0);
+        if (heroProof) {
+          const totalHeroProof = Number(counts.vacancy_requests || 0) + Number(counts.vessels || 0) + Number(counts.seafarers || 0);
+          heroProof.hidden = totalHeroProof <= 0;
+        }
 
         const samples = registrySummary && registrySummary.samples ? registrySummary.samples : {};
         const vacancyRows = filterRegistryRows('vacancy_requests', asList(samples.vacancy_requests));

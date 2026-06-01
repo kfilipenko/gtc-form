@@ -29,7 +29,7 @@ test('first visit uses supported browser language and updates html metadata', as
   await page.goto('/index.html');
 
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
-  await expect(page.locator('.landing-title')).toContainText('CrewPortGlobal сопоставляет спрос на экипаж с проверенными данными моряков.');
+  await expect(page.locator('.landing-title')).toContainText('Найдите работу в море. Закрывайте заявки на экипаж быстрее.');
   await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
   await expect(page.locator('html')).toHaveAttribute('translate', 'yes');
   await expect.poll(() => page.evaluate(() => window.localStorage.getItem('crewportglobal.language'))).toBe('ru');
@@ -58,7 +58,7 @@ test('first visit falls back to English when browser language is unsupported', a
 test('same-page selector translates the homepage and persists after reload', async ({ page }) => {
   await page.goto('/index.html');
 
-  await expect(page.locator('.landing-title')).toContainText('CrewPortGlobal matches crew demand with verified seafarer supply.');
+  await expect(page.locator('.landing-title')).toContainText('Find work at sea. Close crew requests faster.');
   await expect(page.locator('#current-language-label')).toHaveText('English');
 
   await page.locator('#current-language-toggle').click();
@@ -66,7 +66,7 @@ test('same-page selector translates the homepage and persists after reload', asy
 
   await expect(page).toHaveURL(/\/index\.html/);
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
-  await expect(page.locator('.landing-title')).toContainText('CrewPortGlobal сопоставляет спрос на экипаж с проверенными данными моряков.');
+  await expect(page.locator('.landing-title')).toContainText('Найдите работу в море. Закрывайте заявки на экипаж быстрее.');
   await expect(page.locator('.site-nav')).toContainText('Документы');
   await expect(page.locator('.nav-menu--employers summary')).toContainText('Работодатели');
   await expect(page.locator('.nav-menu--employers summary')).toHaveAttribute('title', 'Действия для регистрации работодателя, судов и заявок на экипаж.');
@@ -80,7 +80,7 @@ test('same-page selector translates the homepage and persists after reload', asy
   await page.reload();
 
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
-  await expect(page.locator('.landing-title')).toContainText('CrewPortGlobal сопоставляет спрос на экипаж с проверенными данными моряков.');
+  await expect(page.locator('.landing-title')).toContainText('Найдите работу в море. Закрывайте заявки на экипаж быстрее.');
   await expect(page.locator('.nav-menu--employers summary')).toContainText('Работодатели');
   await expect(page.locator('.registry-count-label').first()).toContainText('Заявок');
 });
@@ -114,7 +114,7 @@ test('homepage falls back to English for missing non-English page translations',
 
   await expect(page.locator('#current-language-label')).toHaveText('Português');
   await expect(page.locator('.nav-menu--employers summary')).toContainText('Empregadores');
-  await expect(page.locator('.landing-title')).toContainText('CrewPortGlobal matches crew demand with verified seafarer supply.');
+  await expect(page.locator('.landing-title')).toContainText('Find work at sea. Close crew requests faster.');
   await expect(page.locator('.vacancy-board').filter({ hasText: 'Latest vacancies' })).toContainText('Current public vacancy board');
 });
 
@@ -142,11 +142,8 @@ test('homepage and vacancies CTAs match their destinations', async ({ page }) =>
   await expect(main.locator('#home-process-cycle')).toContainText('BP-015 operating cycle');
   await expect(main.locator('a[href="#home-process-cycle"]')).toHaveCount(0);
   await expect(main.locator('a[href="https://crewportglobal.com/legal/verification-policy/"]')).toHaveCount(0);
-  await expect(main.locator('a[href="https://crewportglobal.com/for-seafarers/"]').first()).toHaveText('For Seafarers');
-  await expect(main.locator('a[href="https://crewportglobal.com/vacancies/"]').first()).toHaveText('View vacancies');
-  await expect(page.locator('main a[href="https://crewportglobal.com/register/"]')).toHaveText('Start registration');
-  await expect(page.locator('main a[href="https://crewportglobal.com/create-profile/"]')).toHaveCount(0);
-  await expect(page.locator('main a[href="https://crewportglobal.com/post-vacancy/"]')).toHaveCount(0);
+  await expect(page.locator('main a[href="https://crewportglobal.com/register/?role=seafarer"]')).toHaveText('Create profile in 2 minutes');
+  await expect(page.locator('main a[href="https://crewportglobal.com/register/?role=employer"]')).toHaveText('Post crew request in 3 minutes');
   await expect(main.locator('select')).toHaveCount(0);
   await expect(main.locator('input')).toHaveCount(0);
   await expect(main).not.toContainText('Create Seafarer Profile');
@@ -171,7 +168,7 @@ test('homepage and vacancies CTAs match their destinations', async ({ page }) =>
   await expect(page.locator('body')).not.toContainText('Prepare Vacancy Request');
 });
 
-test('register page records a physical person request without role routing', async ({ page }) => {
+test('register page creates platform participant and routes by role', async ({ page }) => {
   await page.route('**/api/v1/auth/register-password', async (route) => {
     const body = JSON.parse(route.request().postData() || '{}');
     await route.fulfill({
@@ -193,12 +190,11 @@ test('register page records a physical person request without role routing', asy
     });
   });
 
-  await page.goto('/register/index.html');
+  await page.goto('/register/index.html?role=seafarer');
 
-  await expect(page.locator('h1')).toContainText('Create a physical person');
+  await expect(page.locator('h1')).toContainText('Create your platform participant account');
+  await expect(page.locator('#role')).toHaveValue('seafarer');
   await expect(page.locator('[data-role]')).toHaveCount(0);
-  await expect(page.locator('main a[href="https://crewportglobal.com/create-profile/"]')).toHaveCount(0);
-  await expect(page.locator('main a[href="https://crewportglobal.com/post-vacancy/"]')).toHaveCount(0);
 
   await page.locator('#full-name').fill('Alex Person');
   await page.locator('#email').fill('alex.person@example.com');
@@ -210,13 +206,53 @@ test('register page records a physical person request without role routing', asy
   await page.locator('#consent').check();
   await page.locator('#register-submit').click();
 
-  await expect(page).toHaveURL(/\/register\/index\.html/);
-  await expect(page.locator('#register-status')).toContainText('Account created');
-  await expect(page.locator('#register-next-steps')).toBeVisible();
+  await expect(page).toHaveURL(/\/create-profile\/\?draft_id=33333333-3333-4333-8333-333333333333/);
   await expect.poll(() => page.evaluate(() => {
     const payload = JSON.parse(window.localStorage.getItem('crewportglobal.registration.person') || '{}');
-    return `${payload.registration_state}|${payload.authorization_state}|${payload.email}|${payload.person_id}|${payload.draft_id}`;
-  })).toBe('password_credential_registered|not_granted|alex.person@example.com|22222222-2222-4222-8222-222222222222|33333333-3333-4333-8333-333333333333');
+    return `${payload.registration_state}|${payload.authorization_state}|${payload.email}|${payload.role}|${payload.person_id}|${payload.draft_id}`;
+  })).toBe('password_credential_registered|not_granted|alex.person@example.com|seafarer|22222222-2222-4222-8222-222222222222|33333333-3333-4333-8333-333333333333');
+});
+
+test('employer participant registration routes to post-vacancy workspace', async ({ page }) => {
+  await page.route('**/api/v1/auth/register-password', async (route) => {
+    const body = JSON.parse(route.request().postData() || '{}');
+    await route.fulfill({
+      status: 202,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        ok: true,
+        status: 'password_credential_registered',
+        draft_id: '44444444-4444-4444-8444-444444444444',
+        user: {
+          user_id: '55555555-5555-4555-8555-555555555555',
+          email: body.email,
+        },
+        email_verification: {
+          email_verification_status: 'pending',
+          email_delivery_status: 'captured_test_only',
+        },
+      }),
+    });
+  });
+
+  await page.goto('/register/index.html?role=employer');
+  await expect(page.locator('#role')).toHaveValue('employer');
+
+  await page.locator('#full-name').fill('Emma Employer');
+  await page.locator('#email').fill('emma.employer@example.com');
+  await page.locator('#phone').fill('+15550200');
+  await page.locator('#country').fill('United Arab Emirates');
+  await page.locator('#password').fill('Password123!');
+  await page.locator('#confirm-password').fill('Password123!');
+  await page.locator('#terms').check();
+  await page.locator('#consent').check();
+  await page.locator('#register-submit').click();
+
+  await expect(page).toHaveURL(/\/post-vacancy\/\?draft_id=44444444-4444-4444-8444-444444444444/);
+  await expect.poll(() => page.evaluate(() => {
+    const payload = JSON.parse(window.localStorage.getItem('crewportglobal.registration.person') || '{}');
+    return `${payload.email}|${payload.role}|${window.localStorage.getItem('crewportglobal.registration.role')}`;
+  })).toBe('emma.employer@example.com|employer|employer');
 });
 
 test('fallback language page remains accessible', async ({ page }) => {

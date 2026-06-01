@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CrewPortGlobal | Person registration</title>
-  <meta name="description" content="CrewPortGlobal simple physical person registration before authentication, authorization and capability assignment.">
+  <title>CrewPortGlobal | Platform participant registration</title>
+  <meta name="description" content="CrewPortGlobal platform participant registration before seafarer profile or employer crew request onboarding.">
   <link rel="canonical" href="https://crewportglobal.com/register/">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -158,9 +158,9 @@
     <main class="doc-main">
       <section class="register-grid app-market-grid">
         <article class="card register-card app-panel">
-          <p class="eyebrow" data-i18n="register.hero.eyebrow">Registration</p>
-          <h1 data-i18n="register.hero.title">Create a physical person and service account record.</h1>
-          <p class="lead-copy" data-i18n="register.hero.copy">Registration records the person first. It does not grant seafarer, employer, company, vessel or team authority by itself.</p>
+          <p class="eyebrow" data-i18n="register.hero.eyebrow">Platform participant</p>
+          <h1 data-i18n="register.hero.title">Create your platform participant account.</h1>
+          <p class="lead-copy" data-i18n="register.hero.copy">Start as a participant, choose your route, and continue directly to the right workspace.</p>
 
           <form id="register-form" class="field-grid" novalidate>
             <label class="field-card">
@@ -172,10 +172,10 @@
               <input id="full-name" name="full_name" type="text" autocomplete="name" placeholder="Alex Marinov" data-i18n-placeholder="register.form.fullName.placeholder" required>
             </label>
             <label class="field-card">
-              <strong data-i18n="register.form.role">Primary capability</strong>
+              <strong data-i18n="register.form.role">I am registering as</strong>
               <select id="role" name="role" required>
-                <option value="seafarer" data-i18n="register.form.role.seafarer">Seafarer / Specialist</option>
-                <option value="employer" data-i18n="register.form.role.employer">Buyer / Employer</option>
+                <option value="seafarer" data-i18n="register.form.role.seafarer">Seafarer</option>
+                <option value="employer" data-i18n="register.form.role.employer">Shipowner / Employer</option>
               </select>
             </label>
             <label class="field-card">
@@ -209,19 +209,19 @@
             </div>
             <div class="field-card full">
               <div class="inline-actions">
-                <button id="register-submit" class="button primary" type="submit" data-i18n="register.form.submit">Create account and open cabinet</button>
-                <a class="button secondary" href="https://crewportglobal.com/#home-process-cycle" data-i18n="register.form.howItWorks">BP-015 Cycle</a>
+                <button id="register-submit" class="button primary" type="submit" data-i18n="register.form.submit">Create account and continue</button>
+                <a class="button secondary" href="https://crewportglobal.com/" data-i18n="register.form.howItWorks">Back to home</a>
               </div>
               <p id="register-status" class="status-note" data-i18n="register.form.status">Create a password credential first. Phone confirmation should be configured in the next authentication stage.</p>
               <div id="register-next-steps" class="next-steps" hidden>
                 <strong data-i18n="register.nextSteps.title">Account created</strong>
                 <ol>
-                  <li data-i18n="register.nextSteps.item1">A secure session was created with an HttpOnly cookie.</li>
-                  <li data-i18n="register.nextSteps.item2">Verify your email from the cabinet task or mailbox link.</li>
-                  <li data-i18n="register.nextSteps.item3">Phone confirmation remains scheduled for the next implementation stage.</li>
+                  <li data-i18n="register.nextSteps.item1">A secure session was created.</li>
+                  <li data-i18n="register.nextSteps.item2">You will now continue to the workspace for your selected route.</li>
+                  <li data-i18n="register.nextSteps.item3">Email verification remains available from the cabinet and mailbox link.</li>
                 </ol>
                 <div class="inline-actions">
-                  <a class="button primary" href="/cabinet/" data-i18n="register.nextSteps.cabinet">Open cabinet</a>
+                  <a id="register-route-link" class="button primary" href="/cabinet/" data-i18n="register.nextSteps.cabinet">Continue</a>
                   <a class="button secondary" href="/register/authorization/" data-i18n="register.nextSteps.authorization">Choose authorization cards</a>
                 </div>
               </div>
@@ -231,16 +231,16 @@
 
         <aside class="card side-card app-panel">
           <div class="status-box">
-            <strong data-i18n="register.side.preview.title">What registration means</strong>
-            <p data-i18n="register.side.preview.copy">Registration creates the person and user record. A person may later receive multiple confirmed capabilities.</p>
+            <strong data-i18n="register.side.preview.title">One participant account</strong>
+            <p data-i18n="register.side.preview.copy">Use one account to continue as a seafarer or as an employer representative.</p>
           </div>
           <div class="status-box">
-            <strong data-i18n="register.side.purpose.title">What happens next</strong>
-            <p data-i18n="register.side.purpose.copy">Authentication confirms access to the service account through email and phone checks. Authorization is granted only after evidence and scoped relationships are reviewed.</p>
+            <strong data-i18n="register.side.purpose.title">Fast route selection</strong>
+            <p data-i18n="register.side.purpose.copy">Seafarers continue to profile creation. Employers continue to company, vessel and crew request data.</p>
           </div>
           <div class="status-box">
-            <strong data-i18n="register.side.boundary.title">No automatic authority</strong>
-            <p data-i18n="register.side.boundary.copy">A person does not become an employer representative, vessel actor, seafarer candidate, operator or team member only by filling this public form.</p>
+            <strong data-i18n="register.side.boundary.title">Controlled verification</strong>
+            <p data-i18n="register.side.boundary.copy">Permissions and publication still depend on verified data, documents and consent.</p>
           </div>
         </aside>
       </section>
@@ -249,16 +249,16 @@
   <script>
     window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
       en: {
-        'register.hero.eyebrow': 'Registration',
-        'register.hero.title': 'Create a physical person and service account record.',
-        'register.hero.copy': 'Registration records the person first. It does not grant seafarer, employer, company, vessel or team authority by itself.',
+        'register.hero.eyebrow': 'Platform participant',
+        'register.hero.title': 'Create your platform participant account.',
+        'register.hero.copy': 'Start as a participant, choose your route, and continue directly to the right workspace.',
         'register.form.email': 'Email',
         'register.form.email.placeholder': 'name@example.com',
         'register.form.fullName': 'Full legal name',
         'register.form.fullName.placeholder': 'Alex Marinov',
-        'register.form.role': 'Primary capability',
-        'register.form.role.seafarer': 'Seafarer / Specialist',
-        'register.form.role.employer': 'Buyer / Employer',
+        'register.form.role': 'I am registering as',
+        'register.form.role.seafarer': 'Seafarer',
+        'register.form.role.employer': 'Shipowner / Employer',
         'register.form.phone': 'Phone',
         'register.form.phone.placeholder': '+1 555 0100',
         'register.form.country': 'Country / residence',
@@ -270,33 +270,33 @@
         'register.form.consent.title': 'Terms and consent',
         'register.form.consent.item1': 'I confirm that the person data is accurate and may be used to create a service account record.',
         'register.form.consent.item2': 'I understand that authentication and authorization are separate steps and no role or data visibility is granted automatically.',
-        'register.form.submit': 'Create account and open cabinet',
-        'register.form.howItWorks': 'BP-015 Cycle',
+        'register.form.submit': 'Create account and continue',
+        'register.form.howItWorks': 'Back to home',
         'register.form.status': 'Create a password credential first. Phone confirmation should be configured in the next authentication stage.',
         'register.nextSteps.title': 'Account created',
-        'register.nextSteps.item1': 'A secure session was created with an HttpOnly cookie.',
-        'register.nextSteps.item2': 'Verify your email from the cabinet task or mailbox link.',
-        'register.nextSteps.item3': 'Phone confirmation remains scheduled for the next implementation stage.',
-        'register.nextSteps.cabinet': 'Open cabinet',
+        'register.nextSteps.item1': 'A secure session was created.',
+        'register.nextSteps.item2': 'You will now continue to the workspace for your selected route.',
+        'register.nextSteps.item3': 'Email verification remains available from the cabinet and mailbox link.',
+        'register.nextSteps.cabinet': 'Continue',
         'register.nextSteps.authorization': 'Choose authorization cards',
-        'register.side.preview.title': 'What registration means',
-        'register.side.preview.copy': 'Registration creates the person and user record. A person may later receive multiple confirmed capabilities.',
-        'register.side.purpose.title': 'What happens next',
-        'register.side.purpose.copy': 'Authentication confirms access to the service account through email and phone checks. Authorization is granted only after evidence and scoped relationships are reviewed.',
-        'register.side.boundary.title': 'No automatic authority',
-        'register.side.boundary.copy': 'A person does not become an employer representative, vessel actor, seafarer candidate, operator or team member only by filling this public form.'
+        'register.side.preview.title': 'One participant account',
+        'register.side.preview.copy': 'Use one account to continue as a seafarer or as an employer representative.',
+        'register.side.purpose.title': 'Fast route selection',
+        'register.side.purpose.copy': 'Seafarers continue to profile creation. Employers continue to company, vessel and crew request data.',
+        'register.side.boundary.title': 'Controlled verification',
+        'register.side.boundary.copy': 'Permissions and publication still depend on verified data, documents and consent.'
       },
       ru: {
-        'register.hero.eyebrow': 'Регистрация',
-        'register.hero.title': 'Создайте запись физического лица и сервисного аккаунта.',
-        'register.hero.copy': 'Регистрация сначала фиксирует человека. Сама по себе она не даёт полномочия моряка, работодателя, компании, судна или команды.',
+        'register.hero.eyebrow': 'Участник платформы',
+        'register.hero.title': 'Создайте аккаунт участника платформы.',
+        'register.hero.copy': 'Начните как участник, выберите маршрут и сразу продолжайте в нужном рабочем пространстве.',
         'register.form.email': 'Email',
         'register.form.email.placeholder': 'name@example.com',
         'register.form.fullName': 'Полное юридическое имя',
         'register.form.fullName.placeholder': 'Алекс Маринов',
-        'register.form.role': 'Первичная возможность',
-        'register.form.role.seafarer': 'Моряк / Специалист',
-        'register.form.role.employer': 'Покупатель / Работодатель',
+        'register.form.role': 'Я регистрируюсь как',
+        'register.form.role.seafarer': 'Моряк',
+        'register.form.role.employer': 'Судовладелец / Работодатель',
         'register.form.phone': 'Телефон',
         'register.form.phone.placeholder': '+1 555 0100',
         'register.form.country': 'Страна / место проживания',
@@ -308,21 +308,21 @@
         'register.form.consent.title': 'Условия и согласие',
         'register.form.consent.item1': 'Я подтверждаю, что данные физического лица указаны верно и могут использоваться для создания сервисного аккаунта.',
         'register.form.consent.item2': 'Я понимаю, что аутентификация и авторизация являются отдельными этапами, а роль и видимость данных не предоставляются автоматически.',
-        'register.form.submit': 'Создать аккаунт и открыть кабинет',
-        'register.form.howItWorks': 'Цикл процесса',
+        'register.form.submit': 'Создать аккаунт и продолжить',
+        'register.form.howItWorks': 'Вернуться на главную',
         'register.form.status': 'Сначала создайте парольный доступ. Подтверждение телефона следует настроить на следующем этапе аутентификации.',
         'register.nextSteps.title': 'Аккаунт создан',
-        'register.nextSteps.item1': 'Создана безопасная сессия через HttpOnly cookie.',
-        'register.nextSteps.item2': 'Подтвердите email через задачу в кабинете или ссылку из письма.',
-        'register.nextSteps.item3': 'Подтверждение телефона остаётся задачей следующего этапа реализации.',
-        'register.nextSteps.cabinet': 'Открыть кабинет',
+        'register.nextSteps.item1': 'Создана безопасная сессия.',
+        'register.nextSteps.item2': 'Сейчас вы перейдете в рабочее пространство выбранного маршрута.',
+        'register.nextSteps.item3': 'Подтверждение email остается доступно из кабинета и ссылки в письме.',
+        'register.nextSteps.cabinet': 'Продолжить',
         'register.nextSteps.authorization': 'Выбрать карточки авторизации',
-        'register.side.preview.title': 'Что означает регистрация',
-        'register.side.preview.copy': 'Регистрация создаёт запись физического лица и пользователя. Позднее человек может получить несколько подтверждённых возможностей.',
-        'register.side.purpose.title': 'Что происходит дальше',
-        'register.side.purpose.copy': 'Аутентификация подтверждает доступ к сервисному аккаунту через email и телефон. Авторизация выдаётся только после проверки доказательств и ограниченных связей.',
-        'register.side.boundary.title': 'Нет автоматических полномочий',
-        'register.side.boundary.copy': 'Человек не становится представителем работодателя, участником судна, кандидатом-моряком, оператором или членом команды только после заполнения публичной формы.'
+        'register.side.preview.title': 'Один аккаунт участника',
+        'register.side.preview.copy': 'Используйте один аккаунт, чтобы продолжить как моряк или представитель работодателя.',
+        'register.side.purpose.title': 'Быстрый выбор маршрута',
+        'register.side.purpose.copy': 'Моряк переходит к созданию профиля. Работодатель переходит к данным компании, судна и заявки.',
+        'register.side.boundary.title': 'Контролируемая проверка',
+        'register.side.boundary.copy': 'Права и публикация по-прежнему зависят от проверенных данных, документов и согласия.'
       }
     };
   </script>
@@ -333,6 +333,8 @@
       const status = document.getElementById('register-status');
       const submitButton = document.getElementById('register-submit');
       const nextSteps = document.getElementById('register-next-steps');
+      const routeLink = document.getElementById('register-route-link');
+      const roleSelect = document.getElementById('role');
 
       const messages = {
         en: {
@@ -376,6 +378,21 @@
       });
 
       resetStatus();
+
+      function routeForRole(role, draftId) {
+        const path = role === 'seafarer' ? '/create-profile/' : '/post-vacancy/';
+        return draftId ? `${path}?draft_id=${encodeURIComponent(draftId)}` : path;
+      }
+
+      function applyInitialRole() {
+        const params = new URLSearchParams(window.location.search);
+        const requestedRole = params.get('role');
+        if (requestedRole === 'seafarer' || requestedRole === 'employer') {
+          roleSelect.value = requestedRole;
+        }
+      }
+
+      applyInitialRole();
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -461,6 +478,10 @@
           if (result.draft) {
             window.localStorage.setItem('crewportglobal.registration.last_response', JSON.stringify(result.draft));
           }
+          const nextRoute = routeForRole(role.value, result.draft_id || '');
+          if (routeLink) {
+            routeLink.setAttribute('href', nextRoute);
+          }
           const deliveryStatus = result.email_verification && result.email_verification.email_delivery_status;
           status.textContent = deliveryStatus === 'not_configured'
             ? messages[language].preparedNoEmail
@@ -470,6 +491,9 @@
           nextSteps.hidden = false;
           submitButton.disabled = false;
           window.dispatchEvent(new CustomEvent('crewportglobal:authchanged'));
+          window.setTimeout(() => {
+            window.location.assign(nextRoute);
+          }, 250);
         } catch (error) {
           status.textContent = error && error.message === 'registration_request_failed'
             ? messages[language].requestFailed
