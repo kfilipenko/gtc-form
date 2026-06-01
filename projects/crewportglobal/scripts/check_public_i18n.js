@@ -24,6 +24,9 @@ function loadJsonCatalogs(rootDir) {
     if (!entry.isFile() || !entry.name.endsWith('.json')) {
       continue;
     }
+    if (entry.name === 'translation-cache.json') {
+      continue;
+    }
 
     const fullPath = path.join(rootDir, entry.name);
     const payload = JSON.parse(readText(fullPath));

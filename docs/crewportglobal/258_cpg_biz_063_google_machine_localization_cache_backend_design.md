@@ -236,3 +236,9 @@ CPG-BIZ-064 - Translation cache implementation skeleton with stub provider
 ```
 
 That stage should implement the cache module with a stub provider first, so tests can verify invalidation and export behavior before connecting Google credentials.
+
+Status update:
+
+```text
+CPG-BIZ-064 implemented in docs/crewportglobal/259_cpg_biz_064_translation_cache_stub_provider_skeleton_report.md.
+```

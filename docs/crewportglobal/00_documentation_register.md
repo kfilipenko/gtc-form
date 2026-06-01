@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.45
+- Version: 2.46
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -345,6 +345,7 @@ docs/crewportglobal/
   256_cpg_biz_061_registration_form_and_login_cabinet_route_report.md
   257_cpg_biz_062_english_only_form_input_guard_report.md
   258_cpg_biz_063_google_machine_localization_cache_backend_design.md
+  259_cpg_biz_064_translation_cache_stub_provider_skeleton_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -758,6 +759,8 @@ Document 257 records the CPG-BIZ-062 implementation of the English/Latin-only fo
 
 Document 258 records the CPG-BIZ-063 backend design for Google machine localization cache, including source-hash invalidation, provider credential boundaries, human-review gates, no browser-side provider calls and the explicit exclusion of completed form data from translation.
 
+Document 259 records the CPG-BIZ-064 translation cache stub-provider skeleton, including file-backed cache artifacts, source-hash invalidation behavior, stale-entry handling, cache export artifacts, unit tests and the no-Google-credentials boundary.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -861,6 +864,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.46 | 2026-06-01 | GTC IT / AI Assistant | Added document 259 for the translation cache stub-provider skeleton, cache artifacts and unit-tested source-hash invalidation behavior |
 | 2.45 | 2026-06-01 | GTC IT / AI Assistant | Added document 258 for Google machine localization cache backend design and controlled source-hash translation methodology |
 | 2.44 | 2026-06-01 | GTC IT / AI Assistant | Added document 257 for the shared English/Latin-only form input guard implementation and standard lifecycle adoption |
 | 2.43 | 2026-06-01 | GTC IT / AI Assistant | Updated the translation methodology documents to clarify English as the official authoritative platform language, machine localization through Google translation provider, cached source-hash invalidation and English/Latin-only operational form data |

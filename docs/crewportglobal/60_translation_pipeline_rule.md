@@ -25,6 +25,12 @@ The backend cache design for Google machine localization is recorded in:
 docs/crewportglobal/258_cpg_biz_063_google_machine_localization_cache_backend_design.md
 ```
 
+The first implementation skeleton for that cache is recorded in:
+
+```text
+docs/crewportglobal/259_cpg_biz_064_translation_cache_stub_provider_skeleton_report.md
+```
+
 ## 2. Canonical source model
 
 - English is the official and authoritative language of the platform.
@@ -142,6 +148,7 @@ Rule:
 - Runtime localization may consume approved cached machine translations, but it must not translate form values or user-entered data.
 - Browser-side code must consume prebuilt dictionaries only and must not call translation providers directly.
 - Browser-side code must not attempt to force the browser's built-in page translation UI from JavaScript.
+- The first cache implementation layer must use a stub provider until cache behavior, invalidation and export are verified without external credentials.
 
 ## 5. Rebuild rule
 
@@ -196,6 +203,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.7 | 2026-06-01 | GTC IT / AI Assistant | Added the CPG-BIZ-064 stub-provider cache skeleton as the required first implementation layer before connecting Google credentials |
 | 0.6 | 2026-06-01 | GTC IT / AI Assistant | Added reference to CPG-BIZ-063 backend cache design, provider-aware cache key, review statuses and explicit human-review gate for sensitive machine-localized text |
 | 0.5 | 2026-06-01 | GTC IT / AI Assistant | Clarified English as the official authoritative platform language, localization as machine translation for convenience, Google Cloud Translation API / Google Translate as the default provider, English/Latin-only operational form data, source-hash cache invalidation and no translation of completed user form values |
 | 0.4 | 2026-05-12 | GTC IT / AI Assistant | Added first-visit browser language detection through navigator.language or navigator.languages, required local persistence of the resolved supported language, and prohibited attempts to force built-in browser translation UI from JavaScript |
