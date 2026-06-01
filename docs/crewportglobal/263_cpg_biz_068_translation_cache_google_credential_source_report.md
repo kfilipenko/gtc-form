@@ -140,10 +140,18 @@ git diff --check
 
 ## 8. Next Stage
 
-Рекомендуемый следующий этап:
+Следующий этап выполнен и зафиксирован в:
 
 ```text
-CPG-BIZ-069 - Translation cache Google client implementation behind protected adapter
+docs/crewportglobal/264_cpg_biz_069_translation_cache_google_client_adapter_report.md
 ```
 
-Цель: подключить реальный Google client только за backend/build adapter boundary и только в окружении, где `check_translation_credential_source.py --require-config` проходит без findings.
+Он добавил protected Google client adapter за уже проверенным credential-source boundary.
+
+Следующий рекомендуемый этап после CPG-BIZ-069:
+
+```text
+CPG-BIZ-070 - Translation cache provider selection in cache update command
+```
+
+Цель: добавить provider selection в cache update command так, чтобы `stub` оставался default для локальных тестов, а `google` был доступен только в protected backend/build environment.

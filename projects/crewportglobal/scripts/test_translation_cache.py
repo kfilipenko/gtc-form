@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+from types import SimpleNamespace
 import unittest
 
 from translation_cache import (
@@ -13,9 +15,25 @@ from translation_cache import (
     update_cache,
 )
 from validate_translation_cache import validate_translation_cache
-from pathlib import Path
 
-from translation_provider_adapters import GoogleTranslationProviderAdapter, validate_google_credential_source
+from translation_provider_adapters import (
+    GoogleTranslationProviderAdapter,
+    create_google_translation_provider,
+    validate_google_credential_source,
+)
+
+
+class FakeGoogleTranslateClient:
+    def __init__(self) -> None:
+        self.requests = []
+
+    def translate_text(self, request: dict) -> object:
+        self.requests.append(request)
+        return SimpleNamespace(
+            translations=[
+                SimpleNamespace(translated_text=f"{request['target_language_code']}::{request['contents'][0]}")
+            ],
+        )
 
 
 class TranslationCacheTests(unittest.TestCase):
@@ -222,6 +240,41 @@ class TranslationCacheTests(unittest.TestCase):
 
         codes = {finding['code'] for finding in status['findings']}
         self.assertIn('google_credentials_inside_repository', codes)
+
+    def test_create_google_provider_with_injected_client_translates_through_backend_boundary(self) -> None:
+        client = FakeGoogleTranslateClient()
+        provider = create_google_translation_provider(
+            env={
+                'GOOGLE_APPLICATION_CREDENTIALS': '/run/secrets/cpg-google-translate.json',
+                'GOOGLE_CLOUD_PROJECT': 'crewportglobal-localization',
+            },
+            repo_root=Path('/repo'),
+            public_root=Path('/repo/projects/crewportglobal/public'),
+            client=client,
+        )
+
+        translated = provider.translate('Home', 'en', 'ru')
+
+        self.assertEqual(translated, 'ru::Home')
+        self.assertEqual(client.requests[0]['parent'], 'projects/crewportglobal-localization/locations/global')
+        self.assertEqual(client.requests[0]['contents'], ['Home'])
+        self.assertEqual(client.requests[0]['mime_type'], 'text/plain')
+
+    def test_create_google_provider_blocks_invalid_credentials_before_client_use(self) -> None:
+        client = FakeGoogleTranslateClient()
+
+        with self.assertRaises(RuntimeError):
+            create_google_translation_provider(
+                env={
+                    'GOOGLE_APPLICATION_CREDENTIALS': 'relative/google.json',
+                    'GOOGLE_CLOUD_PROJECT': 'crewportglobal-localization',
+                },
+                repo_root=Path('/repo'),
+                public_root=Path('/repo/projects/crewportglobal/public'),
+                client=client,
+            )
+
+        self.assertEqual(client.requests, [])
 
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Mapping
+from typing import Any, Mapping, Protocol
 
 
 @dataclass(frozen=True)
@@ -17,12 +17,20 @@ class StubTranslationProvider:
         return f'[{target_language} machine draft] {text}'
 
 
+class GoogleTranslateTextClient(Protocol):
+    def translate_text(self, request: dict[str, Any]) -> Any:
+        ...
+
+
 @dataclass(frozen=True)
 class GoogleTranslationProviderAdapter:
     name: str = 'google'
     version: str = 'google-cloud-translate-v3'
     credentials_env: str = 'GOOGLE_APPLICATION_CREDENTIALS'
     project_env: str = 'GOOGLE_CLOUD_PROJECT'
+    project_id: str | None = None
+    location: str = 'global'
+    client: GoogleTranslateTextClient | None = None
 
     def boundary_status(self, env: Mapping[str, str] | None = None) -> dict[str, object]:
         environment = env or os.environ
@@ -36,10 +44,31 @@ class GoogleTranslationProviderAdapter:
         }
 
     def translate(self, text: str, source_language: str, target_language: str) -> str:
-        raise RuntimeError(
-            'Google translation provider is a boundary placeholder only. '
-            'Connect Google API client in a separate approved backend/build slice.'
-        )
+        if self.client is None or not self.project_id:
+            raise RuntimeError(
+                'Google translation provider requires a protected backend/build client and project id.'
+            )
+
+        response = self.client.translate_text({
+            'contents': [text],
+            'source_language_code': source_language,
+            'target_language_code': target_language,
+            'parent': f'projects/{self.project_id}/locations/{self.location}',
+            'mime_type': 'text/plain',
+        })
+        translations = getattr(response, 'translations', None)
+        if translations is None and isinstance(response, Mapping):
+            translations = response.get('translations')
+        if not translations:
+            raise RuntimeError('Google translation provider returned no translations.')
+
+        first = translations[0]
+        translated_text = getattr(first, 'translated_text', None)
+        if translated_text is None and isinstance(first, Mapping):
+            translated_text = first.get('translated_text')
+        if not translated_text:
+            raise RuntimeError('Google translation provider returned an empty translated text.')
+        return str(translated_text)
 
 
 def validate_google_credential_source(
@@ -105,3 +134,38 @@ def validate_google_credential_source(
         'project_env': adapter.project_env,
         'findings': findings,
     }
+
+
+def create_google_translation_provider(
+    env: Mapping[str, str],
+    repo_root: Path,
+    public_root: Path,
+    client: GoogleTranslateTextClient | None = None,
+    location: str = 'global',
+) -> GoogleTranslationProviderAdapter:
+    status = validate_google_credential_source(
+        env=env,
+        repo_root=repo_root,
+        public_root=public_root,
+        require_config=True,
+    )
+    findings = status['findings']
+    if findings:
+        codes = ', '.join(str(finding['code']) for finding in findings)
+        raise RuntimeError(f'Google translation credential source is not valid: {codes}')
+
+    project_id = str(env.get('GOOGLE_CLOUD_PROJECT') or '').strip()
+    if client is None:
+        try:
+            from google.cloud import translate_v3  # type: ignore[import-not-found]
+        except ImportError as exc:
+            raise RuntimeError(
+                'google-cloud-translate is not installed. Install it only in protected backend/build environment.'
+            ) from exc
+        client = translate_v3.TranslationServiceClient()
+
+    return GoogleTranslationProviderAdapter(
+        project_id=project_id,
+        location=location,
+        client=client,
+    )

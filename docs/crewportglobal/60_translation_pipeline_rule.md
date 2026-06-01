@@ -49,6 +49,12 @@ The protected Google credential source rule is recorded in:
 docs/crewportglobal/263_cpg_biz_068_translation_cache_google_credential_source_report.md
 ```
 
+The protected Google client adapter implementation is recorded in:
+
+```text
+docs/crewportglobal/264_cpg_biz_069_translation_cache_google_client_adapter_report.md
+```
+
 ## 2. Canonical source model
 
 - English is the official and authoritative language of the platform.
@@ -174,6 +180,7 @@ Rule:
 - Marking a translation as reviewed is allowed only for a current, non-stale entry whose source hash still matches the canonical English source catalog.
 - Google provider integration must start from a backend/build adapter boundary. The public tree must not contain Google credentials, Google project identifiers, Google API keys or browser-side calls to Google translation endpoints.
 - Google credentials may be supplied only through protected server/CI environment variables. `GOOGLE_APPLICATION_CREDENTIALS` must point to an absolute protected path outside the repository and public web tree, and `GOOGLE_CLOUD_PROJECT` must be present when Google translation is enabled.
+- The Google client may be called only through the backend/build provider adapter after credential-source validation succeeds. Tests must keep an injected fake client path so provider logic remains verifiable without network calls or real credentials.
 
 ## 5. Rebuild rule
 
@@ -228,6 +235,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.2 | 2026-06-01 | GTC IT / AI Assistant | Added protected Google client adapter rule with credential validation before backend/build translate calls |
 | 1.1 | 2026-06-01 | GTC IT / AI Assistant | Added protected Google credential source rule using server/CI environment variables outside repository and public tree |
 | 1.0 | 2026-06-01 | GTC IT / AI Assistant | Added Google provider adapter boundary rule and public-tree credential check before real provider integration |
 | 0.9 | 2026-06-01 | GTC IT / AI Assistant | Added human-review marking and publish-ready export policy for sensitive cache entries |

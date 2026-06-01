@@ -52,4 +52,6 @@ The Google provider adapter is currently a backend/build boundary placeholder. I
 
 Google credentials must be provided only through protected server/CI environment variables. `GOOGLE_APPLICATION_CREDENTIALS` must be an absolute path outside the repository and public web tree, and `GOOGLE_CLOUD_PROJECT` must be present when the Google provider is enabled. The default local mode may remain unconfigured and use the stub provider.
 
+The Google client adapter is implemented behind credential validation. Real Google calls require the protected backend/build environment and a Google Cloud Translate client dependency; tests use an injected fake client and do not call the network.
+
 No real provider credential should be committed to the repository.

@@ -120,17 +120,19 @@ When the project chooses to operationalize automatic draft generation, the next 
 
 1. configure protected server/CI environment variables for Google credentials on the selected deployment target;
 2. run credential-source validation in the deployment environment with `--require-config`;
-3. implement the real Google API client behind the existing backend/build adapter boundary;
-3. keep the deterministic stub provider available for local tests;
-4. expand the English source catalog coverage;
-5. generate target JSON catalogs from the selected provider only through backend/build automation;
-6. add a deterministic publish-time export step from publish-ready JSON catalogs into the shared runtime dictionaries or another prebuilt runtime bundle;
-7. keep validator and documentation synchronized with that emission path.
+3. install the Google Cloud Translate client dependency only in protected backend/build environment;
+4. wire provider selection so cache update can choose `stub` or `google`;
+5. keep the deterministic stub provider available for local tests;
+6. expand the English source catalog coverage;
+7. generate target JSON catalogs from the selected provider only through backend/build automation;
+8. add a deterministic publish-time export step from publish-ready JSON catalogs into the shared runtime dictionaries or another prebuilt runtime bundle;
+9. keep validator and documentation synchronized with that emission path.
 
 ## 10. Revision history
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.9 | 2026-06-01 | GTC IT / AI Assistant | Recorded protected Google client adapter implementation and next provider-selection integration step |
 | 0.8 | 2026-06-01 | GTC IT / AI Assistant | Added protected Google credential source validation artifact and deployment prerequisite |
 | 0.7 | 2026-06-01 | GTC IT / AI Assistant | Added Google provider adapter placeholder and public-tree credential boundary check artifact |
 | 0.6 | 2026-06-01 | GTC IT / AI Assistant | Added human-review marking and publish-ready export artifacts to the translation cache implementation plan |
