@@ -199,7 +199,6 @@ test('register page creates platform participant and routes by role', async ({ p
   await page.locator('#full-name').fill('Alex Person');
   await page.locator('#email').fill('alex.person@example.com');
   await page.locator('#phone').fill('+15550100');
-  await page.locator('#country').fill('United States');
   await page.locator('#password').fill('Password123!');
   await page.locator('#confirm-password').fill('Password123!');
   await page.locator('#terms').check();
@@ -241,7 +240,6 @@ test('employer participant registration routes to post-vacancy workspace', async
   await page.locator('#full-name').fill('Emma Employer');
   await page.locator('#email').fill('emma.employer@example.com');
   await page.locator('#phone').fill('+15550200');
-  await page.locator('#country').fill('United Arab Emirates');
   await page.locator('#password').fill('Password123!');
   await page.locator('#confirm-password').fill('Password123!');
   await page.locator('#terms').check();

@@ -633,8 +633,8 @@
             draft: body.draft || null
           };
           persistAuthDraft(body.draft || null);
-          renderAllAccountAreas();
           window.dispatchEvent(new CustomEvent('crewportglobal:authchanged', { detail: accountState }));
+          window.location.assign(body.next_url || '/cabinet/');
         } catch (error) {
           if (status) {
             status.textContent = accountLabel('loginFailed');

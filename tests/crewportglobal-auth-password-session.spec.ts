@@ -103,8 +103,9 @@ test('password registration, login session, account menu and cabinet access work
   await account.locator('input[name="password"]').fill(password);
   await account.locator('[data-cpg-login-form]').getByRole('button', { name: 'Log in' }).click();
 
-  await expect(page.locator('.site-header .cpg-account__avatar')).toBeVisible();
-  await expect(page.locator('.site-header .cpg-account summary')).toContainText('Password Session User');
+  await expect(page).toHaveURL(/\/cabinet\/$/);
+  await expect(page.locator('.cabinet-header .cpg-account__avatar')).toBeVisible();
+  await expect(page.locator('.cabinet-header .cpg-account summary')).toContainText('Password Session User');
 
   const me = await page.evaluate(async () => {
     const response = await fetch('/api/v1/auth/me', { credentials: 'include' });
@@ -141,7 +142,6 @@ test('password registration, login session, account menu and cabinet access work
   expect(meWithPhoto.user.profile_photo.image_url).toContain('/api/v1/user/profile-photo/image');
   expect(JSON.stringify(meWithPhoto)).not.toContain('storage_path');
 
-  await page.goto('/cabinet/');
   await expect(page.locator('#cabinet-summary-user')).toHaveText(email);
   await expect(page.locator('#cabinet-user-summary')).toContainText('Password Session User');
   await expect(page).toHaveURL(/\/cabinet\/$/);
@@ -165,7 +165,7 @@ test('password registration, login session, account menu and cabinet access work
   cleanupAuthUser(email);
 });
 
-test('register page creates password credential session and opens cabinet', async ({ page }) => {
+test('register page creates password credential session and routes by role', async ({ page }) => {
   const unique = Date.now();
   const email = `auth.ui.${unique}@example.com`;
   const password = `UiPass-${unique}!`;
@@ -177,40 +177,17 @@ test('register page creates password credential session and opens cabinet', asyn
     await page.locator('#full-name').fill('Register Page User');
     await page.locator('#role').selectOption('employer');
     await page.locator('#phone').fill('+1 555 0177');
-    await page.locator('#country').fill('United States');
     await page.locator('#password').fill(password);
     await page.locator('#confirm-password').fill(password);
     await page.locator('#terms').check();
     await page.locator('#consent').check();
     await page.locator('#register-submit').click();
 
-    await expect(page.locator('#register-status')).toContainText('Account created');
-    await expect(page.locator('#register-next-steps')).toBeVisible();
-    await expect(page.locator('.site-header .cpg-account__avatar')).toBeVisible();
+    await expect(page).toHaveURL(/\/post-vacancy\/\?draft_id=[0-9a-f-]{36}$/);
 
     const passwordHash = readCredentialHash(email);
     expect(passwordHash).toBeTruthy();
     expect(passwordHash).not.toBe(password);
-
-    await page.getByRole('link', { name: 'Open cabinet' }).click();
-    await expect(page).toHaveURL(/\/cabinet\/$/);
-    await expect(page.locator('#cabinet-summary-user')).toHaveText(email);
-    await expect(page.locator('#cabinet-user-summary')).toContainText('Register Page User');
-
-    await page.locator('#cabinet-user-card').evaluate((element) => {
-      (element as HTMLDetailsElement).open = true;
-    });
-    await expect(page.locator('#cabinet-user-summary')).toContainText('No profile photo uploaded yet');
-    await page.locator('#cabinet-user-summary input[type="file"]').setInputFiles({
-      name: 'register-page-user.png',
-      mimeType: 'image/png',
-      buffer: tinyPngBuffer(),
-    });
-    await page.locator('#cabinet-user-summary').getByRole('button', { name: 'Upload profile photo' }).click();
-    await expect(page.locator('#cabinet-user-summary')).toContainText('Profile photo uploaded');
-    await expect(page.locator('#cabinet-user-summary')).toContainText('Protected profile photo uploaded');
-    await expect(page.locator('#cabinet-user-summary .profile-avatar img')).toBeVisible();
-    await expect(page.locator('.cabinet-header .cpg-account__avatar img')).toBeVisible();
   } finally {
     cleanupAuthUser(email);
   }

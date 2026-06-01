@@ -183,10 +183,6 @@
               <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+1 555 0100" data-i18n-placeholder="register.form.phone.placeholder" required>
             </label>
             <label class="field-card">
-              <strong data-i18n="register.form.country">Country / residence</strong>
-              <input id="country" name="country" type="text" autocomplete="country-name" placeholder="Country" data-i18n-placeholder="register.form.country.placeholder" required>
-            </label>
-            <label class="field-card">
               <strong data-i18n="register.form.password">Password</strong>
               <input id="password" name="password" type="password" autocomplete="new-password" placeholder="Minimum 8 characters" data-i18n-placeholder="register.form.password.placeholder" required>
             </label>
@@ -261,8 +257,6 @@
         'register.form.role.employer': 'Shipowner / Employer',
         'register.form.phone': 'Phone',
         'register.form.phone.placeholder': '+1 555 0100',
-        'register.form.country': 'Country / residence',
-        'register.form.country.placeholder': 'Country',
         'register.form.password': 'Password',
         'register.form.password.placeholder': 'Minimum 8 characters',
         'register.form.confirmPassword': 'Confirm password',
@@ -299,8 +293,6 @@
         'register.form.role.employer': 'Судовладелец / Работодатель',
         'register.form.phone': 'Телефон',
         'register.form.phone.placeholder': '+1 555 0100',
-        'register.form.country': 'Страна / место проживания',
-        'register.form.country.placeholder': 'Страна',
         'register.form.password': 'Пароль',
         'register.form.password.placeholder': 'Минимум 8 символов',
         'register.form.confirmPassword': 'Подтвердите пароль',
@@ -338,7 +330,7 @@
 
       const messages = {
         en: {
-          validation: 'Complete full name, email, phone, country, role, password and both consent checks before continuing.',
+          validation: 'Complete full name, email, phone, role, password and both consent checks before continuing.',
           passwordMismatch: 'Password confirmation does not match.',
           preparing: 'Creating password credential...',
           prepared: 'Account created. Verify your email to activate the account fully.',
@@ -348,7 +340,7 @@
           status: 'Create a password credential first. Phone confirmation should be configured in the next authentication stage.'
         },
         ru: {
-          validation: 'Заполните полное имя, email, телефон, страну, роль, пароль и отметьте оба согласия перед продолжением.',
+          validation: 'Заполните полное имя, email, телефон, роль, пароль и отметьте оба согласия перед продолжением.',
           passwordMismatch: 'Подтверждение пароля не совпадает.',
           preparing: 'Создаём парольный доступ...',
           prepared: 'Аккаунт создан. Подтвердите email для полной активации аккаунта.',
@@ -400,14 +392,13 @@
         const fullName = document.getElementById('full-name');
         const role = document.getElementById('role');
         const phone = document.getElementById('phone');
-        const country = document.getElementById('country');
         const password = document.getElementById('password');
         const confirmPassword = document.getElementById('confirm-password');
         const terms = document.getElementById('terms');
         const consent = document.getElementById('consent');
         const language = resolveLanguage();
 
-        if (!email.value.trim() || !fullName.value.trim() || !role.value || !phone.value.trim() || !country.value.trim() || !password.value || !confirmPassword.value || !terms.checked || !consent.checked) {
+        if (!email.value.trim() || !fullName.value.trim() || !role.value || !phone.value.trim() || !password.value || !confirmPassword.value || !terms.checked || !consent.checked) {
           status.textContent = messages[language].validation;
           status.dataset.messageOverride = 'true';
           status.classList.add('is-error');
@@ -437,7 +428,6 @@
             email: email.value.trim(),
             role: role.value,
             phone: phone.value.trim(),
-            country: country.value.trim(),
             password: password.value,
             confirm_password: confirmPassword.value,
             terms_accepted: terms.checked,

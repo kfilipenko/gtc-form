@@ -33,7 +33,6 @@ test('public register page creates a platform participant request and routes by 
   await page.locator('#full-name').fill('Person Registration');
   await page.locator('#email').fill(email);
   await page.locator('#phone').fill('+15550123');
-  await page.locator('#country').fill('United States');
   await page.locator('#password').fill('SecurePass123!');
   await page.locator('#confirm-password').fill('SecurePass123!');
   await page.locator('#terms').check();
