@@ -40,7 +40,7 @@ window.CREWPORTGLOBAL_MACHINE_TRANSLATION_BUNDLE = {
       "site.tagline": "[uk machine draft] Maritime documentation and matching platform"
     }
   },
-  "generated_at": "2026-06-01T12:40:33+00:00",
+  "generated_at": "2026-06-01T13:15:46+00:00",
   "official_language": "en",
   "publication_boundary": {
     "browser_provider_calls_allowed": false,
@@ -48,7 +48,9 @@ window.CREWPORTGLOBAL_MACHINE_TRANSLATION_BUNDLE = {
     "requires_human_review_for_sensitive_text": true,
     "source": "publish-ready-export"
   },
+  "publication_version": "02e3d1722d63d321",
   "schema_version": 1,
+  "source_catalog_hash": "b92471b27e48cb8135cc9f4172859cc53eed66e39157da2cabf1e2a7ebb16200",
   "source_key_count": 13,
   "target_languages": [
     "pt",

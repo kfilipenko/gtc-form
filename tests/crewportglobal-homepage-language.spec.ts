@@ -6,6 +6,7 @@ const repositoryRoot = process.cwd();
 const publicRoot = path.join(repositoryRoot, 'projects/crewportglobal/public');
 const publicI18nRuntimePath = path.join(repositoryRoot, 'projects/crewportglobal/public/assets/crewportglobal-public-i18n.js');
 const machineBundlePath = path.join(repositoryRoot, 'projects/crewportglobal/i18n/runtime-bundle/crewportglobal-machine-translations.js');
+const machineBundleManifestPath = path.join(repositoryRoot, 'projects/crewportglobal/i18n/runtime-bundle/manifest.json');
 
 const forbiddenPublicTerms = [
   'static UX slice',
@@ -348,6 +349,8 @@ test('published homepage loads the machine bundle for supported machine-localize
 });
 
 test('public pages load the machine bundle before the shared runtime', async () => {
+  const manifest = JSON.parse(fs.readFileSync(machineBundleManifestPath, 'utf8')) as { publication_version?: string };
+  expect(manifest.publication_version).toMatch(/^[a-f0-9]{16}$/);
   const htmlFiles: string[] = [];
   const collect = (directory: string) => {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
@@ -371,6 +374,10 @@ test('public pages load the machine bundle before the shared runtime', async () 
     const runtimeIndex = html.indexOf('crewportglobal-public-i18n.js');
     expect(bundleIndex, `${htmlFile} must load the machine bundle`).toBeGreaterThanOrEqual(0);
     expect(bundleIndex, `${htmlFile} must load the machine bundle before shared runtime`).toBeLessThan(runtimeIndex);
+    expect(
+      html,
+      `${htmlFile} must use the current machine bundle publication version`,
+    ).toContain(`crewportglobal-machine-translations.js?v=${manifest.publication_version}`);
   }
 });
 

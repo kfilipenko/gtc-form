@@ -230,6 +230,10 @@ Rule:
 - Browser runtime consumption of the prebuilt machine-translation bundle must remain dictionary-only: no provider calls, no form-value translation, no raw key exposure, and English fallback must remain authoritative.
 - The shared public runtime may consume `window.CREWPORTGLOBAL_MACHINE_TRANSLATION_BUNDLE` only after validating schema version, official English source, no browser provider calls, no form-value translation and object-shaped language catalogs. Invalid bundles must be ignored.
 - Public pages that load the shared runtime must load the prebuilt machine bundle before `crewportglobal-public-i18n.js`. The public bundle file must match the canonical generated runtime-bundle artifact.
+- Public machine-bundle URLs must use the build-controlled `publication_version` from `projects/crewportglobal/i18n/runtime-bundle/manifest.json` as their cache-busting query value.
+- The publication version must be derived from the approved source/catalog content and publication boundary, not from a manually edited date string.
+- Bundle validation must fail if public HTML references a stale or manually mismatched machine-bundle version.
+- The cache-invalidation implementation result is recorded in `docs/crewportglobal/272_cpg_biz_077_translation_publication_cache_invalidation_report.md`.
 
 ## 5. Rebuild rule
 
@@ -265,6 +269,7 @@ Current validation entrypoints:
 
 - ./projects/crewportglobal/scripts/run_public_generator.sh
 - node projects/crewportglobal/scripts/check_public_i18n.js
+- npm run check:cpg-i18n-runtime-bundle
 - npx playwright test tests/crewportglobal-homepage-language.spec.ts --config=playwright.crewportglobal.config.ts
 
 ## 7. Human review scope
@@ -284,6 +289,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 2.0 | 2026-06-01 | GTC IT / AI Assistant | Added build-controlled publication version and public HTML cache-invalidation validation rule |
 | 1.9 | 2026-06-01 | GTC IT / AI Assistant | Added controlled public bundle publication and script ordering rule |
 | 1.8 | 2026-06-01 | GTC IT / AI Assistant | Added implemented runtime bundle consumption validation and fail-closed behavior |
 | 1.7 | 2026-06-01 | GTC IT / AI Assistant | Added runtime bundle consumption design rule with dictionary-only lookup and English fallback |

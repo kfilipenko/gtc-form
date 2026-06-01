@@ -48,10 +48,10 @@ crewportglobal-public-i18n.js
 добавлено предварительное подключение:
 
 ```html
-<script src="/assets/crewportglobal-machine-translations.js?v=20260601-runtime-bundle" defer></script>
+<script src="/assets/crewportglobal-machine-translations.js?v=02e3d1722d63d321" defer></script>
 ```
 
-или эквивалентный relative path для generated public documents.
+или эквивалентный relative path для generated public documents. Query marker теперь поддерживается CPG-BIZ-077 как build-controlled publication version.
 
 Правило:
 
@@ -136,3 +136,9 @@ CPG-BIZ-077 - Translation publication cache invalidation and versioning cleanup
 ```
 
 Цель: заменить ручной query version marker на build-controlled version/hash, чтобы browser cache обновлялся вместе с изменением bundle или source catalog.
+
+Результат следующего этапа зафиксирован в:
+
+```text
+docs/crewportglobal/272_cpg_biz_077_translation_publication_cache_invalidation_report.md
+```

@@ -1,7 +1,8 @@
 {
   "bundle_file": "crewportglobal-machine-translations.js",
-  "generated_at": "2026-06-01T12:40:33+00:00",
+  "generated_at": "2026-06-01T13:15:46+00:00",
   "official_language": "en",
+  "publication_version": "02e3d1722d63d321",
   "runtime_boundary": {
     "browser_provider_calls_allowed": false,
     "form_value_translation_allowed": false,
@@ -9,6 +10,7 @@
     "source": "publish-ready-export"
   },
   "schema_version": 1,
+  "source_catalog_hash": "b92471b27e48cb8135cc9f4172859cc53eed66e39157da2cabf1e2a7ebb16200",
   "source_key_count": 13,
   "target_key_counts": {
     "pt": 11,

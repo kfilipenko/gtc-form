@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -21,6 +22,11 @@ DEFAULT_PUBLIC_BUNDLE_FILE = REPO_ROOT / 'projects' / 'crewportglobal' / 'public
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec='seconds')
+
+
+def stable_hash(payload: Any) -> str:
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
+    return hashlib.sha256(encoded.encode('utf-8')).hexdigest()
 
 
 def read_catalog(file_path: Path) -> dict[str, str]:
@@ -45,22 +51,36 @@ def build_bundle_payload(
     source_catalog: dict[str, str],
     target_catalogs: dict[str, dict[str, str]],
 ) -> dict[str, Any]:
+    catalogs = {
+        language: {key: catalog[key] for key in sorted(catalog)}
+        for language, catalog in sorted(target_catalogs.items())
+    }
+    publication_boundary = {
+        'source': 'publish-ready-export',
+        'browser_provider_calls_allowed': False,
+        'form_value_translation_allowed': False,
+        'requires_human_review_for_sensitive_text': True,
+    }
+    source_catalog_hash = stable_hash({key: source_catalog[key] for key in sorted(source_catalog)})
+    fingerprint_payload = {
+        'schema_version': 1,
+        'official_language': 'en',
+        'source_catalog_hash': source_catalog_hash,
+        'target_languages': sorted(target_catalogs),
+        'catalogs': catalogs,
+        'publication_boundary': publication_boundary,
+    }
+    publication_version = stable_hash(fingerprint_payload)[:16]
     return {
         'schema_version': 1,
         'generated_at': utc_now(),
+        'publication_version': publication_version,
+        'source_catalog_hash': source_catalog_hash,
         'official_language': 'en',
         'source_key_count': len(source_catalog),
         'target_languages': sorted(target_catalogs),
-        'catalogs': {
-            language: {key: catalog[key] for key in sorted(catalog)}
-            for language, catalog in sorted(target_catalogs.items())
-        },
-        'publication_boundary': {
-            'source': 'publish-ready-export',
-            'browser_provider_calls_allowed': False,
-            'form_value_translation_allowed': False,
-            'requires_human_review_for_sensitive_text': True,
-        },
+        'catalogs': catalogs,
+        'publication_boundary': publication_boundary,
     }
 
 
@@ -77,6 +97,8 @@ def build_manifest(payload: dict[str, Any], bundle_file: Path) -> dict[str, Any]
     return {
         'schema_version': payload['schema_version'],
         'generated_at': payload['generated_at'],
+        'publication_version': payload['publication_version'],
+        'source_catalog_hash': payload['source_catalog_hash'],
         'bundle_file': str(bundle_file.name),
         'official_language': payload['official_language'],
         'source_key_count': payload['source_key_count'],
@@ -124,6 +146,7 @@ def main() -> int:
         print(f'Bundled {key_count} publish-ready entries for {language}')
     print(f'Runtime bundle written: {bundle_file}')
     print(f'Runtime manifest written: {manifest_file}')
+    print(f"Runtime publication version: {payload['publication_version']}")
     if public_bundle_file:
         print(f'Public runtime bundle written: {public_bundle_file}')
     return 0

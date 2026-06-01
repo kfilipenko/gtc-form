@@ -58,6 +58,8 @@ Bundle generation writes both the canonical runtime-bundle artifact and the publ
 
 Public pages that use projects/crewportglobal/public/assets/crewportglobal-public-i18n.js must load the public machine bundle before the shared runtime. The bundle checker validates that the public copy matches the canonical generated artifact.
 
+The runtime bundle manifest contains `publication_version`, a build-controlled content fingerprint used as the public script query value. Public HTML must reference the machine bundle with that current version so browser cache invalidation follows approved translation/source changes.
+
 The Google provider adapter is a backend/build boundary only. It must not be used from public browser code. The provider boundary checker scans the public tree for Google credential markers and translation API endpoint references.
 
 Google credentials must be provided only through protected server/CI environment variables. `GOOGLE_APPLICATION_CREDENTIALS` must be an absolute path outside the repository and public web tree, and `GOOGLE_CLOUD_PROJECT` must be present when the Google provider is enabled. The default local mode may remain unconfigured and use the stub provider.

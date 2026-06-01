@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.58
+- Version: 2.59
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -358,6 +358,7 @@ docs/crewportglobal/
   269_cpg_biz_074_translation_runtime_bundle_consumption_design.md
   270_cpg_biz_075_translation_runtime_bundle_consumption_implementation_report.md
   271_cpg_biz_076_controlled_runtime_bundle_publication_report.md
+  272_cpg_biz_077_translation_publication_cache_invalidation_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -896,6 +897,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.59 | 2026-06-01 | GTC IT / AI Assistant | Added document 272 for build-controlled translation bundle publication versioning and cache invalidation |
 | 2.58 | 2026-06-01 | GTC IT / AI Assistant | Added document 271 for controlled runtime bundle publication on public pages |
 | 2.57 | 2026-06-01 | GTC IT / AI Assistant | Added document 270 for translation runtime bundle consumption implementation |
 | 2.56 | 2026-06-01 | GTC IT / AI Assistant | Added document 269 for translation runtime bundle consumption design |

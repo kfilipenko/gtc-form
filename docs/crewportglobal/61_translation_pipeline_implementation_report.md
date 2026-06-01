@@ -42,6 +42,7 @@ The current website text-translation methodology is:
 23. Runtime bundle consumption design is documented in docs/crewportglobal/269_cpg_biz_074_translation_runtime_bundle_consumption_design.md.
 24. Runtime bundle consumption implementation is documented in docs/crewportglobal/270_cpg_biz_075_translation_runtime_bundle_consumption_implementation_report.md.
 25. Controlled runtime bundle publication is documented in docs/crewportglobal/271_cpg_biz_076_controlled_runtime_bundle_publication_report.md.
+26. Build-controlled runtime bundle cache invalidation is documented in docs/crewportglobal/272_cpg_biz_077_translation_publication_cache_invalidation_report.md.
 
 ## 3. Implemented controls
 
@@ -70,6 +71,7 @@ The following controls are now in place:
 21. Runtime bundle consumption is designed as dictionary-only lookup with English fallback and no automatic translation of user-entered operational values.
 22. Runtime bundle consumption is implemented in the shared public runtime with fail-closed bundle validation, no browser provider calls and no mutation of form values.
 23. Public pages that load the shared runtime now load the validated static machine bundle before `crewportglobal-public-i18n.js`; validation checks that the public bundle matches the canonical generated artifact.
+24. Public machine-bundle script URLs must carry the current `publication_version` from the runtime-bundle manifest; stale or manually edited query markers fail validation.
 
 ## 4. Validation results
 
@@ -121,7 +123,7 @@ If validation changes, update the affected validator and regression checks in th
 
 ## 7. Out-of-scope confirmation
 
-The CPG-BIZ-063 through CPG-BIZ-076 translation-cache slices did not require changes to:
+The CPG-BIZ-063 through CPG-BIZ-077 translation-cache slices did not require changes to:
 
 1. backend
 2. database
@@ -134,6 +136,7 @@ The CPG-BIZ-063 through CPG-BIZ-076 translation-cache slices did not require cha
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.9 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-077 build-controlled publication version and cache-invalidation validation |
 | 1.8 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-076 controlled runtime bundle publication and public page loading order |
 | 1.7 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-075 runtime bundle consumption implementation with fail-closed validation |
 | 1.6 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-074 runtime bundle consumption design |

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Final
+import json
 import re
 
 try:
@@ -23,6 +24,7 @@ PUBLIC_ROOT: Final = PROJECT_ROOT / "public"
 CSS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-docs.css"
 I18N_JS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-public-i18n.js"
 MACHINE_I18N_JS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-machine-translations.js"
+MACHINE_I18N_MANIFEST_PATH: Final = PROJECT_ROOT / "i18n" / "runtime-bundle" / "manifest.json"
 NAVIGATION_JS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-navigation.js"
 FAVICON_LINKS: Final = """  <link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/favicon-32x32.png\">\n  <link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/favicon-16x16.png\">\n  <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/apple-touch-icon.png\">\n  <link rel=\"shortcut icon\" href=\"/favicon.ico\">"""
 APPLICATION_NAV_ITEMS: Final = [
@@ -204,6 +206,14 @@ def render_nav_link(
     return f'<a class="{class_name}" href="{SITE_ORIGIN}{href}" data-i18n="{translation_key}">{fallback_label}</a>'
 
 
+def machine_bundle_version() -> str:
+    manifest = json.loads(MACHINE_I18N_MANIFEST_PATH.read_text(encoding="utf-8"))
+    version = manifest.get("publication_version")
+    if not isinstance(version, str) or not version:
+        raise ValueError("Machine translation runtime manifest is missing publication_version")
+    return version
+
+
 def render_nav(docs: list[dict[str, object]], current_slug: str) -> str:
     del docs
     items = [
@@ -326,6 +336,7 @@ def render_page(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
         script_href = script_href[2:]
     if machine_script_href.startswith("./"):
         machine_script_href = machine_script_href[2:]
+    machine_script_href = f"{machine_script_href}?v={machine_bundle_version()}"
     if navigation_script_href.startswith("./"):
         navigation_script_href = navigation_script_href[2:]
 
