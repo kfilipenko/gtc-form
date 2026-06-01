@@ -142,13 +142,14 @@ When the project chooses to operationalize automatic draft generation, the next 
 8. expand the English source catalog coverage;
 9. generate target JSON catalogs from the selected provider only through backend/build automation;
 10. validate and emit a deterministic publish-ready runtime bundle;
-11. approve a separate browser-runtime consumption slice before any live page loads the emitted bundle;
+11. implement the approved browser-runtime consumption design before any live page uses the emitted bundle;
 12. keep validator and documentation synchronized with that emission path.
 
 ## 10. Revision history
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.4 | 2026-06-01 | GTC IT / AI Assistant | Added runtime bundle consumption design as the prerequisite for live bundle loading |
 | 1.3 | 2026-06-01 | GTC IT / AI Assistant | Added publish-ready runtime bundle emission and validation artifacts |
 | 1.2 | 2026-06-01 | GTC IT / AI Assistant | Added protected one-key Google provider smoke test before real cache updates |
 | 1.1 | 2026-06-01 | GTC IT / AI Assistant | Added optional Google dependency file and strict protected-environment readiness check |

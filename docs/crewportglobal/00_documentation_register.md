@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.55
+- Version: 2.56
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -355,6 +355,7 @@ docs/crewportglobal/
   266_cpg_biz_071_translation_google_dependency_readiness_report.md
   267_cpg_biz_072_translation_google_protected_smoke_test_report.md
   268_cpg_biz_073_translation_runtime_bundle_emission_report.md
+  269_cpg_biz_074_translation_runtime_bundle_consumption_design.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -788,6 +789,8 @@ Document 267 records the CPG-BIZ-072 protected Google provider smoke-test plan a
 
 Document 268 records the CPG-BIZ-073 publish-ready translation runtime bundle emission implementation, including prebuilt JS/manifest artifacts, validation checks and no-live-runtime-consumption boundary.
 
+Document 269 records the CPG-BIZ-074 translation runtime bundle consumption design, including lookup order, safety gates, no form-value translation, English fallback and the future implementation acceptance criteria.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -891,6 +894,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.56 | 2026-06-01 | GTC IT / AI Assistant | Added document 269 for translation runtime bundle consumption design |
 | 2.55 | 2026-06-01 | GTC IT / AI Assistant | Added document 268 for publish-ready translation runtime bundle emission |
 | 2.54 | 2026-06-01 | GTC IT / AI Assistant | Added document 267 for protected one-key Google translation provider smoke test |
 | 2.53 | 2026-06-01 | GTC IT / AI Assistant | Added document 266 for Google translation dependency and protected environment readiness gate |

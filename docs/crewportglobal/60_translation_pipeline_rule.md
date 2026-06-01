@@ -79,6 +79,12 @@ The publish-ready runtime bundle emission implementation is recorded in:
 docs/crewportglobal/268_cpg_biz_073_translation_runtime_bundle_emission_report.md
 ```
 
+The runtime bundle consumption design is recorded in:
+
+```text
+docs/crewportglobal/269_cpg_biz_074_translation_runtime_bundle_consumption_design.md
+```
+
 ## 2. Canonical source model
 
 - English is the official and authoritative language of the platform.
@@ -209,6 +215,7 @@ Rule:
 - The `google-cloud-translate` dependency must remain optional and isolated from the default public/runtime dependency path. Protected backend/build environments must validate both dependency installation and protected credentials before running cache updates with `--provider google`.
 - The first real Google provider smoke test must translate only one approved English source key into one target language, must run only after protected readiness passes and must not mutate repository cache or live runtime dictionaries.
 - Publish-ready machine translations may be emitted into a prebuilt runtime bundle only after cache validation and publish-ready export. Bundle emission must not by itself connect the bundle to the live browser runtime.
+- Browser runtime consumption of the prebuilt machine-translation bundle must remain dictionary-only: no provider calls, no form-value translation, no raw key exposure, and English fallback must remain authoritative.
 
 ## 5. Rebuild rule
 
@@ -263,6 +270,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.7 | 2026-06-01 | GTC IT / AI Assistant | Added runtime bundle consumption design rule with dictionary-only lookup and English fallback |
 | 1.6 | 2026-06-01 | GTC IT / AI Assistant | Added publish-ready runtime bundle emission boundary |
 | 1.5 | 2026-06-01 | GTC IT / AI Assistant | Added protected one-key Google smoke-test rule with no repository cache mutation |
 | 1.4 | 2026-06-01 | GTC IT / AI Assistant | Added Google dependency and protected environment readiness gate rule |

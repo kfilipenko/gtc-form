@@ -132,3 +132,9 @@ CPG-BIZ-074 - Translation runtime bundle consumption design
 ```
 
 Цель: спроектировать, как shared public i18n runtime будет подключать prebuilt bundle, сохранять English fallback и не переводить user-entered operational form data.
+
+Этот этап выполнен и зафиксирован в:
+
+```text
+docs/crewportglobal/269_cpg_biz_074_translation_runtime_bundle_consumption_design.md
+```
