@@ -7,7 +7,8 @@
     "check:cpg-i18n-cache": "python3 projects/crewportglobal/scripts/test_translation_cache.py",
     "check:cpg-i18n-cache-report": "python3 projects/crewportglobal/scripts/validate_translation_cache.py",
     "build:cpg-i18n-publish-ready": "python3 projects/crewportglobal/scripts/export_translation_publish_ready.py",
-    "check:cpg-translation-provider-boundary": "python3 projects/crewportglobal/scripts/check_translation_provider_boundary.py"
+    "check:cpg-translation-provider-boundary": "python3 projects/crewportglobal/scripts/check_translation_provider_boundary.py",
+    "check:cpg-translation-credential-source": "python3 projects/crewportglobal/scripts/check_translation_credential_source.py"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1"

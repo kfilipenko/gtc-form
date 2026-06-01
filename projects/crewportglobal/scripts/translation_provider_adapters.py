@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Mapping
 
 
@@ -39,3 +40,68 @@ class GoogleTranslationProviderAdapter:
             'Google translation provider is a boundary placeholder only. '
             'Connect Google API client in a separate approved backend/build slice.'
         )
+
+
+def validate_google_credential_source(
+    env: Mapping[str, str],
+    repo_root: Path,
+    public_root: Path,
+    require_config: bool = False,
+) -> dict[str, object]:
+    adapter = GoogleTranslationProviderAdapter()
+    credentials_value = (env.get(adapter.credentials_env) or '').strip()
+    project_value = (env.get(adapter.project_env) or '').strip()
+    findings: list[dict[str, str]] = []
+
+    if not credentials_value and not project_value:
+        if require_config:
+            findings.append({
+                'code': 'google_credentials_not_configured',
+                'message': 'Google credential source is required but environment values are absent.',
+            })
+        return {
+            'configured': False,
+            'credentials_env': adapter.credentials_env,
+            'project_env': adapter.project_env,
+            'findings': findings,
+        }
+
+    if not credentials_value:
+        findings.append({
+            'code': 'google_credentials_path_missing',
+            'message': f'{adapter.credentials_env} is required when Google project is configured.',
+        })
+    if not project_value:
+        findings.append({
+            'code': 'google_project_missing',
+            'message': f'{adapter.project_env} is required when Google credentials are configured.',
+        })
+
+    if credentials_value:
+        credentials_path = Path(credentials_value).expanduser()
+        if not credentials_path.is_absolute():
+            findings.append({
+                'code': 'google_credentials_path_not_absolute',
+                'message': f'{adapter.credentials_env} must be an absolute protected server path.',
+            })
+        else:
+            resolved_credentials = credentials_path.resolve(strict=False)
+            resolved_repo = repo_root.resolve(strict=False)
+            resolved_public = public_root.resolve(strict=False)
+            if resolved_credentials == resolved_repo or resolved_repo in resolved_credentials.parents:
+                findings.append({
+                    'code': 'google_credentials_inside_repository',
+                    'message': f'{adapter.credentials_env} must not point inside the repository.',
+                })
+            if resolved_credentials == resolved_public or resolved_public in resolved_credentials.parents:
+                findings.append({
+                    'code': 'google_credentials_inside_public_tree',
+                    'message': f'{adapter.credentials_env} must not point inside the public web tree.',
+                })
+
+    return {
+        'configured': bool(credentials_value and project_value and not findings),
+        'credentials_env': adapter.credentials_env,
+        'project_env': adapter.project_env,
+        'findings': findings,
+    }

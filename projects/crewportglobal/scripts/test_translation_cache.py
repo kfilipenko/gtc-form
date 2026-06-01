@@ -13,7 +13,9 @@ from translation_cache import (
     update_cache,
 )
 from validate_translation_cache import validate_translation_cache
-from translation_provider_adapters import GoogleTranslationProviderAdapter
+from pathlib import Path
+
+from translation_provider_adapters import GoogleTranslationProviderAdapter, validate_google_credential_source
 
 
 class TranslationCacheTests(unittest.TestCase):
@@ -187,6 +189,39 @@ class TranslationCacheTests(unittest.TestCase):
 
         with self.assertRaises(RuntimeError):
             adapter.translate('Home', 'en', 'ru')
+
+    def test_google_credential_source_allows_unconfigured_non_google_mode(self) -> None:
+        status = validate_google_credential_source(
+            env={},
+            repo_root=Path('/repo'),
+            public_root=Path('/repo/public'),
+        )
+
+        self.assertFalse(status['configured'])
+        self.assertEqual(status['findings'], [])
+
+    def test_google_credential_source_requires_project_when_credentials_are_set(self) -> None:
+        status = validate_google_credential_source(
+            env={'GOOGLE_APPLICATION_CREDENTIALS': '/run/secrets/cpg-google-translate.json'},
+            repo_root=Path('/repo'),
+            public_root=Path('/repo/public'),
+        )
+
+        self.assertFalse(status['configured'])
+        self.assertEqual(status['findings'][0]['code'], 'google_project_missing')
+
+    def test_google_credential_source_blocks_repository_paths(self) -> None:
+        status = validate_google_credential_source(
+            env={
+                'GOOGLE_APPLICATION_CREDENTIALS': '/repo/projects/crewportglobal/private/google.json',
+                'GOOGLE_CLOUD_PROJECT': 'crewportglobal-localization',
+            },
+            repo_root=Path('/repo'),
+            public_root=Path('/repo/projects/crewportglobal/public'),
+        )
+
+        codes = {finding['code'] for finding in status['findings']}
+        self.assertIn('google_credentials_inside_repository', codes)
 
 
 if __name__ == '__main__':

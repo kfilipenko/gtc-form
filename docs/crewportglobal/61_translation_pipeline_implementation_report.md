@@ -33,6 +33,7 @@ The current website text-translation methodology is:
 14. Translation cache freshness and publication-gate validation is documented in docs/crewportglobal/260_cpg_biz_065_translation_cache_publish_gate_report.md.
 15. Human-review marking and publish-ready export policy is documented in docs/crewportglobal/261_cpg_biz_066_translation_cache_human_review_publish_export_report.md.
 16. Google provider adapter boundary and public-tree credential checks are documented in docs/crewportglobal/262_cpg_biz_067_translation_cache_google_provider_boundary_report.md.
+17. Protected Google credential source checks are documented in docs/crewportglobal/263_cpg_biz_068_translation_cache_google_credential_source_report.md.
 
 ## 3. Implemented controls
 
@@ -52,6 +53,7 @@ The following controls are now in place:
 12. Human-review marking records reviewer identity and timestamp, and publish-ready export excludes unreviewed sensitive translations.
 13. Google provider adapter placeholder exists only as a backend/build boundary; real Google API calls are not connected.
 14. Public tree credential scanning confirms no Google credential markers or translation API endpoints are exposed in public HTML/JS/JSON/CSS/Markdown.
+15. Protected Google credential source validation allows non-Google local mode without credentials, but blocks partial or unsafe Google configuration.
 
 ## 4. Validation results
 
@@ -103,7 +105,7 @@ If validation changes, update the affected validator and regression checks in th
 
 ## 7. Out-of-scope confirmation
 
-The CPG-BIZ-063 through CPG-BIZ-067 translation-cache slices did not require changes to:
+The CPG-BIZ-063 through CPG-BIZ-068 translation-cache slices did not require changes to:
 
 1. backend
 2. database
@@ -116,6 +118,7 @@ The CPG-BIZ-063 through CPG-BIZ-067 translation-cache slices did not require cha
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.0 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-068 protected Google credential source decision and validation command |
 | 0.9 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-067 Google provider adapter boundary placeholder and public-tree credential scan |
 | 0.8 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-066 human-review marking, reviewer metadata and publish-ready export policy for translation cache |
 | 0.7 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-065 translation cache publish-gate validator and current review-required findings |

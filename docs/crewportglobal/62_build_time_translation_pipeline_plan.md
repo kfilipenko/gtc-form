@@ -59,9 +59,10 @@ The first cache implementation skeleton adds:
 5. projects/crewportglobal/scripts/export_translation_publish_ready.py
 6. projects/crewportglobal/scripts/translation_provider_adapters.py
 7. projects/crewportglobal/scripts/check_translation_provider_boundary.py
-8. projects/crewportglobal/i18n/translation-cache.json
-9. projects/crewportglobal/i18n/cache-export/
-10. projects/crewportglobal/i18n/publish-ready-export/
+8. projects/crewportglobal/scripts/check_translation_credential_source.py
+9. projects/crewportglobal/i18n/translation-cache.json
+10. projects/crewportglobal/i18n/cache-export/
+11. projects/crewportglobal/i18n/publish-ready-export/
 
 The skeleton uses only a deterministic stub provider and does not call Google APIs.
 
@@ -117,8 +118,9 @@ Machine-translated or AI-generated drafts must not be published without human re
 
 When the project chooses to operationalize automatic draft generation, the next implementation slice should:
 
-1. decide the protected deployment secret source for Google credentials;
-2. implement the real Google API client behind the existing backend/build adapter boundary;
+1. configure protected server/CI environment variables for Google credentials on the selected deployment target;
+2. run credential-source validation in the deployment environment with `--require-config`;
+3. implement the real Google API client behind the existing backend/build adapter boundary;
 3. keep the deterministic stub provider available for local tests;
 4. expand the English source catalog coverage;
 5. generate target JSON catalogs from the selected provider only through backend/build automation;
@@ -129,6 +131,7 @@ When the project chooses to operationalize automatic draft generation, the next 
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.8 | 2026-06-01 | GTC IT / AI Assistant | Added protected Google credential source validation artifact and deployment prerequisite |
 | 0.7 | 2026-06-01 | GTC IT / AI Assistant | Added Google provider adapter placeholder and public-tree credential boundary check artifact |
 | 0.6 | 2026-06-01 | GTC IT / AI Assistant | Added human-review marking and publish-ready export artifacts to the translation cache implementation plan |
 | 0.5 | 2026-06-01 | GTC IT / AI Assistant | Added publish-gate validator to the cache skeleton plan, including stale/missing/hash-mismatch/orphan/review-required reporting |

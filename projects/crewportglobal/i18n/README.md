@@ -28,8 +28,9 @@ This directory contains the seed build-time translation catalogs for CrewPortGlo
 5. Mark human-reviewed sensitive entries only after review with python projects/crewportglobal/scripts/review_translation_cache.py --keys KEY --targets LANG --reviewed-by USER_ID
 6. Export publish-ready draft catalogs with python projects/crewportglobal/scripts/export_translation_publish_ready.py
 7. Check provider secret boundary with python projects/crewportglobal/scripts/check_translation_provider_boundary.py
-8. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
-9. Keep sensitive publication text under human review before release.
+8. Check protected Google credential source with python projects/crewportglobal/scripts/check_translation_credential_source.py
+9. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
+10. Keep sensitive publication text under human review before release.
 
 ## Boundary
 
@@ -48,5 +49,7 @@ Human review marking is intentionally separate from machine-draft generation. A 
 The publish-ready export is the only cache export intended for future runtime-bundle publication. The broader cache-export directory remains an inspection artifact and may contain review-required drafts.
 
 The Google provider adapter is currently a backend/build boundary placeholder. It must not be used from public browser code. The provider boundary checker scans the public tree for Google credential markers and translation API endpoint references.
+
+Google credentials must be provided only through protected server/CI environment variables. `GOOGLE_APPLICATION_CREDENTIALS` must be an absolute path outside the repository and public web tree, and `GOOGLE_CLOUD_PROJECT` must be present when the Google provider is enabled. The default local mode may remain unconfigured and use the stub provider.
 
 No real provider credential should be committed to the repository.

@@ -43,6 +43,12 @@ The current Google provider adapter boundary check is recorded in:
 docs/crewportglobal/262_cpg_biz_067_translation_cache_google_provider_boundary_report.md
 ```
 
+The protected Google credential source rule is recorded in:
+
+```text
+docs/crewportglobal/263_cpg_biz_068_translation_cache_google_credential_source_report.md
+```
+
 ## 2. Canonical source model
 
 - English is the official and authoritative language of the platform.
@@ -167,6 +173,7 @@ Rule:
 - Human-review marking must record reviewer identity and review timestamp in the cache entry.
 - Marking a translation as reviewed is allowed only for a current, non-stale entry whose source hash still matches the canonical English source catalog.
 - Google provider integration must start from a backend/build adapter boundary. The public tree must not contain Google credentials, Google project identifiers, Google API keys or browser-side calls to Google translation endpoints.
+- Google credentials may be supplied only through protected server/CI environment variables. `GOOGLE_APPLICATION_CREDENTIALS` must point to an absolute protected path outside the repository and public web tree, and `GOOGLE_CLOUD_PROJECT` must be present when Google translation is enabled.
 
 ## 5. Rebuild rule
 
@@ -221,6 +228,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.1 | 2026-06-01 | GTC IT / AI Assistant | Added protected Google credential source rule using server/CI environment variables outside repository and public tree |
 | 1.0 | 2026-06-01 | GTC IT / AI Assistant | Added Google provider adapter boundary rule and public-tree credential check before real provider integration |
 | 0.9 | 2026-06-01 | GTC IT / AI Assistant | Added human-review marking and publish-ready export policy for sensitive cache entries |
 | 0.8 | 2026-06-01 | GTC IT / AI Assistant | Added translation cache publish-gate validation requirements for stale, missing, hash-mismatch, orphan and review-required entries |
