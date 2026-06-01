@@ -62,10 +62,13 @@ The first cache implementation skeleton adds:
 8. projects/crewportglobal/scripts/check_translation_credential_source.py
 9. projects/crewportglobal/scripts/check_translation_google_readiness.py
 10. projects/crewportglobal/scripts/smoke_translation_google_provider.py
-11. projects/crewportglobal/requirements.translation-google.txt
-12. projects/crewportglobal/i18n/translation-cache.json
-13. projects/crewportglobal/i18n/cache-export/
-14. projects/crewportglobal/i18n/publish-ready-export/
+11. projects/crewportglobal/scripts/build_translation_runtime_bundle.py
+12. projects/crewportglobal/scripts/check_translation_runtime_bundle.py
+13. projects/crewportglobal/requirements.translation-google.txt
+14. projects/crewportglobal/i18n/translation-cache.json
+15. projects/crewportglobal/i18n/cache-export/
+16. projects/crewportglobal/i18n/publish-ready-export/
+17. projects/crewportglobal/i18n/runtime-bundle/
 
 The default skeleton flow uses only a deterministic stub provider and does not call Google APIs.
 
@@ -138,13 +141,15 @@ When the project chooses to operationalize automatic draft generation, the next 
 7. keep the deterministic stub provider available for local tests;
 8. expand the English source catalog coverage;
 9. generate target JSON catalogs from the selected provider only through backend/build automation;
-10. add a deterministic publish-time export step from publish-ready JSON catalogs into the shared runtime dictionaries or another prebuilt runtime bundle;
-11. keep validator and documentation synchronized with that emission path.
+10. validate and emit a deterministic publish-ready runtime bundle;
+11. approve a separate browser-runtime consumption slice before any live page loads the emitted bundle;
+12. keep validator and documentation synchronized with that emission path.
 
 ## 10. Revision history
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.3 | 2026-06-01 | GTC IT / AI Assistant | Added publish-ready runtime bundle emission and validation artifacts |
 | 1.2 | 2026-06-01 | GTC IT / AI Assistant | Added protected one-key Google provider smoke test before real cache updates |
 | 1.1 | 2026-06-01 | GTC IT / AI Assistant | Added optional Google dependency file and strict protected-environment readiness check |
 | 1.0 | 2026-06-01 | GTC IT / AI Assistant | Recorded controlled cache update provider selection with stub default and explicit Google mode |

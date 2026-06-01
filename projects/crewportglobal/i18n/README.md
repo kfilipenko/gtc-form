@@ -27,12 +27,14 @@ This directory contains the seed build-time translation catalogs for CrewPortGlo
 4. Review cache freshness and publication gates with python projects/crewportglobal/scripts/validate_translation_cache.py
 5. Mark human-reviewed sensitive entries only after review with python projects/crewportglobal/scripts/review_translation_cache.py --keys KEY --targets LANG --reviewed-by USER_ID
 6. Export publish-ready draft catalogs with python projects/crewportglobal/scripts/export_translation_publish_ready.py
-7. Check provider secret boundary with python projects/crewportglobal/scripts/check_translation_provider_boundary.py
-8. Check protected Google credential source with python projects/crewportglobal/scripts/check_translation_credential_source.py
-9. Check protected Google dependency readiness with python projects/crewportglobal/scripts/check_translation_google_readiness.py
-10. Run the protected one-key Google smoke only in the configured backend/build environment with python projects/crewportglobal/scripts/smoke_translation_google_provider.py
-11. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
-12. Keep sensitive publication text under human review before release.
+7. Build the prebuilt runtime bundle with python projects/crewportglobal/scripts/build_translation_runtime_bundle.py
+8. Validate the prebuilt runtime bundle with python projects/crewportglobal/scripts/check_translation_runtime_bundle.py
+9. Check provider secret boundary with python projects/crewportglobal/scripts/check_translation_provider_boundary.py
+10. Check protected Google credential source with python projects/crewportglobal/scripts/check_translation_credential_source.py
+11. Check protected Google dependency readiness with python projects/crewportglobal/scripts/check_translation_google_readiness.py
+12. Run the protected one-key Google smoke only in the configured backend/build environment with python projects/crewportglobal/scripts/smoke_translation_google_provider.py
+13. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
+14. Keep sensitive publication text under human review before release.
 
 ## Boundary
 
@@ -49,6 +51,8 @@ The publish-ready export excludes unreviewed sensitive entries such as no-fee, c
 Human review marking is intentionally separate from machine-draft generation. A reviewer should first verify the translated text against the English canonical source, then run the review command for the exact key and target language. The command only marks current non-stale entries whose source hash still matches en.json.
 
 The publish-ready export is the only cache export intended for future runtime-bundle publication. The broader cache-export directory remains an inspection artifact and may contain review-required drafts.
+
+The runtime-bundle directory contains prebuilt publish-ready artifacts for future browser-runtime integration. Bundle generation alone does not connect those artifacts to live pages.
 
 The Google provider adapter is a backend/build boundary only. It must not be used from public browser code. The provider boundary checker scans the public tree for Google credential markers and translation API endpoint references.
 

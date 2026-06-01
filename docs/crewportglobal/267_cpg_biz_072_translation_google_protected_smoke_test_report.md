@@ -154,3 +154,9 @@ CPG-BIZ-073 - Translation cache runtime bundle emission plan
 ```
 
 Цель: определить, как publish-ready export будет превращаться в prebuilt runtime dictionary bundle после human-review gate, без браузерных provider calls и без перевода пользовательских данных.
+
+Этот этап выполнен и зафиксирован в:
+
+```text
+docs/crewportglobal/268_cpg_biz_073_translation_runtime_bundle_emission_report.md
+```

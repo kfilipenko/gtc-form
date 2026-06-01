@@ -73,6 +73,12 @@ The protected Google provider smoke-test script and plan are recorded in:
 docs/crewportglobal/267_cpg_biz_072_translation_google_protected_smoke_test_report.md
 ```
 
+The publish-ready runtime bundle emission implementation is recorded in:
+
+```text
+docs/crewportglobal/268_cpg_biz_073_translation_runtime_bundle_emission_report.md
+```
+
 ## 2. Canonical source model
 
 - English is the official and authoritative language of the platform.
@@ -202,6 +208,7 @@ Rule:
 - Translation cache update commands must default to the deterministic `stub` provider. The `google` provider may be selected only explicitly and must fail closed when protected credentials are absent or invalid.
 - The `google-cloud-translate` dependency must remain optional and isolated from the default public/runtime dependency path. Protected backend/build environments must validate both dependency installation and protected credentials before running cache updates with `--provider google`.
 - The first real Google provider smoke test must translate only one approved English source key into one target language, must run only after protected readiness passes and must not mutate repository cache or live runtime dictionaries.
+- Publish-ready machine translations may be emitted into a prebuilt runtime bundle only after cache validation and publish-ready export. Bundle emission must not by itself connect the bundle to the live browser runtime.
 
 ## 5. Rebuild rule
 
@@ -256,6 +263,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.6 | 2026-06-01 | GTC IT / AI Assistant | Added publish-ready runtime bundle emission boundary |
 | 1.5 | 2026-06-01 | GTC IT / AI Assistant | Added protected one-key Google smoke-test rule with no repository cache mutation |
 | 1.4 | 2026-06-01 | GTC IT / AI Assistant | Added Google dependency and protected environment readiness gate rule |
 | 1.3 | 2026-06-01 | GTC IT / AI Assistant | Added controlled provider selection rule for cache update command with stub default and fail-closed Google mode |
