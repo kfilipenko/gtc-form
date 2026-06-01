@@ -84,10 +84,12 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - Export publish-ready cache catalogs with: npm run build:cpg-i18n-publish-ready
 - Build the prebuilt publish-ready runtime bundle with: npm run build:cpg-i18n-runtime-bundle
 - Validate the prebuilt runtime bundle with: npm run check:cpg-i18n-runtime-bundle
+- Publish the runtime bundle through the standard build-sync-validate workflow with: npm run publish:cpg-i18n-runtime-bundle
 - The runtime bundle build writes the canonical artifact under projects/crewportglobal/i18n/runtime-bundle/ and the public static artifact under projects/crewportglobal/public/assets/crewportglobal-machine-translations.js.
 - Public pages that use public/assets/crewportglobal-public-i18n.js must load public/assets/crewportglobal-machine-translations.js first.
 - Public machine-bundle script URLs must use the `publication_version` from projects/crewportglobal/i18n/runtime-bundle/manifest.json as their cache-busting query value.
 - The runtime-bundle checker validates that public HTML references use the current generated `publication_version`.
+- The publication workflow command updates the bundle, synchronizes public HTML query values and runs validation; use it instead of manually editing bundle query markers.
 - Mark human-reviewed sensitive entries with: python3 projects/crewportglobal/scripts/review_translation_cache.py --keys <key> --targets <lang> --reviewed-by <user_id>
 - The publish-ready export includes low-risk machine drafts and human-reviewed sensitive entries only; unreviewed complaint, no-fee, privacy, consent, legal and terms text remains excluded.
 - Check the Google provider boundary with: npm run check:cpg-translation-provider-boundary

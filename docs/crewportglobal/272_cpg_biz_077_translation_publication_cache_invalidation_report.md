@@ -146,3 +146,9 @@ CPG-BIZ-078 - Translation publication workflow command
 ```
 
 Цель: добавить единый командный workflow для rebuild -> version sync -> validation, чтобы публикация machine-localized bundle выполнялась одной проверяемой командой, без ручной синхронизации HTML.
+
+Результат следующего этапа зафиксирован в:
+
+```text
+docs/crewportglobal/273_cpg_biz_078_translation_publication_workflow_command_report.md
+```

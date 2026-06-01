@@ -234,6 +234,9 @@ Rule:
 - The publication version must be derived from the approved source/catalog content and publication boundary, not from a manually edited date string.
 - Bundle validation must fail if public HTML references a stale or manually mismatched machine-bundle version.
 - The cache-invalidation implementation result is recorded in `docs/crewportglobal/272_cpg_biz_077_translation_publication_cache_invalidation_report.md`.
+- Routine runtime-bundle publication must use `npm run publish:cpg-i18n-runtime-bundle`, which runs build, public HTML version synchronization and validation in one workflow.
+- Direct manual edits to machine-bundle query markers are allowed only as an emergency correction and must be followed by the publication workflow validation.
+- The one-command workflow implementation result is recorded in `docs/crewportglobal/273_cpg_biz_078_translation_publication_workflow_command_report.md`.
 
 ## 5. Rebuild rule
 
@@ -270,6 +273,7 @@ Current validation entrypoints:
 - ./projects/crewportglobal/scripts/run_public_generator.sh
 - node projects/crewportglobal/scripts/check_public_i18n.js
 - npm run check:cpg-i18n-runtime-bundle
+- npm run publish:cpg-i18n-runtime-bundle
 - npx playwright test tests/crewportglobal-homepage-language.spec.ts --config=playwright.crewportglobal.config.ts
 
 ## 7. Human review scope
@@ -289,6 +293,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 2.1 | 2026-06-01 | GTC IT / AI Assistant | Added mandatory one-command runtime-bundle publication workflow rule |
 | 2.0 | 2026-06-01 | GTC IT / AI Assistant | Added build-controlled publication version and public HTML cache-invalidation validation rule |
 | 1.9 | 2026-06-01 | GTC IT / AI Assistant | Added controlled public bundle publication and script ordering rule |
 | 1.8 | 2026-06-01 | GTC IT / AI Assistant | Added implemented runtime bundle consumption validation and fail-closed behavior |

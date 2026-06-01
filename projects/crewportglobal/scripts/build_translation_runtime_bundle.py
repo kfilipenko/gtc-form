@@ -111,6 +111,26 @@ def build_manifest(payload: dict[str, Any], bundle_file: Path) -> dict[str, Any]
     }
 
 
+def preserve_generated_at_for_unchanged_publication(payload: dict[str, Any], manifest_file: Path) -> dict[str, Any]:
+    if not manifest_file.exists():
+        return payload
+
+    try:
+        existing_manifest = json.loads(manifest_file.read_text(encoding='utf-8'))
+    except (json.JSONDecodeError, OSError):
+        return payload
+
+    if existing_manifest.get('publication_version') != payload.get('publication_version'):
+        return payload
+    existing_generated_at = existing_manifest.get('generated_at')
+    if not isinstance(existing_generated_at, str) or not existing_generated_at:
+        return payload
+
+    payload = dict(payload)
+    payload['generated_at'] = existing_generated_at
+    return payload
+
+
 def write_bundle(bundle_file: Path, manifest_file: Path, payload: dict[str, Any], public_bundle_file: Path | None) -> None:
     bundle_file.parent.mkdir(parents=True, exist_ok=True)
     bundle_js = render_bundle_js(payload)
@@ -138,6 +158,7 @@ def main() -> int:
     payload = build_bundle_payload(source_catalog, target_catalogs)
     bundle_file = Path(args.bundle_file).resolve()
     manifest_file = Path(args.manifest_file).resolve()
+    payload = preserve_generated_at_for_unchanged_publication(payload, manifest_file)
     public_bundle_file = Path(args.public_bundle_file).resolve() if args.public_bundle_file else None
     write_bundle(bundle_file, manifest_file, payload, public_bundle_file)
 
