@@ -35,6 +35,7 @@ The current website text-translation methodology is:
 16. Google provider adapter boundary and public-tree credential checks are documented in docs/crewportglobal/262_cpg_biz_067_translation_cache_google_provider_boundary_report.md.
 17. Protected Google credential source checks are documented in docs/crewportglobal/263_cpg_biz_068_translation_cache_google_credential_source_report.md.
 18. Protected Google client adapter implementation is documented in docs/crewportglobal/264_cpg_biz_069_translation_cache_google_client_adapter_report.md.
+19. Controlled translation cache provider selection is documented in docs/crewportglobal/265_cpg_biz_070_translation_cache_provider_selection_report.md.
 
 ## 3. Implemented controls
 
@@ -52,10 +53,11 @@ The following controls are now in place:
 10. Unit-tested stub-provider cache skeleton verifying cache miss, cache hit, stale source hash and export behavior before any Google credentials are introduced.
 11. Publish-gate validator reporting stale entries, missing current entries, source-hash mismatches, orphan entries and review-required translations.
 12. Human-review marking records reviewer identity and timestamp, and publish-ready export excludes unreviewed sensitive translations.
-13. Google provider adapter placeholder exists only as a backend/build boundary; real Google API calls are not connected.
+13. Google provider adapter exists only as a backend/build boundary; real Google API calls are selectable only through explicit protected cache-update mode.
 14. Public tree credential scanning confirms no Google credential markers or translation API endpoints are exposed in public HTML/JS/JSON/CSS/Markdown.
 15. Protected Google credential source validation allows non-Google local mode without credentials, but blocks partial or unsafe Google configuration.
 16. Google translation client creation is available only after credential-source validation and can be tested with an injected backend/build client without real Google credentials.
+17. Cache update command defaults to `stub`; explicit `google` selection fails closed before cache mutation when protected credentials are absent or invalid.
 
 ## 4. Validation results
 
@@ -107,7 +109,7 @@ If validation changes, update the affected validator and regression checks in th
 
 ## 7. Out-of-scope confirmation
 
-The CPG-BIZ-063 through CPG-BIZ-069 translation-cache slices did not require changes to:
+The CPG-BIZ-063 through CPG-BIZ-070 translation-cache slices did not require changes to:
 
 1. backend
 2. database
@@ -120,6 +122,7 @@ The CPG-BIZ-063 through CPG-BIZ-069 translation-cache slices did not require cha
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.2 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-070 provider selection in translation cache update command |
 | 1.1 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-069 protected Google client adapter behind credential validation |
 | 1.0 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-068 protected Google credential source decision and validation command |
 | 0.9 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-067 Google provider adapter boundary placeholder and public-tree credential scan |

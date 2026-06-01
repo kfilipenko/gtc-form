@@ -55,6 +55,12 @@ The protected Google client adapter implementation is recorded in:
 docs/crewportglobal/264_cpg_biz_069_translation_cache_google_client_adapter_report.md
 ```
 
+The controlled cache-update provider selection is recorded in:
+
+```text
+docs/crewportglobal/265_cpg_biz_070_translation_cache_provider_selection_report.md
+```
+
 ## 2. Canonical source model
 
 - English is the official and authoritative language of the platform.
@@ -181,6 +187,7 @@ Rule:
 - Google provider integration must start from a backend/build adapter boundary. The public tree must not contain Google credentials, Google project identifiers, Google API keys or browser-side calls to Google translation endpoints.
 - Google credentials may be supplied only through protected server/CI environment variables. `GOOGLE_APPLICATION_CREDENTIALS` must point to an absolute protected path outside the repository and public web tree, and `GOOGLE_CLOUD_PROJECT` must be present when Google translation is enabled.
 - The Google client may be called only through the backend/build provider adapter after credential-source validation succeeds. Tests must keep an injected fake client path so provider logic remains verifiable without network calls or real credentials.
+- Translation cache update commands must default to the deterministic `stub` provider. The `google` provider may be selected only explicitly and must fail closed when protected credentials are absent or invalid.
 
 ## 5. Rebuild rule
 
@@ -235,6 +242,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.3 | 2026-06-01 | GTC IT / AI Assistant | Added controlled provider selection rule for cache update command with stub default and fail-closed Google mode |
 | 1.2 | 2026-06-01 | GTC IT / AI Assistant | Added protected Google client adapter rule with credential validation before backend/build translate calls |
 | 1.1 | 2026-06-01 | GTC IT / AI Assistant | Added protected Google credential source rule using server/CI environment variables outside repository and public tree |
 | 1.0 | 2026-06-01 | GTC IT / AI Assistant | Added Google provider adapter boundary rule and public-tree credential check before real provider integration |

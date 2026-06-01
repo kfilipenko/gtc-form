@@ -22,7 +22,7 @@ This directory contains the seed build-time translation catalogs for CrewPortGlo
 ## Example workflow
 
 1. Update projects/crewportglobal/i18n/en.json when approved source strings are added to the pilot catalog.
-2. Refresh the provider-aware cache skeleton with python projects/crewportglobal/scripts/translation_cache.py --targets ru pt uk
+2. Refresh the provider-aware cache skeleton with python projects/crewportglobal/scripts/translation_cache.py --targets ru pt uk --provider stub
 3. Validate cache behavior with python projects/crewportglobal/scripts/test_translation_cache.py
 4. Review cache freshness and publication gates with python projects/crewportglobal/scripts/validate_translation_cache.py
 5. Mark human-reviewed sensitive entries only after review with python projects/crewportglobal/scripts/review_translation_cache.py --keys KEY --targets LANG --reviewed-by USER_ID
@@ -48,10 +48,12 @@ Human review marking is intentionally separate from machine-draft generation. A 
 
 The publish-ready export is the only cache export intended for future runtime-bundle publication. The broader cache-export directory remains an inspection artifact and may contain review-required drafts.
 
-The Google provider adapter is currently a backend/build boundary placeholder. It must not be used from public browser code. The provider boundary checker scans the public tree for Google credential markers and translation API endpoint references.
+The Google provider adapter is a backend/build boundary only. It must not be used from public browser code. The provider boundary checker scans the public tree for Google credential markers and translation API endpoint references.
 
 Google credentials must be provided only through protected server/CI environment variables. `GOOGLE_APPLICATION_CREDENTIALS` must be an absolute path outside the repository and public web tree, and `GOOGLE_CLOUD_PROJECT` must be present when the Google provider is enabled. The default local mode may remain unconfigured and use the stub provider.
 
 The Google client adapter is implemented behind credential validation. Real Google calls require the protected backend/build environment and a Google Cloud Translate client dependency; tests use an injected fake client and do not call the network.
+
+Cache update provider selection is explicit. `stub` is the default and local-safe provider. `google` must be selected with `--provider google` and fails closed unless protected credentials are valid.
 
 No real provider credential should be committed to the repository.

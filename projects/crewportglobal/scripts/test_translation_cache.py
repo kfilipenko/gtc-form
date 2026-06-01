@@ -11,6 +11,7 @@ from translation_cache import (
     export_catalogs,
     export_publish_ready_catalogs,
     mark_entries_reviewed,
+    select_translation_provider,
     source_hash,
     update_cache,
 )
@@ -275,6 +276,42 @@ class TranslationCacheTests(unittest.TestCase):
             )
 
         self.assertEqual(client.requests, [])
+
+    def test_select_translation_provider_defaults_to_stub(self) -> None:
+        provider = select_translation_provider('stub')
+
+        self.assertEqual(provider.name, 'stub')
+        self.assertEqual(provider.translate('Home', 'en', 'ru'), '[ru machine draft] Home')
+
+    def test_select_translation_provider_blocks_google_without_protected_config(self) -> None:
+        client = FakeGoogleTranslateClient()
+
+        with self.assertRaises(RuntimeError):
+            select_translation_provider(
+                'google',
+                env={},
+                repo_root=Path('/repo'),
+                public_root=Path('/repo/projects/crewportglobal/public'),
+                google_client=client,
+            )
+
+        self.assertEqual(client.requests, [])
+
+    def test_select_translation_provider_allows_google_with_injected_backend_client(self) -> None:
+        client = FakeGoogleTranslateClient()
+        provider = select_translation_provider(
+            'google',
+            env={
+                'GOOGLE_APPLICATION_CREDENTIALS': '/run/secrets/cpg-google-translate.json',
+                'GOOGLE_CLOUD_PROJECT': 'crewportglobal-localization',
+            },
+            repo_root=Path('/repo'),
+            public_root=Path('/repo/projects/crewportglobal/public'),
+            google_client=client,
+        )
+
+        self.assertEqual(provider.name, 'google')
+        self.assertEqual(provider.translate('Crew', 'en', 'pt'), 'pt::Crew')
 
 
 if __name__ == '__main__':

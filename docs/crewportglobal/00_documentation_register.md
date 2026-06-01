@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.51
+- Version: 2.52
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -351,6 +351,7 @@ docs/crewportglobal/
   262_cpg_biz_067_translation_cache_google_provider_boundary_report.md
   263_cpg_biz_068_translation_cache_google_credential_source_report.md
   264_cpg_biz_069_translation_cache_google_client_adapter_report.md
+  265_cpg_biz_070_translation_cache_provider_selection_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -776,6 +777,8 @@ Document 263 records the CPG-BIZ-068 protected Google credential source decision
 
 Document 264 records the CPG-BIZ-069 protected Google client adapter implementation, including credential validation before provider creation, injected-client tests and no default runtime/network activation.
 
+Document 265 records the CPG-BIZ-070 translation cache provider selection implementation, including `stub` default mode, explicit `google` mode, and fail-closed Google behavior when protected credentials are absent.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -879,6 +882,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.52 | 2026-06-01 | GTC IT / AI Assistant | Added document 265 for controlled translation cache provider selection with stub default and fail-closed Google mode |
 | 2.51 | 2026-06-01 | GTC IT / AI Assistant | Added document 264 for protected Google translation client adapter implementation behind credential validation |
 | 2.50 | 2026-06-01 | GTC IT / AI Assistant | Added document 263 for protected Google translation credential source validation and deployment prerequisites |
 | 2.49 | 2026-06-01 | GTC IT / AI Assistant | Added document 262 for Google translation provider adapter boundary and public-tree credential checks |

@@ -74,7 +74,9 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - Future production automation should cache Google machine localization by translation key, source language, target language and English source text hash so changed source copy invalidates stale translations.
 - The approved backend cache design is documented in docs/crewportglobal/258_cpg_biz_063_google_machine_localization_cache_backend_design.md.
 - Future translation cache implementation must keep provider credentials out of browser code, track publication/review status, and export only validated static dictionaries to public runtime.
-- The first implementation skeleton is file-backed and stub-only: projects/crewportglobal/scripts/translation_cache.py updates projects/crewportglobal/i18n/translation-cache.json and exports inspection catalogs under projects/crewportglobal/i18n/cache-export/.
+- The first implementation skeleton is file-backed and local-safe by default: projects/crewportglobal/scripts/translation_cache.py updates projects/crewportglobal/i18n/translation-cache.json and exports inspection catalogs under projects/crewportglobal/i18n/cache-export/.
+- Refresh cache with the local-safe default provider: python3 projects/crewportglobal/scripts/translation_cache.py --targets ru pt uk --provider stub
+- Use python3 projects/crewportglobal/scripts/translation_cache.py --targets ru pt uk --provider google only in protected backend/build environment after credential-source validation passes.
 - Validate cache behavior with: npm run check:cpg-i18n-cache
 - Review cache freshness and publish gates with: npm run check:cpg-i18n-cache-report
 - Export publish-ready cache catalogs with: npm run build:cpg-i18n-publish-ready

@@ -5,17 +5,25 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from translation_provider_adapters import StubTranslationProvider
+from translation_provider_adapters import (
+    GoogleTranslateTextClient,
+    StubTranslationProvider,
+    TranslationProvider,
+    create_google_translation_provider,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SOURCE = REPO_ROOT / 'projects' / 'crewportglobal' / 'i18n' / 'en.json'
 DEFAULT_CACHE = REPO_ROOT / 'projects' / 'crewportglobal' / 'i18n' / 'translation-cache.json'
 DEFAULT_EXPORT_DIR = REPO_ROOT / 'projects' / 'crewportglobal' / 'i18n' / 'cache-export'
+DEFAULT_PUBLIC_ROOT = REPO_ROOT / 'projects' / 'crewportglobal' / 'public'
 SCHEMA_VERSION = 1
 
 
@@ -88,7 +96,7 @@ def is_current_entry(
     source_language: str,
     target_language: str,
     text_hash: str,
-    provider: StubTranslationProvider,
+    provider: TranslationProvider,
 ) -> bool:
     return (
         entry.get('translation_key') == key
@@ -106,7 +114,7 @@ def stale_related_entries(
     source_language: str,
     target_language: str,
     text_hash: str,
-    provider: StubTranslationProvider,
+    provider: TranslationProvider,
     timestamp: str,
 ) -> int:
     changed = 0
@@ -129,7 +137,7 @@ def update_cache(
     source_catalog: dict[str, str],
     cache: dict[str, Any],
     targets: list[str],
-    provider: StubTranslationProvider,
+    provider: TranslationProvider,
     source_language: str = 'en',
 ) -> dict[str, int]:
     entries = cache.setdefault('entries', [])
@@ -232,7 +240,7 @@ def mark_entries_reviewed(
     source_catalog: dict[str, str],
     translation_keys: list[str],
     targets: list[str],
-    provider: StubTranslationProvider,
+    provider: TranslationProvider,
     reviewed_by_user_id: str,
     source_language: str = 'en',
 ) -> int:
@@ -274,6 +282,25 @@ def write_exported_catalogs(export_dir: Path, catalogs: dict[str, dict[str, str]
         write_json(export_dir / f'{language}.json', {key: catalog[key] for key in sorted(catalog)})
 
 
+def select_translation_provider(
+    provider_name: str,
+    env: dict[str, str] | None = None,
+    repo_root: Path = REPO_ROOT,
+    public_root: Path = DEFAULT_PUBLIC_ROOT,
+    google_client: GoogleTranslateTextClient | None = None,
+) -> TranslationProvider:
+    if provider_name == 'stub':
+        return StubTranslationProvider()
+    if provider_name == 'google':
+        return create_google_translation_provider(
+            env=env or dict(os.environ),
+            repo_root=repo_root,
+            public_root=public_root,
+            client=google_client,
+        )
+    raise ValueError(f'Unsupported translation provider: {provider_name}')
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description='CrewPortGlobal translation cache skeleton with a deterministic stub provider.',
@@ -282,12 +309,16 @@ def main() -> int:
     parser.add_argument('--cache', default=str(DEFAULT_CACHE))
     parser.add_argument('--source-language', default='en')
     parser.add_argument('--targets', nargs='+', required=True)
-    parser.add_argument('--provider', choices=['stub'], default='stub')
+    parser.add_argument('--provider', choices=['stub', 'google'], default='stub')
     parser.add_argument('--export-dir', default=str(DEFAULT_EXPORT_DIR))
     parser.add_argument('--no-export', action='store_true')
     args = parser.parse_args()
 
-    provider = StubTranslationProvider()
+    try:
+        provider = select_translation_provider(args.provider)
+    except RuntimeError as exc:
+        print(f'Translation provider configuration error: {exc}', file=sys.stderr)
+        return 1
     source_catalog = load_source_catalog(Path(args.source).resolve())
     cache_path = Path(args.cache).resolve()
     cache = load_cache(cache_path)

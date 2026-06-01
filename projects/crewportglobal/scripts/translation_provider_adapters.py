@@ -22,6 +22,14 @@ class GoogleTranslateTextClient(Protocol):
         ...
 
 
+class TranslationProvider(Protocol):
+    name: str
+    version: str
+
+    def translate(self, text: str, source_language: str, target_language: str) -> str:
+        ...
+
+
 @dataclass(frozen=True)
 class GoogleTranslationProviderAdapter:
     name: str = 'google'

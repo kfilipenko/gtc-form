@@ -64,7 +64,15 @@ The first cache implementation skeleton adds:
 10. projects/crewportglobal/i18n/cache-export/
 11. projects/crewportglobal/i18n/publish-ready-export/
 
-The skeleton uses only a deterministic stub provider and does not call Google APIs.
+The default skeleton flow uses only a deterministic stub provider and does not call Google APIs.
+
+Explicit Google mode is now wired for protected backend/build environments through:
+
+```bash
+python3 projects/crewportglobal/scripts/translation_cache.py --targets ru pt uk --provider google
+```
+
+That mode must fail closed when protected credentials are absent or invalid.
 
 The slice also extends the existing validator so JSON catalogs are read when present.
 
@@ -121,7 +129,7 @@ When the project chooses to operationalize automatic draft generation, the next 
 1. configure protected server/CI environment variables for Google credentials on the selected deployment target;
 2. run credential-source validation in the deployment environment with `--require-config`;
 3. install the Google Cloud Translate client dependency only in protected backend/build environment;
-4. wire provider selection so cache update can choose `stub` or `google`;
+4. run cache update with explicit `--provider google` only in that protected environment;
 5. keep the deterministic stub provider available for local tests;
 6. expand the English source catalog coverage;
 7. generate target JSON catalogs from the selected provider only through backend/build automation;
@@ -132,6 +140,7 @@ When the project chooses to operationalize automatic draft generation, the next 
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.0 | 2026-06-01 | GTC IT / AI Assistant | Recorded controlled cache update provider selection with stub default and explicit Google mode |
 | 0.9 | 2026-06-01 | GTC IT / AI Assistant | Recorded protected Google client adapter implementation and next provider-selection integration step |
 | 0.8 | 2026-06-01 | GTC IT / AI Assistant | Added protected Google credential source validation artifact and deployment prerequisite |
 | 0.7 | 2026-06-01 | GTC IT / AI Assistant | Added Google provider adapter placeholder and public-tree credential boundary check artifact |

@@ -119,10 +119,18 @@ git diff --check
 
 ## 8. Next Stage
 
-Рекомендуемый следующий этап:
+Следующий этап выполнен и зафиксирован в:
 
 ```text
-CPG-BIZ-070 - Translation cache provider selection in cache update command
+docs/crewportglobal/265_cpg_biz_070_translation_cache_provider_selection_report.md
 ```
 
-Цель: добавить controlled provider selection в cache update command, где `stub` остается default, а `google` доступен только после успешной credential-source validation в protected backend/build environment.
+Он добавил controlled provider selection в cache update command.
+
+Следующий рекомендуемый этап после CPG-BIZ-070:
+
+```text
+CPG-BIZ-071 - Translation cache Google dependency and protected environment readiness
+```
+
+Цель: определить, где и как устанавливать `google-cloud-translate` dependency и запускать `--provider google` только в protected backend/build environment.
