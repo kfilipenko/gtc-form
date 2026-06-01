@@ -525,8 +525,7 @@
       border-top: 1px solid rgba(126, 201, 217, 0.16);
     }
 
-    .registry-list-card p,
-    .registry-safe-note {
+    .registry-list-card p {
       margin: 0;
       color: var(--muted-on-dark);
       line-height: 1.35;
@@ -813,8 +812,6 @@
 
       <section class="card vacancy-board section-card" id="home-registry-summary">
         <p class="eyebrow" data-i18n="home.registry.eyebrow">Live registry</p>
-        <h2 class="section-title" data-i18n="home.registry.title">Your crew market is already here</h2>
-        <p class="section-copy" data-i18n="home.registry.copy">Safe preview rows from the live database. Contact details and documents are not public.</p>
         <div class="registry-filter" role="group" aria-label="Live registry filter" data-i18n-aria-label="home.registry.filterLabel">
           <button type="button" class="is-active" data-registry-filter="all" aria-pressed="true" data-i18n="home.registry.filter.all">All records</button>
           <button type="button" data-registry-filter="vacancy_requests" aria-pressed="false" data-i18n="home.registry.filter.requests">Requests</button>
@@ -837,18 +834,12 @@
             <ul id="home-registry-seafarers" class="registry-list"></ul>
           </article>
         </div>
-        <p class="registry-safe-note" data-i18n="home.registry.safeNote">The public demo view shows operational counts and structured matching hints only. Contact details remain inside protected workflows.</p>
       </section>
 
-      <section class="card vacancy-board section-card">
+      <section class="card vacancy-board section-card" id="home-vacancy-board-section" hidden>
         <p class="eyebrow" data-i18n="home.board.eyebrow">Latest vacancies</p>
         <h2 class="section-title" data-i18n="home.board.title">Current public vacancy board</h2>
-        <p id="home-board-copy" class="section-copy" data-i18n="home.board.copy">No public vacancies yet.</p>
         <div id="home-live-vacancies" class="live-vacancy-list" hidden></div>
-        <div id="home-board-empty" class="board-empty-line">
-          <strong data-i18n="home.board.emptyTitle">No public vacancies yet</strong>
-          <a class="button secondary" href="https://crewportglobal.com/vacancies/" data-i18n="home.board.openBoard">Open board</a>
-        </div>
       </section>
     </main>
   </div>
@@ -907,8 +898,6 @@
         'home.live.vessel': 'Vessel',
         'home.live.join': 'Join',
         'home.live.country': 'Country',
-        'home.board.copyAvailable': 'Public vacancies are available.',
-        'home.board.copyUnavailable': 'Vacancy board is temporarily unavailable.',
         'home.seafarers.eyebrow': 'For seafarers',
         'home.seafarers.title': 'Seafarer supply is a professional resource',
         'home.seafarers.copy': 'Rank, certificates, availability and preferences are structured for reviewed matching.',
@@ -939,8 +928,6 @@
         'home.bp.step8.title': 'Repeat cycle',
         'home.bp.step8.copy': 'Availability and repeat demand return the seafarer and employer into the next cycle.',
         'home.registry.eyebrow': 'Live registry',
-        'home.registry.title': 'Your crew market is already here',
-        'home.registry.copy': 'Live requests, vessels and seafarer supply are visible without contact details.',
         'home.registry.requests': 'Requests',
         'home.registry.vessels': 'Vessels',
         'home.registry.seafarers': 'Seafarers',
@@ -968,12 +955,8 @@
         'home.registry.filter.seafarers': 'Seafarers',
         'home.registry.filter.ready': 'Matching-ready',
         'home.registry.filter.blockers': 'With blockers',
-        'home.registry.safeNote': 'This view shows operational counts and structured matching hints only. Contact details remain inside protected workflows.',
         'home.board.eyebrow': 'Latest vacancies',
         'home.board.title': 'Current public vacancy board',
-        'home.board.copy': 'No public vacancies yet.',
-        'home.board.emptyTitle': 'No public vacancies yet',
-        'home.board.openBoard': 'Open board'
       },
       ru: {
         'home.title': 'Найдите работу в море. Закрывайте заявки на экипаж быстрее.',
@@ -1028,8 +1011,6 @@
         'home.live.vessel': 'Судно',
         'home.live.join': 'Посадка',
         'home.live.country': 'Страна',
-        'home.board.copyAvailable': 'Публичные вакансии доступны.',
-        'home.board.copyUnavailable': 'Доска вакансий временно недоступна.',
         'home.seafarers.eyebrow': 'Для моряков',
         'home.seafarers.title': 'Моряк является профессиональным ресурсом',
         'home.seafarers.copy': 'Должность, сертификаты, доступность и предпочтения структурируются для проверенного подбора.',
@@ -1060,8 +1041,6 @@
         'home.bp.step8.title': 'Повторный цикл',
         'home.bp.step8.copy': 'Доступность и повторный спрос возвращают моряка и работодателя в следующий цикл.',
         'home.registry.eyebrow': 'Живой реестр',
-        'home.registry.title': 'Вас ждут на нашей платформе',
-        'home.registry.copy': 'Живые заявки, суда и предложения моряков видны без раскрытия контактов.',
         'home.registry.requests': 'Заявок',
         'home.registry.vessels': 'Судов',
         'home.registry.seafarers': 'Моряков',
@@ -1089,21 +1068,16 @@
         'home.registry.filter.seafarers': 'Моряки',
         'home.registry.filter.ready': 'Готово к сопоставлению',
         'home.registry.filter.blockers': 'С блокерами',
-        'home.registry.safeNote': 'Этот вид показывает только операционные счетчики и структурированные признаки для сопоставления. Контактные данные остаются в защищённых процессах.',
         'home.board.eyebrow': 'Последние вакансии',
-        'home.board.title': 'Текущая публичная доска вакансий',
-        'home.board.copy': 'Публичных вакансий пока нет.',
-        'home.board.emptyTitle': 'Публичных вакансий пока нет',
-        'home.board.openBoard': 'Открыть доску'
+        'home.board.title': 'Текущая публичная доска вакансий'
       }
     };
   </script>
   <script src="assets/crewportglobal-public-i18n.js?v=20260530-menu-audit" defer></script>
   <script>
     (function () {
-      const boardCopy = document.getElementById('home-board-copy');
+      const vacancyBoardSection = document.getElementById('home-vacancy-board-section');
       const liveVacancies = document.getElementById('home-live-vacancies');
-      const boardEmpty = document.getElementById('home-board-empty');
       const heroProof = document.getElementById('home-hero-proof');
       const registryVacancyCount = document.getElementById('home-registry-vacancy-count');
       const registryVesselCount = document.getElementById('home-registry-vessel-count');
@@ -1274,29 +1248,24 @@
         const count = latestVacancies.length;
 
         if (latestLoadState === 'error') {
-          boardCopy.textContent = t('home.board.copyUnavailable');
+          vacancyBoardSection.hidden = true;
           liveVacancies.hidden = true;
           liveVacancies.innerHTML = '';
-          boardEmpty.hidden = false;
           return;
         }
-
-        boardCopy.textContent = count > 0
-          ? t('home.board.copyAvailable')
-          : t('home.board.copy');
 
         liveVacancies.innerHTML = '';
         if (count === 0) {
+          vacancyBoardSection.hidden = true;
           liveVacancies.hidden = true;
-          boardEmpty.hidden = false;
           return;
         }
 
+        vacancyBoardSection.hidden = false;
         latestVacancies.slice(0, 3).forEach((vacancy) => {
           liveVacancies.appendChild(renderVacancy(vacancy));
         });
         liveVacancies.hidden = false;
-        boardEmpty.hidden = true;
       }
 
       function renderRegistryState() {

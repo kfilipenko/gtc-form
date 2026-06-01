@@ -151,7 +151,7 @@ test('homepage dashboard shows live API status and latest reviewed vacancy', asy
   await expect(page.locator('#home-registry-summary')).toBeInViewport({ ratio: 0.2 });
   const registryAppearsBeforeVacancyBoard = await page.evaluate(() => {
     const registry = document.getElementById('home-registry-summary');
-    const vacancyBoard = document.getElementById('home-board-empty')?.closest('section');
+    const vacancyBoard = document.getElementById('home-vacancy-board-section');
     if (!registry || !vacancyBoard) {
       return false;
     }
