@@ -29,8 +29,9 @@ This directory contains the seed build-time translation catalogs for CrewPortGlo
 6. Export publish-ready draft catalogs with python projects/crewportglobal/scripts/export_translation_publish_ready.py
 7. Check provider secret boundary with python projects/crewportglobal/scripts/check_translation_provider_boundary.py
 8. Check protected Google credential source with python projects/crewportglobal/scripts/check_translation_credential_source.py
-9. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
-10. Keep sensitive publication text under human review before release.
+9. Check protected Google dependency readiness with python projects/crewportglobal/scripts/check_translation_google_readiness.py
+10. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
+11. Keep sensitive publication text under human review before release.
 
 ## Boundary
 
@@ -55,5 +56,7 @@ Google credentials must be provided only through protected server/CI environment
 The Google client adapter is implemented behind credential validation. Real Google calls require the protected backend/build environment and a Google Cloud Translate client dependency; tests use an injected fake client and do not call the network.
 
 Cache update provider selection is explicit. `stub` is the default and local-safe provider. `google` must be selected with `--provider google` and fails closed unless protected credentials are valid.
+
+The Google Cloud Translate Python dependency is isolated in projects/crewportglobal/requirements.translation-google.txt. Install it only in protected backend/build environments that are allowed to run `--provider google`. Local development and public runtime must not require that dependency.
 
 No real provider credential should be committed to the repository.

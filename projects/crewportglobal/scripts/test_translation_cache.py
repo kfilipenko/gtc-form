@@ -19,6 +19,7 @@ from validate_translation_cache import validate_translation_cache
 
 from translation_provider_adapters import (
     GoogleTranslationProviderAdapter,
+    check_google_provider_readiness,
     create_google_translation_provider,
     validate_google_credential_source,
 )
@@ -312,6 +313,49 @@ class TranslationCacheTests(unittest.TestCase):
 
         self.assertEqual(provider.name, 'google')
         self.assertEqual(provider.translate('Crew', 'en', 'pt'), 'pt::Crew')
+
+    def test_google_provider_readiness_is_non_blocking_for_local_stub_mode(self) -> None:
+        status = check_google_provider_readiness(
+            env={},
+            repo_root=Path('/repo'),
+            public_root=Path('/repo/projects/crewportglobal/public'),
+            dependency_module='module_that_should_not_exist_for_cpg_tests',
+        )
+
+        self.assertFalse(status['ready'])
+        self.assertFalse(status['dependency_installed'])
+        self.assertFalse(status['credentials_configured'])
+        self.assertEqual(status['findings'], [])
+
+    def test_google_provider_readiness_requires_dependency_and_credentials_when_enabled(self) -> None:
+        status = check_google_provider_readiness(
+            env={},
+            repo_root=Path('/repo'),
+            public_root=Path('/repo/projects/crewportglobal/public'),
+            require_google=True,
+            dependency_module='module_that_should_not_exist_for_cpg_tests',
+        )
+
+        codes = {finding['code'] for finding in status['findings']}
+        self.assertIn('google_credentials_not_configured', codes)
+        self.assertIn('google_cloud_translate_dependency_missing', codes)
+
+    def test_google_provider_readiness_passes_with_safe_config_and_installed_dependency(self) -> None:
+        status = check_google_provider_readiness(
+            env={
+                'GOOGLE_APPLICATION_CREDENTIALS': '/run/secrets/cpg-google-translate.json',
+                'GOOGLE_CLOUD_PROJECT': 'crewportglobal-localization',
+            },
+            repo_root=Path('/repo'),
+            public_root=Path('/repo/projects/crewportglobal/public'),
+            require_google=True,
+            dependency_module='json',
+        )
+
+        self.assertTrue(status['ready'])
+        self.assertTrue(status['dependency_installed'])
+        self.assertTrue(status['credentials_configured'])
+        self.assertEqual(status['findings'], [])
 
 
 if __name__ == '__main__':

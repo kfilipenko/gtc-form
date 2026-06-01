@@ -122,3 +122,9 @@ CPG-BIZ-071 - Translation cache Google dependency and protected environment read
 ```
 
 Цель: определить dependency installation boundary для `google-cloud-translate` и порядок запуска `--provider google` только в protected backend/build environment.
+
+Этот этап выполнен и зафиксирован в:
+
+```text
+docs/crewportglobal/266_cpg_biz_071_translation_google_dependency_readiness_report.md
+```

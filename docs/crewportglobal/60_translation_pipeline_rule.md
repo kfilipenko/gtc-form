@@ -61,6 +61,12 @@ The controlled cache-update provider selection is recorded in:
 docs/crewportglobal/265_cpg_biz_070_translation_cache_provider_selection_report.md
 ```
 
+The Google dependency and protected environment readiness gate is recorded in:
+
+```text
+docs/crewportglobal/266_cpg_biz_071_translation_google_dependency_readiness_report.md
+```
+
 ## 2. Canonical source model
 
 - English is the official and authoritative language of the platform.
@@ -188,6 +194,7 @@ Rule:
 - Google credentials may be supplied only through protected server/CI environment variables. `GOOGLE_APPLICATION_CREDENTIALS` must point to an absolute protected path outside the repository and public web tree, and `GOOGLE_CLOUD_PROJECT` must be present when Google translation is enabled.
 - The Google client may be called only through the backend/build provider adapter after credential-source validation succeeds. Tests must keep an injected fake client path so provider logic remains verifiable without network calls or real credentials.
 - Translation cache update commands must default to the deterministic `stub` provider. The `google` provider may be selected only explicitly and must fail closed when protected credentials are absent or invalid.
+- The `google-cloud-translate` dependency must remain optional and isolated from the default public/runtime dependency path. Protected backend/build environments must validate both dependency installation and protected credentials before running cache updates with `--provider google`.
 
 ## 5. Rebuild rule
 
@@ -242,6 +249,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.4 | 2026-06-01 | GTC IT / AI Assistant | Added Google dependency and protected environment readiness gate rule |
 | 1.3 | 2026-06-01 | GTC IT / AI Assistant | Added controlled provider selection rule for cache update command with stub default and fail-closed Google mode |
 | 1.2 | 2026-06-01 | GTC IT / AI Assistant | Added protected Google client adapter rule with credential validation before backend/build translate calls |
 | 1.1 | 2026-06-01 | GTC IT / AI Assistant | Added protected Google credential source rule using server/CI environment variables outside repository and public tree |

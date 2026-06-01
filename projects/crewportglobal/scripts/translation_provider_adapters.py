@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import importlib.util
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping, Protocol
@@ -177,3 +178,39 @@ def create_google_translation_provider(
         location=location,
         client=client,
     )
+
+
+def check_google_provider_readiness(
+    env: Mapping[str, str],
+    repo_root: Path,
+    public_root: Path,
+    require_google: bool = False,
+    dependency_module: str = 'google.cloud.translate_v3',
+) -> dict[str, object]:
+    credential_status = validate_google_credential_source(
+        env=env,
+        repo_root=repo_root,
+        public_root=public_root,
+        require_config=require_google,
+    )
+    findings = list(credential_status['findings'])
+    try:
+        dependency_installed = importlib.util.find_spec(dependency_module) is not None
+    except (ImportError, ModuleNotFoundError, ValueError):
+        dependency_installed = False
+
+    if require_google and not dependency_installed:
+        findings.append({
+            'code': 'google_cloud_translate_dependency_missing',
+            'message': 'google-cloud-translate must be installed in the protected backend/build environment.',
+        })
+
+    return {
+        'provider': 'google',
+        'runtime_boundary': 'backend_or_build_only',
+        'dependency_module': dependency_module,
+        'dependency_installed': dependency_installed,
+        'credentials_configured': credential_status['configured'],
+        'ready': bool(dependency_installed and credential_status['configured'] and not findings),
+        'findings': findings,
+    }

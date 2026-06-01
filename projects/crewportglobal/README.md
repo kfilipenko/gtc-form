@@ -84,6 +84,8 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - The publish-ready export includes low-risk machine drafts and human-reviewed sensitive entries only; unreviewed complaint, no-fee, privacy, consent, legal and terms text remains excluded.
 - Check the Google provider boundary with: npm run check:cpg-translation-provider-boundary
 - Check protected Google credential source with: npm run check:cpg-translation-credential-source
+- Check protected Google dependency readiness with: npm run check:cpg-translation-google-readiness
+- Install Google translation dependency only in protected backend/build environments with: python3 -m pip install -r projects/crewportglobal/requirements.translation-google.txt
 - The Google provider adapter now supports a protected backend/build client path, but no live Google API call or browser credential flow is connected in default local mode.
 - The public website still consumes the shared browser runtime in public/assets/crewportglobal-public-i18n.js and page-local dictionaries in public/index.html; automatic emission from JSON catalogs into publish-time dictionaries remains a future integration step.
 - The validator now reads JSON catalogs from projects/crewportglobal/i18n/ when present in addition to the existing publish-time dictionaries.

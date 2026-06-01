@@ -36,6 +36,7 @@ The current website text-translation methodology is:
 17. Protected Google credential source checks are documented in docs/crewportglobal/263_cpg_biz_068_translation_cache_google_credential_source_report.md.
 18. Protected Google client adapter implementation is documented in docs/crewportglobal/264_cpg_biz_069_translation_cache_google_client_adapter_report.md.
 19. Controlled translation cache provider selection is documented in docs/crewportglobal/265_cpg_biz_070_translation_cache_provider_selection_report.md.
+20. Google dependency and protected environment readiness checks are documented in docs/crewportglobal/266_cpg_biz_071_translation_google_dependency_readiness_report.md.
 
 ## 3. Implemented controls
 
@@ -58,6 +59,7 @@ The following controls are now in place:
 15. Protected Google credential source validation allows non-Google local mode without credentials, but blocks partial or unsafe Google configuration.
 16. Google translation client creation is available only after credential-source validation and can be tested with an injected backend/build client without real Google credentials.
 17. Cache update command defaults to `stub`; explicit `google` selection fails closed before cache mutation when protected credentials are absent or invalid.
+18. Google dependency readiness is isolated behind an optional requirements file and a dedicated checker; local mode reports not-ready without failing, while protected mode can fail strictly with `--require-google`.
 
 ## 4. Validation results
 
@@ -109,7 +111,7 @@ If validation changes, update the affected validator and regression checks in th
 
 ## 7. Out-of-scope confirmation
 
-The CPG-BIZ-063 through CPG-BIZ-070 translation-cache slices did not require changes to:
+The CPG-BIZ-063 through CPG-BIZ-071 translation-cache slices did not require changes to:
 
 1. backend
 2. database
@@ -122,6 +124,7 @@ The CPG-BIZ-063 through CPG-BIZ-070 translation-cache slices did not require cha
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.3 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-071 Google dependency and protected environment readiness gate |
 | 1.2 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-070 provider selection in translation cache update command |
 | 1.1 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-069 protected Google client adapter behind credential validation |
 | 1.0 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-068 protected Google credential source decision and validation command |

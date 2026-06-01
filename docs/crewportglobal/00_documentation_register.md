@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.52
+- Version: 2.53
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -352,6 +352,7 @@ docs/crewportglobal/
   263_cpg_biz_068_translation_cache_google_credential_source_report.md
   264_cpg_biz_069_translation_cache_google_client_adapter_report.md
   265_cpg_biz_070_translation_cache_provider_selection_report.md
+  266_cpg_biz_071_translation_google_dependency_readiness_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -779,6 +780,8 @@ Document 264 records the CPG-BIZ-069 protected Google client adapter implementat
 
 Document 265 records the CPG-BIZ-070 translation cache provider selection implementation, including `stub` default mode, explicit `google` mode, and fail-closed Google behavior when protected credentials are absent.
 
+Document 266 records the CPG-BIZ-071 Google translation dependency and protected environment readiness gate, including optional Google dependency isolation, local non-blocking readiness checks and strict protected-environment validation.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -882,6 +885,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.53 | 2026-06-01 | GTC IT / AI Assistant | Added document 266 for Google translation dependency and protected environment readiness gate |
 | 2.52 | 2026-06-01 | GTC IT / AI Assistant | Added document 265 for controlled translation cache provider selection with stub default and fail-closed Google mode |
 | 2.51 | 2026-06-01 | GTC IT / AI Assistant | Added document 264 for protected Google translation client adapter implementation behind credential validation |
 | 2.50 | 2026-06-01 | GTC IT / AI Assistant | Added document 263 for protected Google translation credential source validation and deployment prerequisites |
