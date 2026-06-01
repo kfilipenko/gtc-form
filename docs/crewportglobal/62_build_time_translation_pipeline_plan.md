@@ -61,10 +61,11 @@ The first cache implementation skeleton adds:
 7. projects/crewportglobal/scripts/check_translation_provider_boundary.py
 8. projects/crewportglobal/scripts/check_translation_credential_source.py
 9. projects/crewportglobal/scripts/check_translation_google_readiness.py
-10. projects/crewportglobal/requirements.translation-google.txt
-11. projects/crewportglobal/i18n/translation-cache.json
-12. projects/crewportglobal/i18n/cache-export/
-13. projects/crewportglobal/i18n/publish-ready-export/
+10. projects/crewportglobal/scripts/smoke_translation_google_provider.py
+11. projects/crewportglobal/requirements.translation-google.txt
+12. projects/crewportglobal/i18n/translation-cache.json
+13. projects/crewportglobal/i18n/cache-export/
+14. projects/crewportglobal/i18n/publish-ready-export/
 
 The default skeleton flow uses only a deterministic stub provider and does not call Google APIs.
 
@@ -132,17 +133,19 @@ When the project chooses to operationalize automatic draft generation, the next 
 2. run credential-source validation in the deployment environment with `--require-config`;
 3. install the Google Cloud Translate client dependency only in protected backend/build environment;
 4. run Google readiness validation in the deployment environment with `--require-google`;
-5. run cache update with explicit `--provider google` only after readiness validation passes;
-6. keep the deterministic stub provider available for local tests;
-7. expand the English source catalog coverage;
-8. generate target JSON catalogs from the selected provider only through backend/build automation;
-9. add a deterministic publish-time export step from publish-ready JSON catalogs into the shared runtime dictionaries or another prebuilt runtime bundle;
-10. keep validator and documentation synchronized with that emission path.
+5. run the one-key in-memory Google smoke test;
+6. run cache update with explicit `--provider google` only after readiness and smoke validation pass;
+7. keep the deterministic stub provider available for local tests;
+8. expand the English source catalog coverage;
+9. generate target JSON catalogs from the selected provider only through backend/build automation;
+10. add a deterministic publish-time export step from publish-ready JSON catalogs into the shared runtime dictionaries or another prebuilt runtime bundle;
+11. keep validator and documentation synchronized with that emission path.
 
 ## 10. Revision history
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.2 | 2026-06-01 | GTC IT / AI Assistant | Added protected one-key Google provider smoke test before real cache updates |
 | 1.1 | 2026-06-01 | GTC IT / AI Assistant | Added optional Google dependency file and strict protected-environment readiness check |
 | 1.0 | 2026-06-01 | GTC IT / AI Assistant | Recorded controlled cache update provider selection with stub default and explicit Google mode |
 | 0.9 | 2026-06-01 | GTC IT / AI Assistant | Recorded protected Google client adapter implementation and next provider-selection integration step |

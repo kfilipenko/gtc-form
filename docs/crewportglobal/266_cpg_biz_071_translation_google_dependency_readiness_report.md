@@ -166,3 +166,9 @@ CPG-BIZ-072 - Translation cache protected Google smoke test plan
 ```
 
 Цель: подготовить пошаговый smoke-test сценарий для защищенной среды, где будут настроены credentials и dependency, но publication в live runtime все еще останется отдельным approval gate.
+
+Этот этап выполнен и зафиксирован в:
+
+```text
+docs/crewportglobal/267_cpg_biz_072_translation_google_protected_smoke_test_report.md
+```

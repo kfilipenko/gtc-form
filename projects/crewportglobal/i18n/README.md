@@ -30,8 +30,9 @@ This directory contains the seed build-time translation catalogs for CrewPortGlo
 7. Check provider secret boundary with python projects/crewportglobal/scripts/check_translation_provider_boundary.py
 8. Check protected Google credential source with python projects/crewportglobal/scripts/check_translation_credential_source.py
 9. Check protected Google dependency readiness with python projects/crewportglobal/scripts/check_translation_google_readiness.py
-10. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
-11. Keep sensitive publication text under human review before release.
+10. Run the protected one-key Google smoke only in the configured backend/build environment with python projects/crewportglobal/scripts/smoke_translation_google_provider.py
+11. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
+12. Keep sensitive publication text under human review before release.
 
 ## Boundary
 
@@ -58,5 +59,7 @@ The Google client adapter is implemented behind credential validation. Real Goog
 Cache update provider selection is explicit. `stub` is the default and local-safe provider. `google` must be selected with `--provider google` and fails closed unless protected credentials are valid.
 
 The Google Cloud Translate Python dependency is isolated in projects/crewportglobal/requirements.translation-google.txt. Install it only in protected backend/build environments that are allowed to run `--provider google`. Local development and public runtime must not require that dependency.
+
+The protected smoke script translates one approved English key into one target language in memory only. It must stop before provider calls unless Google readiness passes.
 
 No real provider credential should be committed to the repository.
