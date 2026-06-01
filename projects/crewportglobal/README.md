@@ -84,6 +84,8 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - Export publish-ready cache catalogs with: npm run build:cpg-i18n-publish-ready
 - Build the prebuilt publish-ready runtime bundle with: npm run build:cpg-i18n-runtime-bundle
 - Validate the prebuilt runtime bundle with: npm run check:cpg-i18n-runtime-bundle
+- The runtime bundle build writes the canonical artifact under projects/crewportglobal/i18n/runtime-bundle/ and the public static artifact under projects/crewportglobal/public/assets/crewportglobal-machine-translations.js.
+- Public pages that use public/assets/crewportglobal-public-i18n.js must load public/assets/crewportglobal-machine-translations.js first.
 - Mark human-reviewed sensitive entries with: python3 projects/crewportglobal/scripts/review_translation_cache.py --keys <key> --targets <lang> --reviewed-by <user_id>
 - The publish-ready export includes low-risk machine drafts and human-reviewed sensitive entries only; unreviewed complaint, no-fee, privacy, consent, legal and terms text remains excluded.
 - Check the Google provider boundary with: npm run check:cpg-translation-provider-boundary
@@ -92,8 +94,8 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - Install Google translation dependency only in protected backend/build environments with: python3 -m pip install -r projects/crewportglobal/requirements.translation-google.txt
 - Run a protected one-key Google provider smoke test only after readiness passes with: npm run smoke:cpg-translation-google-provider
 - The Google provider adapter now supports a protected backend/build client path, but no live Google API call or browser credential flow is connected in default local mode.
-- The public website consumes the shared browser runtime in public/assets/crewportglobal-public-i18n.js, page-local dictionaries in public/index.html and a validated prebuilt machine bundle when that bundle is explicitly loaded before or during runtime use.
-- Connecting the generated machine bundle script to selected public pages remains a separate controlled publication step.
+- The public website consumes the shared browser runtime in public/assets/crewportglobal-public-i18n.js, page-local dictionaries in public/index.html and the validated prebuilt machine bundle loaded before the shared runtime.
+- Public bundle publication is controlled by the generated static public asset and a script-ordering regression test.
 - The validator now reads JSON catalogs from projects/crewportglobal/i18n/ when present in addition to the existing publish-time dictionaries.
 
 ## Seafarer final confirmation

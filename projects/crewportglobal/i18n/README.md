@@ -54,7 +54,9 @@ The publish-ready export is the only cache export intended for future runtime-bu
 
 The runtime-bundle directory contains prebuilt publish-ready artifacts for browser-runtime integration. The shared runtime validates `window.CREWPORTGLOBAL_MACHINE_TRANSLATION_BUNDLE` before use and ignores invalid bundles.
 
-Bundle generation alone does not connect those artifacts to live pages. Selecting which public pages load the bundle script remains a controlled publication step.
+Bundle generation writes both the canonical runtime-bundle artifact and the public static asset at projects/crewportglobal/public/assets/crewportglobal-machine-translations.js.
+
+Public pages that use projects/crewportglobal/public/assets/crewportglobal-public-i18n.js must load the public machine bundle before the shared runtime. The bundle checker validates that the public copy matches the canonical generated artifact.
 
 The Google provider adapter is a backend/build boundary only. It must not be used from public browser code. The provider boundary checker scans the public tree for Google credential markers and translation API endpoint references.
 

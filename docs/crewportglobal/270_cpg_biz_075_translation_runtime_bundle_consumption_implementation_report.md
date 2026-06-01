@@ -119,3 +119,9 @@ CPG-BIZ-076 - Controlled runtime bundle publication on selected public pages
 ```
 
 Цель: определить, где именно static bundle script должен подключаться к public pages, чтобы live pages получили approved machine localization without duplicating runtime logic.
+
+Результат реализации зафиксирован в:
+
+```text
+docs/crewportglobal/271_cpg_biz_076_controlled_runtime_bundle_publication_report.md
+```

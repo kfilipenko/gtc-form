@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 const repositoryRoot = process.cwd();
+const publicRoot = path.join(repositoryRoot, 'projects/crewportglobal/public');
 const publicI18nRuntimePath = path.join(repositoryRoot, 'projects/crewportglobal/public/assets/crewportglobal-public-i18n.js');
 const machineBundlePath = path.join(repositoryRoot, 'projects/crewportglobal/i18n/runtime-bundle/crewportglobal-machine-translations.js');
 
@@ -334,6 +335,43 @@ test('shared runtime ignores an invalid machine bundle and keeps English fallbac
   `);
 
   await expect(page.locator('#machine-key')).toHaveText('Application');
+});
+
+test('published homepage loads the machine bundle for supported machine-localized languages', async ({ page }) => {
+  await page.goto('/index.html');
+
+  await page.locator('#current-language-toggle').click();
+  await page.locator('.language-option').filter({ hasText: 'Українська' }).click();
+
+  await expect(page.locator('#current-language-label')).toHaveText('Українська');
+  await expect(page.locator('.language-toggle__hint')).toHaveText('[uk machine draft] Language');
+});
+
+test('public pages load the machine bundle before the shared runtime', async () => {
+  const htmlFiles: string[] = [];
+  const collect = (directory: string) => {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const entryPath = path.join(directory, entry.name);
+      if (entry.isDirectory()) {
+        collect(entryPath);
+      } else if (entry.isFile() && entry.name.endsWith('.html')) {
+        htmlFiles.push(entryPath);
+      }
+    }
+  };
+
+  collect(publicRoot);
+
+  const runtimePages = htmlFiles.filter((htmlFile) => fs.readFileSync(htmlFile, 'utf8').includes('crewportglobal-public-i18n.js'));
+  expect(runtimePages.length).toBeGreaterThan(0);
+
+  for (const htmlFile of runtimePages) {
+    const html = fs.readFileSync(htmlFile, 'utf8');
+    const bundleIndex = html.indexOf('crewportglobal-machine-translations.js');
+    const runtimeIndex = html.indexOf('crewportglobal-public-i18n.js');
+    expect(bundleIndex, `${htmlFile} must load the machine bundle`).toBeGreaterThanOrEqual(0);
+    expect(bundleIndex, `${htmlFile} must load the machine bundle before shared runtime`).toBeLessThan(runtimeIndex);
+  }
 });
 
 test('create-profile holds the consolidated seafarer final consent and no onboarding route link', async ({ page }) => {

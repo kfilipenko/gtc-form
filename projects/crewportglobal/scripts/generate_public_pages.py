@@ -22,6 +22,7 @@ PROJECT_ROOT: Final = Path(__file__).resolve().parent.parent
 PUBLIC_ROOT: Final = PROJECT_ROOT / "public"
 CSS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-docs.css"
 I18N_JS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-public-i18n.js"
+MACHINE_I18N_JS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-machine-translations.js"
 NAVIGATION_JS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-navigation.js"
 FAVICON_LINKS: Final = """  <link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/favicon-32x32.png\">\n  <link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/favicon-16x16.png\">\n  <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/apple-touch-icon.png\">\n  <link rel=\"shortcut icon\" href=\"/favicon.ico\">"""
 APPLICATION_NAV_ITEMS: Final = [
@@ -317,11 +318,14 @@ def render_page(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
     asset_href = Path("/".join([".."] * len(doc_dir.relative_to(PUBLIC_ROOT).parts)) or ".")
     stylesheet_href = (asset_href / "assets" / CSS_PATH.name).as_posix()
     script_href = (asset_href / "assets" / I18N_JS_PATH.name).as_posix()
+    machine_script_href = (asset_href / "assets" / MACHINE_I18N_JS_PATH.name).as_posix()
     navigation_script_href = (asset_href / "assets" / NAVIGATION_JS_PATH.name).as_posix()
     if stylesheet_href.startswith("./"):
         stylesheet_href = stylesheet_href[2:]
     if script_href.startswith("./"):
         script_href = script_href[2:]
+    if machine_script_href.startswith("./"):
+        machine_script_href = machine_script_href[2:]
     if navigation_script_href.startswith("./"):
         navigation_script_href = navigation_script_href[2:]
 
@@ -343,6 +347,7 @@ def render_page(doc: dict[str, object], docs: list[dict[str, object]]) -> str:
   <link rel="canonical" href="{slug_to_clean_url(doc['slug'])}">
 {FAVICON_LINKS}
   <link rel="stylesheet" href="{stylesheet_href}">
+    <script src="{machine_script_href}" defer></script>
     <script src="{script_href}" defer></script>
 </head>
 <body class="doc-body" data-enable-public-translate="true">

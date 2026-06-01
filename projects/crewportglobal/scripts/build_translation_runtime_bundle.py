@@ -16,6 +16,7 @@ DEFAULT_PUBLISH_READY_DIR = REPO_ROOT / 'projects' / 'crewportglobal' / 'i18n' /
 DEFAULT_BUNDLE_DIR = REPO_ROOT / 'projects' / 'crewportglobal' / 'i18n' / 'runtime-bundle'
 DEFAULT_BUNDLE_FILE = DEFAULT_BUNDLE_DIR / 'crewportglobal-machine-translations.js'
 DEFAULT_MANIFEST_FILE = DEFAULT_BUNDLE_DIR / 'manifest.json'
+DEFAULT_PUBLIC_BUNDLE_FILE = REPO_ROOT / 'projects' / 'crewportglobal' / 'public' / 'assets' / 'crewportglobal-machine-translations.js'
 
 
 def utc_now() -> str:
@@ -88,10 +89,14 @@ def build_manifest(payload: dict[str, Any], bundle_file: Path) -> dict[str, Any]
     }
 
 
-def write_bundle(bundle_file: Path, manifest_file: Path, payload: dict[str, Any]) -> None:
+def write_bundle(bundle_file: Path, manifest_file: Path, payload: dict[str, Any], public_bundle_file: Path | None) -> None:
     bundle_file.parent.mkdir(parents=True, exist_ok=True)
-    bundle_file.write_text(render_bundle_js(payload), encoding='utf-8')
+    bundle_js = render_bundle_js(payload)
+    bundle_file.write_text(bundle_js, encoding='utf-8')
     write_json(manifest_file, build_manifest(payload, bundle_file))
+    if public_bundle_file:
+        public_bundle_file.parent.mkdir(parents=True, exist_ok=True)
+        public_bundle_file.write_text(bundle_js, encoding='utf-8')
 
 
 def main() -> int:
@@ -102,6 +107,7 @@ def main() -> int:
     parser.add_argument('--publish-ready-dir', default=str(DEFAULT_PUBLISH_READY_DIR))
     parser.add_argument('--bundle-file', default=str(DEFAULT_BUNDLE_FILE))
     parser.add_argument('--manifest-file', default=str(DEFAULT_MANIFEST_FILE))
+    parser.add_argument('--public-bundle-file', default=str(DEFAULT_PUBLIC_BUNDLE_FILE))
     parser.add_argument('--targets', nargs='*')
     args = parser.parse_args()
 
@@ -110,13 +116,16 @@ def main() -> int:
     payload = build_bundle_payload(source_catalog, target_catalogs)
     bundle_file = Path(args.bundle_file).resolve()
     manifest_file = Path(args.manifest_file).resolve()
-    write_bundle(bundle_file, manifest_file, payload)
+    public_bundle_file = Path(args.public_bundle_file).resolve() if args.public_bundle_file else None
+    write_bundle(bundle_file, manifest_file, payload, public_bundle_file)
 
     for language in payload['target_languages']:
         key_count = len(payload['catalogs'][language])
         print(f'Bundled {key_count} publish-ready entries for {language}')
     print(f'Runtime bundle written: {bundle_file}')
     print(f'Runtime manifest written: {manifest_file}')
+    if public_bundle_file:
+        print(f'Public runtime bundle written: {public_bundle_file}')
     return 0
 
 

@@ -91,6 +91,12 @@ The runtime bundle consumption implementation is recorded in:
 docs/crewportglobal/270_cpg_biz_075_translation_runtime_bundle_consumption_implementation_report.md
 ```
 
+The controlled runtime bundle publication implementation is recorded in:
+
+```text
+docs/crewportglobal/271_cpg_biz_076_controlled_runtime_bundle_publication_report.md
+```
+
 ## 2. Canonical source model
 
 - English is the official and authoritative language of the platform.
@@ -223,6 +229,7 @@ Rule:
 - Publish-ready machine translations may be emitted into a prebuilt runtime bundle only after cache validation and publish-ready export. Bundle emission must not by itself connect the bundle to the live browser runtime.
 - Browser runtime consumption of the prebuilt machine-translation bundle must remain dictionary-only: no provider calls, no form-value translation, no raw key exposure, and English fallback must remain authoritative.
 - The shared public runtime may consume `window.CREWPORTGLOBAL_MACHINE_TRANSLATION_BUNDLE` only after validating schema version, official English source, no browser provider calls, no form-value translation and object-shaped language catalogs. Invalid bundles must be ignored.
+- Public pages that load the shared runtime must load the prebuilt machine bundle before `crewportglobal-public-i18n.js`. The public bundle file must match the canonical generated runtime-bundle artifact.
 
 ## 5. Rebuild rule
 
@@ -277,6 +284,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.9 | 2026-06-01 | GTC IT / AI Assistant | Added controlled public bundle publication and script ordering rule |
 | 1.8 | 2026-06-01 | GTC IT / AI Assistant | Added implemented runtime bundle consumption validation and fail-closed behavior |
 | 1.7 | 2026-06-01 | GTC IT / AI Assistant | Added runtime bundle consumption design rule with dictionary-only lookup and English fallback |
 | 1.6 | 2026-06-01 | GTC IT / AI Assistant | Added publish-ready runtime bundle emission boundary |

@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from build_translation_runtime_bundle import DEFAULT_BUNDLE_FILE, DEFAULT_MANIFEST_FILE
+from build_translation_runtime_bundle import DEFAULT_BUNDLE_FILE, DEFAULT_MANIFEST_FILE, DEFAULT_PUBLIC_BUNDLE_FILE
 
 
 BUNDLE_PREFIX = 'window.CREWPORTGLOBAL_MACHINE_TRANSLATION_BUNDLE = '
@@ -32,10 +32,12 @@ def main() -> int:
     )
     parser.add_argument('--bundle-file', default=str(DEFAULT_BUNDLE_FILE))
     parser.add_argument('--manifest-file', default=str(DEFAULT_MANIFEST_FILE))
+    parser.add_argument('--public-bundle-file', default=str(DEFAULT_PUBLIC_BUNDLE_FILE))
     args = parser.parse_args()
 
     bundle_file = Path(args.bundle_file).resolve()
     manifest_file = Path(args.manifest_file).resolve()
+    public_bundle_file = Path(args.public_bundle_file).resolve() if args.public_bundle_file else None
     payload = read_bundle_payload(bundle_file)
     manifest = json.loads(manifest_file.read_text(encoding='utf-8'))
     findings: list[str] = []
@@ -70,10 +72,17 @@ def main() -> int:
         findings.append('manifest_target_languages_mismatch')
     if manifest.get('runtime_boundary') != boundary:
         findings.append('manifest_runtime_boundary_mismatch')
+    if public_bundle_file:
+        if not public_bundle_file.exists():
+            findings.append('public_bundle_missing')
+        elif public_bundle_file.read_text(encoding='utf-8') != bundle_file.read_text(encoding='utf-8'):
+            findings.append('public_bundle_differs_from_runtime_bundle')
 
     print('Translation runtime bundle validation')
     print(f'bundle_file={bundle_file}')
     print(f'manifest_file={manifest_file}')
+    if public_bundle_file:
+        print(f'public_bundle_file={public_bundle_file}')
     print(f"target_languages={','.join(target_languages or [])}")
     print(f'findings: {len(findings)}')
     for finding in findings:
