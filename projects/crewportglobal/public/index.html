@@ -60,9 +60,10 @@
 
     .audience-card {
       display: grid;
-      gap: 12px;
+      grid-template-rows: auto auto;
+      gap: 14px;
       min-width: 0;
-      padding: 18px;
+      padding: 16px;
       border-radius: 18px;
       border: 1px solid rgba(78, 196, 213, 0.24);
       background: rgba(255, 255, 255, 0.055);
@@ -77,11 +78,16 @@
       letter-spacing: 0;
     }
 
-    .audience-card p,
     .proof-card p {
       margin: 0;
       color: var(--muted-on-dark);
       line-height: 1.55;
+    }
+
+    .audience-card .button {
+      width: 100%;
+      min-height: 48px;
+      justify-content: center;
     }
 
     .trust-strip {
@@ -710,18 +716,16 @@
           <div class="audience-grid" aria-label="Choose your route" data-i18n-aria-label="home.audience.aria">
             <section class="audience-card">
               <h2 data-i18n="home.audience.seafarer.title">I am a seafarer</h2>
-              <p data-i18n="home.audience.seafarer.copy">Find a contract faster: create a seafarer profile in 2 minutes, with no recruitment fees.</p>
-              <a class="button primary" href="https://crewportglobal.com/register/?role=seafarer" data-i18n="home.audience.seafarer.cta">Create profile in 2 minutes</a>
+              <a class="button primary" href="https://crewportglobal.com/register/?role=seafarer" data-i18n="home.audience.seafarer.cta">Create profile</a>
             </section>
             <section class="audience-card">
-              <h2 data-i18n="home.audience.employer.title">I need crew</h2>
-              <p data-i18n="home.audience.employer.copy">Close crew needs predictably: structured requests and reviewed candidates in one process.</p>
-              <a class="button primary" href="https://crewportglobal.com/register/?role=employer" data-i18n="home.audience.employer.cta">Post crew request in 3 minutes</a>
+              <h2 data-i18n="home.audience.employer.title">I am a shipowner</h2>
+              <a class="button primary" href="https://crewportglobal.com/register/?role=employer" data-i18n="home.audience.employer.cta">Post vacancy</a>
             </section>
           </div>
           <div class="trust-strip" aria-label="Trust points" data-i18n-aria-label="home.trust.aria">
             <span data-i18n="home.trust.noFees">No seafarer fees</span>
-            <span data-i18n="home.trust.reviewed">Reviewed employer data</span>
+            <span data-i18n="home.trust.reviewed">Documented request evidence</span>
             <span data-i18n="home.trust.support">Transparent support process</span>
           </div>
           <div id="home-hero-proof" class="registry-count-grid" aria-live="polite" hidden>
@@ -759,7 +763,7 @@
         <div class="bp-cycle-header">
           <div>
             <p class="eyebrow" data-i18n="home.bp.eyebrow">BP-015 operating cycle</p>
-            <h2 class="section-title" data-i18n="home.bp.title">From registration to crew delivery, billing evidence and repeat voyage.</h2>
+            <h2 class="section-title" data-i18n="home.bp.title">From registration to long-term cooperation.</h2>
           </div>
           <a class="button secondary" href="https://crewportglobal.com/register/" data-i18n="home.bp.cta">Start registration</a>
         </div>
@@ -856,14 +860,12 @@
         'home.hero.subtitle': 'The platform connects seafarers and maritime employers through a transparent, verifiable workflow without unnecessary bureaucracy at the start.',
         'home.audience.aria': 'Choose your route',
         'home.audience.seafarer.title': 'I am a seafarer',
-        'home.audience.seafarer.copy': 'Find a contract faster: create a seafarer profile in 2 minutes, with no recruitment fees.',
-        'home.audience.seafarer.cta': 'Create profile in 2 minutes',
-        'home.audience.employer.title': 'I need crew',
-        'home.audience.employer.copy': 'Close crew needs predictably: structured requests and reviewed candidates in one process.',
-        'home.audience.employer.cta': 'Post crew request in 3 minutes',
+        'home.audience.seafarer.cta': 'Create profile',
+        'home.audience.employer.title': 'I am a shipowner',
+        'home.audience.employer.cta': 'Post vacancy',
         'home.trust.aria': 'Trust points',
         'home.trust.noFees': 'No seafarer fees',
-        'home.trust.reviewed': 'Reviewed employer data',
+        'home.trust.reviewed': 'Documented request evidence',
         'home.trust.support': 'Transparent support process',
         'home.partners.title': 'Our Partners',
         'home.partners.aria': 'Partner preview',
@@ -917,7 +919,7 @@
         'home.boundary.title': 'Matching is reviewed before presentation',
         'home.boundary.copy': 'Data comparison supports operators; final presentation remains controlled.',
         'home.bp.eyebrow': 'BP-015 operating cycle',
-        'home.bp.title': 'From registration to crew delivery, billing evidence and repeat voyage.',
+        'home.bp.title': 'From registration to long-term cooperation.',
         'home.bp.cta': 'Start registration',
         'home.bp.aria': 'CrewPortGlobal commercial operating cycle',
         'home.bp.step1.title': 'Register',
@@ -979,14 +981,12 @@
         'home.hero.subtitle': 'Платформа соединяет моряков и судовладельцев через прозрачный проверяемый процесс без лишней бюрократии на старте.',
         'home.audience.aria': 'Выберите свой маршрут',
         'home.audience.seafarer.title': 'Я моряк',
-        'home.audience.seafarer.copy': 'Найдите контракт быстрее: профиль моряка за 2 минуты, без рекрутинговых сборов.',
-        'home.audience.seafarer.cta': 'Создать профиль за 2 минуты',
-        'home.audience.employer.title': 'Мне нужен экипаж',
-        'home.audience.employer.copy': 'Закрывайте экипаж предсказуемо: структурированная заявка и проверенные кандидаты в одном процессе.',
-        'home.audience.employer.cta': 'Разместить заявку за 3 минуты',
+        'home.audience.seafarer.cta': 'Создать профиль',
+        'home.audience.employer.title': 'Я судовладелец',
+        'home.audience.employer.cta': 'Разместить вакансию',
         'home.trust.aria': 'Доверительные признаки',
         'home.trust.noFees': 'Без комиссий для моряков',
-        'home.trust.reviewed': 'Проверка работодателей и данных',
+        'home.trust.reviewed': 'Документальное подтверждение заявок',
         'home.trust.support': 'Прозрачный процесс и поддержка',
         'home.partners.title': 'Наши партнеры',
         'home.partners.aria': 'Предпросмотр партнеров',
@@ -1040,7 +1040,7 @@
         'home.boundary.title': 'Сопоставление проверяется до представления',
         'home.boundary.copy': 'Сравнение данных помогает оператору; финальное представление остается контролируемым.',
         'home.bp.eyebrow': 'Операционный цикл BP-015',
-        'home.bp.title': 'От регистрации до передачи экипажа, доказательств услуги и следующего рейса.',
+        'home.bp.title': 'От регистрации до постоянного сотрудничества.',
         'home.bp.cta': 'Начать регистрацию',
         'home.bp.aria': 'Коммерческий операционный цикл CrewPortGlobal',
         'home.bp.step1.title': 'Регистрация',
