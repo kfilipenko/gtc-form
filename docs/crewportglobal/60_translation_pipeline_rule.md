@@ -149,6 +149,8 @@ Rule:
 - Browser-side code must consume prebuilt dictionaries only and must not call translation providers directly.
 - Browser-side code must not attempt to force the browser's built-in page translation UI from JavaScript.
 - The first cache implementation layer must use a stub provider until cache behavior, invalidation and export are verified without external credentials.
+- Publication checks must report stale cache entries, missing current entries, source-hash mismatches, orphan entries and review-required entries before localized bundles are exported for live use.
+- Strict publish mode must block regulated or sensitive translated text unless it has been human reviewed.
 
 ## 5. Rebuild rule
 
@@ -203,6 +205,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.8 | 2026-06-01 | GTC IT / AI Assistant | Added translation cache publish-gate validation requirements for stale, missing, hash-mismatch, orphan and review-required entries |
 | 0.7 | 2026-06-01 | GTC IT / AI Assistant | Added the CPG-BIZ-064 stub-provider cache skeleton as the required first implementation layer before connecting Google credentials |
 | 0.6 | 2026-06-01 | GTC IT / AI Assistant | Added reference to CPG-BIZ-063 backend cache design, provider-aware cache key, review statuses and explicit human-review gate for sensitive machine-localized text |
 | 0.5 | 2026-06-01 | GTC IT / AI Assistant | Clarified English as the official authoritative platform language, localization as machine translation for convenience, Google Cloud Translation API / Google Translate as the default provider, English/Latin-only operational form data, source-hash cache invalidation and no translation of completed user form values |

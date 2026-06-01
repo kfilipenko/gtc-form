@@ -146,3 +146,9 @@ CPG-BIZ-065 - Translation cache stale-source validator and publish-gate report
 ```
 
 Цель: добавить validator, который будет явно показывать stale translations, review-required translations и запрещать publish-time export для regulated text без review.
+
+Status update:
+
+```text
+CPG-BIZ-065 implemented in docs/crewportglobal/260_cpg_biz_065_translation_cache_publish_gate_report.md.
+```

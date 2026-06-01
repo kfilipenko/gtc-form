@@ -10,6 +10,7 @@ from translation_cache import (
     source_hash,
     update_cache,
 )
+from validate_translation_cache import validate_translation_cache
 
 
 class TranslationCacheTests(unittest.TestCase):
@@ -76,6 +77,48 @@ class TranslationCacheTests(unittest.TestCase):
         exported = export_catalogs(cache, ['ru'])
 
         self.assertEqual(exported['ru'], {'nav.home': '[ru machine draft] Start'})
+
+    def test_validator_reports_review_required_but_no_stale_for_current_cache(self) -> None:
+        cache = {'schema_version': 1, 'entries': []}
+        provider = StubTranslationProvider()
+        source_catalog = {
+            'legal.privacy.title': 'Privacy Policy',
+            'nav.home': 'Home',
+        }
+        update_cache(source_catalog, cache, ['ru'], provider)
+
+        findings = validate_translation_cache(source_catalog, cache, ['ru'], provider)
+
+        self.assertEqual(findings['stale_entries'], [])
+        self.assertEqual(findings['missing_current_entries'], [])
+        self.assertEqual(findings['hash_mismatch_entries'], [])
+        self.assertEqual(len(findings['review_required_entries']), 1)
+
+    def test_validator_reports_missing_current_entries(self) -> None:
+        cache = {'schema_version': 1, 'entries': []}
+        provider = StubTranslationProvider()
+        update_cache({'nav.home': 'Home'}, cache, ['ru'], provider)
+
+        findings = validate_translation_cache(
+            {'nav.home': 'Home', 'nav.vacancies': 'Vacancies'},
+            cache,
+            ['ru'],
+            provider,
+        )
+
+        self.assertEqual(len(findings['missing_current_entries']), 1)
+        self.assertEqual(findings['missing_current_entries'][0]['translation_key'], 'nav.vacancies')
+
+    def test_validator_reports_stale_entries(self) -> None:
+        cache = {'schema_version': 1, 'entries': []}
+        provider = StubTranslationProvider()
+        update_cache({'nav.home': 'Home'}, cache, ['ru'], provider)
+        update_cache({'nav.home': 'Start'}, cache, ['ru'], provider)
+
+        findings = validate_translation_cache({'nav.home': 'Start'}, cache, ['ru'], provider)
+
+        self.assertEqual(len(findings['stale_entries']), 1)
+        self.assertEqual(findings['missing_current_entries'], [])
 
 
 if __name__ == '__main__':

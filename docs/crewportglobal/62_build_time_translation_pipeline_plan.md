@@ -54,8 +54,9 @@ The first cache implementation skeleton adds:
 
 1. projects/crewportglobal/scripts/translation_cache.py
 2. projects/crewportglobal/scripts/test_translation_cache.py
-3. projects/crewportglobal/i18n/translation-cache.json
-4. projects/crewportglobal/i18n/cache-export/
+3. projects/crewportglobal/scripts/validate_translation_cache.py
+4. projects/crewportglobal/i18n/translation-cache.json
+5. projects/crewportglobal/i18n/cache-export/
 
 The skeleton uses only a deterministic stub provider and does not call Google APIs.
 
@@ -122,6 +123,7 @@ When the project chooses to operationalize automatic draft generation, the next 
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.5 | 2026-06-01 | GTC IT / AI Assistant | Added publish-gate validator to the cache skeleton plan, including stale/missing/hash-mismatch/orphan/review-required reporting |
 | 0.4 | 2026-06-01 | GTC IT / AI Assistant | Recorded the first file-backed translation cache skeleton with stub provider, cache export artifacts and unit-test entrypoint |
 | 0.3 | 2026-06-01 | GTC IT / AI Assistant | Linked the CPG-BIZ-063 backend cache design, clarified provider-aware cache keys, publication status gates and the stub-provider-first implementation order |
 | 0.2 | 2026-06-01 | GTC IT / AI Assistant | Clarified Google Cloud Translation API / Google Translate as the default provider, source-hash cache expectations and English/Latin-only operational form data outside translation scope |

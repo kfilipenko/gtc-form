@@ -23,8 +23,9 @@ This directory contains the seed build-time translation catalogs for CrewPortGlo
 1. Update projects/crewportglobal/i18n/en.json when approved source strings are added to the pilot catalog.
 2. Refresh the provider-aware cache skeleton with python projects/crewportglobal/scripts/translation_cache.py --targets ru pt uk
 3. Validate cache behavior with python projects/crewportglobal/scripts/test_translation_cache.py
-4. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
-5. Keep sensitive publication text under human review before release.
+4. Review cache freshness and publication gates with python projects/crewportglobal/scripts/validate_translation_cache.py
+5. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
+6. Keep sensitive publication text under human review before release.
 
 ## Boundary
 
@@ -33,5 +34,7 @@ This directory is a minimal skeleton.
 The live public site still consumes the shared runtime dictionary in projects/crewportglobal/public/assets/crewportglobal-public-i18n.js and the homepage page-local dictionary in projects/crewportglobal/public/index.html.
 
 The cache-export directory is not consumed by the live runtime yet. It is an implementation skeleton used to verify cache hit, cache miss, stale hash and export behavior before connecting a real Google provider.
+
+The validator reports stale entries, missing current entries, hash mismatches, orphan entries and review-required entries. Use strict publish mode only when a release must be blocked by unreviewed sensitive translations.
 
 No real provider credential should be committed to the repository.
