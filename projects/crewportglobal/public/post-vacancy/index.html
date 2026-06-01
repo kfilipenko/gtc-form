@@ -104,6 +104,13 @@
       border-color: rgba(255, 139, 51, 0.95);
     }
 
+    .field-card.is-language-invalid input,
+    .field-card.is-language-invalid textarea {
+      border-color: rgba(239, 68, 68, 0.95);
+      background: #fff1f2;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.18);
+    }
+
     .field-card.full {
       grid-column: 1 / -1;
     }
@@ -1035,6 +1042,7 @@
         'post.form.submitReview': 'Submit to operator review',
         'post.form.status': 'This form saves employer, company, vessel and vacancy request context in backend.',
         'post.form.validation': 'Work email and company name are required.',
+        'post.form.englishOnly': 'Use English and Latin characters in form fields. Remove non-Latin letters before saving.',
         'post.form.saving': 'Saving vacancy request...',
         'post.form.saved': 'Vacancy request saved successfully.',
         'post.form.error': 'Could not save vacancy request. Please try again.',
@@ -1288,6 +1296,7 @@
         'post.completeness.empty': 'Нет недостающих обязательных пунктов.',
         'post.completeness.error': 'Не удалось проверить полноту. Сохраните еще раз или перезагрузите черновик.',
         'post.completeness.openSection': 'Открыть раздел',
+        'post.form.englishOnly': 'Заполняйте поля формы на английском языке и латиницей. Удалите нелатинские буквы перед сохранением.',
         'post.workspace.company': 'Проверка компании',
         'post.workspace.vacancy': 'Заявка на вакансию',
         'post.workspace.publication': 'Публичная доска вакансий',
@@ -1463,6 +1472,12 @@
           return result.replace(`{${token}}`, String(value));
         }, t(key));
       }
+
+      const languageInputGuard = window.CPGFormLifecycle.createLanguageInputGuard({
+        root: form,
+        statusNode: status,
+        message: () => t('post.form.englishOnly')
+      });
 
       function loadReferenceCatalogBindings() {
         if (!window.CPGReferenceCatalogs) {
@@ -2057,6 +2072,10 @@
       }
 
       async function savePostDraftForCompleteness() {
+        if (!languageInputGuard.validate({ focus: true })) {
+          return null;
+        }
+
         if (!email.value.trim() || !company.value.trim()) {
           status.textContent = t('post.form.validation');
           return null;

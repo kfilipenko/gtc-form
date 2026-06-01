@@ -4,8 +4,8 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Implemented code standards
 - Document type: Implemented code standard
-- Version: 2.0
-- Date: 2026-05-29
+- Version: 2.1
+- Date: 2026-06-01
 - Status: Active
 
 ## 1. Purpose
@@ -35,6 +35,7 @@ The standard prevents every form from creating its own copy of:
 11. country-code select handling with ISO alpha-2 values and same-as-nationality copy helpers where the same country is requested more than once;
 12. matching-readiness control for fields that must be comparable between supply and demand forms.
 13. vessel-context controls that keep vessel flag/evidence separate from employer authority data.
+14. English/Latin-only form input guard for operational form fields while UI localization remains machine-translated.
 
 ## 2. Applies To
 
@@ -64,6 +65,7 @@ Canonical API:
 ```text
 window.CPGFormLifecycle.createCompletenessNavigator(config)
 window.CPGFormLifecycle.createAutosaveController(config)
+window.CPGFormLifecycle.createLanguageInputGuard(config)
 ```
 
 ## 4. Adapter Contract
@@ -88,6 +90,7 @@ Each page adapter must provide:
 | document checklist adapter | Maps allowed document types to compact visible rows with uploaded/reviewed/replacement state and one visible row-level upload/replace button. |
 | matching counterpart mapping | Identifies whether a changed field is supply-side, demand-side, vessel-context or crew-request data and what field/catalog it must match against. |
 | vessel-context mapping | Maps vessel fields such as flag country and vessel particulars to `V-*` completeness codes and vessel storage, not employer authority storage. |
+| language guard context | Provides the form root and localized warning message for the shared English/Latin-only input guard. |
 
 ## 5. Forbidden Local Logic
 
@@ -107,6 +110,7 @@ Pages must not duplicate:
 12. exposing document upload primarily through a technical dropdown when a fixed document checklist can show the required evidence more clearly;
 13. adding free-text or page-local values for matching-critical demand/supply fields when a shared catalog or compatibility mapping exists;
 14. adding a hard matching blocker for a field that is not structured on both the demand and supply sides.
+15. adding page-local language/script validation when `createLanguageInputGuard` can enforce the English/Latin-only form-data rule.
 
 ## 6. Reference-Field Control Standard
 
@@ -193,6 +197,8 @@ and that the repeated registration address can be copied from the permanent addr
 The same regression also checks that country-code fields are catalog-backed `select` controls, that values such as `CY`, `AE` and `PH` are available from the catalog/fallback resolver, and that `Same as nationality` persists copied country values through save and hard reload.
 
 The `/post-vacancy/` regression checks the demand-side counterpart: `Vessel flag country` is a country-catalog select, `Same as company country` copies the company country ISO code, the value persists after reload and `V-2.2` is evaluated by backend completeness.
+
+The shared lifecycle regression also checks that `/create-profile/` and `/post-vacancy/` block non-Latin letters in user-entered operational fields before save. This keeps localized page labels separate from English/Latin form data used for international crew matching.
 
 ## 7A. Document-First Completion Standard
 

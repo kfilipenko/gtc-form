@@ -5,8 +5,8 @@
 - Documentation block: Business processes and operating model
 - Document type: Business-process standard and implementation control
 - Source task: Project Owner approval after CPG-BIZ-040 multi-role upload diagnostics
-- Version: 2.3
-- Date: 2026-05-29
+- Version: 2.4
+- Date: 2026-06-01
 - Status: Approved standard for staged implementation
 
 ## 1. Purpose
@@ -218,6 +218,21 @@ Each form page must connect to the same frontend behavior.
 | Repeated country fields | Provide an explicit copy action such as `Same as nationality` when the user is likely to repeat the same country across several fields. |
 | Demand-side repeated country fields | Provide explicit copy actions such as `Same as company country` for vessel flag country when it reduces repeated input but keep the destination field independently editable. |
 | Repeated address fields | Provide an explicit `Same address` copy option when a form asks the user to enter substantially the same address more than once. |
+| English/Latin-only data entry | User-entered operational form text must use English and Latin characters. UI localization may be machine-translated, but form data used for international crew matching must remain English/Latin. |
+
+### 6.1 Official-language and form-data rule
+
+The official authoritative language of the platform is English.
+
+Machine localization may translate page labels and user guidance, but it must not translate submitted form data. Crew matching, document review, employer presentation and audit evidence depend on stable international text and catalog values.
+
+Therefore every lifecycle-enabled form must enforce:
+
+1. free-text operational fields are entered in English and Latin characters;
+2. catalog-backed values are stored as approved codes or English catalog labels;
+3. non-Latin letters are blocked before save, autosave, section save or submit-review;
+4. localized UI text must not change the stored form value;
+5. exceptions, if ever needed for legal names or document originals, must be explicitly documented and must not enter matching fields without transliteration or normalized counterpart data.
 | Visual contrast | Inputs, textareas, upload lists and document metadata must remain readable in dark and light themes. |
 | Matching-critical field | Use the shared catalog/normalization expected by the opposite side, and document any temporary compatibility mapping. |
 

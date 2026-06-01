@@ -229,8 +229,177 @@
     };
   }
 
+  const ignoredLanguageGuardInputTypes = new Set([
+    'button',
+    'checkbox',
+    'color',
+    'date',
+    'datetime-local',
+    'email',
+    'file',
+    'hidden',
+    'month',
+    'number',
+    'password',
+    'radio',
+    'range',
+    'reset',
+    'submit',
+    'tel',
+    'time',
+    'url',
+    'week'
+  ]);
+
+  function isTextEntryControl(control) {
+    if (control instanceof HTMLTextAreaElement) {
+      return true;
+    }
+    if (!(control instanceof HTMLInputElement)) {
+      return false;
+    }
+    const type = (control.getAttribute('type') || 'text').toLowerCase();
+    return !ignoredLanguageGuardInputTypes.has(type);
+  }
+
+  function containsNonLatinLetters(value) {
+    const source = typeof value === 'string' ? value : '';
+    for (const character of source) {
+      if (/\p{L}/u.test(character) && !/\p{Script=Latin}/u.test(character)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function removeNonLatinLetters(value) {
+    return String(value || '').replace(/\p{L}/gu, (character) => (
+      /\p{Script=Latin}/u.test(character) ? character : ''
+    ));
+  }
+
+  function createLanguageInputGuard(config) {
+    const options = config || {};
+    const root = options.root || document;
+    const doc = options.document || document;
+    const invalidClass = options.invalidClass || 'is-language-invalid';
+    const fieldCardSelector = options.fieldCardSelector || '.field-card';
+    const statusNode = options.statusNode || null;
+    const message = typeof options.message === 'function'
+      ? options.message
+      : () => (options.message || 'Use English and Latin characters in form fields.');
+    const onInvalid = typeof options.onInvalid === 'function' ? options.onInvalid : null;
+
+    function controls() {
+      return Array.from(root.querySelectorAll('input, textarea')).filter(isTextEntryControl);
+    }
+
+    function cardFor(control) {
+      return control ? control.closest(fieldCardSelector) : null;
+    }
+
+    function reportInvalid(control) {
+      const text = message(control);
+      if (statusNode) {
+        statusNode.removeAttribute('data-i18n');
+        statusNode.textContent = text;
+      }
+      if (onInvalid) {
+        onInvalid({ control, message: text });
+      }
+    }
+
+    function markControl(control) {
+      const invalid = containsNonLatinLetters(control.value);
+      const card = cardFor(control);
+      if (card) {
+        card.classList.toggle(invalidClass, invalid);
+      }
+      control.setAttribute('aria-invalid', invalid ? 'true' : 'false');
+      return invalid;
+    }
+
+    function markInvalidFields() {
+      return controls().filter((control) => markControl(control));
+    }
+
+    function validate(validateOptions) {
+      const validateConfig = validateOptions || {};
+      const invalidControls = markInvalidFields();
+      if (invalidControls.length === 0) {
+        return true;
+      }
+      const firstInvalid = invalidControls[0];
+      reportInvalid(firstInvalid);
+      if (validateConfig.focus !== false && typeof firstInvalid.focus === 'function') {
+        firstInvalid.focus();
+        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return false;
+    }
+
+    function handleBeforeInput(event) {
+      const data = typeof event.data === 'string' ? event.data : '';
+      if (!data || !containsNonLatinLetters(data)) {
+        return;
+      }
+      event.preventDefault();
+      markControl(event.currentTarget);
+      reportInvalid(event.currentTarget);
+    }
+
+    function handlePaste(event) {
+      const control = event.currentTarget;
+      const text = event.clipboardData ? event.clipboardData.getData('text') : '';
+      if (!containsNonLatinLetters(text)) {
+        return;
+      }
+      event.preventDefault();
+      const sanitized = removeNonLatinLetters(text);
+      if (sanitized && typeof control.setRangeText === 'function') {
+        const start = Number.isInteger(control.selectionStart) ? control.selectionStart : control.value.length;
+        const end = Number.isInteger(control.selectionEnd) ? control.selectionEnd : control.value.length;
+        control.setRangeText(sanitized, start, end, 'end');
+        control.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      markControl(control);
+      reportInvalid(control);
+    }
+
+    function handleInput(event) {
+      markControl(event.currentTarget);
+    }
+
+    function attach() {
+      controls().forEach((control) => {
+        if (control.dataset.cpgLanguageGuardAttached === 'true') {
+          return;
+        }
+        control.dataset.cpgLanguageGuardAttached = 'true';
+        control.addEventListener('beforeinput', handleBeforeInput);
+        control.addEventListener('paste', handlePaste);
+        control.addEventListener('input', handleInput);
+        control.addEventListener('change', handleInput);
+        markControl(control);
+      });
+    }
+
+    attach();
+
+    return {
+      attach,
+      validate,
+      markInvalidFields,
+      hasInvalidText: () => markInvalidFields().length > 0,
+      sanitizeText: removeNonLatinLetters,
+      containsInvalidText: containsNonLatinLetters,
+      document: doc
+    };
+  }
+
   window.CPGFormLifecycle = {
     createCompletenessNavigator,
-    createAutosaveController
+    createAutosaveController,
+    createLanguageInputGuard
   };
 })();

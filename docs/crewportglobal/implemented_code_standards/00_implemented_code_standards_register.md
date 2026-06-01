@@ -5,8 +5,8 @@
 - Documentation block: Implemented code standards
 - Document type: Dedicated implemented-standard register
 - Format: Markdown
-- Version: 1.7
-- Date: 2026-05-29
+- Version: 1.8
+- Date: 2026-06-01
 - Status: Active implementation control
 
 ## 1. Purpose
@@ -88,7 +88,7 @@ Each implemented standard should have a dedicated document with:
 
 | ID | Standard | Canonical implementation | Current adopters | Status |
 |---|---|---|---|---|
-| ICS-001 | Standard form lifecycle, including matching-readiness field classification, catalog-backed country-code selects, repeated-country copy helpers, vessel-context field mapping and document-first completion placement where applicable | `projects/crewportglobal/public/assets/crewportglobal-form-lifecycle.js` plus page adapter context and `projects/crewportglobal/public/assets/crewportglobal-reference-catalogs.js` | `/create-profile/`, `/post-vacancy/` | Active |
+| ICS-001 | Standard form lifecycle, including matching-readiness field classification, catalog-backed country-code selects, repeated-country copy helpers, vessel-context field mapping, document-first completion placement and English/Latin-only form input guard where applicable | `projects/crewportglobal/public/assets/crewportglobal-form-lifecycle.js` plus page adapter context and `projects/crewportglobal/public/assets/crewportglobal-reference-catalogs.js` | `/create-profile/`, `/post-vacancy/` | Active |
 | ICS-002 | Standard protected upload, including compact one-button row-level document checklist adapters for finite document catalogs and separate employer/vessel form-type adapters on the same page | `projects/crewportglobal/public/assets/crewportglobal-protected-upload.js` with `createController(config)` and `createDocumentChecklist(config)` | `/create-profile/`, `/post-vacancy/` | Active |
 | ICS-003 | Submit-to-operator review gate | `projects/crewportglobal/app/backend/api/public/index.php` / `handle_post_draft_submit_review()` plus `window.CPGDrafts.submitForOperatorReview()` | `/create-profile/`, `/post-vacancy/` | Active |
 

@@ -18,8 +18,9 @@ The approved target flow is:
 
 English canonical source
 -> source strings or i18n keys
--> build-time draft translation script
--> JSON catalog per language
+-> Google Cloud Translation API / Google Translate provider through backend or build automation
+-> cached machine localization keyed by source text hash
+-> JSON catalog or translation-cache export per language
 -> validator checks coverage
 -> public static pages use the shared i18n runtime
 
@@ -27,7 +28,7 @@ English canonical source
 
 1. No provider key is exposed in frontend code.
 2. Public pages stay fast and static.
-3. Draft translation can use Google Cloud Translation, LibreTranslate or Argos Translate without changing the browser runtime model.
+3. Draft translation uses Google Cloud Translation API / Google Translate as the default approved provider without exposing provider credentials in browser code.
 4. Sensitive publication text can remain under human review before release.
 5. The translation layer becomes reproducible and auditable in the repository.
 
@@ -63,11 +64,13 @@ Public pages may still be prepared for browser translation through correct html 
 
 Approved provider classes for build-time draft generation:
 
-1. Google Cloud Translation API through backend or build automation only
-2. LibreTranslate through an approved service endpoint or self-hosted instance
-3. Argos Translate for offline or local draft generation
+1. Google Cloud Translation API / Google Translate provider through backend or build automation only.
+2. LibreTranslate through an approved service endpoint or self-hosted instance only after an explicit methodology update.
+3. Argos Translate for offline or local draft generation only after an explicit methodology update.
 
 Provider credentials must not be embedded into browser code.
+
+Operational form values are not part of the translation pipeline. Seafarer, employer, vessel and crew-request forms must be filled in English and Latin characters where applicable. Machine localization may translate UI labels and helper text, but it must not translate completed user data.
 
 ## 7. Validation model
 
@@ -101,4 +104,5 @@ When the project chooses to operationalize automatic draft generation, the next 
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.2 | 2026-06-01 | GTC IT / AI Assistant | Clarified Google Cloud Translation API / Google Translate as the default provider, source-hash cache expectations and English/Latin-only operational form data outside translation scope |
 | 0.1 | 2026-05-12 | GTC IT / AI Assistant | Initial build-time translation pipeline plan and minimal implementation skeleton for automatic draft translations |

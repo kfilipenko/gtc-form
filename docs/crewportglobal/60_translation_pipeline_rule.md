@@ -21,11 +21,52 @@ The related operational report in docs/crewportglobal/61_translation_pipeline_im
 
 ## 2. Canonical source model
 
-- English is the canonical source language for public UI and public document content.
+- English is the official and authoritative language of the platform.
+- English is the canonical source language for public UI, public document content, operational forms and matching data.
+- Localized UI text is an auxiliary machine translation for user convenience and must not replace the English source text as the official version.
 - Shared UI chrome translations are maintained in projects/crewportglobal/public/assets/crewportglobal-public-i18n.js.
 - Homepage-specific UI translations are maintained in projects/crewportglobal/public/index.html via window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.
 - The approved build-time draft translation skeleton is seeded in projects/crewportglobal/i18n/en.json and companion language JSON catalogs.
 - Generated public document HTML is rebuilt from canonical Markdown through projects/crewportglobal/scripts/generate_public_pages.py and projects/crewportglobal/scripts/run_public_generator.sh.
+
+## 2.1 Official language and data-entry rule
+
+The official language of CrewPortGlobal is English.
+
+All data entered by users into operational forms must be entered in English and Latin characters where applicable. This rule applies to:
+
+1. seafarer profile data;
+2. employer and shipowner company data;
+3. vessel data;
+4. crew request / vacancy data;
+5. document metadata;
+6. matching-critical free-text fields when no catalog value is available.
+
+The system must not automatically translate completed forms, uploaded document content, personal names, vessel names, company names, email addresses, phone numbers or operator notes unless a separate approved workflow explicitly authorizes translation for a defined purpose.
+
+This rule exists because international maritime crew work, document review, employer presentation, vessel operations and automated request-offer matching require a single comparable language basis.
+
+## 2.2 Machine localization provider rule
+
+Localized website UI is machine translation for convenience.
+
+The default approved provider is:
+
+```text
+Google Cloud Translation API / Google Translate provider
+```
+
+Provider credentials must never be exposed in browser-side JavaScript.
+
+Machine localization must be performed through backend or build automation and cached. The cache key must include at minimum:
+
+```text
+translation_key + source_language + target_language + source_text_hash
+```
+
+If the English source text changes, the source hash changes and the cached translation must be treated as outdated.
+
+Alternative providers such as LibreTranslate, Argos Translate or another AI translation provider may be used only after an explicit methodology update and approval.
 
 ## 3. Text categories
 
@@ -61,9 +102,10 @@ Long-form and regulated text includes:
 Rule:
 
 - English remains canonical source;
-- machine translation or AI translation may be used only to create draft translations;
+- machine translation or AI translation may be used only to create draft localizations;
 - these translations must not be treated as final publication text without human review;
 - legal, consent, no-fee and seafarer-facing text require human review before publication.
+- when a machine translation is shown before approval, the UI or publication process must make clear that the English version prevails.
 
 ## 4. Runtime rule
 
@@ -71,7 +113,9 @@ Rule:
 - On first visit without a stored preference, the runtime may select a supported language from navigator.language or navigator.languages and persist that choice locally.
 - Homepage logic must reuse the shared runtime instead of maintaining a second selector or translation engine.
 - Missing non-English translations must fall back to the English canonical value rather than exposing raw key names.
-- External translation services may only be used as build-time draft assistance and must not require frontend API keys.
+- External translation services may only be used through backend/build automation and must not require frontend API keys.
+- The preferred provider for generated machine localization is Google Cloud Translation API / Google Translate provider.
+- Runtime localization may consume approved cached machine translations, but it must not translate form values or user-entered data.
 - Browser-side code must consume prebuilt dictionaries only and must not call translation providers directly.
 - Browser-side code must not attempt to force the browser's built-in page translation UI from JavaScript.
 
@@ -128,6 +172,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.5 | 2026-06-01 | GTC IT / AI Assistant | Clarified English as the official authoritative platform language, localization as machine translation for convenience, Google Cloud Translation API / Google Translate as the default provider, English/Latin-only operational form data, source-hash cache invalidation and no translation of completed user form values |
 | 0.4 | 2026-05-12 | GTC IT / AI Assistant | Added first-visit browser language detection through navigator.language or navigator.languages, required local persistence of the resolved supported language, and prohibited attempts to force built-in browser translation UI from JavaScript |
 | 0.3 | 2026-05-12 | GTC IT / AI Assistant | Added the approved build-time draft translation skeleton path under projects/crewportglobal/i18n, clarified that providers are build-time only, and extended validation expectations to include JSON catalogs when present |
 | 0.2 | 2026-05-12 | GTC IT / AI Assistant | Elevated this document to canonical methodology status, added the mandatory synchronized-update rule for methodology changes, and linked the implementation report as the companion operational record |

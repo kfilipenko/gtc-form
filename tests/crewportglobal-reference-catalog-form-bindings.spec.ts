@@ -34,3 +34,32 @@ test('published reference catalogs populate seafarer and employer form suggestio
   await expect(page.locator('#post-country')).toHaveValue('AE');
   await expect(page.locator('#post-vessel-flag-country')).toHaveValue('AE');
 });
+
+test('standard form lifecycle blocks non-English letters in intake forms', async ({ page }) => {
+  await page.goto('/create-profile/');
+  await page.locator('#create-full-name').click();
+  await page.keyboard.type('Иван Иванов');
+  await expect(page.locator('#create-full-name')).not.toHaveValue(/[\u0400-\u04FF]/);
+
+  await page.locator('#create-full-name').evaluate((element: HTMLInputElement) => {
+    element.value = 'Иван Иванов';
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await page.locator('#create-submit').click();
+  await expect(page.locator('#create-status')).toContainText('Use English and Latin characters');
+  await expect(page.locator('#create-full-name')).toHaveAttribute('aria-invalid', 'true');
+
+  await page.goto('/post-vacancy/');
+  await page.locator('#post-company').click();
+  await page.keyboard.type('Компания');
+  await expect(page.locator('#post-company')).not.toHaveValue(/[\u0400-\u04FF]/);
+
+  await page.locator('#post-email').fill('english.only.form@example.com');
+  await page.locator('#post-company').evaluate((element: HTMLInputElement) => {
+    element.value = 'Компания';
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await page.locator('#post-submit').click();
+  await expect(page.locator('#post-status')).toContainText('Use English and Latin characters');
+  await expect(page.locator('#post-company')).toHaveAttribute('aria-invalid', 'true');
+});

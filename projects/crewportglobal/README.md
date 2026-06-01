@@ -52,6 +52,10 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 
 ## Translation pipeline rule
 
+- English is the official and authoritative language of CrewPortGlobal.
+- Localized UI text is machine translation for user convenience; it does not replace the English source text.
+- Google Cloud Translation API / Google Translate is the default approved machine-localization provider through backend/build automation.
+- User-entered operational form data must be entered in English and Latin characters where applicable and must not be automatically translated after completion.
 - Every new visible UI text must use an i18n key with an English canonical value.
 - Missing non-English values may fall back to English, but must not render raw key names.
 - Legal, consent, no-fee and seafarer-facing text may use machine translation only as draft input and require human review before publication.
@@ -67,6 +71,7 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - projects/crewportglobal/i18n/en.json is the pilot canonical source for automatic draft-translation generation in the new build-time skeleton.
 - projects/crewportglobal/i18n/ru.json, pt.json and uk.json are seed target-language draft catalogs.
 - Example automation entrypoint: python projects/crewportglobal/scripts/update_translations.example.py --targets ru pt uk
+- Future production automation should cache Google machine localization by translation key, source language, target language and English source text hash so changed source copy invalidates stale translations.
 - The public website still consumes the shared browser runtime in public/assets/crewportglobal-public-i18n.js and page-local dictionaries in public/index.html; automatic emission from JSON catalogs into publish-time dictionaries remains a future integration step.
 - The validator now reads JSON catalogs from projects/crewportglobal/i18n/ when present in addition to the existing publish-time dictionaries.
 

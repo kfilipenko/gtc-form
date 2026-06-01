@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.42
+- Version: 2.44
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -343,6 +343,7 @@ docs/crewportglobal/
   254_cpg_biz_060_home_conversion_rebuild_and_role_registration_task.md
   255_cpg_biz_060_home_conversion_rebuild_report.md
   256_cpg_biz_061_registration_form_and_login_cabinet_route_report.md
+  257_cpg_biz_062_english_only_form_input_guard_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -752,6 +753,8 @@ Document 255 records the CPG-BIZ-060 implementation of the conversion-focused ho
 
 Document 256 records the CPG-BIZ-061 registration and login-route correction, including removing the residence-country field from first-step platform participant registration, preserving role-based post-registration routing and sending successful login to the personal cabinet.
 
+Document 257 records the CPG-BIZ-062 implementation of the English/Latin-only form input guard, including the shared lifecycle helper, adoption by `/create-profile/` and `/post-vacancy/`, regression coverage and documentation updates to the implemented form standard.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -855,6 +858,8 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.44 | 2026-06-01 | GTC IT / AI Assistant | Added document 257 for the shared English/Latin-only form input guard implementation and standard lifecycle adoption |
+| 2.43 | 2026-06-01 | GTC IT / AI Assistant | Updated the translation methodology documents to clarify English as the official authoritative platform language, machine localization through Google translation provider, cached source-hash invalidation and English/Latin-only operational form data |
 | 2.42 | 2026-06-01 | GTC IT / AI Assistant | Added document 256 for compact first-step registration and login-to-cabinet routing |
 | 2.41 | 2026-06-01 | GTC IT / AI Assistant | Added document 255 for the CPG-BIZ-060 conversion homepage implementation and role-based post-registration routing |
 | 2.40 | 2026-06-01 | GTC IT / AI Assistant | Added document 254 for the homepage conversion rebuild and role-based platform participant registration task |

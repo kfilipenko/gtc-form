@@ -794,7 +794,15 @@
       box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.18);
     }
 
+    .field-card.is-language-invalid input,
+    .field-card.is-language-invalid textarea {
+      border-color: #ef4444;
+      background: #fff1f2;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18);
+    }
+
     .field-card.is-completeness-missing strong,
+    .field-card.is-language-invalid strong,
     .form-section.is-completeness-missing .section-heading h2,
     .profile-card-section.is-completeness-missing > summary {
       color: #b45309;
@@ -2506,6 +2514,7 @@
         'create.form.nextCta': 'Open final confirmation',
         'create.form.status': 'This form saves your seafarer draft and checks the numbered fields and documents required before operator review.',
         'create.form.validation': 'Full name and email are required.',
+        'create.form.englishOnly': 'Use English and Latin characters in form fields. Remove non-Latin letters before saving.',
         'create.form.saving': 'Saving seafarer draft...',
         'create.form.saved': 'Seafarer draft saved. Completeness check finished.',
         'create.form.autosaved': 'Draft autosaved.',
@@ -3063,6 +3072,7 @@
         'create.form.nextCta': 'Открыть финальное подтверждение',
         'create.form.status': 'Эта форма сохраняет черновик моряка и проверяет нумерованные поля и документы перед проверкой оператором.',
         'create.form.validation': 'Укажите полное имя и email.',
+        'create.form.englishOnly': 'Заполняйте поля формы на английском языке и латиницей. Удалите нелатинские буквы перед сохранением.',
         'create.form.saving': 'Сохраняем черновик моряка...',
         'create.form.saved': 'Черновик моряка сохранен. Проверка полноты завершена.',
         'create.form.autosaved': 'Черновик сохранен автоматически.',
@@ -3414,6 +3424,12 @@
         const raw = t(key);
         return Object.entries(values || {}).reduce((acc, entry) => acc.replace(`{${entry[0]}}`, String(entry[1])), raw);
       }
+
+      const languageInputGuard = window.CPGFormLifecycle.createLanguageInputGuard({
+        root: form,
+        statusNode: status,
+        message: () => t('create.form.englishOnly')
+      });
 
       function normalizeDraftRole(value) {
         if (typeof value !== 'string') {
@@ -4539,6 +4555,10 @@
         const validate = opts.validate !== false;
         const draftId = currentDraftId();
 
+        if (!languageInputGuard.validate({ focus: validate })) {
+          return null;
+        }
+
         if (validate && !draftId && (!fullName.value.trim() || !email.value.trim())) {
           persistLocalFormSnapshot('new');
           status.removeAttribute('data-i18n');
@@ -4578,6 +4598,13 @@
         if (!draftId) {
           if (statusNode) {
             statusNode.textContent = t('create.section.saveFirst');
+          }
+          return;
+        }
+
+        if (!languageInputGuard.validate({ focus: true })) {
+          if (statusNode) {
+            statusNode.textContent = t('create.form.englishOnly');
           }
           return;
         }
@@ -4647,6 +4674,11 @@
         const draftId = currentDraftId();
         if (!draftId) {
           documentReadinessSaveStatus.textContent = t('create.section.saveFirst');
+          return;
+        }
+
+        if (!languageInputGuard.validate({ focus: true })) {
+          documentReadinessSaveStatus.textContent = t('create.form.englishOnly');
           return;
         }
 
@@ -5464,6 +5496,10 @@
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
+
+        if (!languageInputGuard.validate({ focus: true })) {
+          return;
+        }
 
         persistLocalFormSnapshot(currentDraftId());
         renderWorkspace();

@@ -255,7 +255,8 @@ test('employer participant registration routes to post-vacancy workspace', async
 
 test('fallback language page remains accessible', async ({ page }) => {
   await page.goto('/language.html');
-  await expect(page.locator('h1')).toContainText('Choose the display language');
+  await expect(page.locator('h1')).toContainText('Choose the interface language');
+  await expect(page.locator('main')).toContainText('English is the official platform language');
 });
 
 test('create-profile holds the consolidated seafarer final consent and no onboarding route link', async ({ page }) => {
