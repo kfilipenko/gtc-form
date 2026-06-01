@@ -118,10 +118,14 @@ Result: all pass.
 
 ## 8. Next Stage
 
-Рекомендуемый следующий этап:
+Следующий этап выполнен:
 
 ```text
 CPG-BIZ-079 - Translation publication workflow CI/read-only guard
 ```
 
-Цель: добавить lightweight read-only guard, который подтверждает, что runtime bundle publication workflow не оставляет stale HTML query markers и не публикует review-required sensitive translations.
+Результат зафиксирован в:
+
+```text
+docs/crewportglobal/274_cpg_biz_079_translation_publication_read_only_guard_report.md
+```

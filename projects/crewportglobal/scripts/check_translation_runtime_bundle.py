@@ -28,20 +28,12 @@ def read_bundle_payload(bundle_file: Path) -> dict[str, Any]:
     return payload
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(
-        description='Validate prebuilt CrewPortGlobal machine translation runtime bundle.',
-    )
-    parser.add_argument('--bundle-file', default=str(DEFAULT_BUNDLE_FILE))
-    parser.add_argument('--manifest-file', default=str(DEFAULT_MANIFEST_FILE))
-    parser.add_argument('--public-bundle-file', default=str(DEFAULT_PUBLIC_BUNDLE_FILE))
-    parser.add_argument('--public-root', default=str(DEFAULT_PUBLIC_ROOT))
-    args = parser.parse_args()
-
-    bundle_file = Path(args.bundle_file).resolve()
-    manifest_file = Path(args.manifest_file).resolve()
-    public_bundle_file = Path(args.public_bundle_file).resolve() if args.public_bundle_file else None
-    public_root = Path(args.public_root).resolve()
+def collect_runtime_bundle_findings(
+    bundle_file: Path,
+    manifest_file: Path,
+    public_bundle_file: Path | None,
+    public_root: Path,
+) -> tuple[dict[str, Any], dict[str, Any], list[str]]:
     payload = read_bundle_payload(bundle_file)
     manifest = json.loads(manifest_file.read_text(encoding='utf-8'))
     findings: list[str] = []
@@ -117,6 +109,32 @@ def main() -> int:
             for version in matches:
                 if version != publication_version:
                     findings.append(f'public_bundle_reference_version_mismatch:{html_file.relative_to(public_root)}')
+
+    return payload, manifest, findings
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description='Validate prebuilt CrewPortGlobal machine translation runtime bundle.',
+    )
+    parser.add_argument('--bundle-file', default=str(DEFAULT_BUNDLE_FILE))
+    parser.add_argument('--manifest-file', default=str(DEFAULT_MANIFEST_FILE))
+    parser.add_argument('--public-bundle-file', default=str(DEFAULT_PUBLIC_BUNDLE_FILE))
+    parser.add_argument('--public-root', default=str(DEFAULT_PUBLIC_ROOT))
+    args = parser.parse_args()
+
+    bundle_file = Path(args.bundle_file).resolve()
+    manifest_file = Path(args.manifest_file).resolve()
+    public_bundle_file = Path(args.public_bundle_file).resolve() if args.public_bundle_file else None
+    public_root = Path(args.public_root).resolve()
+    payload, _manifest, findings = collect_runtime_bundle_findings(
+        bundle_file,
+        manifest_file,
+        public_bundle_file,
+        public_root,
+    )
+    publication_version = payload.get('publication_version')
+    target_languages = payload.get('target_languages')
 
     print('Translation runtime bundle validation')
     print(f'bundle_file={bundle_file}')

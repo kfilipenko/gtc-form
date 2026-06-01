@@ -29,12 +29,14 @@ This directory contains the seed build-time translation catalogs for CrewPortGlo
 6. Export publish-ready draft catalogs with python projects/crewportglobal/scripts/export_translation_publish_ready.py
 7. Build the prebuilt runtime bundle with python projects/crewportglobal/scripts/build_translation_runtime_bundle.py
 8. Validate the prebuilt runtime bundle with python projects/crewportglobal/scripts/check_translation_runtime_bundle.py
-9. Check provider secret boundary with python projects/crewportglobal/scripts/check_translation_provider_boundary.py
-10. Check protected Google credential source with python projects/crewportglobal/scripts/check_translation_credential_source.py
-11. Check protected Google dependency readiness with python projects/crewportglobal/scripts/check_translation_google_readiness.py
-12. Run the protected one-key Google smoke only in the configured backend/build environment with python projects/crewportglobal/scripts/smoke_translation_google_provider.py
-13. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
-14. Keep sensitive publication text under human review before release.
+9. Publish through the standard build-sync-validate workflow with npm run publish:cpg-i18n-runtime-bundle
+10. Run the read-only publication guard with python projects/crewportglobal/scripts/check_translation_publication_guard.py
+11. Check provider secret boundary with python projects/crewportglobal/scripts/check_translation_provider_boundary.py
+12. Check protected Google credential source with python projects/crewportglobal/scripts/check_translation_credential_source.py
+13. Check protected Google dependency readiness with python projects/crewportglobal/scripts/check_translation_google_readiness.py
+14. Run the protected one-key Google smoke only in the configured backend/build environment with python projects/crewportglobal/scripts/smoke_translation_google_provider.py
+15. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
+16. Keep sensitive publication text under human review before release.
 
 ## Boundary
 
@@ -61,6 +63,8 @@ Public pages that use projects/crewportglobal/public/assets/crewportglobal-publi
 The runtime bundle manifest contains `publication_version`, a build-controlled content fingerprint used as the public script query value. Public HTML must reference the machine bundle with that current version so browser cache invalidation follows approved translation/source changes.
 
 Use `npm run publish:cpg-i18n-runtime-bundle` for routine publication. The workflow rebuilds the bundle, synchronizes public HTML query values to the manifest `publication_version`, and validates the result.
+
+Use `npm run check:cpg-i18n-publication-guard` for CI/release review. The guard is read-only and confirms that the live-consumed runtime bundle still matches the generated manifest, public HTML query markers and publish-ready cache policy.
 
 The Google provider adapter is a backend/build boundary only. It must not be used from public browser code. The provider boundary checker scans the public tree for Google credential markers and translation API endpoint references.
 
