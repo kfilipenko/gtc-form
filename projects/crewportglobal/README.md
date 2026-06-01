@@ -80,6 +80,8 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - Export publish-ready cache catalogs with: npm run build:cpg-i18n-publish-ready
 - Mark human-reviewed sensitive entries with: python3 projects/crewportglobal/scripts/review_translation_cache.py --keys <key> --targets <lang> --reviewed-by <user_id>
 - The publish-ready export includes low-risk machine drafts and human-reviewed sensitive entries only; unreviewed complaint, no-fee, privacy, consent, legal and terms text remains excluded.
+- Check the Google provider boundary with: npm run check:cpg-translation-provider-boundary
+- The Google provider adapter is currently a backend/build placeholder; no live Google API call or browser credential flow is connected.
 - The public website still consumes the shared browser runtime in public/assets/crewportglobal-public-i18n.js and page-local dictionaries in public/index.html; automatic emission from JSON catalogs into publish-time dictionaries remains a future integration step.
 - The validator now reads JSON catalogs from projects/crewportglobal/i18n/ when present in addition to the existing publish-time dictionaries.
 

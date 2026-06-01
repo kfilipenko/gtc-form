@@ -5,10 +5,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from translation_provider_adapters import StubTranslationProvider
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -16,15 +17,6 @@ DEFAULT_SOURCE = REPO_ROOT / 'projects' / 'crewportglobal' / 'i18n' / 'en.json'
 DEFAULT_CACHE = REPO_ROOT / 'projects' / 'crewportglobal' / 'i18n' / 'translation-cache.json'
 DEFAULT_EXPORT_DIR = REPO_ROOT / 'projects' / 'crewportglobal' / 'i18n' / 'cache-export'
 SCHEMA_VERSION = 1
-
-
-@dataclass(frozen=True)
-class StubTranslationProvider:
-    name: str = 'stub'
-    version: str = 'stub-v1'
-
-    def translate(self, text: str, source_language: str, target_language: str) -> str:
-        return f'[{target_language} machine draft] {text}'
 
 
 def utc_now() -> str:

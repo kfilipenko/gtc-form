@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.48
+- Version: 2.49
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -348,6 +348,7 @@ docs/crewportglobal/
   259_cpg_biz_064_translation_cache_stub_provider_skeleton_report.md
   260_cpg_biz_065_translation_cache_publish_gate_report.md
   261_cpg_biz_066_translation_cache_human_review_publish_export_report.md
+  262_cpg_biz_067_translation_cache_google_provider_boundary_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -767,6 +768,8 @@ Document 260 records the CPG-BIZ-065 translation cache publish-gate validator, i
 
 Document 261 records the CPG-BIZ-066 translation cache human-review marking and publish-ready export policy, including reviewer metadata, source-hash safety checks and exclusion of unreviewed sensitive translations from publish-ready artifacts.
 
+Document 262 records the CPG-BIZ-067 Google translation provider boundary implementation, including backend/build-only adapter placeholder, public-tree credential scanning and confirmation that no Google credentials or browser-side provider calls are exposed.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -870,6 +873,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.49 | 2026-06-01 | GTC IT / AI Assistant | Added document 262 for Google translation provider adapter boundary and public-tree credential checks |
 | 2.48 | 2026-06-01 | GTC IT / AI Assistant | Added document 261 for translation cache human-review marking, reviewer metadata and publish-ready export policy |
 | 2.47 | 2026-06-01 | GTC IT / AI Assistant | Added document 260 for translation cache publish-gate validation, strict publish mode and current review-required findings |
 | 2.46 | 2026-06-01 | GTC IT / AI Assistant | Added document 259 for the translation cache stub-provider skeleton, cache artifacts and unit-tested source-hash invalidation behavior |

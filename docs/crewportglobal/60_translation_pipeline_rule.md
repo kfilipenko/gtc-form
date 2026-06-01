@@ -37,6 +37,12 @@ The current human-review and publish-ready export policy is recorded in:
 docs/crewportglobal/261_cpg_biz_066_translation_cache_human_review_publish_export_report.md
 ```
 
+The current Google provider adapter boundary check is recorded in:
+
+```text
+docs/crewportglobal/262_cpg_biz_067_translation_cache_google_provider_boundary_report.md
+```
+
 ## 2. Canonical source model
 
 - English is the official and authoritative language of the platform.
@@ -160,6 +166,7 @@ Rule:
 - Publish-ready exports must exclude unreviewed sensitive translated entries even when ordinary low-risk machine-draft UI labels are exportable.
 - Human-review marking must record reviewer identity and review timestamp in the cache entry.
 - Marking a translation as reviewed is allowed only for a current, non-stale entry whose source hash still matches the canonical English source catalog.
+- Google provider integration must start from a backend/build adapter boundary. The public tree must not contain Google credentials, Google project identifiers, Google API keys or browser-side calls to Google translation endpoints.
 
 ## 5. Rebuild rule
 
@@ -214,6 +221,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 1.0 | 2026-06-01 | GTC IT / AI Assistant | Added Google provider adapter boundary rule and public-tree credential check before real provider integration |
 | 0.9 | 2026-06-01 | GTC IT / AI Assistant | Added human-review marking and publish-ready export policy for sensitive cache entries |
 | 0.8 | 2026-06-01 | GTC IT / AI Assistant | Added translation cache publish-gate validation requirements for stale, missing, hash-mismatch, orphan and review-required entries |
 | 0.7 | 2026-06-01 | GTC IT / AI Assistant | Added the CPG-BIZ-064 stub-provider cache skeleton as the required first implementation layer before connecting Google credentials |

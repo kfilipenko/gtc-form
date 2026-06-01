@@ -150,10 +150,18 @@ git diff --check
 
 ## 8. Next Stage
 
-Рекомендуемый следующий этап:
+Следующий этап выполнен и зафиксирован в:
 
 ```text
-CPG-BIZ-067 - Translation cache Google provider adapter design and secret boundary check
+docs/crewportglobal/262_cpg_biz_067_translation_cache_google_provider_boundary_report.md
 ```
 
-Цель: до подключения Google Cloud Translation API описать и проверить provider adapter boundary, secret storage, fallback to stub-provider tests and runtime no-credential rule.
+Он добавил backend/build adapter boundary placeholder для Google provider и public-tree credential scan.
+
+Следующий рекомендуемый этап после CPG-BIZ-067:
+
+```text
+CPG-BIZ-068 - Translation cache protected Google credential source decision
+```
+
+Цель: выбрать защищенный источник credentials на сервере/CI/CD и только после этого подключать реальный Google API client за уже проверенным backend/build boundary.

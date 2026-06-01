@@ -13,6 +13,7 @@ from translation_cache import (
     update_cache,
 )
 from validate_translation_cache import validate_translation_cache
+from translation_provider_adapters import GoogleTranslationProviderAdapter
 
 
 class TranslationCacheTests(unittest.TestCase):
@@ -173,6 +174,19 @@ class TranslationCacheTests(unittest.TestCase):
             'legal.privacy.title': '[ru machine draft] Privacy Policy',
             'nav.home': '[ru machine draft] Home',
         })
+
+    def test_google_provider_adapter_is_backend_boundary_placeholder(self) -> None:
+        adapter = GoogleTranslationProviderAdapter()
+
+        status = adapter.boundary_status(env={})
+
+        self.assertEqual(status['provider'], 'google')
+        self.assertFalse(status['configured'])
+        self.assertFalse(status['frontend_credentials_allowed'])
+        self.assertEqual(status['runtime_boundary'], 'backend_or_build_only')
+
+        with self.assertRaises(RuntimeError):
+            adapter.translate('Home', 'en', 'ru')
 
 
 if __name__ == '__main__':
