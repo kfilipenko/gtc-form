@@ -61,6 +61,8 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - Legal, consent, no-fee and seafarer-facing text may use machine translation only as draft input and require human review before publication.
 - On first visit, the public runtime may auto-select a supported language from navigator.language or navigator.languages and persist it in crewportglobal.language.
 - JavaScript cannot force the browser's built-in page translator; public pages should remain browser-translation-friendly instead of attempting to trigger browser translation UI.
+- The shared browser runtime can consume a valid prebuilt `window.CREWPORTGLOBAL_MACHINE_TRANSLATION_BUNDLE` as a dictionary-only fallback after page/chrome dictionaries and before English fallback.
+- Invalid runtime bundles are ignored, and browser runtime must not call translation providers or mutate form values.
 - The canonical methodology is documented in docs/crewportglobal/60_translation_pipeline_rule.md.
 - The current operational report is documented in docs/crewportglobal/61_translation_pipeline_implementation_report.md.
 - If the translation methodology changes, update both documents and the documentation register in the same slice.
@@ -90,7 +92,8 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - Install Google translation dependency only in protected backend/build environments with: python3 -m pip install -r projects/crewportglobal/requirements.translation-google.txt
 - Run a protected one-key Google provider smoke test only after readiness passes with: npm run smoke:cpg-translation-google-provider
 - The Google provider adapter now supports a protected backend/build client path, but no live Google API call or browser credential flow is connected in default local mode.
-- The public website still consumes the shared browser runtime in public/assets/crewportglobal-public-i18n.js and page-local dictionaries in public/index.html; automatic emission from JSON catalogs into publish-time dictionaries remains a future integration step.
+- The public website consumes the shared browser runtime in public/assets/crewportglobal-public-i18n.js, page-local dictionaries in public/index.html and a validated prebuilt machine bundle when that bundle is explicitly loaded before or during runtime use.
+- Connecting the generated machine bundle script to selected public pages remains a separate controlled publication step.
 - The validator now reads JSON catalogs from projects/crewportglobal/i18n/ when present in addition to the existing publish-time dictionaries.
 
 ## Seafarer final confirmation

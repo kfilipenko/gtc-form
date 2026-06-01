@@ -40,7 +40,7 @@ This directory contains the seed build-time translation catalogs for CrewPortGlo
 
 This directory is a minimal skeleton.
 
-The live public site still consumes the shared runtime dictionary in projects/crewportglobal/public/assets/crewportglobal-public-i18n.js and the homepage page-local dictionary in projects/crewportglobal/public/index.html.
+The live public site consumes the shared runtime dictionary in projects/crewportglobal/public/assets/crewportglobal-public-i18n.js, the homepage page-local dictionary in projects/crewportglobal/public/index.html and an optional validated prebuilt machine bundle when that static bundle is loaded.
 
 The cache-export directory is not consumed by the live runtime yet. It is an implementation skeleton used to verify cache hit, cache miss, stale hash and export behavior before connecting a real Google provider.
 
@@ -52,7 +52,9 @@ Human review marking is intentionally separate from machine-draft generation. A 
 
 The publish-ready export is the only cache export intended for future runtime-bundle publication. The broader cache-export directory remains an inspection artifact and may contain review-required drafts.
 
-The runtime-bundle directory contains prebuilt publish-ready artifacts for future browser-runtime integration. Bundle generation alone does not connect those artifacts to live pages.
+The runtime-bundle directory contains prebuilt publish-ready artifacts for browser-runtime integration. The shared runtime validates `window.CREWPORTGLOBAL_MACHINE_TRANSLATION_BUNDLE` before use and ignores invalid bundles.
+
+Bundle generation alone does not connect those artifacts to live pages. Selecting which public pages load the bundle script remains a controlled publication step.
 
 The Google provider adapter is a backend/build boundary only. It must not be used from public browser code. The provider boundary checker scans the public tree for Google credential markers and translation API endpoint references.
 

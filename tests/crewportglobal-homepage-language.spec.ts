@@ -1,4 +1,10 @@
 import { expect, test } from '@playwright/test';
+import fs from 'fs';
+import path from 'path';
+
+const repositoryRoot = process.cwd();
+const publicI18nRuntimePath = path.join(repositoryRoot, 'projects/crewportglobal/public/assets/crewportglobal-public-i18n.js');
+const machineBundlePath = path.join(repositoryRoot, 'projects/crewportglobal/i18n/runtime-bundle/crewportglobal-machine-translations.js');
 
 const forbiddenPublicTerms = [
   'static UX slice',
@@ -257,6 +263,77 @@ test('fallback language page remains accessible', async ({ page }) => {
   await page.goto('/language.html');
   await expect(page.locator('h1')).toContainText('Choose the interface language');
   await expect(page.locator('main')).toContainText('English is the official platform language');
+});
+
+test('shared runtime consumes a valid prebuilt machine bundle without translating form values', async ({ page }) => {
+  const runtime = fs.readFileSync(publicI18nRuntimePath, 'utf8');
+  const machineBundle = fs.readFileSync(machineBundlePath, 'utf8');
+
+  await page.setContent(`
+    <html>
+      <head><title>Runtime fixture</title></head>
+      <body>
+        <div id="language-selector">
+          <button id="current-language-toggle" type="button" aria-expanded="false">
+            <span id="current-language-flag"></span>
+            <span id="current-language-label"></span>
+          </button>
+          <div id="header-language-menu" hidden>
+            <div id="header-language-options"></div>
+          </div>
+        </div>
+        <span id="machine-key" data-i18n="nav.application"></span>
+        <input id="user-value" value="Captain Иван" data-i18n-placeholder="site.tagline" />
+        <script>
+          window.localStorage.setItem('crewportglobal.language', 'en');
+        </script>
+        <script>${machineBundle}</script>
+        <script>${runtime}</script>
+      </body>
+    </html>
+  `);
+
+  await expect(page.locator('#machine-key')).toHaveText('Application');
+  await expect(page.locator('#user-value')).toHaveValue('Captain Иван');
+
+  await page.locator('#current-language-toggle').click();
+  await page.locator('.language-option').filter({ hasText: 'Українська' }).click();
+
+  await expect(page.locator('#machine-key')).toHaveText('[uk machine draft] Application');
+  await expect(page.locator('#user-value')).toHaveAttribute('placeholder', '[uk machine draft] Maritime documentation and matching platform');
+  await expect(page.locator('#user-value')).toHaveValue('Captain Иван');
+});
+
+test('shared runtime ignores an invalid machine bundle and keeps English fallback', async ({ page }) => {
+  const runtime = fs.readFileSync(publicI18nRuntimePath, 'utf8');
+
+  await page.setContent(`
+    <html>
+      <head><title>Runtime fixture</title></head>
+      <body>
+        <span id="machine-key" data-i18n="nav.application"></span>
+        <script>
+          window.localStorage.setItem('crewportglobal.language', 'uk');
+          window.CREWPORTGLOBAL_MACHINE_TRANSLATION_BUNDLE = {
+            schema_version: 1,
+            official_language: 'en',
+            publication_boundary: {
+              browser_provider_calls_allowed: true,
+              form_value_translation_allowed: false
+            },
+            catalogs: {
+              uk: {
+                'nav.application': 'INVALID TRANSLATION'
+              }
+            }
+          };
+        </script>
+        <script>${runtime}</script>
+      </body>
+    </html>
+  `);
+
+  await expect(page.locator('#machine-key')).toHaveText('Application');
 });
 
 test('create-profile holds the consolidated seafarer final consent and no onboarding route link', async ({ page }) => {

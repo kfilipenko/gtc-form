@@ -19,6 +19,7 @@
   ];
 
   const PAGE_TRANSLATIONS = window.CREWPORTGLOBAL_PAGE_TRANSLATIONS || {};
+  const MACHINE_TRANSLATION_BUNDLE_KEY = 'CREWPORTGLOBAL_MACHINE_TRANSLATION_BUNDLE';
 
   const CHROME_TRANSLATIONS = {
     en: {
@@ -293,11 +294,55 @@
     return baseCode;
   }
 
+  function getDictionaryValue(dictionary, language, key) {
+    const catalog = dictionary && dictionary[language];
+    if (!catalog || typeof catalog !== 'object') {
+      return null;
+    }
+
+    const value = catalog[key];
+    return typeof value === 'string' ? value : null;
+  }
+
+  function readMachineTranslationBundle() {
+    const bundle = window[MACHINE_TRANSLATION_BUNDLE_KEY];
+    if (!bundle || typeof bundle !== 'object') {
+      return null;
+    }
+
+    const publicationBoundary = bundle.publication_boundary;
+    if (
+      bundle.schema_version !== 1
+      || bundle.official_language !== DEFAULT_LANGUAGE
+      || !publicationBoundary
+      || publicationBoundary.browser_provider_calls_allowed !== false
+      || publicationBoundary.form_value_translation_allowed !== false
+      || !bundle.catalogs
+      || typeof bundle.catalogs !== 'object'
+    ) {
+      return null;
+    }
+
+    return bundle;
+  }
+
+  function getMachineBundleTranslation(language, key) {
+    const bundle = readMachineTranslationBundle();
+    const catalog = bundle && bundle.catalogs && bundle.catalogs[language];
+    if (!catalog || typeof catalog !== 'object') {
+      return null;
+    }
+
+    const value = catalog[key];
+    return typeof value === 'string' ? value : null;
+  }
+
   function getTranslation(language, key) {
-    return (PAGE_TRANSLATIONS[language] && PAGE_TRANSLATIONS[language][key])
-      || (CHROME_TRANSLATIONS[language] && CHROME_TRANSLATIONS[language][key])
-      || (PAGE_TRANSLATIONS.en && PAGE_TRANSLATIONS.en[key])
-      || (CHROME_TRANSLATIONS.en && CHROME_TRANSLATIONS.en[key]);
+    return getDictionaryValue(PAGE_TRANSLATIONS, language, key)
+      || getDictionaryValue(CHROME_TRANSLATIONS, language, key)
+      || getMachineBundleTranslation(language, key)
+      || getDictionaryValue(PAGE_TRANSLATIONS, DEFAULT_LANGUAGE, key)
+      || getDictionaryValue(CHROME_TRANSLATIONS, DEFAULT_LANGUAGE, key);
   }
 
   function translate(language, key) {

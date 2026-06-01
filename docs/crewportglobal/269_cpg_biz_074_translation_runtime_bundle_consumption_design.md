@@ -7,7 +7,7 @@
 - Основание: продолжение CPG-BIZ-073
 - Версия: 1.0
 - Дата: 2026-06-01
-- Статус: Approved design for next implementation slice
+- Статус: Approved design; implemented by CPG-BIZ-075
 
 ## 1. Цель
 
@@ -179,4 +179,14 @@ This design does not approve:
 CPG-BIZ-075 - Translation runtime bundle consumption implementation
 ```
 
-Цель: реализовать approved bundle lookup in shared public i18n runtime with tests and no user-data translation.
+Результат реализации зафиксирован в:
+
+```text
+docs/crewportglobal/270_cpg_biz_075_translation_runtime_bundle_consumption_implementation_report.md
+```
+
+Следующий этап после реализации:
+
+```text
+CPG-BIZ-076 - Controlled runtime bundle publication on selected public pages
+```
