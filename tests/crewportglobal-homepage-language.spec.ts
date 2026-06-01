@@ -74,7 +74,7 @@ test('same-page selector translates the homepage and persists after reload', asy
   await expect(page.locator('.nav-menu--employers a[href="https://crewportglobal.com/for-shipowners/"]')).toBeVisible();
   await expect(page.locator('.site-header')).toContainText('Аккаунт / Войти');
   await expect(page.locator('.site-nav')).not.toContainText('Вход / Регистрация');
-  await expect(page.locator('.landing-lead')).toContainText('Заявки, суда и профили моряков уже зарегистрированы в системе.');
+  await expect(page.locator('.registry-count-label').first()).toContainText('Заявок');
   await expect.poll(() => page.evaluate(() => window.localStorage.getItem('crewportglobal.language'))).toBe('ru');
 
   await page.reload();
@@ -82,7 +82,7 @@ test('same-page selector translates the homepage and persists after reload', asy
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
   await expect(page.locator('.landing-title')).toContainText('CrewPortGlobal сопоставляет спрос на экипаж с проверенными данными моряков.');
   await expect(page.locator('.nav-menu--employers summary')).toContainText('Работодатели');
-  await expect(page.locator('.landing-lead')).toContainText('Заявки, суда и профили моряков уже зарегистрированы в системе.');
+  await expect(page.locator('.registry-count-label').first()).toContainText('Заявок');
 });
 
 test('same-page selector works on generated public pages and persists after reload', async ({ page }) => {

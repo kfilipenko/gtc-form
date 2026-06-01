@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.37
+- Version: 2.39
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -338,6 +338,8 @@ docs/crewportglobal/
   249_cpg_biz_055_compact_public_menu_visual_correction_report.md
   250_cpg_biz_056_home_public_vacancy_board_text_minimization_report.md
   251_cpg_biz_057_home_post_board_explanatory_sections_removal_report.md
+  252_cpg_biz_058_home_registry_counter_compaction_report.md
+  253_cpg_biz_059_home_marketing_entry_cleanup_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -737,6 +739,10 @@ Document 250 records the CPG-BIZ-056 minimization of the homepage public vacancy
 
 Document 251 records the CPG-BIZ-057 removal of remaining explanatory homepage sections after the public vacancy board, including removal of the public Human control card, cleanup of post-board value/trust/CTA sections and focused homepage/vacancy-board regression verification.
 
+Document 252 records the CPG-BIZ-058 compaction of homepage registry counter cards, including moving labels above numeric values, reducing card padding/height, preserving the one-row desktop layout and verifying label fit through focused homepage regression.
+
+Document 253 records the CPG-BIZ-059 homepage marketing-entry cleanup, including removal of the remaining hero explanatory text, conversion of registry counters to a two-row three-column table, removal of public control cards, hover-only BP-015 explanations, live-registry title refresh and removal of the service-model explanatory block.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -840,6 +846,8 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.39 | 2026-06-01 | GTC IT / AI Assistant | Added document 253 for homepage marketing-entry cleanup, registry counter table layout, hover-only BP-015 explanations and removal of service-model explanatory block |
+| 2.38 | 2026-05-31 | GTC IT / AI Assistant | Added document 252 for compact homepage registry counter cards with labels above numeric values and verified label fit |
 | 2.37 | 2026-05-31 | GTC IT / AI Assistant | Added document 251 for removing remaining explanatory homepage sections after the public vacancy board and removing the public Human control card |
 | 2.36 | 2026-05-31 | GTC IT / AI Assistant | Added document 250 for homepage public vacancy board text minimization, removing explanatory demand/supply cards and keeping compact live status plus board action |
 | 2.35 | 2026-05-31 | GTC IT / AI Assistant | Added document 249 for compact public menu visual correction, including one-line role groups, hover explanations, removal of duplicated login/cabinet group and mobile overflow verification |

@@ -150,16 +150,16 @@ test('homepage dashboard shows live API status and latest reviewed vacancy', asy
   await expect(page.locator('[data-i18n="home.hero.registryCta"]')).toBeVisible();
   await page.locator('[data-i18n="home.hero.registryCta"]').click();
   await expect(page.locator('#home-registry-summary')).toBeInViewport({ ratio: 0.2 });
-  const registryAppearsBeforeServiceModel = await page.evaluate(() => {
+  const registryAppearsBeforeVacancyBoard = await page.evaluate(() => {
     const registry = document.getElementById('home-registry-summary');
-    const serviceModel = document.getElementById('vacancy-search-block')?.closest('section');
-    if (!registry || !serviceModel) {
+    const vacancyBoard = document.getElementById('home-board-empty')?.closest('section');
+    if (!registry || !vacancyBoard) {
       return false;
     }
 
-    return registry.getBoundingClientRect().top + window.scrollY < serviceModel.getBoundingClientRect().top + window.scrollY;
+    return registry.getBoundingClientRect().top + window.scrollY < vacancyBoard.getBoundingClientRect().top + window.scrollY;
   });
-  expect(registryAppearsBeforeServiceModel).toBeTruthy();
+  expect(registryAppearsBeforeVacancyBoard).toBeTruthy();
   await expect(page.locator('#home-registry-vacancies')).toContainText(title);
   await expect(page.locator('#home-registry-vessels')).toContainText(`MV Dashboard Star ${unique}`);
   await expect(page.locator('#home-registry-seafarers')).toContainText(seafarerRank);
@@ -187,11 +187,7 @@ test('homepage dashboard shows live API status and latest reviewed vacancy', asy
 
   await page.locator('[data-registry-filter="all"]').click();
   await expect(page.locator('main')).not.toContainText('for demonstration');
-  await expect(page.locator('#vacancy-search-block details').first()).not.toHaveAttribute('open', '');
-  await expect(page.locator('#vacancy-search-block .field-note').first()).not.toBeVisible();
-
-  await page.locator('#vacancy-search-block summary').first().click();
-  await expect(page.locator('#vacancy-search-block .field-note').first()).toBeVisible();
+  await expect(page.locator('#vacancy-search-block')).toHaveCount(0);
 
   await page.evaluate(() => {
     window.localStorage.setItem('crewportglobal.language', 'ru');
@@ -199,10 +195,10 @@ test('homepage dashboard shows live API status and latest reviewed vacancy', asy
   await page.reload();
   await expect(page.locator('#current-language-label')).toHaveText('Русский');
   await expect(page.locator('[data-registry-filter="all"]')).toContainText('Все записи');
-  const registryCounterLabelsFit = await page.locator('.registry-count-card span').evaluateAll((nodes) =>
+  const registryCounterLabelsFit = await page.locator('.registry-count-label').evaluateAll((nodes) =>
     nodes.every((node) => {
       const label = node as HTMLElement;
-      const card = label.closest('.registry-count-card') as HTMLElement | null;
+      const card = label.closest('.registry-count-grid') as HTMLElement | null;
       return label.scrollWidth <= label.clientWidth + 1 && (!card || card.scrollWidth <= card.clientWidth + 1);
     })
   );

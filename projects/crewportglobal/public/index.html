@@ -44,7 +44,6 @@
       color: var(--paper-strong);
     }
 
-    .landing-lead,
     .section-copy,
     .support-copy,
     .empty-state,
@@ -200,12 +199,14 @@
       display: grid;
       grid-template-columns: auto minmax(0, 1fr);
       gap: 10px;
-      align-items: start;
+      position: relative;
+      align-items: center;
       min-width: 0;
       padding: 14px;
       border-radius: 14px;
       border: 1px solid rgba(78, 196, 213, 0.18);
       background: rgba(255, 255, 255, 0.045);
+      outline: none;
     }
 
     .bp-step__number {
@@ -230,33 +231,33 @@
     }
 
     .bp-step p {
-      grid-column: 2;
-      margin: -2px 0 0;
-      color: var(--muted-on-dark);
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 12px;
+      right: 12px;
+      z-index: 20;
+      margin: 0;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(78, 196, 213, 0.22);
+      background: #102236;
+      box-shadow: 0 18px 34px rgba(0, 0, 0, 0.32);
+      color: var(--text-on-dark);
       font-size: 14px;
       line-height: 1.45;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-4px);
+      transition: opacity 150ms ease, transform 150ms ease, visibility 150ms ease;
+      pointer-events: none;
     }
 
-    .bp-cycle-controls {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .bp-cycle-control {
-      min-width: 0;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 139, 61, 0.22);
-      background: rgba(255, 139, 61, 0.08);
-      color: var(--muted-on-dark);
-      line-height: 1.45;
-    }
-
-    .bp-cycle-control strong {
-      display: block;
-      margin-bottom: 2px;
-      color: var(--paper-strong);
+    .bp-step:hover p,
+    .bp-step:focus p,
+    .bp-step:focus-within p {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
     }
 
     .live-vacancy-list {
@@ -317,16 +318,19 @@
 
     .registry-count-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(145px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid rgba(16, 118, 135, 0.24);
+      background: rgba(255, 255, 255, 0.05);
     }
 
-    .registry-count-card,
     .registry-list-card {
       display: grid;
       gap: 8px;
       min-width: 0;
-      padding: 18px;
+      padding: 12px 14px;
       border-radius: 18px;
       border: 1px solid rgba(16, 118, 135, 0.2);
       background: rgba(255, 255, 255, 0.05);
@@ -336,18 +340,43 @@
       display: none;
     }
 
-    .registry-count-card strong {
-      color: var(--paper-strong);
-      font-size: 34px;
-      line-height: 1;
+    .registry-count-label,
+    .registry-count-grid strong {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      padding: 12px 10px;
+      text-align: center;
+      border-left: 1px solid rgba(126, 201, 217, 0.16);
+      overflow-wrap: anywhere;
     }
 
-    .registry-count-card span,
+    .registry-count-label:first-child,
+    .registry-count-grid strong:nth-child(4) {
+      border-left: 0;
+    }
+
+    .registry-count-label {
+      color: var(--paper-strong);
+      font-size: clamp(16px, 2.2vw, 22px);
+      font-weight: 800;
+      line-height: 1.15;
+      background: rgba(78, 196, 213, 0.08);
+    }
+
+    .registry-count-grid strong {
+      color: var(--paper-strong);
+      font-size: clamp(30px, 4.2vw, 44px);
+      line-height: 1;
+      border-top: 1px solid rgba(126, 201, 217, 0.16);
+    }
+
     .registry-list-card p,
     .registry-safe-note {
       margin: 0;
       color: var(--muted-on-dark);
-      line-height: 1.55;
+      line-height: 1.35;
       overflow-wrap: anywhere;
     }
 
@@ -356,6 +385,7 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
       margin-top: 16px;
+      align-items: start;
     }
 
     .registry-preview-grid[data-visible-cards="1"] {
@@ -480,13 +510,15 @@
       .home-grid,
       .search-grid,
       .vacancy-grid,
-      .registry-count-grid,
       .registry-preview-grid,
       .bp-cycle-flow,
-      .bp-cycle-controls,
       .live-dashboard,
       .vacancy-meta {
         grid-template-columns: 1fr;
+      }
+
+      .registry-count-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
     }
   </style>
@@ -525,20 +557,13 @@
         <article class="hero-copy app-hero-main">
           <p class="app-kicker" data-i18n="home.hero.eyebrow">Maritime crew matching workspace</p>
           <h1 class="landing-title" data-i18n="home.title">CrewPortGlobal matches crew demand with verified seafarer supply.</h1>
-          <p class="landing-lead" data-i18n="home.hero.lead">Live crew requests, vessels and seafarer profiles are already registered. Public preview stays contact-free; operational work stays protected.</p>
           <div class="registry-count-grid" aria-live="polite">
-            <article class="registry-count-card">
-              <strong id="home-registry-vacancy-count">0</strong>
-              <span data-i18n="home.registry.requests">registered crew requests</span>
-            </article>
-            <article class="registry-count-card">
-              <strong id="home-registry-vessel-count">0</strong>
-              <span data-i18n="home.registry.vessels">registered vessels</span>
-            </article>
-            <article class="registry-count-card">
-              <strong id="home-registry-seafarer-count">0</strong>
-              <span data-i18n="home.registry.seafarers">registered seafarers</span>
-            </article>
+            <span class="registry-count-label" data-i18n="home.registry.requests">Requests</span>
+            <span class="registry-count-label" data-i18n="home.registry.vessels">Vessels</span>
+            <span class="registry-count-label" data-i18n="home.registry.seafarers">Seafarers</span>
+            <strong id="home-registry-vacancy-count">0</strong>
+            <strong id="home-registry-vessel-count">0</strong>
+            <strong id="home-registry-seafarer-count">0</strong>
           </div>
           <div class="actions app-actions">
             <a class="button primary" href="#home-registry-summary" data-i18n="home.hero.registryCta">Show registry data</a>
@@ -592,56 +617,52 @@
           <a class="button secondary" href="https://crewportglobal.com/register/" data-i18n="home.bp.cta">Start registration</a>
         </div>
         <div class="bp-cycle-flow" aria-label="CrewPortGlobal commercial operating cycle" data-i18n-aria-label="home.bp.aria">
-          <article class="bp-step">
+          <article class="bp-step" tabindex="0">
             <span class="bp-step__number">1</span>
             <h3 data-i18n="home.bp.step1.title">Register</h3>
             <p data-i18n="home.bp.step1.copy">Seafarer or employer creates an account and chooses the correct work route.</p>
           </article>
-          <article class="bp-step">
+          <article class="bp-step" tabindex="0">
             <span class="bp-step__number">2</span>
             <h3 data-i18n="home.bp.step2.title">Complete data</h3>
             <p data-i18n="home.bp.step2.copy">Profile, company, vessel and crew request fields are saved as comparable structured data.</p>
           </article>
-          <article class="bp-step">
+          <article class="bp-step" tabindex="0">
             <span class="bp-step__number">3</span>
             <h3 data-i18n="home.bp.step3.title">Verify</h3>
             <p data-i18n="home.bp.step3.copy">Team review checks authority, documents, no-fee consent and readiness blockers.</p>
           </article>
-          <article class="bp-step">
+          <article class="bp-step" tabindex="0">
             <span class="bp-step__number">4</span>
             <h3 data-i18n="home.bp.step4.title">Match</h3>
             <p data-i18n="home.bp.step4.copy">Demand is compared with candidate supply before a shortlist can be created.</p>
           </article>
-          <article class="bp-step">
+          <article class="bp-step" tabindex="0">
             <span class="bp-step__number">5</span>
             <h3 data-i18n="home.bp.step5.title">Present</h3>
             <p data-i18n="home.bp.step5.copy">Only reviewed, employer-safe candidate information is presented to the client.</p>
           </article>
-          <article class="bp-step">
+          <article class="bp-step" tabindex="0">
             <span class="bp-step__number">6</span>
             <h3 data-i18n="home.bp.step6.title">Confirm boarding</h3>
             <p data-i18n="home.bp.step6.copy">Embarkation evidence confirms that the selected seafarer has joined the vessel.</p>
           </article>
-          <article class="bp-step">
+          <article class="bp-step" tabindex="0">
             <span class="bp-step__number">7</span>
             <h3 data-i18n="home.bp.step7.title">Bill service</h3>
             <p data-i18n="home.bp.step7.copy">Actual service and work-period evidence becomes the basis for B2B billing.</p>
           </article>
-          <article class="bp-step">
+          <article class="bp-step" tabindex="0">
             <span class="bp-step__number">8</span>
             <h3 data-i18n="home.bp.step8.title">Repeat cycle</h3>
             <p data-i18n="home.bp.step8.copy">Availability and repeat demand return the seafarer and employer into the next cycle.</p>
           </article>
         </div>
-        <div class="bp-cycle-controls">
-          <p class="bp-cycle-control"><strong data-i18n="home.bp.control2.title">No-fee boundary</strong><span data-i18n="home.bp.control2.copy">Seafarers do not pay recruitment or placement fees.</span></p>
-          <p class="bp-cycle-control"><strong data-i18n="home.bp.control3.title">Evidence trail</strong><span data-i18n="home.bp.control3.copy">Each material operation must leave a record.</span></p>
-        </div>
       </section>
 
       <section class="card vacancy-board section-card" id="home-registry-summary">
         <p class="eyebrow" data-i18n="home.registry.eyebrow">Live registry</p>
-        <h2 class="section-title" data-i18n="home.registry.title">Registered platform data</h2>
+        <h2 class="section-title" data-i18n="home.registry.title">Your crew market is already here</h2>
         <p class="section-copy" data-i18n="home.registry.copy">Safe preview rows from the live database. Contact details and documents are not public.</p>
         <div class="registry-filter" role="group" aria-label="Live registry filter" data-i18n-aria-label="home.registry.filterLabel">
           <button type="button" class="is-active" data-registry-filter="all" aria-pressed="true" data-i18n="home.registry.filter.all">All records</button>
@@ -668,38 +689,6 @@
         <p class="registry-safe-note" data-i18n="home.registry.safeNote">The public demo view shows operational counts and structured matching hints only. Contact details remain inside protected workflows.</p>
       </section>
 
-      <section class="card vacancy-search section-card app-search-card">
-        <p class="eyebrow" data-i18n="home.search.eyebrow">Service model</p>
-        <h2 class="section-title" data-i18n="home.search.title">The platform compares demand with supply after verified registration.</h2>
-        <p class="section-copy" data-i18n="home.search.copy">Open a topic for the minimum matching model. Full policies remain in the document section.</p>
-        <div class="search-grid app-search-grid" id="vacancy-search-block">
-          <details class="search-field">
-            <summary><strong data-i18n="home.search.position">Employer demand</strong></summary>
-            <p class="field-note" data-i18n="home.search.position.option1">Requested rank, department, vessel type, joining date, contract duration, salary range, required certificates and operating region.</p>
-          </details>
-          <details class="search-field">
-            <summary><strong data-i18n="home.search.vessel">Seafarer supply</strong></summary>
-            <p class="field-note" data-i18n="home.search.vessel.option1">Rank, department, documents, experience, availability, expected compensation, preferred vessels, language skills and restrictions.</p>
-          </details>
-          <details class="search-field">
-            <summary><strong data-i18n="home.search.joinDate">Authorization evidence</strong></summary>
-            <p class="field-note" data-i18n="home.search.joinDate.placeholder">A person may act for a company, vessel or request only when the evidence has been reviewed and the scope is recorded.</p>
-          </details>
-          <details class="search-field">
-            <summary><strong data-i18n="home.search.salary">Scoped visibility</strong></summary>
-            <p class="field-note" data-i18n="home.search.salary.option1">Group membership opens service areas, but record visibility depends on the client card, task, company, vessel or control function.</p>
-          </details>
-          <details class="search-field">
-            <summary><strong data-i18n="home.search.country">Human review</strong></summary>
-            <p class="field-note" data-i18n="home.search.country.placeholder">CrewPortGlobal reviews readiness before public publication, candidate recommendation or operational handoff.</p>
-          </details>
-          <details class="search-field">
-            <summary><strong data-i18n="home.search.nextStep">Authenticated cabinet</strong></summary>
-            <p class="field-note" data-i18n="home.search.nextStep.copy">After login, the personal cabinet is assembled from confirmed capability cards connected to the physical person.</p>
-          </details>
-        </div>
-      </section>
-
       <section class="card vacancy-board section-card">
         <p class="eyebrow" data-i18n="home.board.eyebrow">Latest vacancies</p>
         <h2 class="section-title" data-i18n="home.board.title">Current public vacancy board</h2>
@@ -717,7 +706,6 @@
       en: {
         'home.title': 'CrewPortGlobal matches crew demand with verified seafarer supply.',
         'home.hero.eyebrow': 'Maritime crew matching workspace',
-        'home.hero.lead': 'Live crew requests, vessels and seafarer profiles are already registered. Public preview stays contact-free; operational work stays protected.',
         'home.hero.registryCta': 'Show registry data',
         'home.hero.primaryCta': 'BP-015 Cycle',
         'home.hero.secondaryCta': 'Trust & Safety',
@@ -780,38 +768,12 @@
         'home.bp.step7.copy': 'Actual service and work-period evidence becomes the basis for B2B billing.',
         'home.bp.step8.title': 'Repeat cycle',
         'home.bp.step8.copy': 'Availability and repeat demand return the seafarer and employer into the next cycle.',
-        'home.bp.control2.title': 'No-fee boundary',
-        'home.bp.control2.copy': 'Seafarers do not pay recruitment or placement fees.',
-        'home.bp.control3.title': 'Evidence trail',
-        'home.bp.control3.copy': 'Each material operation must leave a record.',
-        'home.search.eyebrow': 'Service model',
-        'home.search.title': 'The platform compares demand with supply after verified registration.',
-        'home.search.copy': 'Open a topic for the minimum matching model. Full policies remain in the document section.',
-        'home.search.position': 'Employer demand',
-        'home.search.position.option1': 'Requested rank, department, vessel type, joining date, contract duration, salary range, required certificates and operating region.',
-        'home.search.position.option2': 'Employer-side demand is recorded only inside authenticated and scoped workflows.',
-        'home.search.position.option3': 'Employer-side request data must be connected to authority evidence.',
-        'home.search.vessel': 'Seafarer supply',
-        'home.search.vessel.option1': 'Rank, department, documents, experience, availability, expected compensation, preferred vessels, language skills and restrictions.',
-        'home.search.vessel.option2': 'Seafarer supply data is reviewed before candidate presentation.',
-        'home.search.vessel.option3': 'Seafarer records are not exposed broadly by role alone.',
-        'home.search.joinDate': 'Authorization evidence',
-        'home.search.joinDate.placeholder': 'A person may act for a company, vessel or request only when the evidence has been reviewed and the scope is recorded.',
-        'home.search.salary': 'Scoped visibility',
-        'home.search.salary.option1': 'Group membership opens service areas, but record visibility depends on the client card, task, company, vessel or control function.',
-        'home.search.salary.option2': 'Broad group membership never grants access to every client record.',
-        'home.search.salary.option3': 'Visibility must be tied to a specific relationship or control function.',
-        'home.search.country': 'Human review',
-        'home.search.country.placeholder': 'CrewPortGlobal reviews readiness before public publication, candidate recommendation or operational handoff.',
-        'home.search.nextStep': 'Authenticated cabinet',
-        'home.search.nextStep.copy': 'After login, the personal cabinet is assembled from confirmed capability cards connected to the physical person.',
-        'home.search.nextStep.cta': 'Public vacancy information',
         'home.registry.eyebrow': 'Live registry',
-        'home.registry.title': 'Registered platform data',
-        'home.registry.copy': 'Safe preview rows from the live database. Contact details and documents are not public.',
-        'home.registry.requests': 'registered crew requests',
-        'home.registry.vessels': 'registered vessels',
-        'home.registry.seafarers': 'registered seafarers',
+        'home.registry.title': 'Your crew market is already here',
+        'home.registry.copy': 'Live requests, vessels and seafarer supply are visible without contact details.',
+        'home.registry.requests': 'Requests',
+        'home.registry.vessels': 'Vessels',
+        'home.registry.seafarers': 'Seafarers',
         'home.registry.requestsTitle': 'Crew requests',
         'home.registry.vesselsTitle': 'Vessels',
         'home.registry.seafarersTitle': 'Seafarers',
@@ -846,7 +808,6 @@
       ru: {
         'home.title': 'CrewPortGlobal сопоставляет спрос на экипаж с проверенными данными моряков.',
         'home.hero.eyebrow': 'Рабочая среда подбора морских экипажей',
-        'home.hero.lead': 'Заявки, суда и профили моряков уже зарегистрированы в системе. Публичный просмотр не раскрывает контакты; операционная работа остается защищенной.',
         'home.hero.registryCta': 'Показать данные',
         'home.hero.primaryCta': 'Цикл BP-015',
         'home.hero.secondaryCta': 'Доверие и безопасность',
@@ -909,38 +870,12 @@
         'home.bp.step7.copy': 'Доказательства фактической услуги и периода работы становятся основой B2B-счёта.',
         'home.bp.step8.title': 'Повторный цикл',
         'home.bp.step8.copy': 'Доступность и повторный спрос возвращают моряка и работодателя в следующий цикл.',
-        'home.bp.control2.title': 'Правило без сборов',
-        'home.bp.control2.copy': 'Моряки не платят за подбор или трудоустройство.',
-        'home.bp.control3.title': 'Доказательная база',
-        'home.bp.control3.copy': 'Каждая существенная операция оставляет запись.',
-        'home.search.eyebrow': 'Модель сервиса',
-        'home.search.title': 'Платформа сравнивает спрос и предложение после проверенной регистрации.',
-        'home.search.copy': 'Откройте пункт, чтобы увидеть минимальную модель сопоставления. Полные правила остаются в разделе документов.',
-        'home.search.position': 'Спрос работодателя',
-        'home.search.position.option1': 'Запрошенная должность, департамент, тип судна, дата посадки, длительность контракта, диапазон оплаты, требуемые сертификаты и регион работы.',
-        'home.search.position.option2': 'Спрос работодателя фиксируется только внутри аутентифицированных и ограниченных по полномочиям процессов.',
-        'home.search.position.option3': 'Данные запроса должны быть связаны с доказательством полномочий.',
-        'home.search.vessel': 'Предложение моряка',
-        'home.search.vessel.option1': 'Должность, департамент, документы, опыт, доступность, ожидания по оплате, предпочтения по судам, языки и ограничения.',
-        'home.search.vessel.option2': 'Данные моряка проверяются до представления кандидата.',
-        'home.search.vessel.option3': 'Записи моряка не открываются широким группам только по роли.',
-        'home.search.joinDate': 'Доказательство полномочий',
-        'home.search.joinDate.placeholder': 'Человек может действовать от имени компании, судна или запроса только когда доказательство проверено и область полномочий записана.',
-        'home.search.salary': 'Ограниченная видимость',
-        'home.search.salary.option1': 'Участие в группе открывает сервисные области, но видимость записей зависит от карточки клиента, задачи, компании, судна или контрольной функции.',
-        'home.search.salary.option2': 'Широкая группа никогда не даёт доступ ко всем клиентским записям.',
-        'home.search.salary.option3': 'Видимость должна быть связана с конкретным отношением или контрольной функцией.',
-        'home.search.country': 'Ручная проверка',
-        'home.search.country.placeholder': 'CrewPortGlobal проверяет готовность до публичной публикации, рекомендации кандидата или передачи в операционную работу.',
-        'home.search.nextStep': 'Авторизованный кабинет',
-        'home.search.nextStep.copy': 'После входа личный кабинет собирается из подтверждённых карточек возможностей, связанных с физическим лицом.',
-        'home.search.nextStep.cta': 'Публичная информация о вакансиях',
         'home.registry.eyebrow': 'Живой реестр',
-        'home.registry.title': 'Зарегистрированные данные платформы',
-        'home.registry.copy': 'Безопасные строки из живой базы данных. Контакты и документы не публикуются.',
-        'home.registry.requests': 'зарегистрированных заявок',
-        'home.registry.vessels': 'зарегистрированных судов',
-        'home.registry.seafarers': 'зарегистрированных моряков',
+        'home.registry.title': 'Вас ждут на нашей платформе',
+        'home.registry.copy': 'Живые заявки, суда и предложения моряков видны без раскрытия контактов.',
+        'home.registry.requests': 'Заявок',
+        'home.registry.vessels': 'Судов',
+        'home.registry.seafarers': 'Моряков',
         'home.registry.requestsTitle': 'Заявки',
         'home.registry.vesselsTitle': 'Суда',
         'home.registry.seafarersTitle': 'Моряки',
