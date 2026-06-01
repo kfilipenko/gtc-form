@@ -1,0 +1,93 @@
+name: CrewPortGlobal i18n publication
+
+on:
+  pull_request:
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - "playwright.crewportglobal.config.ts"
+      - "tests/crewportglobal-homepage-language.spec.ts"
+      - "projects/crewportglobal/i18n/**"
+      - "projects/crewportglobal/public/**"
+      - "projects/crewportglobal/scripts/**translation**.py"
+      - "docs/crewportglobal/60_translation_pipeline_rule.md"
+      - "docs/crewportglobal/61_translation_pipeline_implementation_report.md"
+  push:
+    branches:
+      - main
+    paths:
+      - "package.json"
+      - "package-lock.json"
+      - "playwright.crewportglobal.config.ts"
+      - "tests/crewportglobal-homepage-language.spec.ts"
+      - "projects/crewportglobal/i18n/**"
+      - "projects/crewportglobal/public/**"
+      - "projects/crewportglobal/scripts/**translation**.py"
+      - "docs/crewportglobal/60_translation_pipeline_rule.md"
+      - "docs/crewportglobal/61_translation_pipeline_implementation_report.md"
+  workflow_dispatch:
+
+jobs:
+  i18n-publication-release-check:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: gtc_db
+          POSTGRES_USER: gtc_user
+          POSTGRES_PASSWORD: gtc_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U gtc_user -d gtc_db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      CI: "true"
+      PGHOST: 127.0.0.1
+      PGUSER: gtc_user
+      PGPASSWORD: gtc_pass
+      PGDATABASE: gtc_db
+      CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN: crewportglobal-local-operator
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y php-cli postgresql-client
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Publish translation runtime bundle
+        run: npm run publish:cpg-i18n-runtime-bundle
+
+      - name: Read-only publication guard
+        run: npm run check:cpg-i18n-publication-guard
+
+      - name: Ensure generated publication artifacts are committed
+        run: |
+          git diff --exit-code -- \
+            projects/crewportglobal/i18n/runtime-bundle/crewportglobal-machine-translations.js \
+            projects/crewportglobal/i18n/runtime-bundle/manifest.json \
+            projects/crewportglobal/public/assets/crewportglobal-machine-translations.js \
+            projects/crewportglobal/public
+
+      - name: Focused browser regression
+        run: npx playwright test tests/crewportglobal-homepage-language.spec.ts --config=playwright.crewportglobal.config.ts

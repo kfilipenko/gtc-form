@@ -161,15 +161,14 @@ findings: 0
 
 ## 8. Next Stage
 
-Рекомендуемый следующий этап:
+Следующий этап выполнен:
 
 ```text
 CPG-BIZ-080 - Translation publication CI wiring and release checklist
 ```
 
-Цель: подключить read-only guard к стандартному release checklist / CI sequence, чтобы публикация локализации всегда проходила через:
+Результат зафиксирован в:
 
-1. publish workflow;
-2. read-only guard;
-3. focused browser regression;
-4. documentation/report update.
+```text
+docs/crewportglobal/275_cpg_biz_080_translation_publication_ci_release_checklist_report.md
+```

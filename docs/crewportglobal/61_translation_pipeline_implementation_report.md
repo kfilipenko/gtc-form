@@ -45,6 +45,7 @@ The current website text-translation methodology is:
 26. Build-controlled runtime bundle cache invalidation is documented in docs/crewportglobal/272_cpg_biz_077_translation_publication_cache_invalidation_report.md.
 27. One-command runtime bundle publication workflow is documented in docs/crewportglobal/273_cpg_biz_078_translation_publication_workflow_command_report.md.
 28. Read-only translation publication guard is documented in docs/crewportglobal/274_cpg_biz_079_translation_publication_read_only_guard_report.md.
+29. Translation publication CI workflow and release checklist are documented in docs/crewportglobal/275_cpg_biz_080_translation_publication_ci_release_checklist_report.md.
 
 ## 3. Implemented controls
 
@@ -76,6 +77,7 @@ The following controls are now in place:
 24. Public machine-bundle script URLs must carry the current `publication_version` from the runtime-bundle manifest; stale or manually edited query markers fail validation.
 25. `npm run publish:cpg-i18n-runtime-bundle` now performs runtime-bundle build, public HTML version synchronization and validation in one command.
 26. `npm run check:cpg-i18n-publication-guard` now performs a read-only release/CI guard confirming runtime publication integrity and exact agreement between the published runtime bundle catalogs and the publish-ready cache export policy.
+27. `npm run check:cpg-i18n-release` and `.github/workflows/crewportglobal-i18n-publication.yml` now define the release sequence: publish workflow, read-only guard, generated-artifact diff check and focused browser regression.
 
 ## 4. Validation results
 
@@ -127,7 +129,7 @@ If validation changes, update the affected validator and regression checks in th
 
 ## 7. Out-of-scope confirmation
 
-The CPG-BIZ-063 through CPG-BIZ-079 translation-cache slices did not require changes to:
+The CPG-BIZ-063 through CPG-BIZ-080 translation-cache slices did not require changes to:
 
 1. backend
 2. database
@@ -140,6 +142,7 @@ The CPG-BIZ-063 through CPG-BIZ-079 translation-cache slices did not require cha
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 2.2 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-080 translation publication CI workflow and release checklist |
 | 2.1 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-079 read-only translation publication guard |
 | 2.0 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-078 one-command runtime-bundle publication workflow |
 | 1.9 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-077 build-controlled publication version and cache-invalidation validation |

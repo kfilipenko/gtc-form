@@ -14,7 +14,8 @@
     "build:cpg-i18n-runtime-bundle": "python3 projects/crewportglobal/scripts/build_translation_runtime_bundle.py",
     "check:cpg-i18n-runtime-bundle": "python3 projects/crewportglobal/scripts/check_translation_runtime_bundle.py",
     "publish:cpg-i18n-runtime-bundle": "python3 projects/crewportglobal/scripts/publish_translation_runtime_bundle.py",
-    "check:cpg-i18n-publication-guard": "python3 projects/crewportglobal/scripts/check_translation_publication_guard.py"
+    "check:cpg-i18n-publication-guard": "python3 projects/crewportglobal/scripts/check_translation_publication_guard.py",
+    "check:cpg-i18n-release": "npm run publish:cpg-i18n-runtime-bundle && npm run check:cpg-i18n-publication-guard && npx playwright test tests/crewportglobal-homepage-language.spec.ts --config=playwright.crewportglobal.config.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1"

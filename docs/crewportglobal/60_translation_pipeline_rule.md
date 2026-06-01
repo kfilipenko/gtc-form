@@ -103,6 +103,12 @@ The read-only translation publication guard implementation is recorded in:
 docs/crewportglobal/274_cpg_biz_079_translation_publication_read_only_guard_report.md
 ```
 
+The translation publication CI/release checklist implementation is recorded in:
+
+```text
+docs/crewportglobal/275_cpg_biz_080_translation_publication_ci_release_checklist_report.md
+```
+
 ## 2. Canonical source model
 
 - English is the official and authoritative language of the platform.
@@ -245,6 +251,8 @@ Rule:
 - The one-command workflow implementation result is recorded in `docs/crewportglobal/273_cpg_biz_078_translation_publication_workflow_command_report.md`.
 - CI and release review should run `npm run check:cpg-i18n-publication-guard` after the standard publication workflow. This read-only guard must not write files. It verifies runtime bundle integrity, public HTML query markers and that every published machine-translation entry is still allowed by the publish-ready translation-cache export policy.
 - The read-only publication guard implementation result is recorded in `docs/crewportglobal/274_cpg_biz_079_translation_publication_read_only_guard_report.md`.
+- Translation publication release review must use `npm run check:cpg-i18n-release` locally or the `CrewPortGlobal i18n publication` GitHub Actions workflow in CI. The sequence is: publish workflow, read-only publication guard, generated-artifact diff check and focused browser regression.
+- The CI/release checklist implementation result is recorded in `docs/crewportglobal/275_cpg_biz_080_translation_publication_ci_release_checklist_report.md`.
 
 ## 5. Rebuild rule
 
@@ -283,6 +291,7 @@ Current validation entrypoints:
 - npm run check:cpg-i18n-runtime-bundle
 - npm run publish:cpg-i18n-runtime-bundle
 - npm run check:cpg-i18n-publication-guard
+- npm run check:cpg-i18n-release
 - npx playwright test tests/crewportglobal-homepage-language.spec.ts --config=playwright.crewportglobal.config.ts
 
 ## 7. Human review scope
@@ -302,6 +311,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 2.3 | 2026-06-01 | GTC IT / AI Assistant | Added translation publication CI workflow and release checklist rule |
 | 2.2 | 2026-06-01 | GTC IT / AI Assistant | Added read-only translation publication guard rule for CI/release review |
 | 2.1 | 2026-06-01 | GTC IT / AI Assistant | Added mandatory one-command runtime-bundle publication workflow rule |
 | 2.0 | 2026-06-01 | GTC IT / AI Assistant | Added build-controlled publication version and public HTML cache-invalidation validation rule |
