@@ -19,6 +19,12 @@ If the translation methodology changes, this document must be updated in the sam
 
 The related operational report in docs/crewportglobal/61_translation_pipeline_implementation_report.md should also be updated when the methodology or validation flow changes materially.
 
+The backend cache design for Google machine localization is recorded in:
+
+```text
+docs/crewportglobal/258_cpg_biz_063_google_machine_localization_cache_backend_design.md
+```
+
 ## 2. Canonical source model
 
 - English is the official and authoritative language of the platform.
@@ -65,6 +71,24 @@ translation_key + source_language + target_language + source_text_hash
 ```
 
 If the English source text changes, the source hash changes and the cached translation must be treated as outdated.
+
+The approved cache contract must also retain provider identity and publication status:
+
+```text
+translation_key + source_language + target_language + source_text_hash + provider
+```
+
+Recommended statuses:
+
+```text
+draft_machine
+review_required
+reviewed
+rejected
+stale
+```
+
+Sensitive text may be machine translated only into a draft or review-required state until a human reviewer approves publication.
 
 Alternative providers such as LibreTranslate, Argos Translate or another AI translation provider may be used only after an explicit methodology update and approval.
 
@@ -172,6 +196,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.6 | 2026-06-01 | GTC IT / AI Assistant | Added reference to CPG-BIZ-063 backend cache design, provider-aware cache key, review statuses and explicit human-review gate for sensitive machine-localized text |
 | 0.5 | 2026-06-01 | GTC IT / AI Assistant | Clarified English as the official authoritative platform language, localization as machine translation for convenience, Google Cloud Translation API / Google Translate as the default provider, English/Latin-only operational form data, source-hash cache invalidation and no translation of completed user form values |
 | 0.4 | 2026-05-12 | GTC IT / AI Assistant | Added first-visit browser language detection through navigator.language or navigator.languages, required local persistence of the resolved supported language, and prohibited attempts to force built-in browser translation UI from JavaScript |
 | 0.3 | 2026-05-12 | GTC IT / AI Assistant | Added the approved build-time draft translation skeleton path under projects/crewportglobal/i18n, clarified that providers are build-time only, and extended validation expectations to include JSON catalogs when present |

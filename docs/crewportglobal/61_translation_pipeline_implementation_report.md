@@ -28,6 +28,7 @@ The current website text-translation methodology is:
 9. Browser-side code does not attempt to force the browser's built-in page translation UI from JavaScript.
 10. Legal, consent, no-fee and seafarer-facing text may use machine translation only as draft input and require human review before publication.
 11. An approved build-time draft translation skeleton now exists in projects/crewportglobal/i18n/ for seeded languages en, ru, pt and uk.
+12. The approved backend cache design for future Google machine localization is documented in docs/crewportglobal/258_cpg_biz_063_google_machine_localization_cache_backend_design.md.
 
 ## 3. Implemented controls
 
@@ -41,6 +42,7 @@ The following controls are now in place:
 6. Seed build-time JSON catalogs and an example automation script for draft translation generation.
 7. Methodology rule requiring source-hash-based cached machine localization when automatic translation is implemented.
 8. Methodology rule preventing automatic translation of completed form values and user-entered operational data.
+9. Backend cache design requiring provider-aware source-hash invalidation, publication status tracking and human-review gates before sensitive localized text can be published.
 
 ## 4. Validation results
 
@@ -84,7 +86,7 @@ If validation changes, update the affected validator and regression checks in th
 
 ## 7. Out-of-scope confirmation
 
-This methodology slice did not require changes to:
+The CPG-BIZ-063 design slice did not require changes to:
 
 1. backend
 2. database
@@ -96,6 +98,7 @@ This methodology slice did not require changes to:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.5 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-063 backend cache design as the approved next architecture for Google machine localization, source-hash invalidation and human-review publication gates |
 | 0.4 | 2026-06-01 | GTC IT / AI Assistant | Recorded official English platform language, machine localization boundary, Google Cloud Translation API / Google Translate default provider, English/Latin-only operational data entry and no automatic translation of completed form values |
 | 0.3 | 2026-05-12 | GTC IT / AI Assistant | Recorded first-visit browser language detection, html lang synchronization, local persistence of the resolved language, and removal of runtime attempts to bridge translation behavior through browser-side JavaScript |
 | 0.2 | 2026-05-12 | GTC IT / AI Assistant | Recorded the approved build-time translation skeleton under projects/crewportglobal/i18n and the validator extension that reads JSON catalogs when present |

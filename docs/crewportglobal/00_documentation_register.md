@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.44
+- Version: 2.45
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -344,6 +344,7 @@ docs/crewportglobal/
   255_cpg_biz_060_home_conversion_rebuild_report.md
   256_cpg_biz_061_registration_form_and_login_cabinet_route_report.md
   257_cpg_biz_062_english_only_form_input_guard_report.md
+  258_cpg_biz_063_google_machine_localization_cache_backend_design.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -755,6 +756,8 @@ Document 256 records the CPG-BIZ-061 registration and login-route correction, in
 
 Document 257 records the CPG-BIZ-062 implementation of the English/Latin-only form input guard, including the shared lifecycle helper, adoption by `/create-profile/` and `/post-vacancy/`, regression coverage and documentation updates to the implemented form standard.
 
+Document 258 records the CPG-BIZ-063 backend design for Google machine localization cache, including source-hash invalidation, provider credential boundaries, human-review gates, no browser-side provider calls and the explicit exclusion of completed form data from translation.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -858,6 +861,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.45 | 2026-06-01 | GTC IT / AI Assistant | Added document 258 for Google machine localization cache backend design and controlled source-hash translation methodology |
 | 2.44 | 2026-06-01 | GTC IT / AI Assistant | Added document 257 for the shared English/Latin-only form input guard implementation and standard lifecycle adoption |
 | 2.43 | 2026-06-01 | GTC IT / AI Assistant | Updated the translation methodology documents to clarify English as the official authoritative platform language, machine localization through Google translation provider, cached source-hash invalidation and English/Latin-only operational form data |
 | 2.42 | 2026-06-01 | GTC IT / AI Assistant | Added document 256 for compact first-step registration and login-to-cabinet routing |

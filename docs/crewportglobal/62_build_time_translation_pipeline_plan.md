@@ -12,6 +12,12 @@ This document defines the approved build-time translation pipeline direction for
 
 The objective is to generate draft translations during build or backend automation instead of calling translation providers from the browser.
 
+The provider-aware backend cache design that controls the next implementation stage is recorded in:
+
+```text
+docs/crewportglobal/258_cpg_biz_063_google_machine_localization_cache_backend_design.md
+```
+
 ## 2. Target architecture
 
 The approved target flow is:
@@ -19,7 +25,8 @@ The approved target flow is:
 English canonical source
 -> source strings or i18n keys
 -> Google Cloud Translation API / Google Translate provider through backend or build automation
--> cached machine localization keyed by source text hash
+-> cached machine localization keyed by source text hash, provider and target language
+-> publication status gate for machine drafts and human-reviewed translations
 -> JSON catalog or translation-cache export per language
 -> validator checks coverage
 -> public static pages use the shared i18n runtime
@@ -95,14 +102,17 @@ Machine-translated or AI-generated drafts must not be published without human re
 
 When the project chooses to operationalize automatic draft generation, the next implementation slice should:
 
-1. expand the English source catalog coverage
-2. generate target JSON catalogs from the selected provider
-3. add a deterministic publish-time export step from JSON catalogs into the shared runtime dictionaries or another prebuilt runtime bundle
-4. keep validator and documentation synchronized with that emission path
+1. implement a translation cache skeleton with a stub provider;
+2. verify cache hit, cache miss and stale source hash behavior;
+3. expand the English source catalog coverage;
+4. generate target JSON catalogs from the selected provider;
+5. add a deterministic publish-time export step from JSON catalogs into the shared runtime dictionaries or another prebuilt runtime bundle;
+6. keep validator and documentation synchronized with that emission path.
 
 ## 10. Revision history
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.3 | 2026-06-01 | GTC IT / AI Assistant | Linked the CPG-BIZ-063 backend cache design, clarified provider-aware cache keys, publication status gates and the stub-provider-first implementation order |
 | 0.2 | 2026-06-01 | GTC IT / AI Assistant | Clarified Google Cloud Translation API / Google Translate as the default provider, source-hash cache expectations and English/Latin-only operational form data outside translation scope |
 | 0.1 | 2026-05-12 | GTC IT / AI Assistant | Initial build-time translation pipeline plan and minimal implementation skeleton for automatic draft translations |
