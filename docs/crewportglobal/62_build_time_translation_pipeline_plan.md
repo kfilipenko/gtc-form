@@ -55,8 +55,11 @@ The first cache implementation skeleton adds:
 1. projects/crewportglobal/scripts/translation_cache.py
 2. projects/crewportglobal/scripts/test_translation_cache.py
 3. projects/crewportglobal/scripts/validate_translation_cache.py
-4. projects/crewportglobal/i18n/translation-cache.json
-5. projects/crewportglobal/i18n/cache-export/
+4. projects/crewportglobal/scripts/review_translation_cache.py
+5. projects/crewportglobal/scripts/export_translation_publish_ready.py
+6. projects/crewportglobal/i18n/translation-cache.json
+7. projects/crewportglobal/i18n/cache-export/
+8. projects/crewportglobal/i18n/publish-ready-export/
 
 The skeleton uses only a deterministic stub provider and does not call Google APIs.
 
@@ -112,17 +115,18 @@ Machine-translated or AI-generated drafts must not be published without human re
 
 When the project chooses to operationalize automatic draft generation, the next implementation slice should:
 
-1. implement a translation cache skeleton with a stub provider;
-2. verify cache hit, cache miss and stale source hash behavior;
+1. design the Google provider adapter and secret boundary before connecting credentials;
+2. keep the deterministic stub provider available for local tests;
 3. expand the English source catalog coverage;
-4. generate target JSON catalogs from the selected provider;
-5. add a deterministic publish-time export step from JSON catalogs into the shared runtime dictionaries or another prebuilt runtime bundle;
+4. generate target JSON catalogs from the selected provider only through backend/build automation;
+5. add a deterministic publish-time export step from publish-ready JSON catalogs into the shared runtime dictionaries or another prebuilt runtime bundle;
 6. keep validator and documentation synchronized with that emission path.
 
 ## 10. Revision history
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.6 | 2026-06-01 | GTC IT / AI Assistant | Added human-review marking and publish-ready export artifacts to the translation cache implementation plan |
 | 0.5 | 2026-06-01 | GTC IT / AI Assistant | Added publish-gate validator to the cache skeleton plan, including stale/missing/hash-mismatch/orphan/review-required reporting |
 | 0.4 | 2026-06-01 | GTC IT / AI Assistant | Recorded the first file-backed translation cache skeleton with stub provider, cache export artifacts and unit-test entrypoint |
 | 0.3 | 2026-06-01 | GTC IT / AI Assistant | Linked the CPG-BIZ-063 backend cache design, clarified provider-aware cache keys, publication status gates and the stub-provider-first implementation order |

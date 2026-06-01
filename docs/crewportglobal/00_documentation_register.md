@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.47
+- Version: 2.48
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -347,6 +347,7 @@ docs/crewportglobal/
   258_cpg_biz_063_google_machine_localization_cache_backend_design.md
   259_cpg_biz_064_translation_cache_stub_provider_skeleton_report.md
   260_cpg_biz_065_translation_cache_publish_gate_report.md
+  261_cpg_biz_066_translation_cache_human_review_publish_export_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -764,6 +765,8 @@ Document 259 records the CPG-BIZ-064 translation cache stub-provider skeleton, i
 
 Document 260 records the CPG-BIZ-065 translation cache publish-gate validator, including stale/missing/hash-mismatch/orphan/review-required reporting, strict publish mode and current controlled review-required findings.
 
+Document 261 records the CPG-BIZ-066 translation cache human-review marking and publish-ready export policy, including reviewer metadata, source-hash safety checks and exclusion of unreviewed sensitive translations from publish-ready artifacts.
+
 Mandatory control statement:
 
 1. CrewPortGlobal must be implemented as a practical maritime jobs and crew platform.
@@ -867,6 +870,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.48 | 2026-06-01 | GTC IT / AI Assistant | Added document 261 for translation cache human-review marking, reviewer metadata and publish-ready export policy |
 | 2.47 | 2026-06-01 | GTC IT / AI Assistant | Added document 260 for translation cache publish-gate validation, strict publish mode and current review-required findings |
 | 2.46 | 2026-06-01 | GTC IT / AI Assistant | Added document 259 for the translation cache stub-provider skeleton, cache artifacts and unit-tested source-hash invalidation behavior |
 | 2.45 | 2026-06-01 | GTC IT / AI Assistant | Added document 258 for Google machine localization cache backend design and controlled source-hash translation methodology |

@@ -31,6 +31,7 @@ The current website text-translation methodology is:
 12. The approved backend cache design for future Google machine localization is documented in docs/crewportglobal/258_cpg_biz_063_google_machine_localization_cache_backend_design.md.
 13. The first cache implementation skeleton is file-backed, uses a deterministic stub provider and is documented in docs/crewportglobal/259_cpg_biz_064_translation_cache_stub_provider_skeleton_report.md.
 14. Translation cache freshness and publication-gate validation is documented in docs/crewportglobal/260_cpg_biz_065_translation_cache_publish_gate_report.md.
+15. Human-review marking and publish-ready export policy is documented in docs/crewportglobal/261_cpg_biz_066_translation_cache_human_review_publish_export_report.md.
 
 ## 3. Implemented controls
 
@@ -47,6 +48,7 @@ The following controls are now in place:
 9. Backend cache design requiring provider-aware source-hash invalidation, publication status tracking and human-review gates before sensitive localized text can be published.
 10. Unit-tested stub-provider cache skeleton verifying cache miss, cache hit, stale source hash and export behavior before any Google credentials are introduced.
 11. Publish-gate validator reporting stale entries, missing current entries, source-hash mismatches, orphan entries and review-required translations.
+12. Human-review marking records reviewer identity and timestamp, and publish-ready export excludes unreviewed sensitive translations.
 
 ## 4. Validation results
 
@@ -71,6 +73,14 @@ Observed current-state result:
 
 The current methodology does not authorize uncontrolled publication of sensitive translated text.
 
+Current publish-ready export behavior is:
+
+1. ordinary low-risk `draft_machine` entries may be exported from the cache;
+2. stale entries are excluded;
+3. `review_required` entries are excluded;
+4. sensitive entries are exported only after they are marked `reviewed`;
+5. reviewer user id and review timestamp are retained in the cache entry.
+
 Human review remains required before publication for:
 
 1. projects/crewportglobal/public/legal/**/*.md
@@ -90,18 +100,20 @@ If validation changes, update the affected validator and regression checks in th
 
 ## 7. Out-of-scope confirmation
 
-The CPG-BIZ-063 design slice did not require changes to:
+The CPG-BIZ-063 through CPG-BIZ-066 translation-cache slices did not require changes to:
 
 1. backend
 2. database
 3. secrets
 4. auth
 5. OpenClaw configuration
+6. browser runtime publication dictionaries
 
 ## 8. Revision history
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.8 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-066 human-review marking, reviewer metadata and publish-ready export policy for translation cache |
 | 0.7 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-065 translation cache publish-gate validator and current review-required findings |
 | 0.6 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-064 file-backed translation cache skeleton, deterministic stub provider, cache export artifacts and unit-test coverage |
 | 0.5 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-063 backend cache design as the approved next architecture for Google machine localization, source-hash invalidation and human-review publication gates |

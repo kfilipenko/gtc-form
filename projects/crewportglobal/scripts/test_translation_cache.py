@@ -7,6 +7,8 @@ import unittest
 from translation_cache import (
     StubTranslationProvider,
     export_catalogs,
+    export_publish_ready_catalogs,
+    mark_entries_reviewed,
     source_hash,
     update_cache,
 )
@@ -119,6 +121,58 @@ class TranslationCacheTests(unittest.TestCase):
 
         self.assertEqual(len(findings['stale_entries']), 1)
         self.assertEqual(findings['missing_current_entries'], [])
+
+    def test_mark_entries_reviewed_sets_reviewer_metadata(self) -> None:
+        cache = {'schema_version': 1, 'entries': []}
+        provider = StubTranslationProvider()
+        source_catalog = {'legal.privacy.title': 'Privacy Policy'}
+        update_cache(source_catalog, cache, ['ru'], provider)
+
+        reviewed = mark_entries_reviewed(
+            cache,
+            source_catalog,
+            ['legal.privacy.title'],
+            ['ru'],
+            provider,
+            'reviewer-1',
+        )
+
+        entry = cache['entries'][0]
+        self.assertEqual(reviewed, 1)
+        self.assertEqual(entry['translation_status'], 'reviewed')
+        self.assertEqual(entry['reviewed_by_user_id'], 'reviewer-1')
+        self.assertIsNotNone(entry['reviewed_at'])
+        self.assertFalse(entry['human_review_required'])
+
+    def test_publish_ready_export_excludes_unreviewed_sensitive_entries(self) -> None:
+        cache = {'schema_version': 1, 'entries': []}
+        provider = StubTranslationProvider()
+        source_catalog = {
+            'legal.privacy.title': 'Privacy Policy',
+            'nav.home': 'Home',
+        }
+        update_cache(source_catalog, cache, ['ru'], provider)
+
+        exported = export_publish_ready_catalogs(cache, ['ru'])
+
+        self.assertEqual(exported['ru'], {'nav.home': '[ru machine draft] Home'})
+
+    def test_publish_ready_export_includes_reviewed_sensitive_entries(self) -> None:
+        cache = {'schema_version': 1, 'entries': []}
+        provider = StubTranslationProvider()
+        source_catalog = {
+            'legal.privacy.title': 'Privacy Policy',
+            'nav.home': 'Home',
+        }
+        update_cache(source_catalog, cache, ['ru'], provider)
+        mark_entries_reviewed(cache, source_catalog, ['legal.privacy.title'], ['ru'], provider, 'reviewer-1')
+
+        exported = export_publish_ready_catalogs(cache, ['ru'])
+
+        self.assertEqual(exported['ru'], {
+            'legal.privacy.title': '[ru machine draft] Privacy Policy',
+            'nav.home': '[ru machine draft] Home',
+        })
 
 
 if __name__ == '__main__':

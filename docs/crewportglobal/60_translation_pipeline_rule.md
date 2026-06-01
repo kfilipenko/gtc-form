@@ -31,6 +31,12 @@ The first implementation skeleton for that cache is recorded in:
 docs/crewportglobal/259_cpg_biz_064_translation_cache_stub_provider_skeleton_report.md
 ```
 
+The current human-review and publish-ready export policy is recorded in:
+
+```text
+docs/crewportglobal/261_cpg_biz_066_translation_cache_human_review_publish_export_report.md
+```
+
 ## 2. Canonical source model
 
 - English is the official and authoritative language of the platform.
@@ -151,6 +157,9 @@ Rule:
 - The first cache implementation layer must use a stub provider until cache behavior, invalidation and export are verified without external credentials.
 - Publication checks must report stale cache entries, missing current entries, source-hash mismatches, orphan entries and review-required entries before localized bundles are exported for live use.
 - Strict publish mode must block regulated or sensitive translated text unless it has been human reviewed.
+- Publish-ready exports must exclude unreviewed sensitive translated entries even when ordinary low-risk machine-draft UI labels are exportable.
+- Human-review marking must record reviewer identity and review timestamp in the cache entry.
+- Marking a translation as reviewed is allowed only for a current, non-stale entry whose source hash still matches the canonical English source catalog.
 
 ## 5. Rebuild rule
 
@@ -205,6 +214,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 0.9 | 2026-06-01 | GTC IT / AI Assistant | Added human-review marking and publish-ready export policy for sensitive cache entries |
 | 0.8 | 2026-06-01 | GTC IT / AI Assistant | Added translation cache publish-gate validation requirements for stale, missing, hash-mismatch, orphan and review-required entries |
 | 0.7 | 2026-06-01 | GTC IT / AI Assistant | Added the CPG-BIZ-064 stub-provider cache skeleton as the required first implementation layer before connecting Google credentials |
 | 0.6 | 2026-06-01 | GTC IT / AI Assistant | Added reference to CPG-BIZ-063 backend cache design, provider-aware cache key, review statuses and explicit human-review gate for sensitive machine-localized text |

@@ -131,10 +131,22 @@ git diff --check
 
 ## 7. Next Stage
 
-Рекомендуемый следующий этап:
+Следующий этап выполнен и зафиксирован в:
 
 ```text
-CPG-BIZ-066 - Translation cache human-review marking and reviewed export policy
+docs/crewportglobal/261_cpg_biz_066_translation_cache_human_review_publish_export_report.md
 ```
 
-Цель: добавить controlled способ помечать cache entries как `reviewed` и экспортировать publish-ready localized bundles без unreviewed regulated text.
+Он добавил:
+
+1. controlled CLI для отметки текущих cache entries как human-reviewed;
+2. фиксацию `reviewed_by_user_id` и `reviewed_at`;
+3. publish-ready export, который исключает unreviewed sensitive translations.
+
+Следующий рекомендуемый этап после CPG-BIZ-066:
+
+```text
+CPG-BIZ-067 - Translation cache Google provider adapter design and secret boundary check
+```
+
+Цель: до подключения Google Cloud Translation API описать и проверить boundary для credentials, runtime isolation и fallback на stub-provider tests.

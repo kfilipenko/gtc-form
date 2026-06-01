@@ -214,6 +214,68 @@ def export_catalogs(cache: dict[str, Any], targets: list[str]) -> dict[str, dict
     return catalogs
 
 
+def export_publish_ready_catalogs(cache: dict[str, Any], targets: list[str]) -> dict[str, dict[str, str]]:
+    catalogs: dict[str, dict[str, str]] = {target: {} for target in targets}
+
+    for entry in cache.get('entries', []):
+        target_language = str(entry.get('target_language') or '')
+        if target_language not in catalogs:
+            continue
+        if entry.get('translation_status') == 'stale':
+            continue
+        if entry.get('human_review_required') is True and entry.get('translation_status') != 'reviewed':
+            continue
+        if entry.get('translation_status') not in {'draft_machine', 'reviewed'}:
+            continue
+        key = str(entry.get('translation_key') or '')
+        if not key:
+            continue
+        catalogs[target_language][key] = str(entry.get('translated_text') or '')
+
+    return catalogs
+
+
+def mark_entries_reviewed(
+    cache: dict[str, Any],
+    source_catalog: dict[str, str],
+    translation_keys: list[str],
+    targets: list[str],
+    provider: StubTranslationProvider,
+    reviewed_by_user_id: str,
+    source_language: str = 'en',
+) -> int:
+    timestamp = utc_now()
+    reviewed = 0
+    key_set = set(translation_keys)
+    target_set = set(targets)
+
+    for entry in cache.get('entries', []):
+        key = str(entry.get('translation_key') or '')
+        target_language = str(entry.get('target_language') or '')
+        if key not in key_set or target_language not in target_set:
+            continue
+        if entry.get('provider') != provider.name:
+            continue
+        if entry.get('source_language') != source_language:
+            continue
+        if entry.get('translation_status') == 'stale':
+            continue
+        source_text = source_catalog.get(key)
+        if source_text is None:
+            continue
+        if entry.get('source_text_hash') != source_hash(source_text):
+            continue
+
+        entry['translation_status'] = 'reviewed'
+        entry['human_review_required'] = False
+        entry['reviewed_by_user_id'] = reviewed_by_user_id
+        entry['reviewed_at'] = timestamp
+        entry['updated_at'] = timestamp
+        reviewed += 1
+
+    return reviewed
+
+
 def write_exported_catalogs(export_dir: Path, catalogs: dict[str, dict[str, str]]) -> None:
     export_dir.mkdir(parents=True, exist_ok=True)
     for language, catalog in catalogs.items():
