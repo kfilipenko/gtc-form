@@ -4,6 +4,7 @@
     "test:cpg-api": "playwright test -c playwright.crewportglobal.api.config.ts",
     "check:rules-links": "python3 scripts/check_rules_phrase_links.py",
     "check:cpg-i18n": "node projects/crewportglobal/scripts/check_public_i18n.js",
+    "sync:cpg-i18n-source": "node projects/crewportglobal/scripts/sync_translation_source_catalog.js",
     "check:cpg-i18n-cache": "python3 projects/crewportglobal/scripts/test_translation_cache.py",
     "check:cpg-i18n-cache-report": "python3 projects/crewportglobal/scripts/validate_translation_cache.py",
     "build:cpg-i18n-publish-ready": "python3 projects/crewportglobal/scripts/export_translation_publish_ready.py",

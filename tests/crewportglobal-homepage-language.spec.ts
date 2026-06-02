@@ -8,6 +8,20 @@ const publicI18nRuntimePath = path.join(repositoryRoot, 'projects/crewportglobal
 const machineBundlePath = path.join(repositoryRoot, 'projects/crewportglobal/i18n/runtime-bundle/crewportglobal-machine-translations.js');
 const machineBundleManifestPath = path.join(repositoryRoot, 'projects/crewportglobal/i18n/runtime-bundle/manifest.json');
 
+const approvedMachineLanguages = [
+  { code: 'ar', label: 'العربية', dir: 'rtl' },
+  { code: 'el', label: 'Ελληνικά', dir: 'ltr' },
+  { code: 'es', label: 'Español', dir: 'ltr' },
+  { code: 'fil', label: 'Filipino', dir: 'ltr' },
+  { code: 'fr', label: 'Français', dir: 'ltr' },
+  { code: 'hi', label: 'हिन्दी', dir: 'ltr' },
+  { code: 'id', label: 'Bahasa Indonesia', dir: 'ltr' },
+  { code: 'pt', label: 'Português', dir: 'ltr' },
+  { code: 'ru', label: 'Русский', dir: 'ltr' },
+  { code: 'tr', label: 'Türkçe', dir: 'ltr' },
+  { code: 'uk', label: 'Українська', dir: 'ltr' },
+];
+
 const forbiddenPublicTerms = [
   'static UX slice',
   'implementation slice',
@@ -114,7 +128,7 @@ test('same-page selector works on generated public pages and persists after relo
   await expect(page.locator('.site-nav')).toContainText('Для работодателей');
 });
 
-test('homepage falls back to English for missing non-English page translations', async ({ page }) => {
+test('homepage uses machine bundle for approved non-English page translations', async ({ page }) => {
   await page.goto('/index.html');
 
   await page.locator('#current-language-toggle').click();
@@ -122,8 +136,8 @@ test('homepage falls back to English for missing non-English page translations',
 
   await expect(page.locator('#current-language-label')).toHaveText('Português');
   await expect(page.locator('.nav-menu--employers summary')).toContainText('Empregadores');
-  await expect(page.locator('.landing-title')).toContainText('Find work at sea. Close crew requests faster.');
-  await expect(page.locator('.vacancy-board').filter({ hasText: 'Latest vacancies' })).toContainText('Current public vacancy board');
+  await expect(page.locator('.landing-title')).toContainText('Encontre trabalho no mar.');
+  await expect(page.locator('main a[href="https://crewportglobal.com/register/?role=seafarer"]')).toContainText('Criar perfil');
 });
 
 test('homepage and vacancies pages avoid internal planning language', async ({ page }) => {
@@ -301,8 +315,8 @@ test('shared runtime consumes a valid prebuilt machine bundle without translatin
   await page.locator('#current-language-toggle').click();
   await page.locator('.language-option').filter({ hasText: 'Українська' }).click();
 
-  await expect(page.locator('#machine-key')).toHaveText('[uk machine draft] Application');
-  await expect(page.locator('#user-value')).toHaveAttribute('placeholder', '[uk machine draft] Maritime documentation and matching platform');
+  await expect(page.locator('#machine-key')).toHaveText('застосування');
+  await expect(page.locator('#user-value')).toHaveAttribute('placeholder', 'Морські роботи та платформа екіпажу');
   await expect(page.locator('#user-value')).toHaveValue('Captain Иван');
 });
 
@@ -338,14 +352,32 @@ test('shared runtime ignores an invalid machine bundle and keeps English fallbac
   await expect(page.locator('#machine-key')).toHaveText('Application');
 });
 
-test('published homepage loads the machine bundle for supported machine-localized languages', async ({ page }) => {
+test('published homepage loads the machine bundle for all approved machine-localized languages', async ({ page }) => {
   await page.goto('/index.html');
 
-  await page.locator('#current-language-toggle').click();
-  await page.locator('.language-option').filter({ hasText: 'Українська' }).click();
+  for (const language of approvedMachineLanguages) {
+    await page.locator('#current-language-toggle').click();
+    await page.locator('.language-option').filter({ hasText: language.label }).click();
 
-  await expect(page.locator('#current-language-label')).toHaveText('Українська');
-  await expect(page.locator('.language-toggle__hint')).toHaveText('[uk machine draft] Language');
+    await expect(page.locator('#current-language-label')).toHaveText(language.label);
+    await expect(page.locator('html')).toHaveAttribute('lang', language.code);
+    await expect(page.locator('html')).toHaveAttribute('dir', language.dir);
+    await expect(page.locator('.landing-title')).not.toContainText('Find work at sea. Close crew requests faster.');
+    await expect(page.locator('main a[href="https://crewportglobal.com/register/?role=seafarer"]')).not.toHaveText('Create profile');
+  }
+});
+
+test('machine runtime manifest covers the approved market language set', async () => {
+  const manifest = JSON.parse(fs.readFileSync(machineBundleManifestPath, 'utf8')) as {
+    target_languages?: string[];
+    target_key_counts?: Record<string, number>;
+  };
+  const expectedLanguages = approvedMachineLanguages.map((language) => language.code).sort();
+  expect([...(manifest.target_languages || [])].sort()).toEqual(expectedLanguages);
+
+  for (const language of expectedLanguages) {
+    expect(manifest.target_key_counts?.[language]).toBeGreaterThan(1700);
+  }
 });
 
 test('public pages load the machine bundle before the shared runtime', async () => {

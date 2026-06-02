@@ -47,6 +47,7 @@ The current website text-translation methodology is:
 28. Read-only translation publication guard is documented in docs/crewportglobal/274_cpg_biz_079_translation_publication_read_only_guard_report.md.
 29. Translation publication CI workflow and release checklist are documented in docs/crewportglobal/275_cpg_biz_080_translation_publication_ci_release_checklist_report.md.
 30. Translation release failure drill and rollback procedure are documented in docs/crewportglobal/276_cpg_biz_081_translation_release_failure_drill_rollback_note.md.
+31. Expanded machine-localized public UI coverage for ru, uk, pt, es, fr, tr, el, ar, fil, hi and id is documented in docs/crewportglobal/277_cpg_biz_082_expand_machine_localization_language_coverage_report.md.
 
 ## 3. Implemented controls
 
@@ -80,6 +81,9 @@ The following controls are now in place:
 26. `npm run check:cpg-i18n-publication-guard` now performs a read-only release/CI guard confirming runtime publication integrity and exact agreement between the published runtime bundle catalogs and the publish-ready cache export policy.
 27. `npm run check:cpg-i18n-release` and `.github/workflows/crewportglobal-i18n-publication.yml` now define the release sequence: publish workflow, read-only guard, generated-artifact diff check and focused browser regression.
 28. Translation release failure recovery is documented as a controlled drill: identify the failing guard, correct the cause, avoid manual generated-file edits, and restore only previously committed validated runtime publication artifacts when rollback is required.
+29. The canonical English source catalog can be synchronized from shared chrome and page-local public dictionaries with `npm run sync:cpg-i18n-source`.
+30. The build-side `google_translate_public` provider can generate cached machine-draft UI translations for approved non-sensitive UI coverage without exposing translation provider calls to the browser.
+31. The expanded language regression verifies all approved target languages in the public selector and checks Arabic right-to-left document metadata.
 
 ## 4. Validation results
 
@@ -99,6 +103,8 @@ Observed current-state result:
 5. Document root metadata is updated at runtime through html lang and dir.
 6. Representative generated legal pages continue to use the shared chrome runtime without attempting to trigger browser translation UI.
 7. The validator now reads build-time JSON catalogs when they are present.
+8. The validator now includes the published machine runtime bundle when checking non-English coverage.
+9. The runtime bundle currently publishes 1767 low-risk machine-localized entries for each approved target language and leaves 89 sensitive entries per language under English fallback until human review.
 
 ## 5. Publication and review boundary
 
@@ -131,7 +137,7 @@ If validation changes, update the affected validator and regression checks in th
 
 ## 7. Out-of-scope confirmation
 
-The CPG-BIZ-063 through CPG-BIZ-081 translation-cache slices did not require changes to:
+The CPG-BIZ-063 through CPG-BIZ-082 translation-cache slices did not require changes to:
 
 1. backend
 2. database
@@ -144,6 +150,7 @@ The CPG-BIZ-063 through CPG-BIZ-081 translation-cache slices did not require cha
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 2.4 | 2026-06-02 | GTC IT / AI Assistant | Recorded CPG-BIZ-082 expanded machine localization coverage, source sync command and 11-language runtime publication |
 | 2.3 | 2026-06-02 | GTC IT / AI Assistant | Recorded CPG-BIZ-081 translation release failure drill and rollback procedure |
 | 2.2 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-080 translation publication CI workflow and release checklist |
 | 2.1 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-079 read-only translation publication guard |

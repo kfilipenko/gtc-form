@@ -8,6 +8,7 @@ const repoRoot = path.resolve(__dirname, '..', '..', '..');
 const publicRoot = path.join(repoRoot, 'projects', 'crewportglobal', 'public');
 const i18nRoot = path.join(repoRoot, 'projects', 'crewportglobal', 'i18n');
 const sharedRuntimePath = path.join(publicRoot, 'assets', 'crewportglobal-public-i18n.js');
+const machineBundlePath = path.join(publicRoot, 'assets', 'crewportglobal-machine-translations.js');
 
 function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
@@ -40,6 +41,23 @@ function loadJsonCatalogs(rootDir) {
   }
 
   return catalogs;
+}
+
+function loadMachineBundleCatalogs(filePath) {
+  if (!fs.existsSync(filePath)) {
+    return {};
+  }
+  const source = readText(filePath);
+  const marker = 'window.CREWPORTGLOBAL_MACHINE_TRANSLATION_BUNDLE =';
+  if (!source.includes(marker)) {
+    return {};
+  }
+  const literal = extractObjectLiteral(source, marker);
+  const payload = JSON.parse(literal);
+  if (!payload || payload.official_language !== 'en' || !payload.catalogs || typeof payload.catalogs !== 'object') {
+    return {};
+  }
+  return payload.catalogs;
 }
 
 function extractObjectLiteral(source, marker) {
@@ -141,6 +159,7 @@ function toRelative(filePath) {
 const sharedRuntime = readText(sharedRuntimePath);
 const chromeTranslations = evaluateObjectLiteral(extractObjectLiteral(sharedRuntime, 'const CHROME_TRANSLATIONS ='));
 const jsonCatalogs = loadJsonCatalogs(i18nRoot);
+const machineBundleCatalogs = loadMachineBundleCatalogs(machineBundlePath);
 const htmlFiles = collectHtmlFiles(publicRoot);
 const pageTranslations = {};
 const htmlSources = new Map();
@@ -193,6 +212,7 @@ const languageCodes = new Set([
   ...Object.keys(chromeTranslations),
   ...Object.keys(pageTranslations),
   ...Object.keys(jsonCatalogs),
+  ...Object.keys(machineBundleCatalogs),
 ]);
 languageCodes.delete('en');
 
@@ -203,6 +223,7 @@ for (const code of [...languageCodes].sort()) {
   for (const key of usage.keys()) {
     const hasTranslation = (pageTranslations[code] && Object.prototype.hasOwnProperty.call(pageTranslations[code], key))
       || (chromeTranslations[code] && Object.prototype.hasOwnProperty.call(chromeTranslations[code], key))
+      || (machineBundleCatalogs[code] && Object.prototype.hasOwnProperty.call(machineBundleCatalogs[code], key))
       || (jsonCatalogs[code] && Object.prototype.hasOwnProperty.call(jsonCatalogs[code], key));
     if (!hasTranslation && englishCanonical.has(key)) {
       missingKeys.push(key);
@@ -223,6 +244,11 @@ console.log(`Checked ${htmlFiles.length} public HTML files and ${usage.size} uni
 const jsonCatalogCodes = Object.keys(jsonCatalogs).sort();
 if (jsonCatalogCodes.length > 0) {
   console.log(`Loaded ${jsonCatalogCodes.length} build-time JSON catalog(s): ${jsonCatalogCodes.join(', ')}`);
+}
+
+const machineBundleCodes = Object.keys(machineBundleCatalogs).sort();
+if (machineBundleCodes.length > 0) {
+  console.log(`Loaded machine runtime bundle catalog(s): ${machineBundleCodes.join(', ')}`);
 }
 
 if (missingEnglish.length > 0) {

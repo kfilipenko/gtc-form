@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import os
 import importlib.util
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping, Protocol
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
 
 @dataclass(frozen=True)
@@ -16,6 +19,9 @@ class StubTranslationProvider:
 
     def translate(self, text: str, source_language: str, target_language: str) -> str:
         return f'[{target_language} machine draft] {text}'
+
+    def translate_many(self, texts: list[str], source_language: str, target_language: str) -> list[str]:
+        return [self.translate(text, source_language, target_language) for text in texts]
 
 
 class GoogleTranslateTextClient(Protocol):
@@ -29,6 +35,53 @@ class TranslationProvider(Protocol):
 
     def translate(self, text: str, source_language: str, target_language: str) -> str:
         ...
+
+
+@dataclass(frozen=True)
+class GoogleTranslatePublicEndpointProvider:
+    name: str = 'google_translate_public'
+    version: str = 'translate.googleapis.com-gtx-build-only'
+    endpoint: str = 'https://translate.googleapis.com/translate_a/single'
+    batch_separator: str = '<<<CPG_TRANSLATION_SPLIT_20260602>>>'
+
+    def translate(self, text: str, source_language: str, target_language: str) -> str:
+        target = {
+            'fil': 'tl',
+        }.get(target_language, target_language)
+        query = urlencode({
+            'client': 'gtx',
+            'sl': source_language,
+            'tl': target,
+            'dt': 't',
+            'q': text,
+        })
+        request = Request(
+            f'{self.endpoint}?{query}',
+            headers={
+                'User-Agent': 'CrewPortGlobal-build-translation-cache/1.0',
+            },
+        )
+        with urlopen(request, timeout=20) as response:
+            payload = json.loads(response.read().decode('utf-8'))
+        translated_parts = payload[0] if isinstance(payload, list) and payload else []
+        result = ''.join(
+            str(part[0])
+            for part in translated_parts
+            if isinstance(part, list) and part and part[0] is not None
+        ).strip()
+        if not result:
+            raise RuntimeError('Google Translate public endpoint returned an empty translated text.')
+        return result
+
+    def translate_many(self, texts: list[str], source_language: str, target_language: str) -> list[str]:
+        if not texts:
+            return []
+        joined = f'\n{self.batch_separator}\n'.join(texts)
+        translated = self.translate(joined, source_language, target_language)
+        parts = [part.strip() for part in translated.split(self.batch_separator)]
+        if len(parts) != len(texts) or any(not part for part in parts):
+            return [self.translate(text, source_language, target_language) for text in texts]
+        return parts
 
 
 @dataclass(frozen=True)

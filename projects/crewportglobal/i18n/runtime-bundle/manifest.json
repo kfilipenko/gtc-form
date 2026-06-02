@@ -1,8 +1,8 @@
 {
   "bundle_file": "crewportglobal-machine-translations.js",
-  "generated_at": "2026-06-01T13:15:46+00:00",
+  "generated_at": "2026-06-02T06:00:14+00:00",
   "official_language": "en",
-  "publication_version": "02e3d1722d63d321",
+  "publication_version": "2708de3b9dc4dcb7",
   "runtime_boundary": {
     "browser_provider_calls_allowed": false,
     "form_value_translation_allowed": false,
@@ -10,16 +10,32 @@
     "source": "publish-ready-export"
   },
   "schema_version": 1,
-  "source_catalog_hash": "b92471b27e48cb8135cc9f4172859cc53eed66e39157da2cabf1e2a7ebb16200",
-  "source_key_count": 13,
+  "source_catalog_hash": "9a5f12bcaa1a87945886c82fa5dd2f2c023f7a36410bb4b35dcf805bd5f6f7ee",
+  "source_key_count": 1856,
   "target_key_counts": {
-    "pt": 11,
-    "ru": 11,
-    "uk": 11
+    "ar": 1767,
+    "el": 1767,
+    "es": 1767,
+    "fil": 1767,
+    "fr": 1767,
+    "hi": 1767,
+    "id": 1767,
+    "pt": 1767,
+    "ru": 1767,
+    "tr": 1767,
+    "uk": 1767
   },
   "target_languages": [
+    "ar",
+    "el",
+    "es",
+    "fil",
+    "fr",
+    "hi",
+    "id",
     "pt",
     "ru",
+    "tr",
     "uk"
   ]
 }

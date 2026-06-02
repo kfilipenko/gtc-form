@@ -63,6 +63,7 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - JavaScript cannot force the browser's built-in page translator; public pages should remain browser-translation-friendly instead of attempting to trigger browser translation UI.
 - The shared browser runtime can consume a valid prebuilt `window.CREWPORTGLOBAL_MACHINE_TRANSLATION_BUNDLE` as a dictionary-only fallback after page/chrome dictionaries and before English fallback.
 - Invalid runtime bundles are ignored, and browser runtime must not call translation providers or mutate form values.
+- The current approved runtime machine target languages are ar, el, es, fil, fr, hi, id, pt, ru, tr and uk. English remains the official source language.
 - The canonical methodology is documented in docs/crewportglobal/60_translation_pipeline_rule.md.
 - The current operational report is documented in docs/crewportglobal/61_translation_pipeline_implementation_report.md.
 - If the translation methodology changes, update both documents and the documentation register in the same slice.
@@ -70,15 +71,17 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 ## Build-time draft translation skeleton
 
 - Seed build-time catalogs now live in projects/crewportglobal/i18n/.
-- projects/crewportglobal/i18n/en.json is the pilot canonical source for automatic draft-translation generation in the new build-time skeleton.
-- projects/crewportglobal/i18n/ru.json, pt.json and uk.json are seed target-language draft catalogs.
+- projects/crewportglobal/i18n/en.json is the canonical English source catalog for automatic draft-translation generation in the build-time skeleton.
+- Synchronize the English source catalog from shared chrome and page-local public dictionaries with: npm run sync:cpg-i18n-source
+- Approved target-language runtime coverage currently includes ru, uk, pt, es, fr, tr, el, ar, fil, hi and id.
 - Example automation entrypoint: python projects/crewportglobal/scripts/update_translations.example.py --targets ru pt uk
 - Future production automation should cache Google machine localization by translation key, source language, target language and English source text hash so changed source copy invalidates stale translations.
 - The approved backend cache design is documented in docs/crewportglobal/258_cpg_biz_063_google_machine_localization_cache_backend_design.md.
 - Future translation cache implementation must keep provider credentials out of browser code, track publication/review status, and export only validated static dictionaries to public runtime.
 - The first implementation skeleton is file-backed and local-safe by default: projects/crewportglobal/scripts/translation_cache.py updates projects/crewportglobal/i18n/translation-cache.json and exports inspection catalogs under projects/crewportglobal/i18n/cache-export/.
 - Refresh cache with the local-safe default provider: python3 projects/crewportglobal/scripts/translation_cache.py --targets ru pt uk --provider stub
-- Use python3 projects/crewportglobal/scripts/translation_cache.py --targets ru pt uk --provider google only in protected backend/build environment after credential-source validation passes.
+- Use python3 projects/crewportglobal/scripts/translation_cache.py --targets ru uk pt es fr tr el ar fil hi id --provider google only in protected backend/build environment after credential-source validation passes.
+- Use python3 projects/crewportglobal/scripts/translation_cache.py --targets ru uk pt es fr tr el ar fil hi id --provider google_translate_public only from backend/build automation for broad non-sensitive Google machine-draft UI generation without browser provider calls.
 - Validate cache behavior with: npm run check:cpg-i18n-cache
 - Review cache freshness and publish gates with: npm run check:cpg-i18n-cache-report
 - Export publish-ready cache catalogs with: npm run build:cpg-i18n-publish-ready

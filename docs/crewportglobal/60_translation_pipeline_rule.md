@@ -115,6 +115,12 @@ The translation release failure drill and rollback note is recorded in:
 docs/crewportglobal/276_cpg_biz_081_translation_release_failure_drill_rollback_note.md
 ```
 
+The expanded machine-localization language coverage implementation is recorded in:
+
+```text
+docs/crewportglobal/277_cpg_biz_082_expand_machine_localization_language_coverage_report.md
+```
+
 ## 2. Canonical source model
 
 - English is the official and authoritative language of the platform.
@@ -181,6 +187,24 @@ stale
 Sensitive text may be machine translated only into a draft or review-required state until a human reviewer approves publication.
 
 Alternative providers such as LibreTranslate, Argos Translate or another AI translation provider may be used only after an explicit methodology update and approval.
+
+The approved build-side provider option for broad non-sensitive UI coverage is:
+
+```text
+google_translate_public
+```
+
+This provider may be used only by backend/build automation to generate cached machine-draft UI translations. It must not be called from browser-side code and must not translate user-entered form values.
+
+The protected `google` provider remains the credential-backed Google Cloud Translation path for protected server/CI environments.
+
+The approved target language set for current machine-localized UI publication is:
+
+```text
+ru, uk, pt, es, fr, tr, el, ar, fil, hi, id
+```
+
+English (`en`) remains the official source language and is not a machine target.
 
 ## 3. Text categories
 
@@ -258,6 +282,9 @@ Rule:
 - CI and release review should run `npm run check:cpg-i18n-publication-guard` after the standard publication workflow. This read-only guard must not write files. It verifies runtime bundle integrity, public HTML query markers and that every published machine-translation entry is still allowed by the publish-ready translation-cache export policy.
 - The read-only publication guard implementation result is recorded in `docs/crewportglobal/274_cpg_biz_079_translation_publication_read_only_guard_report.md`.
 - Translation publication release review must use `npm run check:cpg-i18n-release` locally or the `CrewPortGlobal i18n publication` GitHub Actions workflow in CI. The sequence is: publish workflow, read-only publication guard, generated-artifact diff check and focused browser regression.
+- The canonical English source catalog for machine localization must be synchronized with `npm run sync:cpg-i18n-source` before broad cache generation.
+- Expanded language publication must keep all target languages in `projects/crewportglobal/i18n/runtime-bundle/manifest.json` and must verify browser selection through Playwright.
+- Arabic localization must set the document direction to `rtl`; all other current target languages use `ltr`.
 - The CI/release checklist implementation result is recorded in `docs/crewportglobal/275_cpg_biz_080_translation_publication_ci_release_checklist_report.md`.
 - Translation release failures must be resolved by correcting the cause and rerunning the approved release sequence. Routine recovery must not manually edit generated runtime-bundle JavaScript or public HTML query markers. Rollback must restore a previously committed and validated runtime publication state, then run the read-only guard and full release check before commit.
 - The translation release failure drill and rollback note is recorded in `docs/crewportglobal/276_cpg_biz_081_translation_release_failure_drill_rollback_note.md`.

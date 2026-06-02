@@ -13,6 +13,7 @@ from typing import Any
 
 from translation_provider_adapters import (
     GoogleTranslateTextClient,
+    GoogleTranslatePublicEndpointProvider,
     StubTranslationProvider,
     TranslationProvider,
     create_google_translation_provider,
@@ -142,6 +143,7 @@ def update_cache(
 ) -> dict[str, int]:
     entries = cache.setdefault('entries', [])
     timestamp = utc_now()
+    pending_entries: list[dict[str, Any]] = []
     stats = {
         'cache_hits': 0,
         'created': 0,
@@ -174,13 +176,13 @@ def update_cache(
                 continue
 
             human_review_required = is_sensitive_translation_key(key)
-            entries.append({
+            pending_entries.append({
                 'translation_key': key,
                 'source_language': source_language,
                 'target_language': target_language,
                 'source_text': source_text,
                 'source_text_hash': text_hash,
-                'translated_text': provider.translate(source_text, source_language, target_language),
+                'translated_text': None,
                 'provider': provider.name,
                 'provider_version': provider.version,
                 'translation_status': 'review_required' if human_review_required else 'draft_machine',
@@ -190,7 +192,32 @@ def update_cache(
                 'created_at': timestamp,
                 'updated_at': timestamp,
             })
-            stats['created'] += 1
+
+    translate_many = getattr(provider, 'translate_many', None)
+    for target_language in targets:
+        target_pending = [
+            entry for entry in pending_entries
+            if entry['target_language'] == target_language
+        ]
+        for start in range(0, len(target_pending), 25):
+            chunk = target_pending[start:start + 25]
+            source_texts = [entry['source_text'] for entry in chunk]
+            if callable(translate_many):
+                translated_texts = translate_many(source_texts, source_language, target_language)
+            else:
+                translated_texts = [
+                    provider.translate(source_text, source_language, target_language)
+                    for source_text in source_texts
+                ]
+            if len(translated_texts) != len(chunk):
+                raise RuntimeError(
+                    f'Translation provider returned {len(translated_texts)} item(s) '
+                    f'for {len(chunk)} requested source text(s).'
+                )
+            for entry, translated_text in zip(chunk, translated_texts):
+                entry['translated_text'] = translated_text
+                entries.append(entry)
+                stats['created'] += 1
 
     cache['schema_version'] = SCHEMA_VERSION
     return stats
@@ -291,6 +318,8 @@ def select_translation_provider(
 ) -> TranslationProvider:
     if provider_name == 'stub':
         return StubTranslationProvider()
+    if provider_name == 'google_translate_public':
+        return GoogleTranslatePublicEndpointProvider()
     if provider_name == 'google':
         return create_google_translation_provider(
             env=env or dict(os.environ),
@@ -309,7 +338,7 @@ def main() -> int:
     parser.add_argument('--cache', default=str(DEFAULT_CACHE))
     parser.add_argument('--source-language', default='en')
     parser.add_argument('--targets', nargs='+', required=True)
-    parser.add_argument('--provider', choices=['stub', 'google'], default='stub')
+    parser.add_argument('--provider', choices=['stub', 'google', 'google_translate_public'], default='stub')
     parser.add_argument('--export-dir', default=str(DEFAULT_EXPORT_DIR))
     parser.add_argument('--no-export', action='store_true')
     args = parser.parse_args()
