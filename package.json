@@ -7,6 +7,8 @@
     "sync:cpg-i18n-source": "node projects/crewportglobal/scripts/sync_translation_source_catalog.js",
     "check:cpg-i18n-cache": "python3 projects/crewportglobal/scripts/test_translation_cache.py",
     "check:cpg-i18n-cache-report": "python3 projects/crewportglobal/scripts/validate_translation_cache.py",
+    "list:cpg-i18n-review-queue": "python3 projects/crewportglobal/scripts/list_translation_review_queue.py",
+    "review:cpg-i18n-cache": "python3 projects/crewportglobal/scripts/review_translation_cache.py",
     "build:cpg-i18n-publish-ready": "python3 projects/crewportglobal/scripts/export_translation_publish_ready.py",
     "check:cpg-translation-provider-boundary": "python3 projects/crewportglobal/scripts/check_translation_provider_boundary.py",
     "check:cpg-translation-credential-source": "python3 projects/crewportglobal/scripts/check_translation_credential_source.py",

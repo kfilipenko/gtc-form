@@ -84,6 +84,8 @@ The following controls are now in place:
 29. The canonical English source catalog can be synchronized from shared chrome and page-local public dictionaries with `npm run sync:cpg-i18n-source`.
 30. The build-side `google_translate_public` provider can generate cached machine-draft UI translations for approved non-sensitive UI coverage without exposing translation provider calls to the browser.
 31. The expanded language regression verifies all approved target languages in the public selector and checks Arabic right-to-left document metadata.
+32. Sensitive translation human-review queue listing is documented in docs/crewportglobal/278_cpg_biz_083_translation_sensitive_human_review_queue_report.md.
+33. Provider-aware review marking and target-limited validation now support the current `google_translate_public` cache entries.
 
 ## 4. Validation results
 
@@ -105,6 +107,8 @@ Observed current-state result:
 7. The validator now reads build-time JSON catalogs when they are present.
 8. The validator now includes the published machine runtime bundle when checking non-English coverage.
 9. The runtime bundle currently publishes 1767 low-risk machine-localized entries for each approved target language and leaves 89 sensitive entries per language under English fallback until human review.
+10. `npm run list:cpg-i18n-review-queue -- --provider google_translate_public --targets ru` lists the current 89 Russian sensitive entries requiring review.
+11. `validate_translation_cache.py --provider google_translate_public --targets ru` reports review-required entries only for the requested target language.
 
 ## 5. Publication and review boundary
 
@@ -137,7 +141,7 @@ If validation changes, update the affected validator and regression checks in th
 
 ## 7. Out-of-scope confirmation
 
-The CPG-BIZ-063 through CPG-BIZ-082 translation-cache slices did not require changes to:
+The CPG-BIZ-063 through CPG-BIZ-083 translation-cache slices did not require changes to:
 
 1. backend
 2. database
@@ -150,6 +154,7 @@ The CPG-BIZ-063 through CPG-BIZ-082 translation-cache slices did not require cha
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 2.5 | 2026-06-02 | GTC IT / AI Assistant | Recorded CPG-BIZ-083 sensitive translation human-review queue and provider-aware review commands |
 | 2.4 | 2026-06-02 | GTC IT / AI Assistant | Recorded CPG-BIZ-082 expanded machine localization coverage, source sync command and 11-language runtime publication |
 | 2.3 | 2026-06-02 | GTC IT / AI Assistant | Recorded CPG-BIZ-081 translation release failure drill and rollback procedure |
 | 2.2 | 2026-06-01 | GTC IT / AI Assistant | Recorded CPG-BIZ-080 translation publication CI workflow and release checklist |

@@ -24,21 +24,22 @@ This directory contains the seed build-time translation catalogs for CrewPortGlo
 2. Refresh the provider-aware cache skeleton with python projects/crewportglobal/scripts/translation_cache.py --targets ru uk pt es fr tr el ar fil hi id --provider stub
 3. Validate cache behavior with python projects/crewportglobal/scripts/test_translation_cache.py
 4. Review cache freshness and publication gates with python projects/crewportglobal/scripts/validate_translation_cache.py
-5. Mark human-reviewed sensitive entries only after review with python projects/crewportglobal/scripts/review_translation_cache.py --keys KEY --targets LANG --reviewed-by USER_ID
-6. Export publish-ready draft catalogs with python projects/crewportglobal/scripts/export_translation_publish_ready.py
-7. Build the prebuilt runtime bundle with python projects/crewportglobal/scripts/build_translation_runtime_bundle.py
-8. Validate the prebuilt runtime bundle with python projects/crewportglobal/scripts/check_translation_runtime_bundle.py
-9. Publish through the standard build-sync-validate workflow with npm run publish:cpg-i18n-runtime-bundle
-10. Run the read-only publication guard with python projects/crewportglobal/scripts/check_translation_publication_guard.py
-11. Run the full local release check with npm run check:cpg-i18n-release
-12. If the release check fails, use the failure drill and rollback note in docs/crewportglobal/276_cpg_biz_081_translation_release_failure_drill_rollback_note.md
-13. Check provider secret boundary with python projects/crewportglobal/scripts/check_translation_provider_boundary.py
-14. Check protected Google credential source with python projects/crewportglobal/scripts/check_translation_credential_source.py
-15. Check protected Google dependency readiness with python projects/crewportglobal/scripts/check_translation_google_readiness.py
-16. Run the protected one-key Google smoke only in the configured backend/build environment with python projects/crewportglobal/scripts/smoke_translation_google_provider.py
-17. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
-18. For broad non-sensitive UI machine coverage, run the build-side Google draft provider only from backend/build automation: python3 projects/crewportglobal/scripts/translation_cache.py --targets ru uk pt es fr tr el ar fil hi id --provider google_translate_public
-19. Keep sensitive publication text under human review before release.
+5. List sensitive review-required entries with python projects/crewportglobal/scripts/list_translation_review_queue.py --provider google_translate_public --targets LANG
+6. Mark human-reviewed sensitive entries only after review with python projects/crewportglobal/scripts/review_translation_cache.py --provider google_translate_public --keys KEY --targets LANG --reviewed-by USER_ID
+7. Export publish-ready draft catalogs with python projects/crewportglobal/scripts/export_translation_publish_ready.py
+8. Build the prebuilt runtime bundle with python projects/crewportglobal/scripts/build_translation_runtime_bundle.py
+9. Validate the prebuilt runtime bundle with python projects/crewportglobal/scripts/check_translation_runtime_bundle.py
+10. Publish through the standard build-sync-validate workflow with npm run publish:cpg-i18n-runtime-bundle
+11. Run the read-only publication guard with python projects/crewportglobal/scripts/check_translation_publication_guard.py
+12. Run the full local release check with npm run check:cpg-i18n-release
+13. If the release check fails, use the failure drill and rollback note in docs/crewportglobal/276_cpg_biz_081_translation_release_failure_drill_rollback_note.md
+14. Check provider secret boundary with python projects/crewportglobal/scripts/check_translation_provider_boundary.py
+15. Check protected Google credential source with python projects/crewportglobal/scripts/check_translation_credential_source.py
+16. Check protected Google dependency readiness with python projects/crewportglobal/scripts/check_translation_google_readiness.py
+17. Run the protected one-key Google smoke only in the configured backend/build environment with python projects/crewportglobal/scripts/smoke_translation_google_provider.py
+18. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
+19. For broad non-sensitive UI machine coverage, run the build-side Google draft provider only from backend/build automation: python3 projects/crewportglobal/scripts/translation_cache.py --targets ru uk pt es fr tr el ar fil hi id --provider google_translate_public
+20. Keep sensitive publication text under human review before release.
 
 ## Boundary
 
@@ -53,6 +54,18 @@ The validator reports stale entries, missing current entries, hash mismatches, o
 The publish-ready export excludes unreviewed sensitive entries such as no-fee, complaint, legal, privacy, consent and terms keys until they are explicitly marked reviewed.
 
 Human review marking is intentionally separate from machine-draft generation. A reviewer should first verify the translated text against the English canonical source, then run the review command for the exact key and target language. The command only marks current non-stale entries whose source hash still matches en.json.
+
+The review queue command is read-only and should be used before marking entries reviewed:
+
+```bash
+npm run list:cpg-i18n-review-queue -- --provider google_translate_public --targets ru --limit 20
+```
+
+The provider-aware review command is:
+
+```bash
+npm run review:cpg-i18n-cache -- --provider google_translate_public --keys <key> --targets <lang> --reviewed-by <user_id>
+```
 
 The publish-ready export is the only cache export intended for future runtime-bundle publication. The broader cache-export directory remains an inspection artifact and may contain review-required drafts.
 

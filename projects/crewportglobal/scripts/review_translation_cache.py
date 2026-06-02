@@ -8,10 +8,10 @@ from pathlib import Path
 from translation_cache import (
     DEFAULT_CACHE,
     DEFAULT_SOURCE,
-    StubTranslationProvider,
     load_cache,
     load_source_catalog,
     mark_entries_reviewed,
+    select_translation_provider,
     write_json,
 )
 
@@ -26,10 +26,14 @@ def main() -> int:
     parser.add_argument('--keys', nargs='+', required=True)
     parser.add_argument('--targets', nargs='+', required=True)
     parser.add_argument('--reviewed-by', required=True)
-    parser.add_argument('--provider', choices=['stub'], default='stub')
+    parser.add_argument(
+        '--provider',
+        choices=['stub', 'google', 'google_translate_public'],
+        default='stub',
+    )
     args = parser.parse_args()
 
-    provider = StubTranslationProvider()
+    provider = select_translation_provider(args.provider)
     source_catalog = load_source_catalog(Path(args.source).resolve())
     cache_path = Path(args.cache).resolve()
     cache = load_cache(cache_path)

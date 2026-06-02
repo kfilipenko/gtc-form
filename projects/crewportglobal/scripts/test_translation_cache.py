@@ -15,6 +15,7 @@ from translation_cache import (
     source_hash,
     update_cache,
 )
+from list_translation_review_queue import collect_review_queue
 from validate_translation_cache import validate_translation_cache
 
 from translation_provider_adapters import (
@@ -119,6 +120,17 @@ class TranslationCacheTests(unittest.TestCase):
         self.assertEqual(findings['hash_mismatch_entries'], [])
         self.assertEqual(len(findings['review_required_entries']), 1)
 
+    def test_validator_review_required_entries_are_limited_to_requested_targets(self) -> None:
+        cache = {'schema_version': 1, 'entries': []}
+        provider = StubTranslationProvider()
+        source_catalog = {'legal.privacy.title': 'Privacy Policy'}
+        update_cache(source_catalog, cache, ['ru', 'pt'], provider)
+
+        findings = validate_translation_cache(source_catalog, cache, ['ru'], provider)
+
+        self.assertEqual(len(findings['review_required_entries']), 1)
+        self.assertEqual(findings['review_required_entries'][0]['target_language'], 'ru')
+
     def test_validator_reports_missing_current_entries(self) -> None:
         cache = {'schema_version': 1, 'entries': []}
         provider = StubTranslationProvider()
@@ -196,6 +208,43 @@ class TranslationCacheTests(unittest.TestCase):
             'legal.privacy.title': '[ru machine draft] Privacy Policy',
             'nav.home': '[ru machine draft] Home',
         })
+
+    def test_review_queue_lists_current_sensitive_entries(self) -> None:
+        cache = {'schema_version': 1, 'entries': []}
+        provider = StubTranslationProvider()
+        source_catalog = {
+            'legal.privacy.title': 'Privacy Policy',
+            'nav.home': 'Home',
+        }
+        update_cache(source_catalog, cache, ['ru', 'pt'], provider)
+
+        rows = collect_review_queue(
+            source_catalog=source_catalog,
+            cache=cache,
+            targets=['ru', 'pt'],
+            provider='stub',
+        )
+
+        self.assertEqual(len(rows), 2)
+        self.assertEqual({row['translation_key'] for row in rows}, {'legal.privacy.title'})
+        self.assertEqual({row['target_language'] for row in rows}, {'ru', 'pt'})
+        self.assertTrue(all(row['human_review_required'] for row in rows))
+
+    def test_review_queue_excludes_reviewed_sensitive_entries_by_default(self) -> None:
+        cache = {'schema_version': 1, 'entries': []}
+        provider = StubTranslationProvider()
+        source_catalog = {'legal.privacy.title': 'Privacy Policy'}
+        update_cache(source_catalog, cache, ['ru'], provider)
+        mark_entries_reviewed(cache, source_catalog, ['legal.privacy.title'], ['ru'], provider, 'reviewer-1')
+
+        rows = collect_review_queue(
+            source_catalog=source_catalog,
+            cache=cache,
+            targets=['ru'],
+            provider='stub',
+        )
+
+        self.assertEqual(rows, [])
 
     def test_google_provider_adapter_is_backend_boundary_placeholder(self) -> None:
         adapter = GoogleTranslationProviderAdapter()

@@ -115,6 +115,18 @@ The translation release failure drill and rollback note is recorded in:
 docs/crewportglobal/276_cpg_biz_081_translation_release_failure_drill_rollback_note.md
 ```
 
+The expanded machine localization implementation is recorded in:
+
+```text
+docs/crewportglobal/277_cpg_biz_082_expand_machine_localization_language_coverage_report.md
+```
+
+The sensitive translation human-review queue implementation is recorded in:
+
+```text
+docs/crewportglobal/278_cpg_biz_083_translation_sensitive_human_review_queue_report.md
+```
+
 The expanded machine-localization language coverage implementation is recorded in:
 
 ```text
@@ -260,6 +272,8 @@ Rule:
 - Publication checks must report stale cache entries, missing current entries, source-hash mismatches, orphan entries and review-required entries before localized bundles are exported for live use.
 - Strict publish mode must block regulated or sensitive translated text unless it has been human reviewed.
 - Publish-ready exports must exclude unreviewed sensitive translated entries even when ordinary low-risk machine-draft UI labels are exportable.
+- A read-only review queue must be available before human-review marking so reviewers can see the English source text, machine draft, target language, provider and current status.
+- Review-queue and validation reports must be target-language limited when a specific target set is requested, so reviewers do not confuse one-language review with all-language review.
 - Human-review marking must record reviewer identity and review timestamp in the cache entry.
 - Marking a translation as reviewed is allowed only for a current, non-stale entry whose source hash still matches the canonical English source catalog.
 - Google provider integration must start from a backend/build adapter boundary. The public tree must not contain Google credentials, Google project identifiers, Google API keys or browser-side calls to Google translation endpoints.
@@ -288,6 +302,8 @@ Rule:
 - The CI/release checklist implementation result is recorded in `docs/crewportglobal/275_cpg_biz_080_translation_publication_ci_release_checklist_report.md`.
 - Translation release failures must be resolved by correcting the cause and rerunning the approved release sequence. Routine recovery must not manually edit generated runtime-bundle JavaScript or public HTML query markers. Rollback must restore a previously committed and validated runtime publication state, then run the read-only guard and full release check before commit.
 - The translation release failure drill and rollback note is recorded in `docs/crewportglobal/276_cpg_biz_081_translation_release_failure_drill_rollback_note.md`.
+- Sensitive translation review must start with `npm run list:cpg-i18n-review-queue -- --provider google_translate_public --targets <lang>`. Human review marking must use `npm run review:cpg-i18n-cache -- --provider google_translate_public --keys <key> --targets <lang> --reviewed-by <user_id>` after the reviewer confirms the target text against the English source.
+- The sensitive translation human-review queue implementation result is recorded in `docs/crewportglobal/278_cpg_biz_083_translation_sensitive_human_review_queue_report.md`.
 
 ## 5. Rebuild rule
 
@@ -325,6 +341,8 @@ Current validation entrypoints:
 - node projects/crewportglobal/scripts/check_public_i18n.js
 - npm run check:cpg-i18n-runtime-bundle
 - npm run publish:cpg-i18n-runtime-bundle
+- npm run list:cpg-i18n-review-queue
+- npm run review:cpg-i18n-cache
 - npm run check:cpg-i18n-publication-guard
 - npm run check:cpg-i18n-release
 - npx playwright test tests/crewportglobal-homepage-language.spec.ts --config=playwright.crewportglobal.config.ts
@@ -346,6 +364,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 2.5 | 2026-06-02 | GTC IT / AI Assistant | Added sensitive translation human-review queue rule and provider-aware review commands |
 | 2.4 | 2026-06-02 | GTC IT / AI Assistant | Added translation release failure drill and rollback rule |
 | 2.3 | 2026-06-01 | GTC IT / AI Assistant | Added translation publication CI workflow and release checklist rule |
 | 2.2 | 2026-06-01 | GTC IT / AI Assistant | Added read-only translation publication guard rule for CI/release review |

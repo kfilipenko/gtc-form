@@ -84,6 +84,8 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - Use python3 projects/crewportglobal/scripts/translation_cache.py --targets ru uk pt es fr tr el ar fil hi id --provider google_translate_public only from backend/build automation for broad non-sensitive Google machine-draft UI generation without browser provider calls.
 - Validate cache behavior with: npm run check:cpg-i18n-cache
 - Review cache freshness and publish gates with: npm run check:cpg-i18n-cache-report
+- List sensitive translations awaiting human review with: npm run list:cpg-i18n-review-queue -- --provider google_translate_public --targets ru --limit 20
+- Mark human-reviewed sensitive entries with: npm run review:cpg-i18n-cache -- --provider google_translate_public --keys <key> --targets <lang> --reviewed-by <user_id>
 - Export publish-ready cache catalogs with: npm run build:cpg-i18n-publish-ready
 - Build the prebuilt publish-ready runtime bundle with: npm run build:cpg-i18n-runtime-bundle
 - Validate the prebuilt runtime bundle with: npm run check:cpg-i18n-runtime-bundle
@@ -99,7 +101,7 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - The read-only publication guard validates runtime bundle integrity, public HTML query markers and publish-ready cache eligibility without writing files.
 - The GitHub Actions workflow `.github/workflows/crewportglobal-i18n-publication.yml` runs the same publication/guard/browser regression sequence for translation-publication changes.
 - Rollback must restore a previously committed and validated runtime publication state, followed by `npm run check:cpg-i18n-publication-guard` and `npm run check:cpg-i18n-release`.
-- Mark human-reviewed sensitive entries with: python3 projects/crewportglobal/scripts/review_translation_cache.py --keys <key> --targets <lang> --reviewed-by <user_id>
+- Mark human-reviewed sensitive entries with: python3 projects/crewportglobal/scripts/review_translation_cache.py --provider google_translate_public --keys <key> --targets <lang> --reviewed-by <user_id>
 - The publish-ready export includes low-risk machine drafts and human-reviewed sensitive entries only; unreviewed complaint, no-fee, privacy, consent, legal and terms text remains excluded.
 - Check the Google provider boundary with: npm run check:cpg-translation-provider-boundary
 - Check protected Google credential source with: npm run check:cpg-translation-credential-source

@@ -8,14 +8,15 @@ from pathlib import Path
 from translation_cache import (
     DEFAULT_CACHE,
     DEFAULT_SOURCE,
-    StubTranslationProvider,
     load_cache,
     load_source_catalog,
+    select_translation_provider,
     source_hash,
 )
+from translation_provider_adapters import TranslationProvider
 
 
-def active_entries(cache: dict, provider: StubTranslationProvider) -> list[dict]:
+def active_entries(cache: dict, provider: TranslationProvider) -> list[dict]:
     return [
         entry for entry in cache.get('entries', [])
         if entry.get('provider') == provider.name
@@ -36,18 +37,21 @@ def validate_translation_cache(
     source_catalog: dict[str, str],
     cache: dict,
     targets: list[str],
-    provider: StubTranslationProvider,
+    provider: TranslationProvider,
     source_language: str = 'en',
 ) -> dict[str, list[dict]]:
+    target_set = set(targets)
     stale_entries = [
         entry for entry in cache.get('entries', [])
         if entry.get('provider') == provider.name
         and entry.get('translation_status') == 'stale'
+        and entry.get('target_language') in target_set
     ]
     review_required_entries = [
         entry for entry in active_entries(cache, provider)
         if entry.get('human_review_required') is True
         and entry.get('translation_status') != 'reviewed'
+        and entry.get('target_language') in target_set
     ]
     missing_current_entries = []
     hash_mismatch_entries = []
@@ -75,6 +79,7 @@ def validate_translation_cache(
     orphan_entries = [
         entry for entry in active_entries(cache, provider)
         if entry.get('translation_key') not in source_catalog
+        and entry.get('target_language') in target_set
     ]
 
     return {
@@ -105,12 +110,16 @@ def main() -> int:
     parser.add_argument('--cache', default=str(DEFAULT_CACHE))
     parser.add_argument('--source-language', default='en')
     parser.add_argument('--targets', nargs='*')
-    parser.add_argument('--provider', choices=['stub'], default='stub')
+    parser.add_argument(
+        '--provider',
+        choices=['stub', 'google', 'google_translate_public'],
+        default='stub',
+    )
     parser.add_argument('--strict-publish', action='store_true')
     parser.add_argument('--limit', type=int, default=12)
     args = parser.parse_args()
 
-    provider = StubTranslationProvider()
+    provider = select_translation_provider(args.provider)
     source_catalog = load_source_catalog(Path(args.source).resolve())
     cache = load_cache(Path(args.cache).resolve())
     targets = args.targets or collect_target_languages(cache, args.source_language)
