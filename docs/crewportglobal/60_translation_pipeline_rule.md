@@ -109,6 +109,12 @@ The translation publication CI/release checklist implementation is recorded in:
 docs/crewportglobal/275_cpg_biz_080_translation_publication_ci_release_checklist_report.md
 ```
 
+The translation release failure drill and rollback note is recorded in:
+
+```text
+docs/crewportglobal/276_cpg_biz_081_translation_release_failure_drill_rollback_note.md
+```
+
 ## 2. Canonical source model
 
 - English is the official and authoritative language of the platform.
@@ -253,6 +259,8 @@ Rule:
 - The read-only publication guard implementation result is recorded in `docs/crewportglobal/274_cpg_biz_079_translation_publication_read_only_guard_report.md`.
 - Translation publication release review must use `npm run check:cpg-i18n-release` locally or the `CrewPortGlobal i18n publication` GitHub Actions workflow in CI. The sequence is: publish workflow, read-only publication guard, generated-artifact diff check and focused browser regression.
 - The CI/release checklist implementation result is recorded in `docs/crewportglobal/275_cpg_biz_080_translation_publication_ci_release_checklist_report.md`.
+- Translation release failures must be resolved by correcting the cause and rerunning the approved release sequence. Routine recovery must not manually edit generated runtime-bundle JavaScript or public HTML query markers. Rollback must restore a previously committed and validated runtime publication state, then run the read-only guard and full release check before commit.
+- The translation release failure drill and rollback note is recorded in `docs/crewportglobal/276_cpg_biz_081_translation_release_failure_drill_rollback_note.md`.
 
 ## 5. Rebuild rule
 
@@ -311,6 +319,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 2.4 | 2026-06-02 | GTC IT / AI Assistant | Added translation release failure drill and rollback rule |
 | 2.3 | 2026-06-01 | GTC IT / AI Assistant | Added translation publication CI workflow and release checklist rule |
 | 2.2 | 2026-06-01 | GTC IT / AI Assistant | Added read-only translation publication guard rule for CI/release review |
 | 2.1 | 2026-06-01 | GTC IT / AI Assistant | Added mandatory one-command runtime-bundle publication workflow rule |

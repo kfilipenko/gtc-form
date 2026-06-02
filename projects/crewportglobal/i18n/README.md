@@ -32,12 +32,13 @@ This directory contains the seed build-time translation catalogs for CrewPortGlo
 9. Publish through the standard build-sync-validate workflow with npm run publish:cpg-i18n-runtime-bundle
 10. Run the read-only publication guard with python projects/crewportglobal/scripts/check_translation_publication_guard.py
 11. Run the full local release check with npm run check:cpg-i18n-release
-12. Check provider secret boundary with python projects/crewportglobal/scripts/check_translation_provider_boundary.py
-13. Check protected Google credential source with python projects/crewportglobal/scripts/check_translation_credential_source.py
-14. Check protected Google dependency readiness with python projects/crewportglobal/scripts/check_translation_google_readiness.py
-15. Run the protected one-key Google smoke only in the configured backend/build environment with python projects/crewportglobal/scripts/smoke_translation_google_provider.py
-16. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
-17. Keep sensitive publication text under human review before release.
+12. If the release check fails, use the failure drill and rollback note in docs/crewportglobal/276_cpg_biz_081_translation_release_failure_drill_rollback_note.md
+13. Check provider secret boundary with python projects/crewportglobal/scripts/check_translation_provider_boundary.py
+14. Check protected Google credential source with python projects/crewportglobal/scripts/check_translation_credential_source.py
+15. Check protected Google dependency readiness with python projects/crewportglobal/scripts/check_translation_google_readiness.py
+16. Run the protected one-key Google smoke only in the configured backend/build environment with python projects/crewportglobal/scripts/smoke_translation_google_provider.py
+17. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
+18. Keep sensitive publication text under human review before release.
 
 ## Boundary
 
@@ -68,6 +69,8 @@ Use `npm run publish:cpg-i18n-runtime-bundle` for routine publication. The workf
 Use `npm run check:cpg-i18n-publication-guard` for CI/release review. The guard is read-only and confirms that the live-consumed runtime bundle still matches the generated manifest, public HTML query markers and publish-ready cache policy.
 
 Use `npm run check:cpg-i18n-release` before release. The command runs publication, the read-only guard and the focused browser regression. CI uses `.github/workflows/crewportglobal-i18n-publication.yml` for the same controlled publication path and also checks that generated publication artifacts are committed.
+
+If a release check fails, correct the failing guard rather than bypassing it. Restore translation runtime artifacts only from a previously committed and validated publication state, then rerun `npm run check:cpg-i18n-publication-guard` and `npm run check:cpg-i18n-release` before committing the rollback.
 
 The Google provider adapter is a backend/build boundary only. It must not be used from public browser code. The provider boundary checker scans the public tree for Google credential markers and translation API endpoint references.
 

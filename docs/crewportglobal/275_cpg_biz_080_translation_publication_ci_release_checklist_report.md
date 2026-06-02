@@ -131,13 +131,19 @@ Note: GitHub Actions workflow execution itself is expected after push to `origin
 
 ## 8. Next Stage
 
-Рекомендуемый следующий этап:
+Следующий этап выполнен:
 
 ```text
 CPG-BIZ-081 - Translation release failure drill and rollback note
 ```
 
-Цель: описать действия команды при CI failure:
+Результат зафиксирован в:
+
+```text
+docs/crewportglobal/276_cpg_biz_081_translation_release_failure_drill_rollback_note.md
+```
+
+Этап описывает действия команды при CI failure:
 
 1. stale public HTML marker;
 2. bundle not committed;

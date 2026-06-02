@@ -87,6 +87,7 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - Publish the runtime bundle through the standard build-sync-validate workflow with: npm run publish:cpg-i18n-runtime-bundle
 - Run the read-only publication guard for CI/release review with: npm run check:cpg-i18n-publication-guard
 - Run the full local translation publication release check with: npm run check:cpg-i18n-release
+- If the release check fails, use the controlled failure drill in docs/crewportglobal/276_cpg_biz_081_translation_release_failure_drill_rollback_note.md; do not manually edit generated runtime-bundle JavaScript or public HTML query markers.
 - The runtime bundle build writes the canonical artifact under projects/crewportglobal/i18n/runtime-bundle/ and the public static artifact under projects/crewportglobal/public/assets/crewportglobal-machine-translations.js.
 - Public pages that use public/assets/crewportglobal-public-i18n.js must load public/assets/crewportglobal-machine-translations.js first.
 - Public machine-bundle script URLs must use the `publication_version` from projects/crewportglobal/i18n/runtime-bundle/manifest.json as their cache-busting query value.
@@ -94,6 +95,7 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - The publication workflow command updates the bundle, synchronizes public HTML query values and runs validation; use it instead of manually editing bundle query markers.
 - The read-only publication guard validates runtime bundle integrity, public HTML query markers and publish-ready cache eligibility without writing files.
 - The GitHub Actions workflow `.github/workflows/crewportglobal-i18n-publication.yml` runs the same publication/guard/browser regression sequence for translation-publication changes.
+- Rollback must restore a previously committed and validated runtime publication state, followed by `npm run check:cpg-i18n-publication-guard` and `npm run check:cpg-i18n-release`.
 - Mark human-reviewed sensitive entries with: python3 projects/crewportglobal/scripts/review_translation_cache.py --keys <key> --targets <lang> --reviewed-by <user_id>
 - The publish-ready export includes low-risk machine drafts and human-reviewed sensitive entries only; unreviewed complaint, no-fee, privacy, consent, legal and terms text remains excluded.
 - Check the Google provider boundary with: npm run check:cpg-translation-provider-boundary
