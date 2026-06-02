@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('team translation review page loads queue and records protected decision', async ({ page }) => {
+test('team translation review page loads queue and records protected correction decision', async ({ page }) => {
   await page.addInitScript(() => {
     window.localStorage.setItem('crewportglobal_team_session', 'ui-translation-review-session');
   });
@@ -47,14 +47,14 @@ test('team translation review page loads queue and records protected decision', 
       contentType: 'application/json',
       body: JSON.stringify({
         ok: true,
-        decision: 'approve',
+        decision: decisionPayload?.decision || 'correct',
         actor_user_id: 'ui-reviewer',
         entry: {
           translation_key: 'legal.noFees.summary',
           target_language: 'ru',
           provider: 'google_translate_public',
-          translation_status: 'reviewed',
-          human_review_required: false,
+          translation_status: decisionPayload?.decision === 'approve' ? 'reviewed' : 'corrected_pending_review',
+          human_review_required: decisionPayload?.decision !== 'approve',
         },
       }),
     });
@@ -66,16 +66,18 @@ test('team translation review page loads queue and records protected decision', 
   await expect(page.locator('#status-line')).toContainText('Queue loaded: 1 item');
   await expect(page.locator('#queue-list')).toContainText('legal.noFees.summary');
   await expect(page.locator('#queue-list')).toContainText('Official English source');
-  await expect(page.locator('#queue-list')).toContainText('Machine localized draft');
+  await expect(page.locator('#queue-list')).toContainText('Localized text for review');
   await expect(page.locator('#queue-list')).toContainText('review required');
 
-  await page.getByRole('button', { name: 'Approve' }).click();
+  await page.locator('[data-corrected-text]').fill('CrewPortGlobal не удерживает с моряков рекрутинговые или placement-сборы.');
+  await page.getByRole('button', { name: 'Save correction' }).click();
 
   expect(decisionPayload).toMatchObject({
     translation_key: 'legal.noFees.summary',
     target_language: 'ru',
     provider: 'google_translate_public',
-    decision: 'approve',
+    decision: 'correct',
+    corrected_text: 'CrewPortGlobal не удерживает с моряков рекрутинговые или placement-сборы.',
   });
   await expect(page.locator('#status-line')).toContainText('Queue loaded: 1 item');
 });

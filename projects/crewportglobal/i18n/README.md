@@ -40,6 +40,8 @@ This directory contains the seed build-time translation catalogs for CrewPortGlo
 18. Validate coverage with node projects/crewportglobal/scripts/check_public_i18n.js
 19. For broad non-sensitive UI machine coverage, run the build-side Google draft provider only from backend/build automation: python3 projects/crewportglobal/scripts/translation_cache.py --targets ru uk pt es fr tr el ar fil hi id --provider google_translate_public
 20. Keep sensitive publication text under human review before release.
+21. Use `/team/translations/` for protected approve, reject and correction decisions on sensitive machine-localized entries.
+22. Treat `corrected_pending_review` as not publish-ready until a final authorized approval records `translation_status = reviewed`.
 
 ## Boundary
 

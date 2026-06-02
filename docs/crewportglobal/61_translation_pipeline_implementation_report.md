@@ -132,6 +132,14 @@ PATCH /api/v1/team/translations/review
 
 The browser page does not call Google or any translation provider. It only reads cache-backed review items and submits protected reviewer decisions.
 
+The protected workspace also supports controlled correction of localized text:
+
+1. a reviewer may save corrected text through `decision=correct`;
+2. the entry becomes `corrected_pending_review`;
+3. `human_review_required` remains `true`;
+4. the corrected entry remains excluded from publish-ready export until final approval;
+5. recent review and correction events are retained in the cache entry.
+
 Human review remains required before publication for:
 
 1. projects/crewportglobal/public/legal/**/*.md
@@ -164,6 +172,7 @@ The CPG-BIZ-063 through CPG-BIZ-083 translation-cache slices did not require cha
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 2.7 | 2026-06-02 | GTC IT / AI Assistant | Recorded CPG-BIZ-085 protected correction workflow for sensitive localized text before final approval |
 | 2.6 | 2026-06-02 | GTC IT / AI Assistant | Recorded CPG-BIZ-084 protected translation reviewer workspace and API-backed approve/reject decisions |
 | 2.5 | 2026-06-02 | GTC IT / AI Assistant | Recorded CPG-BIZ-083 sensitive translation human-review queue and provider-aware review commands |
 | 2.4 | 2026-06-02 | GTC IT / AI Assistant | Recorded CPG-BIZ-082 expanded machine localization coverage, source sync command and 11-language runtime publication |

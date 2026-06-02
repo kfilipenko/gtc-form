@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.66
+- Version: 2.67
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -366,6 +366,7 @@ docs/crewportglobal/
   277_cpg_biz_082_expand_machine_localization_language_coverage_report.md
   278_cpg_biz_083_translation_sensitive_human_review_queue_report.md
   279_cpg_biz_084_translation_reviewer_workspace_report.md
+  280_cpg_biz_085_translation_correction_workflow_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -904,6 +905,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.67 | 2026-06-02 | GTC IT / AI Assistant | Added document 280 for protected sensitive-translation correction workflow before final approval |
 | 2.66 | 2026-06-02 | GTC IT / AI Assistant | Added document 279 for protected translation reviewer workspace and API-backed sensitive machine-translation approval flow |
 | 2.65 | 2026-06-02 | GTC IT / AI Assistant | Added document 278 for sensitive translation human-review queue and provider-aware review commands |
 | 2.64 | 2026-06-02 | GTC IT / AI Assistant | Added document 277 for expanded machine localization language coverage |

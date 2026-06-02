@@ -10584,8 +10584,20 @@ function cpg_translation_review_entry_payload(array $entry, string $sourceText):
         'reviewed_by_user_id' => is_string($entry['reviewed_by_user_id'] ?? null) ? (string) $entry['reviewed_by_user_id'] : null,
         'reviewed_at' => is_string($entry['reviewed_at'] ?? null) ? (string) $entry['reviewed_at'] : null,
         'review_note' => is_string($entry['review_note'] ?? null) ? (string) $entry['review_note'] : null,
+        'corrected_by_user_id' => is_string($entry['corrected_by_user_id'] ?? null) ? (string) $entry['corrected_by_user_id'] : null,
+        'corrected_at' => is_string($entry['corrected_at'] ?? null) ? (string) $entry['corrected_at'] : null,
         'updated_at' => is_string($entry['updated_at'] ?? null) ? (string) $entry['updated_at'] : null,
     ];
+}
+
+function cpg_translation_append_review_event(array $entry, array $event): array {
+    $events = is_array($entry['review_events'] ?? null) ? $entry['review_events'] : [];
+    $events[] = $event;
+    if (count($events) > 20) {
+        $events = array_slice($events, -20);
+    }
+    $entry['review_events'] = $events;
+    return $entry;
 }
 
 function cpg_translation_review_queue_rows(
@@ -10696,12 +10708,29 @@ function handle_patch_team_translation_review(): void {
         : 'google_translate_public';
     $decision = is_string($body['decision'] ?? null) ? strtolower(trim((string) $body['decision'])) : '';
     $reviewNote = is_string($body['review_note'] ?? null) ? trim((string) $body['review_note']) : null;
+    $correctedText = is_string($body['corrected_text'] ?? null) ? trim((string) $body['corrected_text']) : '';
 
-    if ($translationKey === '' || $targetLanguage === '' || !in_array($decision, ['approve', 'reject'], true)) {
+    if ($translationKey === '' || $targetLanguage === '' || !in_array($decision, ['approve', 'reject', 'correct'], true)) {
         api_json(400, [
             'ok' => false,
             'error' => 'invalid_translation_review_payload',
-            'message' => 'translation_key, target_language and decision approve/reject are required',
+            'message' => 'translation_key, target_language and decision approve/reject/correct are required',
+        ]);
+    }
+
+    if ($decision === 'correct' && $correctedText === '') {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'translation_correction_text_required',
+            'message' => 'corrected_text is required when decision is correct',
+        ]);
+    }
+
+    if ($correctedText !== '' && mb_strlen($correctedText) > 10000) {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'translation_correction_text_too_long',
+            'message' => 'corrected_text must not exceed 10000 characters',
         ]);
     }
 
@@ -10736,20 +10765,53 @@ function handle_patch_team_translation_review(): void {
             continue;
         }
 
-        $entry['reviewed_by_user_id'] = $actorUserId;
-        $entry['reviewed_at'] = $now;
+        $previousStatus = (string) ($entry['translation_status'] ?? '');
+        $previousHumanReviewRequired = (bool) ($entry['human_review_required'] ?? false);
+        $previousText = (string) ($entry['translated_text'] ?? '');
+
         $entry['updated_at'] = $now;
         if ($reviewNote !== null) {
             $entry['review_note'] = mb_substr($reviewNote, 0, 1000);
         }
 
         if ($decision === 'approve') {
+            $entry['reviewed_by_user_id'] = $actorUserId;
+            $entry['reviewed_at'] = $now;
             $entry['translation_status'] = 'reviewed';
             $entry['human_review_required'] = false;
-        } else {
+        } elseif ($decision === 'reject') {
+            $entry['reviewed_by_user_id'] = $actorUserId;
+            $entry['reviewed_at'] = $now;
             $entry['translation_status'] = 'rejected';
             $entry['human_review_required'] = true;
+        } else {
+            $entry['translated_text'] = $correctedText;
+            $entry['translation_status'] = 'corrected_pending_review';
+            $entry['human_review_required'] = true;
+            $entry['corrected_by_user_id'] = $actorUserId;
+            $entry['corrected_at'] = $now;
+            $entry['reviewed_by_user_id'] = null;
+            $entry['reviewed_at'] = null;
+            $entry['previous_machine_text'] = $previousText;
         }
+
+        $event = [
+            'event_type' => $decision,
+            'actor_user_id' => $actorUserId,
+            'occurred_at' => $now,
+            'previous_status' => $previousStatus,
+            'previous_human_review_required' => $previousHumanReviewRequired,
+            'next_status' => (string) ($entry['translation_status'] ?? ''),
+            'next_human_review_required' => (bool) ($entry['human_review_required'] ?? false),
+        ];
+        if ($reviewNote !== null && $reviewNote !== '') {
+            $event['review_note'] = mb_substr($reviewNote, 0, 1000);
+        }
+        if ($decision === 'correct') {
+            $event['previous_text_hash'] = cpg_translation_source_hash($previousText);
+            $event['corrected_text_hash'] = cpg_translation_source_hash($correctedText);
+        }
+        $entry = cpg_translation_append_review_event($entry, $event);
 
         $cache['entries'][$index] = $entry;
         $updatedEntry = cpg_translation_review_entry_payload($entry, $sourceText);

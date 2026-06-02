@@ -86,7 +86,8 @@ This directory contains the initial source scaffold for the future CrewPortGloba
 - Review cache freshness and publish gates with: npm run check:cpg-i18n-cache-report
 - List sensitive translations awaiting human review with: npm run list:cpg-i18n-review-queue -- --provider google_translate_public --targets ru --limit 20
 - Mark human-reviewed sensitive entries with: npm run review:cpg-i18n-cache -- --provider google_translate_public --keys <key> --targets <lang> --reviewed-by <user_id>
-- Review sensitive machine-localized entries through the protected team workspace at /team/translations/.
+- Review, reject or correct sensitive machine-localized entries through the protected team workspace at /team/translations/.
+- Corrected sensitive entries remain `human_review_required` until final approval and must not be treated as publish-ready text.
 - Export publish-ready cache catalogs with: npm run build:cpg-i18n-publish-ready
 - Build the prebuilt publish-ready runtime bundle with: npm run build:cpg-i18n-runtime-bundle
 - Validate the prebuilt runtime bundle with: npm run check:cpg-i18n-runtime-bundle

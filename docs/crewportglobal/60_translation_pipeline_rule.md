@@ -369,9 +369,18 @@ The review decision endpoint may mark current non-stale cache entries as:
 ```text
 reviewed
 rejected
+corrected_pending_review
 ```
 
+`corrected_pending_review` means a reviewer or translator has replaced the localized draft text inside the protected workspace, but the entry still requires final human approval before publication.
+
 Only entries whose `source_text_hash` still matches `projects/crewportglobal/i18n/en.json` are eligible.
+
+Correction is not publication approval:
+
+- corrected entries must keep `human_review_required = true`;
+- corrected entries must remain excluded from publish-ready export until an authorized reviewer records final approval;
+- correction events must preserve actor, timestamp and previous text hash metadata in the cache entry.
 
 ## 7. Human review scope
 
@@ -390,6 +399,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 2.7 | 2026-06-02 | GTC IT / AI Assistant | Added protected correction workflow rule for rejected or revised sensitive translations before final approval |
 | 2.6 | 2026-06-02 | GTC IT / AI Assistant | Added protected translation reviewer workspace and API review decision boundary |
 | 2.5 | 2026-06-02 | GTC IT / AI Assistant | Added sensitive translation human-review queue rule and provider-aware review commands |
 | 2.4 | 2026-06-02 | GTC IT / AI Assistant | Added translation release failure drill and rollback rule |

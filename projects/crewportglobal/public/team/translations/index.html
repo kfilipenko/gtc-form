@@ -206,6 +206,11 @@
       white-space: pre-wrap;
     }
 
+    textarea.translation-correction-input {
+      min-height: 120px;
+      resize: vertical;
+    }
+
     .translation-empty {
       padding: 24px;
       border: 1px dashed rgba(160, 181, 203, 0.32);
@@ -353,8 +358,11 @@
               <div class="translation-text-box">${escapeHtml(entry.source_text)}</div>
             </section>
             <section>
-              <strong>Machine localized draft</strong>
-              <div class="translation-text-box">${escapeHtml(entry.translated_text)}</div>
+              <strong>Localized text for review</strong>
+              <label class="translation-field">
+                <span>Corrected localized text</span>
+                <textarea class="translation-correction-input" rows="5" data-corrected-text>${escapeHtml(entry.translated_text)}</textarea>
+              </label>
             </section>
           </div>
           <label class="translation-field">
@@ -365,6 +373,7 @@
             <span class="translation-card-meta">Reviewed by: ${escapeHtml(entry.reviewed_by_user_id || '-')} | ${escapeHtml(entry.reviewed_at || '-')}</span>
             <span>
               <button class="translation-button success" data-decision="approve" type="button">Approve</button>
+              <button class="translation-button primary" data-decision="correct" type="button">Save correction</button>
               <button class="translation-button danger" data-decision="reject" type="button">Reject</button>
             </span>
           </div>
@@ -412,6 +421,9 @@
           decision,
           review_note: card.querySelector('[data-review-note]')?.value || '',
         };
+        if (decision === 'correct') {
+          body.corrected_text = card.querySelector('[data-corrected-text]')?.value || '';
+        }
         const response = await apiJson('/api/v1/team/translations/review', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
