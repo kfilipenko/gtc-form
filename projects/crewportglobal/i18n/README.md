@@ -67,6 +67,14 @@ The provider-aware review command is:
 npm run review:cpg-i18n-cache -- --provider google_translate_public --keys <key> --targets <lang> --reviewed-by <user_id>
 ```
 
+The protected portal review workspace is:
+
+```text
+/team/translations/
+```
+
+It reads the same cache-backed review queue and records approve/reject decisions without calling any translation provider from the browser.
+
 The publish-ready export is the only cache export intended for future runtime-bundle publication. The broader cache-export directory remains an inspection artifact and may contain review-required drafts.
 
 The runtime-bundle directory contains prebuilt publish-ready artifacts for browser-runtime integration. The shared runtime validates `window.CREWPORTGLOBAL_MACHINE_TRANSLATION_BUNDLE` before use and ignores invalid bundles.

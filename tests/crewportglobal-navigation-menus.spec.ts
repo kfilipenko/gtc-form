@@ -42,6 +42,7 @@ const fullSiteLinks = [
   { name: 'Request-Supply Comparison', href: 'https://crewportglobal.com/team/matching/' },
   { name: 'Registry Detail', href: 'https://crewportglobal.com/team/registry/' },
   { name: 'Shortlist Drafts', href: 'https://crewportglobal.com/team/shortlists/' },
+  { name: 'Translation Review', href: 'https://crewportglobal.com/team/translations/' },
   { name: 'Operator Queue', href: 'https://crewportglobal.com/verify/' },
   { name: 'Access Admin', href: 'https://crewportglobal.com/admin/access/' },
 ];

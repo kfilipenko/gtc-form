@@ -10486,6 +10486,295 @@ function require_team_workbench_access(): array {
     return $access;
 }
 
+function require_translation_review_access(): array {
+    $access = resolve_operator_or_named_session_access('translation_review_queue');
+    if (!operator_access_has_permission($access, 'start_human_review')
+        && !operator_access_has_permission($access, 'approve_access_policy_change')) {
+        api_json(403, [
+            'ok' => false,
+            'error' => 'translation_review_permission_required',
+            'message' => 'Translation review requires human-review or access-approval permission',
+            'access_model' => operator_access_model($access),
+            'actor_user_id' => $access['actor_user_id'] ?? null,
+        ]);
+    }
+
+    return $access;
+}
+
+function cpg_translation_repo_root(): string {
+    return dirname(__DIR__, 6);
+}
+
+function cpg_translation_i18n_path(string $fileName): string {
+    return cpg_translation_repo_root() . '/projects/crewportglobal/i18n/' . $fileName;
+}
+
+function cpg_translation_load_json_object(string $path): array {
+    if (!is_file($path)) {
+        api_json(500, [
+            'ok' => false,
+            'error' => 'translation_file_missing',
+            'message' => 'Required translation file is not available',
+            'path' => basename($path),
+        ]);
+    }
+
+    $decoded = json_decode((string) file_get_contents($path), true);
+    if (!is_array($decoded)) {
+        api_json(500, [
+            'ok' => false,
+            'error' => 'translation_file_invalid',
+            'message' => 'Required translation file is not valid JSON',
+            'path' => basename($path),
+        ]);
+    }
+
+    return $decoded;
+}
+
+function cpg_translation_save_json_object(string $path, array $payload): void {
+    $encoded = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if (!is_string($encoded)) {
+        api_json(500, [
+            'ok' => false,
+            'error' => 'translation_json_encode_failed',
+            'message' => 'Translation cache could not be encoded',
+        ]);
+    }
+
+    if (file_put_contents($path, $encoded . "\n", LOCK_EX) === false) {
+        api_json(500, [
+            'ok' => false,
+            'error' => 'translation_cache_write_failed',
+            'message' => 'Translation cache could not be saved',
+        ]);
+    }
+}
+
+function cpg_translation_source_hash(string $text): string {
+    $normalized = preg_replace('/\s+/u', ' ', trim($text));
+    return hash('sha256', is_string($normalized) ? $normalized : trim($text));
+}
+
+function cpg_translation_csv_query(string $key, array $fallback): array {
+    $raw = $_GET[$key] ?? null;
+    if (!is_string($raw) || trim($raw) === '') {
+        return $fallback;
+    }
+
+    return array_values(array_filter(array_map(
+        static fn(string $item): string => strtolower(trim($item)),
+        explode(',', $raw)
+    ), static fn(string $item): bool => $item !== ''));
+}
+
+function cpg_translation_review_entry_payload(array $entry, string $sourceText): array {
+    return [
+        'translation_key' => (string) ($entry['translation_key'] ?? ''),
+        'source_language' => (string) ($entry['source_language'] ?? 'en'),
+        'target_language' => (string) ($entry['target_language'] ?? ''),
+        'provider' => (string) ($entry['provider'] ?? ''),
+        'provider_version' => (string) ($entry['provider_version'] ?? ''),
+        'translation_status' => (string) ($entry['translation_status'] ?? ''),
+        'human_review_required' => (bool) ($entry['human_review_required'] ?? false),
+        'source_text' => $sourceText,
+        'translated_text' => (string) ($entry['translated_text'] ?? ''),
+        'source_text_hash' => (string) ($entry['source_text_hash'] ?? ''),
+        'reviewed_by_user_id' => is_string($entry['reviewed_by_user_id'] ?? null) ? (string) $entry['reviewed_by_user_id'] : null,
+        'reviewed_at' => is_string($entry['reviewed_at'] ?? null) ? (string) $entry['reviewed_at'] : null,
+        'review_note' => is_string($entry['review_note'] ?? null) ? (string) $entry['review_note'] : null,
+        'updated_at' => is_string($entry['updated_at'] ?? null) ? (string) $entry['updated_at'] : null,
+    ];
+}
+
+function cpg_translation_review_queue_rows(
+    array $source,
+    array $cache,
+    array $targets,
+    string $provider,
+    string $status,
+    string $keyFilter
+): array {
+    $rows = [];
+    foreach (($cache['entries'] ?? []) as $entry) {
+        if (!is_array($entry)) {
+            continue;
+        }
+
+        $translationKey = (string) ($entry['translation_key'] ?? '');
+        $targetLanguage = strtolower((string) ($entry['target_language'] ?? ''));
+        $entryProvider = (string) ($entry['provider'] ?? '');
+        $entryStatus = (string) ($entry['translation_status'] ?? '');
+        $sourceText = is_string($source[$translationKey] ?? null) ? (string) $source[$translationKey] : '';
+
+        if ($translationKey === '' || $sourceText === '') {
+            continue;
+        }
+
+        if ($targets !== [] && !in_array($targetLanguage, $targets, true)) {
+            continue;
+        }
+
+        if ($provider !== 'all' && $entryProvider !== $provider) {
+            continue;
+        }
+
+        if ($status === 'review_required') {
+            if (($entry['human_review_required'] ?? false) !== true || $entryStatus === 'stale') {
+                continue;
+            }
+        } elseif ($status !== 'all' && $entryStatus !== $status) {
+            continue;
+        }
+
+        if ($keyFilter !== '' && stripos($translationKey, $keyFilter) === false) {
+            continue;
+        }
+
+        $expectedHash = cpg_translation_source_hash($sourceText);
+        if ((string) ($entry['source_text_hash'] ?? '') !== $expectedHash) {
+            continue;
+        }
+
+        $rows[] = cpg_translation_review_entry_payload($entry, $sourceText);
+    }
+
+    usort($rows, static function (array $left, array $right): int {
+        return strcmp(
+            ($left['target_language'] ?? '') . ':' . ($left['translation_key'] ?? ''),
+            ($right['target_language'] ?? '') . ':' . ($right['translation_key'] ?? '')
+        );
+    });
+
+    return $rows;
+}
+
+function handle_get_team_translation_review_queue(): void {
+    $access = require_translation_review_access();
+    $source = cpg_translation_load_json_object(cpg_translation_i18n_path('en.json'));
+    $cache = cpg_translation_load_json_object(cpg_translation_i18n_path('translation-cache.json'));
+
+    $targets = cpg_translation_csv_query('targets', ['ru']);
+    $provider = is_string($_GET['provider'] ?? null) && trim((string) $_GET['provider']) !== ''
+        ? trim((string) $_GET['provider'])
+        : 'google_translate_public';
+    $status = is_string($_GET['status'] ?? null) && trim((string) $_GET['status']) !== ''
+        ? trim((string) $_GET['status'])
+        : 'review_required';
+    $keyFilter = is_string($_GET['key'] ?? null) ? trim((string) $_GET['key']) : '';
+    $limit = max(1, min(200, (int) ($_GET['limit'] ?? 50)));
+    $offset = max(0, (int) ($_GET['offset'] ?? 0));
+
+    $rows = cpg_translation_review_queue_rows($source, $cache, $targets, $provider, $status, $keyFilter);
+
+    api_json(200, [
+        'ok' => true,
+        'queue' => array_slice($rows, $offset, $limit),
+        'count' => min($limit, max(0, count($rows) - $offset)),
+        'total' => count($rows),
+        'limit' => $limit,
+        'offset' => $offset,
+        'targets' => $targets,
+        'provider' => $provider,
+        'status' => $status,
+        'access_model' => operator_access_model($access),
+        'actor_user_id' => is_string($access['actor_user_id'] ?? null) && (string) $access['actor_user_id'] !== ''
+            ? (string) $access['actor_user_id']
+            : null,
+        'generated_at' => gmdate('c'),
+    ]);
+}
+
+function handle_patch_team_translation_review(): void {
+    $access = require_translation_review_access();
+    $body = api_decode_json_body();
+    $translationKey = is_string($body['translation_key'] ?? null) ? trim((string) $body['translation_key']) : '';
+    $targetLanguage = is_string($body['target_language'] ?? null) ? strtolower(trim((string) $body['target_language'])) : '';
+    $provider = is_string($body['provider'] ?? null) && trim((string) $body['provider']) !== ''
+        ? trim((string) $body['provider'])
+        : 'google_translate_public';
+    $decision = is_string($body['decision'] ?? null) ? strtolower(trim((string) $body['decision'])) : '';
+    $reviewNote = is_string($body['review_note'] ?? null) ? trim((string) $body['review_note']) : null;
+
+    if ($translationKey === '' || $targetLanguage === '' || !in_array($decision, ['approve', 'reject'], true)) {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'invalid_translation_review_payload',
+            'message' => 'translation_key, target_language and decision approve/reject are required',
+        ]);
+    }
+
+    $source = cpg_translation_load_json_object(cpg_translation_i18n_path('en.json'));
+    $sourceText = is_string($source[$translationKey] ?? null) ? (string) $source[$translationKey] : '';
+    if ($sourceText === '') {
+        api_json(404, [
+            'ok' => false,
+            'error' => 'translation_source_key_not_found',
+            'message' => 'Source translation key was not found',
+        ]);
+    }
+
+    $cachePath = cpg_translation_i18n_path('translation-cache.json');
+    $cache = cpg_translation_load_json_object($cachePath);
+    $expectedHash = cpg_translation_source_hash($sourceText);
+    $updatedEntry = null;
+    $now = gmdate('c');
+    $actorUserId = is_string($access['actor_user_id'] ?? null) && (string) $access['actor_user_id'] !== ''
+        ? (string) $access['actor_user_id']
+        : 'temporary_operator_token';
+
+    foreach (($cache['entries'] ?? []) as $index => $entry) {
+        if (!is_array($entry)) {
+            continue;
+        }
+
+        if ((string) ($entry['translation_key'] ?? '') !== $translationKey
+            || strtolower((string) ($entry['target_language'] ?? '')) !== $targetLanguage
+            || (string) ($entry['provider'] ?? '') !== $provider
+            || (string) ($entry['source_text_hash'] ?? '') !== $expectedHash) {
+            continue;
+        }
+
+        $entry['reviewed_by_user_id'] = $actorUserId;
+        $entry['reviewed_at'] = $now;
+        $entry['updated_at'] = $now;
+        if ($reviewNote !== null) {
+            $entry['review_note'] = mb_substr($reviewNote, 0, 1000);
+        }
+
+        if ($decision === 'approve') {
+            $entry['translation_status'] = 'reviewed';
+            $entry['human_review_required'] = false;
+        } else {
+            $entry['translation_status'] = 'rejected';
+            $entry['human_review_required'] = true;
+        }
+
+        $cache['entries'][$index] = $entry;
+        $updatedEntry = cpg_translation_review_entry_payload($entry, $sourceText);
+        break;
+    }
+
+    if (!is_array($updatedEntry)) {
+        api_json(404, [
+            'ok' => false,
+            'error' => 'translation_review_entry_not_found',
+            'message' => 'Matching translation cache entry was not found',
+        ]);
+    }
+
+    cpg_translation_save_json_object($cachePath, $cache);
+
+    api_json(200, [
+        'ok' => true,
+        'entry' => $updatedEntry,
+        'decision' => $decision,
+        'access_model' => operator_access_model($access),
+        'actor_user_id' => $actorUserId,
+    ]);
+}
+
 function cpg_team_workbench_task_id(array $operation, array $context): string {
     $parts = [
         $operation['operation_code'] ?? 'operation',
@@ -13477,6 +13766,22 @@ if ($path === '/team/workbench/tasks') {
     }
     header('Allow: GET');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if ($path === '/team/translations/review-queue') {
+    if ($method === 'GET') {
+        handle_get_team_translation_review_queue();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if ($path === '/team/translations/review') {
+    if ($method === 'PATCH') {
+        handle_patch_team_translation_review();
+    }
+    header('Allow: PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
 }
 
 if ($path === '/admin/access/management') {

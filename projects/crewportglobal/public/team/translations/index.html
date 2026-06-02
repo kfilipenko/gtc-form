@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Translation Review</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="stylesheet" href="/assets/crewportglobal-docs.css?v=20260530-menu-audit">
+  <link rel="stylesheet" href="/assets/crewportglobal-app.css">
+  <style>
+    :root {
+      --translation-bg: #071826;
+      --translation-panel: #10263a;
+      --translation-soft: #142d42;
+      --translation-line: rgba(160, 181, 203, 0.22);
+      --translation-text: #eef6ff;
+      --translation-muted: #aac0d5;
+      --translation-primary: #56d2e2;
+      --translation-success: #79d68a;
+      --translation-warning: #ffb45d;
+      --translation-danger: #ff867d;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top right, rgba(86, 210, 226, 0.13), transparent 34%), var(--translation-bg);
+      color: var(--translation-text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .translation-shell {
+      width: min(1240px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 24px 0 48px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .translation-panel,
+    .translation-card {
+      border: 1px solid var(--translation-line);
+      border-radius: 14px;
+      background: rgba(16, 38, 58, 0.9);
+      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.24);
+    }
+
+    .translation-panel {
+      padding: 18px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .translation-kicker {
+      color: var(--translation-primary);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .translation-title {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .translation-copy,
+    .translation-status,
+    .translation-card-meta,
+    .translation-field label {
+      color: var(--translation-muted);
+      line-height: 1.45;
+    }
+
+    .translation-filter-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+
+    .translation-field {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .translation-field label {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .translation-field select,
+    .translation-field input,
+    .translation-field textarea {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--translation-line);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.18);
+      color: var(--translation-text);
+      font: inherit;
+      padding: 10px 12px;
+    }
+
+    .translation-field select,
+    .translation-field input {
+      min-height: 44px;
+    }
+
+    .translation-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 14px;
+      border: 1px solid var(--translation-line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--translation-text);
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .translation-button.primary {
+      border-color: rgba(86, 210, 226, 0.42);
+      background: rgba(86, 210, 226, 0.17);
+      color: var(--translation-primary);
+    }
+
+    .translation-button.success {
+      border-color: rgba(121, 214, 138, 0.44);
+      background: rgba(121, 214, 138, 0.14);
+      color: var(--translation-success);
+    }
+
+    .translation-button.danger {
+      border-color: rgba(255, 134, 125, 0.44);
+      background: rgba(255, 134, 125, 0.14);
+      color: var(--translation-danger);
+    }
+
+    .translation-button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .translation-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .translation-card {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+      background: rgba(20, 45, 66, 0.82);
+    }
+
+    .translation-card-head,
+    .translation-card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .translation-card h2 {
+      margin: 0;
+      font-size: 18px;
+      overflow-wrap: anywhere;
+    }
+
+    .translation-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 9px;
+      border: 1px solid rgba(86, 210, 226, 0.32);
+      border-radius: 999px;
+      color: var(--translation-primary);
+      background: rgba(86, 210, 226, 0.12);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .translation-text-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .translation-text-box {
+      min-height: 120px;
+      border: 1px solid var(--translation-line);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.13);
+      padding: 12px;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .translation-empty {
+      padding: 24px;
+      border: 1px dashed rgba(160, 181, 203, 0.32);
+      border-radius: 14px;
+      color: var(--translation-muted);
+      text-align: center;
+    }
+
+    @media (max-width: 920px) {
+      .translation-filter-grid,
+      .translation-text-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="translation-shell">
+    <div data-cpg-navigation="application" data-cpg-nav-active="/team/translations/"></div>
+
+    <section class="translation-panel">
+      <div>
+        <div class="translation-kicker">Team localization control</div>
+        <h1 class="translation-title">Sensitive machine translation review</h1>
+        <p class="translation-copy">
+          Review machine-localized legal, consent and trust text before it can be treated as human-approved.
+        </p>
+      </div>
+
+      <div class="translation-filter-grid" aria-label="Translation review filters">
+        <label class="translation-field">
+          <span>Language</span>
+          <select id="target-language">
+            <option value="ru">Russian</option>
+            <option value="uk">Ukrainian</option>
+            <option value="pt">Portuguese</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="tr">Turkish</option>
+            <option value="el">Greek</option>
+            <option value="ar">Arabic</option>
+            <option value="fil">Filipino</option>
+            <option value="hi">Hindi</option>
+            <option value="id">Indonesian</option>
+          </select>
+        </label>
+        <label class="translation-field">
+          <span>Provider</span>
+          <select id="provider">
+            <option value="google_translate_public">Google machine translation</option>
+            <option value="stub">Stub</option>
+            <option value="all">All providers</option>
+          </select>
+        </label>
+        <label class="translation-field">
+          <span>Status</span>
+          <select id="status">
+            <option value="review_required">Needs human review</option>
+            <option value="draft_machine">Machine draft</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="rejected">Rejected</option>
+            <option value="all">All</option>
+          </select>
+        </label>
+        <label class="translation-field">
+          <span>Key filter</span>
+          <input id="key-filter" type="search" placeholder="legal.terms">
+        </label>
+        <button class="translation-button primary" id="load-queue" type="button">Load queue</button>
+      </div>
+
+      <div class="translation-status" id="status-line">Waiting for protected team access.</div>
+    </section>
+
+    <section class="translation-list" id="queue-list" aria-live="polite"></section>
+  </div>
+
+  <script src="/assets/crewportglobal-public-i18n.js"></script>
+  <script src="/assets/crewportglobal-navigation.js"></script>
+  <script>
+    const token = new URLSearchParams(window.location.search).get('operator_token')
+      || window.localStorage.getItem('crewportglobal_team_session')
+      || window.sessionStorage.getItem('crewportglobal.operatorAccessToken')
+      || '';
+
+    const targetLanguageInput = document.getElementById('target-language');
+    const providerInput = document.getElementById('provider');
+    const statusInput = document.getElementById('status');
+    const keyFilterInput = document.getElementById('key-filter');
+    const loadButton = document.getElementById('load-queue');
+    const statusLine = document.getElementById('status-line');
+    const queueList = document.getElementById('queue-list');
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function authHeaders(extra = {}) {
+      const headers = { ...extra };
+      if (token) headers.Authorization = `Bearer ${token}`;
+      return headers;
+    }
+
+    async function apiJson(path, options = {}) {
+      const response = await fetch(path, {
+        ...options,
+        headers: authHeaders(options.headers || {}),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(body.message || body.error || `HTTP ${response.status}`);
+      }
+      return body;
+    }
+
+    function renderEmpty(message) {
+      queueList.innerHTML = `<div class="translation-empty">${escapeHtml(message)}</div>`;
+    }
+
+    function renderQueue(body) {
+      const queue = Array.isArray(body.queue) ? body.queue : [];
+      statusLine.textContent = `Queue loaded: ${body.total || 0} item(s). Showing ${queue.length}.`;
+      if (!queue.length) {
+        renderEmpty('No translation entries match the current filter.');
+        return;
+      }
+
+      queueList.innerHTML = queue.map((entry, index) => `
+        <article class="translation-card" data-key="${escapeHtml(entry.translation_key)}" data-target="${escapeHtml(entry.target_language)}" data-provider="${escapeHtml(entry.provider)}">
+          <div class="translation-card-head">
+            <div>
+              <h2>${index + 1}. ${escapeHtml(entry.translation_key)}</h2>
+              <div class="translation-card-meta">${escapeHtml(entry.target_language)} | ${escapeHtml(entry.provider)} | ${escapeHtml(entry.provider_version)}</div>
+            </div>
+            <span class="translation-badge">${escapeHtml(entry.translation_status)}${entry.human_review_required ? ' | review required' : ''}</span>
+          </div>
+          <div class="translation-text-grid">
+            <section>
+              <strong>Official English source</strong>
+              <div class="translation-text-box">${escapeHtml(entry.source_text)}</div>
+            </section>
+            <section>
+              <strong>Machine localized draft</strong>
+              <div class="translation-text-box">${escapeHtml(entry.translated_text)}</div>
+            </section>
+          </div>
+          <label class="translation-field">
+            <span>Reviewer note</span>
+            <textarea rows="2" data-review-note placeholder="Optional internal note"></textarea>
+          </label>
+          <div class="translation-card-actions">
+            <span class="translation-card-meta">Reviewed by: ${escapeHtml(entry.reviewed_by_user_id || '-')} | ${escapeHtml(entry.reviewed_at || '-')}</span>
+            <span>
+              <button class="translation-button success" data-decision="approve" type="button">Approve</button>
+              <button class="translation-button danger" data-decision="reject" type="button">Reject</button>
+            </span>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    async function loadQueue() {
+      if (!token) {
+        statusLine.textContent = 'Team session or operator token is required.';
+        renderEmpty('Open /team/ first or provide a protected operator token.');
+        return;
+      }
+
+      loadButton.disabled = true;
+      statusLine.textContent = 'Loading translation review queue...';
+      try {
+        const params = new URLSearchParams({
+          targets: targetLanguageInput.value,
+          provider: providerInput.value,
+          status: statusInput.value,
+          limit: '100',
+        });
+        if (keyFilterInput.value.trim()) {
+          params.set('key', keyFilterInput.value.trim());
+        }
+        renderQueue(await apiJson(`/api/v1/team/translations/review-queue?${params.toString()}`));
+      } catch (error) {
+        statusLine.textContent = `Could not load queue: ${error.message}`;
+        renderEmpty('Translation review queue is unavailable for this session.');
+      } finally {
+        loadButton.disabled = false;
+      }
+    }
+
+    async function submitDecision(card, decision) {
+      const buttonList = card.querySelectorAll('button');
+      buttonList.forEach((button) => { button.disabled = true; });
+      statusLine.textContent = `Submitting ${decision} decision...`;
+      try {
+        const body = {
+          translation_key: card.dataset.key,
+          target_language: card.dataset.target,
+          provider: card.dataset.provider,
+          decision,
+          review_note: card.querySelector('[data-review-note]')?.value || '',
+        };
+        const response = await apiJson('/api/v1/team/translations/review', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        statusLine.textContent = `Translation ${decision} recorded: ${response.entry?.translation_key || body.translation_key}.`;
+        await loadQueue();
+      } catch (error) {
+        statusLine.textContent = `Could not record decision: ${error.message}`;
+      } finally {
+        buttonList.forEach((button) => { button.disabled = false; });
+      }
+    }
+
+    loadButton.addEventListener('click', loadQueue);
+    queueList.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-decision]');
+      const card = event.target.closest('.translation-card');
+      if (!button || !card) return;
+      submitDecision(card, button.dataset.decision);
+    });
+
+    loadQueue();
+  </script>
+</body>
+</html>

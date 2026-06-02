@@ -85,6 +85,7 @@
         { href: '/team/matching/', key: 'nav.teamMatching', label: 'Request-Supply Comparison', hint: 'Compare crew request and candidate supply.' },
         { href: '/team/registry/', key: 'nav.teamRegistry', label: 'Registry Detail', hint: 'Safe internal registry view.' },
         { href: '/team/shortlists/', key: 'nav.teamShortlists', label: 'Shortlist Drafts', hint: 'Internal shortlist drafts.' },
+        { href: '/team/translations/', key: 'nav.teamTranslations', label: 'Translation Review', hint: 'Sensitive machine translation review queue.' },
         { href: '/verify/', key: 'nav.operatorQueue', label: 'Operator Queue', hint: 'Operator workbench.' },
         { href: '/admin/access/', key: 'nav.adminAccess', label: 'Access Admin', hint: 'Protected access administration.' },
       ],

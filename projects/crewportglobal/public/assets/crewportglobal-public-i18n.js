@@ -64,6 +64,7 @@
       'nav.teamMatching': 'Request-Supply Comparison',
       'nav.teamRegistry': 'Registry Detail',
       'nav.teamShortlists': 'Shortlist Drafts',
+      'nav.teamTranslations': 'Translation Review',
       'nav.operatorQueue': 'Operator Queue',
       'nav.adminAccess': 'Access Admin',
       'nav.registerAuthorization': 'Authorization',

@@ -109,6 +109,7 @@ Observed current-state result:
 9. The runtime bundle currently publishes 1767 low-risk machine-localized entries for each approved target language and leaves 89 sensitive entries per language under English fallback until human review.
 10. `npm run list:cpg-i18n-review-queue -- --provider google_translate_public --targets ru` lists the current 89 Russian sensitive entries requiring review.
 11. `validate_translation_cache.py --provider google_translate_public --targets ru` reports review-required entries only for the requested target language.
+12. `/team/translations/` provides a protected reviewer workspace for comparing English source text with machine-localized drafts and recording approve/reject decisions.
 
 ## 5. Publication and review boundary
 
@@ -121,6 +122,15 @@ Current publish-ready export behavior is:
 3. `review_required` entries are excluded;
 4. sensitive entries are exported only after they are marked `reviewed`;
 5. reviewer user id and review timestamp are retained in the cache entry.
+
+The protected reviewer workspace uses the same cache mutation boundary as the CLI review command:
+
+```text
+GET /api/v1/team/translations/review-queue
+PATCH /api/v1/team/translations/review
+```
+
+The browser page does not call Google or any translation provider. It only reads cache-backed review items and submits protected reviewer decisions.
 
 Human review remains required before publication for:
 
@@ -154,6 +164,7 @@ The CPG-BIZ-063 through CPG-BIZ-083 translation-cache slices did not require cha
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 2.6 | 2026-06-02 | GTC IT / AI Assistant | Recorded CPG-BIZ-084 protected translation reviewer workspace and API-backed approve/reject decisions |
 | 2.5 | 2026-06-02 | GTC IT / AI Assistant | Recorded CPG-BIZ-083 sensitive translation human-review queue and provider-aware review commands |
 | 2.4 | 2026-06-02 | GTC IT / AI Assistant | Recorded CPG-BIZ-082 expanded machine localization coverage, source sync command and 11-language runtime publication |
 | 2.3 | 2026-06-02 | GTC IT / AI Assistant | Recorded CPG-BIZ-081 translation release failure drill and rollback procedure |

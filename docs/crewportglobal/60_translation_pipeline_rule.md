@@ -347,6 +347,32 @@ Current validation entrypoints:
 - npm run check:cpg-i18n-release
 - npx playwright test tests/crewportglobal-homepage-language.spec.ts --config=playwright.crewportglobal.config.ts
 
+## 6.1 Protected reviewer workspace
+
+Sensitive machine-localized text may also be reviewed through the internal protected portal:
+
+```text
+/team/translations/
+```
+
+The workspace reads the same canonical cache and uses protected API endpoints:
+
+```text
+GET /api/v1/team/translations/review-queue
+PATCH /api/v1/team/translations/review
+```
+
+The page must not call Google or any other translation provider from the browser.
+
+The review decision endpoint may mark current non-stale cache entries as:
+
+```text
+reviewed
+rejected
+```
+
+Only entries whose `source_text_hash` still matches `projects/crewportglobal/i18n/en.json` are eligible.
+
 ## 7. Human review scope
 
 Human review is required before publication for:
@@ -364,6 +390,7 @@ Human review is required before publication for:
 
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
+| 2.6 | 2026-06-02 | GTC IT / AI Assistant | Added protected translation reviewer workspace and API review decision boundary |
 | 2.5 | 2026-06-02 | GTC IT / AI Assistant | Added sensitive translation human-review queue rule and provider-aware review commands |
 | 2.4 | 2026-06-02 | GTC IT / AI Assistant | Added translation release failure drill and rollback rule |
 | 2.3 | 2026-06-01 | GTC IT / AI Assistant | Added translation publication CI workflow and release checklist rule |
