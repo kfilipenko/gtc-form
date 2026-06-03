@@ -2,6 +2,24 @@
   const STORAGE_KEY = 'crewportglobal.language';
   const DEFAULT_LANGUAGE = 'en';
   const RTL_LANGUAGES = new Set(['ar']);
+  const AUTO_TEXT_KEY_PREFIX = 'auto.text.';
+  const AUTO_ATTRIBUTE_KEY_PREFIX = 'auto.attr.';
+  const AUTO_TRANSLATABLE_ATTRIBUTES = ['placeholder', 'title', 'aria-label', 'alt'];
+  const AUTO_TRANSLATION_EXCLUDED_TAGS = new Set([
+    'SCRIPT',
+    'STYLE',
+    'TEMPLATE',
+    'NOSCRIPT',
+    'SVG',
+    'PRE',
+    'CODE',
+    'KBD',
+    'SAMP',
+    'INPUT',
+    'TEXTAREA',
+    'SELECT',
+    'OPTION'
+  ]);
 
   const LANGUAGES = [
     { code: 'en', flag: '🇬🇧', english: 'English', native: 'English' },
@@ -350,6 +368,65 @@
     return getTranslation(language, key) || key;
   }
 
+  function normalizeAutoText(value) {
+    return String(value || '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function stableHash(value) {
+    let hash = 2166136261;
+    for (let index = 0; index < value.length; index += 1) {
+      hash ^= value.charCodeAt(index);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(36);
+  }
+
+  function buildAutoTextKey(prefix, value) {
+    const normalized = normalizeAutoText(value);
+    return normalized ? `${prefix}${stableHash(normalized)}` : null;
+  }
+
+  function isAutoTranslationExcluded(element) {
+    let current = element;
+    while (current && current.nodeType === Node.ELEMENT_NODE) {
+      if (
+        AUTO_TRANSLATION_EXCLUDED_TAGS.has(current.tagName)
+        || current.hasAttribute('data-no-auto-i18n')
+        || current.getAttribute('translate') === 'no'
+        || current.hasAttribute('data-i18n')
+        || current.hasAttribute('data-i18n-placeholder')
+        || current.hasAttribute('data-i18n-title')
+        || current.hasAttribute('data-i18n-aria-label')
+      ) {
+        return true;
+      }
+      current = current.parentElement;
+    }
+    return false;
+  }
+
+  function isAutoTranslatableText(value) {
+    const normalized = normalizeAutoText(value);
+    if (normalized.length < 2) {
+      return false;
+    }
+    if (/^[\d\s.,:;+\-/%()[\]#]+$/.test(normalized)) {
+      return false;
+    }
+    if (/^(https?:|mailto:|tel:|\/assets\/|data:)/i.test(normalized)) {
+      return false;
+    }
+    return /[A-Za-z]/.test(normalized);
+  }
+
+  function replacePreservingOuterWhitespace(original, replacement) {
+    const leading = original.match(/^\s*/)[0];
+    const trailing = original.match(/\s*$/)[0];
+    return `${leading}${replacement}${trailing}`;
+  }
+
   function readStoredLanguage() {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -491,6 +568,70 @@
     }
   }
 
+  function applyAutomaticTextTranslations(language) {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.parentElement || isAutoTranslationExcluded(node.parentElement)) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return isAutoTranslatableText(node.nodeValue)
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_REJECT;
+      }
+    });
+
+    const nodes = [];
+    while (walker.nextNode()) {
+      nodes.push(walker.currentNode);
+    }
+
+    nodes.forEach((node) => {
+      if (!node.__cpgOriginalText) {
+        node.__cpgOriginalText = node.nodeValue;
+      }
+
+      const original = node.__cpgOriginalText;
+      const normalized = normalizeAutoText(original);
+      const key = buildAutoTextKey(AUTO_TEXT_KEY_PREFIX, normalized);
+      const translated = language === DEFAULT_LANGUAGE ? normalized : getTranslation(language, key);
+      if (translated) {
+        node.nodeValue = replacePreservingOuterWhitespace(original, translated);
+      }
+    });
+  }
+
+  function applyAutomaticAttributeTranslations(language) {
+    const elements = document.querySelectorAll(AUTO_TRANSLATABLE_ATTRIBUTES.map((attribute) => `[${attribute}]`).join(','));
+    elements.forEach((element) => {
+      if (isAutoTranslationExcluded(element)) {
+        return;
+      }
+
+      AUTO_TRANSLATABLE_ATTRIBUTES.forEach((attribute) => {
+        if (!element.hasAttribute(attribute)) {
+          return;
+        }
+
+        const storeKey = `cpgOriginal${attribute.replace(/(^|-)([a-z])/g, (_, __, letter) => letter.toUpperCase())}`;
+        if (!Object.prototype.hasOwnProperty.call(element.dataset, storeKey)) {
+          element.dataset[storeKey] = element.getAttribute(attribute);
+        }
+
+        const original = element.dataset[storeKey];
+        const normalized = normalizeAutoText(original);
+        if (!isAutoTranslatableText(normalized)) {
+          return;
+        }
+
+        const key = buildAutoTextKey(AUTO_ATTRIBUTE_KEY_PREFIX, normalized);
+        const translated = language === DEFAULT_LANGUAGE ? normalized : getTranslation(language, key);
+        if (translated) {
+          element.setAttribute(attribute, translated);
+        }
+      });
+    });
+  }
+
   function applyLanguage(language) {
     const resolved = getLanguageOption(language).code;
     document.documentElement.lang = resolved;
@@ -501,6 +642,8 @@
     applyChromeTranslations(resolved);
     applyAttributeTranslations(resolved);
     applyPageMetadata(resolved);
+    applyAutomaticTextTranslations(resolved);
+    applyAutomaticAttributeTranslations(resolved);
     window.dispatchEvent(new CustomEvent('crewportglobal:languagechange', {
       detail: { language: resolved }
     }));

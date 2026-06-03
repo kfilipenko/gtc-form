@@ -9,6 +9,9 @@ const publicRoot = path.join(repoRoot, 'projects', 'crewportglobal', 'public');
 const i18nRoot = path.join(repoRoot, 'projects', 'crewportglobal', 'i18n');
 const sharedRuntimePath = path.join(publicRoot, 'assets', 'crewportglobal-public-i18n.js');
 const outputPath = path.join(i18nRoot, 'en.json');
+const AUTO_TEXT_KEY_PREFIX = 'auto.text.';
+const AUTO_ATTRIBUTE_KEY_PREFIX = 'auto.attr.';
+const TRANSLATABLE_ATTRIBUTES = ['placeholder', 'title', 'aria-label', 'alt'];
 
 function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
@@ -95,6 +98,82 @@ function mergeEnglish(target, source) {
   }
 }
 
+function normalizeAutoText(value) {
+  return String(value || '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function isTranslatableAutoText(value) {
+  const normalized = normalizeAutoText(value);
+  if (normalized.length < 2) {
+    return false;
+  }
+
+  if (/^[\d\s.,:;+\-/%()[\]#]+$/.test(normalized)) {
+    return false;
+  }
+
+  if (/^(https?:|mailto:|tel:|\/assets\/|data:)/i.test(normalized)) {
+    return false;
+  }
+
+  return /[A-Za-z]/.test(normalized);
+}
+
+function stableHash(value) {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+function stripNonVisibleBlocks(htmlText) {
+  return htmlText
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<template[\s\S]*?<\/template>/gi, ' ')
+    .replace(/<svg[\s\S]*?<\/svg>/gi, ' ')
+    .replace(/<pre[\s\S]*?<\/pre>/gi, ' ')
+    .replace(/<code[\s\S]*?<\/code>/gi, ' ');
+}
+
+function decodeHtmlEntities(value) {
+  return String(value || '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>');
+}
+
+function addAutoTextSource(target, prefix, value) {
+  const normalized = normalizeAutoText(decodeHtmlEntities(value));
+  if (!isTranslatableAutoText(normalized)) {
+    return;
+  }
+  target[`${prefix}${stableHash(normalized)}`] = normalized;
+}
+
+function collectAutomaticHtmlSources(target, htmlText) {
+  const visibleHtml = stripNonVisibleBlocks(htmlText);
+  const textMatches = visibleHtml.matchAll(/>([^<>]+)</g);
+
+  for (const match of textMatches) {
+    addAutoTextSource(target, AUTO_TEXT_KEY_PREFIX, match[1]);
+  }
+
+  for (const attribute of TRANSLATABLE_ATTRIBUTES) {
+    const pattern = new RegExp(`\\s${attribute}=(["'])([\\s\\S]*?)\\1`, 'gi');
+    for (const match of visibleHtml.matchAll(pattern)) {
+      addAutoTextSource(target, AUTO_ATTRIBUTE_KEY_PREFIX, match[2]);
+    }
+  }
+}
+
 const sourceCatalog = {};
 const sharedRuntime = readText(sharedRuntimePath);
 mergeEnglish(
@@ -104,6 +183,7 @@ mergeEnglish(
 
 for (const htmlFile of collectHtmlFiles(publicRoot)) {
   const htmlText = readText(htmlFile);
+  collectAutomaticHtmlSources(sourceCatalog, htmlText);
   if (!htmlText.includes('window.CREWPORTGLOBAL_PAGE_TRANSLATIONS =')) {
     continue;
   }

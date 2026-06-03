@@ -320,6 +320,24 @@ test('shared runtime consumes a valid prebuilt machine bundle without translatin
   await expect(page.locator('#user-value')).toHaveValue('Captain Иван');
 });
 
+test('machine runtime translates static page text automatically without changing entered form data', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('crewportglobal.language', 'ru');
+  });
+
+  await page.goto('/language.html');
+  await expect(page.locator('h1')).not.toContainText('Choose the interface language');
+  await expect(page.locator('main')).not.toContainText('English is the official platform language');
+
+  await page.goto('/post-vacancy/index.html');
+  const contactName = page.locator('#post-full-name');
+  await contactName.fill('Operations Manager Test');
+  await page.locator('#current-language-toggle').click();
+  await page.locator('.language-option').filter({ hasText: 'Français' }).click();
+  await expect(contactName).toHaveValue('Operations Manager Test');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
+});
+
 test('shared runtime ignores an invalid machine bundle and keeps English fallback', async ({ page }) => {
   const runtime = fs.readFileSync(publicI18nRuntimePath, 'utf8');
 
