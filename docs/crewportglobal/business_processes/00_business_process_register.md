@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.15
+- Version: 3.16
 - Status: For internal review
 
 ## 1. Purpose
@@ -154,6 +154,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.16 | 2026-06-03 | GTC IT / AI Assistant | Added voyage, disembarkation, return-support and next-availability controls to BP-012, BP-013 and BP-015 so crew formation covers the full seafarer service cycle after boarding |
 | 3.15 | 2026-05-30 | GTC IT / AI Assistant | Added BP-015 commercial operating cycle covering marketing, registration, service packages, request processing, embarkation success, monthly service evidence, billing, retention and repeat marketing as a circular process |
 | 3.14 | 2026-05-29 | GTC IT / AI Assistant | Added CPG-BIZ-047 vessel-context rollout control: flag country and vessel evidence are separate V-stream data for matching readiness, not employer authority fields |
 | 3.13 | 2026-05-29 | GTC IT / AI Assistant | Updated BP-014 after CPG-BIZ-046 Phase 1: `/post-vacancy/` now applies matching-first catalog controls and shared protected-upload checklist behavior |

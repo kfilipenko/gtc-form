@@ -75,9 +75,12 @@ The process covers:
 9. candidate presentation review;
 10. controlled employer-facing presentation;
 11. employer feedback and selection support;
-12. service completion record;
-13. billing / reward-basis handoff;
-14. audit and retention.
+12. contract, joining and embarkation support;
+13. active voyage / monthly service evidence;
+14. disembarkation and return / repatriation support;
+15. service completion record;
+16. billing / reward-basis handoff;
+17. audit and retention.
 
 ### 4.2 Out of scope
 
@@ -107,6 +110,7 @@ The process is record-driven. Tasks are computed from records and their states.
 | Internal shortlist draft | `operator_shortlist_drafts`, `operator_shortlist_candidates` | Internal team object, not employer-visible. |
 | Review application | vacancy application / review staging records | Human-review preparation before employer presentation. |
 | Presentation decision | vacancy application / candidate presentation status | Controlled employer-facing step. |
+| Employment / voyage support | future contract, embarkation, monthly work and return-support records | Evidence that selected seafarer joined, worked, disembarked and returned according to confirmed arrangements. |
 | Audit event | `registration_audit_events` and future process audit records | Evidence of who did what, when and why. |
 | Billing basis | future billing/service completion record | Commercial handoff after service output. |
 
@@ -144,8 +148,11 @@ The process is record-driven. Tasks are computed from records and their states.
 | CF-11 | Candidate presentation review | Candidate presentation is reviewed | `review_team` / Group 5 | Review candidate presentation |
 | CF-12 | Employer-facing presentation | Approved candidate summary is shared | Group 1 / `review_team` | Present candidate to employer |
 | CF-13 | Employer feedback and outcome | Employer decision or follow-up is recorded | Group 1 / Group 4 | Record employer feedback |
-| CF-14 | Service completion and billing | Service result and billing basis exist | Group 3 | Prepare billing / completion record |
-| CF-15 | Retention and audit | Client follow-up and evidence are retained | Responsible manager / Group 5 | Schedule next contact or audit review |
+| CF-14 | Contract and embarkation support | Contract, joining and boarding evidence exist | Group 1 / Group 4 / Group 5 | Confirm contract and boarding evidence |
+| CF-15 | Active voyage and monthly service evidence | Work-period evidence exists | Group 4 / Group 3 | Confirm monthly service evidence |
+| CF-16 | Disembarkation and return support | Return / repatriation arrangement is known and completed | Group 4 / responsible manager | Confirm seafarer return arrangement |
+| CF-17 | Service completion and billing | Service result and billing basis exist | Group 3 | Prepare billing / completion record |
+| CF-18 | Retention and audit | Client follow-up and seafarer availability refresh are retained | Responsible manager / Group 2 / Group 5 | Schedule next contact or audit review |
 
 ### 7.1 Information Stream And Object-State Model
 
@@ -209,8 +216,11 @@ The crew request / vacancy requirement stream connects the foundation streams in
 | CF-11 Candidate presentation review | Internal shortlist approved | Included candidates, allow/deny payload checks | shortlist draft, candidate snapshots, consent/correction status | review application / candidate presentation staging | review-application bridge or presentation review event | Human review exists or presentation blocked | Present candidate to employer if guard passes |
 | CF-12 Employer-facing presentation | Human review approves employer-visible summary | Data-minimized candidate summary, employer request | vacancy application, employer-facing payload rules | candidate status / presented state where approved | candidate presentation event | Employer receives approved summary | Record employer feedback |
 | CF-13 Employer feedback and outcome | Employer responds or follow-up date arrives | Feedback, interview interest, rejection, request changes | employer request, presented candidates, notes | feedback status, follow-up task, outcome metadata | employer feedback event | Outcome known or follow-up scheduled | Service completion, further shortlist, or support task |
-| CF-14 Service completion and billing | Service output meets commercial rule | Completed presentation/support result, commercial terms | employer/client records, service metadata, outcome | service completion / billing basis record | billing handoff event | GTC service-fee basis exists | Prepare invoice/reward attribution |
-| CF-15 Retention and audit | Service cycle closes | Client history, outcome, future needs | client cards, audit events, billing records | next-contact date, retention stage, audit notes | closure/retention event | Client is retained and evidence is preserved | Future contact or audit task |
+| CF-14 Contract and embarkation support | Employer proceeds with candidate or contract is uploaded | Contract, joining date/place, vessel, position, travel responsibility, boarding evidence | employer request, selected candidate, uploaded documents, vessel context | employment/voyage support status, boarding evidence, seafarer availability status | contract verified / embarkation confirmed event | Seafarer is pending embarkation, onboard active, blocked or replacement-required | Confirm monthly service evidence or resolve joining blocker |
+| CF-15 Active voyage and monthly service evidence | Seafarer is onboard active during a billing period | Work period, continued onboard status, illness/early-disembarkation signals | employment/voyage support record, employer notes, support evidence | monthly service evidence and billing-period status | monthly service confirmed event | Actual worked-period basis exists or exception/replacement is needed | Prepare invoice basis or return/replacement task |
+| CF-16 Disembarkation and return support | Contract end approaches, early disembarkation is signaled or disembarkation is confirmed | Disembarkation date/reason, return destination, payer/responsible party, travel support notes | contract/voyage record, employer instructions, seafarer profile | return support status, availability refresh trigger, replacement signal if needed | disembarkation / return support event | Seafarer returned or return/support exception is visible | Update availability, close service, replace or escalate |
+| CF-17 Service completion and billing | Service output meets commercial rule | Completed presentation/support result, embarkation/monthly/return evidence where relevant, commercial terms | employer/client records, service metadata, outcome | service completion / billing basis record | billing handoff event | GTC service-fee basis exists | Prepare invoice/reward attribution |
+| CF-18 Retention and audit | Service cycle closes | Client history, seafarer return status, next availability, outcome, future needs | client cards, seafarer profile, audit events, billing records | next-contact date, retention stage, audit notes | closure/retention event | Client and seafarer are retained and evidence is preserved | Future contact or audit task |
 
 ## 9. Computed Task Principle
 
@@ -463,6 +473,52 @@ The billing handoff must record:
 8. no-fee seafarer boundary confirmation.
 
 Seafarers must not be charged recruitment or placement fees.
+
+## 13.1 Contract, Embarkation, Voyage And Return Support Boundary
+
+The service result for crew formation may include a longer operational support chain than candidate presentation.
+
+When the employer proceeds with a candidate, the process must create or expect a controlled employment/voyage support record covering:
+
+1. selected seafarer;
+2. employer / shipowner client;
+3. vessel;
+4. rank / position;
+5. contract or employment-support document;
+6. joining date and place;
+7. travel / joining responsibility;
+8. expected contract duration or end date;
+9. disembarkation / repatriation responsibility;
+10. agreed return destination or return-support instruction;
+11. evidence required for monthly work-period confirmation;
+12. replacement or early termination rule.
+
+The computed seafarer lifecycle must distinguish:
+
+```text
+selected_for_contract
+employment_pending_embarkation
+onboard_active
+return_preparation_due
+return_in_progress
+returned_available_update_due
+```
+
+The team must not wait until the seafarer disappears from the vessel to ask how the return will be handled. Before expected contract completion, the responsible employee or group must have a computed task:
+
+```text
+Confirm seafarer return arrangement.
+(Voyage: {rank} on {safe vessel summary}; expected completion {date}.)
+```
+
+The return arrangement may be:
+
+1. independently arranged by the seafarer;
+2. arranged and paid by the employer / shipowner;
+3. arranged by CrewPortGlobal as an approved additional B2B support service;
+4. blocked or disputed, requiring escalation.
+
+After return completion, the seafarer must receive a new computed task to update availability and next-voyage preference. This is part of client care and retention, not a paid recruitment service charged to the seafarer.
 
 ## 14. AI-Agent Boundary
 

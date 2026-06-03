@@ -253,6 +253,7 @@ The seafarer provides supply-side information needed for matching and crew forma
 | Correction requested | Correct source card | exact profile card section | Corrected data submitted. |
 | Completeness check passed | Submit to operator review | profile submit action | Operator review task computes. |
 | Availability outdated | Update availability | availability/profile card | Supply data becomes current. |
+| Voyage completed or return confirmed | Update next-voyage availability and needs | availability/profile card | Seafarer is ready for the next matching cycle or follow-up. |
 
 ## 5. Employer / Shipowner User Instructions
 
@@ -268,8 +269,10 @@ The employer-side user provides demand-side data and receives approved service o
 4. submit crew request / vacancy requirements;
 5. receive approved candidate summaries;
 6. provide feedback;
-7. request follow-up or additional crew support;
-8. handle commercial/billing communication if authorized.
+7. upload or confirm contract / employment-support evidence when the employer proceeds with a candidate;
+8. confirm joining, boarding, monthly work-period and disembarkation/return evidence where agreed;
+9. request follow-up or additional crew support;
+10. handle commercial/billing communication if authorized.
 
 ### 5.3 Employer user must not
 
@@ -288,6 +291,9 @@ The employer-side user provides demand-side data and receives approved service o
 | Crew need exists | Complete crew request | vacancy/request workspace | Demand draft saved and completeness check runs. |
 | Completeness check passed | Submit demand data to operator review | employer/vacancy submit action | Employer/vessel/request review task computes. |
 | Candidate summary approved | Review candidate summary | employer candidate view | Employer feedback recorded. |
+| Candidate accepted | Upload / confirm contract and joining terms | employer/voyage support workspace | Contract and joining conditions become reviewable. |
+| Seafarer onboard | Confirm monthly service evidence | employer/voyage support workspace | Billing-period evidence becomes reviewable. |
+| Contract ending or disembarkation signaled | Confirm disembarkation and return arrangement | employer/voyage support workspace | Return support, replacement or closure task computes. |
 | Service result confirmed | Confirm commercial or follow-up action | employer/billing workspace | Billing or next request workflow starts. |
 
 ## 6. Group 0 - Marketing Instructions
@@ -315,7 +321,8 @@ Group 1 structures employer-side demand.
 4. collect crew request details;
 5. ensure demand is structured enough for matching;
 6. route authority/compliance issues to Group 5;
-7. route commercial entitlement issues to Group 3.
+7. route commercial entitlement issues to Group 3;
+8. collect employer-side contract, joining and return/repatriation terms after the employer proceeds with a candidate.
 
 ### 7.2 Computed task examples
 
@@ -325,6 +332,8 @@ Group 1 structures employer-side demand.
 | Vessel data incomplete | `Review vessel context. (Vessel: {vessel type / name if safe}.)` |
 | Crew request incomplete | `Review crew request completeness. (Crew request: {rank} for {vessel type}.)` |
 | Employer feedback due | `Record employer feedback. (Candidate presentation: {role/vessel summary}.)` |
+| Candidate accepted, contract missing | `Record contract and joining terms. (Crew request: {rank/vessel summary}.)` |
+| Return responsibility missing | `Clarify seafarer return responsibility. (Voyage: {rank/vessel summary}.)` |
 
 ### 7.3 Prohibited actions
 
@@ -347,7 +356,8 @@ Group 2 structures supply-side data.
 3. help resolve correction tasks;
 4. maintain availability and preference data;
 5. route document/readiness review to Group 5 or `review_team`;
-6. keep no-fee boundary visible.
+6. keep no-fee boundary visible;
+7. follow up after return from vessel and help the seafarer update next-voyage needs.
 
 ### 8.2 Computed task examples
 
@@ -356,6 +366,7 @@ Group 2 structures supply-side data.
 | Profile incomplete | `Review seafarer profile completeness. (Seafarer profile: {rank / safe name if allowed}.)` |
 | Source card correction open | `Request profile correction. (Source card: {card code and safe label}.)` |
 | Availability stale | `Update seafarer availability. (Profile: {rank summary}.)` |
+| Returned from voyage | `Update next-voyage availability. (Seafarer profile: {rank summary}.)` |
 
 ### 8.3 Prohibited actions
 
@@ -407,7 +418,8 @@ Group 4 resolves communication and operational blockers.
 2. help users find the correct workflow;
 3. support upload or login issues;
 4. route business, compliance or billing cases to correct group;
-5. record support notes and outcomes.
+5. support joining, boarding, disembarkation and return questions;
+6. record support notes and outcomes.
 
 ### 10.2 Computed task examples
 
@@ -416,6 +428,9 @@ Group 4 resolves communication and operational blockers.
 | User cannot complete form | `Assist workflow completion. (Object: {safe object summary}.)` |
 | Client response needed | `Follow up with client. (Client: {safe summary}.)` |
 | Support blocker resolved | `Close support blocker. (Case: {safe case summary}.)` |
+| Boarding not confirmed | `Confirm seafarer boarding evidence. (Voyage: {rank/vessel summary}.)` |
+| Contract ending soon | `Confirm seafarer return arrangement. (Voyage: {rank/vessel summary}.)` |
+| Return in progress | `Complete seafarer return support. (Seafarer: {safe profile summary}.)` |
 
 ### 10.3 Prohibited actions
 

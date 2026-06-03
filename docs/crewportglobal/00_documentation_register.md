@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.72
+- Version: 2.73
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -372,6 +372,7 @@ docs/crewportglobal/
   283_cpg_biz_087_seafarer_and_vacancy_pages_canonical_content_cleanup_task.md
   284_cpg_biz_087_seafarer_and_vacancy_pages_canonical_content_cleanup_report.md
   285_cpg_biz_088_seafarer_workflow_pages_business_process_alignment_report.md
+  286_cpg_biz_089_seafarer_voyage_return_support_process_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -910,6 +911,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.73 | 2026-06-03 | GTC IT / AI Assistant | Added document 286 as CPG-BIZ-089 report for seafarer voyage, disembarkation, return support and next-availability process amendment |
 | 2.72 | 2026-06-03 | GTC IT / AI Assistant | Added document 285 as CPG-BIZ-088 final seafarer workflow page and business-process alignment report after CPG-BIZ-087 |
 | 2.71 | 2026-06-03 | GTC IT / AI Assistant | Added document 284 as CPG-BIZ-087 implementation report for Seafarers menu cleanup, Create Profile catalog binding verification, Vacancies page cleanup and machine localization republish |
 | 2.70 | 2026-06-03 | GTC IT / AI Assistant | Added document 283 as CPG-BIZ-087 task for Seafarers menu cleanup, Create Profile catalog verification and Vacancies page value review before rerunning machine localization |
