@@ -411,81 +411,40 @@
       <section class="page-grid app-market-grid">
         <article class="card hero-card app-panel">
           <p class="eyebrow" data-i18n="vacancies.hero.eyebrow">Public vacancy information</p>
-          <h1 class="hero-title" data-i18n="vacancies.hero.title">Reviewed maritime vacancies are shown only when demand data is ready.</h1>
-          <p class="lead-copy hero-copy" data-i18n="vacancies.hero.copy">This public page explains how vacancy visibility works. Operational request creation, candidate matching and applications happen only after registration, authentication and scoped authorization.</p>
+          <h1 class="hero-title" data-i18n="vacancies.hero.title">Reviewed maritime vacancies appear here when employers publish them.</h1>
+          <p class="lead-copy hero-copy" data-i18n="vacancies.hero.copy">Create a seafarer profile to be ready for reviewed opportunities. Public vacancy cards show safe summaries only and do not expose private contacts.</p>
           <div class="hero-actions">
-            <a class="button primary" href="https://crewportglobal.com/#home-process-cycle" data-i18n="vacancies.hero.primaryCta">BP-015 Cycle</a>
-            <a class="button secondary" href="https://crewportglobal.com/legal/verification-policy/" data-i18n="nav.trustSafety">Trust &amp; Safety</a>
+            <a class="button primary" href="https://crewportglobal.com/register/?role=seafarer" data-i18n="vacancies.hero.primaryCta">Create profile</a>
           </div>
-          <span class="hero-note" data-i18n="vacancies.hero.note">Public vacancies appear only when reviewed vacancy data is ready.</span>
+          <span class="hero-note" data-i18n="vacancies.hero.note">If no reviewed vacancies are available, the board stays empty.</span>
         </article>
         <aside class="card side-card app-panel">
           <div class="side-note">
             <strong data-i18n="vacancies.side.status.title">Current status</strong>
-            <p data-i18n="vacancies.side.status.copy">Public vacancy data is read-only here. Service actions move to the authenticated personal cabinet.</p>
+            <p data-i18n="vacancies.side.status.copy">The board shows only employer requests approved for public viewing.</p>
           </div>
           <div class="side-note">
-            <strong data-i18n="vacancies.side.boundary.title">Trust rule</strong>
-            <p data-i18n="vacancies.side.boundary.copy">CrewPortGlobal does not imply automatic employment, automatic approval or automatic candidate presentation.</p>
+            <strong data-i18n="vacancies.side.boundary.title">Next step</strong>
+            <p data-i18n="vacancies.side.boundary.copy">Complete your profile so the team can compare your data with structured crew requests.</p>
           </div>
         </aside>
-      </section>
-
-      <section class="card filter-card section-card app-search-card" id="vacancy-public-rules">
-        <p class="eyebrow" data-i18n="vacancies.filters.eyebrow">Public visibility rules</p>
-        <h2 data-i18n="vacancies.filters.title">The public page is read-only until a verified listing exists.</h2>
-        <div class="detail-grid">
-          <span data-i18n="vacancies.filters.position.option1">Demand must be connected to a verified employer-side requester.</span>
-          <span data-i18n="vacancies.filters.vessel.option1">Company and vessel context must be clear enough for review.</span>
-          <span data-i18n="vacancies.filters.salary.option1">Rank, joining date, duration and compensation range must be ready for publication.</span>
-          <span data-i18n="vacancies.filters.joinDate.placeholder">Candidates are recommended only after reviewed demand and supply alignment.</span>
-          <span data-i18n="vacancies.filters.duration.option1">Applications and operational actions belong in authenticated work areas.</span>
-          <span data-i18n="vacancies.filters.country.placeholder">Broad public visitors do not receive private candidate or client data.</span>
-        </div>
       </section>
 
       <section class="vacancy-grid app-market-grid" id="vacancy-results">
         <article class="card vacancy-card live-card" id="vacancy-live-state" hidden>
           <p class="eyebrow" data-i18n="vacancies.live.eyebrow">Reviewed vacancies</p>
-          <h2 id="vacancy-live-title" data-i18n="vacancies.live.title">Published maritime vacancies</h2>
+          <h2 id="vacancy-live-title" data-i18n="vacancies.live.title">Open maritime vacancies</h2>
           <p id="vacancy-live-status" class="lead-copy" data-i18n="vacancies.live.loading">Loading reviewed vacancies...</p>
           <div id="vacancy-live-list" class="live-vacancy-list"></div>
-        </article>
-        <article class="card vacancy-card registered-card" id="vacancy-registered-state">
-          <p class="eyebrow" data-i18n="vacancies.registered.eyebrow">Registered crew requests</p>
-          <h2 data-i18n="vacancies.registered.title">Safe preview from registered demand data</h2>
-          <p id="vacancy-registered-status" class="lead-copy" data-i18n="vacancies.registered.loading">Loading registered request preview...</p>
-          <p class="registered-boundary" data-i18n="vacancies.registered.boundary">Read-only preview excludes contacts, documents, private notes and candidate data.</p>
-          <div id="vacancy-registered-list" class="live-vacancy-list"></div>
         </article>
         <article class="card vacancy-card empty-card app-empty" id="vacancy-empty-state">
           <p class="eyebrow" data-i18n="vacancies.empty.eyebrow">Current public availability</p>
           <h2 data-i18n="vacancies.empty.title">No public vacancies are available yet</h2>
-          <p class="lead-copy" data-i18n="vacancies.empty.copy">When reviewed employer-side demand is ready for public display, this page will show a read-only summary of the listing.</p>
-          <span class="status-pill" data-i18n="vacancies.empty.status">Current preview</span>
-        </article>
-        <article class="card vacancy-card format-card">
-          <p class="eyebrow" data-i18n="vacancies.format.eyebrow">Vacancy format</p>
-          <h2 data-i18n="vacancies.format.title">What each vacancy card will show</h2>
-          <div class="detail-grid">
-            <span data-i18n="vacancies.format.item1">Position and rank</span>
-            <span data-i18n="vacancies.format.item2">Vessel type and employer country</span>
-            <span data-i18n="vacancies.format.item3">Salary range and contract duration</span>
-            <span data-i18n="vacancies.format.item4">Joining date or embarkation window</span>
-            <span data-i18n="vacancies.format.item5">Key requirements and document expectations</span>
-            <span data-i18n="vacancies.format.item6">Reviewed employer-side context</span>
-          </div>
-          <span class="status-pill" data-i18n="vacancies.format.status">Shown only with reviewed data</span>
+          <p class="lead-copy" data-i18n="vacancies.empty.copy">Create your profile now. The team will use structured data when matching opens.</p>
           <div class="inline-actions">
-            <a class="button secondary" href="https://crewportglobal.com/legal/verification-policy/" data-i18n="vacancies.format.cta">Review Trust & Safety</a>
+            <a class="button primary" href="https://crewportglobal.com/register/?role=seafarer" data-i18n="vacancies.empty.primaryCta">Create profile</a>
           </div>
         </article>
-      </section>
-
-      <section class="card trust-card">
-        <p class="eyebrow" data-i18n="vacancies.trust.eyebrow">Trust note</p>
-        <h2 data-i18n="vacancies.trust.title">CrewPortGlobal shows live vacancies only when reviewed data is ready.</h2>
-        <p data-i18n="vacancies.trust.copy">The vacancies page does not publish fake jobs, fake employers or automatic employment claims. Public listings appear only when reviewed employer and vacancy information is ready for display.</p>
       </section>
     </main>
   </div>
@@ -493,51 +452,24 @@
     window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
       en: {
         'vacancies.hero.eyebrow': 'Public vacancy information',
-        'vacancies.hero.title': 'Reviewed maritime vacancies are shown only when demand data is ready.',
-        'vacancies.hero.copy': 'This public page explains how vacancy visibility works. Operational request creation, candidate matching and applications happen only after registration, authentication and scoped authorization.',
-        'vacancies.hero.primaryCta': 'BP-015 Cycle',
+        'vacancies.hero.title': 'Reviewed maritime vacancies appear here when employers publish them.',
+        'vacancies.hero.copy': 'Create a seafarer profile to be ready for reviewed opportunities. Public vacancy cards show safe summaries only and do not expose private contacts.',
+        'vacancies.hero.primaryCta': 'Create profile',
         'vacancies.hero.secondaryCta': 'Trust & Safety',
-        'vacancies.hero.note': 'Public vacancies appear only when reviewed vacancy data is ready.',
+        'vacancies.hero.note': 'If no reviewed vacancies are available, the board stays empty.',
         'vacancies.side.status.title': 'Current status',
-        'vacancies.side.status.copy': 'Public vacancy data is read-only here. Service actions move to the authenticated personal cabinet.',
-        'vacancies.side.boundary.title': 'Trust rule',
-        'vacancies.side.boundary.copy': 'CrewPortGlobal does not imply automatic employment, automatic approval or automatic candidate presentation.',
-        'vacancies.filters.eyebrow': 'Public visibility rules',
-        'vacancies.filters.title': 'The public page is read-only until a verified listing exists.',
-        'vacancies.filters.position': 'Demand readiness',
-        'vacancies.filters.position.option1': 'Demand must be connected to a verified employer-side requester.',
-        'vacancies.filters.position.option2': 'Requested rank and department must be clear.',
-        'vacancies.filters.position.option3': 'The request must be linked to reviewed authority evidence.',
-        'vacancies.filters.position.option4': 'Public visitors see only approved summaries.',
-        'vacancies.filters.vessel': 'Vessel context',
-        'vacancies.filters.vessel.option1': 'Company and vessel context must be clear enough for review.',
-        'vacancies.filters.vessel.option2': 'Vessel type is part of demand matching.',
-        'vacancies.filters.vessel.option3': 'Private vessel details are not exposed by default.',
-        'vacancies.filters.vessel.option4': 'Public data remains limited.',
-        'vacancies.filters.salary': 'Listing readiness',
-        'vacancies.filters.salary.option1': 'Rank, joining date, duration and compensation range must be ready for publication.',
-        'vacancies.filters.salary.option2': 'Compensation may be shown only when approved for public display.',
-        'vacancies.filters.salary.option3': 'Commercial details remain scoped.',
-        'vacancies.filters.salary.option4': 'Internal pricing is not public.',
-        'vacancies.filters.joinDate': 'Recommendation boundary',
-        'vacancies.filters.joinDate.placeholder': 'Candidates are recommended only after reviewed demand and supply alignment.',
-        'vacancies.filters.duration': 'Authenticated actions',
-        'vacancies.filters.duration.option1': 'Applications and operational actions belong in authenticated work areas.',
-        'vacancies.filters.duration.option2': 'Tasks are assigned through scoped work queues.',
-        'vacancies.filters.duration.option3': 'The personal cabinet is built after authorization.',
-        'vacancies.filters.duration.option4': 'Public pages remain informational.',
-        'vacancies.filters.country': 'Data visibility',
-        'vacancies.filters.country.placeholder': 'Broad public visitors do not receive private candidate or client data.',
-        'vacancies.filters.copy': 'The public page describes the publication rules and current reviewed availability.',
-        'vacancies.filters.cta': 'Publication rules',
+        'vacancies.side.status.copy': 'The board shows only employer requests approved for public viewing.',
+        'vacancies.side.boundary.title': 'Next step',
+        'vacancies.side.boundary.copy': 'Complete your profile so the team can compare your data with structured crew requests.',
         'vacancies.live.eyebrow': 'Reviewed vacancies',
-        'vacancies.live.title': 'Published maritime vacancies',
+        'vacancies.live.title': 'Open maritime vacancies',
         'vacancies.live.loading': 'Loading reviewed vacancies...',
         'vacancies.live.count': '{count} reviewed vacancies available',
         'vacancies.live.emptyFiltered': 'No reviewed vacancies are available for public display.',
         'vacancies.live.error': 'Could not load reviewed vacancies.',
         'vacancies.live.company': 'Company',
         'vacancies.live.vessel': 'Vessel',
+        'vacancies.live.vesselType': 'Vessel type',
         'vacancies.live.joinDate': 'Join',
         'vacancies.live.duration': 'Duration',
         'vacancies.live.salary': 'Salary',
@@ -545,84 +477,33 @@
         'vacancies.live.country': 'Country',
         'vacancies.live.requirements': 'Requirements',
         'vacancies.live.open': 'Read-only listing',
-        'vacancies.registered.eyebrow': 'Registered crew requests',
-        'vacancies.registered.title': 'Safe preview from registered demand data',
-        'vacancies.registered.loading': 'Loading registered request preview...',
-        'vacancies.registered.count': '{count} registered crew requests shown',
-        'vacancies.registered.empty': 'Registered crew request preview is not available yet.',
-        'vacancies.registered.error': 'Could not load registered request preview.',
-        'vacancies.registered.boundary': 'Read-only preview excludes contacts, documents, private notes and candidate data.',
-        'vacancies.registered.rank': 'Requested rank',
-        'vacancies.registered.department': 'Department',
-        'vacancies.registered.readiness': 'Readiness',
-        'vacancies.registered.publication': 'Publication',
         'vacancies.empty.eyebrow': 'Current public availability',
         'vacancies.empty.title': 'No public vacancies are available yet',
-        'vacancies.empty.copy': 'When reviewed employer-side demand is ready for public display, this page will show a read-only summary of the listing.',
-        'vacancies.empty.status': 'Current preview',
-        'vacancies.empty.primaryCta': 'Public information',
-        'vacancies.empty.secondaryCta': 'Trust & Safety',
-        'vacancies.format.eyebrow': 'Vacancy format',
-        'vacancies.format.title': 'What each vacancy card will show',
-        'vacancies.format.item1': 'Position and rank',
-        'vacancies.format.item2': 'Vessel type and employer country',
-        'vacancies.format.item3': 'Salary range and contract duration',
-        'vacancies.format.item4': 'Joining date or embarkation window',
-        'vacancies.format.item5': 'Key requirements and document expectations',
-        'vacancies.format.item6': 'Reviewed employer-side context',
-        'vacancies.format.status': 'Shown only with reviewed data',
-        'vacancies.format.cta': 'Review Trust & Safety',
-        'vacancies.trust.eyebrow': 'Trust note',
-        'vacancies.trust.title': 'CrewPortGlobal shows live vacancies only when reviewed data is ready.',
-        'vacancies.trust.copy': 'The vacancies page does not publish fake jobs, fake employers or automatic employment claims. Public listings appear only when reviewed employer and vacancy information is ready for display.'
+        'vacancies.empty.copy': 'Create your profile now. The team will use structured data when matching opens.',
+        'vacancies.empty.status': 'Current availability',
+        'vacancies.empty.primaryCta': 'Create profile',
+        'vacancies.empty.secondaryCta': 'Trust & Safety'
       },
       ru: {
         'vacancies.hero.eyebrow': 'Публичная информация о вакансиях',
-        'vacancies.hero.title': 'Проверенные морские вакансии показываются только когда данные спроса готовы.',
-        'vacancies.hero.copy': 'Эта публичная страница объясняет, как работает видимость вакансий. Создание запросов, сопоставление кандидатов и отклики выполняются только после регистрации, аутентификации и ограниченной авторизации.',
-        'vacancies.hero.primaryCta': 'Цикл процесса',
+        'vacancies.hero.title': 'Проверенные морские вакансии появляются здесь после публикации работодателем.',
+        'vacancies.hero.copy': 'Создайте профиль моряка, чтобы быть готовым к проверенным предложениям. Публичные карточки вакансий показывают только безопасную сводку и не раскрывают частные контакты.',
+        'vacancies.hero.primaryCta': 'Создать профиль',
         'vacancies.hero.secondaryCta': 'Доверие и безопасность',
-        'vacancies.hero.note': 'Публичные вакансии появляются только тогда, когда проверенные данные готовы к публикации.',
+        'vacancies.hero.note': 'Если проверенных вакансий нет, доска остается пустой.',
         'vacancies.side.status.title': 'Текущий статус',
-        'vacancies.side.status.copy': 'Публичные данные вакансий здесь доступны только для чтения. Сервисные действия переходят в аутентифицированный личный кабинет.',
-        'vacancies.side.boundary.title': 'Правило доверия',
-        'vacancies.side.boundary.copy': 'CrewPortGlobal не обещает автоматическое трудоустройство, автоматическое одобрение или автоматическое представление кандидата.',
-        'vacancies.filters.eyebrow': 'Правила публичной видимости',
-        'vacancies.filters.title': 'Публичная страница доступна только для чтения, пока нет проверенной публикации.',
-        'vacancies.filters.position': 'Готовность спроса',
-        'vacancies.filters.position.option1': 'Спрос должен быть связан с проверенным заявителем со стороны работодателя.',
-        'vacancies.filters.position.option2': 'Запрошенная должность и департамент должны быть понятны.',
-        'vacancies.filters.position.option3': 'Запрос должен быть связан с проверенным доказательством полномочий.',
-        'vacancies.filters.position.option4': 'Публичные посетители видят только одобренные сводки.',
-        'vacancies.filters.vessel': 'Контекст судна',
-        'vacancies.filters.vessel.option1': 'Контекст компании и судна должен быть достаточно ясен для проверки.',
-        'vacancies.filters.vessel.option2': 'Тип судна участвует в сопоставлении спроса.',
-        'vacancies.filters.vessel.option3': 'Частные данные судна по умолчанию не раскрываются.',
-        'vacancies.filters.vessel.option4': 'Публичные данные остаются ограниченными.',
-        'vacancies.filters.salary': 'Готовность публикации',
-        'vacancies.filters.salary.option1': 'Должность, дата посадки, длительность и диапазон оплаты должны быть готовы к публикации.',
-        'vacancies.filters.salary.option2': 'Оплата показывается только если она одобрена для публичного отображения.',
-        'vacancies.filters.salary.option3': 'Коммерческие детали остаются ограниченными.',
-        'vacancies.filters.salary.option4': 'Внутреннее ценообразование не является публичным.',
-        'vacancies.filters.joinDate': 'Граница рекомендации',
-        'vacancies.filters.joinDate.placeholder': 'Кандидаты рекомендуются только после проверенного совпадения спроса и предложения.',
-        'vacancies.filters.duration': 'Аутентифицированные действия',
-        'vacancies.filters.duration.option1': 'Отклики и операционные действия находятся в аутентифицированных рабочих областях.',
-        'vacancies.filters.duration.option2': 'Задачи назначаются через ограниченные рабочие очереди.',
-        'vacancies.filters.duration.option3': 'Личный кабинет формируется после авторизации.',
-        'vacancies.filters.duration.option4': 'Публичные страницы остаются информационными.',
-        'vacancies.filters.country': 'Видимость данных',
-        'vacancies.filters.country.placeholder': 'Широкие публичные посетители не получают частные данные кандидатов или клиентов.',
-        'vacancies.filters.copy': 'Публичная страница описывает правила публикации и текущую проверенную доступность.',
-        'vacancies.filters.cta': 'Правила публикации',
+        'vacancies.side.status.copy': 'Доска показывает только заявки работодателей, одобренные для публичного просмотра.',
+        'vacancies.side.boundary.title': 'Следующий шаг',
+        'vacancies.side.boundary.copy': 'Заполните профиль, чтобы команда могла сопоставить ваши данные со структурированными заявками на экипаж.',
         'vacancies.live.eyebrow': 'Проверенные вакансии',
-        'vacancies.live.title': 'Опубликованные морские вакансии',
+        'vacancies.live.title': 'Открытые морские вакансии',
         'vacancies.live.loading': 'Загружаем проверенные вакансии...',
         'vacancies.live.count': 'Доступно проверенных вакансий: {count}',
         'vacancies.live.emptyFiltered': 'Проверенных вакансий для публичного отображения пока нет.',
         'vacancies.live.error': 'Не удалось загрузить проверенные вакансии.',
         'vacancies.live.company': 'Компания',
         'vacancies.live.vessel': 'Судно',
+        'vacancies.live.vesselType': 'Тип судна',
         'vacancies.live.joinDate': 'Посадка',
         'vacancies.live.duration': 'Длительность',
         'vacancies.live.salary': 'Зарплата',
@@ -630,40 +511,16 @@
         'vacancies.live.country': 'Страна',
         'vacancies.live.requirements': 'Требования',
         'vacancies.live.open': 'Публикация только для чтения',
-        'vacancies.registered.eyebrow': 'Зарегистрированные заявки',
-        'vacancies.registered.title': 'Безопасное превью зарегистрированного спроса',
-        'vacancies.registered.loading': 'Загружаем превью зарегистрированных заявок...',
-        'vacancies.registered.count': 'Показано зарегистрированных заявок: {count}',
-        'vacancies.registered.empty': 'Превью зарегистрированных заявок пока недоступно.',
-        'vacancies.registered.error': 'Не удалось загрузить превью зарегистрированных заявок.',
-        'vacancies.registered.boundary': 'Превью доступно только для чтения и не раскрывает контакты, документы, частные примечания или данные кандидатов.',
-        'vacancies.registered.rank': 'Запрошенная должность',
-        'vacancies.registered.department': 'Департамент',
-        'vacancies.registered.readiness': 'Готовность',
-        'vacancies.registered.publication': 'Публикация',
         'vacancies.empty.eyebrow': 'Текущая публичная доступность',
         'vacancies.empty.title': 'Публичных вакансий пока нет',
-        'vacancies.empty.copy': 'Когда проверенный спрос со стороны работодателя будет готов к публичному отображению, эта страница покажет сводку публикации только для чтения.',
-        'vacancies.empty.status': 'Текущий превью-режим',
-        'vacancies.empty.primaryCta': 'Публичная информация',
-        'vacancies.empty.secondaryCta': 'Доверие и безопасность',
-        'vacancies.format.eyebrow': 'Формат вакансии',
-        'vacancies.format.title': 'Что будет показано в карточке вакансии',
-        'vacancies.format.item1': 'Должность и ранг',
-        'vacancies.format.item2': 'Тип судна и страну работодателя',
-        'vacancies.format.item3': 'Диапазон зарплаты и длительность контракта',
-        'vacancies.format.item4': 'Дату посадки или окно выезда',
-        'vacancies.format.item5': 'Ключевые требования и ожидания по документам',
-        'vacancies.format.item6': 'Проверенный контекст стороны работодателя',
-        'vacancies.format.status': 'Показывается только с проверенными данными',
-        'vacancies.format.cta': 'Открыть доверие и безопасность',
-        'vacancies.trust.eyebrow': 'Примечание о доверии',
-        'vacancies.trust.title': 'CrewPortGlobal показывает живые вакансии только при готовности проверенных данных.',
-        'vacancies.trust.copy': 'Страница вакансий не публикует вымышленные вакансии, вымышленных работодателей и не обещает автоматическое трудоустройство. Публичные объявления появляются только тогда, когда проверенная информация о работодателе и вакансии готова к показу.'
+        'vacancies.empty.copy': 'Создайте профиль сейчас. Команда использует структурированные данные, когда откроется сопоставление.',
+        'vacancies.empty.status': 'Текущая доступность',
+        'vacancies.empty.primaryCta': 'Создать профиль',
+        'vacancies.empty.secondaryCta': 'Доверие и безопасность'
       }
     };
   </script>
-  <script src="/assets/crewportglobal-machine-translations.js?v=feb3bf0984399de1" defer></script>
+  <script src="/assets/crewportglobal-machine-translations.js?v=53345f0f8938ec76" defer></script>
   <script src="../assets/crewportglobal-public-i18n.js?v=20260530-menu-audit" defer></script>
   <script>
     (function () {
@@ -671,12 +528,8 @@
       const emptyState = document.getElementById('vacancy-empty-state');
       const liveStatus = document.getElementById('vacancy-live-status');
       const liveList = document.getElementById('vacancy-live-list');
-      const registeredStatus = document.getElementById('vacancy-registered-status');
-      const registeredList = document.getElementById('vacancy-registered-list');
       let vacancies = [];
-      let registeredRequests = [];
       let loadFailed = false;
-      let registeredLoadFailed = false;
 
       function getLanguage() {
         const lang = document.documentElement.lang || 'en';
@@ -735,7 +588,7 @@
         addMeta(meta, t('vacancies.live.company'), vacancy.company_name);
         addMeta(meta, t('vacancies.live.vessel'), vacancy.vessel_name || vacancy.vessel_type);
         if (hasText(vacancy.vessel_name) && hasText(vacancy.vessel_type)) {
-          addMeta(meta, t('vacancies.filters.vessel'), vacancy.vessel_type);
+          addMeta(meta, t('vacancies.live.vesselType'), vacancy.vessel_type);
         }
         addMeta(meta, t('vacancies.live.joinDate'), vacancy.join_date);
         addMeta(meta, t('vacancies.live.duration'), vacancy.contract_duration);
@@ -748,37 +601,6 @@
           requirements.className = 'vacancy-requirements';
           requirements.textContent = `${t('vacancies.live.requirements')}: ${vacancy.requirements}`;
           item.appendChild(requirements);
-        }
-
-        return item;
-      }
-
-      function renderRegisteredRequestCard(request) {
-        const item = document.createElement('article');
-        item.className = 'live-vacancy-item';
-
-        const title = document.createElement('h3');
-        title.textContent = request.title || request.rank_label || 'Registered crew request';
-        item.appendChild(title);
-
-        const meta = document.createElement('div');
-        meta.className = 'vacancy-meta';
-        addMeta(meta, t('vacancies.live.vessel'), request.vessel_name || request.vessel_type);
-        if (hasText(request.vessel_name) && hasText(request.vessel_type)) {
-          addMeta(meta, t('vacancies.filters.vessel'), request.vessel_type);
-        }
-        addMeta(meta, t('vacancies.registered.rank'), request.rank_label);
-        addMeta(meta, t('vacancies.registered.department'), request.department);
-        addMeta(meta, t('vacancies.live.joinDate'), request.join_date);
-        addMeta(meta, t('vacancies.registered.publication'), request.publication_status);
-        addMeta(meta, t('vacancies.registered.readiness'), request.readiness_status);
-        item.appendChild(meta);
-
-        if (Array.isArray(request.readiness_blockers) && request.readiness_blockers.length > 0) {
-          const blockers = document.createElement('p');
-          blockers.className = 'vacancy-requirements';
-          blockers.textContent = `Blockers: ${request.readiness_blockers.join(', ')}`;
-          item.appendChild(blockers);
         }
 
         return item;
@@ -811,22 +633,6 @@
         });
       }
 
-      function renderRegisteredRequests() {
-        registeredList.innerHTML = '';
-        if (registeredLoadFailed) {
-          registeredStatus.textContent = t('vacancies.registered.error');
-          return;
-        }
-        if (registeredRequests.length === 0) {
-          registeredStatus.textContent = t('vacancies.registered.empty');
-          return;
-        }
-        registeredStatus.textContent = t('vacancies.registered.count', { count: registeredRequests.length });
-        registeredRequests.forEach((request) => {
-          registeredList.appendChild(renderRegisteredRequestCard(request));
-        });
-      }
-
       async function loadVacancies() {
         liveState.hidden = false;
         liveStatus.textContent = t('vacancies.live.loading');
@@ -847,33 +653,10 @@
         }
       }
 
-      async function loadRegisteredRequests() {
-        registeredStatus.textContent = t('vacancies.registered.loading');
-        try {
-          const response = await fetch('/api/v1/registry-summary');
-          const payload = await response.json().catch(() => ({}));
-          if (!response.ok || !payload || payload.ok !== true) {
-            throw new Error('registry_summary_load_failed');
-          }
-          registeredRequests = Array.isArray(payload.samples?.vacancy_requests)
-            ? payload.samples.vacancy_requests
-            : [];
-          registeredLoadFailed = false;
-          renderRegisteredRequests();
-        } catch (error) {
-          registeredRequests = [];
-          registeredLoadFailed = true;
-          renderRegisteredRequests();
-          console.error(error);
-        }
-      }
-
       window.addEventListener('crewportglobal:languagechange', () => {
         renderVacancies();
-        renderRegisteredRequests();
       });
       loadVacancies();
-      loadRegisteredRequests();
     })();
   </script>
 </body>

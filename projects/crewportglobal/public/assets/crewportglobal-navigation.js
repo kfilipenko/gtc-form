@@ -35,9 +35,8 @@
       label: 'Seafarers',
       menuKey: 'nav.seafarerPagesMenu',
       hintKey: 'nav.seafarerPagesHint',
-      hint: 'Actions for seafarer registration, profile completion and vacancy review.',
+      hint: 'Actions for seafarer profile completion and reviewed vacancy access.',
       links: [
-        { href: '/for-seafarers/', key: 'nav.forSeafarers', label: 'For Seafarers', hint: 'Seafarer service entry page.' },
         { href: '/create-profile/', key: 'nav.createProfile', label: 'Create Profile', hint: 'Complete the seafarer profile and documents.' },
         { href: '/vacancies/', key: 'nav.vacancies', label: 'Vacancies', hint: 'Open reviewed vacancy information.' },
       ],

@@ -179,7 +179,11 @@ test('homepage and vacancies CTAs match their destinations', async ({ page }) =>
   await page.goto('/vacancies/index.html');
 
   await expect(page.locator('#vacancy-empty-state')).toContainText('No public vacancies are available yet');
-  await expect(page.locator('#vacancy-empty-state')).toContainText('read-only summary');
+  await expect(page.locator('#vacancy-empty-state')).toContainText('Create your profile now');
+  await expect(page.locator('#vacancy-public-rules')).toHaveCount(0);
+  await expect(page.locator('#vacancy-registered-state')).toHaveCount(0);
+  await expect(page.locator('.format-card')).toHaveCount(0);
+  await expect(page.locator('.trust-card')).toHaveCount(0);
   await expect(page.locator('main a[href="https://crewportglobal.com/register/"]')).toHaveCount(0);
   await expect(page.locator('main input')).toHaveCount(0);
   await expect(page.locator('main select')).toHaveCount(0);
@@ -188,6 +192,8 @@ test('homepage and vacancies CTAs match their destinations', async ({ page }) =>
   await expect(page.locator('body')).not.toContainText('View Details');
   await expect(page.locator('body')).not.toContainText('Create Seafarer Profile');
   await expect(page.locator('body')).not.toContainText('Prepare Vacancy Request');
+  await expect(page.locator('body')).not.toContainText('Registered crew requests');
+  await expect(page.locator('body')).not.toContainText('Public visibility rules');
 });
 
 test('register page creates platform participant and routes by role', async ({ page }) => {
@@ -443,6 +449,7 @@ test('create-profile holds the consolidated seafarer final consent and no onboar
   await expect(page.locator('.nav-menu--seafarers summary')).toContainText('Моряки');
   await page.locator('.nav-menu--seafarers summary').click();
   await expect(page.locator('.nav-menu--seafarers a[href="https://crewportglobal.com/create-profile/"]')).toContainText('Создать профиль');
+  await expect(page.locator('.nav-menu--seafarers a[href="https://crewportglobal.com/for-seafarers/"]')).toHaveCount(0);
   await expect(page.locator('body')).toContainText('правило отсутствия платы за трудоустройство');
   await expect(page.locator('body')).toContainText('дополнительные платные услуги не являются условием доступа к работе');
   await expect(page.locator('a[href="/legal/complaints/"]')).toHaveCount(1);

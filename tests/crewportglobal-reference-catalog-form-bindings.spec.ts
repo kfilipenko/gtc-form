@@ -5,13 +5,30 @@ test('published reference catalogs populate seafarer and employer form suggestio
 
   await expect.poll(async () => page.locator('#create-rank-options option').count()).toBeGreaterThan(0);
   await expect(page.locator('#create-rank-options option[value="Chief Officer"]')).toHaveCount(1);
+  await expect.poll(async () => page.locator('#create-nationality option').count()).toBeGreaterThan(5);
+  await expect(page.locator('#create-nationality option[value="PH"]')).toHaveCount(1);
+  await expect(page.locator('#create-residence option[value="PH"]')).toHaveCount(1);
+  await expect(page.locator('#create-country option[value="PH"]')).toHaveCount(1);
+  await expect.poll(async () => page.locator('#create-gender option').count()).toBeGreaterThan(1);
+  await expect.poll(async () => page.locator('#create-civil-status option').count()).toBeGreaterThan(1);
   await expect.poll(async () => page.locator('#create-vessel-types option').count()).toBeGreaterThan(1);
   await expect(page.locator('#create-vessel-types option[value="BULK CARRIER"]')).toHaveCount(1);
 
   await page.locator('#create-rank').fill('Chief Officer');
+  await page.locator('#create-nationality').selectOption('PH');
+  await page.locator('[data-copy-nationality-target="create-residence"]').click();
+  await page.locator('[data-copy-nationality-target="create-country"]').click();
+  await page.locator('[data-section-target="profile-section-contact"]').click();
+  await page.locator('#create-gender').selectOption({ index: 1 });
+  await page.locator('#create-civil-status').selectOption({ index: 1 });
   await page.locator('#create-vessel-types-options .multi-choice-option', { hasText: 'BULK CARRIER' }).click();
   await page.locator('#create-vessel-types-options .multi-choice-option', { hasText: 'LNG' }).click();
   await expect(page.locator('#create-rank')).toHaveValue('Chief Officer');
+  await expect(page.locator('#create-nationality')).toHaveValue('PH');
+  await expect(page.locator('#create-residence')).toHaveValue('PH');
+  await expect(page.locator('#create-country')).toHaveValue('PH');
+  await expect(page.locator('#create-gender')).not.toHaveValue('');
+  await expect(page.locator('#create-civil-status')).not.toHaveValue('');
   const selectedVesselTypes = await page.locator('#create-vessel-types').evaluate((select: HTMLSelectElement) => (
     Array.from(select.selectedOptions).map((option) => option.value)
   ));

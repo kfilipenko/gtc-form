@@ -39689,7 +39689,7 @@ window.CREWPORTGLOBAL_MACHINE_TRANSLATION_BUNDLE = {
       "verify.workspaceTask.visibility": "Чому це завдання видно"
     }
   },
-  "generated_at": "2026-06-03T04:36:24+00:00",
+  "generated_at": "2026-06-03T05:34:31+00:00",
   "official_language": "en",
   "publication_boundary": {
     "browser_provider_calls_allowed": false,
@@ -39697,10 +39697,10 @@ window.CREWPORTGLOBAL_MACHINE_TRANSLATION_BUNDLE = {
     "requires_human_review_for_sensitive_text": true,
     "source": "publish-ready-export"
   },
-  "publication_version": "feb3bf0984399de1",
+  "publication_version": "53345f0f8938ec76",
   "schema_version": 1,
-  "source_catalog_hash": "02fe8e9c6c6f57db43cf9ea3a0c956d7bbbdfc2c8fd30cfa570edd48df090815",
-  "source_key_count": 3695,
+  "source_catalog_hash": "ebda45bddaf4548a7cf660c76b18518f7991e7b351560043e4a2d11024343fb3",
+  "source_key_count": 3703,
   "target_languages": [
     "ar",
     "el",

@@ -9,7 +9,6 @@ const appPages = [
 ];
 
 const documentPages = [
-  { path: '/for-seafarers/', active: 'For Seafarers' },
   { path: '/for-shipowners/', active: 'For Employers' },
   { path: '/legal/verification-policy/', active: 'Verification Policy' },
 ];
@@ -24,7 +23,6 @@ const fullSiteGroups = [
 
 const fullSiteLinks = [
   { name: 'Home', href: 'https://crewportglobal.com/' },
-  { name: 'For Seafarers', href: 'https://crewportglobal.com/for-seafarers/' },
   { name: 'Create Profile', href: 'https://crewportglobal.com/create-profile/' },
   { name: 'Vacancies', href: 'https://crewportglobal.com/vacancies/' },
   { name: 'For Employers', href: 'https://crewportglobal.com/for-shipowners/' },
