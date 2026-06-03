@@ -64,7 +64,7 @@ This prevents:
 2. accidental legal contradiction;
 3. outdated explanations after document updates;
 4. translation drift across languages;
-5. incorrect interpretation by users, staff or AI agents.
+5. incorrect interpretation by users, staff or automated tools.
 
 ### 3.3 Required implementation behavior
 
@@ -81,7 +81,7 @@ Contract wording must additionally follow the master-agreement control:
 
 1. fixed clauses are stored as approved versioned text;
 2. UI forms may select variables and catalog values only;
-3. operational users and AI agents must not rewrite fixed clauses;
+3. operational users must not rewrite fixed clauses;
 4. generated instances must record the master agreement version and catalog version;
 5. clause changes require a new approved version.
 
@@ -325,6 +325,30 @@ The contract draft must not become `ready_for_signature` unless:
 8. no-fee acknowledgement exists;
 9. required documents are present or explicitly marked as accepted exception;
 10. formal document references are current.
+
+## 9A. Contract-Condition Form Approval And Scripted Generation
+
+The future implementation must separate:
+
+1. selection of contract conditions; and
+2. generation of the contract document.
+
+The required workflow is:
+
+1. An authorized employee opens the contract-condition form for a selected seafarer, shipowner/employer, vessel and vacancy/request.
+2. The form imports verified platform data and exposes only approved variable fields under the master agreement.
+3. The employee selects wage, payment, duration, joining, return, repatriation, replacement and service-evidence conditions from approved catalogs.
+4. The form is sent to the parties for review.
+5. The seafarer and shipowner/employer approve/sign the condition form.
+6. Only after required party approval/signature, the generation script creates the contract document from:
+   - approved master agreement template;
+   - verified seafarer data;
+   - verified shipowner/employer data;
+   - verified vessel data;
+   - signed condition form.
+7. The generated document stores template version, catalog version, source records and document hash.
+
+This workflow is intended to prevent incorrect wording, manual clause edits, mismatched party data and disagreement about which conditions were approved.
 
 ## 10. Next Implementation Planning
 

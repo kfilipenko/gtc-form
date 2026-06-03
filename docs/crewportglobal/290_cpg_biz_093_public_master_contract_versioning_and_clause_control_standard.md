@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Business-process / contract-generation standard
 - Source task: Project Owner clarification after CPG-BIZ-092
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-06-03
 - Status: Drafted for Project Owner review
 
@@ -55,6 +55,34 @@ Each generated contract instance must store:
 | `generated_document_hash` | Protects the generated document from unnoticed changes. |
 | `signature_status` | Shows whether the instance is draft, party-review, signed or blocked. |
 
+## 2A. Contract Condition Form And Generation Procedure
+
+The portal contract must be prepared through a dedicated contract-condition form.
+
+The required sequence is:
+
+1. An authorized employee opens the contract-condition form for the selected seafarer, shipowner/employer, vessel and vacancy/request.
+2. The form shows only conditions permitted by the approved master agreement and approved catalogs.
+3. The employee selects or completes the variable conditions, including wage, payment method, contract period, joining, return, repatriation, replacement and service-evidence terms.
+4. The form is submitted to the parties for review and approval.
+5. The seafarer and shipowner/employer approve the form conditions.
+6. Immediately after required party approval/signature, the system runs the contract-generation script.
+7. The script creates the contract from:
+   - verified seafarer data;
+   - verified shipowner/employer data;
+   - verified vessel data;
+   - the approved master agreement template;
+   - the signed contract-condition form.
+8. The generated document receives a platform reference, version metadata and document hash.
+
+This procedure prevents:
+
+1. incorrect legal wording;
+2. distortion of agreed commercial or voyage data;
+3. use of unapproved terms;
+4. manual edits to fixed clauses;
+5. loss of evidence showing what the parties approved.
+
 ## 3. What Requires Legal Review
 
 Legal review is required for:
@@ -80,7 +108,7 @@ After a master agreement version and its catalogs are approved, ordinary generat
 5. party confirmations recorded by the portal;
 6. no free-text legal clause changes.
 
-The role of the employee or AI agent is to prepare the instance from approved data, not to author a new legal document.
+The role of the employee is to prepare the condition form from approved data, not to author a new legal document.
 
 ## 5. Immutable Clause Control
 
@@ -101,7 +129,7 @@ Not allowed:
 3. override mandatory required fields;
 4. remove no-fee or complaint controls;
 5. sign a contract with unresolved required variables;
-6. let AI generate replacement legal wording.
+6. generate replacement legal wording outside the approved master agreement.
 
 ## 6. International Baseline And Mandatory Rules
 
@@ -136,26 +164,7 @@ A generated contract instance can move to `ready_for_signature` only when:
 8. generated document hash is recorded;
 9. no fixed clause has been edited outside the approved version.
 
-## 8. AI Agent Boundary
-
-AI agents may assist by:
-
-1. extracting data from documents;
-2. suggesting field mappings;
-3. identifying missing variables;
-4. comparing selected terms with the approved catalog;
-5. detecting inconsistency between request, profile, vessel and contract fields;
-6. preparing a review summary.
-
-AI agents must not:
-
-1. invent legal clauses;
-2. change fixed wording;
-3. approve a new master agreement version;
-4. decide a legal conflict;
-5. mark the contract ready for signature without human and party confirmation.
-
-## 9. Formal Document Reference Rule
+## 8. Formal Document Reference Rule
 
 Operational pages should not repeat legal text.
 
@@ -171,9 +180,9 @@ or:
 Terms selected under: Master Agreement version {version}.
 ```
 
-This keeps public pages, forms, translations and AI outputs synchronized with the controlling document.
+This keeps public pages, forms, translations and generated documents synchronized with the controlling document.
 
-## 10. Implementation Consequences
+## 9. Implementation Consequences
 
 The future implementation should create:
 
@@ -182,13 +191,15 @@ The future implementation should create:
 3. variable catalog versioning;
 4. contract draft object;
 5. selected-term storage;
-6. generated document hash;
-7. party-review events;
-8. signature guard;
-9. controlled exception workflow;
-10. audit events for template and instance changes.
+6. contract-condition form object;
+7. party approval/signature events for the condition form;
+8. generation script that produces the contract from the approved template and signed form;
+9. generated document hash;
+10. signature guard;
+11. controlled exception workflow;
+12. audit events for template, condition-form and instance changes.
 
-## 11. Sources Used For Orientation
+## 10. Sources Used For Orientation
 
 Official orientation sources:
 
@@ -198,6 +209,13 @@ Official orientation sources:
 4. UK MCA MGN 479 (M), Amendment 1 - repatriation of seafarers - `https://www.gov.uk/government/publications/mgn-479-m-maritime-labour-convention-2006-repatriation-of-seafarers/mgn-479-m-amendment-1-maritime-labour-convention-2006-repatriation-of-seafarers`
 
 These sources are orientation only. The project standard controls how CrewPortGlobal manages its template versions and generated contract instances.
+
+## 11. Revision History
+
+| Version | Date | Author | Changes |
+|---|---|---|---|
+| 1.1 | 2026-06-03 | GTC IT / AI Assistant | Removed internal automation provisions and added the contract-condition form plus post-approval generation script procedure |
+| 1.0 | 2026-06-03 | GTC IT / AI Assistant | Initial public master contract versioning and clause-control standard |
 
 ## 12. Next Stage
 

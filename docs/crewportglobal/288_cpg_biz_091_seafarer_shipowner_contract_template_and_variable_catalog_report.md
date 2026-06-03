@@ -86,7 +86,7 @@ The fixed text protects consistency. The variable fields let the platform adapt 
 
 The platform should never generate a final contract silently from free text. Contract-critical terms must be structured.
 
-Approved fixed clauses are immutable for ordinary users, employees and AI agents. They may select approved variants and complete structured fields, but they must not rewrite legal clauses inside an operational workspace.
+Approved fixed clauses are immutable for ordinary users and employees. They may select approved variants and complete structured fields, but they must not rewrite legal clauses inside an operational workspace.
 
 ## 4. Proposed Contract Sections
 
@@ -417,15 +417,17 @@ The future platform workflow should be:
 2. Seafarer profile contains matching preferences and return/travel preferences.
 3. Matching and shortlist workflow identifies candidate.
 4. Employer proceeds with candidate.
-5. Agent opens contract draft form.
+5. Authorized employee opens the contract-condition form.
 6. Form imports verified data and highlights missing / to_be_agreed fields.
-7. Agent selects catalog values and resolves open terms with parties.
-8. Contract draft is generated.
-9. Parties review and confirm / sign.
-10. Signed contract creates employment_pending_embarkation status.
-11. Boarding confirmation creates onboard_active status.
-12. Monthly evidence supports billing.
-13. Disembarkation and return support close the active voyage.
+7. Authorized employee selects catalog values and resolves open terms with parties.
+8. Parties review and approve/sign the condition form.
+9. After required party approval/signature, the generation script creates the contract from the approved template, verified seafarer data, verified shipowner/employer data, verified vessel data and the signed condition form.
+10. The generated contract receives version metadata and document hash.
+11. Parties review generated output and confirm / sign where required by the workflow.
+12. Signed contract creates employment_pending_embarkation status.
+13. Boarding confirmation creates onboard_active status.
+14. Monthly evidence supports billing.
+15. Disembarkation and return support close the active voyage.
 ```
 
 ## 8. Blocking Rules Before Signature

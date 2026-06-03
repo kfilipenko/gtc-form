@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Business-process standard and implementation control
 - Source task: Project Owner approval after CPG-BIZ-040 multi-role upload diagnostics
-- Version: 2.5
+- Version: 2.6
 - Date: 2026-06-01
 - Status: Approved standard for staged implementation
 
@@ -128,7 +128,15 @@ The contract form must use a versioned master-agreement control:
 2. approved variable catalogs define the selectable commercial, voyage, wage, joining, return and termination terms;
 3. ordinary generated contract instances record `master_agreement_version`, `catalog_version`, selected terms, source records and party confirmations;
 4. new fixed wording, new legally material catalog values or exceptions require a new controlled review path;
-5. AI agents may extract or suggest values from documents, but may not create or rewrite legal clauses.
+5. contract generation must run from the approved template and signed condition form, not from free-text clause editing.
+
+The contract-condition form must be approved/signed by the required parties before the contract-generation script runs. The script must use:
+
+1. verified seafarer data;
+2. verified shipowner/employer data;
+3. verified vessel data;
+4. approved master agreement template;
+5. signed condition form.
 
 ### 2.3 Formal Document Reference Rule
 
@@ -535,5 +543,6 @@ That stage should verify that complete employer, vessel and crew-request data ca
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
-| 2.5 | 2026-06-03 | GTC IT / AI Assistant | Added versioned master-agreement control for future contract forms: immutable clauses, approved variable catalogs, instance version recording and AI boundary |
+| 2.6 | 2026-06-03 | GTC IT / AI Assistant | Replaced contract automation-boundary wording with condition-form approval and scripted contract generation procedure |
+| 2.5 | 2026-06-03 | GTC IT / AI Assistant | Added versioned master-agreement control for future contract forms: immutable clauses, approved variable catalogs and instance version recording |
 | 2.4 | 2026-06-01 | GTC IT / AI Assistant | Approved standard for staged implementation before contract-form clause-control extension |
