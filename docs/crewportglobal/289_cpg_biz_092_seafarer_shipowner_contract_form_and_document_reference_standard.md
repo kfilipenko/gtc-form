@@ -30,7 +30,13 @@ Open-source references used for orientation:
 3. UK MCA MGN 477 (M) Amendment 5 - seafarers' employment agreements.
 4. UK MCA MGN 478 (M) Amendment 1 - seafarers' wages.
 
-These references are orientation only. The final production contract must be reviewed by a qualified maritime lawyer for the vessel flag, applicable collective bargaining agreement, employer jurisdiction, seafarer context and licensing/regulatory model.
+These references are orientation only.
+
+The final production master contract template, its fixed clauses, approved variable catalogs and any material amendments must be reviewed by a qualified maritime lawyer for the vessel flag model, applicable collective bargaining agreement, employer jurisdiction, seafarer context and licensing/regulatory model.
+
+After a master contract version has been approved, ordinary contract instances generated only from locked clauses, approved catalogs, verified platform records and party confirmations should not require new legal drafting each time.
+
+Fresh legal/control review is required when a fixed clause is changed, a new legally material catalog value is introduced, a vessel flag / CBA / mandatory law requirement is not supported by the approved template, a party requests a non-standard term, or a dispute / exception is recorded.
 
 ## 3. Formal Document Reference Standard
 
@@ -70,6 +76,14 @@ Any new page or form dealing with legal, contract, consent, no-fee, complaint, p
 4. use short labels and links to the formal document;
 5. update references when clause numbers change;
 6. require human review before machine translation publication.
+
+Contract wording must additionally follow the master-agreement control:
+
+1. fixed clauses are stored as approved versioned text;
+2. UI forms may select variables and catalog values only;
+3. operational users and AI agents must not rewrite fixed clauses;
+4. generated instances must record the master agreement version and catalog version;
+5. clause changes require a new approved version.
 
 ### 3.4 Examples
 

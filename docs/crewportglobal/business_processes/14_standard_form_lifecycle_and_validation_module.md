@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Business-process standard and implementation control
 - Source task: Project Owner approval after CPG-BIZ-040 multi-role upload diagnostics
-- Version: 2.4
+- Version: 2.5
 - Date: 2026-06-01
 - Status: Approved standard for staged implementation
 
@@ -121,6 +121,14 @@ blocked_control_record
 ```
 
 The form may generate a document only from stored structured values and approved catalog selections. Free-text contract clauses require human review and must not bypass the completeness gate.
+
+The contract form must use a versioned master-agreement control:
+
+1. fixed contract clauses are immutable in the operational UI;
+2. approved variable catalogs define the selectable commercial, voyage, wage, joining, return and termination terms;
+3. ordinary generated contract instances record `master_agreement_version`, `catalog_version`, selected terms, source records and party confirmations;
+4. new fixed wording, new legally material catalog values or exceptions require a new controlled review path;
+5. AI agents may extract or suggest values from documents, but may not create or rewrite legal clauses.
 
 ### 2.3 Formal Document Reference Rule
 
@@ -522,3 +530,10 @@ CPG-BIZ-048 - Employer and vessel submit-review readiness and owner correction h
 ```
 
 That stage should verify that complete employer, vessel and crew-request data can move through submit-review, correction handoff and task recomputation without losing the standard lifecycle boundaries.
+
+## 16. Revision History
+
+| Version | Date | Author | Changes |
+|---|---|---|---|
+| 2.5 | 2026-06-03 | GTC IT / AI Assistant | Added versioned master-agreement control for future contract forms: immutable clauses, approved variable catalogs, instance version recording and AI boundary |
+| 2.4 | 2026-06-01 | GTC IT / AI Assistant | Approved standard for staged implementation before contract-form clause-control extension |

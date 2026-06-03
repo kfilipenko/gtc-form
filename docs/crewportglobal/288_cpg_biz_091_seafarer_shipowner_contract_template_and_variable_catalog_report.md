@@ -35,7 +35,19 @@ Open-source international references reviewed for orientation:
 3. UK MCA MGN 478 (M) - seafarers' wages guidance connected to SEA wage provisions.
 4. ITF seafarer agreement materials - practical CBA/SEA structure, contract copies and CBA linkage.
 
-This project document is not legal advice and must not be used as a final production contract without review by a qualified maritime lawyer considering:
+This project document is not legal advice.
+
+The controlled production model is:
+
+```text
+legally reviewed master agreement version
++ approved variable catalogs
++ selected structured terms
++ party confirmations
+= generated contract instance
+```
+
+The master agreement text, its fixed clauses and any material amendments must be reviewed before publication or production use by a qualified maritime lawyer considering:
 
 1. vessel flag state;
 2. shipowner / employer jurisdiction;
@@ -44,6 +56,16 @@ This project document is not legal advice and must not be used as a final produc
 5. MLC implementation in relevant jurisdictions;
 6. port-state, immigration, visa, insurance and tax requirements;
 7. licensed manning / recruitment requirements where applicable.
+
+After a master agreement version and its catalogs are approved, ordinary contract instances generated only from locked clauses and approved catalog values should not require new legal drafting each time.
+
+Fresh legal/control review is required when:
+
+1. fixed contract wording is changed;
+2. a new legally material catalog value is added;
+3. the vessel flag, CBA or applicable mandatory law requires a clause variation not already supported by the approved template;
+4. a party requests a non-standard term;
+5. an exception or dispute is recorded.
 
 ## 3. Core Contract Design Principle
 
@@ -63,6 +85,8 @@ The fixed text protects consistency. The variable fields let the platform adapt 
 10. service evidence and billing basis.
 
 The platform should never generate a final contract silently from free text. Contract-critical terms must be structured.
+
+Approved fixed clauses are immutable for ordinary users, employees and AI agents. They may select approved variants and complete structured fields, but they must not rewrite legal clauses inside an operational workspace.
 
 ## 4. Proposed Contract Sections
 

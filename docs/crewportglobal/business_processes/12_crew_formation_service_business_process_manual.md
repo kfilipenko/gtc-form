@@ -524,6 +524,12 @@ verified employer + verified vessel + structured vacancy/request + selected seaf
 
 This gives both parties a transparent view of what work, voyage, travel and return conditions are being accepted.
 
+The contract must be based on an approved public master agreement. The master agreement contains fixed immutable clauses and approved variable fields. Employees and AI agents may select approved catalog values, fill verified party/vessel/seafarer data and prepare a contract instance, but they must not rewrite legal clauses for each case.
+
+Legal review is required for the master agreement version, fixed clause amendments and legally material catalog changes. It is not required as a new drafting exercise for every ordinary contract instance generated from approved clauses and selected variables, unless a vessel flag, CBA, mandatory law requirement, party exception or dispute is outside the approved template.
+
+The platform baseline should follow internationally recognized maritime labor standards, including MLC-aligned seafarer employment agreement controls. This does not permit the platform to ignore mandatory flag-state law, applicable CBA requirements or other mandatory protections where they apply. If mandatory rules require a different or additional clause, the template must support it through an approved version or controlled exception.
+
 The contract-generation stage should have its own statuses:
 
 ```text
@@ -539,7 +545,7 @@ cancelled
 disputed
 ```
 
-The agent may prepare the draft contract by selecting approved catalog values. The agent must not finalize a contract or resolve material terms without party confirmation and required human authority.
+The agent may prepare the draft contract by selecting approved catalog values. The agent must not finalize a contract, resolve material terms without party confirmation, change fixed clauses or bypass required human authority.
 
 The computed seafarer lifecycle must distinguish:
 
