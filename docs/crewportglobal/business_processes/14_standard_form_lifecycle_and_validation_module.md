@@ -108,6 +108,20 @@ If a field affects contract formation or later billing/service evidence, it shou
 5. voyage support tasks;
 6. billing and audit evidence.
 
+The future contract draft form must use the same standard lifecycle model:
+
+```text
+draft_editable
+draft_incomplete
+ready_to_submit / ready_for_party_review
+pending_human_review
+needs_correction
+reviewed_ready / ready_for_signature
+blocked_control_record
+```
+
+The form may generate a document only from stored structured values and approved catalog selections. Free-text contract clauses require human review and must not bypass the completeness gate.
+
 ## 3. Covered Information Streams
 
 | Stream | Object | Prefix | Main owner | Main team group | Final readiness decision |

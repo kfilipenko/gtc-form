@@ -524,6 +524,23 @@ verified employer + verified vessel + structured vacancy/request + selected seaf
 
 This gives both parties a transparent view of what work, voyage, travel and return conditions are being accepted.
 
+The contract-generation stage should have its own statuses:
+
+```text
+draft_from_platform_data
+party_review
+terms_to_be_agreed
+ready_for_signature
+signed_pending_embarkation
+active_onboard
+completed
+terminated_early
+cancelled
+disputed
+```
+
+The agent may prepare the draft contract by selecting approved catalog values. The agent must not finalize a contract or resolve material terms without party confirmation and required human authority.
+
 The computed seafarer lifecycle must distinguish:
 
 ```text

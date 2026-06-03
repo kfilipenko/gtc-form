@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.74
+- Version: 2.75
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -374,6 +374,7 @@ docs/crewportglobal/
   285_cpg_biz_088_seafarer_workflow_pages_business_process_alignment_report.md
   286_cpg_biz_089_seafarer_voyage_return_support_process_report.md
   287_cpg_biz_090_pre_contract_terms_and_portal_contract_workflow_report.md
+  288_cpg_biz_091_seafarer_shipowner_contract_template_and_variable_catalog_report.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -912,6 +913,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.75 | 2026-06-03 | GTC IT / AI Assistant | Added document 288 as CPG-BIZ-091 seafarer/shipowner contract template and variable catalog design for future portal contract generation |
 | 2.74 | 2026-06-03 | GTC IT / AI Assistant | Added document 287 as CPG-BIZ-090 report for pre-contract joining, return, replacement and portal contract workflow terms |
 | 2.73 | 2026-06-03 | GTC IT / AI Assistant | Added document 286 as CPG-BIZ-089 report for seafarer voyage, disembarkation, return support and next-availability process amendment |
 | 2.72 | 2026-06-03 | GTC IT / AI Assistant | Added document 285 as CPG-BIZ-088 final seafarer workflow page and business-process alignment report after CPG-BIZ-087 |

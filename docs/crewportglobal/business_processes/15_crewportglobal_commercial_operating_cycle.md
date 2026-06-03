@@ -363,6 +363,20 @@ items to be agreed
 
 This makes the vacancy transparent without exposing restricted personal or commercial details.
 
+The future contract process must be treated as its own controlled stage:
+
+```text
+pre-contract terms
+-> draft generated from platform data
+-> party review
+-> unresolved terms resolved
+-> ready for signature
+-> signed pending embarkation
+-> onboard active
+```
+
+Contract generation may be assisted by an agent, but the agent must select values from approved catalogs or clearly mark unresolved fields. The agent must not invent wage, travel, return or CBA terms outside party-confirmed data.
+
 The seafarer-facing profile should therefore support two lifecycle states in addition to ordinary availability:
 
 ```text
