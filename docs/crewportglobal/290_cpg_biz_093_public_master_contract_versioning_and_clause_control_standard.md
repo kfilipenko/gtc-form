@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Business-process / contract-generation standard
 - Source task: Project Owner clarification after CPG-BIZ-092
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-06-03
 - Status: Drafted for Project Owner review
 
@@ -214,15 +214,18 @@ These sources are orientation only. The project standard controls how CrewPortGl
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.2 | 2026-06-03 | GTC IT / AI Assistant | Updated next stage after completion of CPG-BIZ-094 clause library and catalog seed |
 | 1.1 | 2026-06-03 | GTC IT / AI Assistant | Removed internal automation provisions and added the contract-condition form plus post-approval generation script procedure |
 | 1.0 | 2026-06-03 | GTC IT / AI Assistant | Initial public master contract versioning and clause-control standard |
 
 ## 12. Next Stage
 
+CPG-BIZ-094 has now defined the first clause library and catalog seed.
+
 The next recommended stage is:
 
 ```text
-CPG-BIZ-094 - Master contract clause library and catalog seeding design
+CPG-BIZ-095 - Contract-condition form object and API design
 ```
 
-That stage should convert the CPG-BIZ-091/092 contract sections into versioned clause IDs and approved selectable catalog values.
+That stage should define the form object, API payload, validation errors, party approval states, generated document preview and guard response before any runtime implementation.

@@ -85,8 +85,8 @@ If a stage has no controlling standard, it must be marked as a gap and described
 | Candidate presentation review | CC-12 / CF-11 | Candidate presentation staging | Review team / Group 5 | CPG-DEMAND-016/023, BP-012 | Covered in current guard model | Need user-facing employer presentation package standard. |
 | Employer-facing presentation | CC-12 / CF-12 | Employer-safe candidate summary | Review team, Group 1 | CPG-DEMAND-023, BP-006, BP-012 | Partial | Standard for employer view content, field allow-list, presentation evidence and expiry. |
 | Employer feedback / candidate decision | CC-13 / CF-13 | Candidate decision / employer feedback | Group 1, review team | BP-012, earlier employer follow-up reports | Partial | Standard for employer decision states: proceed, reject, hold, interview, request replacement. |
-| Contract condition form | CC-14 / CF-14 | Contract-condition form | Group 1, Group 4, Group 5 | CPG-BIZ-091/092/093, BP-014 | Defined, not implemented | CPG-BIZ-094 clause library and catalog seeding design; later contract-condition form implementation standard. |
-| Scripted contract generation | CC-14 / CF-14 | Generated contract instance | System script, responsible employee, control role | CPG-BIZ-093, BP-014 | Defined, not implemented | Standard for template storage, generation script, hash, version metadata and document preview. |
+| Contract condition form | CC-14 / CF-14 | Contract-condition form | Group 1, Group 4, Group 5 | CPG-BIZ-091/092/093/094, BP-014 | Clause library and catalogs defined; form object not implemented | CPG-BIZ-095 contract-condition form object and API design. |
+| Scripted contract generation | CC-14 / CF-14 | Generated contract instance | System script, responsible employee, control role | CPG-BIZ-093/094, BP-014 | Defined, not implemented | Standard for template storage, generation script, hash, version metadata and document preview in CPG-BIZ-095 or later runtime design. |
 | Embarkation confirmation | CC-14 / CF-14 | Employment/voyage support record | Group 4 support, Group 1, employer | BP-012, BP-015 | Gap/partial | Standard for boarding evidence, onboard status, success-fee trigger and failed-joining blocker. |
 | Active voyage monthly evidence | CC-15 / CF-15 | Monthly service evidence | Group 4 support, Group 3 billing | BP-012, BP-015 | Gap | Standard for monthly work confirmation, illness/early-disembarkation signal, replacement and invoice basis. |
 | Disembarkation and return support | CC-16 / CF-16 | Return / repatriation support record | Group 4 support, responsible manager | BP-012, BP-015, CPG-BIZ-089/090 | Partial | Standard for return responsibility, route, destination, payer, support completion and next availability task. |
@@ -103,7 +103,7 @@ The following standards should be created or expanded before final job descripti
 | Priority | Proposed standard | Reason |
 |---|---|---|
 | P1 | Employer service package and entitlement standard | Without this, subscription/package, discounts, service access and commercial start are not fully controlled. |
-| P1 | Contract clause library and condition-form catalog standard | Required before implementing the contract-condition form and scripted contract generation. |
+| P1 | Contract-condition form object and API standard | Clause library and variable catalogs are now defined by CPG-BIZ-094; the next gap is the form object, API, party approval states and generation guard. |
 | P1 | Embarkation and onboard-status evidence standard | Required to prove success fee, onboard status and service delivery. |
 | P1 | Monthly service evidence and billing-basis standard | Required for recurring monthly service fee and partial-month/illness/replacement cases. |
 | P1 | Disembarkation, return support and next-availability standard | Required to complete the full service cycle and retain seafarers. |
@@ -141,10 +141,12 @@ The job instruction must define:
 
 ## 7. Immediate Next Work
 
+CPG-BIZ-094 has defined the master contract clause library and catalog seed.
+
 The recommended next stage is:
 
 ```text
-CPG-BIZ-094 - Master contract clause library and catalog seeding design
+CPG-BIZ-095 - Contract-condition form object and API design
 ```
 
 After that, the process should move to:

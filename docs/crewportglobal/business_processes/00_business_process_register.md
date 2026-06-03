@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.22
+- Version: 3.23
 - Status: For internal review
 
 ## 1. Purpose
@@ -139,6 +139,7 @@ This documentation block starts from the following approved business controls:
 59. CrewPortGlobal must be operated as a circular commercial service cycle: marketing, registration, verification, service package, demand/supply matching, shortlist, employer decision, embarkation evidence, monthly service confirmation, billing, closure and repeat marketing must be connected by records, computed tasks, evidence and audit events.
 60. Seafarer / shipowner contracts must use a versioned public master agreement model: fixed clauses are approved once per template version, operational users may select only approved variables, and ordinary generated contract instances do not require new legal drafting unless a clause/version/catalog exception is triggered.
 61. Contract instances must be generated through a controlled condition-form workflow: the parties approve/sign the condition form first, then the system script generates the contract from the approved template, verified seafarer/employer/vessel records and the signed form.
+62. The master contract must be decomposed into versioned clause IDs and approved variable catalogs before runtime generation; each variable must state whether it is single-choice, multiple-choice, linked-record, computed, date, number, money, controlled text, document reference or signature.
 
 ## 5. Intended Use
 
@@ -158,6 +159,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.23 | 2026-06-03 | GTC IT / AI Assistant | Added CPG-BIZ-094 master contract clause library and catalog seeding control for future condition-form and scripted generation implementation |
 | 3.22 | 2026-06-03 | GTC IT / AI Assistant | Added BP-016 stage-to-standard mapping matrix for aligning business-process stages, standards, gaps and future job instructions |
 | 3.21 | 2026-06-03 | GTC IT / AI Assistant | Removed internal automation-facing language from contract standard and added the condition-form approval plus scripted generation procedure |
 | 3.20 | 2026-06-03 | GTC IT / AI Assistant | Added public master contract versioning and immutable clause control standard so legal review applies to template/catalog versions and exceptions, not every ordinary generated contract instance |
