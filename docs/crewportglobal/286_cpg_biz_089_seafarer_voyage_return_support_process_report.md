@@ -97,6 +97,17 @@ The contract or employment-support record should capture:
 11. monthly work-period evidence requirements;
 12. billing/service-fee basis reference.
 
+### 6.1 Pre-Contract Data Collection
+
+The same contract-critical conditions should be collected before contract generation:
+
+1. employer-side preliminary joining, travel, return, replacement and monthly-evidence terms in the crew request;
+2. seafarer-side joining, travel and return preferences in the seafarer profile;
+3. `to_be_agreed` as an allowed preparation value before final contract formation;
+4. explicit resolution or controlled exception before contract signing / final confirmation.
+
+Future portal-generated contracts should reuse already verified platform data instead of asking both parties to re-enter the same information.
+
 ## 7. Role Responsibilities
 
 | Role / group | Responsibility added |

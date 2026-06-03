@@ -307,6 +307,62 @@ The contract or employment-support document should capture:
 10. replacement / early termination terms;
 11. payroll or service-period evidence requirements where applicable.
 
+### 13.1 Pre-Contract Terms Before Candidate Acceptance
+
+Contract-critical conditions should be collected before the final employment/support contract is generated.
+
+The employer / shipowner crew request should include structured preliminary terms:
+
+1. joining place;
+2. joining travel responsibility;
+3. joining travel payer;
+4. expected contract duration;
+5. expected contract completion / disembarkation conditions;
+6. repatriation / return responsibility;
+7. return destination or acceptable return-point rule;
+8. replacement / early termination rule;
+9. monthly service or work-period evidence expected from the employer;
+10. unresolved items marked as `to_be_agreed`.
+
+The seafarer profile should include matching and negotiation preferences:
+
+1. preferred joining location or travel limitation;
+2. return destination;
+3. preferred return responsibility model;
+4. willingness to accept employer-arranged travel;
+5. willingness to accept self-arranged travel where reimbursed or separately agreed;
+6. unresolved preferences marked as `to_be_agreed`.
+
+The value `to_be_agreed` is allowed during profile and request preparation. It means the condition is known to be important but has not yet been finally agreed.
+
+Before contract generation or final contract confirmation, `to_be_agreed` fields must be either:
+
+1. resolved into explicit terms; or
+2. recorded as a controlled exception with human approval and clear responsibility.
+
+The future platform contract workflow should use already collected structured data:
+
+```text
+verified employer
++ verified vessel
++ structured crew request
++ selected seafarer profile
++ agreed joining / return / replacement / billing terms
+= draft contract / employment-support agreement on the portal
+```
+
+The public or authenticated vacancy preview may show safe preliminary terms, for example:
+
+```text
+joining place
+expected contract duration
+travel responsibility
+return responsibility
+items to be agreed
+```
+
+This makes the vacancy transparent without exposing restricted personal or commercial details.
+
 The seafarer-facing profile should therefore support two lifecycle states in addition to ordinary availability:
 
 ```text

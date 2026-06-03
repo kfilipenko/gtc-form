@@ -76,6 +76,38 @@ For this reason, form lifecycle work must preserve these rules:
 5. if only one side has a required matching field, the missing opposite-side field or requiredness gap must be documented before the field is used for automated matching;
 6. evidence and compliance fields may remain outside matching, but their non-matching purpose must be clear.
 
+### 2.2 Pre-Contract Terms For Matching And Contract Drafting
+
+Forms that participate in crew formation must also collect contract-critical conditions early enough for transparent matching and later contract drafting.
+
+Employer / vacancy forms should support structured fields for:
+
+1. joining place;
+2. joining travel responsibility;
+3. expected contract duration;
+4. disembarkation / repatriation responsibility;
+5. return destination rule;
+6. replacement / early termination rule;
+7. monthly service evidence expectation;
+8. `to_be_agreed` where the condition is intentionally not finalized yet.
+
+Seafarer profile forms should support structured fields for:
+
+1. preferred joining / travel conditions;
+2. return destination;
+3. preferred return arrangement;
+4. self-arranged or employer-arranged travel preference;
+5. `to_be_agreed` where the preference can be negotiated later.
+
+If a field affects contract formation or later billing/service evidence, it should not be collected only as free text. It should be structured enough for:
+
+1. matching;
+2. vacancy transparency;
+3. candidate acceptance review;
+4. contract draft generation;
+5. voyage support tasks;
+6. billing and audit evidence.
+
 ## 3. Covered Information Streams
 
 | Stream | Object | Prefix | Main owner | Main team group | Final readiness decision |

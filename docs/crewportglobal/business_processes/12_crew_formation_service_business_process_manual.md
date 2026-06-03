@@ -493,6 +493,37 @@ When the employer proceeds with a candidate, the process must create or expect a
 11. evidence required for monthly work-period confirmation;
 12. replacement or early termination rule.
 
+These conditions should not first appear after the employer accepts a candidate. The process should collect preliminary contract terms during demand and supply preparation.
+
+Employer / crew-request forms should collect:
+
+1. joining place and joining travel responsibility;
+2. expected contract duration;
+3. disembarkation / repatriation responsibility;
+4. return destination rule or acceptable return point;
+5. replacement / early termination rule;
+6. monthly service evidence requirement;
+7. fields that are still `to_be_agreed`.
+
+Seafarer profile forms should collect:
+
+1. preferred joining / travel conditions where relevant;
+2. return destination;
+3. preferred return arrangement;
+4. whether self-arranged travel is acceptable;
+5. whether employer-arranged travel is required or preferred;
+6. fields that are still `to_be_agreed`.
+
+The `to_be_agreed` value is allowed before contract formation. It is not a final contract condition. Before a portal-generated contract or final contract confirmation, these fields must be resolved or explicitly approved as a controlled exception.
+
+The future contract workflow should be generated from structured platform data:
+
+```text
+verified employer + verified vessel + structured vacancy/request + selected seafarer + agreed terms = contract draft
+```
+
+This gives both parties a transparent view of what work, voyage, travel and return conditions are being accepted.
+
 The computed seafarer lifecycle must distinguish:
 
 ```text
