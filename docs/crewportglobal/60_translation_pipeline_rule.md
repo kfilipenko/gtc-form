@@ -160,7 +160,64 @@ The system must not automatically translate completed forms, uploaded document c
 
 This rule exists because international maritime crew work, document review, employer presentation, vessel operations and automated request-offer matching require a single comparable language basis.
 
-## 2.2 Machine localization provider rule
+## 2.2 Full-page and form UI localization rule
+
+All website pages must be eligible for machine localization into every approved language available in the public language selector.
+
+This includes:
+
+- public marketing and service pages;
+- registration pages;
+- profile, employer, vessel and vacancy form pages;
+- cabinet pages;
+- team pages where localization is technically applicable;
+- shared navigation, header, footer, buttons, labels, placeholders, validation messages and status messages.
+
+Forms are translated as user interface. User-entered data is not translated automatically.
+
+The browser/runtime must translate:
+
+- form titles;
+- section headings;
+- field labels;
+- placeholders;
+- help text;
+- validation messages;
+- buttons;
+- system status messages.
+
+The browser/runtime must not translate or overwrite:
+
+- names;
+- addresses;
+- company names;
+- vessel names;
+- emails;
+- phone numbers;
+- user-entered free text;
+- uploaded document content;
+- operator notes;
+- stored profile, vessel, company or vacancy values.
+
+## 2.3 Changed-page translation refresh rule
+
+When visible English text changes on any page, the translation workflow must refresh the affected source keys and runtime bundle.
+
+The required workflow is:
+
+```text
+page text changed
+-> synchronize English source catalog
+-> invalidate stale cached translations through source hash comparison
+-> update Google machine translation cache for approved languages
+-> rebuild publish-ready catalogs
+-> rebuild runtime machine translation bundle
+-> validate language selector and page rendering
+```
+
+The user must not see raw i18n keys after a page change. Missing non-English values must fall back to English until the machine cache is updated.
+
+## 2.4 Machine localization provider rule
 
 Localized website UI is machine translation for convenience.
 
