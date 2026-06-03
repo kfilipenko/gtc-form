@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.78
+- Version: 2.79
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -397,6 +397,7 @@ docs/crewportglobal/
     13_crew_formation_operating_instructions_for_users_team_ai.md
     14_standard_form_lifecycle_and_validation_module.md
     15_crewportglobal_commercial_operating_cycle.md
+    16_business_process_stage_standard_mapping_matrix.md
   implemented_code_standards/
     00_implemented_code_standards_register.md
     01_standard_form_lifecycle.md
@@ -915,6 +916,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.79 | 2026-06-03 | GTC IT / AI Assistant | Added BP-016 business-process stage and standard mapping matrix to align stages, controlling standards, gaps and future job-instruction inputs |
 | 2.78 | 2026-06-03 | GTC IT / AI Assistant | Updated CPG-BIZ-093 contract standard to remove internal automation-facing provisions and define condition-form approval followed by scripted contract generation |
 | 2.77 | 2026-06-03 | GTC IT / AI Assistant | Added document 290 as CPG-BIZ-093 public master contract versioning and immutable clause control standard |
 | 2.76 | 2026-06-03 | GTC IT / AI Assistant | Added document 289 as CPG-BIZ-092 full seafarer/shipowner contract form specification and formal document reference standard |

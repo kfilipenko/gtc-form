@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.21
+- Version: 3.22
 - Status: For internal review
 
 ## 1. Purpose
@@ -50,6 +50,7 @@ docs/crewportglobal/business_processes/
 	  13_crew_formation_operating_instructions_for_users_team_ai.md
 	  14_standard_form_lifecycle_and_validation_module.md
 	  15_crewportglobal_commercial_operating_cycle.md
+	  16_business_process_stage_standard_mapping_matrix.md
 ```
 
 ## 3. Active Business-Process Documents
@@ -71,6 +72,7 @@ docs/crewportglobal/business_processes/
 | BP-013 | `13_crew_formation_operating_instructions_for_users_team_ai.md` | CPG-BIZ-012 / Document 199 | Drafted for owner review | Practical operating instructions for seafarers, employer users, team groups, reviewers, managers, billing, Project Owner and AI agents, including computed task display rules and authority boundaries |
 | BP-014 | `14_standard_form_lifecycle_and_validation_module.md` | CPG-BIZ-041 / Document 230 | Approved standard for staged implementation | Standard form lifecycle and validation module covering role-aware draft context, save, autosave, completeness, protected upload, submit-review gate, numbered missing items and computed task integration |
 | BP-015 | `15_crewportglobal_commercial_operating_cycle.md` | CPG-BIZ-052 / Document 246 | Drafted for owner review | Full circular commercial operating cycle from marketing and registration to service packages, request processing, embarkation, monthly service evidence, billing, retention and repeat marketing |
+| BP-016 | `16_business_process_stage_standard_mapping_matrix.md` | Project Owner instruction after CPG-BIZ-093 | Drafted for owner review | Stage-to-standard mapping matrix connecting commercial and operational process stages with controlling standards, coverage status, gaps and future job-instruction inputs |
 
 ## 4. Core Controls Introduced By This Block
 
@@ -156,6 +158,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.22 | 2026-06-03 | GTC IT / AI Assistant | Added BP-016 stage-to-standard mapping matrix for aligning business-process stages, standards, gaps and future job instructions |
 | 3.21 | 2026-06-03 | GTC IT / AI Assistant | Removed internal automation-facing language from contract standard and added the condition-form approval plus scripted generation procedure |
 | 3.20 | 2026-06-03 | GTC IT / AI Assistant | Added public master contract versioning and immutable clause control standard so legal review applies to template/catalog versions and exceptions, not every ordinary generated contract instance |
 | 3.19 | 2026-06-03 | GTC IT / AI Assistant | Added formal document reference rule to BP-014 so regulated UI conditions must link to the controlling document and clause instead of duplicating legal text |
