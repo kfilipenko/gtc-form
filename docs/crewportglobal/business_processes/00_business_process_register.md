@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.18
+- Version: 3.19
 - Status: For internal review
 
 ## 1. Purpose
@@ -154,6 +154,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.19 | 2026-06-03 | GTC IT / AI Assistant | Added formal document reference rule to BP-014 so regulated UI conditions must link to the controlling document and clause instead of duplicating legal text |
 | 3.18 | 2026-06-03 | GTC IT / AI Assistant | Added contract-generation control to BP-012, BP-014 and BP-015, requiring future seafarer/shipowner contract drafts to use platform data, approved catalogs, party review and signature-ready guards |
 | 3.17 | 2026-06-03 | GTC IT / AI Assistant | Added pre-contract terms control to BP-012, BP-014, BP-015 and CPG-BIZ-089 report so joining, return, replacement and travel conditions are collected before contract formation and may use `to_be_agreed` only before final agreement |
 | 3.16 | 2026-06-03 | GTC IT / AI Assistant | Added voyage, disembarkation, return-support and next-availability controls to BP-012, BP-013 and BP-015 so crew formation covers the full seafarer service cycle after boarding |

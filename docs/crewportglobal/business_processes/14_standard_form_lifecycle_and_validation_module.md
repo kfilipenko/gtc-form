@@ -122,6 +122,18 @@ blocked_control_record
 
 The form may generate a document only from stored structured values and approved catalog selections. Free-text contract clauses require human review and must not bypass the completeness gate.
 
+### 2.3 Formal Document Reference Rule
+
+When a page, form or generated document refers to a condition governed by a formal document, it must link to the controlling document and section instead of rewriting the condition in multiple places.
+
+Required UI pattern:
+
+```text
+Regulated by: {formal document name}, {section / clause}.
+```
+
+This rule applies to contract, consent, no-fee, complaint, privacy, billing, employment, wage, travel, repatriation and data-sharing conditions.
+
 ## 3. Covered Information Streams
 
 | Stream | Object | Prefix | Main owner | Main team group | Final readiness decision |
