@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Contract-template design and variable-field matrix
 - Source task: Project Owner approval after CPG-BIZ-090
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-06-04
 - Status: Drafted for Project Owner and legal review
 
@@ -470,18 +470,16 @@ The contract must not be marked `ready_for_signature` while these fields are unr
 Recommended next task:
 
 ```text
-CPG-BIZ-096 - Contract workspace object, API and UI design
+CPG-BIZ-097 - Contract workspace schema and SQL patch draft
 ```
 
 Scope:
 
 1. reuse the clause IDs and field codes already defined in CPG-BIZ-094;
-2. render those fields as embedded controls inside the Contract Agreement Workspace;
-3. define workspace API payloads;
-4. define signature / confirmation states;
-5. define guard rules before `ready_for_signature`;
-6. define employer and seafarer cabinet tasks;
-7. define audit events and billing links.
+2. design additive storage for workspace instances, embedded fields, approvals and generated instances;
+3. show SQL patch draft before any DDL/DML execution;
+4. define migration-safe naming and foreign-key boundaries;
+5. keep runtime implementation as a later approved stage.
 
 ## 10. Stage Status
 

@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.81
+- Version: 2.82
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -379,6 +379,7 @@ docs/crewportglobal/
   290_cpg_biz_093_public_master_contract_versioning_and_clause_control_standard.md
   291_cpg_biz_094_master_contract_clause_library_and_catalog_seeding_design.md
   292_cpg_biz_095_contract_agreement_workspace_embedded_fields_standard.md
+  293_cpg_biz_096_contract_workspace_object_api_ui_design.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -918,6 +919,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.82 | 2026-06-04 | GTC IT / AI Assistant | Added document 293 as CPG-BIZ-096 contract workspace object, API and UI design |
 | 2.81 | 2026-06-04 | GTC IT / AI Assistant | Added document 292 as CPG-BIZ-095 Contract Agreement Workspace and embedded condition fields standard; aligned contract documents away from a separate user-facing condition-form model |
 | 2.80 | 2026-06-03 | GTC IT / AI Assistant | Added document 291 as CPG-BIZ-094 master contract clause library and variable catalog seeding design |
 | 2.79 | 2026-06-03 | GTC IT / AI Assistant | Added BP-016 business-process stage and standard mapping matrix to align stages, controlling standards, gaps and future job-instruction inputs |

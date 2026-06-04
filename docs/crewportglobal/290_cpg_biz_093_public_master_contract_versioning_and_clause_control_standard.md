@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Business-process / contract-generation standard
 - Source task: Project Owner clarification after CPG-BIZ-092
-- Version: 1.3
+- Version: 1.4
 - Date: 2026-06-04
 - Status: Drafted for Project Owner review
 
@@ -217,6 +217,7 @@ These sources are orientation only. The project standard controls how CrewPortGl
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.4 | 2026-06-04 | GTC IT / AI Assistant | Updated next stage after CPG-BIZ-096 workspace object/API/UI design |
 | 1.3 | 2026-06-04 | GTC IT / AI Assistant | Replaced the user-facing separate condition-form model with the Contract Agreement Workspace and embedded condition fields model |
 | 1.2 | 2026-06-03 | GTC IT / AI Assistant | Updated next stage after completion of CPG-BIZ-094 clause library and catalog seed |
 | 1.1 | 2026-06-03 | GTC IT / AI Assistant | Removed internal automation provisions and added an interim condition-form procedure later superseded by the CPG-BIZ-095 workspace model |
@@ -226,11 +227,12 @@ These sources are orientation only. The project standard controls how CrewPortGl
 
 CPG-BIZ-094 has now defined the first clause library and catalog seed.
 CPG-BIZ-095 has clarified that the user-facing contract model is the Contract Agreement Workspace with embedded condition fields.
+CPG-BIZ-096 has defined the future workspace object, API, UI, guard and audit model.
 
 The next recommended stage is:
 
 ```text
-CPG-BIZ-096 - Contract workspace object, API and UI design
+CPG-BIZ-097 - Contract workspace schema and SQL patch draft
 ```
 
-That stage should define the workspace object, API payload, embedded field rendering, validation errors, party approval states, generated document preview and guard response before any runtime implementation.
+That stage should show the additive SQL design first and must not execute DDL/DML without separate approval.

@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Master contract clause library and variable catalog design
 - Source task: Project Owner approval after CPG-BIZ-093
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-06-04
 - Status: Drafted for Project Owner review and maritime legal review
 
@@ -591,17 +591,20 @@ Future implementation should support these records:
 
 ## 10. Next Stage
 
+CPG-BIZ-096 has defined the future workspace object, API, UI, guard and audit model.
+
 The next implementation-planning stage should be:
 
 ```text
-CPG-BIZ-096 - Contract workspace object, API and UI design
+CPG-BIZ-097 - Contract workspace schema and SQL patch draft
 ```
 
-That stage should define the workspace object, endpoints, embedded field rendering, validation errors, party approval states, generated document preview and guard response before any runtime implementation.
+That stage should show the additive SQL design first and must not execute DDL/DML without separate approval.
 
 ## 11. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.2 | 2026-06-04 | GTC IT / AI Assistant | Updated next stage after CPG-BIZ-096 workspace object/API/UI design |
 | 1.1 | 2026-06-04 | GTC IT / AI Assistant | Aligned the clause library with CPG-BIZ-095 Contract Agreement Workspace and embedded condition fields model |
 | 1.0 | 2026-06-03 | GTC IT / AI Assistant | Initial master contract clause library and variable catalog seed |

@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Contract-workspace specification and documentation standard
 - Source task: Project Owner approval after CPG-BIZ-091
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-06-04
 - Status: Drafted for Project Owner and maritime legal review
 
@@ -357,17 +357,16 @@ The previous detached condition-form model is superseded by CPG-BIZ-095. New imp
 Recommended next task:
 
 ```text
-CPG-BIZ-096 - Contract workspace object, API and UI design
+CPG-BIZ-097 - Contract workspace schema and SQL patch draft
 ```
 
 Suggested scope:
 
 1. reuse reference catalog codes and `C-*` field definitions from CPG-BIZ-094;
-2. map embedded fields to the exact clauses in the Contract Agreement Workspace;
-3. design workspace storage and API payloads;
-4. design guard API for `ready_for_signature`;
-5. design generated document preview and formal document reference links;
-6. define Playwright tests for workspace generation and unresolved-term blockers.
+2. design additive tables for workspace storage and embedded field values;
+3. design party approval and preview-hash storage;
+4. design generated contract metadata storage;
+5. provide SQL patch draft without executing DDL/DML.
 
 ## 11. Stage Status
 

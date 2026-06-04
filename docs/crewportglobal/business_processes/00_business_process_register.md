@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.24
+- Version: 3.25
 - Status: For internal review
 
 ## 1. Purpose
@@ -141,6 +141,7 @@ This documentation block starts from the following approved business controls:
 61. Contract instances must be generated through a controlled Contract Agreement Workspace: the parties review and approve the populated agreement with embedded condition fields first, then the system script generates the contract from the approved template, verified seafarer/employer/vessel records and approved workspace values.
 62. The master contract must be decomposed into versioned clause IDs and approved variable catalogs before runtime generation; each variable must state whether it is single-choice, multiple-choice, linked-record, computed, date, number, money, controlled text, document reference or signature.
 63. The contract workflow must not use a separate user-facing contract questionnaire as the approval object; contract variables must be embedded inside the relevant master-agreement clauses so that parties approve selected terms in legal context.
+64. The Contract Agreement Workspace must be treated as a controlled runtime object with explicit workspace statuses, embedded field values, party approvals tied to preview hash, generation guard blockers and audit events before any final contract instance can be generated.
 
 ## 5. Intended Use
 
@@ -160,6 +161,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.25 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-096 contract workspace object/API/UI control for future workspace implementation planning |
 | 3.24 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-095 Contract Agreement Workspace control and replaced the separate condition-form model with embedded condition fields in contract context |
 | 3.23 | 2026-06-03 | GTC IT / AI Assistant | Added CPG-BIZ-094 master contract clause library and catalog seeding control; user-facing condition-form wording was later superseded by CPG-BIZ-095 workspace model |
 | 3.22 | 2026-06-03 | GTC IT / AI Assistant | Added BP-016 stage-to-standard mapping matrix for aligning business-process stages, standards, gaps and future job instructions |

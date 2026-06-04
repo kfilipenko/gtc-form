@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Business-process / contract workspace standard
 - Source task: Project Owner clarification after CPG-BIZ-094
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-06-04
 - Status: Approved operating model for future implementation planning
 
@@ -197,10 +197,19 @@ Preferred terms:
 
 ## 12. Next Stage
 
+CPG-BIZ-096 has now defined the future runtime workspace object, API, UI, guard and audit model.
+
 The next implementation-planning stage should be:
 
 ```text
-CPG-BIZ-096 - Contract workspace object, API and UI design
+CPG-BIZ-097 - Contract workspace schema and SQL patch draft
 ```
 
-That stage should define the runtime object, endpoint payloads, embedded field rendering, validation errors, party approval states, final preview, generation guard and audit events.
+That stage should show the additive SQL design first and must not execute DDL/DML without separate approval.
+
+## 13. Revision History
+
+| Version | Date | Author | Changes |
+|---|---|---|---|
+| 1.1 | 2026-06-04 | GTC IT / AI Assistant | Updated next stage after CPG-BIZ-096 contract workspace object/API/UI design |
+| 1.0 | 2026-06-04 | GTC IT / AI Assistant | Initial Contract Agreement Workspace and embedded condition fields standard |
