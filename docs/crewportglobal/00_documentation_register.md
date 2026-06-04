@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.86
+- Version: 2.87
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -384,6 +384,7 @@ docs/crewportglobal/
   295_cpg_biz_098a_contract_workspace_verified_source_prefill_report.md
   296_cpg_biz_098b_contract_workspace_sql_draft_source_field_reconciliation_report.md
   297_cpg_biz_098c_contract_workspace_sql_draft_shortlist_candidate_link_report.md
+  298_cpg_biz_098d_contract_workspace_runtime_migration_report.md
   sql_drafts/
     018_contract_workspace_schema_draft.sql
   seafarer_application_mapping/
@@ -925,6 +926,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.87 | 2026-06-04 | GTC IT / AI Assistant | Added document 298 as CPG-BIZ-098D contract workspace runtime migration report covering migration 018, test DB application, idempotency check, schema verification and API regression |
 | 2.86 | 2026-06-04 | GTC IT / AI Assistant | Added document 297 as CPG-BIZ-098C contract workspace SQL draft shortlist candidate link correction report and updated the documentation-only SQL draft |
 | 2.85 | 2026-06-04 | GTC IT / AI Assistant | Added document 296 as CPG-BIZ-098B contract workspace SQL draft source-field reconciliation report, identifying source fields already available from filled forms and the required shortlist_candidate_id correction before runtime migration approval |
 | 2.84 | 2026-06-04 | GTC IT / AI Assistant | Added document 295 as CPG-BIZ-098A contract workspace verified source prefill report and updated contract workspace standards to distinguish verified linked facts from selectable contract alternatives |
