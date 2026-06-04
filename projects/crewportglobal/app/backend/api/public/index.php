@@ -8773,6 +8773,7 @@ function read_presented_candidates_for_employer(string $companyId, ?string $vaca
             su.user_id AS seafarer_user_id,
             su.display_name,
             su.email AS seafarer_email,
+            sp.seafarer_profile_id,
             sp.primary_rank,
             sp.department,
             sp.availability_status,
@@ -8781,11 +8782,25 @@ function read_presented_candidates_for_employer(string $companyId, ?string $vaca
             sp.document_metadata,
             vr.vacancy_title,
             vr.rank AS vacancy_rank,
-            vr.department AS vacancy_department
+            vr.department AS vacancy_department,
+            sc.shortlist_candidate_id,
+            sc.shortlist_draft_id
          FROM crewportglobal.vacancy_applications va
          JOIN crewportglobal.vacancy_requests vr ON vr.vacancy_request_id = va.vacancy_request_id
          JOIN crewportglobal.users su ON su.user_id = va.seafarer_user_id
          LEFT JOIN crewportglobal.seafarer_profiles sp ON sp.user_id = su.user_id
+         LEFT JOIN LATERAL (
+           SELECT osc.shortlist_candidate_id,
+                  osd.shortlist_draft_id
+           FROM crewportglobal.operator_shortlist_candidates osc
+           JOIN crewportglobal.operator_shortlist_drafts osd
+             ON osd.shortlist_draft_id = osc.shortlist_draft_id
+           WHERE osd.vacancy_request_id = va.vacancy_request_id
+             AND osc.candidate_user_id = va.seafarer_user_id
+             AND osc.operator_decision = 'include'
+           ORDER BY osd.updated_at DESC, osc.updated_at DESC
+           LIMIT 1
+         ) sc ON TRUE
          WHERE vr.company_id = $1
            AND ($2::uuid IS NULL OR va.vacancy_request_id = $2::uuid)
            AND va.application_status = 'presented'
@@ -8807,6 +8822,7 @@ function read_presented_candidates_for_employer(string $companyId, ?string $vaca
             'employer_action_note' => $row['employer_action_note'],
             'employer_action_at' => $row['employer_action_at'],
             'seafarer_user_id' => $row['seafarer_user_id'],
+            'seafarer_profile_id' => $row['seafarer_profile_id'],
             'display_name' => $row['display_name'],
             'primary_rank' => $row['primary_rank'],
             'department' => $row['department'],
@@ -8818,10 +8834,167 @@ function read_presented_candidates_for_employer(string $companyId, ?string $vaca
             'vacancy_title' => $row['vacancy_title'],
             'vacancy_rank' => $row['vacancy_rank'],
             'vacancy_department' => $row['vacancy_department'],
+            'shortlist_candidate_id' => $row['shortlist_candidate_id'],
+            'shortlist_draft_id' => $row['shortlist_draft_id'],
+            'contract_operation' => cpg_contract_proposal_operation_for_presented_candidate($row),
         ];
     }
 
     return $items;
+}
+
+function cpg_contract_workspace_tables_ready(): bool {
+    $row = cpg_fetch_one_assoc(
+        "SELECT to_regclass('crewportglobal.contract_workspace_instances') AS workspaces_table,
+                to_regclass('crewportglobal.master_contract_templates') AS templates_table,
+                to_regclass('crewportglobal.contract_field_catalogs') AS catalogs_table",
+        []
+    );
+
+    return $row !== null
+        && is_string($row['workspaces_table'] ?? null)
+        && is_string($row['templates_table'] ?? null)
+        && is_string($row['catalogs_table'] ?? null);
+}
+
+function cpg_contract_proposal_blocker(string $code, string $message, array $details = []): array {
+    $blocker = [
+        'code' => $code,
+        'message' => $message,
+    ];
+    if ($details !== []) {
+        $blocker['details'] = $details;
+    }
+    return $blocker;
+}
+
+function cpg_contract_latest_approved_template(): ?array {
+    if (!cpg_contract_workspace_tables_ready()) {
+        return null;
+    }
+
+    return cpg_fetch_one_assoc(
+        "SELECT master_contract_template_id::text AS master_contract_template_id,
+                template_code,
+                template_version,
+                template_title,
+                template_hash
+         FROM crewportglobal.master_contract_templates
+         WHERE template_status = 'approved'
+           AND authoritative_language = 'en'
+         ORDER BY approved_at DESC NULLS LAST, updated_at DESC, created_at DESC
+         LIMIT 1",
+        []
+    );
+}
+
+function cpg_contract_latest_approved_catalog(): ?array {
+    if (!cpg_contract_workspace_tables_ready()) {
+        return null;
+    }
+
+    return cpg_fetch_one_assoc(
+        "SELECT contract_field_catalog_id::text AS contract_field_catalog_id,
+                catalog_code,
+                catalog_version,
+                catalog_title
+         FROM crewportglobal.contract_field_catalogs
+         WHERE catalog_status = 'approved'
+         ORDER BY approved_at DESC NULLS LAST, updated_at DESC, created_at DESC
+         LIMIT 1",
+        []
+    );
+}
+
+function cpg_contract_existing_active_workspace(string $vacancyRequestId, string $seafarerProfileId): ?array {
+    if (!cpg_contract_workspace_tables_ready()) {
+        return null;
+    }
+
+    return cpg_fetch_one_assoc(
+        "SELECT contract_workspace_id::text AS contract_workspace_id,
+                workspace_number,
+                workspace_status,
+                shortlist_candidate_id::text AS shortlist_candidate_id,
+                vacancy_application_id::text AS vacancy_application_id,
+                created_at::text AS created_at,
+                updated_at::text AS updated_at
+         FROM crewportglobal.contract_workspace_instances
+         WHERE vacancy_request_id = $1
+           AND seafarer_profile_id = $2
+           AND archived_at IS NULL
+           AND workspace_status NOT IN ('voided', 'superseded')
+         ORDER BY updated_at DESC, created_at DESC
+         LIMIT 1",
+        [$vacancyRequestId, $seafarerProfileId]
+    );
+}
+
+function cpg_contract_proposal_operation_for_presented_candidate(array $row): array {
+    $applicationStatus = is_string($row['application_status'] ?? null) ? (string) $row['application_status'] : '';
+    $employerStatus = is_string($row['employer_shortlist_status'] ?? null) && trim((string) $row['employer_shortlist_status']) !== ''
+        ? trim((string) $row['employer_shortlist_status'])
+        : 'presented';
+    $vacancyRequestId = is_string($row['vacancy_request_id'] ?? null) ? (string) $row['vacancy_request_id'] : '';
+    $seafarerProfileId = is_string($row['seafarer_profile_id'] ?? null) ? (string) $row['seafarer_profile_id'] : '';
+
+    $blockers = [];
+    if (!cpg_contract_workspace_tables_ready()) {
+        $blockers[] = cpg_contract_proposal_blocker('contract_workspace_store_missing', 'Contract workspace store is not available');
+    }
+    if ($applicationStatus !== 'presented') {
+        $blockers[] = cpg_contract_proposal_blocker('candidate_not_presented', 'Candidate must be presented to employer before contract proposal', [
+            'application_status' => $applicationStatus,
+        ]);
+    }
+    if ($employerStatus !== 'proceed_with_candidate') {
+        $blockers[] = cpg_contract_proposal_blocker('employer_decision_not_proceed', 'Employer must choose proceed with candidate before contract proposal', [
+            'employer_shortlist_status' => $employerStatus,
+        ]);
+    }
+
+    if ($seafarerProfileId === '') {
+        $blockers[] = cpg_contract_proposal_blocker('seafarer_profile_missing', 'Candidate must have a seafarer profile before contract proposal');
+    }
+
+    $existing = $vacancyRequestId !== '' && $seafarerProfileId !== ''
+        ? cpg_contract_existing_active_workspace($vacancyRequestId, $seafarerProfileId)
+        : null;
+    $template = cpg_contract_latest_approved_template();
+    $catalog = cpg_contract_latest_approved_catalog();
+    if ($template === null) {
+        $blockers[] = cpg_contract_proposal_blocker('approved_master_contract_template_missing', 'Approved master contract template is required before contract workspace creation');
+    }
+    if ($catalog === null) {
+        $blockers[] = cpg_contract_proposal_blocker('approved_contract_field_catalog_missing', 'Approved contract field catalog is required before contract workspace creation');
+    }
+
+    if ($existing !== null) {
+        return [
+            'operation_code' => 'propose_contract',
+            'visible' => true,
+            'enabled' => true,
+            'next_action' => 'open_existing_contract_workspace',
+            'blockers' => [],
+            'existing_contract_workspace_id' => $existing['contract_workspace_id'],
+            'existing_workspace_status' => $existing['workspace_status'],
+            'source_traceability_status' => is_string($row['shortlist_candidate_id'] ?? null)
+                ? 'shortlist_candidate_linked'
+                : 'degraded_legacy_without_shortlist_candidate',
+        ];
+    }
+
+    return [
+        'operation_code' => 'propose_contract',
+        'visible' => !in_array($employerStatus, ['not_suitable'], true),
+        'enabled' => $blockers === [],
+        'next_action' => 'create_contract_workspace',
+        'blockers' => $blockers,
+        'existing_contract_workspace_id' => null,
+        'source_traceability_status' => is_string($row['shortlist_candidate_id'] ?? null)
+            ? 'shortlist_candidate_linked'
+            : 'degraded_legacy_without_shortlist_candidate',
+    ];
 }
 
 function read_vacancy_applications_for_seafarer(string $userId): array {
@@ -12484,6 +12657,9 @@ function normalize_employer_shortlist_status(mixed $value): ?string {
         'contacted' => 'contacted',
         'request_interview' => 'interview_requested',
         'interview_requested' => 'interview_requested',
+        'proceed' => 'proceed_with_candidate',
+        'proceed_with_candidate' => 'proceed_with_candidate',
+        'propose_contract' => 'proceed_with_candidate',
         'not_suitable' => 'not_suitable',
         'reset' => 'presented',
         'presented' => 'presented',
@@ -12506,7 +12682,7 @@ function handle_patch_employer_vacancy_application_shortlist(string $application
 
     $shortlistStatus = normalize_employer_shortlist_status($body['shortlist_status'] ?? $body['action'] ?? $body['status'] ?? null);
     if ($shortlistStatus === null) {
-        api_error(400, 'invalid_shortlist_status', 'shortlist_status must be one of presented, contacted, interview_requested, not_suitable');
+        api_error(400, 'invalid_shortlist_status', 'shortlist_status must be one of presented, contacted, interview_requested, proceed_with_candidate, not_suitable');
     }
 
     $role = read_role_for_user($employerDraftId);
@@ -12596,6 +12772,265 @@ function handle_patch_employer_vacancy_application_shortlist(string $application
         api_tx_rollback();
         api_error(500, 'employer_shortlist_update_failed', $error->getMessage());
     }
+}
+
+function cpg_contract_workspace_number(): string {
+    $random = bin2hex(random_bytes(4));
+    return 'CW-' . gmdate('YmdHis') . '-' . substr($random, 0, 8);
+}
+
+function cpg_contract_proposal_context(string $applicationId, string $companyId): ?array {
+    return cpg_fetch_one_assoc(
+        "SELECT
+            va.vacancy_application_id::text AS vacancy_application_id,
+            va.vacancy_request_id::text AS vacancy_request_id,
+            va.seafarer_user_id::text AS candidate_user_id,
+            va.application_status,
+            va.employer_shortlist_status,
+            va.employer_action_note,
+            vr.company_id::text AS employer_company_id,
+            vr.vessel_id::text AS vessel_id,
+            vr.vacancy_title,
+            vr.rank,
+            vr.department,
+            vr.join_date::text AS join_date,
+            vr.contract_duration,
+            vr.contract_duration_value,
+            vr.contract_duration_unit,
+            vr.salary_min_usd,
+            vr.salary_max_usd,
+            vr.currency,
+            sp.seafarer_profile_id::text AS seafarer_profile_id,
+            sp.primary_rank,
+            sp.availability_status,
+            sp.availability_date::text AS availability_date,
+            sc.shortlist_candidate_id::text AS shortlist_candidate_id,
+            sc.shortlist_draft_id::text AS shortlist_draft_id
+         FROM crewportglobal.vacancy_applications va
+         JOIN crewportglobal.vacancy_requests vr ON vr.vacancy_request_id = va.vacancy_request_id
+         LEFT JOIN crewportglobal.seafarer_profiles sp ON sp.user_id = va.seafarer_user_id
+         LEFT JOIN LATERAL (
+           SELECT osc.shortlist_candidate_id,
+                  osd.shortlist_draft_id
+           FROM crewportglobal.operator_shortlist_candidates osc
+           JOIN crewportglobal.operator_shortlist_drafts osd
+             ON osd.shortlist_draft_id = osc.shortlist_draft_id
+           WHERE osd.vacancy_request_id = va.vacancy_request_id
+             AND osc.candidate_user_id = va.seafarer_user_id
+             AND osc.operator_decision = 'include'
+           ORDER BY osd.updated_at DESC, osc.updated_at DESC
+           LIMIT 1
+         ) sc ON TRUE
+         WHERE va.vacancy_application_id = $1
+           AND vr.company_id = $2
+         LIMIT 1",
+        [$applicationId, $companyId]
+    );
+}
+
+function cpg_contract_proposal_operation_for_context(array $context): array {
+    $row = [
+        'application_status' => $context['application_status'] ?? null,
+        'employer_shortlist_status' => $context['employer_shortlist_status'] ?? null,
+        'vacancy_request_id' => $context['vacancy_request_id'] ?? null,
+        'seafarer_profile_id' => $context['seafarer_profile_id'] ?? null,
+        'shortlist_candidate_id' => $context['shortlist_candidate_id'] ?? null,
+    ];
+
+    return cpg_contract_proposal_operation_for_presented_candidate($row);
+}
+
+function handle_post_employer_vacancy_application_contract_proposal(string $applicationId): void {
+    $uuid = api_normalize_uuid($applicationId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_vacancy_application_id', 'vacancy_application_id must be a valid UUID');
+    }
+
+    $body = api_decode_json_body();
+    $employerDraftId = api_normalize_uuid($body['employer_draft_id'] ?? $body['draft_id'] ?? null);
+    if ($employerDraftId === null) {
+        api_error(400, 'invalid_employer_draft_id', 'employer_draft_id must be a valid UUID');
+    }
+
+    $role = read_role_for_user($employerDraftId);
+    if ($role === null || $role === 'seafarer') {
+        api_error(404, 'employer_draft_not_found', 'Employer draft not found');
+    }
+
+    $company = read_primary_company_for_user($employerDraftId);
+    if ($company === null || !isset($company['company_id'])) {
+        api_error(404, 'employer_company_not_found', 'Employer company not found');
+    }
+    $companyId = (string) $company['company_id'];
+    $context = cpg_contract_proposal_context($uuid, $companyId);
+    if ($context === null) {
+        api_error(404, 'employer_application_not_found', 'Presented vacancy application not found for this employer');
+    }
+
+    $operation = cpg_contract_proposal_operation_for_context($context);
+    $existingId = is_string($operation['existing_contract_workspace_id'] ?? null)
+        ? (string) $operation['existing_contract_workspace_id']
+        : '';
+    if ($existingId !== '') {
+        write_audit_event('contract_workspace_proposal_reused', $employerDraftId, $companyId, is_string($context['vessel_id'] ?? null) ? (string) $context['vessel_id'] : null, [
+            'contract_workspace_id' => $existingId,
+            'vacancy_request_id' => $context['vacancy_request_id'] ?? null,
+            'vacancy_application_id' => $uuid,
+            'shortlist_candidate_id' => $context['shortlist_candidate_id'] ?? null,
+            'candidate_user_id' => $context['candidate_user_id'] ?? null,
+            'guard_status' => 'reused_existing_workspace',
+        ], 'contract_workspace_proposal');
+
+        api_json(200, [
+            'ok' => true,
+            'reused_existing_workspace' => true,
+            'contract_workspace_id' => $existingId,
+            'contract_operation' => $operation,
+        ]);
+    }
+
+    if (($operation['enabled'] ?? false) !== true) {
+        write_audit_event('contract_workspace_proposal_guard_blocked', $employerDraftId, $companyId, is_string($context['vessel_id'] ?? null) ? (string) $context['vessel_id'] : null, [
+            'vacancy_request_id' => $context['vacancy_request_id'] ?? null,
+            'vacancy_application_id' => $uuid,
+            'shortlist_candidate_id' => $context['shortlist_candidate_id'] ?? null,
+            'candidate_user_id' => $context['candidate_user_id'] ?? null,
+            'guard_status' => 'blocked',
+            'blocker_codes' => array_map(static fn(array $blocker): string => (string) ($blocker['code'] ?? ''), is_array($operation['blockers'] ?? null) ? $operation['blockers'] : []),
+            'contract_operation' => $operation,
+        ], 'contract_workspace_proposal');
+
+        api_json(409, [
+            'ok' => false,
+            'error' => 'contract_workspace_proposal_blocked',
+            'message' => 'Contract workspace proposal is blocked by guard conditions',
+            'contract_operation' => $operation,
+            'blockers' => is_array($operation['blockers'] ?? null) ? $operation['blockers'] : [],
+        ]);
+    }
+
+    $template = cpg_contract_latest_approved_template();
+    $catalog = cpg_contract_latest_approved_catalog();
+    if ($template === null || $catalog === null) {
+        api_error(409, 'contract_workspace_proposal_blocked', 'Approved contract template and catalog are required');
+    }
+
+    $sourceSnapshot = [
+        'source_traceability_status' => $operation['source_traceability_status'] ?? 'unknown',
+        'vacancy_application_id' => $uuid,
+        'vacancy_request_id' => $context['vacancy_request_id'] ?? null,
+        'shortlist_candidate_id' => $context['shortlist_candidate_id'] ?? null,
+        'shortlist_draft_id' => $context['shortlist_draft_id'] ?? null,
+        'candidate_user_id' => $context['candidate_user_id'] ?? null,
+        'seafarer_profile_id' => $context['seafarer_profile_id'] ?? null,
+        'employer_company_id' => $context['employer_company_id'] ?? null,
+        'vessel_id' => $context['vessel_id'] ?? null,
+        'employer_shortlist_status' => $context['employer_shortlist_status'] ?? null,
+        'crew_request_terms' => [
+            'vacancy_title' => $context['vacancy_title'] ?? null,
+            'rank' => $context['rank'] ?? null,
+            'department' => $context['department'] ?? null,
+            'join_date' => $context['join_date'] ?? null,
+            'contract_duration' => $context['contract_duration'] ?? null,
+            'contract_duration_value' => $context['contract_duration_value'] ?? null,
+            'contract_duration_unit' => $context['contract_duration_unit'] ?? null,
+            'salary_min_usd' => $context['salary_min_usd'] ?? null,
+            'salary_max_usd' => $context['salary_max_usd'] ?? null,
+            'currency' => $context['currency'] ?? null,
+        ],
+    ];
+    $sourceHash = hash('sha256', cpg_workspace_json($sourceSnapshot));
+
+    api_tx_begin();
+    try {
+        $insert = api_query(
+            "INSERT INTO crewportglobal.contract_workspace_instances (
+                workspace_number,
+                workspace_status,
+                master_contract_template_id,
+                contract_field_catalog_id,
+                seafarer_profile_id,
+                employer_company_id,
+                vessel_id,
+                vacancy_request_id,
+                shortlist_draft_id,
+                shortlist_candidate_id,
+                vacancy_application_id,
+                created_by_user_id,
+                assigned_group_code,
+                blocked_reason_snapshot,
+                source_snapshot_hash
+             ) VALUES (
+                $1,
+                'draft_from_platform_data',
+                $2,
+                $3,
+                $4,
+                $5,
+                $6,
+                $7,
+                $8,
+                $9,
+                $10,
+                $11,
+                'contract_team',
+                $12::jsonb,
+                $13
+             )
+             RETURNING contract_workspace_id::text AS contract_workspace_id,
+                       workspace_number,
+                       workspace_status,
+                       created_at::text AS created_at,
+                       updated_at::text AS updated_at",
+            [
+                cpg_contract_workspace_number(),
+                $template['master_contract_template_id'],
+                $catalog['contract_field_catalog_id'],
+                $context['seafarer_profile_id'],
+                $context['employer_company_id'],
+                $context['vessel_id'],
+                $context['vacancy_request_id'],
+                $context['shortlist_draft_id'] ?: null,
+                $context['shortlist_candidate_id'] ?: null,
+                $uuid,
+                $employerDraftId,
+                cpg_workspace_json([
+                    'source_traceability' => $sourceSnapshot,
+                    'created_from' => 'employer_contract_proposal',
+                ]),
+                $sourceHash,
+            ]
+        );
+        $workspace = pg_fetch_assoc($insert);
+        if (!is_array($workspace)) {
+            api_tx_rollback();
+            api_error(500, 'contract_workspace_create_failed', 'Unable to create contract workspace');
+        }
+
+        write_audit_event('contract_workspace_proposal_created', $employerDraftId, $companyId, is_string($context['vessel_id'] ?? null) ? (string) $context['vessel_id'] : null, [
+            'contract_workspace_id' => $workspace['contract_workspace_id'],
+            'workspace_number' => $workspace['workspace_number'],
+            'vacancy_request_id' => $context['vacancy_request_id'] ?? null,
+            'vacancy_application_id' => $uuid,
+            'shortlist_candidate_id' => $context['shortlist_candidate_id'] ?? null,
+            'candidate_user_id' => $context['candidate_user_id'] ?? null,
+            'guard_status' => 'created',
+            'source_traceability_status' => $operation['source_traceability_status'] ?? null,
+            'source_snapshot_hash' => $sourceHash,
+        ], 'contract_workspace_proposal');
+
+        api_tx_commit();
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'contract_workspace_create_failed', $error->getMessage());
+    }
+
+    api_json(201, [
+        'ok' => true,
+        'reused_existing_workspace' => false,
+        'contract_workspace' => $workspace,
+        'source_traceability_status' => $operation['source_traceability_status'] ?? null,
+    ]);
 }
 
 function normalize_seafarer_application_action(mixed $value): ?string {
@@ -14172,6 +14607,14 @@ if (preg_match('#^/employer/vacancy-applications/([^/]+)/shortlist$#', $path, $m
     }
     header('Allow: PATCH');
     api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
+}
+
+if (preg_match('#^/employer/vacancy-applications/([^/]+)/contract-proposal$#', $path, $matches) === 1) {
+    if ($method === 'POST') {
+        handle_post_employer_vacancy_application_contract_proposal($matches[1]);
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
 }
 
 if (preg_match('#^/operator/review-queue/([^/]+)/status$#', $path, $matches) === 1) {

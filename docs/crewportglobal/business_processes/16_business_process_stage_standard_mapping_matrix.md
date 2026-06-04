@@ -5,9 +5,9 @@
 - Documentation block: Business processes and operating model
 - Document type: Stage-to-standard control matrix
 - Source task: Project Owner instruction after CPG-BIZ-093 approval
-- Version: 1.6
-- Date: 2026-06-03
-- Status: Updated after CPG-BIZ-099 shipowner candidate review / contract proposal design
+- Version: 1.7
+- Date: 2026-06-04
+- Status: Updated after CPG-BIZ-100 shipowner candidate contract proposal implementation
 
 ## 1. Purpose
 
@@ -86,8 +86,8 @@ If a stage has no controlling standard, it must be marked as a gap and described
 | Internal shortlist approval | CC-11 / CF-10 | Internal shortlist approval record | Review team / control role | CPG-DEMAND-015, BP-012 | Covered | Future segregation-of-duties rule if creator and approver must differ. |
 | Candidate presentation review | CC-12 / CF-11 | Candidate presentation staging | Review team / Group 5 | CPG-DEMAND-016/023, BP-012 | Covered in current guard model | Need user-facing employer presentation package standard. |
 | Employer-facing presentation | CC-12 / CF-12 | Employer-safe candidate summary | Review team, Group 1 | CPG-DEMAND-023, BP-006, BP-012 | Partial | Standard for employer view content, field allow-list, presentation evidence and expiry. |
-| Employer feedback / candidate decision | CC-13 / CF-13 | Candidate decision / employer feedback | Group 1, review team | BP-012, earlier employer follow-up reports, CPG-BIZ-099 | Partial | Implement employer decision state `proceed_with_candidate` and the candidate review menu in runtime. |
-| Contract Agreement Workspace | CC-14 / CF-14 | Populated agreement with embedded condition fields | Group 1, Group 4, Group 5 | CPG-BIZ-091/092/093/094/095/096/097/098A/098B/098C/098D/099, BP-014 | Workspace model, clause library, catalogs, object/API/UI design, source-first prefill rule, exact shortlist candidate link, runtime schema migration 018 and shipowner `propose_contract` design are complete; APIs/UI are not implemented | CPG-BIZ-100 shipowner candidate review and contract proposal API/UI implementation. |
+| Employer feedback / candidate decision | CC-13 / CF-13 | Candidate decision / employer feedback | Group 1, review team | BP-012, earlier employer follow-up reports, CPG-BIZ-099, CPG-BIZ-100 | Covered for first contract-proposal trigger | Future employer decision standard should normalize all outcomes, reasons and SLA handoffs. |
+| Contract Agreement Workspace | CC-14 / CF-14 | Populated agreement with embedded condition fields | Group 1, Group 4, Group 5 | CPG-BIZ-091/092/093/094/095/096/097/098A/098B/098C/098D/099/100, BP-014 | Workspace model, clause library, catalogs, source-first prefill rule, exact shortlist candidate link, runtime schema migration 018 and employer `propose_contract` API/UI creation/reuse are implemented | CPG-BIZ-101 contract workspace detail view and embedded field prefill implementation. |
 | Scripted contract generation | CC-14 / CF-14 | Generated contract instance | System script, responsible employee, control role | CPG-BIZ-093/094/095/096/097/098A/098B/098C/098D, BP-014 | Runtime schema can store generated contract metadata and audit events; generation script not implemented | Future generation implementation after workspace API/UI and party approval guards. |
 | Embarkation confirmation | CC-14 / CF-14 | Employment/voyage support record | Group 4 support, Group 1, employer | BP-012, BP-015 | Gap/partial | Standard for boarding evidence, onboard status, success-fee trigger and failed-joining blocker. |
 | Active voyage monthly evidence | CC-15 / CF-15 | Monthly service evidence | Group 4 support, Group 3 billing | BP-012, BP-015 | Gap | Standard for monthly work confirmation, illness/early-disembarkation signal, replacement and invoice basis. |
@@ -105,7 +105,7 @@ The following standards should be created or expanded before final job descripti
 | Priority | Proposed standard | Reason |
 |---|---|---|
 | P1 | Employer service package and entitlement standard | Without this, subscription/package, discounts, service access and commercial start are not fully controlled. |
-| P1 | Shipowner candidate review and contract proposal operation implementation | CPG-BIZ-099 defines the operation; runtime API/UI still needs implementation and tests. |
+| P1 | Contract workspace detail view and embedded field prefill implementation | CPG-BIZ-100 can create/reuse workspace records; the team still needs a concrete workspace page to review verified facts and embedded condition fields. |
 | P1 | Embarkation and onboard-status evidence standard | Required to prove success fee, onboard status and service delivery. |
 | P1 | Monthly service evidence and billing-basis standard | Required for recurring monthly service fee and partial-month/illness/replacement cases. |
 | P1 | Disembarkation, return support and next-availability standard | Required to complete the full service cycle and retain seafarers. |
@@ -152,11 +152,12 @@ CPG-BIZ-098B has reconciled contract fields with existing filled-form sources an
 CPG-BIZ-098C has corrected the documentation-only SQL draft with `shortlist_candidate_id` and `shortlist_candidate` source traceability.
 CPG-BIZ-098D has converted the approved draft into runtime migration 018 and verified it on the test DB and API regression.
 CPG-BIZ-099 has defined the shipowner candidate review menu, employer decision state and guarded `propose_contract` computed operation.
+CPG-BIZ-100 has implemented the employer `proceed_with_candidate` state, guarded contract proposal API/UI and Contract Agreement Workspace creation/reuse.
 
 The recommended next stage is:
 
 ```text
-CPG-BIZ-100 - Shipowner candidate review and contract proposal API/UI implementation
+CPG-BIZ-101 - Contract Agreement Workspace detail view and embedded field prefill implementation
 ```
 
 After that, the process should move to:
@@ -171,6 +172,7 @@ After that, the process should move to:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.7 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-100 implementation result: employer `proceed_with_candidate`, guarded `Propose contract`, workspace creation/reuse and updated next stage to workspace detail/prefill |
 | 1.6 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-099 shipowner candidate review and guarded contract proposal design; updated next stage to runtime API/UI implementation |
 | 1.5 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-098D runtime migration implementation result and updated the next stage to shipowner candidate review / Propose Contract design |
 | 1.4 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-098C corrected SQL draft status and updated the next gate to corrected SQL draft approval for runtime migration packaging |

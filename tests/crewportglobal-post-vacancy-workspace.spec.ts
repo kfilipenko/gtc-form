@@ -21,6 +21,25 @@ WITH ui_users AS (
   SELECT user_id
   FROM crewportglobal.users
   WHERE email LIKE 'ui.postvacancy.%@example.com'
+),
+ui_profiles AS (
+  SELECT seafarer_profile_id
+  FROM crewportglobal.seafarer_profiles sp
+  JOIN ui_users uu ON uu.user_id = sp.user_id
+),
+ui_vacancies AS (
+  SELECT vacancy_request_id
+  FROM crewportglobal.vacancy_requests vr
+  JOIN ui_users uu ON uu.user_id = vr.created_by_user_id
+)
+DELETE FROM crewportglobal.contract_workspace_instances cwi
+WHERE cwi.vacancy_request_id IN (SELECT vacancy_request_id FROM ui_vacancies)
+   OR cwi.seafarer_profile_id IN (SELECT seafarer_profile_id FROM ui_profiles);
+
+WITH ui_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'ui.postvacancy.%@example.com'
 )
 UPDATE crewportglobal.vacancy_requests vr
 SET publication_status = 'closed', updated_at = now()
@@ -50,6 +69,58 @@ FROM crewportglobal.users u
 WHERE sp.user_id = u.user_id
   AND u.email LIKE 'ui.postvacancy.%@example.com'
   AND sp.review_status IN ('submitted_for_human_review', 'in_review', 'approved');
+`;
+
+  execSync(
+    'PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -v ON_ERROR_STOP=1 -q',
+    { input: sql, encoding: 'utf8' }
+  );
+}
+
+function ensureApprovedContractWorkspaceReferences(): void {
+  const sql = `
+INSERT INTO crewportglobal.master_contract_templates (
+  template_code,
+  template_version,
+  template_title,
+  authoritative_language,
+  template_status,
+  template_hash,
+  approved_at
+) VALUES (
+  'ui_test_seafarer_shipowner_master_contract',
+  'test-v1',
+  'UI Test Seafarer Shipowner Master Contract',
+  'en',
+  'approved',
+  repeat('b', 64),
+  now()
+)
+ON CONFLICT (template_code, template_version)
+DO UPDATE SET
+  template_status = 'approved',
+  template_hash = EXCLUDED.template_hash,
+  approved_at = COALESCE(crewportglobal.master_contract_templates.approved_at, now()),
+  updated_at = now();
+
+INSERT INTO crewportglobal.contract_field_catalogs (
+  catalog_code,
+  catalog_version,
+  catalog_title,
+  catalog_status,
+  approved_at
+) VALUES (
+  'ui_test_seafarer_shipowner_contract_fields',
+  'test-v1',
+  'UI Test Seafarer Shipowner Contract Fields',
+  'approved',
+  now()
+)
+ON CONFLICT (catalog_code, catalog_version)
+DO UPDATE SET
+  catalog_status = 'approved',
+  approved_at = COALESCE(crewportglobal.contract_field_catalogs.approved_at, now()),
+  updated_at = now();
 `;
 
   execSync(
@@ -386,6 +457,20 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await page.reload();
   await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Interview requested');
   await expect(candidateCard.locator('.candidate-note-input')).toHaveValue(followupNote);
+
+  ensureApprovedContractWorkspaceReferences();
+  await candidateCard.locator('.candidate-note-input').fill('Employer wants to prepare contract terms.');
+  await candidateCard.getByRole('button', { name: 'Proceed with candidate' }).click();
+  await expect(page.locator('#post-status')).toContainText('Candidate status updated.');
+  await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Proceed with candidate');
+
+  await candidateCard.getByRole('button', { name: 'Propose contract' }).click();
+  await expect(page.locator('#post-status')).toContainText('Contract workspace prepared.');
+  await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Contract: Open contract workspace');
+
+  await page.reload();
+  await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Proceed with candidate');
+  await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Contract: Open contract workspace');
 
   await candidateCard.locator('.candidate-note-input').fill('Not suitable for this rotation after salary review.');
   await candidateCard.getByRole('button', { name: 'Not suitable' }).click();

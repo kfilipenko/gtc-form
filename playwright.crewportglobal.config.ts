@@ -64,6 +64,8 @@ export default defineConfig({
       'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/017_submit_review_gate_statuses.sql',
       '&& PGHOST=${PGHOST:-127.0.0.1} PGUSER=${PGUSER:-gtc_user} PGPASSWORD=${PGPASSWORD:-gtc_pass} PGDATABASE=${PGDATABASE:-gtc_db}',
       'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/018_contract_workspace_schema.sql',
+      '&& PGHOST=${PGHOST:-127.0.0.1} PGUSER=${PGUSER:-gtc_user} PGPASSWORD=${PGPASSWORD:-gtc_pass} PGDATABASE=${PGDATABASE:-gtc_db}',
+      'psql -v ON_ERROR_STOP=1 -f projects/crewportglobal/app/backend/db/migrations/019_contract_proposal_employer_status.sql',
       '&& export CREWPORTGLOBAL_ENV="${CREWPORTGLOBAL_ENV:-test}"',
       '&& export CREWPORTGLOBAL_REGISTRATION_EMAIL_ENABLED="${CREWPORTGLOBAL_REGISTRATION_EMAIL_ENABLED:-true}"',
       '&& export CREWPORTGLOBAL_REGISTRATION_EMAIL_DELIVERY_MODE="${CREWPORTGLOBAL_REGISTRATION_EMAIL_DELIVERY_MODE:-capture}"',

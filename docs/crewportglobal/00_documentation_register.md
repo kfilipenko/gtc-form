@@ -927,6 +927,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.89 | 2026-06-04 | GTC IT / AI Assistant | Added document 300 as CPG-BIZ-100 implementation report for shipowner candidate `proceed_with_candidate` decision and guarded Contract Agreement Workspace proposal from `/post-vacancy/` |
 | 2.88 | 2026-06-04 | GTC IT / AI Assistant | Added document 299 as CPG-BIZ-099 shipowner candidate review menu and contract proposal computed-operation design |
 | 2.87 | 2026-06-04 | GTC IT / AI Assistant | Added document 298 as CPG-BIZ-098D contract workspace runtime migration report covering migration 018, test DB application, idempotency check, schema verification and API regression |
 | 2.86 | 2026-06-04 | GTC IT / AI Assistant | Added document 297 as CPG-BIZ-098C contract workspace SQL draft shortlist candidate link correction report and updated the documentation-only SQL draft |

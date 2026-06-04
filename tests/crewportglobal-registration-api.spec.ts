@@ -101,6 +101,58 @@ WHERE u.user_id = ud.draft_id
   }
 }
 
+function ensureApprovedContractWorkspaceReferences(): void {
+  const sql = `
+INSERT INTO crewportglobal.master_contract_templates (
+  template_code,
+  template_version,
+  template_title,
+  authoritative_language,
+  template_status,
+  template_hash,
+  approved_at
+) VALUES (
+  'api_test_seafarer_shipowner_master_contract',
+  'test-v1',
+  'API Test Seafarer Shipowner Master Contract',
+  'en',
+  'approved',
+  repeat('a', 64),
+  now()
+)
+ON CONFLICT (template_code, template_version)
+DO UPDATE SET
+  template_status = 'approved',
+  template_hash = EXCLUDED.template_hash,
+  approved_at = COALESCE(crewportglobal.master_contract_templates.approved_at, now()),
+  updated_at = now();
+
+INSERT INTO crewportglobal.contract_field_catalogs (
+  catalog_code,
+  catalog_version,
+  catalog_title,
+  catalog_status,
+  approved_at
+) VALUES (
+  'api_test_seafarer_shipowner_contract_fields',
+  'test-v1',
+  'API Test Seafarer Shipowner Contract Fields',
+  'approved',
+  now()
+)
+ON CONFLICT (catalog_code, catalog_version)
+DO UPDATE SET
+  catalog_status = 'approved',
+  approved_at = COALESCE(crewportglobal.contract_field_catalogs.approved_at, now()),
+  updated_at = now();
+`;
+
+  execSync(
+    'PGHOST=127.0.0.1 PGUSER=gtc_user PGPASSWORD=gtc_pass PGDATABASE=gtc_db psql -v ON_ERROR_STOP=1 -q',
+    { input: sql, encoding: 'utf8' }
+  );
+}
+
 function readLatestOperatorAuditForDraft(draftId: string): {
   source: string;
   decision: string;
@@ -509,16 +561,35 @@ WITH api_users AS (
   FROM crewportglobal.users
   WHERE email LIKE 'api.%@example.com'
 ),
+	api_vacancies AS (
+	  SELECT vacancy_request_id
+	  FROM crewportglobal.vacancy_requests vr
+	  JOIN api_users au ON au.user_id = vr.created_by_user_id
+	)
+	DELETE FROM crewportglobal.operator_shortlist_drafts osd
+	WHERE to_regclass('crewportglobal.operator_shortlist_drafts') IS NOT NULL
+	  AND osd.vacancy_request_id IN (SELECT vacancy_request_id FROM api_vacancies);
+
+WITH api_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'api.%@example.com'
+),
+api_profiles AS (
+  SELECT seafarer_profile_id
+  FROM crewportglobal.seafarer_profiles sp
+  JOIN api_users au ON au.user_id = sp.user_id
+),
 api_vacancies AS (
   SELECT vacancy_request_id
   FROM crewportglobal.vacancy_requests vr
   JOIN api_users au ON au.user_id = vr.created_by_user_id
 )
-DELETE FROM crewportglobal.operator_shortlist_drafts osd
-WHERE to_regclass('crewportglobal.operator_shortlist_drafts') IS NOT NULL
-  AND osd.vacancy_request_id IN (SELECT vacancy_request_id FROM api_vacancies);
+DELETE FROM crewportglobal.contract_workspace_instances cwi
+WHERE cwi.vacancy_request_id IN (SELECT vacancy_request_id FROM api_vacancies)
+   OR cwi.seafarer_profile_id IN (SELECT seafarer_profile_id FROM api_profiles);
 
-WITH api_users AS (
+	WITH api_users AS (
   SELECT user_id
   FROM crewportglobal.users
   WHERE email LIKE 'api.%@example.com'
@@ -1727,11 +1798,53 @@ test('employer vacancy request flows through review to public vacancy board', as
   const employerDraftBody = (await employerDraftAfterShortlist.json()) as DraftResponse;
   const presentedCandidates = employerDraftBody.payload.presented_candidates as Array<Record<string, unknown>>;
   const presentedCandidate = presentedCandidates.find((item) => item.vacancy_application_id === applicationId);
-  expect(presentedCandidate).toBeTruthy();
-  expect(presentedCandidate?.employer_shortlist_status).toBe('interview_requested');
-  expect(presentedCandidate?.employer_action_note).toBe('Interview proposed by employer.');
+	  expect(presentedCandidate).toBeTruthy();
+	  expect(presentedCandidate?.employer_shortlist_status).toBe('interview_requested');
+	  expect(presentedCandidate?.employer_action_note).toBe('Interview proposed by employer.');
 
-  const seafarerWithdraw = await request.patch(`/seafarer/vacancy-applications/${applicationId}/status`, {
+  const employerProceed = await request.patch(`/employer/vacancy-applications/${applicationId}/shortlist`, {
+    data: {
+      employer_draft_id: created.draft_id,
+      shortlist_status: 'proceed_with_candidate',
+      note: 'Employer wants to prepare contract terms.',
+    },
+  });
+  expect(employerProceed.status()).toBe(200);
+  const employerProceedBody = (await employerProceed.json()) as Record<string, unknown>;
+  expect(employerProceedBody.employer_shortlist_status).toBe('proceed_with_candidate');
+
+  ensureApprovedContractWorkspaceReferences();
+
+  const contractProposal = await request.post(`/employer/vacancy-applications/${applicationId}/contract-proposal`, {
+    data: {
+      employer_draft_id: created.draft_id,
+    },
+  });
+  expect(contractProposal.status()).toBe(201);
+  const contractProposalBody = (await contractProposal.json()) as Record<string, unknown>;
+  expect(contractProposalBody.ok).toBe(true);
+  expect(contractProposalBody.reused_existing_workspace).toBe(false);
+  expect((contractProposalBody.contract_workspace as Record<string, unknown>).workspace_status).toBe('draft_from_platform_data');
+  expect(contractProposalBody.source_traceability_status).toBe('degraded_legacy_without_shortlist_candidate');
+
+  const contractProposalRepeat = await request.post(`/employer/vacancy-applications/${applicationId}/contract-proposal`, {
+    data: {
+      employer_draft_id: created.draft_id,
+    },
+  });
+  expect(contractProposalRepeat.status()).toBe(200);
+  const contractProposalRepeatBody = (await contractProposalRepeat.json()) as Record<string, unknown>;
+  expect(contractProposalRepeatBody.reused_existing_workspace).toBe(true);
+
+  const employerDraftAfterContract = await request.get(`/registration/drafts/${created.draft_id}`);
+  expect(employerDraftAfterContract.status()).toBe(200);
+  const employerDraftAfterContractBody = (await employerDraftAfterContract.json()) as DraftResponse;
+  const candidatesAfterContract = employerDraftAfterContractBody.payload.presented_candidates as Array<Record<string, unknown>>;
+  const contractCandidate = candidatesAfterContract.find((item) => item.vacancy_application_id === applicationId);
+  expect(contractCandidate?.employer_shortlist_status).toBe('proceed_with_candidate');
+  expect((contractCandidate?.contract_operation as Record<string, unknown>).existing_contract_workspace_id).toBeTruthy();
+
+	  const seafarerWithdraw = await request.patch(`/seafarer/vacancy-applications/${applicationId}/status`, {
     data: {
       seafarer_draft_id: seafarer.draft_id,
       action: 'not_available',

@@ -1094,13 +1094,23 @@
         'post.pipeline.followupNote.placeholder': 'Add interview window, contact result or rejection reason',
         'post.pipeline.action.contacted': 'Mark contacted',
         'post.pipeline.action.interview': 'Request interview',
+        'post.pipeline.action.proceed': 'Proceed with candidate',
         'post.pipeline.action.notSuitable': 'Not suitable',
         'post.pipeline.action.saving': 'Updating candidate status...',
         'post.pipeline.action.saved': 'Candidate status updated.',
         'post.pipeline.action.error': 'Could not update candidate status. Please try again.',
+        'post.pipeline.contract.status': 'Contract',
+        'post.pipeline.contract.propose': 'Propose contract',
+        'post.pipeline.contract.open': 'Open contract workspace',
+        'post.pipeline.contract.blocked': 'Contract blocked: {codes}',
+        'post.pipeline.contract.creating': 'Preparing contract workspace...',
+        'post.pipeline.contract.created': 'Contract workspace prepared.',
+        'post.pipeline.contract.reused': 'Existing contract workspace opened.',
+        'post.pipeline.contract.error': 'Could not prepare contract workspace. Please try again.',
         'post.shortlist.presented': 'Presented',
         'post.shortlist.contacted': 'Contacted',
         'post.shortlist.interview_requested': 'Interview requested',
+        'post.shortlist.proceed_with_candidate': 'Proceed with candidate',
         'post.shortlist.not_suitable': 'Not suitable',
         'post.side.process.title': 'Candidate review',
         'post.side.process.copy': 'CrewPortGlobal does not imply automatic shortlist delivery or uncontrolled direct outreach. Candidate presentation remains human-guided.',
@@ -1686,6 +1696,44 @@
         return button;
       }
 
+      function contractOperationLabel(operation) {
+        if (!operation || typeof operation !== 'object' || operation.visible === false) {
+          return '';
+        }
+        if (operation.existing_contract_workspace_id) {
+          return t('post.pipeline.contract.open');
+        }
+        if (operation.enabled === true) {
+          return t('post.pipeline.contract.propose');
+        }
+        const blockers = Array.isArray(operation.blockers) ? operation.blockers : [];
+        const codes = blockers
+          .map((blocker) => blocker && typeof blocker.code === 'string' ? blocker.code : '')
+          .filter(Boolean)
+          .join(', ');
+        return codes ? tp('post.pipeline.contract.blocked', { codes }) : '';
+      }
+
+      function createContractProposalAction(candidate) {
+        const operation = candidate && candidate.contract_operation && typeof candidate.contract_operation === 'object'
+          ? candidate.contract_operation
+          : null;
+        if (!operation || operation.visible === false) {
+          return null;
+        }
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'button secondary contract-proposal-action';
+        button.dataset.applicationId = candidate.vacancy_application_id || '';
+        button.textContent = operation.existing_contract_workspace_id
+          ? t('post.pipeline.contract.open')
+          : t('post.pipeline.contract.propose');
+        button.disabled = operation.enabled !== true || !candidate.vacancy_application_id;
+        button.title = contractOperationLabel(operation);
+        return button;
+      }
+
       function createCandidateFollowup(applicationId, noteValue) {
         const label = document.createElement('label');
         label.className = 'candidate-card__followup';
@@ -1734,6 +1782,7 @@
           addCandidateMeta(meta, 'post.pipeline.documents', documentSummary(candidate));
           addCandidateMeta(meta, 'post.pipeline.status', candidate.application_status);
           addCandidateMeta(meta, 'post.pipeline.shortlist', employerShortlistLabel(candidate.employer_shortlist_status));
+          addCandidateMeta(meta, 'post.pipeline.contract.status', contractOperationLabel(candidate.contract_operation));
           card.appendChild(meta);
 
           if (candidate.candidate_note) {
@@ -1752,7 +1801,12 @@
             actions.className = 'candidate-card__actions';
             actions.appendChild(createCandidateAction(candidate.vacancy_application_id, 'contacted', 'post.pipeline.action.contacted', currentShortlistStatus === 'contacted'));
             actions.appendChild(createCandidateAction(candidate.vacancy_application_id, 'interview_requested', 'post.pipeline.action.interview', currentShortlistStatus === 'interview_requested'));
+            actions.appendChild(createCandidateAction(candidate.vacancy_application_id, 'proceed_with_candidate', 'post.pipeline.action.proceed', currentShortlistStatus === 'proceed_with_candidate'));
             actions.appendChild(createCandidateAction(candidate.vacancy_application_id, 'not_suitable', 'post.pipeline.action.notSuitable', currentShortlistStatus === 'not_suitable'));
+            const contractAction = createContractProposalAction(candidate);
+            if (contractAction) {
+              actions.appendChild(contractAction);
+            }
             card.appendChild(actions);
           }
 
@@ -1877,6 +1931,9 @@
         candidateList.querySelectorAll('.candidate-action').forEach((button) => {
           button.disabled = disabled;
         });
+        candidateList.querySelectorAll('.contract-proposal-action').forEach((button) => {
+          button.disabled = disabled;
+        });
         candidateList.querySelectorAll('.candidate-note-input').forEach((input) => {
           input.disabled = disabled;
         });
@@ -1892,6 +1949,7 @@
         setCandidateActionsDisabled(true);
         status.textContent = t('post.pipeline.action.saving');
         statusDetail.textContent = '';
+        let refreshed = false;
 
         try {
           const response = await fetch(`/api/v1/employer/vacancy-applications/${encodeURIComponent(applicationId)}/shortlist`, {
@@ -1910,13 +1968,67 @@
             throw new Error(`Candidate action failed with status ${response.status}`);
           }
 
-          const refreshed = await window.CPGDrafts.getDraft(draftId, { role: role.value || 'employer' });
-          renderWorkspaceStatus(refreshed);
+          const refreshedDraft = await window.CPGDrafts.getDraft(draftId, { role: role.value || 'employer' });
+          renderWorkspaceStatus(refreshedDraft);
+          refreshed = true;
           status.textContent = t('post.pipeline.action.saved');
         } catch (error) {
           status.textContent = t('post.pipeline.action.error');
           console.error(error);
-          setCandidateActionsDisabled(false);
+        } finally {
+          if (!refreshed) {
+            setCandidateActionsDisabled(false);
+          }
+        }
+      }
+
+      async function proposeCandidateContract(applicationId) {
+        const draftId = currentDraftId();
+        if (!draftId) {
+          status.textContent = t('post.pipeline.contract.error');
+          return;
+        }
+
+        setCandidateActionsDisabled(true);
+        status.textContent = t('post.pipeline.contract.creating');
+        statusDetail.textContent = '';
+        let refreshed = false;
+
+        try {
+          const response = await fetch(`/api/v1/employer/vacancy-applications/${encodeURIComponent(applicationId)}/contract-proposal`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              employer_draft_id: draftId
+            })
+          });
+
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            const blockers = body && Array.isArray(body.blockers)
+              ? body.blockers.map((blocker) => blocker && typeof blocker.code === 'string' ? blocker.code : '').filter(Boolean).join(', ')
+              : '';
+            status.textContent = blockers
+              ? tp('post.pipeline.contract.blocked', { codes: blockers })
+              : t('post.pipeline.contract.error');
+            return;
+          }
+
+          const refreshedDraft = await window.CPGDrafts.getDraft(draftId, { role: role.value || 'employer' });
+          renderWorkspaceStatus(refreshedDraft);
+          refreshed = true;
+          status.textContent = response.status === 200
+            ? t('post.pipeline.contract.reused')
+            : t('post.pipeline.contract.created');
+        } catch (error) {
+          status.textContent = t('post.pipeline.contract.error');
+          console.error(error);
+        } finally {
+          if (!refreshed) {
+            setCandidateActionsDisabled(false);
+          }
         }
       }
 
@@ -2166,14 +2278,25 @@
       }
 
       candidateList.addEventListener('click', (event) => {
-        const target = event.target instanceof Element ? event.target.closest('.candidate-action') : null;
+        const target = event.target instanceof Element
+          ? event.target.closest('.candidate-action, .contract-proposal-action')
+          : null;
         if (!target) {
           return;
         }
 
         const applicationId = target.getAttribute('data-application-id') || '';
+        if (!applicationId) {
+          return;
+        }
+
+        if (target.classList.contains('contract-proposal-action')) {
+          proposeCandidateContract(applicationId);
+          return;
+        }
+
         const shortlistStatus = target.getAttribute('data-shortlist-status') || '';
-        if (!applicationId || !shortlistStatus) {
+        if (!shortlistStatus) {
           return;
         }
 
