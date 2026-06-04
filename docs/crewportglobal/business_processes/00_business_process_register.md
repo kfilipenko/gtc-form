@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.30
+- Version: 3.31
 - Status: For internal review
 
 ## 1. Purpose
@@ -147,6 +147,7 @@ This documentation block starts from the following approved business controls:
 67. Contract workspace SQL approval must reconcile every linked contract fact with an existing verified source record before migration; a contract proposal action must be tied to a concrete vacancy and concrete candidate selection event, not to a generic shipowner card.
 68. Contract proposal source identity must include the exact shortlist candidate row when available; `shortlist_candidate_id` is the primary candidate-selection link for future Contract Agreement Workspace creation, while `vacancy_application_id` remains optional supporting evidence.
 69. Contract workspace schema migration 018 is now the runtime database foundation for future contract workspace APIs, UI, generation guards and audit events; functional operations remain prohibited until their separate guards and visibility rules are implemented.
+70. A shipowner / employer contract proposal must be a computed operation shown on a specific employer-facing candidate presentation after an employer decision to proceed; it must validate access, candidate presentation status, source traceability, duplicate workspace guard and audit evidence before creating or opening a Contract Agreement Workspace.
 
 ## 5. Intended Use
 
@@ -166,6 +167,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.31 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-099 control for shipowner candidate review and the guarded `propose_contract` computed operation |
 | 3.30 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-098D runtime migration control after implementing migration 018 for the contract workspace database foundation |
 | 3.29 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-098C control: contract proposal must link to the exact shortlist candidate row before runtime schema migration is approved |
 | 3.28 | 2026-06-04 | GTC IT / AI Assistant | Added contract SQL source-field reconciliation control requiring field-source mapping and a concrete candidate-selection link before runtime migration approval |

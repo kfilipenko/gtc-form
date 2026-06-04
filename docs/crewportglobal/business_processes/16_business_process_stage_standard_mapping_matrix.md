@@ -5,9 +5,9 @@
 - Documentation block: Business processes and operating model
 - Document type: Stage-to-standard control matrix
 - Source task: Project Owner instruction after CPG-BIZ-093 approval
-- Version: 1.5
+- Version: 1.6
 - Date: 2026-06-03
-- Status: Updated after CPG-BIZ-098D runtime migration implementation
+- Status: Updated after CPG-BIZ-099 shipowner candidate review / contract proposal design
 
 ## 1. Purpose
 
@@ -86,8 +86,8 @@ If a stage has no controlling standard, it must be marked as a gap and described
 | Internal shortlist approval | CC-11 / CF-10 | Internal shortlist approval record | Review team / control role | CPG-DEMAND-015, BP-012 | Covered | Future segregation-of-duties rule if creator and approver must differ. |
 | Candidate presentation review | CC-12 / CF-11 | Candidate presentation staging | Review team / Group 5 | CPG-DEMAND-016/023, BP-012 | Covered in current guard model | Need user-facing employer presentation package standard. |
 | Employer-facing presentation | CC-12 / CF-12 | Employer-safe candidate summary | Review team, Group 1 | CPG-DEMAND-023, BP-006, BP-012 | Partial | Standard for employer view content, field allow-list, presentation evidence and expiry. |
-| Employer feedback / candidate decision | CC-13 / CF-13 | Candidate decision / employer feedback | Group 1, review team | BP-012, earlier employer follow-up reports | Partial | Standard for employer decision states: proceed, reject, hold, interview, request replacement. |
-| Contract Agreement Workspace | CC-14 / CF-14 | Populated agreement with embedded condition fields | Group 1, Group 4, Group 5 | CPG-BIZ-091/092/093/094/095/096/097/098A/098B/098C/098D, BP-014 | Workspace model, clause library, catalogs, object/API/UI design, source-first prefill rule, exact shortlist candidate link and runtime schema migration 018 are implemented; APIs/UI are not implemented | CPG-BIZ-099 shipowner candidate review menu and Propose Contract computed operation design. |
+| Employer feedback / candidate decision | CC-13 / CF-13 | Candidate decision / employer feedback | Group 1, review team | BP-012, earlier employer follow-up reports, CPG-BIZ-099 | Partial | Implement employer decision state `proceed_with_candidate` and the candidate review menu in runtime. |
+| Contract Agreement Workspace | CC-14 / CF-14 | Populated agreement with embedded condition fields | Group 1, Group 4, Group 5 | CPG-BIZ-091/092/093/094/095/096/097/098A/098B/098C/098D/099, BP-014 | Workspace model, clause library, catalogs, object/API/UI design, source-first prefill rule, exact shortlist candidate link, runtime schema migration 018 and shipowner `propose_contract` design are complete; APIs/UI are not implemented | CPG-BIZ-100 shipowner candidate review and contract proposal API/UI implementation. |
 | Scripted contract generation | CC-14 / CF-14 | Generated contract instance | System script, responsible employee, control role | CPG-BIZ-093/094/095/096/097/098A/098B/098C/098D, BP-014 | Runtime schema can store generated contract metadata and audit events; generation script not implemented | Future generation implementation after workspace API/UI and party approval guards. |
 | Embarkation confirmation | CC-14 / CF-14 | Employment/voyage support record | Group 4 support, Group 1, employer | BP-012, BP-015 | Gap/partial | Standard for boarding evidence, onboard status, success-fee trigger and failed-joining blocker. |
 | Active voyage monthly evidence | CC-15 / CF-15 | Monthly service evidence | Group 4 support, Group 3 billing | BP-012, BP-015 | Gap | Standard for monthly work confirmation, illness/early-disembarkation signal, replacement and invoice basis. |
@@ -105,7 +105,7 @@ The following standards should be created or expanded before final job descripti
 | Priority | Proposed standard | Reason |
 |---|---|---|
 | P1 | Employer service package and entitlement standard | Without this, subscription/package, discounts, service access and commercial start are not fully controlled. |
-| P1 | Shipowner candidate review and contract proposal operation standard | Contract workspace schema now exists, but no employer-side candidate list or `Предложить контракт` guard exists yet. |
+| P1 | Shipowner candidate review and contract proposal operation implementation | CPG-BIZ-099 defines the operation; runtime API/UI still needs implementation and tests. |
 | P1 | Embarkation and onboard-status evidence standard | Required to prove success fee, onboard status and service delivery. |
 | P1 | Monthly service evidence and billing-basis standard | Required for recurring monthly service fee and partial-month/illness/replacement cases. |
 | P1 | Disembarkation, return support and next-availability standard | Required to complete the full service cycle and retain seafarers. |
@@ -151,26 +151,27 @@ CPG-BIZ-098A has clarified that verified platform records prefill contract facts
 CPG-BIZ-098B has reconciled contract fields with existing filled-form sources and found that the SQL draft needs a direct shortlist candidate link before migration approval.
 CPG-BIZ-098C has corrected the documentation-only SQL draft with `shortlist_candidate_id` and `shortlist_candidate` source traceability.
 CPG-BIZ-098D has converted the approved draft into runtime migration 018 and verified it on the test DB and API regression.
+CPG-BIZ-099 has defined the shipowner candidate review menu, employer decision state and guarded `propose_contract` computed operation.
 
 The recommended next stage is:
 
 ```text
-CPG-BIZ-099 - Shipowner candidate review menu and Propose Contract computed operation design
+CPG-BIZ-100 - Shipowner candidate review and contract proposal API/UI implementation
 ```
 
 After that, the process should move to:
 
-1. approved runtime migration and tests, if the SQL draft is accepted;
-2. employer service package and entitlement standard;
-3. embarkation/onboard evidence standard;
-4. monthly service evidence and billing-basis standard;
-5. disembarkation/return support standard;
-6. role job-instruction package for the operational groups.
+1. employer service package and entitlement standard;
+2. embarkation/onboard evidence standard;
+3. monthly service evidence and billing-basis standard;
+4. disembarkation/return support standard;
+5. role job-instruction package for the operational groups.
 
 ## 8. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.6 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-099 shipowner candidate review and guarded contract proposal design; updated next stage to runtime API/UI implementation |
 | 1.5 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-098D runtime migration implementation result and updated the next stage to shipowner candidate review / Propose Contract design |
 | 1.4 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-098C corrected SQL draft status and updated the next gate to corrected SQL draft approval for runtime migration packaging |
 | 1.3 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-098B source-field reconciliation result and updated the contract workspace next gate to CPG-BIZ-098C SQL draft correction before migration approval |
