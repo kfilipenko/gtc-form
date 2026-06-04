@@ -1,19 +1,19 @@
-# CPG-BIZ-092 - Seafarer / Shipowner Contract Form And Formal Document Reference Standard
+# CPG-BIZ-092 - Seafarer / Shipowner Contract Workspace And Formal Document Reference Standard
 
 - Project: CrewPortGlobal.com
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
-- Document type: Contract-form specification and documentation standard
+- Document type: Contract-workspace specification and documentation standard
 - Source task: Project Owner approval after CPG-BIZ-091
-- Version: 1.0
-- Date: 2026-06-03
+- Version: 1.1
+- Date: 2026-06-04
 - Status: Drafted for Project Owner and maritime legal review
 
 ## 1. Purpose
 
-This document converts the draft seafarer / shipowner contract model into a full future form specification.
+This document converts the draft seafarer / shipowner contract model into a full future contract workspace specification.
 
-The form will later allow an authorized agent to prepare a contract draft from structured platform data, select variable conditions from approved catalogs, resolve `to_be_agreed` items, submit the draft to parties for review and generate a standard contract document.
+The workspace will later allow an authorized agent to prepare a contract draft from structured platform data, select variable conditions from approved catalogs inside the clauses they affect, resolve `to_be_agreed` items, submit the populated agreement to parties for review and generate a standard contract document.
 
 This document also introduces a documentation standard:
 
@@ -326,47 +326,48 @@ The contract draft must not become `ready_for_signature` unless:
 9. required documents are present or explicitly marked as accepted exception;
 10. formal document references are current.
 
-## 9A. Contract-Condition Form Approval And Scripted Generation
+## 9A. Contract Agreement Workspace Approval And Scripted Generation
 
-The future implementation must separate:
+The future implementation must distinguish:
 
-1. selection of contract conditions; and
+1. selection of embedded contract conditions inside the agreement text; and
 2. generation of the contract document.
 
 The required workflow is:
 
-1. An authorized employee opens the contract-condition form for a selected seafarer, shipowner/employer, vessel and vacancy/request.
-2. The form imports verified platform data and exposes only approved variable fields under the master agreement.
-3. The employee selects wage, payment, duration, joining, return, repatriation, replacement and service-evidence conditions from approved catalogs.
-4. The form is sent to the parties for review.
-5. The seafarer and shipowner/employer approve/sign the condition form.
+1. An authorized employee opens the Contract Agreement Workspace for a selected seafarer, shipowner/employer, vessel and vacancy/request.
+2. The workspace imports verified platform data and exposes only approved embedded fields under the master agreement.
+3. The employee selects wage, payment, duration, joining, return, repatriation, replacement and service-evidence conditions from approved catalogs inside the relevant clauses.
+4. The populated agreement is sent to the parties for review in contract context.
+5. The seafarer and shipowner/employer approve/sign the populated contract workspace.
 6. Only after required party approval/signature, the generation script creates the contract document from:
    - approved master agreement template;
    - verified seafarer data;
    - verified shipowner/employer data;
    - verified vessel data;
-   - signed condition form.
+   - approved workspace values.
 7. The generated document stores template version, catalog version, source records and document hash.
 
 This workflow is intended to prevent incorrect wording, manual clause edits, mismatched party data and disagreement about which conditions were approved.
+
+The previous detached condition-form model is superseded by CPG-BIZ-095. New implementation and documentation must use the Contract Agreement Workspace and embedded condition fields model.
 
 ## 10. Next Implementation Planning
 
 Recommended next task:
 
 ```text
-CPG-BIZ-093 - Contract field catalog and reference value seeding design
+CPG-BIZ-096 - Contract workspace object, API and UI design
 ```
 
 Suggested scope:
 
-1. prepare reference catalog codes for all contract catalogs;
-2. map `C-*` fields to existing seafarer, employer, vessel and vacancy fields;
-3. identify new additive fields required in `/create-profile/` and `/post-vacancy/`;
-4. design contract draft storage;
-5. design guard API for `ready_for_signature`;
-6. design generated document preview and formal document reference links;
-7. define Playwright tests for draft generation and unresolved-term blockers.
+1. reuse reference catalog codes and `C-*` field definitions from CPG-BIZ-094;
+2. map embedded fields to the exact clauses in the Contract Agreement Workspace;
+3. design workspace storage and API payloads;
+4. design guard API for `ready_for_signature`;
+5. design generated document preview and formal document reference links;
+6. define Playwright tests for workspace generation and unresolved-term blockers.
 
 ## 11. Stage Status
 

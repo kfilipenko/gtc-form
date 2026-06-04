@@ -62,7 +62,8 @@ If a stage has no controlling standard, it must be marked as a gap and described
 | BP-014 Standard form lifecycle | Save, autosave, completeness, protected upload, submit-review, computed tasks | Approved implementation standard |
 | BP-015 Commercial operating cycle | Marketing, registration, packages, service evidence, billing, retention | Controlling commercial cycle baseline |
 | CPG-BIZ-091 / 092 | Seafarer/shipowner contract template and field-form specification | Drafted standards for contract structure |
-| CPG-BIZ-093 | Public master contract versioning and immutable clause control | Approved by Project Owner; condition-form and scripted generation standard |
+| CPG-BIZ-093 | Public master contract versioning and immutable clause control | Approved by Project Owner; Contract Agreement Workspace and scripted generation standard |
+| CPG-BIZ-095 | Contract Agreement Workspace and embedded condition fields | Approved operating model for future implementation planning |
 | Implemented Code Standards ICS-001..003 | Reusable code standards for form lifecycle, protected upload and submit-review gate | Existing code-level standard register |
 
 ## 4. Stage-To-Standard Matrix
@@ -85,8 +86,8 @@ If a stage has no controlling standard, it must be marked as a gap and described
 | Candidate presentation review | CC-12 / CF-11 | Candidate presentation staging | Review team / Group 5 | CPG-DEMAND-016/023, BP-012 | Covered in current guard model | Need user-facing employer presentation package standard. |
 | Employer-facing presentation | CC-12 / CF-12 | Employer-safe candidate summary | Review team, Group 1 | CPG-DEMAND-023, BP-006, BP-012 | Partial | Standard for employer view content, field allow-list, presentation evidence and expiry. |
 | Employer feedback / candidate decision | CC-13 / CF-13 | Candidate decision / employer feedback | Group 1, review team | BP-012, earlier employer follow-up reports | Partial | Standard for employer decision states: proceed, reject, hold, interview, request replacement. |
-| Contract condition form | CC-14 / CF-14 | Contract-condition form | Group 1, Group 4, Group 5 | CPG-BIZ-091/092/093/094, BP-014 | Clause library and catalogs defined; form object not implemented | CPG-BIZ-095 contract-condition form object and API design. |
-| Scripted contract generation | CC-14 / CF-14 | Generated contract instance | System script, responsible employee, control role | CPG-BIZ-093/094, BP-014 | Defined, not implemented | Standard for template storage, generation script, hash, version metadata and document preview in CPG-BIZ-095 or later runtime design. |
+| Contract Agreement Workspace | CC-14 / CF-14 | Populated agreement with embedded condition fields | Group 1, Group 4, Group 5 | CPG-BIZ-091/092/093/094/095, BP-014 | Workspace model, clause library and catalogs defined; runtime object not implemented | CPG-BIZ-096 contract workspace object, API and UI design. |
+| Scripted contract generation | CC-14 / CF-14 | Generated contract instance | System script, responsible employee, control role | CPG-BIZ-093/094/095, BP-014 | Defined, not implemented | Standard for template storage, generation script, hash, version metadata and document preview in CPG-BIZ-096 or later runtime design. |
 | Embarkation confirmation | CC-14 / CF-14 | Employment/voyage support record | Group 4 support, Group 1, employer | BP-012, BP-015 | Gap/partial | Standard for boarding evidence, onboard status, success-fee trigger and failed-joining blocker. |
 | Active voyage monthly evidence | CC-15 / CF-15 | Monthly service evidence | Group 4 support, Group 3 billing | BP-012, BP-015 | Gap | Standard for monthly work confirmation, illness/early-disembarkation signal, replacement and invoice basis. |
 | Disembarkation and return support | CC-16 / CF-16 | Return / repatriation support record | Group 4 support, responsible manager | BP-012, BP-015, CPG-BIZ-089/090 | Partial | Standard for return responsibility, route, destination, payer, support completion and next availability task. |
@@ -103,7 +104,7 @@ The following standards should be created or expanded before final job descripti
 | Priority | Proposed standard | Reason |
 |---|---|---|
 | P1 | Employer service package and entitlement standard | Without this, subscription/package, discounts, service access and commercial start are not fully controlled. |
-| P1 | Contract-condition form object and API standard | Clause library and variable catalogs are now defined by CPG-BIZ-094; the next gap is the form object, API, party approval states and generation guard. |
+| P1 | Contract workspace object, API and UI standard | Clause library, variable catalogs and embedded-field workspace model are now defined by CPG-BIZ-094/095; the next gap is runtime object, API, party approval states and generation guard. |
 | P1 | Embarkation and onboard-status evidence standard | Required to prove success fee, onboard status and service delivery. |
 | P1 | Monthly service evidence and billing-basis standard | Required for recurring monthly service fee and partial-month/illness/replacement cases. |
 | P1 | Disembarkation, return support and next-availability standard | Required to complete the full service cycle and retain seafarers. |
@@ -142,11 +143,12 @@ The job instruction must define:
 ## 7. Immediate Next Work
 
 CPG-BIZ-094 has defined the master contract clause library and catalog seed.
+CPG-BIZ-095 has replaced the separate condition-form concept with the Contract Agreement Workspace and embedded condition fields.
 
 The recommended next stage is:
 
 ```text
-CPG-BIZ-095 - Contract-condition form object and API design
+CPG-BIZ-096 - Contract workspace object, API and UI design
 ```
 
 After that, the process should move to:

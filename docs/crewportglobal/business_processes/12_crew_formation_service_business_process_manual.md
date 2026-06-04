@@ -533,10 +533,10 @@ The platform baseline should follow internationally recognized maritime labor st
 The standard contract preparation sequence is:
 
 ```text
-verified data + contract-condition form + party approval/signature = scripted contract generation
+verified data + Contract Agreement Workspace with embedded condition fields + party approval/signature = scripted contract generation
 ```
 
-The parties approve the condition form first. After required approval/signature, the system script generates the contract from the approved master template, verified seafarer data, verified shipowner/employer data, verified vessel data and the signed condition form. This prevents manual wording changes, protects approved conditions and creates evidence of what both parties accepted.
+The parties approve the populated Contract Agreement Workspace first. The workspace must show the full agreement text and the embedded condition fields inside the clauses they affect. After required approval/signature, the system script generates the contract from the approved master template, verified seafarer data, verified shipowner/employer data, verified vessel data and the approved workspace values. This prevents manual wording changes, protects approved conditions and creates evidence of what both parties accepted in legal context.
 
 The contract-generation stage should have its own statuses:
 

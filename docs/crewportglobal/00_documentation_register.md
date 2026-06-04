@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.80
+- Version: 2.81
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -378,6 +378,7 @@ docs/crewportglobal/
   289_cpg_biz_092_seafarer_shipowner_contract_form_and_document_reference_standard.md
   290_cpg_biz_093_public_master_contract_versioning_and_clause_control_standard.md
   291_cpg_biz_094_master_contract_clause_library_and_catalog_seeding_design.md
+  292_cpg_biz_095_contract_agreement_workspace_embedded_fields_standard.md
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -917,11 +918,12 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.81 | 2026-06-04 | GTC IT / AI Assistant | Added document 292 as CPG-BIZ-095 Contract Agreement Workspace and embedded condition fields standard; aligned contract documents away from a separate user-facing condition-form model |
 | 2.80 | 2026-06-03 | GTC IT / AI Assistant | Added document 291 as CPG-BIZ-094 master contract clause library and variable catalog seeding design |
 | 2.79 | 2026-06-03 | GTC IT / AI Assistant | Added BP-016 business-process stage and standard mapping matrix to align stages, controlling standards, gaps and future job-instruction inputs |
-| 2.78 | 2026-06-03 | GTC IT / AI Assistant | Updated CPG-BIZ-093 contract standard to remove internal automation-facing provisions and define condition-form approval followed by scripted contract generation |
+| 2.78 | 2026-06-03 | GTC IT / AI Assistant | Updated CPG-BIZ-093 contract standard to remove internal automation-facing provisions and define an interim condition-form procedure later superseded by CPG-BIZ-095 workspace model |
 | 2.77 | 2026-06-03 | GTC IT / AI Assistant | Added document 290 as CPG-BIZ-093 public master contract versioning and immutable clause control standard |
-| 2.76 | 2026-06-03 | GTC IT / AI Assistant | Added document 289 as CPG-BIZ-092 full seafarer/shipowner contract form specification and formal document reference standard |
+| 2.76 | 2026-06-03 | GTC IT / AI Assistant | Added document 289 as CPG-BIZ-092 seafarer/shipowner contract workspace/form specification and formal document reference standard; active wording later aligned to workspace model |
 | 2.75 | 2026-06-03 | GTC IT / AI Assistant | Added document 288 as CPG-BIZ-091 seafarer/shipowner contract template and variable catalog design for future portal contract generation |
 | 2.74 | 2026-06-03 | GTC IT / AI Assistant | Added document 287 as CPG-BIZ-090 report for pre-contract joining, return, replacement and portal contract workflow terms |
 | 2.73 | 2026-06-03 | GTC IT / AI Assistant | Added document 286 as CPG-BIZ-089 report for seafarer voyage, disembarkation, return support and next-availability process amendment |

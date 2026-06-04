@@ -5,8 +5,8 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Business-process / contract-generation standard
 - Source task: Project Owner clarification after CPG-BIZ-092
-- Version: 1.2
-- Date: 2026-06-03
+- Version: 1.3
+- Date: 2026-06-04
 - Status: Drafted for Project Owner review
 
 ## 1. Purpose
@@ -55,24 +55,26 @@ Each generated contract instance must store:
 | `generated_document_hash` | Protects the generated document from unnoticed changes. |
 | `signature_status` | Shows whether the instance is draft, party-review, signed or blocked. |
 
-## 2A. Contract Condition Form And Generation Procedure
+## 2A. Contract Agreement Workspace And Generation Procedure
 
-The portal contract must be prepared through a dedicated contract-condition form.
+The portal contract must be prepared through a dedicated Contract Agreement Workspace.
+
+The workspace is not a separate questionnaire detached from the agreement. It is a full contract workspace where approved variable fields are embedded inside the relevant master-agreement clauses.
 
 The required sequence is:
 
-1. An authorized employee opens the contract-condition form for the selected seafarer, shipowner/employer, vessel and vacancy/request.
-2. The form shows only conditions permitted by the approved master agreement and approved catalogs.
-3. The employee selects or completes the variable conditions, including wage, payment method, contract period, joining, return, repatriation, replacement and service-evidence terms.
-4. The form is submitted to the parties for review and approval.
-5. The seafarer and shipowner/employer approve the form conditions.
+1. An authorized employee opens the Contract Agreement Workspace for the selected seafarer, shipowner/employer, vessel and vacancy/request.
+2. The workspace shows the approved master agreement text with embedded fields only where the agreement permits selectable or linked conditions.
+3. The employee selects or completes embedded variable fields, including wage, payment method, contract period, joining, return, repatriation, replacement and service-evidence terms.
+4. The populated workspace is submitted to the parties for review in contract context.
+5. The seafarer and shipowner/employer approve the populated agreement and its embedded field values.
 6. Immediately after required party approval/signature, the system runs the contract-generation script.
 7. The script creates the contract from:
    - verified seafarer data;
    - verified shipowner/employer data;
    - verified vessel data;
    - the approved master agreement template;
-   - the signed contract-condition form.
+   - the approved populated Contract Agreement Workspace.
 8. The generated document receives a platform reference, version metadata and document hash.
 
 This procedure prevents:
@@ -108,7 +110,7 @@ After a master agreement version and its catalogs are approved, ordinary generat
 5. party confirmations recorded by the portal;
 6. no free-text legal clause changes.
 
-The role of the employee is to prepare the condition form from approved data, not to author a new legal document.
+The role of the employee is to prepare embedded field values inside the approved Contract Agreement Workspace, not to author a new legal document.
 
 ## 5. Immutable Clause Control
 
@@ -159,7 +161,7 @@ A generated contract instance can move to `ready_for_signature` only when:
 3. employer, vessel and seafarer records are linked;
 4. required variables are completed;
 5. `to_be_agreed` fields are resolved or controlled as exceptions;
-6. party review confirmations are present;
+6. party review confirmations for the populated Contract Agreement Workspace are present;
 7. no unresolved blocker remains;
 8. generated document hash is recorded;
 9. no fixed clause has been edited outside the approved version.
@@ -191,13 +193,14 @@ The future implementation should create:
 3. variable catalog versioning;
 4. contract draft object;
 5. selected-term storage;
-6. contract-condition form object;
-7. party approval/signature events for the condition form;
-8. generation script that produces the contract from the approved template and signed form;
-9. generated document hash;
-10. signature guard;
-11. controlled exception workflow;
-12. audit events for template, condition-form and instance changes.
+6. contract workspace object;
+7. embedded field value storage;
+8. party approval/signature events for the populated contract workspace;
+9. generation script that produces the contract from the approved template and approved workspace values;
+10. generated document hash;
+11. signature guard;
+12. controlled exception workflow;
+13. audit events for template, embedded field, workspace and instance changes.
 
 ## 10. Sources Used For Orientation
 
@@ -214,18 +217,20 @@ These sources are orientation only. The project standard controls how CrewPortGl
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.3 | 2026-06-04 | GTC IT / AI Assistant | Replaced the user-facing separate condition-form model with the Contract Agreement Workspace and embedded condition fields model |
 | 1.2 | 2026-06-03 | GTC IT / AI Assistant | Updated next stage after completion of CPG-BIZ-094 clause library and catalog seed |
-| 1.1 | 2026-06-03 | GTC IT / AI Assistant | Removed internal automation provisions and added the contract-condition form plus post-approval generation script procedure |
+| 1.1 | 2026-06-03 | GTC IT / AI Assistant | Removed internal automation provisions and added an interim condition-form procedure later superseded by the CPG-BIZ-095 workspace model |
 | 1.0 | 2026-06-03 | GTC IT / AI Assistant | Initial public master contract versioning and clause-control standard |
 
 ## 12. Next Stage
 
 CPG-BIZ-094 has now defined the first clause library and catalog seed.
+CPG-BIZ-095 has clarified that the user-facing contract model is the Contract Agreement Workspace with embedded condition fields.
 
 The next recommended stage is:
 
 ```text
-CPG-BIZ-095 - Contract-condition form object and API design
+CPG-BIZ-096 - Contract workspace object, API and UI design
 ```
 
-That stage should define the form object, API payload, validation errors, party approval states, generated document preview and guard response before any runtime implementation.
+That stage should define the workspace object, API payload, embedded field rendering, validation errors, party approval states, generated document preview and guard response before any runtime implementation.

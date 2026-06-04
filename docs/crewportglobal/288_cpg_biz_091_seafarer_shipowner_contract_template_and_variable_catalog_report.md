@@ -5,8 +5,8 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Contract-template design and variable-field matrix
 - Source task: Project Owner approval after CPG-BIZ-090
-- Version: 1.0
-- Date: 2026-06-03
+- Version: 1.1
+- Date: 2026-06-04
 - Status: Drafted for Project Owner and legal review
 
 ## 1. Purpose
@@ -417,11 +417,11 @@ The future platform workflow should be:
 2. Seafarer profile contains matching preferences and return/travel preferences.
 3. Matching and shortlist workflow identifies candidate.
 4. Employer proceeds with candidate.
-5. Authorized employee opens the contract-condition form.
-6. Form imports verified data and highlights missing / to_be_agreed fields.
-7. Authorized employee selects catalog values and resolves open terms with parties.
-8. Parties review and approve/sign the condition form.
-9. After required party approval/signature, the generation script creates the contract from the approved template, verified seafarer data, verified shipowner/employer data, verified vessel data and the signed condition form.
+5. Authorized employee opens the Contract Agreement Workspace.
+6. The workspace shows the approved agreement text and imports verified data into embedded condition fields.
+7. Authorized employee selects catalog values and resolves open terms with parties inside the clauses they affect.
+8. Parties review and approve/sign the populated contract workspace.
+9. After required party approval/signature, the generation script creates the contract from the approved template, verified seafarer data, verified shipowner/employer data, verified vessel data and the approved workspace values.
 10. The generated contract receives version metadata and document hash.
 11. Parties review generated output and confirm / sign where required by the workflow.
 12. Signed contract creates employment_pending_embarkation status.
@@ -429,6 +429,21 @@ The future platform workflow should be:
 14. Monthly evidence supports billing.
 15. Disembarkation and return support close the active voyage.
 ```
+
+## 7A. Revision Note After CPG-BIZ-095
+
+The earlier detached condition-form concept has been superseded.
+
+The controlling future model is:
+
+```text
+Contract Agreement Workspace
++ embedded condition fields inside master-agreement clauses
++ party review in contract context
++ scripted generation after approval
+```
+
+This keeps selected terms connected to the legal clauses that explain their effect.
 
 ## 8. Blocking Rules Before Signature
 
@@ -455,19 +470,18 @@ The contract must not be marked `ready_for_signature` while these fields are unr
 Recommended next task:
 
 ```text
-CPG-BIZ-092 - Seafarer employment contract field catalog and draft-generation design
+CPG-BIZ-096 - Contract workspace object, API and UI design
 ```
 
 Scope:
 
-1. convert this document into exact field codes;
-2. decide which fields belong to seafarer profile, employer request, vessel context and contract draft;
-3. define catalog values in reference catalogs;
-4. define draft contract API payload;
-5. define signature / confirmation states;
-6. define guard rules before `ready_for_signature`;
-7. define employer and seafarer cabinet tasks;
-8. define audit events and billing links.
+1. reuse the clause IDs and field codes already defined in CPG-BIZ-094;
+2. render those fields as embedded controls inside the Contract Agreement Workspace;
+3. define workspace API payloads;
+4. define signature / confirmation states;
+5. define guard rules before `ready_for_signature`;
+6. define employer and seafarer cabinet tasks;
+7. define audit events and billing links.
 
 ## 10. Stage Status
 

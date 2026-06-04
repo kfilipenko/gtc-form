@@ -5,8 +5,8 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Master contract clause library and variable catalog design
 - Source task: Project Owner approval after CPG-BIZ-093
-- Version: 1.0
-- Date: 2026-06-03
+- Version: 1.1
+- Date: 2026-06-04
 - Status: Drafted for Project Owner review and maritime legal review
 
 ## 1. Purpose
@@ -16,10 +16,10 @@ This document converts the approved CPG-BIZ-093 master-contract standard into a 
 The purpose is to prepare a complete seafarer / shipowner master contract model where:
 
 1. fixed clauses are stable and versioned;
-2. variable conditions are selected through a contract-condition form;
+2. variable conditions are selected through embedded fields inside the Contract Agreement Workspace;
 3. every variable states whether it is `single`, `multiple`, `linked_record`, `computed`, `date`, `number`, `money`, `text_controlled` or `document_reference`;
-4. party approval/signature applies to the condition form before the contract-generation script creates the final document;
-5. the generated contract is based on verified seafarer data, verified shipowner/employer data, verified vessel data, the approved master template and the signed condition form.
+4. party approval/signature applies to the populated Contract Agreement Workspace before the contract-generation script creates the final document;
+5. the generated contract is based on verified seafarer data, verified shipowner/employer data, verified vessel data, the approved master template and the approved workspace values.
 
 This document is not legal advice and is not the final production agreement. It is the controlled drafting baseline for maritime legal review and future implementation.
 
@@ -52,11 +52,11 @@ verified seafarer record
 + verified shipowner/employer record
 + verified vessel record
 + approved master agreement version
-+ signed contract-condition form
++ approved Contract Agreement Workspace with embedded condition fields
 = generated contract instance
 ```
 
-The condition form is the place where the parties approve commercial and voyage-specific variables.
+The Contract Agreement Workspace is the place where the parties approve commercial and voyage-specific variables in the context of the clauses they affect.
 
 The generated contract must not contain unapproved free-text legal clauses.
 
@@ -80,7 +80,7 @@ The generated contract must not contain unapproved free-text legal clauses.
 | Clause ID | Clause title | Fixed-clause purpose | Variable fields |
 |---|---|---|---|
 | MC-001 | Parties and capacity | Identify the seafarer, shipowner/employer, authorized representative and platform reference. | C-1.1..C-1.9 |
-| MC-002 | Definitions | Define master agreement, condition form, vessel, voyage, CBA, repatriation, service evidence and platform record. | `master_agreement_version` computed |
+| MC-002 | Definitions | Define master agreement, Contract Agreement Workspace, vessel, voyage, CBA, repatriation, service evidence and platform record. | `master_agreement_version` computed |
 | MC-003 | Vessel and voyage | Identify vessel, flag, IMO where available, vessel type, trading area and joining port. | C-2.1..C-2.9 |
 | MC-004 | Position and duties | Define rank, department, core duties, watchkeeping and special duties. | C-3.1..C-3.6 |
 | MC-005 | Contract basis and term | Define contract type, start, duration, expected end, extension and probation. | C-4.1..C-4.7 |
@@ -102,7 +102,7 @@ The generated contract must not contain unapproved free-text legal clauses.
 
 ### MC-001 Parties And Capacity
 
-This agreement is entered into between the seafarer and the shipowner/employer identified in the signed condition form.
+This agreement is entered into between the seafarer and the shipowner/employer identified in the approved populated Contract Agreement Workspace.
 
 The shipowner/employer confirms that the representative signing or approving this agreement has authority to bind the shipowner/employer for the selected vessel and voyage.
 
@@ -120,13 +120,13 @@ Variables:
 | C-1.6 | Representative authority evidence | `document_reference` | Yes | protected upload |
 | C-1.7 | Platform contract reference | `computed` | Yes | contract instance |
 | C-1.8 | Master agreement version | `computed` | Yes | template registry |
-| C-1.9 | Contract-condition form reference | `computed` | Yes | signed condition form |
+| C-1.9 | Contract workspace reference | `computed` | Yes | approved Contract Agreement Workspace |
 
 ### MC-002 Definitions
 
-The agreement uses defined terms for the vessel, seafarer, shipowner/employer, condition form, master agreement, contract instance, CBA, repatriation, joining, return destination, monthly service evidence and platform record.
+The agreement uses defined terms for the vessel, seafarer, shipowner/employer, Contract Agreement Workspace, master agreement, contract instance, CBA, repatriation, joining, return destination, monthly service evidence and platform record.
 
-Fixed definitions must not be rewritten in the condition form.
+Fixed definitions must not be rewritten in the Contract Agreement Workspace.
 
 Variable:
 
@@ -136,7 +136,7 @@ Variable:
 
 ### MC-003 Vessel And Voyage
 
-The seafarer is engaged for service connected with the vessel and voyage context selected in the condition form.
+The seafarer is engaged for service connected with the vessel and voyage context selected in the Contract Agreement Workspace.
 
 Variables:
 
@@ -147,14 +147,14 @@ Variables:
 | C-3.3 | Flag state | `linked_record` | Yes | vessel profile |
 | C-3.4 | Vessel type | `single` | Yes | `vessel_types` catalog |
 | C-3.5 | Trading area / voyage area | `single` | Conditional | `trading_area` catalog |
-| C-3.6 | Joining port / place | `single` + `text_controlled` | Yes | port/place catalog + condition form |
-| C-3.7 | Expected joining date | `date` | Yes | condition form |
+| C-3.6 | Joining port / place | `single` + `text_controlled` | Yes | port/place catalog + Contract Agreement Workspace |
+| C-3.7 | Expected joining date | `date` | Yes | Contract Agreement Workspace |
 | C-3.8 | Vessel operator / manager | `linked_record` | Conditional | employer/vessel profile |
 | C-3.9 | Vessel particulars document | `document_reference` | Conditional | protected upload |
 
 ### MC-004 Position And Duties
 
-The seafarer shall serve in the rank and department selected in the condition form and shall perform duties normally associated with that rank, subject to applicable safety, training, certification and vessel requirements.
+The seafarer shall serve in the rank and department selected in the Contract Agreement Workspace and shall perform duties normally associated with that rank, subject to applicable safety, training, certification and vessel requirements.
 
 Variables:
 
@@ -169,7 +169,7 @@ Variables:
 
 ### MC-005 Contract Basis And Term
 
-The contract basis, start date, expected end and extension rules are the values selected in the condition form.
+The contract basis, start date, expected end and extension rules are the values selected in the Contract Agreement Workspace.
 
 Variables:
 
@@ -177,16 +177,16 @@ Variables:
 |---|---|---|---:|---|
 | C-5.1 | Contract type | `single` | Yes | `contract_type` catalog |
 | C-5.2 | Contract start trigger | `single` | Yes | `contract_start_trigger` catalog |
-| C-5.3 | Start date | `date` | Conditional | condition form |
-| C-5.4 | Duration value | `number` | Yes | condition form |
+| C-5.3 | Start date | `date` | Conditional | Contract Agreement Workspace |
+| C-5.4 | Duration value | `number` | Yes | Contract Agreement Workspace |
 | C-5.5 | Duration unit | `single` | Yes | `duration_unit` catalog |
-| C-5.6 | Expected end date | `computed` / `date` | Conditional | computed / condition form |
+| C-5.6 | Expected end date | `computed` / `date` | Conditional | computed / Contract Agreement Workspace |
 | C-5.7 | Extension rule | `single` | Yes | `extension_rule` catalog |
 | C-5.8 | Probation period | `single` + `number` | Conditional | `probation_rule` catalog |
 
 ### MC-006 Wages And Payment
 
-The shipowner/employer shall pay the seafarer the agreed wages and any selected additional wage components according to the payment frequency and payment method selected in the condition form.
+The shipowner/employer shall pay the seafarer the agreed wages and any selected additional wage components according to the payment frequency and payment method selected in the Contract Agreement Workspace.
 
 Payments due to the seafarer must be recorded in a wage statement or equivalent evidence according to the selected method and applicable rule.
 
@@ -194,7 +194,7 @@ Variables:
 
 | Field | Label | Type | Required | Source |
 |---|---|---|---:|---|
-| C-6.1 | Base wage amount | `money` | Yes | condition form |
+| C-6.1 | Base wage amount | `money` | Yes | Contract Agreement Workspace |
 | C-6.2 | Currency | `single` | Yes | `contract_currency` catalog |
 | C-6.3 | Payment frequency | `single` | Yes | `wage_payment_frequency` catalog |
 | C-6.4 | Payment method | `single` | Yes | `wage_payment_method` catalog |
@@ -221,11 +221,11 @@ Variables:
 | C-7.5 | Public holiday rule | `single` | Conditional | `public_holiday_rule` catalog |
 | C-7.6 | Rest-hour record method | `single` | Conditional | `rest_record_method` catalog |
 | C-7.7 | CBA rest/leave reference | `document_reference` | Conditional | CBA document |
-| C-7.8 | Additional leave notes | `text_controlled` | Conditional | condition form |
+| C-7.8 | Additional leave notes | `text_controlled` | Conditional | Contract Agreement Workspace |
 
 ### MC-008 Joining And Mobilization
 
-Joining travel, joining documents, medical preparation and boarding evidence shall be handled according to the condition form.
+Joining travel, joining documents, medical preparation and boarding evidence shall be handled according to the Contract Agreement Workspace.
 
 Variables:
 
@@ -238,7 +238,7 @@ Variables:
 | C-8.5 | Medical preparation responsibility | `single` | Conditional | `medical_responsibility` catalog |
 | C-8.6 | Pre-joining documents | `multiple` | Conditional | document checklist |
 | C-8.7 | Boarding evidence method | `single` | Yes | `boarding_evidence_method` catalog |
-| C-8.8 | Joining notes | `text_controlled` | Conditional | condition form |
+| C-8.8 | Joining notes | `text_controlled` | Conditional | Contract Agreement Workspace |
 
 ### MC-009 Repatriation And Return
 
@@ -255,7 +255,7 @@ Variables:
 | C-9.5 | Return timing rule | `single` | Yes | `return_timing_rule` catalog |
 | C-9.6 | Return support provider | `single` | Conditional | `return_support_provider` catalog |
 | C-9.7 | Return exceptions | `multiple` | Conditional | `return_exception_reason` catalog |
-| C-9.8 | Return support notes | `text_controlled` | Conditional | condition form |
+| C-9.8 | Return support notes | `text_controlled` | Conditional | Contract Agreement Workspace |
 
 ### MC-010 Medical Care And Insurance
 
@@ -271,7 +271,7 @@ Variables:
 | C-10.4 | Illness/injury wage continuation | `single` | Conditional | `illness_wage_rule` catalog |
 | C-10.5 | Insurance evidence | `document_reference` | Conditional | protected upload |
 | C-10.6 | Emergency contact route | `single` | Conditional | `emergency_contact_route` catalog |
-| C-10.7 | Medical exception notes | `text_controlled` | Conditional | condition form |
+| C-10.7 | Medical exception notes | `text_controlled` | Conditional | Contract Agreement Workspace |
 
 ### MC-011 Documents And Certifications
 
@@ -313,8 +313,8 @@ Variables:
 |---|---|---|---:|---|
 | C-13.1 | Code of conduct reference | `document_reference` | Conditional | employer/vessel docs |
 | C-13.2 | Complaint route | `single` | Yes | `complaint_route` catalog |
-| C-13.3 | Onboard complaint contact | `text_controlled` | Conditional | condition form |
-| C-13.4 | Shore-side complaint contact | `text_controlled` | Conditional | condition form |
+| C-13.3 | Onboard complaint contact | `text_controlled` | Conditional | Contract Agreement Workspace |
+| C-13.4 | Shore-side complaint contact | `text_controlled` | Conditional | Contract Agreement Workspace |
 | C-13.5 | Harassment/bullying procedure reference | `document_reference` | Conditional | employer/vessel docs |
 
 ### MC-014 Early Termination And Replacement
@@ -331,7 +331,7 @@ Variables:
 | C-14.4 | Illness / incapacity replacement rule | `single` | Conditional | `replacement_support_rule` catalog |
 | C-14.5 | Employer-requested replacement rule | `single` | Conditional | `replacement_support_rule` catalog |
 | C-14.6 | Evidence required for early termination | `multiple` | Yes | `termination_evidence` catalog |
-| C-14.7 | Termination notes | `text_controlled` | Conditional | condition form |
+| C-14.7 | Termination notes | `text_controlled` | Conditional | Contract Agreement Workspace |
 
 ### MC-015 Data, Platform Evidence And Confidentiality
 
@@ -365,7 +365,7 @@ Variables:
 
 ### MC-017 Disputes And Governing Process
 
-The first operational step for a complaint or dispute should be the complaint process selected in the condition form and referenced formal documents. Legal dispute forum, if needed, shall be the selected approved forum or mandatory forum applicable to the contract.
+The first operational step for a complaint or dispute should be the complaint process selected in the Contract Agreement Workspace and referenced formal documents. Legal dispute forum, if needed, shall be the selected approved forum or mandatory forum applicable to the contract.
 
 Variables:
 
@@ -379,7 +379,7 @@ Variables:
 
 ### MC-018 Signatures, Copies And Language
 
-The agreement is effective only after required party approval or signature under the workflow. The seafarer must receive a copy of the agreement and the signed condition form.
+The agreement is effective only after required party approval or signature under the workflow. The seafarer must receive a copy of the agreement and the approved populated Contract Agreement Workspace.
 
 The authoritative language is English. Machine localization may assist reading but must not change the signed English terms.
 
@@ -387,8 +387,8 @@ Variables:
 
 | Field | Label | Type | Required | Source |
 |---|---|---|---:|---|
-| C-18.1 | Seafarer approval/signature | `signature` | Yes | condition form / contract workflow |
-| C-18.2 | Employer approval/signature | `signature` | Yes | condition form / contract workflow |
+| C-18.1 | Seafarer approval/signature | `signature` | Yes | Contract Agreement Workspace / contract workflow |
+| C-18.2 | Employer approval/signature | `signature` | Yes | Contract Agreement Workspace / contract workflow |
 | C-18.3 | Witness / facilitator | `signature` | Conditional | workflow |
 | C-18.4 | Signature date | `computed` / `date` | Yes | workflow |
 | C-18.5 | Signature place | `text_controlled` | Conditional | workflow |
@@ -559,9 +559,9 @@ Variables:
 |---|---|
 | `en` | English authoritative version |
 
-## 8. Condition Form Guard
+## 8. Contract Workspace Guard
 
-The contract-condition form cannot be approved unless:
+The Contract Agreement Workspace cannot be approved unless:
 
 1. employer/company is verified or explicitly accepted by control exception;
 2. representative authority exists;
@@ -583,9 +583,9 @@ Future implementation should support these records:
 | `master_contract_templates` | Stores template versions, status and hash. |
 | `master_contract_clauses` | Stores clause IDs, fixed text, order and version. |
 | `contract_variable_catalogs` | Stores catalog codes, value codes, labels, active status and version. |
-| `contract_condition_forms` | Stores one condition form per intended contract instance. |
-| `contract_condition_values` | Stores selected values by `C-*` field. |
-| `contract_condition_party_approvals` | Stores seafarer and employer approval/signature events. |
+| `contract_workspace_instances` | Stores one contract workspace per intended contract instance. |
+| `contract_embedded_field_values` | Stores selected embedded values by `C-*` field and clause location. |
+| `contract_workspace_party_approvals` | Stores seafarer and employer approval/signature events for the populated workspace. |
 | `generated_contract_instances` | Stores generated document metadata, source records and document hash. |
 | `contract_generation_audit_events` | Stores every material generation, approval, correction and exception event. |
 
@@ -594,7 +594,14 @@ Future implementation should support these records:
 The next implementation-planning stage should be:
 
 ```text
-CPG-BIZ-095 - Contract-condition form object and API design
+CPG-BIZ-096 - Contract workspace object, API and UI design
 ```
 
-That stage should define the draft object, endpoints, validation errors, party approval states, generated document preview and guard response before any runtime implementation.
+That stage should define the workspace object, endpoints, embedded field rendering, validation errors, party approval states, generated document preview and guard response before any runtime implementation.
+
+## 11. Revision History
+
+| Version | Date | Author | Changes |
+|---|---|---|---|
+| 1.1 | 2026-06-04 | GTC IT / AI Assistant | Aligned the clause library with CPG-BIZ-095 Contract Agreement Workspace and embedded condition fields model |
+| 1.0 | 2026-06-03 | GTC IT / AI Assistant | Initial master contract clause library and variable catalog seed |

@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.23
+- Version: 3.24
 - Status: For internal review
 
 ## 1. Purpose
@@ -138,8 +138,9 @@ This documentation block starts from the following approved business controls:
 58. Vessel context must not be hidden inside employer authority evidence: vessel flag country, vessel particulars and vessel-related evidence must be collected as vessel-stream data so future matching, blocker explanation and review tasks can distinguish company authority from vessel readiness.
 59. CrewPortGlobal must be operated as a circular commercial service cycle: marketing, registration, verification, service package, demand/supply matching, shortlist, employer decision, embarkation evidence, monthly service confirmation, billing, closure and repeat marketing must be connected by records, computed tasks, evidence and audit events.
 60. Seafarer / shipowner contracts must use a versioned public master agreement model: fixed clauses are approved once per template version, operational users may select only approved variables, and ordinary generated contract instances do not require new legal drafting unless a clause/version/catalog exception is triggered.
-61. Contract instances must be generated through a controlled condition-form workflow: the parties approve/sign the condition form first, then the system script generates the contract from the approved template, verified seafarer/employer/vessel records and the signed form.
+61. Contract instances must be generated through a controlled Contract Agreement Workspace: the parties review and approve the populated agreement with embedded condition fields first, then the system script generates the contract from the approved template, verified seafarer/employer/vessel records and approved workspace values.
 62. The master contract must be decomposed into versioned clause IDs and approved variable catalogs before runtime generation; each variable must state whether it is single-choice, multiple-choice, linked-record, computed, date, number, money, controlled text, document reference or signature.
+63. The contract workflow must not use a separate user-facing contract questionnaire as the approval object; contract variables must be embedded inside the relevant master-agreement clauses so that parties approve selected terms in legal context.
 
 ## 5. Intended Use
 
@@ -159,9 +160,10 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
-| 3.23 | 2026-06-03 | GTC IT / AI Assistant | Added CPG-BIZ-094 master contract clause library and catalog seeding control for future condition-form and scripted generation implementation |
+| 3.24 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-095 Contract Agreement Workspace control and replaced the separate condition-form model with embedded condition fields in contract context |
+| 3.23 | 2026-06-03 | GTC IT / AI Assistant | Added CPG-BIZ-094 master contract clause library and catalog seeding control; user-facing condition-form wording was later superseded by CPG-BIZ-095 workspace model |
 | 3.22 | 2026-06-03 | GTC IT / AI Assistant | Added BP-016 stage-to-standard mapping matrix for aligning business-process stages, standards, gaps and future job instructions |
-| 3.21 | 2026-06-03 | GTC IT / AI Assistant | Removed internal automation-facing language from contract standard and added the condition-form approval plus scripted generation procedure |
+| 3.21 | 2026-06-03 | GTC IT / AI Assistant | Removed internal automation-facing language from contract standard and added an interim condition-form approval procedure later superseded by CPG-BIZ-095 |
 | 3.20 | 2026-06-03 | GTC IT / AI Assistant | Added public master contract versioning and immutable clause control standard so legal review applies to template/catalog versions and exceptions, not every ordinary generated contract instance |
 | 3.19 | 2026-06-03 | GTC IT / AI Assistant | Added formal document reference rule to BP-014 so regulated UI conditions must link to the controlling document and clause instead of duplicating legal text |
 | 3.18 | 2026-06-03 | GTC IT / AI Assistant | Added contract-generation control to BP-012, BP-014 and BP-015, requiring future seafarer/shipowner contract drafts to use platform data, approved catalogs, party review and signature-ready guards |
