@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.83
+- Version: 2.84
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -381,6 +381,7 @@ docs/crewportglobal/
   292_cpg_biz_095_contract_agreement_workspace_embedded_fields_standard.md
   293_cpg_biz_096_contract_workspace_object_api_ui_design.md
   294_cpg_biz_097_contract_workspace_schema_sql_patch_draft.md
+  295_cpg_biz_098a_contract_workspace_verified_source_prefill_report.md
   sql_drafts/
     018_contract_workspace_schema_draft.sql
   seafarer_application_mapping/
@@ -922,6 +923,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.84 | 2026-06-04 | GTC IT / AI Assistant | Added document 295 as CPG-BIZ-098A contract workspace verified source prefill report and updated contract workspace standards to distinguish verified linked facts from selectable contract alternatives |
 | 2.83 | 2026-06-04 | GTC IT / AI Assistant | Added document 294 as CPG-BIZ-097 contract workspace schema and SQL patch draft, plus documentation-only SQL draft 018 outside runtime migrations |
 | 2.82 | 2026-06-04 | GTC IT / AI Assistant | Added document 293 as CPG-BIZ-096 contract workspace object, API and UI design |
 | 2.81 | 2026-06-04 | GTC IT / AI Assistant | Added document 292 as CPG-BIZ-095 Contract Agreement Workspace and embedded condition fields standard; aligned contract documents away from a separate user-facing condition-form model |

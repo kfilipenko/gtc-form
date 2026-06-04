@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Contract workspace object, API and UI design
 - Source task: continuation after CPG-BIZ-095
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-06-04
 - Status: Drafted for Project Owner review
 
@@ -56,6 +56,45 @@ The contract is not just a file. It is the record that connects:
 8. replacement rules;
 9. onboard service evidence;
 10. billing basis.
+
+## 3.1 Source-First Contract Data Rule
+
+The workspace is created from already verified platform records, not from a blank contract form.
+
+The first fill of the contract must use:
+
+```text
+verified seafarer profile
++ verified employer / shipowner company card
++ verified vessel card
++ approved crew request / vacancy
++ approved shortlist / candidate presentation evidence
+= prefilled contract workspace
+```
+
+The workspace then separates fields into two groups:
+
+| Field group | Source | User action |
+|---|---|---|
+| Verified linked facts | Approved platform cards and requests | View source, confirm, or request correction of the source record. |
+| Contractual choices | Approved contract catalogs or controlled inputs | Select one/multiple permitted terms in the contract clause context. |
+
+Examples of verified linked facts:
+
+1. seafarer name, rank and document references;
+2. employer legal name and authorized representative;
+3. vessel name, flag and vessel type;
+4. requested rank, joining date and demand context from the crew request.
+
+Examples of contractual choices:
+
+1. wage payment frequency;
+2. payment route;
+3. joining travel responsibility where not already fixed;
+4. return/repatriation responsibility where a permitted alternative must be selected;
+5. replacement / early termination option when the master contract permits alternatives.
+
+If a field should come from a verified source but the source is missing, outdated or not approved, the workspace must show `blocked_missing_data` and compute a correction task for the relevant source object. It must not allow manual retyping in the contract as a shortcut.
 
 ## 4. Workspace Object Model
 
@@ -209,6 +248,18 @@ Embedded fields should render according to `choice_type`:
 | `document_reference` | Protected document selector / verified document link. |
 | `signature` | Approval/signature state, not a free text field. |
 
+### 7.2.1 Source Display Rule
+
+For `linked_record`, `computed` and `document_reference` fields, the right panel should show:
+
+1. source object type;
+2. source object status;
+3. source field / document reference;
+4. last verification or review status when available;
+5. action: open source object or request source correction.
+
+For `catalog` and `controlled_input` fields, the panel should show why the value is selectable and which party must approve it.
+
 ### 7.3 Primary Action Rule
 
 The workspace must show one primary computed operation at a time.
@@ -256,6 +307,12 @@ Response:
   "master_agreement_version": "MA-SEA-1.0",
   "catalog_version": "MCAT-1.0",
   "embedded_fields": [],
+  "source_prefill": {
+    "linked_record_fields": [],
+    "computed_fields": [],
+    "selectable_contract_fields": [],
+    "blocked_source_fields": []
+  },
   "guard": {
     "status": "blocked",
     "blockers": []
@@ -485,13 +542,21 @@ Future implementation must test:
 8. generated instance stores template/catalog/source/document hashes;
 9. no fixed clause can be edited through runtime UI;
 10. task queue shows one computed operation at a time.
+11. linked facts are prefilled from verified source records and cannot be manually retyped to bypass source correction.
 
 ## 14. Next Stage
 
 The next stage should be:
 
 ```text
-CPG-BIZ-097 - Contract workspace schema and SQL patch draft
+CPG-BIZ-098B - Contract workspace SQL draft approval and migration implementation decision
 ```
 
-That stage should show the additive SQL design first and must not execute DDL/DML without separate approval.
+CPG-BIZ-097 has already prepared the additive SQL draft, and CPG-BIZ-098A has clarified the source-first prefill rule. The next gate should decide whether to convert the draft into a runtime migration.
+
+## 15. Revision History
+
+| Version | Date | Author | Changes |
+|---|---|---|---|
+| 1.1 | 2026-06-04 | GTC IT / AI Assistant | Added source-first contract data rule: verified platform records prefill linked facts, while user selection is limited to true contract alternatives and controlled exceptions |
+| 1.0 | 2026-06-04 | GTC IT / AI Assistant | Initial contract workspace object/API/UI design |

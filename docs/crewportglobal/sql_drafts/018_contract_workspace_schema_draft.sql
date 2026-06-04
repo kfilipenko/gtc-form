@@ -186,6 +186,10 @@ CREATE TABLE IF NOT EXISTS crewportglobal.contract_embedded_field_values (
   clause_id TEXT NOT NULL,
   choice_type TEXT NOT NULL,
   source_type TEXT NOT NULL,
+  source_object_type TEXT,
+  source_object_id UUID,
+  source_field_code TEXT,
+  source_status_snapshot JSONB NOT NULL DEFAULT '{}'::jsonb,
   value_code TEXT,
   value_json JSONB NOT NULL DEFAULT '{}'::jsonb,
   display_value TEXT,
@@ -218,6 +222,21 @@ CREATE TABLE IF NOT EXISTS crewportglobal.contract_embedded_field_values (
   CONSTRAINT contract_embedded_field_values_source_type_chk CHECK (
     source_type IN ('catalog', 'linked_record', 'computed', 'controlled_input', 'document_reference')
   ),
+  CONSTRAINT contract_embedded_field_values_source_object_type_chk CHECK (
+    source_object_type IS NULL OR source_object_type IN (
+      'seafarer_profile',
+      'employer_company',
+      'vessel',
+      'vacancy_request',
+      'shortlist_draft',
+      'vacancy_application',
+      'uploaded_document',
+      'contract_workspace'
+    )
+  ),
+  CONSTRAINT contract_embedded_field_values_source_status_object_chk CHECK (
+    jsonb_typeof(source_status_snapshot) = 'object'
+  ),
   CONSTRAINT contract_embedded_field_values_value_object_chk CHECK (
     jsonb_typeof(value_json) = 'object'
   ),
@@ -237,6 +256,9 @@ CREATE INDEX IF NOT EXISTS contract_embedded_field_values_clause_idx
 
 CREATE INDEX IF NOT EXISTS contract_embedded_field_values_status_idx
   ON crewportglobal.contract_embedded_field_values (completion_status, updated_at DESC);
+
+CREATE INDEX IF NOT EXISTS contract_embedded_field_values_source_idx
+  ON crewportglobal.contract_embedded_field_values (source_object_type, source_object_id);
 
 CREATE TABLE IF NOT EXISTS crewportglobal.contract_workspace_party_approvals (
   contract_workspace_party_approval_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

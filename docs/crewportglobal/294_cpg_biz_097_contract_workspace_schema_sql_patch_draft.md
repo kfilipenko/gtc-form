@@ -66,7 +66,7 @@ The draft follows existing CrewPortGlobal database patterns:
 | `contract_field_catalogs` | Versioned approved catalog groups for embedded fields. |
 | `contract_field_catalog_values` | Approved selectable catalog values. |
 | `contract_workspace_instances` | One working contract workspace for one seafarer/employer/vessel/request combination. |
-| `contract_embedded_field_values` | One structured value per `C-*` field in a workspace. |
+| `contract_embedded_field_values` | One structured value per `C-*` field in a workspace, including source object/type metadata for values prefilled from verified records. |
 | `contract_workspace_party_approvals` | Seafarer, employer, reviewer and control approvals tied to preview hash. |
 | `generated_contract_instances` | Final generated contract metadata, source hash and document hash. |
 | `contract_generation_audit_events` | Audit log for workspace creation, field changes, approvals, blockers and generation. |
@@ -94,6 +94,7 @@ The proposed schema stores the minimum data needed for generation guards:
 | Approved catalog | `contract_field_catalogs.catalog_status = 'approved'` |
 | Clause integrity | `master_contract_clauses.clause_hash` |
 | Field completion | `contract_embedded_field_values.completion_status` |
+| Source value traceability | `contract_embedded_field_values.source_object_type`, `source_object_id`, `source_field_code`, `source_status_snapshot` |
 | Current preview | `contract_workspace_instances.preview_hash` |
 | Source snapshot | `contract_workspace_instances.source_snapshot_hash` |
 | Party approval for current preview | `contract_workspace_party_approvals.approved_preview_hash` |
@@ -112,6 +113,25 @@ This stage does not:
 6. generate PDF/DOCX;
 7. implement electronic signatures;
 8. change onboard, application, shortlist or billing states.
+
+## 7.1 Source-First Prefill Boundary
+
+The schema draft is intended to support source-first contract creation.
+
+Contract workspaces should be created from verified platform records:
+
+```text
+verified seafarer profile
++ verified employer / shipowner company card
++ verified vessel card
++ approved crew request / vacancy
++ approved shortlist / candidate presentation evidence
+= prefilled contract workspace
+```
+
+For fields that come from source records, `contract_embedded_field_values` stores the source object metadata and status snapshot. The future UI should show these values as linked or confirm-only facts, not as blank fields to be retyped.
+
+Only true contractual alternatives, catalog choices, controlled exceptions and missing data corrections should require user selection or input. If a required linked fact is absent or not verified, the workspace should block generation and route the user/team back to the source object correction workflow.
 
 ## 8. Review Questions Before Approval
 
@@ -142,11 +162,10 @@ After Project Owner review, the next stage can be one of two paths:
 
 | Path | Meaning |
 |---|---|
-| CPG-BIZ-098A | Revise SQL draft after review comments. |
-| CPG-BIZ-098B | Approve SQL draft and convert it into runtime migration plus static/API tests. |
+| CPG-BIZ-098B | Approve SQL draft and convert it into runtime migration plus static/API tests, or return it for a revision cycle. |
 
 Recommended next stage:
 
 ```text
-CPG-BIZ-098A - Contract workspace SQL draft review and approval gate
+CPG-BIZ-098B - Contract workspace SQL draft approval and migration implementation decision
 ```

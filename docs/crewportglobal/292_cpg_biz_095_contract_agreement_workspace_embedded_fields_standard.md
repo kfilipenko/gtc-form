@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Business-process / contract workspace standard
 - Source task: Project Owner clarification after CPG-BIZ-094
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-06-04
 - Status: Approved operating model for future implementation planning
 
@@ -100,6 +100,39 @@ Each embedded field must define:
 | Approval scope | Which party must approve the value. |
 | Change rule | Whether change is allowed before approval, after approval or only by correction workflow. |
 | Guard blocker | Exact blocker if the field is missing, inconsistent or unsupported. |
+
+## 5.1 Verified Source Prefill Rule
+
+The Contract Agreement Workspace must not become a second questionnaire for data already collected and verified on the platform.
+
+When a contract workspace is created, the system must prefill contract fields from approved source records:
+
+| Source record | Contract data normally supplied from source |
+|---|---|
+| Verified seafarer profile | Seafarer identity, rank, certificates, document references, nationality, availability and declared preferences where relevant. |
+| Verified employer / shipowner company card | Employer legal name, registration data, authorized representative and authority evidence. |
+| Verified vessel card | Vessel name, IMO/official number where available, flag, type, particulars and vessel evidence. |
+| Approved crew request / vacancy | Position, joining date, contract duration, salary range, currency, vessel context and demand requirements. |
+| Approved shortlist / candidate presentation | Selected candidate link and pre-contract selection evidence. |
+
+The parties should choose or confirm only:
+
+1. contractual alternatives that are intentionally selectable under the master agreement;
+2. values not already available from verified records;
+3. corrections requested through the controlled correction workflow;
+4. exceptions requiring control approval.
+
+Field-source behavior:
+
+| Field source | User behavior |
+|---|---|
+| `linked_record` | Read-only or confirm-only; the value comes from the verified source record and links back to that record. |
+| `computed` | Read-only; calculated from verified records or approved workspace values. |
+| `catalog` | User or responsible employee selects from approved contract catalog values. |
+| `controlled_input` | Used only when no verified source or catalog value can supply the condition. |
+| `document_reference` | Selects an already uploaded and verified protected document when possible. |
+
+If a required contract value should come from a source record but the source record is missing or not verified, the workspace must show a blocker and route the task back to correction of the source form. The same data must not be manually retyped into the contract to bypass source verification.
 
 ## 6. User-Facing Presentation
 
@@ -198,18 +231,21 @@ Preferred terms:
 ## 12. Next Stage
 
 CPG-BIZ-096 has now defined the future runtime workspace object, API, UI, guard and audit model.
+CPG-BIZ-097 has prepared the additive SQL draft outside runtime migrations.
+CPG-BIZ-098A has clarified that verified source records prefill linked contract facts.
 
 The next implementation-planning stage should be:
 
 ```text
-CPG-BIZ-097 - Contract workspace schema and SQL patch draft
+CPG-BIZ-098B - Contract workspace SQL draft approval and migration implementation decision
 ```
 
-That stage should show the additive SQL design first and must not execute DDL/DML without separate approval.
+That stage must still not execute DDL/DML until the Project Owner approves conversion of the SQL draft into a runtime migration.
 
 ## 13. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.2 | 2026-06-04 | GTC IT / AI Assistant | Added verified source prefill rule: contract fields are populated from approved seafarer, employer, vessel and crew-request records, while users select only true contractual alternatives or controlled exceptions |
 | 1.1 | 2026-06-04 | GTC IT / AI Assistant | Updated next stage after CPG-BIZ-096 contract workspace object/API/UI design |
 | 1.0 | 2026-06-04 | GTC IT / AI Assistant | Initial Contract Agreement Workspace and embedded condition fields standard |

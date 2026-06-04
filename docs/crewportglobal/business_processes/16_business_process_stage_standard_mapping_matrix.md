@@ -5,9 +5,9 @@
 - Documentation block: Business processes and operating model
 - Document type: Stage-to-standard control matrix
 - Source task: Project Owner instruction after CPG-BIZ-093 approval
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-06-03
-- Status: Updated after CPG-BIZ-097 SQL draft
+- Status: Updated after CPG-BIZ-098A source-prefill clarification
 
 ## 1. Purpose
 
@@ -87,8 +87,8 @@ If a stage has no controlling standard, it must be marked as a gap and described
 | Candidate presentation review | CC-12 / CF-11 | Candidate presentation staging | Review team / Group 5 | CPG-DEMAND-016/023, BP-012 | Covered in current guard model | Need user-facing employer presentation package standard. |
 | Employer-facing presentation | CC-12 / CF-12 | Employer-safe candidate summary | Review team, Group 1 | CPG-DEMAND-023, BP-006, BP-012 | Partial | Standard for employer view content, field allow-list, presentation evidence and expiry. |
 | Employer feedback / candidate decision | CC-13 / CF-13 | Candidate decision / employer feedback | Group 1, review team | BP-012, earlier employer follow-up reports | Partial | Standard for employer decision states: proceed, reject, hold, interview, request replacement. |
-| Contract Agreement Workspace | CC-14 / CF-14 | Populated agreement with embedded condition fields | Group 1, Group 4, Group 5 | CPG-BIZ-091/092/093/094/095/096/097, BP-014 | Workspace model, clause library, catalogs, object/API/UI design and additive SQL draft are defined; SQL is not applied | CPG-BIZ-098 SQL draft review and approval gate before runtime migration. |
-| Scripted contract generation | CC-14 / CF-14 | Generated contract instance | System script, responsible employee, control role | CPG-BIZ-093/094/095/096/097, BP-014 | Object/API/UI design and future storage draft are defined; runtime generation not implemented | Future generation implementation after schema approval and migration. |
+| Contract Agreement Workspace | CC-14 / CF-14 | Populated agreement with embedded condition fields | Group 1, Group 4, Group 5 | CPG-BIZ-091/092/093/094/095/096/097/098A, BP-014 | Workspace model, clause library, catalogs, object/API/UI design, source-first prefill rule and additive SQL draft are defined; SQL is not applied | CPG-BIZ-098B SQL approval/migration decision before runtime implementation. |
+| Scripted contract generation | CC-14 / CF-14 | Generated contract instance | System script, responsible employee, control role | CPG-BIZ-093/094/095/096/097/098A, BP-014 | Object/API/UI design and future storage draft are defined; runtime generation not implemented | Future generation implementation after schema approval and migration. |
 | Embarkation confirmation | CC-14 / CF-14 | Employment/voyage support record | Group 4 support, Group 1, employer | BP-012, BP-015 | Gap/partial | Standard for boarding evidence, onboard status, success-fee trigger and failed-joining blocker. |
 | Active voyage monthly evidence | CC-15 / CF-15 | Monthly service evidence | Group 4 support, Group 3 billing | BP-012, BP-015 | Gap | Standard for monthly work confirmation, illness/early-disembarkation signal, replacement and invoice basis. |
 | Disembarkation and return support | CC-16 / CF-16 | Return / repatriation support record | Group 4 support, responsible manager | BP-012, BP-015, CPG-BIZ-089/090 | Partial | Standard for return responsibility, route, destination, payer, support completion and next availability task. |
@@ -147,11 +147,12 @@ CPG-BIZ-094 has defined the master contract clause library and catalog seed.
 CPG-BIZ-095 has replaced the separate condition-form concept with the Contract Agreement Workspace and embedded condition fields.
 CPG-BIZ-096 has defined the future object, API, UI, guard and audit model.
 CPG-BIZ-097 has prepared an additive SQL draft outside runtime migrations.
+CPG-BIZ-098A has clarified that verified platform records prefill contract facts and that parties select only true contractual alternatives or controlled corrections.
 
 The recommended next stage is:
 
 ```text
-CPG-BIZ-098A - Contract workspace SQL draft review and approval gate
+CPG-BIZ-098B - Contract workspace SQL draft approval and migration implementation decision
 ```
 
 After that, the process should move to:
@@ -167,5 +168,6 @@ After that, the process should move to:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.2 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-098A source-first prefill clarification for Contract Agreement Workspace and updated the next gate to SQL approval / migration decision |
 | 1.1 | 2026-06-04 | GTC IT / AI Assistant | Marked CPG-BIZ-097 contract workspace SQL draft as prepared outside runtime migrations and updated the next gate to CPG-BIZ-098A approval review |
 | 1.0 | 2026-06-03 | GTC IT / AI Assistant | Initial stage-to-standard mapping matrix |

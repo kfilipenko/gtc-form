@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.26
+- Version: 3.27
 - Status: For internal review
 
 ## 1. Purpose
@@ -143,6 +143,7 @@ This documentation block starts from the following approved business controls:
 63. The contract workflow must not use a separate user-facing contract questionnaire as the approval object; contract variables must be embedded inside the relevant master-agreement clauses so that parties approve selected terms in legal context.
 64. The Contract Agreement Workspace must be treated as a controlled runtime object with explicit workspace statuses, embedded field values, party approvals tied to preview hash, generation guard blockers and audit events before any final contract instance can be generated.
 65. Contract workspace database changes must first be prepared as an additive SQL draft outside runtime migrations; no DDL, DML, seed data or runtime migration may be executed until the Project Owner approves the SQL draft and the migration implementation stage separately.
+66. Contract workspace values must be source-first: verified seafarer, employer, vessel, crew-request and shortlist/presentation records prefill linked contract facts, while user selection is limited to approved contractual alternatives, controlled exceptions and source-record corrections.
 
 ## 5. Intended Use
 
@@ -162,6 +163,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.27 | 2026-06-04 | GTC IT / AI Assistant | Added source-first contract workspace control requiring verified records to prefill contract facts and limiting user choice to actual contractual alternatives or controlled corrections |
 | 3.26 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-097 contract workspace SQL draft gate requiring additive schema review outside runtime migrations before any DDL/DML execution |
 | 3.25 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-096 contract workspace object/API/UI control for future workspace implementation planning |
 | 3.24 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-095 Contract Agreement Workspace control and replaced the separate condition-form model with embedded condition fields in contract context |
