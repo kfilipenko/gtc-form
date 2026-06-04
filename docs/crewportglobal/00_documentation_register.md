@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.88
+- Version: 2.90
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -927,6 +927,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.90 | 2026-06-04 | GTC IT / AI Assistant | Added document 301 as CPG-BIZ-101 coding task for the Shipowners menu term, dedicated candidate-selection workspace and guarded `Propose contract` handoff |
 | 2.89 | 2026-06-04 | GTC IT / AI Assistant | Added document 300 as CPG-BIZ-100 implementation report for shipowner candidate `proceed_with_candidate` decision and guarded Contract Agreement Workspace proposal from `/post-vacancy/` |
 | 2.88 | 2026-06-04 | GTC IT / AI Assistant | Added document 299 as CPG-BIZ-099 shipowner candidate review menu and contract proposal computed-operation design |
 | 2.87 | 2026-06-04 | GTC IT / AI Assistant | Added document 298 as CPG-BIZ-098D contract workspace runtime migration report covering migration 018, test DB application, idempotency check, schema verification and API regression |

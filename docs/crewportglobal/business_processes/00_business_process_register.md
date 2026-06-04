@@ -168,6 +168,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.33 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-101 planning control for the Shipowners terminology/menu, dedicated candidate-selection workspace and no-raw-profile visibility boundary before contract proposal |
 | 3.32 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-100 implementation control for employer `proceed_with_candidate`, guarded `Propose contract`, workspace creation/reuse and audit evidence |
 | 3.31 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-099 control for shipowner candidate review and the guarded `propose_contract` computed operation |
 | 3.30 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-098D runtime migration control after implementing migration 018 for the contract workspace database foundation |
