@@ -5,9 +5,9 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: SQL draft review / approval-gate discussion report
 - Source task: CPG-BIZ-098A continuation and Project Owner instruction
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-06-04
-- Status: Discussion result; no runtime migration approved
+- Status: Discussion result; required SQL draft correction completed by CPG-BIZ-098C; no runtime migration approved
 
 ## 1. Purpose
 
@@ -236,6 +236,12 @@ Recommended next stage:
 CPG-BIZ-098C - Contract workspace SQL draft correction for shortlist candidate source link
 ```
 
+Status update:
+
+```text
+Completed by CPG-BIZ-098C on 2026-06-04.
+```
+
 After CPG-BIZ-098C:
 
 ```text
@@ -244,3 +250,9 @@ CPG-BIZ-099 - Shipowner candidate review menu and Propose Contract computed oper
 
 No portal UI change should be implemented until the candidate-view visibility rule and contract-proposal guard are approved.
 
+## 12. Revision History
+
+| Version | Date | Author | Changes |
+|---|---|---|---|
+| 1.1 | 2026-06-04 | GTC IT / AI Assistant | Marked the required SQL draft correction as completed by CPG-BIZ-098C while preserving the no-runtime-migration approval boundary |
+| 1.0 | 2026-06-04 | GTC IT / AI Assistant | Initial source-field reconciliation and SQL draft approval-gate discussion report |

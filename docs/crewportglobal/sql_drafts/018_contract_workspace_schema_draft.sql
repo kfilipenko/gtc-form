@@ -125,6 +125,7 @@ CREATE TABLE IF NOT EXISTS crewportglobal.contract_workspace_instances (
   vessel_id UUID NOT NULL REFERENCES crewportglobal.vessels(vessel_id) ON DELETE RESTRICT,
   vacancy_request_id UUID NOT NULL REFERENCES crewportglobal.vacancy_requests(vacancy_request_id) ON DELETE RESTRICT,
   shortlist_draft_id UUID REFERENCES crewportglobal.operator_shortlist_drafts(shortlist_draft_id) ON DELETE SET NULL,
+  shortlist_candidate_id UUID REFERENCES crewportglobal.operator_shortlist_candidates(shortlist_candidate_id) ON DELETE SET NULL,
   vacancy_application_id UUID REFERENCES crewportglobal.vacancy_applications(vacancy_application_id) ON DELETE SET NULL,
   created_by_user_id UUID REFERENCES crewportglobal.users(user_id) ON DELETE SET NULL,
   assigned_group_code TEXT,
@@ -166,6 +167,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS contract_workspace_instances_number_uidx
 
 CREATE INDEX IF NOT EXISTS contract_workspace_instances_vacancy_idx
   ON crewportglobal.contract_workspace_instances (vacancy_request_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS contract_workspace_instances_shortlist_candidate_idx
+  ON crewportglobal.contract_workspace_instances (shortlist_candidate_id, created_at DESC);
 
 CREATE INDEX IF NOT EXISTS contract_workspace_instances_seafarer_idx
   ON crewportglobal.contract_workspace_instances (seafarer_profile_id, created_at DESC);
@@ -229,6 +233,7 @@ CREATE TABLE IF NOT EXISTS crewportglobal.contract_embedded_field_values (
       'vessel',
       'vacancy_request',
       'shortlist_draft',
+      'shortlist_candidate',
       'vacancy_application',
       'uploaded_document',
       'contract_workspace'
