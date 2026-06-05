@@ -833,6 +833,7 @@
         'verify.taskTitle.companyVerification': 'Review company verification.',
         'verify.taskTitle.crewRequest': 'Review crew request completeness.',
         'verify.taskTitle.vacancyApplication': 'Review candidate application.',
+        'verify.taskTitle.incomingSeafarerRequest': 'Review incoming seafarer request.',
         'verify.taskTitle.createShortlist': 'Create internal shortlist draft.',
         'verify.taskTitle.approveInternalShortlist': 'Approve internal shortlist.',
         'verify.taskTitle.createReviewApplications': 'Create candidate presentation review.',
@@ -852,6 +853,7 @@
         'verify.processStage.companyVerification': 'Employer / company verification',
         'verify.processStage.demandIntakeReview': 'Employer demand intake review',
         'verify.processStage.candidateApplicationReview': 'Candidate application review',
+        'verify.processStage.incomingSeafarerRequestReview': 'Incoming seafarer request review',
         'verify.processStage.requestSupplyMatching': 'Request-supply matching and shortlist preparation',
         'verify.processStage.internalShortlistApproval': 'Internal shortlist approval',
         'verify.processStage.presentationPreparation': 'Candidate presentation review preparation',
@@ -871,6 +873,7 @@
         'verify.completion.companyVerification': 'Visible until employer authority, company context and linked demand context are reviewed or sent for correction.',
         'verify.completion.crewRequest': 'Visible until crew request completeness is reviewed and the next request-supply matching operation can be computed.',
         'verify.completion.vacancyApplication': 'Visible until candidate presentation review is approved, rejected or blocked by the approval guard.',
+        'verify.completion.incomingSeafarerRequest': 'Visible until the team releases the incoming request to the presented-candidate workflow, requests correction or rejects it with a reason.',
         'verify.completion.createShortlist': 'Visible until an internal shortlist draft is created or the candidate-search guard blocks creation.',
         'verify.completion.approveInternalShortlist': 'Visible until the internal shortlist is approved, rejected or blocked by the approval guard.',
         'verify.completion.createReviewApplications': 'Visible until candidate presentation review applications are created or blocked by guard.',
@@ -1150,6 +1153,7 @@
         'verify.taskTitle.companyVerification': 'Проверить компанию работодателя.',
         'verify.taskTitle.crewRequest': 'Проверить полноту заявки на экипаж.',
         'verify.taskTitle.vacancyApplication': 'Проверить отклик кандидата.',
+        'verify.taskTitle.incomingSeafarerRequest': 'Проверить входящий запрос моряка.',
         'verify.taskTitle.createShortlist': 'Создать внутренний shortlist draft.',
         'verify.taskTitle.approveInternalShortlist': 'Утвердить внутренний shortlist.',
         'verify.taskTitle.createReviewApplications': 'Создать проверку кандидатов для представления.',
@@ -1169,6 +1173,7 @@
         'verify.processStage.companyVerification': 'Проверка работодателя / компании',
         'verify.processStage.demandIntakeReview': 'Проверка заявки работодателя на экипаж',
         'verify.processStage.candidateApplicationReview': 'Проверка отклика кандидата',
+        'verify.processStage.incomingSeafarerRequestReview': 'Проверка входящего запроса моряка',
         'verify.processStage.requestSupplyMatching': 'Сопоставление заявки и предложения / подготовка shortlist',
         'verify.processStage.internalShortlistApproval': 'Внутреннее утверждение shortlist',
         'verify.processStage.presentationPreparation': 'Подготовка проверки кандидатов для представления',
@@ -1188,6 +1193,7 @@
         'verify.completion.companyVerification': 'Видима до проверки полномочий работодателя, данных компании и связанного demand context либо отправки на исправление.',
         'verify.completion.crewRequest': 'Видима до проверки полноты заявки на экипаж и вычисления следующей операции request-supply matching.',
         'verify.completion.vacancyApplication': 'Видима до утверждения, отклонения или блокировки approval guard для candidate presentation review.',
+        'verify.completion.incomingSeafarerRequest': 'Видима до передачи входящего запроса в presented-candidate workflow, запроса исправления или отклонения с причиной.',
         'verify.completion.createShortlist': 'Видима до создания внутреннего shortlist draft или блокировки candidate-search guard.',
         'verify.completion.approveInternalShortlist': 'Видима до утверждения, отклонения или блокировки approval guard для внутреннего shortlist.',
         'verify.completion.createReviewApplications': 'Видима до создания review-заявок кандидатов или блокировки guard.',
@@ -1821,6 +1827,13 @@
         return '';
       }
 
+      function isIncomingSeafarerRequestTask(item) {
+        if (!item || typeof item !== 'object' || item.queue_type !== 'vacancy_application') {
+          return false;
+        }
+        return summaryValue(item, 'request_source') === 'seafarer_initiated_request';
+      }
+
       function queueTaskTitleKey(item) {
         if (item && activeTaskTarget && queueItemMatchesTaskTarget(item, activeTaskTarget)) {
           const operation = activeTaskTarget.taskOperation || '';
@@ -1834,6 +1847,9 @@
             return 'verify.taskTitle.createReviewApplications';
           }
           if (operation === 'review_candidate_presentation') {
+            if (isIncomingSeafarerRequestTask(item)) {
+              return 'verify.taskTitle.incomingSeafarerRequest';
+            }
             return 'verify.taskTitle.reviewCandidatePresentation';
           }
           if (operation === 'confirm_vacancy_deletion') {
@@ -1856,6 +1872,9 @@
           return 'verify.taskTitle.crewRequest';
         }
         if (item.queue_type === 'vacancy_application') {
+          if (isIncomingSeafarerRequestTask(item)) {
+            return 'verify.taskTitle.incomingSeafarerRequest';
+          }
           return 'verify.taskTitle.vacancyApplication';
         }
         if (item.queue_type === 'vacancy_deletion_request') {
@@ -1961,6 +1980,9 @@
             return 'verify.processStage.presentationPreparation';
           }
           if (operation === 'review_candidate_presentation') {
+            if (isIncomingSeafarerRequestTask(item)) {
+              return 'verify.processStage.incomingSeafarerRequestReview';
+            }
             return 'verify.processStage.candidatePresentationReview';
           }
           if (operation === 'confirm_vacancy_deletion' || operation === 'reject_vacancy_deletion') {
@@ -1980,6 +2002,9 @@
           return 'verify.processStage.demandIntakeReview';
         }
         if (item.queue_type === 'vacancy_application') {
+          if (isIncomingSeafarerRequestTask(item)) {
+            return 'verify.processStage.incomingSeafarerRequestReview';
+          }
           return 'verify.processStage.candidateApplicationReview';
         }
         if (item.queue_type === 'vacancy_deletion_request') {
@@ -2032,6 +2057,9 @@
             return 'verify.completion.createReviewApplications';
           }
           if (operation === 'review_candidate_presentation') {
+            if (isIncomingSeafarerRequestTask(item)) {
+              return 'verify.completion.incomingSeafarerRequest';
+            }
             return 'verify.completion.reviewCandidatePresentation';
           }
           if (operation === 'confirm_vacancy_deletion' || operation === 'reject_vacancy_deletion') {
@@ -2051,6 +2079,9 @@
           return 'verify.completion.crewRequest';
         }
         if (item.queue_type === 'vacancy_application') {
+          if (isIncomingSeafarerRequestTask(item)) {
+            return 'verify.completion.incomingSeafarerRequest';
+          }
           return 'verify.completion.vacancyApplication';
         }
         if (item.queue_type === 'vacancy_deletion_request') {

@@ -557,6 +557,9 @@
         return 'Create candidate presentation review.';
       }
       if (operation === 'review_candidate_presentation') {
+        if (taskValue(task, 'context.request_source') === 'seafarer_initiated_request') {
+          return 'Review incoming seafarer request.';
+        }
         return 'Approve candidate for employer presentation.';
       }
       if (operation === 'review_seafarer_profile_completeness') {
@@ -584,6 +587,9 @@
         return 'Internal shortlist';
       }
       if (operation === 'review_candidate_presentation' || type === 'candidate_presentation_review') {
+        if (taskValue(task, 'context.request_source') === 'seafarer_initiated_request' || type === 'incoming_seafarer_request_review') {
+          return 'Incoming seafarer request';
+        }
         return 'Candidate presentation';
       }
       if (operation === 'review_seafarer_profile_completeness' || type === 'seafarer_supply_review') {
@@ -622,6 +628,9 @@
         return 'Candidate presentation review preparation';
       }
       if (operation === 'review_candidate_presentation') {
+        if (taskValue(task, 'context.request_source') === 'seafarer_initiated_request') {
+          return 'Incoming seafarer request review';
+        }
         return 'Employer-facing candidate presentation review';
       }
       if (operation === 'review_seafarer_profile_completeness') {

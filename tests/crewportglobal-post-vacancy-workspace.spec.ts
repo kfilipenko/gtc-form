@@ -427,9 +427,8 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await expect(page.locator('#job-search-results')).toContainText(updatedTitle);
   await expect(page.locator('#job-search-results')).toContainText(company);
   await expect(page.locator('#job-search-results')).not.toContainText(seafarerEmail);
-  const jobCard = page.locator('.job-card', { hasText: company }).first();
-  await jobCard.getByRole('button', { name: 'Request contract consideration' }).click();
-  await expect(jobCard.getByRole('button', { name: 'Request sent' })).toBeDisabled();
+  const jobCard = page.locator('.job-card', { hasText: updatedTitle }).filter({ hasText: company }).first();
+  await expect(jobCard.getByRole('button', { name: 'Request contract consideration' })).toBeEnabled();
 
   const candidateNote = 'Ready for interview and available immediately.';
   const applicationResponse = await request.post(`/api/v1/vacancies/${vacancyId}/applications`, {
@@ -448,10 +447,10 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await expect(page.locator('#cabinet-task-list')).toContainText('Incoming requests: 1');
   await expect(page.getByRole('link', { name: 'Open incoming requests' })).toHaveAttribute(
     'href',
-    `/shipowners/candidates/?draft_id=${draftId}#incoming-requests`
+    `/shipowners/candidates/?draft_id=${draftId}&vacancy_request_id=${vacancyId}#incoming-requests`
   );
 
-  await page.goto(`/shipowners/candidates/?draft_id=${draftId}#incoming-requests`);
+  await page.goto(`/shipowners/candidates/?draft_id=${draftId}&vacancy_request_id=${vacancyId}#incoming-requests`);
   await expect(page.getByRole('heading', { name: 'Select candidate.' })).toBeVisible();
   await expect(page.locator('#incoming-list')).toContainText('Presented Candidate');
   await expect(page.locator('#incoming-list')).toContainText('Waiting for team review');
@@ -459,14 +458,51 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await expect(page.locator('#incoming-list')).not.toContainText(seafarerEmail);
   await expect(page.locator('#candidate-list')).toContainText('Candidate presentation is being prepared.');
 
-  const applicationDecision = await request.patch(`/api/v1/operator/review-queue/${applicationId}/status`, {
+  const incomingRequestDetailResponse = await request.get(`/api/v1/operator/review-queue/vacancy-applications/${applicationId}`);
+  expect(incomingRequestDetailResponse.ok()).toBeTruthy();
+  const incomingRequestDetail = await incomingRequestDetailResponse.json();
+  expect(incomingRequestDetail.application.request_source).toBe('seafarer_initiated_request');
+  const incomingReviewOperation = incomingRequestDetail.computed_operations.find(
+    (operation: Record<string, unknown>) => operation.operation_code === 'review_candidate_presentation'
+  );
+  expect(incomingReviewOperation).toEqual(
+    expect.objectContaining({
+      is_executable: true,
+      request_source: 'seafarer_initiated_request',
+      review_handoff: 'release_incoming_request_to_presented_candidate',
+    })
+  );
+
+  const applicationDecision = await request.patch(`/api/v1/operator/vacancy-applications/${applicationId}/presentation-review`, {
     data: {
-      decision: 'reviewed',
-      queue_type: 'vacancy_application',
       note: 'Candidate can be shown in employer pipeline.',
     },
   });
   expect(applicationDecision.ok()).toBeTruthy();
+  const applicationDecisionPayload = await applicationDecision.json();
+  expect(applicationDecisionPayload).toEqual(expect.objectContaining({
+    ok: true,
+    previous_status: 'submitted_for_human_review',
+    new_status: 'presented',
+  }));
+  const applicationDetailAfterReviewResponse = await request.get(`/api/v1/operator/review-queue/vacancy-applications/${applicationId}`);
+  expect(applicationDetailAfterReviewResponse.ok()).toBeTruthy();
+  const applicationDetailAfterReview = await applicationDetailAfterReviewResponse.json();
+  expect(applicationDetailAfterReview.application.application_status).toBe('presented');
+  const candidateSelectionAfterReviewResponse = await request.get(`/api/v1/employer/candidate-selection?draft_id=${draftId}`);
+  expect(candidateSelectionAfterReviewResponse.ok()).toBeTruthy();
+  const candidateSelectionAfterReview = await candidateSelectionAfterReviewResponse.json();
+  const targetSelectionRequestAfterReview = candidateSelectionAfterReview.selection_requests.find(
+    (requestItem: Record<string, unknown>) => requestItem.vacancy_request_id === vacancyId
+  ) as Record<string, unknown>;
+  expect(targetSelectionRequestAfterReview).toBeTruthy();
+  expect(targetSelectionRequestAfterReview.incoming_candidate_requests).toEqual([]);
+  expect(JSON.stringify(targetSelectionRequestAfterReview.presented_candidates)).toContain(applicationId);
+
+  await page.reload();
+  await expect(page.locator('#incoming-list')).toContainText('No incoming seafarer requests are waiting for team review.');
+  await expect(page.locator('#candidate-list')).toContainText('Presented Candidate');
+  await expect(page.locator('#candidate-list')).not.toContainText(seafarerEmail);
 
   await page.goto(`/post-vacancy/?draft_id=${draftId}`);
   await expect(page.locator('#post-candidate-pipeline-status')).toContainText('1 presented candidate');

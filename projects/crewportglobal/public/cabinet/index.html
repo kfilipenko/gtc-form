@@ -1716,6 +1716,13 @@
             ? request.incoming_candidate_requests.length
             : 0);
         }, 0);
+        const incomingSelectionRequest = selectionRequests.find((request) => {
+          return request
+            && typeof request.vacancy_request_id === 'string'
+            && request.vacancy_request_id.trim() !== ''
+            && Array.isArray(request.incoming_candidate_requests)
+            && request.incoming_candidate_requests.length > 0;
+        });
         const contractWorkspaceCandidate = candidatesFromSelection.find((candidate) => {
           const operation = candidate && candidate.contract_operation && typeof candidate.contract_operation === 'object'
             ? candidate.contract_operation
@@ -1755,10 +1762,13 @@
         }
 
         if (incomingFromSelection > 0) {
+          const incomingRequestId = incomingSelectionRequest && typeof incomingSelectionRequest.vacancy_request_id === 'string'
+            ? incomingSelectionRequest.vacancy_request_id.trim()
+            : '';
           return {
             mode: 'incomingRequests',
             candidateCount: incomingFromSelection,
-            href: `/shipowners/candidates/?draft_id=${encodeURIComponent(draftId)}#incoming-requests`
+            href: `/shipowners/candidates/?draft_id=${encodeURIComponent(draftId)}${incomingRequestId ? `&vacancy_request_id=${encodeURIComponent(incomingRequestId)}` : ''}#incoming-requests`
           };
         }
 

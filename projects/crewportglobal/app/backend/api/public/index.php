@@ -7583,6 +7583,7 @@ function cpg_operator_vacancy_application_computed_operations(array $detail, ?ar
     $application = is_array($detail['application'] ?? null) ? $detail['application'] : [];
     $approvalGuard = is_array($detail['approval_guard'] ?? null) ? $detail['approval_guard'] : [];
     $applicationStatus = is_string($application['application_status'] ?? null) ? (string) $application['application_status'] : '';
+    $requestSource = is_string($application['request_source'] ?? null) ? (string) $application['request_source'] : 'unknown';
     $ready = in_array($applicationStatus, ['submitted_for_human_review', 'in_review'], true)
         && ($approvalGuard['approval_status'] ?? null) === 'ready_for_operator_approval';
     $blockers = is_array($approvalGuard['approval_blockers'] ?? null) ? $approvalGuard['approval_blockers'] : [];
@@ -7606,6 +7607,10 @@ function cpg_operator_vacancy_application_computed_operations(array $detail, ?ar
                 'next_status_if_executed' => 'presented',
                 'responsible_group_after_transition' => 'employer',
                 'presentation_guard_status' => $approvalGuard['approval_status'] ?? null,
+                'request_source' => $requestSource,
+                'review_handoff' => $requestSource === 'seafarer_initiated_request'
+                    ? 'release_incoming_request_to_presented_candidate'
+                    : 'approve_candidate_presentation',
             ],
             $access
         ),
@@ -9154,7 +9159,7 @@ function read_incoming_candidate_requests_for_employer(string $companyId, ?strin
             'country_code' => $row['country_code'],
             'document_summary' => cpg_seafarer_public_document_summary($row['document_metadata'] ?? null),
             'candidate_visibility_scope' => 'employer_safe_incoming_request',
-            'request_source' => 'seafarer_initiated_job_search',
+            'request_source' => 'seafarer_initiated_request',
             'vacancy_title' => $row['vacancy_title'],
             'vacancy_rank' => $row['vacancy_rank'],
             'vacancy_department' => $row['vacancy_department'],
@@ -11419,6 +11424,10 @@ function read_operator_review_queue(?array $access = null): array {
             vr.department,
             ec.company_name,
             v.vessel_name,
+            CASE
+              WHEN sc.shortlist_candidate_id IS NULL THEN 'seafarer_initiated_request'
+              ELSE 'internal_shortlist_review_application'
+            END AS request_source,
             va.created_at,
             va.updated_at
          FROM crewportglobal.vacancy_applications va
@@ -11427,6 +11436,17 @@ function read_operator_review_queue(?array $access = null): array {
          JOIN crewportglobal.vacancy_requests vr ON vr.vacancy_request_id = va.vacancy_request_id
          JOIN crewportglobal.employer_companies ec ON ec.company_id = vr.company_id
          LEFT JOIN crewportglobal.vessels v ON v.vessel_id = vr.vessel_id
+         LEFT JOIN LATERAL (
+           SELECT osc.shortlist_candidate_id
+           FROM crewportglobal.operator_shortlist_candidates osc
+           JOIN crewportglobal.operator_shortlist_drafts osd
+             ON osd.shortlist_draft_id = osc.shortlist_draft_id
+           WHERE osd.vacancy_request_id = va.vacancy_request_id
+             AND osc.candidate_user_id = va.seafarer_user_id
+             AND osc.operator_decision = 'include'
+           ORDER BY osd.updated_at DESC, osc.updated_at DESC
+           LIMIT 1
+         ) sc ON TRUE
          WHERE va.application_status IN ('submitted_for_human_review', 'in_review', 'presented', 'rejected', 'withdrawn')
            AND COALESCE(vr.demand_workspace->'deletion_request'->>'status', '') <> 'pending_manager_confirmation'
          ORDER BY va.updated_at DESC, va.created_at DESC
@@ -11453,6 +11473,7 @@ function read_operator_review_queue(?array $access = null): array {
                     'company_name' => $row['company_name'],
                     'vessel_name' => $row['vessel_name'],
                     'candidate_note' => $row['candidate_note'],
+                    'request_source' => $row['request_source'],
                 ],
                 'operator_access' => operator_queue_access_contract('vacancy_application', $access),
             ];
@@ -12313,10 +12334,12 @@ function cpg_team_workbench_queue_tasks(array $access): array {
                 if (!is_array($operation) || ($operation['operation_code'] ?? null) !== 'review_candidate_presentation') {
                     continue;
                 }
+                $requestSource = is_string($summary['request_source'] ?? null) ? (string) $summary['request_source'] : '';
+                $isIncomingSeafarerRequest = $requestSource === 'seafarer_initiated_request';
                 $task = cpg_team_workbench_task_from_operation(
                     $operation,
-                    'candidate_presentation_review',
-                    'Review candidate presentation',
+                    $isIncomingSeafarerRequest ? 'incoming_seafarer_request_review' : 'candidate_presentation_review',
+                    $isIncomingSeafarerRequest ? 'Review incoming seafarer request' : 'Review candidate presentation',
                     $title,
                     '/verify/',
                     [
@@ -12325,6 +12348,10 @@ function cpg_team_workbench_queue_tasks(array $access): array {
                         'status' => $item['status'] ?? null,
                         'candidate_rank' => $summary['candidate_rank'] ?? null,
                         'vacancy_rank' => $summary['vacancy_rank'] ?? null,
+                        'request_source' => $requestSource,
+                        'review_handoff' => $isIncomingSeafarerRequest
+                            ? 'release_incoming_request_to_presented_candidate'
+                            : 'approve_candidate_presentation',
                     ]
                 );
                 if ($task !== null) {
@@ -13187,13 +13214,29 @@ function read_operator_vacancy_application_detail(string $applicationId, ?array 
             v.vessel_name,
             v.vessel_type,
             v.imo_number,
-            v.flag_country_code
+            v.flag_country_code,
+            sc.shortlist_candidate_id,
+            CASE
+              WHEN sc.shortlist_candidate_id IS NULL THEN 'seafarer_initiated_request'
+              ELSE 'internal_shortlist_review_application'
+            END AS request_source
          FROM crewportglobal.vacancy_applications va
          JOIN crewportglobal.users su ON su.user_id = va.seafarer_user_id
          LEFT JOIN crewportglobal.seafarer_profiles sp ON sp.user_id = su.user_id
          JOIN crewportglobal.vacancy_requests vr ON vr.vacancy_request_id = va.vacancy_request_id
          JOIN crewportglobal.employer_companies ec ON ec.company_id = vr.company_id
          LEFT JOIN crewportglobal.vessels v ON v.vessel_id = vr.vessel_id
+         LEFT JOIN LATERAL (
+           SELECT osc.shortlist_candidate_id
+           FROM crewportglobal.operator_shortlist_candidates osc
+           JOIN crewportglobal.operator_shortlist_drafts osd
+             ON osd.shortlist_draft_id = osc.shortlist_draft_id
+           WHERE osd.vacancy_request_id = va.vacancy_request_id
+             AND osc.candidate_user_id = va.seafarer_user_id
+             AND osc.operator_decision = 'include'
+           ORDER BY osd.updated_at DESC, osc.updated_at DESC
+           LIMIT 1
+         ) sc ON TRUE
          WHERE va.vacancy_application_id = $1
          LIMIT 1",
         [$applicationId]
@@ -13220,6 +13263,8 @@ function read_operator_vacancy_application_detail(string $applicationId, ?array 
             'contact_email' => $row['contact_email'],
             'candidate_note' => $row['candidate_note'],
             'application_status' => $row['application_status'],
+            'request_source' => $row['request_source'],
+            'shortlist_candidate_id' => $row['shortlist_candidate_id'],
             'created_at' => $row['application_created_at'],
             'updated_at' => $row['application_updated_at'],
         ],

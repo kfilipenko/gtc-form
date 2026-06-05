@@ -194,7 +194,7 @@
         'shipowners.candidates.incoming.eyebrow': 'Incoming requests',
         'shipowners.candidates.incoming.title': 'Seafarer requests waiting for team review',
         'shipowners.candidates.incoming.forRequest': 'Incoming seafarer requests for {title}',
-        'shipowners.candidates.emptyIncoming': 'No seafarer-initiated requests are waiting for this crew request.',
+        'shipowners.candidates.emptyIncoming': 'No incoming seafarer requests are waiting for team review.',
         'shipowners.candidates.requestWaiting': 'Waiting for team review',
         'shipowners.candidates.requestSource': 'Requested by seafarer from job search.',
         'shipowners.candidates.requestGuard': 'Contract proposal is not available until team review releases this candidate into the presented-candidate workflow.',
@@ -239,7 +239,7 @@
         'shipowners.candidates.incoming.eyebrow': 'Входящие запросы',
         'shipowners.candidates.incoming.title': 'Запросы моряков ожидают проверки команды',
         'shipowners.candidates.incoming.forRequest': 'Входящие запросы моряков по заявке {title}',
-        'shipowners.candidates.emptyIncoming': 'По этой заявке нет входящих запросов моряков, ожидающих проверки.',
+        'shipowners.candidates.emptyIncoming': 'Нет входящих запросов моряков, ожидающих проверки команды.',
         'shipowners.candidates.requestWaiting': 'Ожидает проверки команды',
         'shipowners.candidates.requestSource': 'Запрошено моряком со страницы поиска работы.',
         'shipowners.candidates.requestGuard': 'Предложение контракта недоступно, пока команда не выпустит кандидата в workflow представленных кандидатов.',
@@ -323,8 +323,24 @@
         }
       }
 
+      function getRequestedVacancyRequestId() {
+        const params = new URLSearchParams(window.location.search);
+        return (params.get('vacancy_request_id') || '').trim();
+      }
+
+      function rememberSelectedVacancyRequestId(vacancyRequestId) {
+        if (!vacancyRequestId) {
+          return;
+        }
+        const url = new URL(window.location.href);
+        url.searchParams.set('vacancy_request_id', vacancyRequestId);
+        window.history.replaceState(null, '', `${url.pathname}?${url.searchParams.toString()}${url.hash || ''}`);
+      }
+
       async function fetchSelection(draftId) {
-        const response = await fetch(`/api/v1/employer/candidate-selection?draft_id=${encodeURIComponent(draftId)}`);
+        const response = await fetch(`/api/v1/employer/candidate-selection?draft_id=${encodeURIComponent(draftId)}`, {
+          cache: 'no-store'
+        });
         const body = await response.json().catch(() => ({}));
         if (!response.ok) {
           const error = new Error(body.message || `Request failed with status ${response.status}`);
@@ -391,9 +407,16 @@
           return;
         }
 
-        requests.forEach((request, index) => {
+        const requestedVacancyRequestId = getRequestedVacancyRequestId();
+        const selectedRequest = requests.find((request) => request.vacancy_request_id === requestedVacancyRequestId)
+          || requests[0];
+        const selectedVacancyRequestId = selectedRequest && selectedRequest.vacancy_request_id
+          ? selectedRequest.vacancy_request_id
+          : '';
+
+        requests.forEach((request) => {
           const card = document.createElement('article');
-          card.className = `request-card${index === 0 ? ' is-selected' : ''}`;
+          card.className = `request-card${request.vacancy_request_id === selectedVacancyRequestId ? ' is-selected' : ''}`;
           card.dataset.vacancyRequestId = request.vacancy_request_id || '';
 
           const head = document.createElement('div');
@@ -421,8 +444,8 @@
           requestList.appendChild(card);
         });
 
-        renderCandidates(requests[0]);
-        renderIncomingRequests(requests[0]);
+        renderCandidates(selectedRequest);
+        renderIncomingRequests(selectedRequest);
       }
 
       function createCandidateCard(candidate) {
@@ -616,6 +639,7 @@
         requestList.querySelectorAll('.request-card').forEach((card) => {
           card.classList.toggle('is-selected', card.dataset.vacancyRequestId === vacancyRequestId);
         });
+        rememberSelectedVacancyRequestId(vacancyRequestId);
         renderCandidates(request);
         renderIncomingRequests(request);
       });

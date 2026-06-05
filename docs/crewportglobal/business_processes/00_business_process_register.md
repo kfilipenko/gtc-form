@@ -152,6 +152,7 @@ This documentation block starts from the following approved business controls:
 72. A Contract Agreement Workspace must open as a concrete working object with source-first prefill from verified seafarer, shipowner, vessel and vacancy records; missing embedded contract fields must be explicit, and the detail view must not generate a contract, request signatures, change employment status or create invoices.
 73. Seafarer job-search must be a computed counter-flow from the saved seafarer profile to published verified vacancies: the seafarer may request contract consideration only when matching conditions allow it, and the result must enter the existing controlled `vacancy_applications`, review, employer decision and contract proposal workflow without creating employment status, invoice or unrestricted employer-facing candidate data.
 74. A seafarer-initiated `vacancy_applications.submitted_for_human_review` request must compute a visible shipowner task and candidate-selection handoff, but the shipowner may only see safe incoming-request details until team review releases the candidate into the presented-candidate workflow; contract proposal remains blocked until the existing presentation and employer-decision guards pass.
+75. A seafarer-initiated incoming request must compute a concrete review-team task named as the process stage, `Review incoming seafarer request`; the team may release it to the existing presented-candidate workflow, request correction or reject it with reason, and completion must recompute shipowner tasks from incoming-request visibility to presented-candidate visibility without exposing seafarer contacts.
 
 ## 5. Intended Use
 
@@ -171,6 +172,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.38 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-107 control for review-team processing of seafarer-initiated incoming requests and recomputation from incoming-request visibility to presented-candidate visibility |
 | 3.37 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-106 control for seafarer-initiated request handoff: incoming requests compute shipowner tasks and safe candidate-selection visibility while contract proposal remains guarded until team review |
 | 3.36 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-105 control for seafarer job-search counter-flow from saved profile to matching published verified vacancies and controlled contract-consideration request |
 | 3.35 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-102 control for Contract Agreement Workspace detail view, verified source-prefill, missing embedded fields and no-side-effect review boundary |
