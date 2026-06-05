@@ -9102,6 +9102,80 @@ function read_presented_candidates_for_employer(string $companyId, ?string $vaca
     return $items;
 }
 
+function read_incoming_candidate_requests_for_employer(string $companyId, ?string $vacancyId = null): array {
+    $result = api_query(
+        "SELECT
+            va.vacancy_application_id,
+            va.vacancy_request_id,
+            va.candidate_note,
+            va.application_status,
+            va.created_at,
+            va.updated_at,
+            su.user_id AS seafarer_user_id,
+            su.display_name,
+            sp.seafarer_profile_id,
+            sp.primary_rank,
+            sp.department,
+            sp.availability_status,
+            sp.availability_date,
+            sp.country_code,
+            sp.document_metadata,
+            vr.vacancy_title,
+            vr.rank AS vacancy_rank,
+            vr.department AS vacancy_department
+         FROM crewportglobal.vacancy_applications va
+         JOIN crewportglobal.vacancy_requests vr ON vr.vacancy_request_id = va.vacancy_request_id
+         JOIN crewportglobal.users su ON su.user_id = va.seafarer_user_id
+         LEFT JOIN crewportglobal.seafarer_profiles sp ON sp.user_id = su.user_id
+         WHERE vr.company_id = $1
+           AND ($2::uuid IS NULL OR va.vacancy_request_id = $2::uuid)
+           AND va.application_status IN ('submitted_for_human_review', 'in_review')
+         ORDER BY va.updated_at DESC, va.created_at DESC
+         LIMIT 50",
+        [$companyId, $vacancyId]
+    );
+
+    $items = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $items[] = [
+            'vacancy_application_id' => $row['vacancy_application_id'],
+            'vacancy_request_id' => $row['vacancy_request_id'],
+            'application_status' => $row['application_status'],
+            'candidate_note' => $row['candidate_note'],
+            'created_at' => $row['created_at'],
+            'updated_at' => $row['updated_at'],
+            'seafarer_user_id' => $row['seafarer_user_id'],
+            'seafarer_profile_id' => $row['seafarer_profile_id'],
+            'display_name' => $row['display_name'],
+            'primary_rank' => $row['primary_rank'],
+            'department' => $row['department'],
+            'availability_status' => $row['availability_status'],
+            'availability_date' => $row['availability_date'],
+            'country_code' => $row['country_code'],
+            'document_summary' => cpg_seafarer_public_document_summary($row['document_metadata'] ?? null),
+            'candidate_visibility_scope' => 'employer_safe_incoming_request',
+            'request_source' => 'seafarer_initiated_job_search',
+            'vacancy_title' => $row['vacancy_title'],
+            'vacancy_rank' => $row['vacancy_rank'],
+            'vacancy_department' => $row['vacancy_department'],
+            'handoff_operation' => [
+                'operation_code' => 'review_seafarer_initiated_request',
+                'visible' => true,
+                'enabled' => false,
+                'next_action' => 'wait_for_team_review',
+                'blockers' => [
+                    cpg_contract_proposal_blocker(
+                        'team_review_required_before_employer_decision',
+                        'A seafarer-initiated request must pass team review before employer contract proposal'
+                    ),
+                ],
+            ],
+        ];
+    }
+
+    return $items;
+}
+
 function read_shipowner_candidate_selection_requests(string $companyId): array {
     $vacancyResult = api_query(
         "SELECT vr.vacancy_request_id::text AS vacancy_request_id,
@@ -9134,6 +9208,7 @@ function read_shipowner_candidate_selection_requests(string $companyId): array {
     );
 
     $presentedCandidates = read_presented_candidates_for_employer($companyId, null);
+    $incomingRequests = read_incoming_candidate_requests_for_employer($companyId, null);
     $candidatesByVacancy = [];
     foreach ($presentedCandidates as $candidate) {
         $vacancyId = is_string($candidate['vacancy_request_id'] ?? null) ? $candidate['vacancy_request_id'] : '';
@@ -9145,11 +9220,23 @@ function read_shipowner_candidate_selection_requests(string $companyId): array {
         }
         $candidatesByVacancy[$vacancyId][] = $candidate;
     }
+    $incomingByVacancy = [];
+    foreach ($incomingRequests as $candidate) {
+        $vacancyId = is_string($candidate['vacancy_request_id'] ?? null) ? $candidate['vacancy_request_id'] : '';
+        if ($vacancyId === '') {
+            continue;
+        }
+        if (!isset($incomingByVacancy[$vacancyId])) {
+            $incomingByVacancy[$vacancyId] = [];
+        }
+        $incomingByVacancy[$vacancyId][] = $candidate;
+    }
 
     $requests = [];
     while (($row = pg_fetch_assoc($vacancyResult)) !== false) {
         $vacancyId = (string) $row['vacancy_request_id'];
         $candidates = $candidatesByVacancy[$vacancyId] ?? [];
+        $incoming = $incomingByVacancy[$vacancyId] ?? [];
         $vesselType = $row['vessel_type_label']
             ?? $row['vessel_type']
             ?? $row['registered_vessel_type_label']
@@ -9174,10 +9261,12 @@ function read_shipowner_candidate_selection_requests(string $companyId): array {
             'publication_status' => $row['publication_status'],
             'created_at' => $row['created_at'],
             'updated_at' => $row['updated_at'],
+            'incoming_request_count' => count($incoming),
             'presented_candidate_count' => count($candidates),
             'candidate_selection_state' => count($candidates) > 0
                 ? 'presented_candidates_available'
-                : 'candidate_presentation_is_being_prepared',
+                : (count($incoming) > 0 ? 'incoming_seafarer_requests_waiting_review' : 'candidate_presentation_is_being_prepared'),
+            'incoming_candidate_requests' => $incoming,
             'presented_candidates' => $candidates,
         ];
     }
@@ -9212,7 +9301,7 @@ function handle_get_shipowner_candidate_selection(): void {
             'company_name' => $company['company_name'] ?? null,
             'verification_status' => $company['verification_status'] ?? null,
         ],
-        'visibility_scope' => 'shipowner_presented_candidates_only',
+        'visibility_scope' => 'shipowner_candidate_selection_and_incoming_requests',
         'selection_requests' => read_shipowner_candidate_selection_requests($companyId),
     ]);
 }

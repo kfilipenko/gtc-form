@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.95
+- Version: 2.96
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -394,6 +394,7 @@ docs/crewportglobal/
   304_cpg_biz_103_personal_cabinet_task_visibility_demo_workflow_report.md
   305_cpg_biz_104_shipowner_candidate_decision_contract_task_transition_report.md
   306_cpg_biz_105_seafarer_job_search_contract_request_flow_report.md
+  307_cpg_biz_106_seafarer_request_shipowner_handoff_report.md
   sql_drafts/
     018_contract_workspace_schema_draft.sql
   seafarer_application_mapping/
@@ -935,6 +936,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.96 | 2026-06-05 | GTC IT / AI Assistant | Added document 307 as CPG-BIZ-106 implementation report for seafarer-initiated request handoff to shipowner computed tasks and candidate-selection workspace |
 | 2.95 | 2026-06-05 | GTC IT / AI Assistant | Added document 306 as CPG-BIZ-105 implementation report for the seafarer job-search counter-flow, matching vacancy page, controlled contract-consideration request and BP-012/BP-013/BP-016 process alignment |
 | 2.94 | 2026-06-05 | GTC IT / AI Assistant | Added document 305 as CPG-BIZ-104 implementation and verification report for shipowner cabinet task transition from presented candidate review to contract proposal and contract workspace review |
 | 2.93 | 2026-06-05 | GTC IT / AI Assistant | Added document 304 as CPG-BIZ-103 implementation and verification report for personal cabinet task visibility, shipowner presented-candidate task and demo workflow links |

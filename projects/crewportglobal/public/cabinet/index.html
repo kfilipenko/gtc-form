@@ -760,6 +760,10 @@
         'cabinet.tasks.reviewCandidates.copy': 'Presented candidate profiles are available for a verified crew request. Open candidate selection and decide whether to propose a contract.',
         'cabinet.tasks.reviewCandidates.count': 'Presented candidates',
         'cabinet.tasks.reviewCandidates.action': 'Open candidate selection',
+        'cabinet.tasks.incomingRequests.title': 'Action required: review incoming seafarer requests',
+        'cabinet.tasks.incomingRequests.copy': 'Seafarers have requested contract consideration for your vacancy. Open candidate selection to see safe request details while the team review prepares the next step.',
+        'cabinet.tasks.incomingRequests.count': 'Incoming requests',
+        'cabinet.tasks.incomingRequests.action': 'Open incoming requests',
         'cabinet.tasks.proposeContract.title': 'Action required: propose contract',
         'cabinet.tasks.proposeContract.copy': 'The shipowner decision is proceed with candidate. Open candidate selection and start the guarded contract proposal.',
         'cabinet.tasks.proposeContract.count': 'Candidates ready for contract proposal',
@@ -971,6 +975,10 @@
         'cabinet.tasks.reviewCandidates.copy': 'Профили кандидатов доступны по проверенной заявке на экипаж. Откройте подбор кандидатов и решите, предлагать ли контракт.',
         'cabinet.tasks.reviewCandidates.count': 'Представленные кандидаты',
         'cabinet.tasks.reviewCandidates.action': 'Открыть подбор кандидатов',
+        'cabinet.tasks.incomingRequests.title': 'Требуется действие: просмотреть входящие запросы моряков',
+        'cabinet.tasks.incomingRequests.copy': 'Моряки направили запросы на рассмотрение контракта по вашей вакансии. Откройте подбор кандидатов, чтобы увидеть безопасные детали запроса, пока команда готовит следующий этап.',
+        'cabinet.tasks.incomingRequests.count': 'Входящие запросы',
+        'cabinet.tasks.incomingRequests.action': 'Открыть входящие запросы',
         'cabinet.tasks.proposeContract.title': 'Требуется действие: предложить контракт',
         'cabinet.tasks.proposeContract.copy': 'Решение судовладельца - продолжить работу с кандидатом. Откройте подбор кандидатов и запустите контролируемое предложение контракта.',
         'cabinet.tasks.proposeContract.count': 'Кандидаты готовы к предложению контракта',
@@ -1703,6 +1711,11 @@
             : []
         ));
         const presentedFromSelection = candidatesFromSelection.length;
+        const incomingFromSelection = selectionRequests.reduce((total, request) => {
+          return total + (request && Array.isArray(request.incoming_candidate_requests)
+            ? request.incoming_candidate_requests.length
+            : 0);
+        }, 0);
         const contractWorkspaceCandidate = candidatesFromSelection.find((candidate) => {
           const operation = candidate && candidate.contract_operation && typeof candidate.contract_operation === 'object'
             ? candidate.contract_operation
@@ -1738,6 +1751,14 @@
             mode: 'proposeContract',
             candidateCount: contractProposalCandidates.length,
             href: `/shipowners/candidates/?draft_id=${encodeURIComponent(draftId)}`
+          };
+        }
+
+        if (incomingFromSelection > 0) {
+          return {
+            mode: 'incomingRequests',
+            candidateCount: incomingFromSelection,
+            href: `/shipowners/candidates/?draft_id=${encodeURIComponent(draftId)}#incoming-requests`
           };
         }
 
@@ -2069,6 +2090,8 @@
           ? 'cabinet.tasks.contractWorkspace'
           : mode === 'proposeContract'
             ? 'cabinet.tasks.proposeContract'
+            : mode === 'incomingRequests'
+              ? 'cabinet.tasks.incomingRequests'
             : 'cabinet.tasks.reviewCandidates';
         const title = document.createElement('h3');
         title.textContent = t(`${keyPrefix}.title`);

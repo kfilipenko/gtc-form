@@ -443,6 +443,22 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   const application = await applicationResponse.json();
   const applicationId = application.application.vacancy_application_id as string;
 
+  await page.goto(`/cabinet/?draft_id=${draftId}`);
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: review incoming seafarer requests');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Incoming requests: 1');
+  await expect(page.getByRole('link', { name: 'Open incoming requests' })).toHaveAttribute(
+    'href',
+    `/shipowners/candidates/?draft_id=${draftId}#incoming-requests`
+  );
+
+  await page.goto(`/shipowners/candidates/?draft_id=${draftId}#incoming-requests`);
+  await expect(page.getByRole('heading', { name: 'Select candidate.' })).toBeVisible();
+  await expect(page.locator('#incoming-list')).toContainText('Presented Candidate');
+  await expect(page.locator('#incoming-list')).toContainText('Waiting for team review');
+  await expect(page.locator('#incoming-list')).toContainText(candidateNote);
+  await expect(page.locator('#incoming-list')).not.toContainText(seafarerEmail);
+  await expect(page.locator('#candidate-list')).toContainText('Candidate presentation is being prepared.');
+
   const applicationDecision = await request.patch(`/api/v1/operator/review-queue/${applicationId}/status`, {
     data: {
       decision: 'reviewed',

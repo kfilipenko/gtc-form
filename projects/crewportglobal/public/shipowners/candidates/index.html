@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CrewPortGlobal | Select candidate</title>
-  <meta name="description" content="Shipowner candidate-selection workspace for reviewed crew requests and employer-safe presented candidates.">
+  <meta name="description" content="Shipowner candidate-selection workspace for incoming seafarer requests, reviewed crew requests and employer-safe presented candidates.">
   <link rel="canonical" href="https://crewportglobal.com/shipowners/candidates/">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -145,7 +145,7 @@
         <div>
           <p class="eyebrow" data-i18n="shipowners.candidates.eyebrow">Shipowner workspace</p>
           <h1 data-i18n="shipowners.candidates.title">Select candidate.</h1>
-          <p class="lead-copy" data-i18n="shipowners.candidates.copy">Review employer-safe candidates already released by the controlled shortlist and presentation process.</p>
+          <p class="lead-copy" data-i18n="shipowners.candidates.copy">Review incoming seafarer requests and employer-safe candidates released by the controlled shortlist and presentation process.</p>
         </div>
         <div class="selection-status" aria-live="polite">
           <strong id="selection-status-title" data-i18n="shipowners.candidates.status.loading">Loading candidate selection.</strong>
@@ -164,6 +164,12 @@
         <h2 id="candidate-section-title" data-i18n="shipowners.candidates.presented.title">Select a crew request</h2>
         <div id="candidate-list" class="candidate-grid"></div>
       </section>
+
+      <section id="incoming-requests" class="card">
+        <p class="eyebrow" data-i18n="shipowners.candidates.incoming.eyebrow">Incoming requests</p>
+        <h2 id="incoming-section-title" data-i18n="shipowners.candidates.incoming.title">Seafarer requests waiting for team review</h2>
+        <div id="incoming-list" class="candidate-grid"></div>
+      </section>
     </main>
   </div>
 
@@ -174,17 +180,24 @@
         'site.languageLabel': 'Language',
         'shipowners.candidates.eyebrow': 'Shipowner workspace',
         'shipowners.candidates.title': 'Select candidate.',
-        'shipowners.candidates.copy': 'Review employer-safe candidates already released by the controlled shortlist and presentation process.',
+        'shipowners.candidates.copy': 'Review incoming seafarer requests and employer-safe candidates released by the controlled shortlist and presentation process.',
         'shipowners.candidates.status.loading': 'Loading candidate selection.',
         'shipowners.candidates.status.loaded': '{count} request(s) loaded.',
         'shipowners.candidates.status.empty': 'No requests found.',
         'shipowners.candidates.status.error': 'Unable to load candidate selection.',
-        'shipowners.candidates.status.copy': 'Only approved presentations are shown here.',
+        'shipowners.candidates.status.copy': 'Incoming requests are shown as waiting for team review; contract actions remain guarded.',
         'shipowners.candidates.requests.eyebrow': 'Crew requests',
         'shipowners.candidates.requests.title': 'Requests with presented candidates',
         'shipowners.candidates.presented.eyebrow': 'Presented candidates',
         'shipowners.candidates.presented.title': 'Select a crew request',
         'shipowners.candidates.presented.forRequest': 'Candidates for {title}',
+        'shipowners.candidates.incoming.eyebrow': 'Incoming requests',
+        'shipowners.candidates.incoming.title': 'Seafarer requests waiting for team review',
+        'shipowners.candidates.incoming.forRequest': 'Incoming seafarer requests for {title}',
+        'shipowners.candidates.emptyIncoming': 'No seafarer-initiated requests are waiting for this crew request.',
+        'shipowners.candidates.requestWaiting': 'Waiting for team review',
+        'shipowners.candidates.requestSource': 'Requested by seafarer from job search.',
+        'shipowners.candidates.requestGuard': 'Contract proposal is not available until team review releases this candidate into the presented-candidate workflow.',
         'shipowners.candidates.emptyRequests': 'No crew requests are available for this shipowner account yet.',
         'shipowners.candidates.emptyCandidates': 'Candidate presentation is being prepared.',
         'shipowners.candidates.openRequest': 'Open candidates',
@@ -212,17 +225,24 @@
         'site.languageLabel': 'Язык',
         'shipowners.candidates.eyebrow': 'Рабочее место судовладельца',
         'shipowners.candidates.title': 'Подобрать кандидата.',
-        'shipowners.candidates.copy': 'Просмотрите безопасные для судовладельца кандидатуры, уже выпущенные контролируемым процессом shortlist и presentation.',
+        'shipowners.candidates.copy': 'Просмотрите входящие запросы моряков и безопасные для судовладельца кандидатуры, выпущенные контролируемым процессом shortlist и presentation.',
         'shipowners.candidates.status.loading': 'Загружаем подбор кандидатов.',
         'shipowners.candidates.status.loaded': 'Загружено заявок: {count}.',
         'shipowners.candidates.status.empty': 'Заявки не найдены.',
         'shipowners.candidates.status.error': 'Не удалось загрузить подбор кандидатов.',
-        'shipowners.candidates.status.copy': 'Здесь показываются только одобренные представления кандидатов.',
+        'shipowners.candidates.status.copy': 'Входящие запросы показаны как ожидающие проверки команды; действия по контракту остаются под guard.',
         'shipowners.candidates.requests.eyebrow': 'Заявки на экипаж',
         'shipowners.candidates.requests.title': 'Заявки с представленными кандидатами',
         'shipowners.candidates.presented.eyebrow': 'Представленные кандидаты',
         'shipowners.candidates.presented.title': 'Выберите заявку',
         'shipowners.candidates.presented.forRequest': 'Кандидаты по заявке {title}',
+        'shipowners.candidates.incoming.eyebrow': 'Входящие запросы',
+        'shipowners.candidates.incoming.title': 'Запросы моряков ожидают проверки команды',
+        'shipowners.candidates.incoming.forRequest': 'Входящие запросы моряков по заявке {title}',
+        'shipowners.candidates.emptyIncoming': 'По этой заявке нет входящих запросов моряков, ожидающих проверки.',
+        'shipowners.candidates.requestWaiting': 'Ожидает проверки команды',
+        'shipowners.candidates.requestSource': 'Запрошено моряком со страницы поиска работы.',
+        'shipowners.candidates.requestGuard': 'Предложение контракта недоступно, пока команда не выпустит кандидата в workflow представленных кандидатов.',
         'shipowners.candidates.emptyRequests': 'Для этого аккаунта судовладельца пока нет заявок.',
         'shipowners.candidates.emptyCandidates': 'Представление кандидатов готовится.',
         'shipowners.candidates.openRequest': 'Открыть кандидатов',
@@ -254,7 +274,9 @@
     (function () {
       const requestList = document.getElementById('request-list');
       const candidateList = document.getElementById('candidate-list');
+      const incomingList = document.getElementById('incoming-list');
       const candidateTitle = document.getElementById('candidate-section-title');
+      const incomingTitle = document.getElementById('incoming-section-title');
       const statusTitle = document.getElementById('selection-status-title');
       const statusCopy = document.getElementById('selection-status-copy');
 
@@ -363,7 +385,9 @@
         if (!requests.length) {
           requestList.innerHTML = `<div class="empty-state">${t('shipowners.candidates.emptyRequests')}</div>`;
           candidateList.innerHTML = '';
+          incomingList.innerHTML = '';
           setDynamicText(candidateTitle, t('shipowners.candidates.presented.title'));
+          setDynamicText(incomingTitle, t('shipowners.candidates.incoming.title'));
           return;
         }
 
@@ -391,12 +415,14 @@
           addMeta(meta, 'shipowners.candidates.vessel', request.vessel_name || request.vessel_type);
           addMeta(meta, 'shipowners.candidates.join', request.join_date);
           addMeta(meta, 'shipowners.candidates.status', request.publication_status);
+          addMeta(meta, 'shipowners.candidates.incoming.eyebrow', request.incoming_request_count);
           addMeta(meta, 'shipowners.candidates.presented.eyebrow', request.presented_candidate_count);
           card.appendChild(meta);
           requestList.appendChild(card);
         });
 
         renderCandidates(requests[0]);
+        renderIncomingRequests(requests[0]);
       }
 
       function createCandidateCard(candidate) {
@@ -449,6 +475,45 @@
         return card;
       }
 
+      function createIncomingRequestCard(candidate) {
+        const card = document.createElement('article');
+        card.className = 'candidate-card';
+
+        const head = document.createElement('div');
+        head.className = 'candidate-card__head';
+        const title = document.createElement('h3');
+        title.textContent = valueOrDash(candidate.display_name || candidate.primary_rank || candidate.vacancy_rank);
+        head.appendChild(title);
+        const status = document.createElement('span');
+        status.className = 'meta-pill';
+        status.textContent = t('shipowners.candidates.requestWaiting');
+        head.appendChild(status);
+        card.appendChild(head);
+
+        const meta = document.createElement('div');
+        meta.className = 'candidate-card__meta';
+        addMeta(meta, 'shipowners.candidates.rank', candidate.primary_rank || candidate.vacancy_rank);
+        addMeta(meta, 'shipowners.candidates.availability', candidate.availability_status);
+        addMeta(meta, 'shipowners.candidates.documents', documentSummary(candidate));
+        addMeta(meta, 'shipowners.candidates.status', shortlistLabel(candidate.application_status));
+        addMeta(meta, 'shipowners.candidates.match', t('shipowners.candidates.requestSource'));
+        card.appendChild(meta);
+
+        if (candidate.candidate_note) {
+          const note = document.createElement('p');
+          note.className = 'candidate-card__note';
+          note.textContent = candidate.candidate_note;
+          card.appendChild(note);
+        }
+
+        const guard = document.createElement('p');
+        guard.className = 'muted';
+        guard.textContent = t('shipowners.candidates.requestGuard');
+        card.appendChild(guard);
+
+        return card;
+      }
+
       function renderCandidates(request) {
         const candidates = Array.isArray(request.presented_candidates) ? request.presented_candidates : [];
         setDynamicText(candidateTitle, tp('shipowners.candidates.presented.forRequest', { title: safeRequestTitle(request) }));
@@ -459,6 +524,19 @@
         }
         candidates.forEach((candidate) => {
           candidateList.appendChild(createCandidateCard(candidate));
+        });
+      }
+
+      function renderIncomingRequests(request) {
+        const incoming = Array.isArray(request.incoming_candidate_requests) ? request.incoming_candidate_requests : [];
+        setDynamicText(incomingTitle, tp('shipowners.candidates.incoming.forRequest', { title: safeRequestTitle(request) }));
+        incomingList.innerHTML = '';
+        if (!incoming.length) {
+          incomingList.innerHTML = `<div class="empty-state">${t('shipowners.candidates.emptyIncoming')}</div>`;
+          return;
+        }
+        incoming.forEach((candidate) => {
+          incomingList.appendChild(createIncomingRequestCard(candidate));
         });
       }
 
@@ -539,6 +617,7 @@
           card.classList.toggle('is-selected', card.dataset.vacancyRequestId === vacancyRequestId);
         });
         renderCandidates(request);
+        renderIncomingRequests(request);
       });
 
       candidateList.addEventListener('click', (event) => {
