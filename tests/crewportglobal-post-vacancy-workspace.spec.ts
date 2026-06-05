@@ -443,6 +443,18 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   const candidateCard = page.locator('.candidate-card', { hasText: 'Presented Candidate' }).first();
   await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Presented');
 
+  await page.goto(`/cabinet/?draft_id=${draftId}`);
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: review presented candidates');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Presented candidates: 1');
+  await expect(page.getByRole('link', { name: 'Open candidate selection' })).toHaveAttribute(
+    'href',
+    `/shipowners/candidates/?draft_id=${draftId}`
+  );
+
+  await page.goto(`/cabinet/?draft_id=${seafarer.draft_id}`);
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: upload supporting documents');
+
+  await page.goto(`/post-vacancy/?draft_id=${draftId}`);
   await candidateCard.getByRole('button', { name: 'Mark contacted' }).click();
   await expect(page.locator('#post-status')).toContainText('Candidate status updated.');
   await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Contacted');

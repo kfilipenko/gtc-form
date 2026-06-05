@@ -756,6 +756,10 @@
         'cabinet.tasks.correctDemand.companyTarget': 'Company / authority card',
         'cabinet.tasks.correctDemand.vacancyTarget': 'Crew request / vessel demand card',
         'cabinet.tasks.correctDemand.action': 'Open employer workspace',
+        'cabinet.tasks.reviewCandidates.title': 'Action required: review presented candidates',
+        'cabinet.tasks.reviewCandidates.copy': 'Presented candidate profiles are available for a verified crew request. Open candidate selection and decide whether to propose a contract.',
+        'cabinet.tasks.reviewCandidates.count': 'Presented candidates',
+        'cabinet.tasks.reviewCandidates.action': 'Open candidate selection',
         'cabinet.tasks.completeProfile.title': 'Action required: complete seafarer workspace',
         'cabinet.tasks.completeProfile.action': 'Open section',
         'cabinet.tasks.completeProfile.personal': 'Add personal/contact details and primary emergency contact.',
@@ -950,6 +954,10 @@
         'cabinet.tasks.correctDemand.companyTarget': 'Компания / полномочия',
         'cabinet.tasks.correctDemand.vacancyTarget': 'Запрос экипажа / данные судна',
         'cabinet.tasks.correctDemand.action': 'Открыть кабинет работодателя',
+        'cabinet.tasks.reviewCandidates.title': 'Требуется действие: просмотрите представленных кандидатов',
+        'cabinet.tasks.reviewCandidates.copy': 'Профили кандидатов доступны по проверенной заявке на экипаж. Откройте подбор кандидатов и решите, предлагать ли контракт.',
+        'cabinet.tasks.reviewCandidates.count': 'Представленные кандидаты',
+        'cabinet.tasks.reviewCandidates.action': 'Открыть подбор кандидатов',
         'cabinet.tasks.completeProfile.title': 'Требуется действие: заполните рабочую карточку моряка',
         'cabinet.tasks.completeProfile.action': 'Открыть раздел',
         'cabinet.tasks.completeProfile.personal': 'Добавьте личные/контактные данные и основной экстренный контакт.',
@@ -1129,6 +1137,7 @@
       let cabinetAuthUser = null;
       let cabinetDocuments = [];
       let cabinetSeafarerWorkspace = null;
+      let cabinetCandidateSelection = null;
       let activeFormType = '';
 
       function lang() {
@@ -1648,6 +1657,41 @@
         return null;
       }
 
+      function shipownerCandidateSelectionTask() {
+        if (!cabinetDraft || cabinetDraft.role === 'seafarer') {
+          return null;
+        }
+        const draftId = typeof cabinetDraft.draft_id === 'string' ? cabinetDraft.draft_id : '';
+        if (!draftId) {
+          return null;
+        }
+
+        const selectionRequests = cabinetCandidateSelection
+          && Array.isArray(cabinetCandidateSelection.selection_requests)
+          ? cabinetCandidateSelection.selection_requests
+          : [];
+        const presentedFromSelection = selectionRequests.reduce((count, request) => {
+          const candidates = request && Array.isArray(request.presented_candidates)
+            ? request.presented_candidates
+            : [];
+          return count + candidates.length;
+        }, 0);
+
+        const payload = cabinetDraft.payload && typeof cabinetDraft.payload === 'object' ? cabinetDraft.payload : {};
+        const presentedFromDraft = Array.isArray(payload.presented_candidates)
+          ? payload.presented_candidates.length
+          : 0;
+        const candidateCount = Math.max(presentedFromSelection, presentedFromDraft);
+        if (candidateCount <= 0) {
+          return null;
+        }
+
+        return {
+          candidateCount,
+          href: `/shipowners/candidates/?draft_id=${encodeURIComponent(draftId)}`
+        };
+      }
+
       function emailVerificationRequired() {
         if (!cabinetDraft || !cabinetAuthUser) {
           return false;
@@ -1932,6 +1976,27 @@
         taskList.append(task);
       }
 
+      function renderShipownerCandidateSelectionTask(taskInfo) {
+        const task = document.createElement('article');
+        task.className = 'task-item is-action';
+        const title = document.createElement('h3');
+        title.textContent = t('cabinet.tasks.reviewCandidates.title');
+        const copy = document.createElement('p');
+        copy.className = 'muted';
+        copy.textContent = t('cabinet.tasks.reviewCandidates.copy');
+        const meta = document.createElement('div');
+        meta.className = 'meta-row';
+        const chip = document.createElement('span');
+        chip.className = 'chip action';
+        chip.textContent = `${t('cabinet.tasks.reviewCandidates.count')}: ${taskInfo.candidateCount}`;
+        meta.append(chip);
+        const actions = document.createElement('div');
+        actions.className = 'meta-row';
+        actions.append(actionLink(t('cabinet.tasks.reviewCandidates.action'), taskInfo.href));
+        task.append(title, copy, meta, actions);
+        taskList.append(task);
+      }
+
       function renderTasks() {
         taskList.replaceChildren();
         const corrections = taskDocuments();
@@ -1940,7 +2005,13 @@
         const completenessTasks = seafarerCompletenessTasks();
         const profileCorrection = profileCorrectionTask();
         const demandCorrection = demandCorrectionTask();
-        let taskCount = corrections.length + completenessTasks.length + (profileCorrection ? 1 : 0) + (demandCorrection ? 1 : 0) + (needsEmailVerification ? 1 : 0);
+        const candidateSelectionTask = shipownerCandidateSelectionTask();
+        let taskCount = corrections.length
+          + completenessTasks.length
+          + (profileCorrection ? 1 : 0)
+          + (demandCorrection ? 1 : 0)
+          + (candidateSelectionTask ? 1 : 0)
+          + (needsEmailVerification ? 1 : 0);
 
         if (!cabinetDraft) {
           const task = document.createElement('article');
@@ -1972,6 +2043,10 @@
 
         if (demandCorrection) {
           renderDemandCorrectionTask(demandCorrection);
+        }
+
+        if (candidateSelectionTask) {
+          renderShipownerCandidateSelectionTask(candidateSelectionTask);
         }
 
         corrections.forEach((documentRecord) => {
@@ -2032,7 +2107,7 @@
           taskList.append(task);
         }
 
-        if (corrections.length === 0 && !profileCorrection && !demandCorrection && completenessTasks.length === 0 && waiting.length === 0 && cabinetDocuments.length > 0) {
+        if (corrections.length === 0 && !profileCorrection && !demandCorrection && !candidateSelectionTask && completenessTasks.length === 0 && waiting.length === 0 && cabinetDocuments.length > 0) {
           const task = document.createElement('article');
           task.className = 'task-item is-waiting';
           const title = document.createElement('h3');
@@ -2173,6 +2248,30 @@
         }
         const body = await response.json().catch(() => ({}));
         cabinetSeafarerWorkspace = body.workspace && typeof body.workspace === 'object' ? body.workspace : null;
+      }
+
+      async function loadShipownerCandidateSelection() {
+        cabinetCandidateSelection = null;
+        if (!cabinetDraft || cabinetDraft.role === 'seafarer') {
+          return;
+        }
+        const draftId = cabinetDraft.draft_id ? String(cabinetDraft.draft_id) : '';
+        if (!draftId) {
+          return;
+        }
+        try {
+          const response = await fetch(`/api/v1/employer/candidate-selection?draft_id=${encodeURIComponent(draftId)}`, {
+            method: 'GET',
+            credentials: 'include'
+          });
+          if (!response.ok) {
+            return;
+          }
+          const body = await response.json().catch(() => ({}));
+          cabinetCandidateSelection = body && typeof body === 'object' ? body : null;
+        } catch (error) {
+          cabinetCandidateSelection = null;
+        }
       }
 
       function renderSeafarerWorkspace() {
@@ -2393,6 +2492,7 @@
           const documentsResponse = await window.CPGDrafts.listDocuments(cabinetDraft.draft_id, activeFormType);
           cabinetDocuments = Array.isArray(documentsResponse.documents) ? documentsResponse.documents : [];
           await loadSeafarerWorkspace();
+          await loadShipownerCandidateSelection();
           const correctionCount = taskDocuments().length;
           const taskCount = correctionCount
             + (emailVerificationRequired() ? 1 : 0)
@@ -2414,6 +2514,7 @@
           cabinetAuthUser = null;
           cabinetDocuments = [];
           cabinetSeafarerWorkspace = null;
+          cabinetCandidateSelection = null;
           activeFormType = 'seafarer';
           renderTasks();
           renderUserSummary();
@@ -2431,6 +2532,7 @@
         const documentsResponse = await window.CPGDrafts.listDocuments(cabinetDraft.draft_id, activeFormType);
         cabinetDocuments = Array.isArray(documentsResponse.documents) ? documentsResponse.documents : [];
         await loadSeafarerWorkspace();
+        await loadShipownerCandidateSelection();
         const correctionCount = taskDocuments().length;
         const taskCount = correctionCount || (cabinetDocuments.length === 0 ? 1 : 0);
 

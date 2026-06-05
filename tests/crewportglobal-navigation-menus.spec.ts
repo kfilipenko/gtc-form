@@ -9,24 +9,29 @@ const appPages = [
 ];
 
 const documentPages = [
-  { path: '/for-shipowners/', active: 'For Employers' },
   { path: '/legal/verification-policy/', active: 'Verification Policy' },
+];
+
+const directDocumentPaths = [
+  '/for-shipowners/',
+  '/legal/verification-policy/',
 ];
 
 const fullSiteGroups = [
   { className: 'home', title: 'Home' },
   { className: 'seafarers', title: 'Seafarers' },
-  { className: 'employers', title: 'Employers' },
+  { className: 'employers', title: 'Shipowners' },
   { className: 'documents', title: 'Documents' },
   { className: 'team', title: 'Team' },
 ];
 
 const fullSiteLinks = [
   { name: 'Home', href: 'https://crewportglobal.com/' },
+  { name: 'My Cabinet', href: 'https://crewportglobal.com/cabinet/' },
   { name: 'Create Profile', href: 'https://crewportglobal.com/create-profile/' },
   { name: 'Vacancies', href: 'https://crewportglobal.com/vacancies/' },
-  { name: 'For Employers', href: 'https://crewportglobal.com/for-shipowners/' },
   { name: 'Post Vacancy', href: 'https://crewportglobal.com/post-vacancy/' },
+  { name: 'Select Candidate', href: 'https://crewportglobal.com/shipowners/candidates/' },
   { name: 'Terms', href: 'https://crewportglobal.com/legal/terms/' },
   { name: 'Privacy', href: 'https://crewportglobal.com/legal/privacy/' },
   { name: 'No Recruitment Fees', href: 'https://crewportglobal.com/legal/no-recruitment-fees/' },
@@ -201,9 +206,9 @@ test('document page menu exposes all public, team, registration and document tar
 });
 
 test('document URLs remain directly accessible without redirects', async ({ page }) => {
-  for (const item of documentPages) {
-    await page.goto(item.path);
-    await expect(page).toHaveURL(new RegExp(`${item.path.replace(/\//g, '\\/')}$`));
+  for (const path of directDocumentPaths) {
+    await page.goto(path);
+    await expect(page).toHaveURL(new RegExp(`${path.replace(/\//g, '\\/')}$`));
     await expect(page.locator('h1')).toBeVisible();
   }
 });

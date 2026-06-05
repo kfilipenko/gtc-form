@@ -37,6 +37,7 @@
       hintKey: 'nav.seafarerPagesHint',
       hint: 'Actions for seafarer profile completion and reviewed vacancy access.',
       links: [
+        { href: '/cabinet/', dynamicHref: 'currentCabinet', key: 'nav.seafarerCabinet', label: 'My Cabinet', hintKey: 'nav.seafarerCabinetHint', hint: 'Open the personal cabinet with current seafarer tasks.' },
         { href: '/create-profile/', key: 'nav.createProfile', label: 'Create Profile', hint: 'Complete the seafarer profile and documents.' },
         { href: '/vacancies/', key: 'nav.vacancies', label: 'Vacancies', hint: 'Open reviewed vacancy information.' },
       ],
@@ -49,6 +50,7 @@
       hintKey: 'nav.employerPagesHint',
       hint: 'Actions for shipowner vessel data, crew requests and candidate selection.',
       links: [
+        { href: '/cabinet/', dynamicHref: 'currentCabinet', key: 'nav.shipownerCabinet', label: 'My Cabinet', hintKey: 'nav.shipownerCabinetHint', hint: 'Open the personal cabinet with current shipowner tasks.' },
         { href: '/post-vacancy/', key: 'nav.postVacancy', label: 'Post Vacancy', hint: 'Add company, vessel and crew request data.' },
         { href: '/shipowners/candidates/', key: 'nav.selectCandidate', label: 'Select Candidate', hint: 'Review presented candidates and propose contract.' },
       ],
@@ -105,6 +107,13 @@
     return `${SITE_ORIGIN}${href}`;
   }
 
+  function resolvedHref(item) {
+    if (item && item.dynamicHref === 'currentCabinet') {
+      return currentDraftCabinetHref() || item.href;
+    }
+    return item && item.href ? item.href : '/';
+  }
+
   function escapeAttribute(value) {
     return String(value)
       .replace(/&/g, '&amp;')
@@ -120,8 +129,9 @@
   }
 
   function createLink(item, activeHref) {
-    const active = activeHref && item.href === activeHref ? ' is-active' : '';
-    return `<a class="nav-link${active}" href="${absoluteHref(item.href)}" data-i18n="${item.key}"${titleAttributes(item)}>${item.label}</a>`;
+    const href = resolvedHref(item);
+    const active = activeHref && (item.href === activeHref || href === activeHref) ? ' is-active' : '';
+    return `<a class="nav-link${active}" href="${absoluteHref(href)}" data-i18n="${item.key}"${titleAttributes(item)}>${item.label}</a>`;
   }
 
   function createApplicationLinks(activeHref) {
@@ -147,11 +157,11 @@
   }
 
   function createSiteMenuGroup(group, activeHref) {
-    const isActive = group.links.some((item) => item.href === activeHref);
+    const isActive = group.links.some((item) => item.href === activeHref || resolvedHref(item) === activeHref);
     const active = isActive ? ' is-active' : '';
     if (group.links.length === 1) {
       const item = group.links[0];
-      return `<a class="nav-link site-menu-group-link site-menu-group-link--${group.className}${active}" href="${absoluteHref(item.href)}" data-i18n="${group.key}"${titleAttributes(group)}>${group.label}</a>`;
+      return `<a class="nav-link site-menu-group-link site-menu-group-link--${group.className}${active}" href="${absoluteHref(resolvedHref(item))}" data-i18n="${group.key}"${titleAttributes(group)}>${group.label}</a>`;
     }
 
     return [
@@ -216,7 +226,8 @@
 
   function currentDraftCabinetHref() {
     try {
-      const draftId = window.localStorage.getItem('crewportglobal.registration.draft_id') || '';
+      const currentUrlDraftId = new URLSearchParams(window.location.search).get('draft_id') || '';
+      const draftId = currentUrlDraftId || window.localStorage.getItem('crewportglobal.registration.draft_id') || '';
       const trimmed = draftId.trim();
       return trimmed ? `/cabinet/?draft_id=${encodeURIComponent(trimmed)}` : '';
     } catch (error) {
