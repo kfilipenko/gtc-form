@@ -472,6 +472,18 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Proceed with candidate');
   await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Contract: Open contract workspace');
 
+  await page.goto(`/shipowners/candidates/?draft_id=${draftId}`);
+  await expect(page.getByRole('heading', { name: 'Select candidate.' })).toBeVisible();
+  await expect(page.locator('#selection-status-title')).toContainText('1 request');
+  await expect(page.locator('#request-list')).toContainText(updatedTitle);
+  await expect(page.locator('#candidate-list')).toContainText('Presented Candidate');
+  await expect(page.locator('#candidate-list')).toContainText('Master');
+  await expect(page.locator('#candidate-list')).not.toContainText(seafarerEmail);
+  await expect(page.locator('#candidate-list')).toContainText('Open contract workspace');
+  await page.locator('#candidate-list').getByRole('button', { name: 'Open contract workspace' }).click();
+  await expect(page.locator('#selection-status-title')).toContainText('Existing contract workspace opened.');
+
+  await page.goto(`/post-vacancy/?draft_id=${draftId}`);
   await candidateCard.locator('.candidate-note-input').fill('Not suitable for this rotation after salary review.');
   await candidateCard.getByRole('button', { name: 'Not suitable' }).click();
   await expect(page.locator('#post-status')).toContainText('Candidate status updated.');

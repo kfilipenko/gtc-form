@@ -8843,6 +8843,121 @@ function read_presented_candidates_for_employer(string $companyId, ?string $vaca
     return $items;
 }
 
+function read_shipowner_candidate_selection_requests(string $companyId): array {
+    $vacancyResult = api_query(
+        "SELECT vr.vacancy_request_id::text AS vacancy_request_id,
+                vr.vacancy_title,
+                vr.rank,
+                vr.department,
+                vr.vessel_type,
+                vr.vessel_type_label,
+                vr.join_date::text AS join_date,
+                vr.contract_duration,
+                vr.contract_duration_value,
+                vr.contract_duration_unit,
+                vr.salary_min_usd,
+                vr.salary_max_usd,
+                vr.currency,
+                vr.publication_status,
+                vr.created_at::text AS created_at,
+                vr.updated_at::text AS updated_at,
+                v.vessel_name,
+                v.vessel_type AS registered_vessel_type,
+                v.vessel_type_label AS registered_vessel_type_label,
+                v.flag_country_code
+         FROM crewportglobal.vacancy_requests vr
+         LEFT JOIN crewportglobal.vessels v ON v.vessel_id = vr.vessel_id
+         WHERE vr.company_id = $1
+           AND vr.publication_status <> 'archived'
+         ORDER BY vr.updated_at DESC, vr.created_at DESC
+         LIMIT 100",
+        [$companyId]
+    );
+
+    $presentedCandidates = read_presented_candidates_for_employer($companyId, null);
+    $candidatesByVacancy = [];
+    foreach ($presentedCandidates as $candidate) {
+        $vacancyId = is_string($candidate['vacancy_request_id'] ?? null) ? $candidate['vacancy_request_id'] : '';
+        if ($vacancyId === '') {
+            continue;
+        }
+        if (!isset($candidatesByVacancy[$vacancyId])) {
+            $candidatesByVacancy[$vacancyId] = [];
+        }
+        $candidatesByVacancy[$vacancyId][] = $candidate;
+    }
+
+    $requests = [];
+    while (($row = pg_fetch_assoc($vacancyResult)) !== false) {
+        $vacancyId = (string) $row['vacancy_request_id'];
+        $candidates = $candidatesByVacancy[$vacancyId] ?? [];
+        $vesselType = $row['vessel_type_label']
+            ?? $row['vessel_type']
+            ?? $row['registered_vessel_type_label']
+            ?? $row['registered_vessel_type']
+            ?? null;
+
+        $requests[] = [
+            'vacancy_request_id' => $vacancyId,
+            'vacancy_title' => $row['vacancy_title'],
+            'rank' => $row['rank'],
+            'department' => $row['department'],
+            'vessel_type' => $vesselType,
+            'vessel_name' => $row['vessel_name'],
+            'flag_country_code' => $row['flag_country_code'],
+            'join_date' => $row['join_date'],
+            'contract_duration' => $row['contract_duration'],
+            'contract_duration_value' => $row['contract_duration_value'],
+            'contract_duration_unit' => $row['contract_duration_unit'],
+            'salary_min_usd' => $row['salary_min_usd'],
+            'salary_max_usd' => $row['salary_max_usd'],
+            'currency' => $row['currency'],
+            'publication_status' => $row['publication_status'],
+            'created_at' => $row['created_at'],
+            'updated_at' => $row['updated_at'],
+            'presented_candidate_count' => count($candidates),
+            'candidate_selection_state' => count($candidates) > 0
+                ? 'presented_candidates_available'
+                : 'candidate_presentation_is_being_prepared',
+            'presented_candidates' => $candidates,
+        ];
+    }
+
+    return $requests;
+}
+
+function handle_get_shipowner_candidate_selection(): void {
+    $draftId = api_normalize_uuid($_GET['draft_id'] ?? null);
+    if ($draftId === null) {
+        api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
+    }
+
+    $role = read_role_for_user($draftId);
+    if ($role === null || $role === 'seafarer') {
+        api_error(404, 'shipowner_draft_not_found', 'Shipowner draft not found');
+    }
+
+    $company = read_primary_company_for_user($draftId);
+    if ($company === null || !isset($company['company_id'])) {
+        api_error(404, 'shipowner_company_not_found', 'Shipowner company not found');
+    }
+
+    $companyId = (string) $company['company_id'];
+
+    api_json(200, [
+        'ok' => true,
+        'draft_id' => $draftId,
+        'role' => $role,
+        'company' => [
+            'company_id' => $companyId,
+            'company_name' => $company['company_name'] ?? null,
+            'verification_status' => $company['verification_status'] ?? null,
+        ],
+        'visibility_scope' => 'shipowner_presented_candidates_only',
+        'selection_requests' => read_shipowner_candidate_selection_requests($companyId),
+    ]);
+}
+
 function cpg_contract_workspace_tables_ready(): bool {
     $row = cpg_fetch_one_assoc(
         "SELECT to_regclass('crewportglobal.contract_workspace_instances') AS workspaces_table,
@@ -14575,6 +14690,10 @@ if ($method === 'GET' && $path === '/vacancies') {
 
 if ($method === 'GET' && $path === '/registry-summary') {
     handle_get_public_registry_summary();
+}
+
+if ($method === 'GET' && $path === '/employer/candidate-selection') {
+    handle_get_shipowner_candidate_selection();
 }
 
 if (preg_match('#^/vacancies/([^/]+)$#', $path, $matches) === 1) {

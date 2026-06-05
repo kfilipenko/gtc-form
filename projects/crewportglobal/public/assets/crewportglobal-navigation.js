@@ -44,13 +44,13 @@
     {
       className: 'employers',
       key: 'nav.employerPages',
-      label: 'Employers',
+      label: 'Shipowners',
       menuKey: 'nav.employerPagesMenu',
       hintKey: 'nav.employerPagesHint',
-      hint: 'Actions for employer registration, vessel data and crew requests.',
+      hint: 'Actions for shipowner vessel data, crew requests and candidate selection.',
       links: [
-        { href: '/for-shipowners/', key: 'nav.forShipowners', label: 'For Employers', hint: 'Employer service entry page.' },
         { href: '/post-vacancy/', key: 'nav.postVacancy', label: 'Post Vacancy', hint: 'Add company, vessel and crew request data.' },
+        { href: '/shipowners/candidates/', key: 'nav.selectCandidate', label: 'Select Candidate', hint: 'Review presented candidates and propose contract.' },
       ],
     },
     {

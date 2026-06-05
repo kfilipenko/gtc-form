@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Select candidate</title>
+  <meta name="description" content="Shipowner candidate-selection workspace for reviewed crew requests and employer-safe presented candidates.">
+  <link rel="canonical" href="https://crewportglobal.com/shipowners/candidates/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/assets/crewportglobal-docs.css?v=20260530-menu-audit">
+  <link rel="stylesheet" href="/assets/crewportglobal-app.css">
+  <style>
+    .selection-layout {
+      display: grid;
+      gap: 16px;
+    }
+
+    .selection-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: end;
+      padding: 20px;
+    }
+
+    .selection-hero h1 {
+      margin-bottom: 8px;
+    }
+
+    .selection-status {
+      display: grid;
+      gap: 6px;
+      min-width: min(100%, 260px);
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .request-grid,
+    .candidate-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .request-card,
+    .candidate-card {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .request-card.is-selected {
+      border-color: rgba(82, 198, 220, 0.85);
+      box-shadow: 0 0 0 2px rgba(82, 198, 220, 0.14);
+    }
+
+    .request-card__head,
+    .candidate-card__head,
+    .candidate-card__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .request-card__meta,
+    .candidate-card__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted-on-dark);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted-on-dark);
+    }
+
+    .candidate-detail {
+      border-color: rgba(255, 139, 51, 0.5);
+    }
+
+    .empty-state {
+      padding: 16px;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      color: var(--muted-on-dark);
+    }
+
+    @media (max-width: 760px) {
+      .selection-hero {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="doc-body cpg-app-page">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div data-cpg-theme-switcher></div>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+      <div data-cpg-account-area></div>
+    </header>
+
+    <div data-cpg-navigation="application" data-cpg-nav-active="/shipowners/candidates/"></div>
+    <script src="/assets/crewportglobal-navigation.js?v=20260530-menu-audit"></script>
+
+    <main class="doc-main selection-layout">
+      <section class="card selection-hero">
+        <div>
+          <p class="eyebrow" data-i18n="shipowners.candidates.eyebrow">Shipowner workspace</p>
+          <h1 data-i18n="shipowners.candidates.title">Select candidate.</h1>
+          <p class="lead-copy" data-i18n="shipowners.candidates.copy">Review employer-safe candidates already released by the controlled shortlist and presentation process.</p>
+        </div>
+        <div class="selection-status" aria-live="polite">
+          <strong id="selection-status-title" data-i18n="shipowners.candidates.status.loading">Loading candidate selection.</strong>
+          <span id="selection-status-copy" data-i18n="shipowners.candidates.status.copy">Only approved presentations are shown here.</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <p class="eyebrow" data-i18n="shipowners.candidates.requests.eyebrow">Crew requests</p>
+        <h2 data-i18n="shipowners.candidates.requests.title">Requests with presented candidates</h2>
+        <div id="request-list" class="request-grid"></div>
+      </section>
+
+      <section class="card">
+        <p class="eyebrow" data-i18n="shipowners.candidates.presented.eyebrow">Presented candidates</p>
+        <h2 id="candidate-section-title" data-i18n="shipowners.candidates.presented.title">Select a crew request</h2>
+        <div id="candidate-list" class="candidate-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'site.tagline': 'Maritime documentation and matching platform',
+        'site.languageLabel': 'Language',
+        'shipowners.candidates.eyebrow': 'Shipowner workspace',
+        'shipowners.candidates.title': 'Select candidate.',
+        'shipowners.candidates.copy': 'Review employer-safe candidates already released by the controlled shortlist and presentation process.',
+        'shipowners.candidates.status.loading': 'Loading candidate selection.',
+        'shipowners.candidates.status.loaded': '{count} request(s) loaded.',
+        'shipowners.candidates.status.empty': 'No requests found.',
+        'shipowners.candidates.status.error': 'Unable to load candidate selection.',
+        'shipowners.candidates.status.copy': 'Only approved presentations are shown here.',
+        'shipowners.candidates.requests.eyebrow': 'Crew requests',
+        'shipowners.candidates.requests.title': 'Requests with presented candidates',
+        'shipowners.candidates.presented.eyebrow': 'Presented candidates',
+        'shipowners.candidates.presented.title': 'Select a crew request',
+        'shipowners.candidates.presented.forRequest': 'Candidates for {title}',
+        'shipowners.candidates.emptyRequests': 'No crew requests are available for this shipowner account yet.',
+        'shipowners.candidates.emptyCandidates': 'Candidate presentation is being prepared.',
+        'shipowners.candidates.openRequest': 'Open candidates',
+        'shipowners.candidates.propose': 'Propose contract',
+        'shipowners.candidates.openContract': 'Open contract workspace',
+        'shipowners.candidates.proposing': 'Preparing contract workspace...',
+        'shipowners.candidates.proposed': 'Contract workspace prepared.',
+        'shipowners.candidates.reused': 'Existing contract workspace opened.',
+        'shipowners.candidates.blocked': 'Contract proposal blocked: {codes}',
+        'shipowners.candidates.error': 'Operation failed.',
+        'shipowners.candidates.rank': 'Rank',
+        'shipowners.candidates.vessel': 'Vessel',
+        'shipowners.candidates.join': 'Join',
+        'shipowners.candidates.status': 'Status',
+        'shipowners.candidates.employerStatus': 'Decision',
+        'shipowners.candidates.contract': 'Contract',
+        'shipowners.candidates.documents': 'Documents',
+        'shipowners.candidates.availability': 'Availability',
+        'shipowners.candidates.match': 'Match',
+        'shipowners.candidates.matchText': 'Presented by controlled shortlist and review workflow.',
+        'shipowners.candidates.noDraft': 'Open this page from a shipowner account or add draft_id to the URL.'
+      },
+      ru: {
+        'site.tagline': 'Морская платформа документов и подбора экипажей',
+        'site.languageLabel': 'Язык',
+        'shipowners.candidates.eyebrow': 'Рабочее место судовладельца',
+        'shipowners.candidates.title': 'Подобрать кандидата.',
+        'shipowners.candidates.copy': 'Просмотрите безопасные для судовладельца кандидатуры, уже выпущенные контролируемым процессом shortlist и presentation.',
+        'shipowners.candidates.status.loading': 'Загружаем подбор кандидатов.',
+        'shipowners.candidates.status.loaded': 'Загружено заявок: {count}.',
+        'shipowners.candidates.status.empty': 'Заявки не найдены.',
+        'shipowners.candidates.status.error': 'Не удалось загрузить подбор кандидатов.',
+        'shipowners.candidates.status.copy': 'Здесь показываются только одобренные представления кандидатов.',
+        'shipowners.candidates.requests.eyebrow': 'Заявки на экипаж',
+        'shipowners.candidates.requests.title': 'Заявки с представленными кандидатами',
+        'shipowners.candidates.presented.eyebrow': 'Представленные кандидаты',
+        'shipowners.candidates.presented.title': 'Выберите заявку',
+        'shipowners.candidates.presented.forRequest': 'Кандидаты по заявке {title}',
+        'shipowners.candidates.emptyRequests': 'Для этого аккаунта судовладельца пока нет заявок.',
+        'shipowners.candidates.emptyCandidates': 'Представление кандидатов готовится.',
+        'shipowners.candidates.openRequest': 'Открыть кандидатов',
+        'shipowners.candidates.propose': 'Предложить контракт',
+        'shipowners.candidates.openContract': 'Открыть договор',
+        'shipowners.candidates.proposing': 'Готовим рабочее пространство договора...',
+        'shipowners.candidates.proposed': 'Рабочее пространство договора подготовлено.',
+        'shipowners.candidates.reused': 'Открыто существующее рабочее пространство договора.',
+        'shipowners.candidates.blocked': 'Предложение контракта заблокировано: {codes}',
+        'shipowners.candidates.error': 'Операция не выполнена.',
+        'shipowners.candidates.rank': 'Должность',
+        'shipowners.candidates.vessel': 'Судно',
+        'shipowners.candidates.join': 'Посадка',
+        'shipowners.candidates.status': 'Статус',
+        'shipowners.candidates.employerStatus': 'Решение',
+        'shipowners.candidates.contract': 'Договор',
+        'shipowners.candidates.documents': 'Документы',
+        'shipowners.candidates.availability': 'Готовность',
+        'shipowners.candidates.match': 'Совпадение',
+        'shipowners.candidates.matchText': 'Кандидат представлен через контролируемый shortlist и review workflow.',
+        'shipowners.candidates.noDraft': 'Откройте страницу из аккаунта судовладельца или добавьте draft_id в URL.'
+      }
+    };
+  </script>
+  <script src="/assets/crewportglobal-registration-drafts.js"></script>
+  <script src="/assets/crewportglobal-machine-translations.js?v=53345f0f8938ec76" defer></script>
+  <script src="/assets/crewportglobal-public-i18n.js?v=20260530-menu-audit" defer></script>
+  <script>
+    (function () {
+      const requestList = document.getElementById('request-list');
+      const candidateList = document.getElementById('candidate-list');
+      const candidateTitle = document.getElementById('candidate-section-title');
+      const statusTitle = document.getElementById('selection-status-title');
+      const statusCopy = document.getElementById('selection-status-copy');
+
+      let currentDraftId = '';
+      let selectionPayload = null;
+
+      function language() {
+        const lang = document.documentElement.lang || 'en';
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang] ? lang : 'en';
+      }
+
+      function t(key) {
+        const lang = language();
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang][key]
+          || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key]
+          || key;
+      }
+
+      function tp(key, values) {
+        return Object.entries(values || {}).reduce((result, entry) => {
+          return result.replace(`{${entry[0]}}`, String(entry[1]));
+        }, t(key));
+      }
+
+      function valueOrDash(value) {
+        return value === null || value === undefined || String(value).trim() === '' ? '-' : String(value);
+      }
+
+      function setDynamicText(element, text) {
+        element.removeAttribute('data-i18n');
+        element.textContent = text;
+      }
+
+      function getDraftId() {
+        const params = new URLSearchParams(window.location.search);
+        const fromUrl = (params.get('draft_id') || '').trim();
+        if (fromUrl) {
+          return fromUrl;
+        }
+        try {
+          return (window.localStorage.getItem('crewportglobal.registration.draft_id') || '').trim();
+        } catch (error) {
+          return '';
+        }
+      }
+
+      async function fetchSelection(draftId) {
+        const response = await fetch(`/api/v1/employer/candidate-selection?draft_id=${encodeURIComponent(draftId)}`);
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const error = new Error(body.message || `Request failed with status ${response.status}`);
+          error.payload = body;
+          throw error;
+        }
+        return body;
+      }
+
+      function documentSummary(candidate) {
+        const metadata = candidate && candidate.document_summary && typeof candidate.document_summary === 'object'
+          ? candidate.document_summary
+          : {};
+        return [
+          metadata.certificate_status,
+          metadata.stcw_status,
+          metadata.medical_expiry,
+          metadata.passport_expiry
+        ].filter((value) => value !== null && value !== undefined && String(value).trim() !== '').join(' / ');
+      }
+
+      function shortlistLabel(value) {
+        const normalized = typeof value === 'string' && value.trim() ? value.trim() : 'presented';
+        return normalized.replace(/_/g, ' ');
+      }
+
+      function contractLabel(operation) {
+        if (!operation || typeof operation !== 'object' || operation.visible === false) {
+          return '';
+        }
+        if (operation.existing_contract_workspace_id) {
+          return t('shipowners.candidates.openContract');
+        }
+        if (operation.enabled === true) {
+          return t('shipowners.candidates.propose');
+        }
+        const blockers = Array.isArray(operation.blockers) ? operation.blockers : [];
+        const codes = blockers.map((blocker) => blocker && blocker.code ? blocker.code : '').filter(Boolean).join(', ');
+        return codes ? tp('shipowners.candidates.blocked', { codes }) : '';
+      }
+
+      function addMeta(container, labelKey, value) {
+        if (value === null || value === undefined || String(value).trim() === '') {
+          return;
+        }
+        const pill = document.createElement('span');
+        pill.className = 'meta-pill';
+        pill.textContent = `${t(labelKey)}: ${value}`;
+        container.appendChild(pill);
+      }
+
+      function safeRequestTitle(request) {
+        return request.vacancy_title || request.rank || request.department || request.vacancy_request_id || '-';
+      }
+
+      function renderRequests(requests) {
+        requestList.innerHTML = '';
+        if (!requests.length) {
+          requestList.innerHTML = `<div class="empty-state">${t('shipowners.candidates.emptyRequests')}</div>`;
+          candidateList.innerHTML = '';
+          setDynamicText(candidateTitle, t('shipowners.candidates.presented.title'));
+          return;
+        }
+
+        requests.forEach((request, index) => {
+          const card = document.createElement('article');
+          card.className = `request-card${index === 0 ? ' is-selected' : ''}`;
+          card.dataset.vacancyRequestId = request.vacancy_request_id || '';
+
+          const head = document.createElement('div');
+          head.className = 'request-card__head';
+          const title = document.createElement('h3');
+          title.textContent = safeRequestTitle(request);
+          head.appendChild(title);
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'button secondary request-select-action';
+          button.dataset.vacancyRequestId = request.vacancy_request_id || '';
+          button.textContent = t('shipowners.candidates.openRequest');
+          head.appendChild(button);
+          card.appendChild(head);
+
+          const meta = document.createElement('div');
+          meta.className = 'request-card__meta';
+          addMeta(meta, 'shipowners.candidates.rank', request.rank);
+          addMeta(meta, 'shipowners.candidates.vessel', request.vessel_name || request.vessel_type);
+          addMeta(meta, 'shipowners.candidates.join', request.join_date);
+          addMeta(meta, 'shipowners.candidates.status', request.publication_status);
+          addMeta(meta, 'shipowners.candidates.presented.eyebrow', request.presented_candidate_count);
+          card.appendChild(meta);
+          requestList.appendChild(card);
+        });
+
+        renderCandidates(requests[0]);
+      }
+
+      function createCandidateCard(candidate) {
+        const card = document.createElement('article');
+        card.className = 'candidate-card candidate-detail';
+
+        const head = document.createElement('div');
+        head.className = 'candidate-card__head';
+        const title = document.createElement('h3');
+        title.textContent = valueOrDash(candidate.display_name || candidate.primary_rank || candidate.vacancy_rank);
+        head.appendChild(title);
+        card.appendChild(head);
+
+        const meta = document.createElement('div');
+        meta.className = 'candidate-card__meta';
+        addMeta(meta, 'shipowners.candidates.rank', candidate.primary_rank || candidate.vacancy_rank);
+        addMeta(meta, 'shipowners.candidates.availability', candidate.availability_status);
+        addMeta(meta, 'shipowners.candidates.documents', documentSummary(candidate));
+        addMeta(meta, 'shipowners.candidates.employerStatus', shortlistLabel(candidate.employer_shortlist_status));
+        addMeta(meta, 'shipowners.candidates.contract', contractLabel(candidate.contract_operation));
+        addMeta(meta, 'shipowners.candidates.match', t('shipowners.candidates.matchText'));
+        card.appendChild(meta);
+
+        if (candidate.candidate_note) {
+          const note = document.createElement('p');
+          note.className = 'candidate-card__note';
+          note.textContent = candidate.candidate_note;
+          card.appendChild(note);
+        }
+
+        const actions = document.createElement('div');
+        actions.className = 'candidate-card__actions';
+        const operation = candidate.contract_operation && typeof candidate.contract_operation === 'object'
+          ? candidate.contract_operation
+          : null;
+        if (operation && operation.visible !== false) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'button primary contract-proposal-action';
+          button.dataset.applicationId = candidate.vacancy_application_id || '';
+          button.disabled = operation.enabled !== true || !candidate.vacancy_application_id;
+          button.textContent = operation.existing_contract_workspace_id
+            ? t('shipowners.candidates.openContract')
+            : t('shipowners.candidates.propose');
+          actions.appendChild(button);
+        }
+        card.appendChild(actions);
+
+        return card;
+      }
+
+      function renderCandidates(request) {
+        const candidates = Array.isArray(request.presented_candidates) ? request.presented_candidates : [];
+        setDynamicText(candidateTitle, tp('shipowners.candidates.presented.forRequest', { title: safeRequestTitle(request) }));
+        candidateList.innerHTML = '';
+        if (!candidates.length) {
+          candidateList.innerHTML = `<div class="empty-state">${t('shipowners.candidates.emptyCandidates')}</div>`;
+          return;
+        }
+        candidates.forEach((candidate) => {
+          candidateList.appendChild(createCandidateCard(candidate));
+        });
+      }
+
+      function setBusy(disabled) {
+        document.querySelectorAll('.request-select-action, .contract-proposal-action').forEach((button) => {
+          button.disabled = disabled;
+        });
+      }
+
+      async function proposeContract(applicationId) {
+        if (!applicationId || !currentDraftId) {
+          setDynamicText(statusTitle, t('shipowners.candidates.error'));
+          return;
+        }
+        setBusy(true);
+        setDynamicText(statusTitle, t('shipowners.candidates.proposing'));
+        try {
+          const response = await fetch(`/api/v1/employer/vacancy-applications/${encodeURIComponent(applicationId)}/contract-proposal`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              employer_draft_id: currentDraftId
+            })
+          });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            const blockers = Array.isArray(body.blockers)
+              ? body.blockers.map((blocker) => blocker && blocker.code ? blocker.code : '').filter(Boolean).join(', ')
+              : '';
+            setDynamicText(statusTitle, blockers
+              ? tp('shipowners.candidates.blocked', { codes: blockers })
+              : t('shipowners.candidates.error'));
+            return;
+          }
+          selectionPayload = await fetchSelection(currentDraftId);
+          renderPage(selectionPayload);
+          setDynamicText(statusTitle, response.status === 200
+            ? t('shipowners.candidates.reused')
+            : t('shipowners.candidates.proposed'));
+        } catch (error) {
+          setDynamicText(statusTitle, t('shipowners.candidates.error'));
+          console.error(error);
+        } finally {
+          setBusy(false);
+        }
+      }
+
+      function renderPage(payload) {
+        const requests = Array.isArray(payload.selection_requests) ? payload.selection_requests : [];
+        setDynamicText(statusTitle, requests.length
+          ? tp('shipowners.candidates.status.loaded', { count: requests.length })
+          : t('shipowners.candidates.status.empty'));
+        setDynamicText(statusCopy, t('shipowners.candidates.status.copy'));
+        renderRequests(requests);
+      }
+
+      requestList.addEventListener('click', (event) => {
+        const target = event.target.closest('.request-select-action');
+        if (!target || !selectionPayload) {
+          return;
+        }
+        const vacancyRequestId = target.dataset.vacancyRequestId || '';
+        const requests = Array.isArray(selectionPayload.selection_requests) ? selectionPayload.selection_requests : [];
+        const request = requests.find((item) => item.vacancy_request_id === vacancyRequestId);
+        if (!request) {
+          return;
+        }
+        requestList.querySelectorAll('.request-card').forEach((card) => {
+          card.classList.toggle('is-selected', card.dataset.vacancyRequestId === vacancyRequestId);
+        });
+        renderCandidates(request);
+      });
+
+      candidateList.addEventListener('click', (event) => {
+        const target = event.target.closest('.contract-proposal-action');
+        if (!target) {
+          return;
+        }
+        proposeContract(target.dataset.applicationId || '');
+      });
+
+      async function init() {
+        currentDraftId = getDraftId();
+        if (!currentDraftId) {
+          setDynamicText(statusTitle, t('shipowners.candidates.noDraft'));
+          setDynamicText(statusCopy, '');
+          return;
+        }
+        try {
+          selectionPayload = await fetchSelection(currentDraftId);
+          renderPage(selectionPayload);
+        } catch (error) {
+          setDynamicText(statusTitle, t('shipowners.candidates.status.error'));
+          setDynamicText(statusCopy, error.message || '');
+          console.error(error);
+        }
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
