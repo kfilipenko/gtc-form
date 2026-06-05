@@ -514,6 +514,59 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   const candidateCard = page.locator('.candidate-card', { hasText: 'Presented Candidate' }).first();
   await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Presented');
 
+  const correctionSeafarerEmail = `ui.postvacancy.correction.${unique}@example.com`;
+  const correctionSeafarerCreate = await request.post('/api/v1/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email: correctionSeafarerEmail,
+      full_name: 'Correction Candidate',
+      rank: 'Master',
+      department: 'deck',
+      availability_status: 'available_now',
+      contact_phone: '+971500004444',
+      document_metadata: {
+        certificate_status: 'ready',
+        stcw_status: 'ready',
+        passport_expiry: '2029-02-02',
+        medical_expiry: '2027-06-15',
+        visa_status: 'not_required',
+        notes: 'Documents require an incoming request correction reason check.',
+      },
+    },
+  });
+  expect(correctionSeafarerCreate.ok()).toBeTruthy();
+  const correctionSeafarer = await correctionSeafarerCreate.json();
+  await acceptPresentationConsents(request, correctionSeafarer.draft_id);
+
+  const correctionApplicationResponse = await request.post(`/api/v1/vacancies/${vacancyId}/applications`, {
+    data: {
+      seafarer_draft_id: correctionSeafarer.draft_id,
+      email: correctionSeafarerEmail,
+      note: 'Please clarify document readiness before employer presentation.',
+    },
+  });
+  expect(correctionApplicationResponse.ok()).toBeTruthy();
+  const correctionApplication = await correctionApplicationResponse.json();
+  const correctionApplicationId = correctionApplication.application.vacancy_application_id as string;
+
+  const correctionDecision = await request.patch(`/api/v1/operator/review-queue/${correctionApplicationId}/status`, {
+    data: {
+      decision: 'needs_correction',
+      queue_type: 'vacancy_application',
+      note: 'Please clarify document readiness before employer presentation.',
+      review_reason_code: 'document_readiness_missing',
+    },
+  });
+  expect(correctionDecision.ok()).toBeTruthy();
+  const correctionDecisionPayload = await correctionDecision.json();
+  expect(correctionDecisionPayload).toEqual(expect.objectContaining({
+    ok: true,
+    decision: 'needs_correction',
+    request_source: 'seafarer_initiated_request',
+    review_reason_code: 'document_readiness_missing',
+    new_status: 'rejected',
+  }));
+
   await page.goto(`/cabinet/?draft_id=${draftId}`);
   await expect(page.locator('#cabinet-task-list')).toContainText('Action required: review presented candidates');
   await expect(page.locator('#cabinet-task-list')).toContainText('Presented candidates: 1');

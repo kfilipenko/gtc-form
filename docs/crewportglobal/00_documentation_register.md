@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.97
+- Version: 2.98
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -396,6 +396,7 @@ docs/crewportglobal/
   306_cpg_biz_105_seafarer_job_search_contract_request_flow_report.md
   307_cpg_biz_106_seafarer_request_shipowner_handoff_report.md
   308_cpg_biz_107_incoming_seafarer_request_team_review_report.md
+  309_cpg_biz_108_incoming_request_reason_taxonomy_report.md
   sql_drafts/
     018_contract_workspace_schema_draft.sql
   seafarer_application_mapping/
@@ -937,6 +938,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.98 | 2026-06-05 | GTC IT / AI Assistant | Added document 309 as CPG-BIZ-108 implementation report for structured correction/rejection reason taxonomy on incoming seafarer request review |
 | 2.97 | 2026-06-05 | GTC IT / AI Assistant | Added document 308 as CPG-BIZ-107 implementation report for review-team processing of incoming seafarer requests and recomputation into presented-candidate workflow |
 | 2.96 | 2026-06-05 | GTC IT / AI Assistant | Added document 307 as CPG-BIZ-106 implementation report for seafarer-initiated request handoff to shipowner computed tasks and candidate-selection workspace |
 | 2.95 | 2026-06-05 | GTC IT / AI Assistant | Added document 306 as CPG-BIZ-105 implementation report for the seafarer job-search counter-flow, matching vacancy page, controlled contract-consideration request and BP-012/BP-013/BP-016 process alignment |

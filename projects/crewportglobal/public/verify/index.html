@@ -246,6 +246,34 @@
       align-items: center;
       gap: 10px;
     }
+    .incoming-review-outcomes {
+      display: grid;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+    .incoming-review-fields {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr);
+      gap: 10px;
+    }
+    .incoming-review-select {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 9px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-on-dark);
+      font: inherit;
+    }
+    @media (max-width: 720px) {
+      .incoming-review-fields {
+        grid-template-columns: 1fr;
+      }
+    }
     .candidate-search-status {
       margin: 0;
       color: var(--muted-on-dark);
@@ -792,9 +820,28 @@
         'verify.shortlistTask.completed': 'Task operation completed: {status}. Employer visible: {visible}.',
         'verify.presentationTask.approve': 'Approve candidate presentation',
         'verify.presentationTask.copy': 'Approve employer-facing presentation only after the backend approval guard confirms consent, source-card state and employer payload safety.',
+        'verify.presentationTask.incomingCopy': 'Release this seafarer-initiated request only after team review confirms the candidate can enter the employer-safe presented-candidate workflow. Correction and rejection must use a structured reason.',
         'verify.presentationTask.blocked': 'Candidate presentation guard blocked: {items}',
         'verify.presentationTask.completed': 'Candidate presentation approved: {status}. Employer visible: {visible}.',
         'verify.presentationTask.error': 'Could not approve candidate presentation.',
+        'verify.incomingReview.title': 'Correction / rejection reason',
+        'verify.incomingReview.reasonLabel': 'Structured reason',
+        'verify.incomingReview.correctionReason': 'Correction reason',
+        'verify.incomingReview.rejectionReason': 'Rejection reason',
+        'verify.incomingReview.reasonRequired': 'Select a structured reason and add a review note.',
+        'verify.incomingReview.correction': 'Request correction',
+        'verify.incomingReview.reject': 'Reject request',
+        'verify.incomingReview.saved': 'Incoming request review recorded: {status}. Reason: {reason}.',
+        'verify.incomingReview.reason.seafarer_profile_incomplete': 'Profile or matching fields require correction',
+        'verify.incomingReview.reason.document_readiness_missing': 'Document readiness is missing',
+        'verify.incomingReview.reason.availability_or_joining_unclear': 'Availability or joining is unclear',
+        'verify.incomingReview.reason.contract_terms_clarification_required': 'Contract expectations require clarification',
+        'verify.incomingReview.reason.request_note_unclear': 'Request note is unclear',
+        'verify.incomingReview.reason.not_matching_crew_request': 'Candidate does not match the crew request',
+        'verify.incomingReview.reason.duplicate_or_withdrawn_request': 'Duplicate, withdrawn or inactive request',
+        'verify.incomingReview.reason.not_available_for_joining_date': 'Not available for joining date',
+        'verify.incomingReview.reason.employer_context_not_applicable': 'Employer or vessel context is not applicable',
+        'verify.incomingReview.reason.non_compliant_or_unsafe_request': 'Compliance, safety or policy concern',
         'verify.deletionTask.copy': 'Confirm or reject the pending vacancy deletion request. Confirmation keeps the vacancy closed without physical deletion; rejection restores the previous workflow status.',
         'verify.deletionTask.confirm': 'Confirm deletion',
         'verify.deletionTask.reject': 'Reject deletion',
@@ -1112,9 +1159,28 @@
         'verify.shortlistTask.completed': 'Операция задачи выполнена: {status}. Видимость работодателю: {visible}.',
         'verify.presentationTask.approve': 'Одобрить показ кандидата работодателю',
         'verify.presentationTask.copy': 'Одобрение employer-facing presentation выполняется только после backend approval guard: consent, source-card state и safety employer payload.',
+        'verify.presentationTask.incomingCopy': 'Выпустите входящий запрос моряка только после проверки команды, если кандидат может перейти в безопасный workflow представленных кандидатов. Исправление и отклонение фиксируются со структурированной причиной.',
         'verify.presentationTask.blocked': 'Guard показа кандидата работодателю заблокировал операцию: {items}',
         'verify.presentationTask.completed': 'Показ кандидата работодателю одобрен: {status}. Видимость работодателю: {visible}.',
         'verify.presentationTask.error': 'Не удалось одобрить показ кандидата работодателю.',
+        'verify.incomingReview.title': 'Причина исправления / отклонения',
+        'verify.incomingReview.reasonLabel': 'Структурированная причина',
+        'verify.incomingReview.correctionReason': 'Причина исправления',
+        'verify.incomingReview.rejectionReason': 'Причина отклонения',
+        'verify.incomingReview.reasonRequired': 'Выберите структурированную причину и добавьте примечание проверки.',
+        'verify.incomingReview.correction': 'Запросить исправление',
+        'verify.incomingReview.reject': 'Отклонить запрос',
+        'verify.incomingReview.saved': 'Проверка входящего запроса записана: {status}. Причина: {reason}.',
+        'verify.incomingReview.reason.seafarer_profile_incomplete': 'Профиль или matching-поля требуют исправления',
+        'verify.incomingReview.reason.document_readiness_missing': 'Не хватает готовности документов',
+        'verify.incomingReview.reason.availability_or_joining_unclear': 'Готовность или посадка не ясны',
+        'verify.incomingReview.reason.contract_terms_clarification_required': 'Ожидания по контракту требуют уточнения',
+        'verify.incomingReview.reason.request_note_unclear': 'Примечание запроса не ясно',
+        'verify.incomingReview.reason.not_matching_crew_request': 'Кандидат не соответствует заявке',
+        'verify.incomingReview.reason.duplicate_or_withdrawn_request': 'Дубликат, отозванный или неактивный запрос',
+        'verify.incomingReview.reason.not_available_for_joining_date': 'Недоступен к дате посадки',
+        'verify.incomingReview.reason.employer_context_not_applicable': 'Контекст работодателя или судна не применим',
+        'verify.incomingReview.reason.non_compliant_or_unsafe_request': 'Вопрос compliance, безопасности или политики',
         'verify.deletionTask.copy': 'Подтвердите или отклоните ожидающий запрос на удаление заявки. Подтверждение оставляет заявку закрытой без физического удаления; отклонение возвращает предыдущий workflow status.',
         'verify.deletionTask.confirm': 'Подтвердить удаление',
         'verify.deletionTask.reject': 'Отклонить удаление',
@@ -2800,7 +2866,12 @@
 
         const copy = document.createElement('p');
         copy.className = 'candidate-search-copy';
-        copy.textContent = t('verify.presentationTask.copy');
+        const isIncomingRequest = payload
+          && payload.application
+          && payload.application.request_source === 'seafarer_initiated_request';
+        copy.textContent = isIncomingRequest
+          ? t('verify.presentationTask.incomingCopy')
+          : t('verify.presentationTask.copy');
 
         const actions = document.createElement('div');
         actions.className = 'shortlist-task-actions';
@@ -2816,6 +2887,36 @@
 
         const result = document.createElement('div');
         result.className = 'candidate-shortlist-result';
+
+        const correctionReasons = [
+          'seafarer_profile_incomplete',
+          'document_readiness_missing',
+          'availability_or_joining_unclear',
+          'contract_terms_clarification_required',
+          'request_note_unclear',
+        ];
+        const rejectionReasons = [
+          'not_matching_crew_request',
+          'duplicate_or_withdrawn_request',
+          'not_available_for_joining_date',
+          'employer_context_not_applicable',
+          'non_compliant_or_unsafe_request',
+        ];
+        const createReasonSelect = (labelKey, codes) => {
+          const field = document.createElement('label');
+          field.className = 'candidate-shortlist-field';
+          const span = document.createElement('span');
+          span.className = 'candidate-shortlist-label';
+          span.textContent = t(labelKey);
+          const select = document.createElement('select');
+          select.className = 'incoming-review-select';
+          select.appendChild(new Option(t('verify.incomingReview.reasonLabel'), ''));
+          codes.forEach((code) => {
+            select.appendChild(new Option(t(`verify.incomingReview.reason.${code}`), code));
+          });
+          field.append(span, select);
+          return { field, select };
+        };
 
         const blockerCodes = operationBlockerCodes(operation);
         if (!operationCanExecute(operation)) {
@@ -2889,8 +2990,106 @@
           }
         });
 
+        let incomingOutcomePanel = null;
+        if (isIncomingRequest) {
+          incomingOutcomePanel = document.createElement('div');
+          incomingOutcomePanel.className = 'incoming-review-outcomes';
+          const reasonTitle = document.createElement('strong');
+          reasonTitle.textContent = t('verify.incomingReview.title');
+          const fields = document.createElement('div');
+          fields.className = 'incoming-review-fields';
+          const correctionReason = createReasonSelect('verify.incomingReview.correctionReason', correctionReasons);
+          const rejectionReason = createReasonSelect('verify.incomingReview.rejectionReason', rejectionReasons);
+          fields.append(correctionReason.field, rejectionReason.field);
+
+          const outcomeActions = document.createElement('div');
+          outcomeActions.className = 'shortlist-task-actions';
+          const correctionButton = document.createElement('button');
+          correctionButton.type = 'button';
+          correctionButton.className = 'button secondary';
+          correctionButton.textContent = t('verify.incomingReview.correction');
+          const rejectButton = document.createElement('button');
+          rejectButton.type = 'button';
+          rejectButton.className = 'button secondary';
+          rejectButton.textContent = t('verify.incomingReview.reject');
+          outcomeActions.append(correctionButton, rejectButton);
+
+          const applyIncomingOutcome = async (decision, reasonSelect) => {
+            const note = (reviewNoteInput.value || '').trim();
+            const reasonCode = (reasonSelect.value || '').trim();
+            if (!note || !reasonCode) {
+              statusNode.textContent = t('verify.incomingReview.reasonRequired');
+              return;
+            }
+            button.disabled = true;
+            correctionButton.disabled = true;
+            rejectButton.disabled = true;
+            statusNode.textContent = t('verify.shortlistTask.running');
+            result.innerHTML = '';
+            try {
+              const response = await fetch(`/api/v1/operator/review-queue/${encodeURIComponent(applicationId)}/status`, {
+                method: 'PATCH',
+                headers: operatorHeaders({
+                  'Content-Type': 'application/json',
+                }),
+                body: JSON.stringify({
+                  decision,
+                  queue_type: 'vacancy_application',
+                  note,
+                  review_reason_code: reasonCode,
+                }),
+              });
+              const actionPayload = await response.json().catch(() => ({}));
+              if (isOperatorAccessFailure(response)) {
+                showAccessPanel('verify.access.denied');
+                throw new Error('operator access required');
+              }
+              if (!response.ok || !actionPayload || actionPayload.ok !== true) {
+                throw new Error('incoming request review failed');
+              }
+              setDetailsDebugPayload(actionPayload);
+              const reason = actionPayload.review_reason_name || t(`verify.incomingReview.reason.${reasonCode}`);
+              const line = document.createElement('div');
+              line.className = 'candidate-shortlist-candidate';
+              const strong = document.createElement('strong');
+              strong.textContent = t('verify.incomingReview.saved', {
+                status: actionPayload.new_status || emptyValue(),
+                reason,
+              });
+              line.appendChild(strong);
+              result.appendChild(line);
+              recordTeamTaskFeedback(
+                'review_candidate_presentation',
+                actionPayload.new_status || decision,
+                'seafarer',
+                actionPayload
+              );
+              returnToTeamLink.hidden = false;
+              statusNode.textContent = t('verify.incomingReview.saved', {
+                status: actionPayload.new_status || emptyValue(),
+                reason,
+              });
+              await loadQueue();
+            } catch (error) {
+              if (error && error.message === 'operator access required') {
+                statusNode.textContent = t('verify.access.denied');
+              } else {
+                statusNode.textContent = t('verify.presentationTask.error');
+              }
+            }
+          };
+
+          correctionButton.addEventListener('click', () => applyIncomingOutcome('needs_correction', correctionReason.select));
+          rejectButton.addEventListener('click', () => applyIncomingOutcome('reject', rejectionReason.select));
+          incomingOutcomePanel.append(reasonTitle, fields, outcomeActions);
+        }
+
         actions.append(button, returnToTeamLink, statusNode);
-        panel.append(title, copy, actions, result);
+        panel.append(title, copy, actions);
+        if (incomingOutcomePanel) {
+          panel.appendChild(incomingOutcomePanel);
+        }
+        panel.appendChild(result);
         return panel;
       }
 

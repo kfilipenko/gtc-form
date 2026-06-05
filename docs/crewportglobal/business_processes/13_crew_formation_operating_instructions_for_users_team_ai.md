@@ -257,7 +257,7 @@ The seafarer provides supply-side information needed for matching and crew forma
 | Profile is matching-ready and published verified vacancies exist | Find matching vacancies | `/seafarers/job-search/` or cabinet task card | Seafarer sees fit/blocker reasons and may request contract consideration for an eligible vacancy. |
 | Matching vacancy is requestable | Request contract consideration | exact vacancy card in job-search page | Controlled vacancy application is recorded; existing review, employer decision and contract proposal workflow continues. |
 | Seafarer request is waiting for team review | Review incoming seafarer request | shipowner cabinet task and `/shipowners/candidates/` | Shipowner sees safe incoming-request context; contract proposal remains blocked until team review releases the candidate into the presented-candidate workflow. |
-| Seafarer request requires team decision | Review incoming seafarer request | review-team `/team/` task and `/verify/` workspace | Review team releases the request to presented-candidate workflow, requests correction or rejects the request with a reason. |
+| Seafarer request requires team decision | Review incoming seafarer request | review-team `/team/` task and `/verify/` workspace | Review team releases the request to presented-candidate workflow, requests correction with a structured reason or rejects the request with a structured reason. |
 | Availability outdated | Update availability | availability/profile card | Supply data becomes current. |
 | Voyage completed or return confirmed | Update next-voyage availability and needs | availability/profile card | Seafarer is ready for the next matching cycle or follow-up. |
 
@@ -634,7 +634,33 @@ The following rules are verified in the running application and must be preserve
 | Approve internal shortlist | `review_team` | `approve_candidate_presentation` | Approve only inside the concrete shortlist draft task panel and only after guard output is visible. |
 | Create candidate presentation review | `review_team` | `start_human_review` | Create review applications only from an approved internal shortlist draft. |
 | Review candidate presentation | `review_team` | `approve_candidate_presentation` | Approve or block only inside the concrete vacancy application review workspace. |
-| Review incoming seafarer request | `review_team` | `approve_candidate_presentation` | Open the concrete vacancy application from the computed task. If approved, release the incoming request to the existing presented-candidate workflow; if blocked or unsuitable, request correction or reject with a clear reason. Do not expose seafarer contact data to the shipowner before the approved presentation boundary. |
+| Review incoming seafarer request | `review_team` | `approve_candidate_presentation` / structured correction-rejection reason | Open the concrete vacancy application from the computed task. If approved, release the incoming request to the existing presented-candidate workflow; if blocked or unsuitable, request correction or reject with a structured reason from the approved taxonomy. Do not expose seafarer contact data or internal review rationale to the shipowner before the approved presentation boundary. |
+
+### Incoming seafarer request reason taxonomy
+
+When the review team cannot release an incoming seafarer request to the presented-candidate workflow, the outcome must use one of the approved structured reasons.
+
+Correction reasons:
+
+| Code | Meaning |
+|---|---|
+| `seafarer_profile_incomplete` | Profile or matching fields require correction before employer presentation. |
+| `document_readiness_missing` | Required document readiness is missing or not readable enough for this request. |
+| `availability_or_joining_unclear` | Availability, joining date or travel readiness requires clarification. |
+| `contract_terms_clarification_required` | Contract expectation or request note requires clarification before presentation. |
+| `request_note_unclear` | The seafarer request note is not clear enough for controlled employer presentation. |
+
+Rejection reasons:
+
+| Code | Meaning |
+|---|---|
+| `not_matching_crew_request` | Candidate does not match the crew request after team review. |
+| `duplicate_or_withdrawn_request` | Request is duplicate, withdrawn or no longer active. |
+| `not_available_for_joining_date` | Candidate is not available for the requested joining date. |
+| `employer_context_not_applicable` | Employer, vessel or request context is not applicable to this candidate. |
+| `non_compliant_or_unsafe_request` | Request cannot proceed due to compliance, safety or policy concern. |
+
+The review note remains mandatory for correction/rejection. The structured code controls task recomputation and future user-facing correction text; the note is internal evidence and must not be used to expose unnecessary internal reasoning to the shipowner.
 | Review company verification | `verification_team` | `view_verification_queue` | Open the concrete company workspace from the task title, verify employer authority, vessel context and linked demand context, then record the review outcome. Do not use this task to inspect seafarer restricted supply data. |
 | Review crew request and request-supply preparation | `review_team` | `view_review_queue` | Open the concrete vacancy workspace, verify structured demand, vessel context and candidate-search readiness. Candidate contact fields and broad document metadata must not be used or displayed as part of this task. |
 | Seafarer job-search request | seafarer owner, shipowner owner, review team, then existing employer groups | owner profile/cabinet access; shipowner incoming-request task; review-team incoming-request task; later existing employer permissions | The seafarer may request contract consideration only from a concrete matching vacancy. The request must create or reuse a controlled application/context record, compute safe shipowner and review-team tasks, and must not directly create employment status, a contract, invoice or employer-facing unrestricted data. |

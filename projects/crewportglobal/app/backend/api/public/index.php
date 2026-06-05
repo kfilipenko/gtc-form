@@ -12873,11 +12873,16 @@ function normalize_operator_decision(mixed $value): ?string {
     }
 
     $decision = trim(strtolower($value));
-    return in_array($decision, ['start_review', 'needs_correction', 'reviewed'], true) ? $decision : null;
+    return in_array($decision, ['start_review', 'needs_correction', 'reject', 'reviewed'], true) ? $decision : null;
 }
 
 function normalize_operator_card_review_decision(mixed $value): ?string {
-    return normalize_operator_decision($value);
+    if (!is_string($value)) {
+        return null;
+    }
+
+    $decision = trim(strtolower($value));
+    return in_array($decision, ['start_review', 'needs_correction', 'reviewed'], true) ? $decision : null;
 }
 
 function normalize_operator_review_note(mixed $value): ?string {
@@ -12894,6 +12899,57 @@ function normalize_operator_review_note(mixed $value): ?string {
     }
 
     return $note === '' ? null : $note;
+}
+
+function cpg_incoming_seafarer_request_review_reason_catalog(): array {
+    return [
+        'correction' => [
+            'seafarer_profile_incomplete' => 'Seafarer profile or matching fields require correction before employer presentation',
+            'document_readiness_missing' => 'Required document readiness is missing or not readable enough for this request',
+            'availability_or_joining_unclear' => 'Availability, joining date or travel readiness requires clarification',
+            'contract_terms_clarification_required' => 'Contract expectation or request note requires clarification before presentation',
+            'request_note_unclear' => 'The seafarer request note is not clear enough for controlled employer presentation',
+        ],
+        'rejection' => [
+            'not_matching_crew_request' => 'Candidate does not match the crew request after team review',
+            'duplicate_or_withdrawn_request' => 'Request is duplicate, withdrawn or no longer active',
+            'not_available_for_joining_date' => 'Candidate is not available for the requested joining date',
+            'employer_context_not_applicable' => 'Employer, vessel or request context is not applicable to this candidate',
+            'non_compliant_or_unsafe_request' => 'Request cannot proceed due to compliance, safety or policy concern',
+        ],
+    ];
+}
+
+function normalize_incoming_seafarer_request_review_reason_code(mixed $value, string $decision): ?string {
+    if ($value === null || $value === '') {
+        return null;
+    }
+    if (!is_string($value)) {
+        api_error(400, 'invalid_review_reason_code', 'review_reason_code must be a string');
+    }
+
+    $code = trim($value);
+    if ($code === '') {
+        return null;
+    }
+
+    $catalog = cpg_incoming_seafarer_request_review_reason_catalog();
+    $bucket = $decision === 'reject' ? 'rejection' : 'correction';
+    if (!isset($catalog[$bucket][$code])) {
+        api_error(400, 'invalid_review_reason_code', 'review_reason_code is not allowed for this decision');
+    }
+
+    return $code;
+}
+
+function cpg_incoming_seafarer_request_review_reason_name(?string $code, string $decision): ?string {
+    if ($code === null || $code === '') {
+        return null;
+    }
+
+    $catalog = cpg_incoming_seafarer_request_review_reason_catalog();
+    $bucket = $decision === 'reject' ? 'rejection' : 'correction';
+    return $catalog[$bucket][$code] ?? null;
 }
 
 function cpg_seafarer_review_card_codes(): array {
@@ -13140,6 +13196,9 @@ function read_operator_vacancy_application_review_history(string $applicationId)
                 event_payload->>'review_note' AS review_note,
                 event_payload->>'correction_card_code' AS correction_card_code,
                 event_payload->>'correction_card_name' AS correction_card_name,
+                event_payload->>'review_reason_code' AS review_reason_code,
+                event_payload->>'review_reason_name' AS review_reason_name,
+                event_payload->>'request_source' AS request_source,
                 source,
                 created_at
          FROM crewportglobal.registration_audit_events
@@ -13161,6 +13220,9 @@ function read_operator_vacancy_application_review_history(string $applicationId)
             'review_note' => $row['review_note'] ?? null,
             'correction_card_code' => $row['correction_card_code'] ?? null,
             'correction_card_name' => $row['correction_card_name'] ?? null,
+            'review_reason_code' => $row['review_reason_code'] ?? null,
+            'review_reason_name' => $row['review_reason_name'] ?? null,
+            'request_source' => $row['request_source'] ?? null,
             'source' => $row['source'] ?? null,
             'created_at' => $row['created_at'] ?? null,
         ];
@@ -14049,7 +14111,8 @@ function apply_operator_review_decision(
     ?string $queueType = null,
     ?string $correctionCardCode = null,
     ?array $approvalGuard = null,
-    ?array $workflowAccess = null
+    ?array $workflowAccess = null,
+    ?string $reviewReasonCode = null
 ): array {
     $correctionCardName = cpg_seafarer_review_card_name($correctionCardCode);
 
@@ -14079,6 +14142,7 @@ function apply_operator_review_decision(
             $statusMap = [
                 'start_review' => 'in_review',
                 'needs_correction' => 'rejected',
+                'reject' => 'rejected',
                 'reviewed' => 'published',
             ];
             $newStatus = $statusMap[$decision];
@@ -14133,6 +14197,7 @@ function apply_operator_review_decision(
         $statusMap = [
             'start_review' => 'in_review',
             'needs_correction' => 'rejected',
+            'reject' => 'rejected',
             'reviewed' => 'presented',
         ];
         $newStatus = $statusMap[$decision];
@@ -14143,10 +14208,25 @@ function apply_operator_review_decision(
                 va.vacancy_request_id,
                 va.seafarer_user_id,
                 va.application_status,
+                CASE
+                  WHEN sc.shortlist_candidate_id IS NULL THEN 'seafarer_initiated_request'
+                  ELSE 'internal_shortlist_review_application'
+                END AS request_source,
                 vr.company_id,
                 vr.vessel_id
              FROM crewportglobal.vacancy_applications va
              JOIN crewportglobal.vacancy_requests vr ON vr.vacancy_request_id = va.vacancy_request_id
+             LEFT JOIN LATERAL (
+               SELECT osc.shortlist_candidate_id
+               FROM crewportglobal.operator_shortlist_candidates osc
+               JOIN crewportglobal.operator_shortlist_drafts osd
+                 ON osd.shortlist_draft_id = osc.shortlist_draft_id
+               WHERE osd.vacancy_request_id = va.vacancy_request_id
+                 AND osc.candidate_user_id = va.seafarer_user_id
+                 AND osc.operator_decision = 'include'
+               ORDER BY osd.updated_at DESC, osc.updated_at DESC
+               LIMIT 1
+             ) sc ON TRUE
              WHERE va.vacancy_application_id = $1
              LIMIT 1",
             [$draftId]
@@ -14168,6 +14248,11 @@ function apply_operator_review_decision(
         if ($previousStatus === 'withdrawn') {
             api_error(400, 'application_withdrawn', 'Withdrawn vacancy applications cannot be moved by operator review');
         }
+        $requestSource = is_string($currentRow['request_source'] ?? null) ? (string) $currentRow['request_source'] : '';
+        $reviewReasonName = cpg_incoming_seafarer_request_review_reason_name($reviewReasonCode, $decision);
+        if ($requestSource === 'seafarer_initiated_request' && in_array($decision, ['needs_correction', 'reject'], true) && $reviewReasonCode === null) {
+            api_error(400, 'review_reason_code_required', 'review_reason_code is required for incoming seafarer request correction or rejection');
+        }
 
         api_query(
             'UPDATE crewportglobal.vacancy_applications
@@ -14185,6 +14270,9 @@ function apply_operator_review_decision(
             'review_note' => $reviewNote,
             'correction_card_code' => $correctionCardCode,
             'correction_card_name' => $correctionCardName,
+            'review_reason_code' => $reviewReasonCode,
+            'review_reason_name' => $reviewReasonName,
+            'request_source' => $requestSource,
             'vacancy_request_id' => $vacancyRequestId,
             'vacancy_application_id' => $applicationId,
             'approval_guard' => $approvalGuard,
@@ -14205,6 +14293,9 @@ function apply_operator_review_decision(
             'review_note' => $reviewNote,
             'correction_card_code' => $correctionCardCode,
             'correction_card_name' => $correctionCardName,
+            'review_reason_code' => $reviewReasonCode,
+            'review_reason_name' => $reviewReasonName,
+            'request_source' => $requestSource,
             'approval_guard' => $approvalGuard,
         ];
     }
@@ -14226,6 +14317,7 @@ function apply_operator_review_decision(
         $statusMap = [
             'start_review' => 'in_review',
             'needs_correction' => 'rejected',
+            'reject' => 'rejected',
             'reviewed' => 'approved',
         ];
         $newStatus = $statusMap[$decision];
@@ -14297,6 +14389,7 @@ function apply_operator_review_decision(
         $statusMap = [
             'start_review' => 'in_review',
             'needs_correction' => 'rejected',
+            'reject' => 'rejected',
             'reviewed' => 'published',
         ];
         $newStatus = $statusMap[$decision];
@@ -14362,6 +14455,7 @@ function apply_operator_review_decision(
     $statusMap = [
         'start_review' => 'submitted',
         'needs_correction' => 'rejected',
+        'reject' => 'rejected',
         'reviewed' => 'verified',
     ];
     $newStatus = $statusMap[$decision];
@@ -14898,14 +14992,18 @@ function handle_patch_operator_review_queue_status(string $draftId): void {
     $body = api_decode_json_body();
     $decision = normalize_operator_decision($body['decision'] ?? $body['action'] ?? $body['status'] ?? null);
     if ($decision === null) {
-        api_error(400, 'invalid_decision', 'decision must be one of start_review, needs_correction, reviewed');
+        api_error(400, 'invalid_decision', 'decision must be one of start_review, needs_correction, reject, reviewed');
     }
     $reviewNote = normalize_operator_review_note($body['note'] ?? null);
-    if ($decision === 'needs_correction' && $reviewNote === null) {
-        api_error(400, 'review_note_required', 'note is required for needs_correction');
+    if (($decision === 'needs_correction' || $decision === 'reject') && $reviewNote === null) {
+        api_error(400, 'review_note_required', 'note is required for needs_correction and reject');
     }
     $queueType = normalize_operator_queue_type($body['queue_type'] ?? null);
     $correctionCardCode = normalize_operator_correction_card_code($body['correction_card_code'] ?? $body['correction_card'] ?? null);
+    $reviewReasonCode = normalize_incoming_seafarer_request_review_reason_code(
+        $body['review_reason_code'] ?? $body['reason_code'] ?? null,
+        $decision
+    );
     $approvalGuard = null;
 
     if ($queueType !== null) {
@@ -14933,7 +15031,7 @@ function handle_patch_operator_review_queue_status(string $draftId): void {
 
     api_tx_begin();
     try {
-        $result = apply_operator_review_decision($uuid, $decision, $reviewNote, $queueType, $correctionCardCode, $approvalGuard, $access);
+        $result = apply_operator_review_decision($uuid, $decision, $reviewNote, $queueType, $correctionCardCode, $approvalGuard, $access, $reviewReasonCode);
         api_tx_commit();
 
         api_json(200, [
@@ -14951,6 +15049,9 @@ function handle_patch_operator_review_queue_status(string $draftId): void {
             'review_note' => $result['review_note'],
             'correction_card_code' => $result['correction_card_code'] ?? null,
             'correction_card_name' => $result['correction_card_name'] ?? null,
+            'review_reason_code' => $result['review_reason_code'] ?? null,
+            'review_reason_name' => $result['review_reason_name'] ?? null,
+            'request_source' => $result['request_source'] ?? null,
             'approval_guard' => $result['approval_guard'] ?? null,
             'updated_at' => gmdate('c'),
         ]);

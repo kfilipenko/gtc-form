@@ -42,6 +42,7 @@ const CPG_OPERATOR_QUEUE_PERMISSION_MATRIX = [
         'actions' => [
             'start_review' => ['permission_code' => 'start_human_review', 'scope' => 'queue'],
             'needs_correction' => ['permission_code' => 'create_review_note', 'scope' => 'queue'],
+            'reject' => ['permission_code' => 'create_review_note', 'scope' => 'queue'],
             'reviewed' => ['permission_code' => 'approve_candidate_presentation', 'scope' => 'queue'],
         ],
     ],
