@@ -5,9 +5,9 @@
 - Documentation block: Business processes and operating model
 - Document type: Stage-to-standard control matrix
 - Source task: Project Owner instruction after CPG-BIZ-093 approval
-- Version: 1.9
-- Date: 2026-06-04
-- Status: Updated after CPG-BIZ-101 shipowner candidate-selection workspace implementation
+- Version: 2.0
+- Date: 2026-06-05
+- Status: Updated after CPG-BIZ-102 Contract Agreement Workspace detail/source-prefill implementation
 
 ## 1. Purpose
 
@@ -87,7 +87,7 @@ If a stage has no controlling standard, it must be marked as a gap and described
 | Candidate presentation review | CC-12 / CF-11 | Candidate presentation staging | Review team / Group 5 | CPG-DEMAND-016/023, BP-012 | Covered in current guard model | Need user-facing employer presentation package standard. |
 | Employer-facing presentation | CC-12 / CF-12 | Employer-safe candidate summary | Review team, Group 1 | CPG-DEMAND-023, BP-006, BP-012 | Partial | Standard for employer view content, field allow-list, presentation evidence and expiry. |
 | Shipowner candidate selection / decision | CC-13 / CF-13 | Presented candidate list and candidate decision | Group 1, review team, shipowner-side user | BP-012, earlier employer follow-up reports, CPG-BIZ-099, CPG-BIZ-100, CPG-BIZ-101 | Implemented: dedicated `/shipowners/candidates/` workspace lists only employer-safe presented candidates and calls the guarded CPG-BIZ-100 contract proposal endpoint | Normalize all employer decision outcomes, reasons and SLA handoffs inside the candidate detail/workspace flow. |
-| Contract Agreement Workspace | CC-14 / CF-14 | Populated agreement with embedded condition fields | Group 1, Group 4, Group 5 | CPG-BIZ-091/092/093/094/095/096/097/098A/098B/098C/098D/099/100, BP-014 | Workspace model, clause library, catalogs, source-first prefill rule, exact shortlist candidate link, runtime schema migration 018 and employer `propose_contract` API/UI creation/reuse are implemented | Contract workspace detail view and embedded field prefill implementation after CPG-BIZ-101. |
+| Contract Agreement Workspace | CC-14 / CF-14 | Populated agreement with embedded condition fields | Group 1, Group 4, Group 5 | CPG-BIZ-091/092/093/094/095/096/097/098A/098B/098C/098D/099/100/102, BP-014 | Implemented: workspace model, clause library, catalogs, source-first prefill rule, exact shortlist candidate link, runtime schema migration 018, employer `propose_contract` API/UI creation/reuse, detail view and verified source-prefill page `/contracts/workspace/` | Implement embedded field editing, catalog choices, audit evidence and party-review readiness guard. |
 | Scripted contract generation | CC-14 / CF-14 | Generated contract instance | System script, responsible employee, control role | CPG-BIZ-093/094/095/096/097/098A/098B/098C/098D, BP-014 | Runtime schema can store generated contract metadata and audit events; generation script not implemented | Future generation implementation after workspace API/UI and party approval guards. |
 | Embarkation confirmation | CC-14 / CF-14 | Employment/voyage support record | Group 4 support, Group 1, employer | BP-012, BP-015 | Gap/partial | Standard for boarding evidence, onboard status, success-fee trigger and failed-joining blocker. |
 | Active voyage monthly evidence | CC-15 / CF-15 | Monthly service evidence | Group 4 support, Group 3 billing | BP-012, BP-015 | Gap | Standard for monthly work confirmation, illness/early-disembarkation signal, replacement and invoice basis. |
@@ -105,7 +105,7 @@ The following standards should be created or expanded before final job descripti
 | Priority | Proposed standard | Reason |
 |---|---|---|
 | P1 | Employer service package and entitlement standard | Without this, subscription/package, discounts, service access and commercial start are not fully controlled. |
-| P1 | Contract workspace detail view and embedded field prefill implementation | CPG-BIZ-100 can create/reuse workspace records; after CPG-BIZ-101 the team still needs a concrete workspace page to review verified facts and embedded condition fields. |
+| P1 | Contract workspace embedded field editing and party-review readiness guard | CPG-BIZ-102 can open a concrete workspace and show source-prefilled facts; the next gap is controlled completion of selectable embedded contract fields before party review. |
 | P1 | Embarkation and onboard-status evidence standard | Required to prove success fee, onboard status and service delivery. |
 | P1 | Monthly service evidence and billing-basis standard | Required for recurring monthly service fee and partial-month/illness/replacement cases. |
 | P1 | Disembarkation, return support and next-availability standard | Required to complete the full service cycle and retain seafarers. |
@@ -154,25 +154,28 @@ CPG-BIZ-098D has converted the approved draft into runtime migration 018 and ver
 CPG-BIZ-099 has defined the shipowner candidate review menu, employer decision state and guarded `propose_contract` computed operation.
 CPG-BIZ-100 has implemented the employer `proceed_with_candidate` state, guarded contract proposal API/UI and Contract Agreement Workspace creation/reuse.
 CPG-BIZ-101 has implemented the Shipowners menu term, the dedicated `/shipowners/candidates/` workspace and guarded `Propose contract` handoff from employer-safe presented candidates.
+CPG-BIZ-102 has implemented the concrete `/contracts/workspace/` detail view, access guard, verified source-prefill and no-side-effect review boundary.
 
 The recommended next stage is:
 
 ```text
-Contract Agreement Workspace detail view and embedded field prefill implementation
+CPG-BIZ-103 - Contract workspace embedded field editing and party-review readiness guard
 ```
 
 After that, the process should move to:
 
-1. employer service package and entitlement standard;
-2. embarkation/onboard evidence standard;
-3. monthly service evidence and billing-basis standard;
-4. disembarkation/return support standard;
-5. role job-instruction package for the operational groups.
+1. scripted contract generation guard after party approval;
+2. employer service package and entitlement standard;
+3. embarkation/onboard evidence standard;
+4. monthly service evidence and billing-basis standard;
+5. disembarkation/return support standard;
+6. role job-instruction package for the operational groups.
 
 ## 8. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.0 | 2026-06-05 | GTC IT / AI Assistant | Marked CPG-BIZ-102 as implemented: Contract Agreement Workspace detail view, verified source-prefill, access guard and no-side-effect review boundary |
 | 1.9 | 2026-06-05 | GTC IT / AI Assistant | Marked CPG-BIZ-101 as implemented: Shipowners menu, dedicated `/shipowners/candidates/` page, safe presented-candidate visibility and guarded contract handoff |
 | 1.8 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-101 task for Shipowners terminology/menu, dedicated candidate-selection workspace and safe presented-candidate visibility before contract proposal |
 | 1.7 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-100 implementation result: employer `proceed_with_candidate`, guarded `Propose contract`, workspace creation/reuse and updated next stage to workspace detail/prefill |

@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Contract workspace</title>
+  <meta name="description" content="Contract Agreement Workspace with verified source prefill and embedded contract fields.">
+  <link rel="canonical" href="https://crewportglobal.com/contracts/workspace/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/assets/crewportglobal-docs.css?v=20260530-menu-audit">
+  <link rel="stylesheet" href="/assets/crewportglobal-app.css">
+  <style>
+    .contract-layout {
+      display: grid;
+      gap: 14px;
+    }
+
+    .contract-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+      gap: 14px;
+      align-items: stretch;
+      padding: 18px;
+    }
+
+    .contract-status {
+      display: grid;
+      gap: 6px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .facts-grid,
+    .field-grid,
+    .clause-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .facts-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .fact-box,
+    .field-row,
+    .clause-row {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .fact-box {
+      padding: 12px;
+    }
+
+    .fact-box strong,
+    .field-row strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text-on-dark);
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 108px minmax(0, 1fr) 140px 160px;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+    }
+
+    .field-code,
+    .status-pill,
+    .source-pill {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted-on-dark);
+      font-size: 13px;
+    }
+
+    .status-pill.is-ready {
+      border-color: rgba(77, 221, 151, 0.55);
+      color: #9cf1c8;
+    }
+
+    .status-pill.is-missing {
+      border-color: rgba(255, 139, 51, 0.7);
+      color: #ffd3ad;
+    }
+
+    .clause-row {
+      padding: 12px;
+    }
+
+    .clause-row p {
+      margin: 6px 0 0;
+      color: var(--muted-on-dark);
+    }
+
+    .guard-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    @media (max-width: 980px) {
+      .contract-hero,
+      .facts-grid,
+      .field-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="doc-body cpg-app-page">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div data-cpg-theme-switcher></div>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+      <div data-cpg-account-area></div>
+    </header>
+
+    <div data-cpg-navigation="application" data-cpg-nav-active="/shipowners/candidates/"></div>
+    <script src="/assets/crewportglobal-navigation.js?v=20260530-menu-audit"></script>
+
+    <main class="doc-main contract-layout">
+      <section class="card contract-hero">
+        <div>
+          <p class="eyebrow" data-i18n="contract.workspace.eyebrow">Contract Agreement Workspace</p>
+          <h1 id="workspace-title" data-i18n="contract.workspace.title">Contract workspace.</h1>
+          <p class="lead-copy" data-i18n="contract.workspace.copy">Verified platform records prefill contract facts; only unresolved contractual choices remain open.</p>
+        </div>
+        <div class="contract-status" aria-live="polite">
+          <strong id="workspace-status-title" data-i18n="contract.workspace.loading">Loading contract workspace.</strong>
+          <span id="workspace-status-copy" data-i18n="contract.workspace.status.copy">No contract is generated or signed on this screen.</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <p class="eyebrow" data-i18n="contract.workspace.facts.eyebrow">Verified source facts</p>
+        <h2 data-i18n="contract.workspace.facts.title">Prefilled from approved platform records</h2>
+        <div id="facts-grid" class="facts-grid"></div>
+      </section>
+
+      <section class="card">
+        <p class="eyebrow" data-i18n="contract.workspace.fields.eyebrow">Embedded fields</p>
+        <h2 data-i18n="contract.workspace.fields.title">Contract fields and readiness</h2>
+        <div id="guard-line" class="guard-line"></div>
+        <div id="field-grid" class="field-grid"></div>
+      </section>
+
+      <section class="card">
+        <p class="eyebrow" data-i18n="contract.workspace.clauses.eyebrow">Clause context</p>
+        <h2 data-i18n="contract.workspace.clauses.title">Master agreement sections</h2>
+        <div id="clause-grid" class="clause-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'site.tagline': 'Maritime documentation and matching platform',
+        'site.languageLabel': 'Language',
+        'contract.workspace.eyebrow': 'Contract Agreement Workspace',
+        'contract.workspace.title': 'Contract workspace.',
+        'contract.workspace.copy': 'Verified platform records prefill contract facts; only unresolved contractual choices remain open.',
+        'contract.workspace.loading': 'Loading contract workspace.',
+        'contract.workspace.loaded': '{number} loaded.',
+        'contract.workspace.error': 'Unable to load contract workspace.',
+        'contract.workspace.noParams': 'Open this page from a candidate card or provide workspace_id and draft_id.',
+        'contract.workspace.status.copy': 'No contract is generated or signed on this screen.',
+        'contract.workspace.facts.eyebrow': 'Verified source facts',
+        'contract.workspace.facts.title': 'Prefilled from approved platform records',
+        'contract.workspace.fields.eyebrow': 'Embedded fields',
+        'contract.workspace.fields.title': 'Contract fields and readiness',
+        'contract.workspace.clauses.eyebrow': 'Clause context',
+        'contract.workspace.clauses.title': 'Master agreement sections',
+        'contract.workspace.ready': 'Ready',
+        'contract.workspace.missing': 'Missing',
+        'contract.workspace.guard': 'Guard',
+        'contract.workspace.sideEffects': 'No generation, signature, employment status or invoice is created.',
+        'contract.workspace.seafarer': 'Seafarer',
+        'contract.workspace.shipowner': 'Shipowner',
+        'contract.workspace.vessel': 'Vessel',
+        'contract.workspace.request': 'Crew request'
+      },
+      ru: {
+        'site.tagline': 'Морская платформа документов и подбора экипажей',
+        'site.languageLabel': 'Язык',
+        'contract.workspace.eyebrow': 'Рабочее пространство договора',
+        'contract.workspace.title': 'Рабочее пространство договора.',
+        'contract.workspace.copy': 'Проверенные записи платформы заполняют факты договора; открыты только нерешенные договорные условия.',
+        'contract.workspace.loading': 'Загружаем рабочее пространство договора.',
+        'contract.workspace.loaded': 'Загружено: {number}.',
+        'contract.workspace.error': 'Не удалось загрузить рабочее пространство договора.',
+        'contract.workspace.noParams': 'Откройте страницу из карточки кандидата или передайте workspace_id и draft_id.',
+        'contract.workspace.status.copy': 'На этом экране договор не создается, не подписывается и не генерируется.',
+        'contract.workspace.facts.eyebrow': 'Проверенные исходные факты',
+        'contract.workspace.facts.title': 'Заполнено из утвержденных записей платформы',
+        'contract.workspace.fields.eyebrow': 'Встроенные поля договора',
+        'contract.workspace.fields.title': 'Поля договора и готовность',
+        'contract.workspace.clauses.eyebrow': 'Контекст пунктов',
+        'contract.workspace.clauses.title': 'Разделы мастер-договора',
+        'contract.workspace.ready': 'Готово',
+        'contract.workspace.missing': 'Не заполнено',
+        'contract.workspace.guard': 'Контроль',
+        'contract.workspace.sideEffects': 'Генерация, подпись, статус трудоустройства и счет не создаются.',
+        'contract.workspace.seafarer': 'Моряк',
+        'contract.workspace.shipowner': 'Судовладелец',
+        'contract.workspace.vessel': 'Судно',
+        'contract.workspace.request': 'Заявка'
+      }
+    };
+  </script>
+  <script src="/assets/crewportglobal-machine-translations.js?v=53345f0f8938ec76" defer></script>
+  <script src="/assets/crewportglobal-public-i18n.js?v=20260530-menu-audit" defer></script>
+  <script>
+    (function () {
+      const statusTitle = document.getElementById('workspace-status-title');
+      const statusCopy = document.getElementById('workspace-status-copy');
+      const factsGrid = document.getElementById('facts-grid');
+      const fieldGrid = document.getElementById('field-grid');
+      const clauseGrid = document.getElementById('clause-grid');
+      const guardLine = document.getElementById('guard-line');
+
+      function language() {
+        const lang = document.documentElement.lang || 'en';
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang] ? lang : 'en';
+      }
+
+      function t(key) {
+        const lang = language();
+        return window.CREWPORTGLOBAL_PAGE_TRANSLATIONS[lang][key]
+          || window.CREWPORTGLOBAL_PAGE_TRANSLATIONS.en[key]
+          || key;
+      }
+
+      function tp(key, values) {
+        return Object.entries(values || {}).reduce((result, entry) => (
+          result.replace(`{${entry[0]}}`, String(entry[1]))
+        ), t(key));
+      }
+
+      function setDynamicText(element, text) {
+        element.removeAttribute('data-i18n');
+        element.textContent = text;
+      }
+
+      function params() {
+        const search = new URLSearchParams(window.location.search);
+        const workspaceId = (search.get('workspace_id') || '').trim();
+        const draftId = (search.get('draft_id') || '').trim();
+        return { workspaceId, draftId };
+      }
+
+      function valueOrDash(value) {
+        return value === null || value === undefined || String(value).trim() === '' ? '-' : String(value);
+      }
+
+      async function fetchWorkspace(workspaceId, draftId) {
+        const response = await fetch(`/api/v1/contract-workspaces/${encodeURIComponent(workspaceId)}?draft_id=${encodeURIComponent(draftId)}`);
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const error = new Error(body.message || `Request failed with status ${response.status}`);
+          error.payload = body;
+          throw error;
+        }
+        return body.contract_workspace;
+      }
+
+      function fact(title, lines) {
+        const box = document.createElement('article');
+        box.className = 'fact-box';
+        const heading = document.createElement('strong');
+        heading.textContent = title;
+        box.appendChild(heading);
+        lines.filter((line) => line !== null && line !== undefined && String(line).trim() !== '').forEach((line) => {
+          const div = document.createElement('div');
+          div.textContent = String(line);
+          box.appendChild(div);
+        });
+        return box;
+      }
+
+      function renderFacts(data) {
+        const parties = data.parties || {};
+        const seafarer = parties.seafarer || {};
+        const shipowner = parties.shipowner || {};
+        const vessel = data.vessel || {};
+        const request = data.crew_request || {};
+        factsGrid.innerHTML = '';
+        factsGrid.appendChild(fact(t('contract.workspace.seafarer'), [
+          seafarer.display_name,
+          [seafarer.rank, seafarer.department].filter(Boolean).join(' / '),
+          [seafarer.availability_status, seafarer.availability_date].filter(Boolean).join(' / '),
+          `Review: ${valueOrDash(seafarer.review_status)}`
+        ]));
+        factsGrid.appendChild(fact(t('contract.workspace.shipowner'), [
+          shipowner.company_name,
+          [shipowner.registration_number, shipowner.country_code].filter(Boolean).join(' / '),
+          `Verification: ${valueOrDash(shipowner.verification_status)}`
+        ]));
+        factsGrid.appendChild(fact(t('contract.workspace.vessel'), [
+          vessel.vessel_name,
+          [vessel.vessel_type, vessel.flag_country_code].filter(Boolean).join(' / '),
+          vessel.imo_number ? `IMO ${vessel.imo_number}` : ''
+        ]));
+        factsGrid.appendChild(fact(t('contract.workspace.request'), [
+          request.vacancy_title,
+          [request.rank, request.department].filter(Boolean).join(' / '),
+          [request.join_date, request.contract_duration].filter(Boolean).join(' / '),
+          [request.salary_min_usd, request.salary_max_usd, request.currency].filter(Boolean).join(' / ')
+        ]));
+      }
+
+      function renderFields(data) {
+        const guard = data.guard || {};
+        const missing = Array.isArray(guard.missing_field_codes) ? guard.missing_field_codes : [];
+        guardLine.innerHTML = '';
+        const guardStatus = document.createElement('span');
+        guardStatus.className = `status-pill ${missing.length ? 'is-missing' : 'is-ready'}`;
+        guardStatus.textContent = `${t('contract.workspace.guard')}: ${guard.status || '-'}`;
+        guardLine.appendChild(guardStatus);
+        const effects = document.createElement('span');
+        effects.className = 'source-pill';
+        effects.textContent = t('contract.workspace.sideEffects');
+        guardLine.appendChild(effects);
+
+        fieldGrid.innerHTML = '';
+        (Array.isArray(data.embedded_fields) ? data.embedded_fields : []).forEach((field) => {
+          const row = document.createElement('article');
+          row.className = 'field-row';
+          const code = document.createElement('span');
+          code.className = 'field-code';
+          code.textContent = field.field_code || '-';
+          row.appendChild(code);
+
+          const value = document.createElement('div');
+          const label = document.createElement('strong');
+          label.textContent = field.label || field.field_code || '-';
+          value.appendChild(label);
+          const display = document.createElement('span');
+          display.textContent = valueOrDash(field.display_value);
+          value.appendChild(display);
+          row.appendChild(value);
+
+          const status = document.createElement('span');
+          const isReady = (field.completion_status || '') === 'ready' || (field.completion_status || '') === 'approved';
+          status.className = `status-pill ${isReady ? 'is-ready' : 'is-missing'}`;
+          status.textContent = isReady ? t('contract.workspace.ready') : t('contract.workspace.missing');
+          row.appendChild(status);
+
+          const source = document.createElement('span');
+          source.className = 'source-pill';
+          source.textContent = [field.source_object_type || field.source_type || '-', field.source_field_code || ''].filter(Boolean).join(': ');
+          row.appendChild(source);
+          fieldGrid.appendChild(row);
+        });
+      }
+
+      function renderClauses(data) {
+        clauseGrid.innerHTML = '';
+        (Array.isArray(data.clauses) ? data.clauses : []).forEach((clause) => {
+          const row = document.createElement('article');
+          row.className = 'clause-row';
+          const title = document.createElement('strong');
+          title.textContent = `${clause.clause_id || '-'} ${clause.clause_title || ''}`.trim();
+          row.appendChild(title);
+          const copy = document.createElement('p');
+          copy.textContent = clause.fixed_clause_text || '';
+          row.appendChild(copy);
+          const fields = document.createElement('p');
+          const codes = Array.isArray(clause.variable_field_codes) ? clause.variable_field_codes.join(', ') : '';
+          fields.textContent = codes ? `Fields: ${codes}` : '';
+          row.appendChild(fields);
+          clauseGrid.appendChild(row);
+        });
+      }
+
+      function render(data) {
+        const workspace = data.workspace || {};
+        setDynamicText(statusTitle, tp('contract.workspace.loaded', { number: workspace.workspace_number || workspace.contract_workspace_id || '-' }));
+        setDynamicText(statusCopy, `${workspace.workspace_status || '-'} / ${data.template ? data.template.template_version : '-'}`);
+        renderFacts(data);
+        renderFields(data);
+        renderClauses(data);
+      }
+
+      async function init() {
+        const { workspaceId, draftId } = params();
+        if (!workspaceId || !draftId) {
+          setDynamicText(statusTitle, t('contract.workspace.noParams'));
+          setDynamicText(statusCopy, '');
+          return;
+        }
+        try {
+          render(await fetchWorkspace(workspaceId, draftId));
+        } catch (error) {
+          setDynamicText(statusTitle, t('contract.workspace.error'));
+          setDynamicText(statusCopy, error.message || '');
+          console.error(error);
+        }
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>

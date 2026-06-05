@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.34
+- Version: 3.35
 - Status: For internal review
 
 ## 1. Purpose
@@ -149,6 +149,7 @@ This documentation block starts from the following approved business controls:
 69. Contract workspace schema migration 018 is now the runtime database foundation for future contract workspace APIs, UI, generation guards and audit events; functional operations remain prohibited until their separate guards and visibility rules are implemented.
 70. A shipowner / employer contract proposal must be a computed operation shown on a specific employer-facing candidate presentation after an employer decision to proceed; it must validate access, candidate presentation status, source traceability, duplicate workspace guard and audit evidence before creating or opening a Contract Agreement Workspace.
 71. The first runtime contract proposal operation is implemented: employer candidate status `proceed_with_candidate` unlocks guarded `Propose contract` on `/post-vacancy/`, creates or reuses `contract_workspace_instances`, records audit evidence and keeps contract detail, party approval and final generation behind later guards.
+72. A Contract Agreement Workspace must open as a concrete working object with source-first prefill from verified seafarer, shipowner, vessel and vacancy records; missing embedded contract fields must be explicit, and the detail view must not generate a contract, request signatures, change employment status or create invoices.
 
 ## 5. Intended Use
 
@@ -168,6 +169,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.35 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-102 control for Contract Agreement Workspace detail view, verified source-prefill, missing embedded fields and no-side-effect review boundary |
 | 3.34 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-101 implementation control for the Shipowners candidate-selection workspace, safe presented-candidate visibility and guarded contract handoff |
 | 3.33 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-101 planning control for the Shipowners terminology/menu, dedicated candidate-selection workspace and no-raw-profile visibility boundary before contract proposal |
 | 3.32 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-100 implementation control for employer `proceed_with_candidate`, guarded `Propose contract`, workspace creation/reuse and audit evidence |

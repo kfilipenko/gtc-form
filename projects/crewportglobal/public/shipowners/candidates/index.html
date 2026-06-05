@@ -437,6 +437,7 @@
           button.type = 'button';
           button.className = 'button primary contract-proposal-action';
           button.dataset.applicationId = candidate.vacancy_application_id || '';
+          button.dataset.workspaceId = operation.existing_contract_workspace_id || '';
           button.disabled = operation.enabled !== true || !candidate.vacancy_application_id;
           button.textContent = operation.existing_contract_workspace_id
             ? t('shipowners.candidates.openContract')
@@ -494,11 +495,18 @@
               : t('shipowners.candidates.error'));
             return;
           }
+          const workspaceId = body.contract_workspace_id
+            || (body.contract_workspace && body.contract_workspace.contract_workspace_id)
+            || (body.contract_operation && body.contract_operation.existing_contract_workspace_id)
+            || '';
           selectionPayload = await fetchSelection(currentDraftId);
           renderPage(selectionPayload);
           setDynamicText(statusTitle, response.status === 200
             ? t('shipowners.candidates.reused')
             : t('shipowners.candidates.proposed'));
+          if (workspaceId) {
+            window.location.href = `/contracts/workspace/?workspace_id=${encodeURIComponent(workspaceId)}&draft_id=${encodeURIComponent(currentDraftId)}`;
+          }
         } catch (error) {
           setDynamicText(statusTitle, t('shipowners.candidates.error'));
           console.error(error);
@@ -536,6 +544,11 @@
       candidateList.addEventListener('click', (event) => {
         const target = event.target.closest('.contract-proposal-action');
         if (!target) {
+          return;
+        }
+        const workspaceId = target.dataset.workspaceId || '';
+        if (workspaceId && currentDraftId) {
+          window.location.href = `/contracts/workspace/?workspace_id=${encodeURIComponent(workspaceId)}&draft_id=${encodeURIComponent(currentDraftId)}`;
           return;
         }
         proposeContract(target.dataset.applicationId || '');

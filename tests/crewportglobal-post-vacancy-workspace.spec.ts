@@ -481,7 +481,16 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await expect(page.locator('#candidate-list')).not.toContainText(seafarerEmail);
   await expect(page.locator('#candidate-list')).toContainText('Open contract workspace');
   await page.locator('#candidate-list').getByRole('button', { name: 'Open contract workspace' }).click();
-  await expect(page.locator('#selection-status-title')).toContainText('Existing contract workspace opened.');
+  await expect(page).toHaveURL(/\/contracts\/workspace\/\?workspace_id=.*draft_id=/);
+  await expect(page.getByRole('heading', { name: 'Contract workspace.' })).toBeVisible();
+  await expect(page.locator('#workspace-status-title')).toContainText('CW-');
+  await expect(page.locator('#facts-grid')).toContainText('Presented Candidate');
+  await expect(page.locator('#facts-grid')).toContainText(company);
+  await expect(page.locator('#facts-grid')).toContainText(`MV Workspace ${unique}`);
+  await expect(page.locator('#facts-grid')).toContainText(updatedTitle);
+  await expect(page.locator('#field-grid')).toContainText('C-1.1');
+  await expect(page.locator('#field-grid')).toContainText('C-6.1');
+  await expect(page.locator('#guard-line')).toContainText('No generation, signature, employment status or invoice is created.');
 
   await page.goto(`/post-vacancy/?draft_id=${draftId}`);
   await candidateCard.locator('.candidate-note-input').fill('Not suitable for this rotation after salary review.');

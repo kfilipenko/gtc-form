@@ -9112,6 +9112,397 @@ function cpg_contract_proposal_operation_for_presented_candidate(array $row): ar
     ];
 }
 
+function cpg_contract_workspace_source_value(
+    string $fieldCode,
+    string $clauseId,
+    string $label,
+    string $choiceType,
+    string $sourceType,
+    ?string $sourceObjectType,
+    ?string $sourceObjectId,
+    ?string $sourceFieldCode,
+    mixed $value,
+    string $requiredness = 'required'
+): array {
+    $display = null;
+    if (is_array($value)) {
+        $parts = [];
+        foreach ($value as $item) {
+            if ($item !== null && trim((string) $item) !== '') {
+                $parts[] = trim((string) $item);
+            }
+        }
+        $display = $parts === [] ? null : implode(' / ', $parts);
+    } elseif ($value !== null && trim((string) $value) !== '') {
+        $display = trim((string) $value);
+    }
+
+    return [
+        'field_code' => $fieldCode,
+        'clause_id' => $clauseId,
+        'label' => $label,
+        'choice_type' => $choiceType,
+        'source_type' => $sourceType,
+        'source_object_type' => $sourceObjectType,
+        'source_object_id' => $sourceObjectId,
+        'source_field_code' => $sourceFieldCode,
+        'display_value' => $display,
+        'requiredness' => $requiredness,
+        'completion_status' => $display === null ? 'missing' : 'ready',
+        'source_status_snapshot' => [
+            'source_rule' => $sourceType === 'linked_record'
+                ? 'verified_source_prefill'
+                : 'contractual_choice_required',
+        ],
+    ];
+}
+
+function cpg_contract_workspace_access(string $workspaceId, string $draftId): ?array {
+    $role = read_role_for_user($draftId);
+    if ($role === null) {
+        return null;
+    }
+
+    if ($role === 'seafarer') {
+        return cpg_fetch_one_assoc(
+            "SELECT cwi.contract_workspace_id::text AS contract_workspace_id,
+                    cwi.seafarer_profile_id::text AS seafarer_profile_id,
+                    'seafarer' AS access_party
+             FROM crewportglobal.contract_workspace_instances cwi
+             JOIN crewportglobal.seafarer_profiles sp ON sp.seafarer_profile_id = cwi.seafarer_profile_id
+             WHERE cwi.contract_workspace_id = $1
+               AND sp.user_id = $2
+               AND cwi.archived_at IS NULL
+             LIMIT 1",
+            [$workspaceId, $draftId]
+        );
+    }
+
+    $company = read_primary_company_for_user($draftId);
+    if ($company === null || !isset($company['company_id'])) {
+        return null;
+    }
+
+    return cpg_fetch_one_assoc(
+        "SELECT cwi.contract_workspace_id::text AS contract_workspace_id,
+                cwi.employer_company_id::text AS employer_company_id,
+                'shipowner' AS access_party
+         FROM crewportglobal.contract_workspace_instances cwi
+         WHERE cwi.contract_workspace_id = $1
+           AND cwi.employer_company_id = $2
+           AND cwi.archived_at IS NULL
+         LIMIT 1",
+        [$workspaceId, (string) $company['company_id']]
+    );
+}
+
+function cpg_contract_workspace_detail(string $workspaceId): ?array {
+    $workspace = cpg_fetch_one_assoc(
+        "SELECT cwi.contract_workspace_id::text AS contract_workspace_id,
+                cwi.workspace_number,
+                cwi.workspace_status,
+                cwi.seafarer_profile_id::text AS seafarer_profile_id,
+                cwi.employer_company_id::text AS employer_company_id,
+                cwi.vessel_id::text AS vessel_id,
+                cwi.vacancy_request_id::text AS vacancy_request_id,
+                cwi.shortlist_draft_id::text AS shortlist_draft_id,
+                cwi.shortlist_candidate_id::text AS shortlist_candidate_id,
+                cwi.vacancy_application_id::text AS vacancy_application_id,
+                cwi.master_contract_template_id::text AS master_contract_template_id,
+                cwi.contract_field_catalog_id::text AS contract_field_catalog_id,
+                cwi.assigned_group_code,
+                cwi.assigned_user_id::text AS assigned_user_id,
+                cwi.blocked_reason_snapshot::text AS blocked_reason_snapshot,
+                cwi.preview_hash,
+                cwi.source_snapshot_hash,
+                cwi.created_at::text AS created_at,
+                cwi.updated_at::text AS updated_at,
+                mct.template_code,
+                mct.template_version,
+                mct.template_title,
+                mct.template_status,
+                cfc.catalog_code,
+                cfc.catalog_version,
+                cfc.catalog_title,
+                cfc.catalog_status,
+                sp.first_name AS seafarer_name,
+                sp.primary_rank AS seafarer_rank,
+                sp.department AS seafarer_department,
+                sp.availability_status,
+                sp.availability_date::text AS availability_date,
+                sp.nationality_code,
+                sp.residence_country_code,
+                sp.review_status AS seafarer_review_status,
+                ec.company_name,
+                ec.registration_number,
+                ec.country_code AS company_country_code,
+                ec.company_type,
+                ec.verification_status AS company_verification_status,
+                v.vessel_name,
+                v.imo_number,
+                v.vessel_type,
+                v.vessel_type_label,
+                v.flag_country_code,
+                vr.vacancy_title,
+                vr.rank AS request_rank,
+                vr.department AS request_department,
+                vr.vessel_type AS request_vessel_type,
+                vr.vessel_type_label AS request_vessel_type_label,
+                vr.join_date::text AS join_date,
+                vr.contract_duration,
+                vr.contract_duration_value,
+                vr.contract_duration_unit,
+                vr.salary_min_usd,
+                vr.salary_max_usd,
+                vr.salary_text,
+                vr.currency,
+                vr.requirements,
+                vr.publication_status,
+                va.application_status,
+                va.employer_shortlist_status,
+                va.employer_action_note,
+                va.employer_action_at::text AS employer_action_at
+         FROM crewportglobal.contract_workspace_instances cwi
+         JOIN crewportglobal.master_contract_templates mct ON mct.master_contract_template_id = cwi.master_contract_template_id
+         JOIN crewportglobal.contract_field_catalogs cfc ON cfc.contract_field_catalog_id = cwi.contract_field_catalog_id
+         JOIN crewportglobal.seafarer_profiles sp ON sp.seafarer_profile_id = cwi.seafarer_profile_id
+         JOIN crewportglobal.employer_companies ec ON ec.company_id = cwi.employer_company_id
+         JOIN crewportglobal.vessels v ON v.vessel_id = cwi.vessel_id
+         JOIN crewportglobal.vacancy_requests vr ON vr.vacancy_request_id = cwi.vacancy_request_id
+         LEFT JOIN crewportglobal.vacancy_applications va ON va.vacancy_application_id = cwi.vacancy_application_id
+         WHERE cwi.contract_workspace_id = $1
+           AND cwi.archived_at IS NULL
+         LIMIT 1",
+        [$workspaceId]
+    );
+
+    if ($workspace === null) {
+        return null;
+    }
+
+    $workspace['blocked_reason_snapshot'] = cpg_decode_json_object(is_string($workspace['blocked_reason_snapshot'] ?? null) ? $workspace['blocked_reason_snapshot'] : null);
+
+    $sourceFields = [
+        cpg_contract_workspace_source_value('C-1.1', 'MC-001', 'Seafarer', 'linked_record', 'linked_record', 'seafarer_profile', $workspace['seafarer_profile_id'], 'first_name', $workspace['seafarer_name']),
+        cpg_contract_workspace_source_value('C-1.2', 'MC-001', 'Seafarer rank', 'linked_record', 'linked_record', 'seafarer_profile', $workspace['seafarer_profile_id'], 'primary_rank', $workspace['seafarer_rank']),
+        cpg_contract_workspace_source_value('C-1.3', 'MC-001', 'Seafarer department', 'linked_record', 'linked_record', 'seafarer_profile', $workspace['seafarer_profile_id'], 'department', $workspace['seafarer_department']),
+        cpg_contract_workspace_source_value('C-2.1', 'MC-002', 'Shipowner / employer', 'linked_record', 'linked_record', 'employer_company', $workspace['employer_company_id'], 'company_name', $workspace['company_name']),
+        cpg_contract_workspace_source_value('C-2.2', 'MC-002', 'Company registration number', 'linked_record', 'linked_record', 'employer_company', $workspace['employer_company_id'], 'registration_number', $workspace['registration_number']),
+        cpg_contract_workspace_source_value('C-3.1', 'MC-003', 'Vessel', 'linked_record', 'linked_record', 'vessel', $workspace['vessel_id'], 'vessel_name', $workspace['vessel_name']),
+        cpg_contract_workspace_source_value('C-3.2', 'MC-003', 'Vessel type', 'linked_record', 'linked_record', 'vessel', $workspace['vessel_id'], 'vessel_type', $workspace['vessel_type_label'] ?: $workspace['vessel_type']),
+        cpg_contract_workspace_source_value('C-3.3', 'MC-003', 'Flag', 'linked_record', 'linked_record', 'vessel', $workspace['vessel_id'], 'flag_country_code', $workspace['flag_country_code']),
+        cpg_contract_workspace_source_value('C-4.1', 'MC-004', 'Crew request', 'linked_record', 'linked_record', 'vacancy_request', $workspace['vacancy_request_id'], 'vacancy_title', $workspace['vacancy_title']),
+        cpg_contract_workspace_source_value('C-4.2', 'MC-004', 'Requested rank', 'linked_record', 'linked_record', 'vacancy_request', $workspace['vacancy_request_id'], 'rank', $workspace['request_rank']),
+        cpg_contract_workspace_source_value('C-5.1', 'MC-005', 'Joining date', 'date', 'linked_record', 'vacancy_request', $workspace['vacancy_request_id'], 'join_date', $workspace['join_date']),
+        cpg_contract_workspace_source_value('C-5.2', 'MC-005', 'Contract duration', 'linked_record', 'linked_record', 'vacancy_request', $workspace['vacancy_request_id'], 'contract_duration', $workspace['contract_duration'] ?: [$workspace['contract_duration_value'], $workspace['contract_duration_unit']]),
+        cpg_contract_workspace_source_value('C-6.1', 'MC-006', 'Salary range', 'money', 'linked_record', 'vacancy_request', $workspace['vacancy_request_id'], 'salary_min_usd/salary_max_usd', [$workspace['salary_min_usd'], $workspace['salary_max_usd'], $workspace['currency']]),
+        cpg_contract_workspace_source_value('C-6.2', 'MC-006', 'Currency', 'single', 'linked_record', 'vacancy_request', $workspace['vacancy_request_id'], 'currency', $workspace['currency']),
+        cpg_contract_workspace_source_value('C-8.1', 'MC-008', 'Joining travel responsibility', 'single', 'catalog', null, null, null, null),
+        cpg_contract_workspace_source_value('C-9.1', 'MC-009', 'Return / repatriation responsibility', 'single', 'catalog', null, null, null, null),
+    ];
+
+    $storedValues = cpg_fetch_all_assoc(
+        "SELECT field_code,
+                clause_id,
+                choice_type,
+                source_type,
+                source_object_type,
+                source_object_id::text AS source_object_id,
+                source_field_code,
+                source_status_snapshot::text AS source_status_snapshot,
+                value_code,
+                value_json::text AS value_json,
+                display_value,
+                requiredness,
+                completion_status,
+                updated_at::text AS updated_at
+         FROM crewportglobal.contract_embedded_field_values
+         WHERE contract_workspace_id = $1
+         ORDER BY clause_id, field_code",
+        [$workspaceId]
+    );
+
+    $storedByCode = [];
+    foreach ($storedValues as $value) {
+        $value['source_status_snapshot'] = cpg_decode_json_object(is_string($value['source_status_snapshot'] ?? null) ? $value['source_status_snapshot'] : null);
+        $value['value_json'] = cpg_decode_json_object(is_string($value['value_json'] ?? null) ? $value['value_json'] : null);
+        $storedByCode[(string) $value['field_code']] = $value;
+    }
+
+    $embeddedFields = [];
+    foreach ($sourceFields as $field) {
+        $code = (string) $field['field_code'];
+        if (isset($storedByCode[$code])) {
+            $field = array_merge($field, $storedByCode[$code]);
+        }
+        $embeddedFields[] = $field;
+    }
+
+    $approvals = cpg_fetch_all_assoc(
+        "SELECT party_type,
+                approval_status,
+                approved_preview_hash,
+                approval_note,
+                requested_at::text AS requested_at,
+                approved_at::text AS approved_at,
+                withdrawn_at::text AS withdrawn_at,
+                updated_at::text AS updated_at
+         FROM crewportglobal.contract_workspace_party_approvals
+         WHERE contract_workspace_id = $1
+         ORDER BY party_type, updated_at DESC",
+        [$workspaceId]
+    );
+
+    $clauses = cpg_fetch_all_assoc(
+        "SELECT mcc.clause_id,
+                mcc.clause_order,
+                mcc.clause_title,
+                mcc.fixed_clause_text,
+                mcc.variable_field_codes::text AS variable_field_codes
+         FROM crewportglobal.master_contract_clauses mcc
+         WHERE mcc.master_contract_template_id = $1
+         ORDER BY mcc.clause_order, mcc.clause_id",
+        [$workspace['master_contract_template_id'] ?? null]
+    );
+    foreach ($clauses as &$clause) {
+        $clause['variable_field_codes'] = cpg_decode_json_array_field($clause['variable_field_codes'] ?? null);
+    }
+    unset($clause);
+
+    if ($clauses === []) {
+        $clauses = [
+            ['clause_id' => 'MC-001', 'clause_order' => 1, 'clause_title' => 'Parties and verified identity', 'fixed_clause_text' => 'The contract workspace uses verified platform records for the seafarer and shipowner.', 'variable_field_codes' => ['C-1.1', 'C-1.2', 'C-2.1']],
+            ['clause_id' => 'MC-003', 'clause_order' => 3, 'clause_title' => 'Vessel and service context', 'fixed_clause_text' => 'Vessel, flag and crew request facts are linked from approved source records.', 'variable_field_codes' => ['C-3.1', 'C-3.2', 'C-3.3', 'C-4.1']],
+            ['clause_id' => 'MC-006', 'clause_order' => 6, 'clause_title' => 'Wages and payment terms', 'fixed_clause_text' => 'Wage and payment terms must be completed before party approval.', 'variable_field_codes' => ['C-6.1', 'C-6.2']],
+            ['clause_id' => 'MC-008', 'clause_order' => 8, 'clause_title' => 'Joining and repatriation', 'fixed_clause_text' => 'Joining and return responsibility must be selected in the contract context.', 'variable_field_codes' => ['C-8.1', 'C-9.1']],
+        ];
+    }
+
+    $missingFields = array_values(array_filter($embeddedFields, static fn(array $field): bool => ($field['completion_status'] ?? 'missing') === 'missing'));
+    $guardStatus = $missingFields === [] ? 'ready_for_party_review' : 'blocked_missing_embedded_fields';
+
+    return [
+        'workspace' => [
+            'contract_workspace_id' => $workspace['contract_workspace_id'],
+            'workspace_number' => $workspace['workspace_number'],
+            'workspace_status' => $workspace['workspace_status'],
+            'assigned_group_code' => $workspace['assigned_group_code'],
+            'assigned_user_id' => $workspace['assigned_user_id'],
+            'source_snapshot_hash' => $workspace['source_snapshot_hash'],
+            'preview_hash' => $workspace['preview_hash'],
+            'created_at' => $workspace['created_at'],
+            'updated_at' => $workspace['updated_at'],
+        ],
+        'template' => [
+            'template_code' => $workspace['template_code'],
+            'template_version' => $workspace['template_version'],
+            'template_title' => $workspace['template_title'],
+            'template_status' => $workspace['template_status'],
+        ],
+        'catalog' => [
+            'catalog_code' => $workspace['catalog_code'],
+            'catalog_version' => $workspace['catalog_version'],
+            'catalog_title' => $workspace['catalog_title'],
+            'catalog_status' => $workspace['catalog_status'],
+        ],
+        'parties' => [
+            'seafarer' => [
+                'seafarer_profile_id' => $workspace['seafarer_profile_id'],
+                'display_name' => $workspace['seafarer_name'],
+                'rank' => $workspace['seafarer_rank'],
+                'department' => $workspace['seafarer_department'],
+                'availability_status' => $workspace['availability_status'],
+                'availability_date' => $workspace['availability_date'],
+                'nationality_code' => $workspace['nationality_code'],
+                'review_status' => $workspace['seafarer_review_status'],
+            ],
+            'shipowner' => [
+                'company_id' => $workspace['employer_company_id'],
+                'company_name' => $workspace['company_name'],
+                'registration_number' => $workspace['registration_number'],
+                'country_code' => $workspace['company_country_code'],
+                'company_type' => $workspace['company_type'],
+                'verification_status' => $workspace['company_verification_status'],
+            ],
+        ],
+        'vessel' => [
+            'vessel_id' => $workspace['vessel_id'],
+            'vessel_name' => $workspace['vessel_name'],
+            'imo_number' => $workspace['imo_number'],
+            'vessel_type' => $workspace['vessel_type_label'] ?: $workspace['vessel_type'],
+            'flag_country_code' => $workspace['flag_country_code'],
+        ],
+        'crew_request' => [
+            'vacancy_request_id' => $workspace['vacancy_request_id'],
+            'vacancy_title' => $workspace['vacancy_title'],
+            'rank' => $workspace['request_rank'],
+            'department' => $workspace['request_department'],
+            'vessel_type' => $workspace['request_vessel_type_label'] ?: $workspace['request_vessel_type'],
+            'join_date' => $workspace['join_date'],
+            'contract_duration' => $workspace['contract_duration'],
+            'salary_min_usd' => $workspace['salary_min_usd'],
+            'salary_max_usd' => $workspace['salary_max_usd'],
+            'currency' => $workspace['currency'],
+            'publication_status' => $workspace['publication_status'],
+        ],
+        'candidate_decision' => [
+            'vacancy_application_id' => $workspace['vacancy_application_id'],
+            'application_status' => $workspace['application_status'],
+            'employer_shortlist_status' => $workspace['employer_shortlist_status'],
+            'employer_action_note' => $workspace['employer_action_note'],
+            'employer_action_at' => $workspace['employer_action_at'],
+            'shortlist_candidate_id' => $workspace['shortlist_candidate_id'],
+            'shortlist_draft_id' => $workspace['shortlist_draft_id'],
+        ],
+        'clauses' => $clauses,
+        'embedded_fields' => $embeddedFields,
+        'approvals' => $approvals,
+        'guard' => [
+            'status' => $guardStatus,
+            'missing_field_codes' => array_map(static fn(array $field): string => (string) $field['field_code'], $missingFields),
+            'blockers' => array_map(static fn(array $field): array => [
+                'code' => 'missing_required_field',
+                'field_code' => (string) $field['field_code'],
+                'label' => (string) $field['label'],
+            ], $missingFields),
+        ],
+        'side_effects' => [
+            'generates_contract' => false,
+            'signs_contract' => false,
+            'changes_employment_status' => false,
+            'creates_invoice' => false,
+        ],
+    ];
+}
+
+function handle_get_contract_workspace(string $workspaceId): void {
+    $uuid = api_normalize_uuid($workspaceId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_contract_workspace_id', 'contract_workspace_id must be a valid UUID');
+    }
+
+    $draftId = api_normalize_uuid($_GET['draft_id'] ?? null);
+    if ($draftId === null) {
+        api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
+    }
+
+    if (cpg_contract_workspace_access($uuid, $draftId) === null) {
+        api_error(404, 'contract_workspace_not_found', 'Contract workspace not found for this account');
+    }
+
+    $detail = cpg_contract_workspace_detail($uuid);
+    if ($detail === null) {
+        api_error(404, 'contract_workspace_not_found', 'Contract workspace not found');
+    }
+
+    api_json(200, [
+        'ok' => true,
+        'draft_id' => $draftId,
+        'visibility_scope' => 'contract_workspace_party_safe_detail',
+        'contract_workspace' => $detail,
+    ]);
+}
+
 function read_vacancy_applications_for_seafarer(string $userId): array {
     $result = api_query(
         "SELECT
@@ -14694,6 +15085,14 @@ if ($method === 'GET' && $path === '/registry-summary') {
 
 if ($method === 'GET' && $path === '/employer/candidate-selection') {
     handle_get_shipowner_candidate_selection();
+}
+
+if (preg_match('#^/contract-workspaces/([^/]+)$#', $path, $matches) === 1) {
+    if ($method === 'GET') {
+        handle_get_contract_workspace($matches[1]);
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
 }
 
 if (preg_match('#^/vacancies/([^/]+)$#', $path, $matches) === 1) {
