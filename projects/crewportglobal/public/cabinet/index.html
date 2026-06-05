@@ -760,6 +760,14 @@
         'cabinet.tasks.reviewCandidates.copy': 'Presented candidate profiles are available for a verified crew request. Open candidate selection and decide whether to propose a contract.',
         'cabinet.tasks.reviewCandidates.count': 'Presented candidates',
         'cabinet.tasks.reviewCandidates.action': 'Open candidate selection',
+        'cabinet.tasks.proposeContract.title': 'Action required: propose contract',
+        'cabinet.tasks.proposeContract.copy': 'The shipowner decision is proceed with candidate. Open candidate selection and start the guarded contract proposal.',
+        'cabinet.tasks.proposeContract.count': 'Candidates ready for contract proposal',
+        'cabinet.tasks.proposeContract.action': 'Open contract proposal',
+        'cabinet.tasks.contractWorkspace.title': 'Action required: review contract workspace',
+        'cabinet.tasks.contractWorkspace.copy': 'A contract workspace has been prepared from verified platform data. Review the workspace and complete missing contract terms.',
+        'cabinet.tasks.contractWorkspace.count': 'Contract workspaces',
+        'cabinet.tasks.contractWorkspace.action': 'Open contract workspace',
         'cabinet.tasks.completeProfile.title': 'Action required: complete seafarer workspace',
         'cabinet.tasks.completeProfile.action': 'Open section',
         'cabinet.tasks.completeProfile.personal': 'Add personal/contact details and primary emergency contact.',
@@ -958,6 +966,14 @@
         'cabinet.tasks.reviewCandidates.copy': 'Профили кандидатов доступны по проверенной заявке на экипаж. Откройте подбор кандидатов и решите, предлагать ли контракт.',
         'cabinet.tasks.reviewCandidates.count': 'Представленные кандидаты',
         'cabinet.tasks.reviewCandidates.action': 'Открыть подбор кандидатов',
+        'cabinet.tasks.proposeContract.title': 'Требуется действие: предложить контракт',
+        'cabinet.tasks.proposeContract.copy': 'Решение судовладельца - продолжить работу с кандидатом. Откройте подбор кандидатов и запустите контролируемое предложение контракта.',
+        'cabinet.tasks.proposeContract.count': 'Кандидаты готовы к предложению контракта',
+        'cabinet.tasks.proposeContract.action': 'Открыть предложение контракта',
+        'cabinet.tasks.contractWorkspace.title': 'Требуется действие: проверить рабочее пространство договора',
+        'cabinet.tasks.contractWorkspace.copy': 'Рабочее пространство договора подготовлено из проверенных данных платформы. Проверьте его и заполните недостающие условия договора.',
+        'cabinet.tasks.contractWorkspace.count': 'Рабочие пространства договора',
+        'cabinet.tasks.contractWorkspace.action': 'Открыть договор',
         'cabinet.tasks.completeProfile.title': 'Требуется действие: заполните рабочую карточку моряка',
         'cabinet.tasks.completeProfile.action': 'Открыть раздел',
         'cabinet.tasks.completeProfile.personal': 'Добавьте личные/контактные данные и основной экстренный контакт.',
@@ -1670,23 +1686,63 @@
           && Array.isArray(cabinetCandidateSelection.selection_requests)
           ? cabinetCandidateSelection.selection_requests
           : [];
-        const presentedFromSelection = selectionRequests.reduce((count, request) => {
-          const candidates = request && Array.isArray(request.presented_candidates)
+        const candidatesFromSelection = selectionRequests.flatMap((request) => (
+          request && Array.isArray(request.presented_candidates)
             ? request.presented_candidates
-            : [];
-          return count + candidates.length;
-        }, 0);
+            : []
+        ));
+        const presentedFromSelection = candidatesFromSelection.length;
+        const contractWorkspaceCandidate = candidatesFromSelection.find((candidate) => {
+          const operation = candidate && candidate.contract_operation && typeof candidate.contract_operation === 'object'
+            ? candidate.contract_operation
+            : {};
+          return typeof operation.existing_contract_workspace_id === 'string'
+            && operation.existing_contract_workspace_id.trim() !== '';
+        });
+        if (contractWorkspaceCandidate) {
+          const operation = contractWorkspaceCandidate.contract_operation;
+          return {
+            mode: 'contractWorkspace',
+            candidateCount: candidatesFromSelection.filter((candidate) => {
+              const candidateOperation = candidate && candidate.contract_operation && typeof candidate.contract_operation === 'object'
+                ? candidate.contract_operation
+                : {};
+              return typeof candidateOperation.existing_contract_workspace_id === 'string'
+                && candidateOperation.existing_contract_workspace_id.trim() !== '';
+            }).length,
+            href: `/contracts/workspace/?workspace_id=${encodeURIComponent(operation.existing_contract_workspace_id.trim())}&draft_id=${encodeURIComponent(draftId)}`
+          };
+        }
 
-        const payload = cabinetDraft.payload && typeof cabinetDraft.payload === 'object' ? cabinetDraft.payload : {};
-        const presentedFromDraft = Array.isArray(payload.presented_candidates)
-          ? payload.presented_candidates.length
-          : 0;
+        const contractProposalCandidates = candidatesFromSelection.filter((candidate) => {
+          const operation = candidate && candidate.contract_operation && typeof candidate.contract_operation === 'object'
+            ? candidate.contract_operation
+            : {};
+          return operation.visible !== false
+            && operation.enabled === true
+            && !(typeof operation.existing_contract_workspace_id === 'string' && operation.existing_contract_workspace_id.trim() !== '');
+        });
+        if (contractProposalCandidates.length > 0) {
+          return {
+            mode: 'proposeContract',
+            candidateCount: contractProposalCandidates.length,
+            href: `/shipowners/candidates/?draft_id=${encodeURIComponent(draftId)}`
+          };
+        }
+
+        const presentedFromDraft = (() => {
+          const payload = cabinetDraft.payload && typeof cabinetDraft.payload === 'object' ? cabinetDraft.payload : {};
+          return Array.isArray(payload.presented_candidates)
+            ? payload.presented_candidates.length
+            : 0;
+        })();
         const candidateCount = Math.max(presentedFromSelection, presentedFromDraft);
         if (candidateCount <= 0) {
           return null;
         }
 
         return {
+          mode: 'reviewCandidates',
           candidateCount,
           href: `/shipowners/candidates/?draft_id=${encodeURIComponent(draftId)}`
         };
@@ -1979,20 +2035,26 @@
       function renderShipownerCandidateSelectionTask(taskInfo) {
         const task = document.createElement('article');
         task.className = 'task-item is-action';
+        const mode = taskInfo.mode || 'reviewCandidates';
+        const keyPrefix = mode === 'contractWorkspace'
+          ? 'cabinet.tasks.contractWorkspace'
+          : mode === 'proposeContract'
+            ? 'cabinet.tasks.proposeContract'
+            : 'cabinet.tasks.reviewCandidates';
         const title = document.createElement('h3');
-        title.textContent = t('cabinet.tasks.reviewCandidates.title');
+        title.textContent = t(`${keyPrefix}.title`);
         const copy = document.createElement('p');
         copy.className = 'muted';
-        copy.textContent = t('cabinet.tasks.reviewCandidates.copy');
+        copy.textContent = t(`${keyPrefix}.copy`);
         const meta = document.createElement('div');
         meta.className = 'meta-row';
         const chip = document.createElement('span');
         chip.className = 'chip action';
-        chip.textContent = `${t('cabinet.tasks.reviewCandidates.count')}: ${taskInfo.candidateCount}`;
+        chip.textContent = `${t(`${keyPrefix}.count`)}: ${taskInfo.candidateCount}`;
         meta.append(chip);
         const actions = document.createElement('div');
         actions.className = 'meta-row';
-        actions.append(actionLink(t('cabinet.tasks.reviewCandidates.action'), taskInfo.href));
+        actions.append(actionLink(t(`${keyPrefix}.action`), taskInfo.href));
         task.append(title, copy, meta, actions);
         taskList.append(task);
       }
@@ -2085,7 +2147,7 @@
           taskList.append(task);
         }
 
-        if (corrections.length === 0 && waiting.length === 0 && cabinetDocuments.length === 0) {
+        if (corrections.length === 0 && !profileCorrection && !demandCorrection && !candidateSelectionTask && completenessTasks.length === 0 && waiting.length === 0 && cabinetDocuments.length === 0) {
           taskCount += 1;
           const task = document.createElement('article');
           task.className = 'task-item is-action';

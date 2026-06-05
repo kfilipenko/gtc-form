@@ -476,10 +476,28 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   await expect(page.locator('#post-status')).toContainText('Candidate status updated.');
   await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Proceed with candidate');
 
+  await page.goto(`/cabinet/?draft_id=${draftId}`);
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: propose contract');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Candidates ready for contract proposal: 1');
+  await expect(page.getByRole('link', { name: 'Open contract proposal' })).toHaveAttribute(
+    'href',
+    `/shipowners/candidates/?draft_id=${draftId}`
+  );
+
+  await page.goto(`/post-vacancy/?draft_id=${draftId}`);
   await candidateCard.getByRole('button', { name: 'Propose contract' }).click();
   await expect(page.locator('#post-status')).toContainText('Contract workspace prepared.');
   await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Contract: Open contract workspace');
 
+  await page.goto(`/cabinet/?draft_id=${draftId}`);
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: review contract workspace');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Contract workspaces: 1');
+  await expect(page.getByRole('link', { name: 'Open contract workspace' })).toHaveAttribute(
+    'href',
+    /\/contracts\/workspace\/\?workspace_id=.*draft_id=/
+  );
+
+  await page.goto(`/post-vacancy/?draft_id=${draftId}`);
   await page.reload();
   await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Employer status: Proceed with candidate');
   await expect(candidateCard.locator('.candidate-card__meta')).toContainText('Contract: Open contract workspace');
