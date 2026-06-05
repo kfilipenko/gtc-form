@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.99
+- Version: 3.00
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -398,6 +398,7 @@ docs/crewportglobal/
   308_cpg_biz_107_incoming_seafarer_request_team_review_report.md
   309_cpg_biz_108_incoming_request_reason_taxonomy_report.md
   310_cpg_biz_109_seafarer_incoming_request_correction_task_report.md
+  311_cpg_biz_110_structured_terms_clarification_task.md
   sql_drafts/
     018_contract_workspace_schema_draft.sql
   seafarer_application_mapping/
@@ -939,6 +940,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.00 | 2026-06-05 | GTC IT / AI Assistant | Added document 311 as CPG-BIZ-110 task for structured terms clarification before contract proposal |
 | 2.99 | 2026-06-05 | GTC IT / AI Assistant | Added document 310 as CPG-BIZ-109 implementation report for seafarer cabinet correction task recomputation from incoming request review reason |
 | 2.98 | 2026-06-05 | GTC IT / AI Assistant | Added document 309 as CPG-BIZ-108 implementation report for structured correction/rejection reason taxonomy on incoming seafarer request review |
 | 2.97 | 2026-06-05 | GTC IT / AI Assistant | Added document 308 as CPG-BIZ-107 implementation report for review-team processing of incoming seafarer requests and recomputation into presented-candidate workflow |

@@ -5,9 +5,9 @@
 - Documentation block: Business processes and operating model
 - Document type: Stage-to-standard control matrix
 - Source task: Project Owner instruction after CPG-BIZ-093 approval
-- Version: 2.0
+- Version: 2.5
 - Date: 2026-06-05
-- Status: Updated after CPG-BIZ-102 Contract Agreement Workspace detail/source-prefill implementation
+- Status: Updated after CPG-BIZ-110 structured terms clarification task
 
 ## 1. Purpose
 
@@ -65,6 +65,7 @@ If a stage has no controlling standard, it must be marked as a gap and described
 | CPG-BIZ-093 | Public master contract versioning and immutable clause control | Approved by Project Owner; Contract Agreement Workspace and scripted generation standard |
 | CPG-BIZ-095 | Contract Agreement Workspace and embedded condition fields | Approved operating model for future implementation planning |
 | CPG-BIZ-096 | Contract workspace object, API and UI design | Drafted object/API/UI design for future runtime implementation |
+| CPG-BIZ-110 | Structured terms clarification before contract proposal | Task prepared for Project Owner approval; no runtime implementation yet |
 | Implemented Code Standards ICS-001..003 | Reusable code standards for form lifecycle, protected upload and submit-review gate | Existing code-level standard register |
 
 ## 4. Stage-To-Standard Matrix
@@ -88,6 +89,7 @@ If a stage has no controlling standard, it must be marked as a gap and described
 | Candidate presentation review | CC-12 / CF-11 | Candidate presentation staging | Review team / Group 5 | CPG-DEMAND-016/023, BP-012 | Covered in current guard model | Need user-facing employer presentation package standard. |
 | Employer-facing presentation | CC-12 / CF-12 | Employer-safe candidate summary | Review team, Group 1 | CPG-DEMAND-023, BP-006, BP-012 | Partial | Standard for employer view content, field allow-list, presentation evidence and expiry. |
 | Shipowner candidate selection / decision | CC-13 / CF-13 | Presented candidate list and candidate decision | Group 1, review team, shipowner-side user | BP-012, earlier employer follow-up reports, CPG-BIZ-099, CPG-BIZ-100, CPG-BIZ-101 | Implemented: dedicated `/shipowners/candidates/` workspace lists only employer-safe presented candidates and calls the guarded CPG-BIZ-100 contract proposal endpoint | Normalize all employer decision outcomes, reasons and SLA handoffs inside the candidate detail/workspace flow. |
+| Structured terms clarification | CC-13A / CF-13A | Terms comparison matrix and agreed terms sheet | Shipowner, seafarer, responsible team, review/control where needed | CPG-BIZ-110 task, BP-012, BP-013, CPG-BIZ-095 contract workspace model | Planned: structured no-chat stage that compares shipowner/vacancy terms with seafarer profile/preferences and records party proposals, accept/reject states, team review and final agreed terms before contract proposal | After Project Owner approval, create CPG-BIZ-111 UI/API/SQL design for the terms clarification workspace and update BP-012/BP-013 with exact operating instructions. |
 | Contract Agreement Workspace | CC-14 / CF-14 | Populated agreement with embedded condition fields | Group 1, Group 4, Group 5 | CPG-BIZ-091/092/093/094/095/096/097/098A/098B/098C/098D/099/100/102, BP-014 | Implemented: workspace model, clause library, catalogs, source-first prefill rule, exact shortlist candidate link, runtime schema migration 018, employer `propose_contract` API/UI creation/reuse, detail view and verified source-prefill page `/contracts/workspace/` | Implement embedded field editing, catalog choices, audit evidence and party-review readiness guard. |
 | Scripted contract generation | CC-14 / CF-14 | Generated contract instance | System script, responsible employee, control role | CPG-BIZ-093/094/095/096/097/098A/098B/098C/098D, BP-014 | Runtime schema can store generated contract metadata and audit events; generation script not implemented | Future generation implementation after workspace API/UI and party approval guards. |
 | Embarkation confirmation | CC-14 / CF-14 | Employment/voyage support record | Group 4 support, Group 1, employer | BP-012, BP-015 | Gap/partial | Standard for boarding evidence, onboard status, success-fee trigger and failed-joining blocker. |
@@ -106,6 +108,7 @@ The following standards should be created or expanded before final job descripti
 | Priority | Proposed standard | Reason |
 |---|---|---|
 | P1 | Employer service package and entitlement standard | Without this, subscription/package, discounts, service access and commercial start are not fully controlled. |
+| P1 | Structured terms clarification workspace standard | Required before contract proposal so salary, joining date, duration, travel, repatriation and document-readiness differences become auditable agreed terms instead of chat text. |
 | P1 | Contract workspace embedded field editing and party-review readiness guard | CPG-BIZ-102 can open a concrete workspace and show source-prefilled facts; the next gap is controlled completion of selectable embedded contract fields before party review. |
 | P1 | Embarkation and onboard-status evidence standard | Required to prove success fee, onboard status and service delivery. |
 | P1 | Monthly service evidence and billing-basis standard | Required for recurring monthly service fee and partial-month/illness/replacement cases. |
@@ -156,26 +159,31 @@ CPG-BIZ-099 has defined the shipowner candidate review menu, employer decision s
 CPG-BIZ-100 has implemented the employer `proceed_with_candidate` state, guarded contract proposal API/UI and Contract Agreement Workspace creation/reuse.
 CPG-BIZ-101 has implemented the Shipowners menu term, the dedicated `/shipowners/candidates/` workspace and guarded `Propose contract` handoff from employer-safe presented candidates.
 CPG-BIZ-102 has implemented the concrete `/contracts/workspace/` detail view, access guard, verified source-prefill and no-side-effect review boundary.
+CPG-BIZ-110 has prepared the structured terms clarification task for Project Owner approval so material seafarer/shipowner term differences can be resolved before contract proposal without using free chat as the source of agreement.
 
 The recommended next stage is:
 
 ```text
-CPG-BIZ-103 - Contract workspace embedded field editing and party-review readiness guard
+CPG-BIZ-111 - Structured Terms Clarification Workspace UI/API/SQL Design
 ```
 
 After that, the process should move to:
 
-1. scripted contract generation guard after party approval;
-2. employer service package and entitlement standard;
-3. embarkation/onboard evidence standard;
-4. monthly service evidence and billing-basis standard;
-5. disembarkation/return support standard;
-6. role job-instruction package for the operational groups.
+1. incoming request resubmission lifecycle after seafarer correction;
+2. shipowner notification SLA after incoming-request correction;
+3. contract workspace embedded field editing and party-review readiness guard;
+4. scripted contract generation guard after party approval;
+5. employer service package and entitlement standard;
+6. embarkation/onboard evidence standard;
+7. monthly service evidence and billing-basis standard;
+8. disembarkation/return support standard;
+9. role job-instruction package for the operational groups.
 
 ## 8. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.5 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-110 structured terms clarification stage between shipowner candidate decision and Contract Agreement Workspace |
 | 2.4 | 2026-06-05 | GTC IT / AI Assistant | Marked CPG-BIZ-109 as implemented: seafarer-owner cabinet correction task recomputed from incoming request review reason and current application state |
 | 2.3 | 2026-06-05 | GTC IT / AI Assistant | Marked CPG-BIZ-108 as implemented: incoming seafarer request correction/rejection reason taxonomy, audit reason codes and `/verify/` outcome controls |
 | 2.2 | 2026-06-05 | GTC IT / AI Assistant | Marked CPG-BIZ-107 as implemented: review-team task wording, `/verify/` stage context and recomputation from incoming request to presented-candidate workflow |

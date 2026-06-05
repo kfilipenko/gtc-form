@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.40
+- Version: 3.41
 - Status: For internal review
 
 ## 1. Purpose
@@ -155,6 +155,7 @@ This documentation block starts from the following approved business controls:
 75. A seafarer-initiated incoming request must compute a concrete review-team task named as the process stage, `Review incoming seafarer request`; the team may release it to the existing presented-candidate workflow, request correction or reject it with reason, and completion must recompute shipowner tasks from incoming-request visibility to presented-candidate visibility without exposing seafarer contacts.
 76. Incoming seafarer request correction and rejection outcomes must use a structured reason taxonomy: correction reasons explain what the seafarer or source record must clarify, rejection reasons explain why the request cannot proceed, audit records must store `review_reason_code` and `review_reason_name`, and shipowner-facing visibility must remain limited to safe status rather than internal review rationale until an approved presentation boundary exists.
 77. Incoming seafarer request correction reasons must compute a seafarer-owner cabinet task from existing `vacancy_applications` state and the latest review audit event; the task must show the crew request, structured reason and exact profile/document workspace link, while rejected requests remain visible only as a safe correction/review context and do not create employer presentation, contract, employment or billing side effects.
+78. Material seafarer/shipowner terms must be clarified through a structured terms clarification workspace, not a free chat: differing salary, joining date, contract duration, travel, repatriation, document readiness and other contract-relevant terms must become explicit term rows with statuses, party proposals, accept/reject actions, team review where required, audit evidence and an agreed terms sheet before guarded contract proposal or contract generation may proceed.
 
 ## 5. Intended Use
 
@@ -174,6 +175,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.41 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-110 control for structured terms clarification before contract proposal and no-chat-as-primary-agreement-source rule |
 | 3.40 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-109 control for seafarer-owner cabinet correction task recomputation from incoming request review reasons |
 | 3.39 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-108 control for structured correction/rejection reason taxonomy on incoming seafarer request review |
 | 3.38 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-107 control for review-team processing of seafarer-initiated incoming requests and recomputation from incoming-request visibility to presented-candidate visibility |
