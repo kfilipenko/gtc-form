@@ -9880,11 +9880,41 @@ function read_vacancy_applications_for_seafarer(string $userId): array {
             COALESCE(vr.employer_country_code, ec.country_code) AS employer_country_code,
             ec.company_name,
             ec.company_type,
-            v.vessel_name
+            v.vessel_name,
+            CASE
+              WHEN sc.shortlist_candidate_id IS NULL THEN 'seafarer_initiated_request'
+              ELSE 'internal_shortlist_review_application'
+            END AS request_source,
+            review_event.event_payload->>'decision' AS review_decision,
+            review_event.event_payload->>'new_status' AS review_new_status,
+            review_event.event_payload->>'review_note' AS review_note,
+            review_event.event_payload->>'review_reason_code' AS review_reason_code,
+            review_event.event_payload->>'review_reason_name' AS review_reason_name,
+            review_event.created_at AS review_decision_at
          FROM crewportglobal.vacancy_applications va
          JOIN crewportglobal.vacancy_requests vr ON vr.vacancy_request_id = va.vacancy_request_id
          JOIN crewportglobal.employer_companies ec ON ec.company_id = vr.company_id
          LEFT JOIN crewportglobal.vessels v ON v.vessel_id = vr.vessel_id
+         LEFT JOIN LATERAL (
+           SELECT osc.shortlist_candidate_id
+           FROM crewportglobal.operator_shortlist_candidates osc
+           JOIN crewportglobal.operator_shortlist_drafts osd
+             ON osd.shortlist_draft_id = osc.shortlist_draft_id
+           WHERE osd.vacancy_request_id = va.vacancy_request_id
+             AND osc.candidate_user_id = va.seafarer_user_id
+             AND osc.operator_decision = 'include'
+           ORDER BY osd.updated_at DESC, osc.updated_at DESC
+           LIMIT 1
+         ) sc ON TRUE
+         LEFT JOIN LATERAL (
+           SELECT event_payload, created_at
+           FROM crewportglobal.registration_audit_events
+           WHERE event_type = 'operator_review_decision_recorded'
+             AND event_payload->>'queue_type' = 'vacancy_application'
+             AND event_payload->>'vacancy_application_id' = va.vacancy_application_id::text
+           ORDER BY created_at DESC
+           LIMIT 1
+         ) review_event ON TRUE
          WHERE va.seafarer_user_id = $1
          ORDER BY va.updated_at DESC, va.created_at DESC
          LIMIT 50",
@@ -9916,6 +9946,13 @@ function read_vacancy_applications_for_seafarer(string $userId): array {
             'company_name' => $row['company_name'],
             'company_type' => $row['company_type'],
             'vessel_name' => $row['vessel_name'],
+            'request_source' => $row['request_source'],
+            'review_decision' => $row['review_decision'] ?? null,
+            'review_new_status' => $row['review_new_status'] ?? null,
+            'review_note' => $row['review_note'] ?? null,
+            'review_reason_code' => $row['review_reason_code'] ?? null,
+            'review_reason_name' => $row['review_reason_name'] ?? null,
+            'review_decision_at' => $row['review_decision_at'] ?? null,
         ];
     }
 

@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.39
+- Version: 3.40
 - Status: For internal review
 
 ## 1. Purpose
@@ -154,6 +154,7 @@ This documentation block starts from the following approved business controls:
 74. A seafarer-initiated `vacancy_applications.submitted_for_human_review` request must compute a visible shipowner task and candidate-selection handoff, but the shipowner may only see safe incoming-request details until team review releases the candidate into the presented-candidate workflow; contract proposal remains blocked until the existing presentation and employer-decision guards pass.
 75. A seafarer-initiated incoming request must compute a concrete review-team task named as the process stage, `Review incoming seafarer request`; the team may release it to the existing presented-candidate workflow, request correction or reject it with reason, and completion must recompute shipowner tasks from incoming-request visibility to presented-candidate visibility without exposing seafarer contacts.
 76. Incoming seafarer request correction and rejection outcomes must use a structured reason taxonomy: correction reasons explain what the seafarer or source record must clarify, rejection reasons explain why the request cannot proceed, audit records must store `review_reason_code` and `review_reason_name`, and shipowner-facing visibility must remain limited to safe status rather than internal review rationale until an approved presentation boundary exists.
+77. Incoming seafarer request correction reasons must compute a seafarer-owner cabinet task from existing `vacancy_applications` state and the latest review audit event; the task must show the crew request, structured reason and exact profile/document workspace link, while rejected requests remain visible only as a safe correction/review context and do not create employer presentation, contract, employment or billing side effects.
 
 ## 5. Intended Use
 
@@ -173,6 +174,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.40 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-109 control for seafarer-owner cabinet correction task recomputation from incoming request review reasons |
 | 3.39 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-108 control for structured correction/rejection reason taxonomy on incoming seafarer request review |
 | 3.38 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-107 control for review-team processing of seafarer-initiated incoming requests and recomputation from incoming-request visibility to presented-candidate visibility |
 | 3.37 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-106 control for seafarer-initiated request handoff: incoming requests compute shipowner tasks and safe candidate-selection visibility while contract proposal remains guarded until team review |

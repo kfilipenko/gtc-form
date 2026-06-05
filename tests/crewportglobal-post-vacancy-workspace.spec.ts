@@ -567,6 +567,15 @@ test('post vacancy workspace saves, reloads and displays review publication stat
     new_status: 'rejected',
   }));
 
+  await page.goto(`/cabinet/?draft_id=${correctionSeafarer.draft_id}`);
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: correct incoming request');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Review reason: Required document readiness is missing or not readable enough for this request');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Please clarify document readiness before employer presentation.');
+  await expect(page.getByRole('link', { name: 'Open seafarer workspace' })).toHaveAttribute(
+    'href',
+    `/create-profile/?draft_id=${correctionSeafarer.draft_id}#profile-section-documents`
+  );
+
   await page.goto(`/cabinet/?draft_id=${draftId}`);
   await expect(page.locator('#cabinet-task-list')).toContainText('Action required: review presented candidates');
   await expect(page.locator('#cabinet-task-list')).toContainText('Presented candidates: 1');
