@@ -768,6 +768,11 @@
         'cabinet.tasks.contractWorkspace.copy': 'A contract workspace has been prepared from verified platform data. Review the workspace and complete missing contract terms.',
         'cabinet.tasks.contractWorkspace.count': 'Contract workspaces',
         'cabinet.tasks.contractWorkspace.action': 'Open contract workspace',
+        'cabinet.tasks.jobSearch.title': 'Action required: search matching jobs',
+        'cabinet.tasks.jobSearch.copy': 'Matching vacancies are available from your saved seafarer profile. Open the job-search workspace and request contract consideration for a suitable vacancy.',
+        'cabinet.tasks.jobSearch.count': 'Matching vacancies',
+        'cabinet.tasks.jobSearch.requestable': 'Ready to request',
+        'cabinet.tasks.jobSearch.action': 'Open job search',
         'cabinet.tasks.completeProfile.title': 'Action required: complete seafarer workspace',
         'cabinet.tasks.completeProfile.action': 'Open section',
         'cabinet.tasks.completeProfile.personal': 'Add personal/contact details and primary emergency contact.',
@@ -974,6 +979,11 @@
         'cabinet.tasks.contractWorkspace.copy': 'Рабочее пространство договора подготовлено из проверенных данных платформы. Проверьте его и заполните недостающие условия договора.',
         'cabinet.tasks.contractWorkspace.count': 'Рабочие пространства договора',
         'cabinet.tasks.contractWorkspace.action': 'Открыть договор',
+        'cabinet.tasks.jobSearch.title': 'Требуется действие: найти подходящую работу',
+        'cabinet.tasks.jobSearch.copy': 'По сохраненному профилю моряка найдены подходящие вакансии. Откройте рабочее пространство поиска и направьте запрос на рассмотрение контракта по подходящей вакансии.',
+        'cabinet.tasks.jobSearch.count': 'Подходящие вакансии',
+        'cabinet.tasks.jobSearch.requestable': 'Можно направить запрос',
+        'cabinet.tasks.jobSearch.action': 'Открыть поиск работы',
         'cabinet.tasks.completeProfile.title': 'Требуется действие: заполните рабочую карточку моряка',
         'cabinet.tasks.completeProfile.action': 'Открыть раздел',
         'cabinet.tasks.completeProfile.personal': 'Добавьте личные/контактные данные и основной экстренный контакт.',
@@ -1153,6 +1163,7 @@
       let cabinetAuthUser = null;
       let cabinetDocuments = [];
       let cabinetSeafarerWorkspace = null;
+      let cabinetSeafarerJobSearch = null;
       let cabinetCandidateSelection = null;
       let activeFormType = '';
 
@@ -1836,6 +1847,24 @@
         return tasks;
       }
 
+      function seafarerJobSearchTask() {
+        if (!cabinetDraft || cabinetDraft.role !== 'seafarer' || !cabinetSeafarerJobSearch) {
+          return null;
+        }
+
+        const matching = Number(cabinetSeafarerJobSearch.matching_ready_count || 0);
+        const requestable = Number(cabinetSeafarerJobSearch.requestable_count || 0);
+        if (matching <= 0 && requestable <= 0) {
+          return null;
+        }
+
+        return {
+          matching,
+          requestable,
+          href: `/seafarers/job-search/?draft_id=${encodeURIComponent(cabinetDraft.draft_id)}`
+        };
+      }
+
       function setSummary(taskCount) {
         summaryUser.textContent = cabinetDraft ? valueOrEmpty(cabinetDraft.email) : t('cabinet.value.empty');
         summaryRole.textContent = cabinetDraft ? roleLabel(cabinetDraft.role) : t('cabinet.value.empty');
@@ -2059,6 +2088,32 @@
         taskList.append(task);
       }
 
+      function renderSeafarerJobSearchTask(taskInfo) {
+        const task = document.createElement('article');
+        task.className = 'task-item is-action';
+        const title = document.createElement('h3');
+        title.textContent = t('cabinet.tasks.jobSearch.title');
+        const copy = document.createElement('p');
+        copy.className = 'muted';
+        copy.textContent = t('cabinet.tasks.jobSearch.copy');
+        const meta = document.createElement('div');
+        meta.className = 'meta-row';
+        [
+          `${t('cabinet.tasks.jobSearch.count')}: ${taskInfo.matching}`,
+          `${t('cabinet.tasks.jobSearch.requestable')}: ${taskInfo.requestable}`
+        ].forEach((text) => {
+          const chip = document.createElement('span');
+          chip.className = 'chip action';
+          chip.textContent = text;
+          meta.append(chip);
+        });
+        const actions = document.createElement('div');
+        actions.className = 'meta-row';
+        actions.append(actionLink(t('cabinet.tasks.jobSearch.action'), taskInfo.href));
+        task.append(title, copy, meta, actions);
+        taskList.append(task);
+      }
+
       function renderTasks() {
         taskList.replaceChildren();
         const corrections = taskDocuments();
@@ -2068,11 +2123,13 @@
         const profileCorrection = profileCorrectionTask();
         const demandCorrection = demandCorrectionTask();
         const candidateSelectionTask = shipownerCandidateSelectionTask();
+        const jobSearchTask = seafarerJobSearchTask();
         let taskCount = corrections.length
           + completenessTasks.length
           + (profileCorrection ? 1 : 0)
           + (demandCorrection ? 1 : 0)
           + (candidateSelectionTask ? 1 : 0)
+          + (jobSearchTask ? 1 : 0)
           + (needsEmailVerification ? 1 : 0);
 
         if (!cabinetDraft) {
@@ -2111,6 +2168,10 @@
           renderShipownerCandidateSelectionTask(candidateSelectionTask);
         }
 
+        if (jobSearchTask) {
+          renderSeafarerJobSearchTask(jobSearchTask);
+        }
+
         corrections.forEach((documentRecord) => {
           const task = document.createElement('article');
           task.className = 'task-item is-action';
@@ -2147,7 +2208,7 @@
           taskList.append(task);
         }
 
-        if (corrections.length === 0 && !profileCorrection && !demandCorrection && !candidateSelectionTask && completenessTasks.length === 0 && waiting.length === 0 && cabinetDocuments.length === 0) {
+        if (corrections.length === 0 && !profileCorrection && !demandCorrection && !candidateSelectionTask && !jobSearchTask && completenessTasks.length === 0 && waiting.length === 0 && cabinetDocuments.length === 0) {
           taskCount += 1;
           const task = document.createElement('article');
           task.className = 'task-item is-action';
@@ -2169,7 +2230,7 @@
           taskList.append(task);
         }
 
-        if (corrections.length === 0 && !profileCorrection && !demandCorrection && !candidateSelectionTask && completenessTasks.length === 0 && waiting.length === 0 && cabinetDocuments.length > 0) {
+        if (corrections.length === 0 && !profileCorrection && !demandCorrection && !candidateSelectionTask && !jobSearchTask && completenessTasks.length === 0 && waiting.length === 0 && cabinetDocuments.length > 0) {
           const task = document.createElement('article');
           task.className = 'task-item is-waiting';
           const title = document.createElement('h3');
@@ -2310,6 +2371,30 @@
         }
         const body = await response.json().catch(() => ({}));
         cabinetSeafarerWorkspace = body.workspace && typeof body.workspace === 'object' ? body.workspace : null;
+      }
+
+      async function loadSeafarerJobSearch() {
+        cabinetSeafarerJobSearch = null;
+        if (!cabinetDraft || cabinetDraft.role !== 'seafarer') {
+          return;
+        }
+        const draftId = cabinetDraft.draft_id ? String(cabinetDraft.draft_id) : '';
+        if (!draftId) {
+          return;
+        }
+        try {
+          const response = await fetch(`/api/v1/seafarer/job-search?draft_id=${encodeURIComponent(draftId)}`, {
+            method: 'GET',
+            credentials: 'include'
+          });
+          if (!response.ok) {
+            return;
+          }
+          const body = await response.json().catch(() => ({}));
+          cabinetSeafarerJobSearch = body && typeof body === 'object' ? body : null;
+        } catch (error) {
+          cabinetSeafarerJobSearch = null;
+        }
       }
 
       async function loadShipownerCandidateSelection() {
@@ -2554,6 +2639,7 @@
           const documentsResponse = await window.CPGDrafts.listDocuments(cabinetDraft.draft_id, activeFormType);
           cabinetDocuments = Array.isArray(documentsResponse.documents) ? documentsResponse.documents : [];
           await loadSeafarerWorkspace();
+          await loadSeafarerJobSearch();
           await loadShipownerCandidateSelection();
           const correctionCount = taskDocuments().length;
           const taskCount = correctionCount
@@ -2576,6 +2662,7 @@
           cabinetAuthUser = null;
           cabinetDocuments = [];
           cabinetSeafarerWorkspace = null;
+          cabinetSeafarerJobSearch = null;
           cabinetCandidateSelection = null;
           activeFormType = 'seafarer';
           renderTasks();
@@ -2594,6 +2681,7 @@
         const documentsResponse = await window.CPGDrafts.listDocuments(cabinetDraft.draft_id, activeFormType);
         cabinetDocuments = Array.isArray(documentsResponse.documents) ? documentsResponse.documents : [];
         await loadSeafarerWorkspace();
+        await loadSeafarerJobSearch();
         await loadShipownerCandidateSelection();
         const correctionCount = taskDocuments().length;
         const taskCount = correctionCount || (cabinetDocuments.length === 0 ? 1 : 0);
@@ -2613,6 +2701,7 @@
         cabinetAuthUser = null;
         cabinetDocuments = [];
         cabinetSeafarerWorkspace = null;
+        cabinetSeafarerJobSearch = null;
         activeFormType = 'seafarer';
         renderTasks();
         renderUserSummary();

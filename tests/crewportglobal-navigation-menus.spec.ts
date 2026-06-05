@@ -4,6 +4,7 @@ const appPages = [
   '/index.html',
   '/vacancies/',
   '/create-profile/',
+  '/seafarers/job-search/',
   '/post-vacancy/',
   '/register/',
 ];
@@ -29,6 +30,7 @@ const fullSiteLinks = [
   { name: 'Home', href: 'https://crewportglobal.com/' },
   { name: 'My Cabinet', href: 'https://crewportglobal.com/cabinet/' },
   { name: 'Create Profile', href: 'https://crewportglobal.com/create-profile/' },
+  { name: 'Job Search', href: 'https://crewportglobal.com/seafarers/job-search/' },
   { name: 'Vacancies', href: 'https://crewportglobal.com/vacancies/' },
   { name: 'Post Vacancy', href: 'https://crewportglobal.com/post-vacancy/' },
   { name: 'Select Candidate', href: 'https://crewportglobal.com/shipowners/candidates/' },

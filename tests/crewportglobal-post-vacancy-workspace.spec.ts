@@ -412,6 +412,25 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   const seafarer = await seafarerCreate.json();
   await acceptPresentationConsents(request, seafarer.draft_id);
 
+  await page.goto(`/cabinet/?draft_id=${seafarer.draft_id}`);
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: search matching jobs');
+  await expect(page.locator('#cabinet-task-list')).toContainText(/Matching vacancies: [1-9]\d*/);
+  await expect(page.getByRole('link', { name: 'Open job search' })).toHaveAttribute(
+    'href',
+    `/seafarers/job-search/?draft_id=${seafarer.draft_id}`
+  );
+
+  await page.goto(`/seafarers/job-search/?draft_id=${seafarer.draft_id}`);
+  await expect(page.locator('#job-search-status')).toContainText('Matching jobs loaded');
+  await expect.poll(async () => Number(await page.locator('#matching-ready-count').textContent())).toBeGreaterThan(0);
+  await expect.poll(async () => Number(await page.locator('#requestable-count').textContent())).toBeGreaterThan(0);
+  await expect(page.locator('#job-search-results')).toContainText(updatedTitle);
+  await expect(page.locator('#job-search-results')).toContainText(company);
+  await expect(page.locator('#job-search-results')).not.toContainText(seafarerEmail);
+  const jobCard = page.locator('.job-card', { hasText: company }).first();
+  await jobCard.getByRole('button', { name: 'Request contract consideration' }).click();
+  await expect(jobCard.getByRole('button', { name: 'Request sent' })).toBeDisabled();
+
   const candidateNote = 'Ready for interview and available immediately.';
   const applicationResponse = await request.post(`/api/v1/vacancies/${vacancyId}/applications`, {
     data: {
@@ -452,7 +471,8 @@ test('post vacancy workspace saves, reloads and displays review publication stat
   );
 
   await page.goto(`/cabinet/?draft_id=${seafarer.draft_id}`);
-  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: upload supporting documents');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Action required: search matching jobs');
+  await expect(page.locator('#cabinet-task-list')).toContainText('Ready to request: 0');
 
   await page.goto(`/post-vacancy/?draft_id=${draftId}`);
   await candidateCard.getByRole('button', { name: 'Mark contacted' }).click();

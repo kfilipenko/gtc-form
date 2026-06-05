@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 2.94
+- Version: 2.95
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -387,6 +387,13 @@ docs/crewportglobal/
   297_cpg_biz_098c_contract_workspace_sql_draft_shortlist_candidate_link_report.md
   298_cpg_biz_098d_contract_workspace_runtime_migration_report.md
   299_cpg_biz_099_shipowner_candidate_review_menu_contract_proposal_design.md
+  300_cpg_biz_100_shipowner_candidate_contract_proposal_implementation_report.md
+  301_cpg_biz_101_shipowner_candidate_selection_workspace_task.md
+  302_cpg_biz_101_shipowner_candidate_selection_workspace_implementation_report.md
+  303_cpg_biz_102_contract_workspace_detail_prefill_report.md
+  304_cpg_biz_103_personal_cabinet_task_visibility_demo_workflow_report.md
+  305_cpg_biz_104_shipowner_candidate_decision_contract_task_transition_report.md
+  306_cpg_biz_105_seafarer_job_search_contract_request_flow_report.md
   sql_drafts/
     018_contract_workspace_schema_draft.sql
   seafarer_application_mapping/
@@ -928,6 +935,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.95 | 2026-06-05 | GTC IT / AI Assistant | Added document 306 as CPG-BIZ-105 implementation report for the seafarer job-search counter-flow, matching vacancy page, controlled contract-consideration request and BP-012/BP-013/BP-016 process alignment |
 | 2.94 | 2026-06-05 | GTC IT / AI Assistant | Added document 305 as CPG-BIZ-104 implementation and verification report for shipowner cabinet task transition from presented candidate review to contract proposal and contract workspace review |
 | 2.93 | 2026-06-05 | GTC IT / AI Assistant | Added document 304 as CPG-BIZ-103 implementation and verification report for personal cabinet task visibility, shipowner presented-candidate task and demo workflow links |
 | 2.92 | 2026-06-05 | GTC IT / AI Assistant | Added document 303 as CPG-BIZ-102 implementation report for Contract Agreement Workspace detail view, source-prefill and safe handoff from shipowner candidate selection |

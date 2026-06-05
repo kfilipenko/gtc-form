@@ -2180,6 +2180,31 @@ function cpg_pg_text_array_literal(array $items): string {
     return '{' . implode(',', $quoted) . '}';
 }
 
+function cpg_pg_text_array_values(mixed $value): array {
+    if (is_array($value)) {
+        return array_values(array_filter(array_map(static fn($item): string => trim((string) $item), $value), static fn(string $item): bool => $item !== ''));
+    }
+    if (!is_string($value) || trim($value) === '') {
+        return [];
+    }
+
+    $text = trim($value);
+    if ($text[0] === '{' && substr($text, -1) === '}') {
+        $text = substr($text, 1, -1);
+    }
+    if ($text === '') {
+        return [];
+    }
+
+    return array_values(array_filter(array_map(static function (string $item): string {
+        $item = trim($item);
+        if (strlen($item) >= 2 && $item[0] === '"' && substr($item, -1) === '"') {
+            $item = substr($item, 1, -1);
+        }
+        return str_replace(['\\"', '\\\\'], ['"', '\\'], trim($item));
+    }, str_getcsv($text)), static fn(string $item): bool => $item !== ''));
+}
+
 function cpg_workspace_repeated_lines(mixed $value, int $maxRows = 30, int $maxLength = 1200): array {
     if (is_array($value)) {
         $rows = [];
@@ -8119,6 +8144,240 @@ function handle_get_public_vacancies(): void {
         'vacancies' => $vacancies,
         'count' => count($vacancies),
         'generated_at' => gmdate('c'),
+    ]);
+}
+
+function cpg_job_search_norm(mixed $value): string {
+    $text = is_string($value) ? $value : (string) ($value ?? '');
+    $text = mb_strtolower(trim($text));
+    $text = preg_replace('/[^a-z0-9]+/u', ' ', $text);
+    return trim((string) preg_replace('/\s+/', ' ', (string) $text));
+}
+
+function cpg_job_search_has_any_vessel_type(array $preferredVesselTypes): bool {
+    foreach ($preferredVesselTypes as $value) {
+        $normalized = cpg_job_search_norm($value);
+        if (in_array($normalized, ['any vessel type', 'vessel type not important', 'not important', 'any'], true)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function cpg_seafarer_job_match(array $profile, array $row): array {
+    $score = 0;
+    $hardBlockers = [];
+    $softNotes = [];
+    $dimensions = [];
+
+    $candidateRank = cpg_job_search_norm($profile['primary_rank'] ?? '');
+    $vacancyRank = cpg_job_search_norm($row['required_rank_label'] ?? $row['rank'] ?? '');
+    if ($candidateRank === '' || $vacancyRank === '') {
+        $hardBlockers[] = 'rank_missing';
+        $dimensions['rank'] = 'missing';
+    } elseif ($candidateRank === $vacancyRank) {
+        $score += 40;
+        $dimensions['rank'] = 'match';
+    } else {
+        $hardBlockers[] = 'rank_mismatch';
+        $dimensions['rank'] = 'blocked';
+    }
+
+    $candidateDepartment = cpg_job_search_norm($profile['department'] ?? '');
+    $vacancyDepartment = cpg_job_search_norm($row['department'] ?? '');
+    if ($candidateDepartment === '' || $vacancyDepartment === '') {
+        $hardBlockers[] = 'department_missing';
+        $dimensions['department'] = 'missing';
+    } elseif ($candidateDepartment === $vacancyDepartment) {
+        $score += 25;
+        $dimensions['department'] = 'match';
+    } else {
+        $hardBlockers[] = 'department_mismatch';
+        $dimensions['department'] = 'blocked';
+    }
+
+    $preferredVesselTypes = cpg_pg_text_array_values($profile['preferred_vessel_types'] ?? null);
+    $vacancyVesselType = cpg_job_search_norm($row['vessel_type_label'] ?? $row['vessel_type'] ?? '');
+    if (cpg_job_search_has_any_vessel_type($preferredVesselTypes)) {
+        $score += 15;
+        $dimensions['vessel_type'] = 'any';
+    } elseif ($vacancyVesselType !== '' && in_array($vacancyVesselType, array_map('cpg_job_search_norm', $preferredVesselTypes), true)) {
+        $score += 15;
+        $dimensions['vessel_type'] = 'match';
+    } elseif (count($preferredVesselTypes) === 0 || $vacancyVesselType === '') {
+        $softNotes[] = 'vessel_type_not_comparable';
+        $dimensions['vessel_type'] = 'not_comparable';
+    } else {
+        $softNotes[] = 'vessel_type_preference_mismatch';
+        $dimensions['vessel_type'] = 'soft_mismatch';
+    }
+
+    $availabilityStatus = cpg_job_search_norm($profile['availability_status'] ?? '');
+    $availabilityDate = is_string($profile['availability_date'] ?? null) ? trim((string) $profile['availability_date']) : '';
+    $joinDate = is_string($row['join_date'] ?? null) ? trim((string) $row['join_date']) : '';
+    if ($availabilityStatus === 'available now') {
+        $score += 10;
+        $dimensions['availability'] = 'match';
+    } elseif ($availabilityDate !== '' && $joinDate !== '' && $availabilityDate <= $joinDate) {
+        $score += 10;
+        $dimensions['availability'] = 'match';
+    } elseif ($availabilityStatus === '' && $availabilityDate === '') {
+        $softNotes[] = 'availability_not_set';
+        $dimensions['availability'] = 'not_comparable';
+    } else {
+        $softNotes[] = 'availability_may_not_fit_join_date';
+        $dimensions['availability'] = 'soft_mismatch';
+    }
+
+    return [
+        'match_status' => count($hardBlockers) === 0 ? 'matching_ready' : 'blocked',
+        'match_score' => $score,
+        'hard_blockers' => array_values(array_unique($hardBlockers)),
+        'soft_notes' => array_values(array_unique($softNotes)),
+        'dimension_results' => $dimensions,
+    ];
+}
+
+function cpg_read_seafarer_job_search_profile(string $draftId): ?array {
+    $result = api_query(
+        "SELECT
+            u.user_id,
+            u.email,
+            sp.primary_rank,
+            sp.department,
+            sp.availability_status,
+            sp.availability_date,
+            sp.preferred_vessel_types,
+            sp.salary_expectation_usd,
+            sp.review_status
+         FROM crewportglobal.users u
+         JOIN crewportglobal.user_roles ur ON ur.user_id = u.user_id AND ur.role = 'seafarer'
+         JOIN crewportglobal.seafarer_profiles sp ON sp.user_id = u.user_id
+         WHERE u.user_id = $1
+         LIMIT 1",
+        [$draftId]
+    );
+    $row = pg_fetch_assoc($result);
+    return is_array($row) ? $row : null;
+}
+
+function handle_get_seafarer_job_search(): void {
+    $draftId = api_normalize_uuid($_GET['draft_id'] ?? null);
+    if ($draftId === null) {
+        api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
+    }
+
+    $profile = cpg_read_seafarer_job_search_profile($draftId);
+    if ($profile === null) {
+        api_error(404, 'seafarer_profile_not_found', 'Seafarer profile not found');
+    }
+
+    $result = api_query(
+        "SELECT
+            vr.vacancy_request_id,
+            COALESCE(NULLIF(vr.vacancy_title, ''), NULLIF(vr.required_rank_label, ''), NULLIF(vr.rank, ''), 'Crew request') AS vacancy_title,
+            vr.rank,
+            vr.required_rank_label,
+            vr.department,
+            COALESCE(NULLIF(vr.vessel_type_label, ''), NULLIF(vr.vessel_type, ''), NULLIF(v.vessel_type_label, ''), NULLIF(v.vessel_type, '')) AS vessel_type,
+            COALESCE(NULLIF(vr.vessel_type_label, ''), NULLIF(v.vessel_type_label, '')) AS vessel_type_label,
+            vr.join_date,
+            vr.contract_duration,
+            vr.salary_min_usd,
+            vr.salary_max_usd,
+            vr.salary_text,
+            vr.currency,
+            vr.publication_status,
+            ec.company_name,
+            ec.verification_status,
+            v.vessel_name,
+            va.vacancy_application_id,
+            va.application_status
+         FROM crewportglobal.vacancy_requests vr
+         JOIN crewportglobal.employer_companies ec ON ec.company_id = vr.company_id
+         LEFT JOIN crewportglobal.vessels v ON v.vessel_id = vr.vessel_id
+         LEFT JOIN crewportglobal.vacancy_applications va
+           ON va.vacancy_request_id = vr.vacancy_request_id
+          AND va.seafarer_user_id = $1
+         WHERE COALESCE(vr.demand_workspace->'deletion_request'->>'status', '') <> 'confirmed_deleted'
+         ORDER BY vr.updated_at DESC, vr.created_at DESC
+         LIMIT 200",
+        [$draftId]
+    );
+
+    $items = [];
+    while (($row = pg_fetch_assoc($result)) !== false) {
+        $match = cpg_seafarer_job_match($profile, $row);
+        $existingStatus = is_string($row['application_status'] ?? null) ? (string) $row['application_status'] : null;
+        $alreadyRequested = $existingStatus !== null && !in_array($existingStatus, ['withdrawn', 'rejected'], true);
+        $isRequestable = ($match['match_status'] ?? '') === 'matching_ready'
+            && ($row['publication_status'] ?? '') === 'published'
+            && ($row['verification_status'] ?? '') === 'verified'
+            && !$alreadyRequested;
+
+        $items[] = array_merge($match, [
+            'vacancy_request_id' => $row['vacancy_request_id'],
+            'vacancy_title' => $row['vacancy_title'],
+            'rank' => $row['rank'],
+            'required_rank_label' => $row['required_rank_label'],
+            'department' => $row['department'],
+            'vessel_type' => $row['vessel_type'],
+            'join_date' => $row['join_date'],
+            'contract_duration' => $row['contract_duration'],
+            'salary_min_usd' => $row['salary_min_usd'],
+            'salary_max_usd' => $row['salary_max_usd'],
+            'salary_text' => $row['salary_text'],
+            'currency' => $row['currency'],
+            'publication_status' => $row['publication_status'],
+            'company_name' => $row['company_name'],
+            'verification_status' => $row['verification_status'],
+            'vessel_name' => $row['vessel_name'],
+            'existing_application_id' => $row['vacancy_application_id'],
+            'existing_application_status' => $existingStatus,
+            'existing_application' => $existingStatus === null ? null : [
+                'vacancy_application_id' => $row['vacancy_application_id'],
+                'application_status' => $existingStatus,
+                'review_status' => $existingStatus,
+            ],
+            'can_request_contract' => $isRequestable,
+            'request_blockers' => array_values(array_filter([
+                ($row['publication_status'] ?? '') === 'published' ? null : 'vacancy_not_published',
+                ($row['verification_status'] ?? '') === 'verified' ? null : 'company_not_verified',
+                ($match['match_status'] ?? '') === 'matching_ready' ? null : 'match_blocked',
+                $alreadyRequested ? 'request_already_exists' : null,
+            ])),
+        ]);
+    }
+
+    usort($items, static function (array $left, array $right): int {
+        $score = ((int) ($right['match_score'] ?? 0)) <=> ((int) ($left['match_score'] ?? 0));
+        if ($score !== 0) {
+            return $score;
+        }
+        return strcmp((string) ($left['join_date'] ?? '9999-12-31'), (string) ($right['join_date'] ?? '9999-12-31'));
+    });
+
+    api_json(200, [
+        'ok' => true,
+        'draft_id' => $draftId,
+        'generated_at' => gmdate('c'),
+        'official_language' => 'en',
+        'privacy_boundary' => [
+            'contact_fields_excluded' => true,
+            'contract_request_requires_existing_application_flow' => true,
+        ],
+        'profile_summary' => [
+            'primary_rank' => $profile['primary_rank'],
+            'department' => $profile['department'],
+            'availability_status' => $profile['availability_status'],
+            'availability_date' => $profile['availability_date'],
+            'preferred_vessel_types' => cpg_pg_text_array_values($profile['preferred_vessel_types'] ?? null),
+            'review_status' => $profile['review_status'],
+            'email' => $profile['email'],
+        ],
+        'matching_ready_count' => count(array_filter($items, static fn(array $item): bool => ($item['match_status'] ?? '') === 'matching_ready')),
+        'requestable_count' => count(array_filter($items, static fn(array $item): bool => ($item['can_request_contract'] ?? false) === true)),
+        'vacancies' => array_slice($items, 0, 50),
     ]);
 }
 
@@ -14928,6 +15187,14 @@ if ($path === '/seafarer/document-readiness') {
     }
     header('Allow: PATCH');
     api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
+}
+
+if ($path === '/seafarer/job-search') {
+    if ($method === 'GET') {
+        handle_get_seafarer_job_search();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
 }
 
 if ($method === 'GET' && $path === '/operator/review-queue') {

@@ -233,8 +233,10 @@ The seafarer provides supply-side information needed for matching and crew forma
 4. provide rank, documents, certificates, availability and preferences;
 5. upload required documents through protected upload;
 6. respond to correction requests;
-7. withdraw or update availability where supported;
-8. see own tasks and profile status.
+7. search matching vacancies from the saved profile where the system allows it;
+8. request contract consideration for a matching published vacancy;
+9. withdraw or update availability where supported;
+10. see own tasks and profile status.
 
 ### 4.3 Seafarer must not
 
@@ -252,6 +254,8 @@ The seafarer provides supply-side information needed for matching and crew forma
 | Documents missing | Upload required document | document upload card | Protected document metadata created. |
 | Correction requested | Correct source card | exact profile card section | Corrected data submitted. |
 | Completeness check passed | Submit to operator review | profile submit action | Operator review task computes. |
+| Profile is matching-ready and published verified vacancies exist | Find matching vacancies | `/seafarers/job-search/` or cabinet task card | Seafarer sees fit/blocker reasons and may request contract consideration for an eligible vacancy. |
+| Matching vacancy is requestable | Request contract consideration | exact vacancy card in job-search page | Controlled vacancy application is recorded; existing review, employer decision and contract proposal workflow continues. |
 | Availability outdated | Update availability | availability/profile card | Supply data becomes current. |
 | Voyage completed or return confirmed | Update next-voyage availability and needs | availability/profile card | Seafarer is ready for the next matching cycle or follow-up. |
 
@@ -507,6 +511,7 @@ Deletion confirmation is not a reviewer permission. It belongs to owner/control 
 | Previous result | Reviewer's next task |
 |---|---|
 | Search result exists | `Create internal shortlist draft. (Crew request: {safe demand summary}.)` |
+| Seafarer submits a matching-vacancy request | `Review candidate request. (Vacancy application: {safe vacancy and rank summary}.)` |
 | Draft exists and guard is ready | `Approve internal shortlist. (Shortlist draft: {candidate count and demand summary}.)` |
 | Draft is approved internal | `Create candidate presentation review. (Shortlist draft: {safe summary}.)` |
 | Review application exists | `Approve candidate for employer presentation. (Candidate: {safe profile summary}.)` |
@@ -629,6 +634,7 @@ The following rules are verified in the running application and must be preserve
 | Review candidate presentation | `review_team` | `approve_candidate_presentation` | Approve or block only inside the concrete vacancy application review workspace. |
 | Review company verification | `verification_team` | `view_verification_queue` | Open the concrete company workspace from the task title, verify employer authority, vessel context and linked demand context, then record the review outcome. Do not use this task to inspect seafarer restricted supply data. |
 | Review crew request and request-supply preparation | `review_team` | `view_review_queue` | Open the concrete vacancy workspace, verify structured demand, vessel context and candidate-search readiness. Candidate contact fields and broad document metadata must not be used or displayed as part of this task. |
+| Seafarer job-search request | seafarer owner, then existing review/employer groups | owner profile/cabinet access; later existing review/employer permissions | The seafarer may request contract consideration only from a concrete matching vacancy. The request must create or reuse a controlled application/context record and must not directly create employment status, a contract, invoice or employer-facing unrestricted data. |
 | Review seafarer profile completeness | `verification_team` | `start_human_review` / verification queue access | Open the concrete seafarer profile workspace from the task title, review profile/readiness summaries and record the outcome. Do not copy or expose restricted family, medical, identity, child or reference-contact details. |
 | Restricted medical detail access | future restricted medical role | future dedicated medical permission | General operators must not access restricted medical details. If direct access returns `restricted_medical_capability_required`, continue with readiness summary review or escalate to the future approved medical-review workflow. |
 | Confirm or reject deletion request | `owners` / Project Owner control | `approve_access_policy_change` | This is manager/control-only. Review-team may request deletion but must not confirm or reject it. |

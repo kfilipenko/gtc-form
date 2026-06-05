@@ -150,6 +150,7 @@ This documentation block starts from the following approved business controls:
 70. A shipowner / employer contract proposal must be a computed operation shown on a specific employer-facing candidate presentation after an employer decision to proceed; it must validate access, candidate presentation status, source traceability, duplicate workspace guard and audit evidence before creating or opening a Contract Agreement Workspace.
 71. The first runtime contract proposal operation is implemented: employer candidate status `proceed_with_candidate` unlocks guarded `Propose contract` on `/post-vacancy/`, creates or reuses `contract_workspace_instances`, records audit evidence and keeps contract detail, party approval and final generation behind later guards.
 72. A Contract Agreement Workspace must open as a concrete working object with source-first prefill from verified seafarer, shipowner, vessel and vacancy records; missing embedded contract fields must be explicit, and the detail view must not generate a contract, request signatures, change employment status or create invoices.
+73. Seafarer job-search must be a computed counter-flow from the saved seafarer profile to published verified vacancies: the seafarer may request contract consideration only when matching conditions allow it, and the result must enter the existing controlled `vacancy_applications`, review, employer decision and contract proposal workflow without creating employment status, invoice or unrestricted employer-facing candidate data.
 
 ## 5. Intended Use
 
@@ -169,6 +170,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.36 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-105 control for seafarer job-search counter-flow from saved profile to matching published verified vacancies and controlled contract-consideration request |
 | 3.35 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-102 control for Contract Agreement Workspace detail view, verified source-prefill, missing embedded fields and no-side-effect review boundary |
 | 3.34 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-101 implementation control for the Shipowners candidate-selection workspace, safe presented-candidate visibility and guarded contract handoff |
 | 3.33 | 2026-06-04 | GTC IT / AI Assistant | Added CPG-BIZ-101 planning control for the Shipowners terminology/menu, dedicated candidate-selection workspace and no-raw-profile visibility boundary before contract proposal |

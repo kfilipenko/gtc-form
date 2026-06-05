@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en" data-cpg-page="seafarer-job-search">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Job Search - CrewPortGlobal</title>
+  <link rel="stylesheet" href="../../assets/crewportglobal-docs.css?v=20260530-menu-audit">
+  <link rel="stylesheet" href="../../assets/crewportglobal-app.css">
+  <style>
+    .job-search-shell {
+      display: grid;
+      gap: 16px;
+    }
+
+    .job-search-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.7fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .compact-panel {
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 8px;
+      background: rgba(15, 32, 50, 0.72);
+      padding: 18px;
+    }
+
+    .metric-row,
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .metric {
+      min-width: 120px;
+      border: 1px solid rgba(103, 232, 249, 0.22);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: rgba(8, 20, 34, 0.52);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: clamp(24px, 3vw, 36px);
+      line-height: 1;
+    }
+
+    .metric span,
+    .job-meta {
+      color: var(--cpg-muted);
+      font-size: 0.9rem;
+    }
+
+    .job-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .job-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 8px;
+      background: rgba(8, 20, 34, 0.46);
+      padding: 14px;
+    }
+
+    .job-card h3 {
+      margin: 0 0 6px;
+      font-size: 1.1rem;
+    }
+
+    .job-card__actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end;
+      min-width: 190px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 999px;
+      padding: 4px 8px;
+      color: var(--cpg-muted);
+      font-size: 0.82rem;
+      background: rgba(8, 20, 34, 0.58);
+    }
+
+    .status-pill.is-ready {
+      border-color: rgba(74, 222, 128, 0.38);
+      color: #bbf7d0;
+    }
+
+    .status-pill.is-blocked {
+      border-color: rgba(251, 146, 60, 0.45);
+      color: #fed7aa;
+    }
+
+    .button.is-disabled {
+      opacity: 0.62;
+      pointer-events: none;
+    }
+
+    .empty-state {
+      border: 1px dashed rgba(148, 163, 184, 0.3);
+      border-radius: 8px;
+      padding: 16px;
+      color: var(--cpg-muted);
+    }
+
+    @media (max-width: 820px) {
+      .job-search-hero,
+      .job-card {
+        grid-template-columns: 1fr;
+      }
+
+      .job-card__actions {
+        align-items: stretch;
+        min-width: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="CrewPortGlobal home">
+        <span class="brand-mark">CPG</span>
+        <span>
+          <strong>CrewPortGlobal</strong>
+          <small data-i18n="site.tagline">Maritime jobs and crew platform</small>
+        </span>
+      </a>
+      <div data-cpg-theme-switcher></div>
+      <div data-cpg-language-switcher></div>
+      <div data-cpg-account-menu></div>
+    </header>
+
+    <nav data-cpg-navigation="application" data-cpg-nav-active="/seafarers/job-search/"></nav>
+
+    <main class="job-search-shell">
+      <section class="job-search-hero">
+        <div class="compact-panel">
+          <p class="eyebrow">Seafarer workflow</p>
+          <h1>Find matching jobs.</h1>
+          <p class="lead">
+            The platform compares your saved profile with crew requests and shows vacancies that can move toward contract consideration.
+          </p>
+          <div class="metric-row" aria-label="Job search indicators">
+            <div class="metric">
+              <strong id="matching-ready-count">0</strong>
+              <span>matching-ready</span>
+            </div>
+            <div class="metric">
+              <strong id="requestable-count">0</strong>
+              <span>ready to request</span>
+            </div>
+          </div>
+        </div>
+        <aside class="compact-panel">
+          <h2>Profile used for search</h2>
+          <div id="profile-summary" class="chip-row"></div>
+          <p id="job-search-status" class="status-line">Loading matching vacancies...</p>
+        </aside>
+      </section>
+
+      <section class="compact-panel">
+        <div class="section-heading">
+          <p class="eyebrow">Computed matches</p>
+          <h2>Suitable vacancies</h2>
+        </div>
+        <div id="job-search-results" class="job-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../../assets/crewportglobal-machine-translations.js?v=53345f0f8938ec76"></script>
+  <script src="../../assets/crewportglobal-public-i18n.js?v=20260530-menu-audit"></script>
+  <script src="../../assets/crewportglobal-navigation.js?v=20260530-menu-audit"></script>
+  <script src="../../assets/crewportglobal-registration-drafts.js"></script>
+  <script>
+    (function () {
+      const status = document.getElementById('job-search-status');
+      const profileSummary = document.getElementById('profile-summary');
+      const results = document.getElementById('job-search-results');
+      const matchingReadyCount = document.getElementById('matching-ready-count');
+      const requestableCount = document.getElementById('requestable-count');
+
+      let payload = null;
+      const params = new URLSearchParams(window.location.search);
+      const stored = window.CPGDrafts && window.CPGDrafts.getStoredDraft ? window.CPGDrafts.getStoredDraft() : {};
+      const draftId = (params.get('draft_id') || stored.draftId || '').trim();
+
+      function valueOrDash(value) {
+        return value === null || value === undefined || String(value).trim() === '' ? '-' : String(value).trim();
+      }
+
+      function chip(text, className) {
+        const span = document.createElement('span');
+        span.className = `status-pill${className ? ` ${className}` : ''}`;
+        span.textContent = text;
+        return span;
+      }
+
+      function renderProfileSummary(profile) {
+        profileSummary.replaceChildren();
+        if (!profile) {
+          profileSummary.append(chip('No profile selected', 'is-blocked'));
+          return;
+        }
+        [
+          `Rank: ${valueOrDash(profile.primary_rank)}`,
+          `Department: ${valueOrDash(profile.department)}`,
+          `Availability: ${valueOrDash(profile.availability_status)}`,
+          `Vessels: ${Array.isArray(profile.preferred_vessel_types) && profile.preferred_vessel_types.length ? profile.preferred_vessel_types.join(', ') : '-'}`
+        ].forEach((text) => profileSummary.append(chip(text)));
+      }
+
+      function requestButton(item) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = item.can_request_contract ? 'button primary' : 'button is-disabled';
+        button.textContent = item.can_request_contract ? 'Request contract consideration' : 'Request unavailable';
+        button.disabled = !item.can_request_contract;
+        button.addEventListener('click', async () => {
+          if (!payload || !draftId || !item.can_request_contract) {
+            return;
+          }
+          button.disabled = true;
+          button.textContent = 'Sending request...';
+          try {
+            const response = await fetch(`/api/v1/vacancies/${encodeURIComponent(item.vacancy_request_id)}/applications`, {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                seafarer_draft_id: draftId,
+                email: payload.profile_summary && payload.profile_summary.email,
+                candidate_note: 'Seafarer requests contract consideration from matching job search.'
+              })
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || result.ok !== true) {
+              throw new Error(result.message || result.error || 'request_failed');
+            }
+            item.can_request_contract = false;
+            item.existing_application = result.application || { review_status: 'submitted' };
+            button.textContent = 'Request sent';
+            button.className = 'button is-disabled';
+          } catch (error) {
+            console.error(error);
+            button.disabled = false;
+            button.textContent = 'Try again';
+            status.textContent = `Unable to send request: ${error.message}`;
+            status.className = 'status-line error';
+          }
+        });
+        return button;
+      }
+
+      function renderJob(item) {
+        const card = document.createElement('article');
+        card.className = 'job-card';
+        const main = document.createElement('div');
+        const title = document.createElement('h3');
+        title.textContent = valueOrDash(item.vacancy_title || item.rank);
+        const meta = document.createElement('p');
+        meta.className = 'job-meta';
+        meta.textContent = [
+          item.company_name,
+          item.vessel_name,
+          item.rank,
+          item.department,
+          item.vessel_type,
+          item.join_date ? `join ${item.join_date}` : '',
+          item.salary_min_usd || item.salary_max_usd ? `USD ${valueOrDash(item.salary_min_usd)}-${valueOrDash(item.salary_max_usd)}` : ''
+        ].filter(Boolean).join(' | ');
+        const chips = document.createElement('div');
+        chips.className = 'chip-row';
+        chips.append(chip(
+          item.match_status === 'matching_ready' ? 'Match ready' : 'Blocked',
+          item.match_status === 'matching_ready' ? 'is-ready' : 'is-blocked'
+        ));
+        chips.append(chip(`Score: ${valueOrDash(item.match_score)}`));
+        if (Array.isArray(item.hard_blockers)) {
+          item.hard_blockers.forEach((blocker) => chips.append(chip(blocker, 'is-blocked')));
+        }
+        if (Array.isArray(item.soft_notes)) {
+          item.soft_notes.slice(0, 3).forEach((note) => chips.append(chip(note)));
+        }
+        main.append(title, meta, chips);
+
+        const actions = document.createElement('div');
+        actions.className = 'job-card__actions';
+        actions.append(requestButton(item));
+        if (item.existing_application && item.existing_application.review_status) {
+          actions.append(chip(`Request already sent: ${item.existing_application.review_status}`));
+        } else if (Array.isArray(item.request_blockers) && item.request_blockers.length > 0) {
+          actions.append(chip(item.request_blockers.join(', '), 'is-blocked'));
+        }
+        card.append(main, actions);
+        return card;
+      }
+
+      function renderResults(items) {
+        results.replaceChildren();
+        if (!Array.isArray(items) || items.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'empty-state';
+          empty.innerHTML = 'No suitable vacancies are available yet. Complete your profile, documents and matching preferences, then return to this page.';
+          results.append(empty);
+          return;
+        }
+        results.append(...items.map(renderJob));
+      }
+
+      async function load() {
+        if (!draftId) {
+          renderProfileSummary(null);
+          status.textContent = 'Open this page from your cabinet or create a seafarer profile first.';
+          status.className = 'status-line error';
+          const empty = document.createElement('div');
+          empty.className = 'empty-state';
+          empty.innerHTML = '<a class="button primary" href="/register/?role=seafarer">Start seafarer registration</a> <a class="button" href="/create-profile/">Open profile workspace</a>';
+          results.replaceChildren(empty);
+          return;
+        }
+
+        const response = await fetch(`/api/v1/seafarer/job-search?draft_id=${encodeURIComponent(draftId)}`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok || body.ok !== true) {
+          throw new Error(body.message || body.error || 'job_search_failed');
+        }
+        payload = body;
+        matchingReadyCount.textContent = String(body.matching_ready_count || 0);
+        requestableCount.textContent = String(body.requestable_count || 0);
+        renderProfileSummary(body.profile_summary);
+        renderResults(body.vacancies);
+        status.textContent = 'Matching jobs loaded.';
+        status.className = 'status-line ok';
+      }
+
+      load().catch((error) => {
+        console.error(error);
+        status.textContent = `Unable to load job search: ${error.message}`;
+        status.className = 'status-line error';
+      });
+    })();
+  </script>
+</body>
+</html>

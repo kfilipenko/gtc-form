@@ -35,10 +35,11 @@
       label: 'Seafarers',
       menuKey: 'nav.seafarerPagesMenu',
       hintKey: 'nav.seafarerPagesHint',
-      hint: 'Actions for seafarer profile completion and reviewed vacancy access.',
+      hint: 'Actions for seafarer profile completion, job search and reviewed vacancy access.',
       links: [
         { href: '/cabinet/', dynamicHref: 'currentCabinet', key: 'nav.seafarerCabinet', label: 'My Cabinet', hintKey: 'nav.seafarerCabinetHint', hint: 'Open the personal cabinet with current seafarer tasks.' },
         { href: '/create-profile/', key: 'nav.createProfile', label: 'Create Profile', hint: 'Complete the seafarer profile and documents.' },
+        { href: '/seafarers/job-search/', key: 'nav.jobSearch', label: 'Job Search', hintKey: 'nav.jobSearchHint', hint: 'Find matching vacancies from the saved seafarer profile.' },
         { href: '/vacancies/', key: 'nav.vacancies', label: 'Vacancies', hint: 'Open reviewed vacancy information.' },
       ],
     },
@@ -82,7 +83,7 @@
       hint: 'Protected team workspaces for computed tasks and operations.',
       links: [
         { href: '/team/', key: 'nav.teamPortal', label: 'Team Portal', hint: 'Computed team task list.' },
-        { href: '/team/documents/', key: 'nav.teamDocuments', label: 'Team Documents', hint: 'Protected document review.' },
+        { href: '/team/documents/', key: 'nav.teamDocuments', label: 'Document Review', hint: 'Protected document review.' },
         { href: '/team/matching/', key: 'nav.teamMatching', label: 'Request-Supply Comparison', hint: 'Compare crew request and candidate supply.' },
         { href: '/team/registry/', key: 'nav.teamRegistry', label: 'Registry Detail', hint: 'Safe internal registry view.' },
         { href: '/team/shortlists/', key: 'nav.teamShortlists', label: 'Shortlist Drafts', hint: 'Internal shortlist drafts.' },
