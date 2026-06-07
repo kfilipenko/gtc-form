@@ -25,7 +25,8 @@ The instruction is designed for:
 6. managers;
 7. billing operators;
 8. Project Owner / control users;
-9. AI agents.
+9. agent organizations and agent users;
+10. AI agents.
 
 ## 2. Controlling Rule
 
@@ -34,7 +35,7 @@ Each visible task must come from data and workflow state, not from arbitrary man
 The task rule is:
 
 ```text
-previous stage result + current object state + role/permission + assignment relationship = visible next task
+previous stage result + current object state + role/permission + agent/object scope + assignment relationship = visible next task
 ```
 
 The executor should see one primary task at a time.
@@ -52,6 +53,7 @@ information stream
 -> object type
 -> current object state
 -> business-process stage
+-> agent assignment / object scope where applicable
 -> computed operation
 -> responsible group or historical active executor
 -> visible task
@@ -63,8 +65,31 @@ information stream
 | Employer / shipowner demand account | Company, representative authority and commercial client context | Confirm authorized B2B demand-side client and service boundary | Show tasks to Group 1, Group 5, Group 3 or support only when employer-side state requires their function. |
 | Vessel context | Vessel profile, vessel type, flag and operational context | Make vessel information structured enough for crew request and matching | Show tasks to Group 1, Group 5 or `review_team` according to vessel completeness, verification and matching relevance. |
 | Crew request / vacancy requirement | Vacancy request, demand workspace and structured requirement rows | Connect employer and vessel demand with seafarer supply for matching and shortlist | Show tasks to Group 1 or `review_team` only when the request is structured enough for the current stage, or to manager/control when deletion or exception state exists. |
+| Agent authority / assignment | Agent organization, agent user, agency evidence and assigned object scope | Confirm that a crewing agent has authority and responsibility for the objects it handles | Show ordinary object tasks only to the assigned agent organization and authorized platform/control users; show authority, duplicate and reassignment tasks to Platform Administration / Control. |
 
 Users and AI agents must not treat these streams as one generic queue. A seafarer correction task, employer authority task, vessel-context task and crew-request matching task have different owners, permissions, evidence and final decisions.
+
+### 2.2 Agent Scope Rule
+
+Agent work must be scoped by organization and object.
+
+The user-facing rule is:
+
+```text
+I can work on this object because my agent organization is assigned to it and my user role has the required permission.
+```
+
+An agent organization may enter or maintain data for a seafarer, shipowner, vessel or vacancy only when the agent has verified authority or a platform-approved assignment.
+
+The platform must preserve the distinction:
+
+| Role | Meaning |
+|---|---|
+| Agent organization | Responsible crewing-service participant that may perform scoped work after authority verification. |
+| Agent user | Employee or representative acting under an agent organization. |
+| Platform Administration / Control | Platform governance group that verifies agent authority, resolves claims, controls reassignment and audits agent activity. |
+
+GTC-operated agents must follow the same agent rules as external agents. They may receive new unassigned objects by default, but they must not receive broader unscoped access merely because they are internal.
 
 ## 3. Standard Task Card For Users And Team
 
@@ -218,6 +243,37 @@ Mandatory fields must be synchronized between forms. Users and team members must
 | Visa / language / special operation constraints | If used as a blocker on demand, the corresponding seafarer-side field must exist and be checked; otherwise it must remain advisory, not a hard blocker. |
 
 AI agents may identify mismatched mandatory-field rules, but may not silently change the required-field matrix without Project Owner approval.
+
+### 3.5 Agent-Entered Data And Duplicate Claim Rule
+
+When an agent enters data for another participant, the agent must identify the authority basis.
+
+Accepted authority basis examples:
+
+1. agency agreement with a shipowner / employer;
+2. authority letter from a vessel owner, operator, ship manager or crew manager;
+3. seafarer authorization to maintain the seafarer's profile;
+4. representative authority for company or vessel data;
+5. platform-approved delegated service scope.
+
+The agent is responsible for the correctness of the data it enters under that authority. The platform remains responsible for access control, audit trail, data retention rules and controlled reassignment.
+
+Before a new person, company, vessel or seafarer card is created or activated from agent-entered data, the system must check for likely existing records.
+
+| Duplicate / claim situation | Required behavior |
+|---|---|
+| Existing user or card likely exists | Do not silently create a duplicate full-access record. |
+| Existing user confirms ownership | Give the user a controlled claim path and grant access only after evidence is accepted. |
+| Agent claims authority over an existing object | Require authority evidence and Platform Administration / Control approval before assigning the object to the agent. |
+| Claim cannot be proven | Keep the new request limited or blocked and record the reason. |
+
+The visible task should be computed as:
+
+```text
+Resolve account or object claim. (Object: {safe summary}; Claimant: {safe claimant summary}.)
+```
+
+This rule protects existing platform data while allowing agents to bring external market participants into the platform without losing continuity.
 
 ## 4. Seafarer Instructions
 
@@ -703,6 +759,12 @@ AI agents may summarize the access requirement, but must not recommend bypassing
 
 The current application computes task assignment from data and audit history.
 
+Future agent-enabled assignment must add one more boundary before personal assignment:
+
+```text
+agent organization scope must match the working object before the user can receive the task
+```
+
 User-facing rules:
 
 ```text
@@ -736,6 +798,8 @@ The current runtime does not use a manual assignment table. It uses:
 5. active user and active group-membership checks.
 
 Users and AI agents must not create an artificial assignment outside this computed rule. If the named employee is inactive, blocked or no longer a member of the responsible group, the task must return to the group queue.
+
+If the object is assigned to an agent organization, users outside that organization must not receive ordinary execution tasks for the object even if they belong to a similar role group. Platform Administration / Control may still see oversight, duplicate-claim, complaint, reassignment and audit tasks.
 
 ## 19. Review Outcomes
 

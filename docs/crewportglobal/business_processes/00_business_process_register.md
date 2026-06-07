@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.41
+- Version: 3.42
 - Status: For internal review
 
 ## 1. Purpose
@@ -156,6 +156,8 @@ This documentation block starts from the following approved business controls:
 76. Incoming seafarer request correction and rejection outcomes must use a structured reason taxonomy: correction reasons explain what the seafarer or source record must clarify, rejection reasons explain why the request cannot proceed, audit records must store `review_reason_code` and `review_reason_name`, and shipowner-facing visibility must remain limited to safe status rather than internal review rationale until an approved presentation boundary exists.
 77. Incoming seafarer request correction reasons must compute a seafarer-owner cabinet task from existing `vacancy_applications` state and the latest review audit event; the task must show the crew request, structured reason and exact profile/document workspace link, while rejected requests remain visible only as a safe correction/review context and do not create employer presentation, contract, employment or billing side effects.
 78. Material seafarer/shipowner terms must be clarified through a structured terms clarification workspace, not a free chat: differing salary, joining date, contract duration, travel, repatriation, document readiness and other contract-relevant terms must become explicit term rows with statuses, party proposals, accept/reject actions, team review where required, audit evidence and an agreed terms sheet before guarded contract proposal or contract generation may proceed.
+79. Agent organizations must be treated as independent responsible participants: an agent may enter or maintain seafarer, shipowner, vessel and vacancy data only inside verified authority evidence, assigned object scope and permission boundaries; GTC-operated agents follow the same model as external agents and may receive default unassigned work without a privileged separate role.
+80. Before creating or activating a new person, seafarer profile, shipowner/company card or vessel card, the platform must run an existing-record / duplicate-claim check; if a likely existing record exists, Platform Administration / Control must notify and verify the claimant before granting full access, linking the record, rejecting the claim or assigning controlled scope.
 
 ## 5. Intended Use
 
@@ -175,6 +177,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.42 | 2026-06-07 | GTC IT / AI Assistant | Added CPG-BIZ-111 control for agent organization authority, object-scope responsibility, same-rule GTC/external agent handling and duplicate/account-claim checks |
 | 3.41 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-110 control for structured terms clarification before contract proposal and no-chat-as-primary-agreement-source rule |
 | 3.40 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-109 control for seafarer-owner cabinet correction task recomputation from incoming request review reasons |
 | 3.39 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-108 control for structured correction/rejection reason taxonomy on incoming seafarer request review |

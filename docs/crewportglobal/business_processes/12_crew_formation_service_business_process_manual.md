@@ -64,23 +64,25 @@ The process must not become:
 
 The process covers:
 
-1. employer / shipowner demand intake;
-2. company, representative and vessel context;
-3. crew request / vacancy requirement structuring;
-4. seafarer profile and document readiness;
-5. request-supply comparison;
-6. blocker review;
-7. internal shortlist draft creation;
-8. internal shortlist approval;
-9. candidate presentation review;
-10. controlled employer-facing presentation;
-11. employer feedback and selection support;
-12. contract, joining and embarkation support;
-13. active voyage / monthly service evidence;
-14. disembarkation and return / repatriation support;
-15. service completion record;
-16. billing / reward-basis handoff;
-17. audit and retention.
+1. agent-organization onboarding and authority verification where a third-party crewing organization works on the platform;
+2. duplicate person/company/vessel checks before a new account or card receives operational access;
+3. employer / shipowner demand intake;
+4. company, representative and vessel context;
+5. crew request / vacancy requirement structuring;
+6. seafarer profile and document readiness;
+7. request-supply comparison;
+8. blocker review;
+9. internal shortlist draft creation;
+10. internal shortlist approval;
+11. candidate presentation review;
+12. controlled employer-facing presentation;
+13. employer feedback and selection support;
+14. contract, joining and embarkation support;
+15. active voyage / monthly service evidence;
+16. disembarkation and return / repatriation support;
+17. service completion record;
+18. billing / reward-basis handoff;
+19. audit and retention.
 
 ### 4.2 Out of scope
 
@@ -101,6 +103,7 @@ The process is record-driven. Tasks are computed from records and their states.
 | Record area | Existing / target source | Process role |
 |---|---|---|
 | Physical person / user | `users`, auth/session records | Identifies seafarer, employer representative, team member or Project Owner. |
+| Agent organization context | future agent organization records, authority evidence and agency-agreement records | Defines a crewing agent as a responsible external or internal service participant with scoped authority over assigned objects. |
 | Employer/company context | employer registration records and metadata | Defines B2B client and authority context. |
 | Vessel context | vessel registration records and metadata | Defines vessel or vessel-type demand context. |
 | Crew request / vacancy | `vacancy_requests`, `demand_workspace`, `demand_requirement_items` | Source of demand and matching requirements. |
@@ -121,6 +124,9 @@ The process is record-driven. Tasks are computed from records and their states.
 | Employer / shipowner client | Primary payer | Provides demand, vessel context, crew requirements and feedback. |
 | Employer representative | Authorized user | Acts for the employer-side client within scoped authority. |
 | Seafarer | Candidate / supply-side user | Provides profile, documents, preferences and consent where required. |
+| Agent organization | Responsible crewing-service participant | Provides verified authority to work with assigned seafarers, shipowners, vessels and crew requests and accepts responsibility for the correctness of data entered under its agency authority. |
+| Agent user | Employee or representative of an agent organization | Performs scoped operational tasks for assigned objects only and is audited under the agent organization context. |
+| Platform Administration / Control | Platform governance | Verifies agent authority, controls agent access, handles duplicate/account claims, complaints, reassignment and platform-level feedback. |
 | Group 0 Marketing | Lead source | Qualifies interest and routes relevant leads. |
 | Group 1 Shipowners / Employers / Clients Registration | Demand intake | Structures employer, representative, vessel and crew-request data. |
 | Group 2 Seafarer Registration And Development | Supply intake | Helps seafarers complete profile and readiness data. |
@@ -131,10 +137,51 @@ The process is record-driven. Tasks are computed from records and their states.
 | Project Owner | Governance and control | Reviews exceptions, access, deletion confirmations and process integrity. |
 | AI agent | Assisted processing | Classifies, summarizes, checks completeness and drafts recommendations under human control. |
 
+### 6.1 Agent As Independent Responsible Participant
+
+CrewPortGlobal must distinguish the platform operator from the crewing agent function.
+
+An `Agent` is an organization or approved participant that may perform crewing-service operations on the platform after providing evidence of authority. The agent may enter data for shipowners, vessels and seafarers only when it has a lawful or contractual basis to do so.
+
+The standard rule is:
+
+```text
+agent organization + verified authority + assigned object scope + user permission = allowed agent operation
+```
+
+Agent authority evidence may include:
+
+1. agency agreement with a shipowner / employer;
+2. authorization to represent a vessel owner, vessel operator, ship manager or crew manager;
+3. seafarer authorization or consent to maintain the seafarer's profile;
+4. company registration and representative authority evidence;
+5. platform service agreement accepting audit, data correctness and no-fee controls.
+
+The agent is responsible for the correctness of data it enters or submits under its agency authority. This supports the platform model:
+
+```text
+CrewPortGlobal provides the controlled digital platform.
+The authorized agent provides crewing-service activity and evidence for the objects assigned to it.
+```
+
+GTC-operated agents must not be treated as a privileged separate class. They must use the same `Agent` model and the same audit, assignment, correction and responsibility rules as external agents. New unassigned seafarers, shipowners or vessels may be routed by default to a GTC-operated agent group, but that default assignment is an operational routing rule, not ownership of the data.
+
+Data entered by an agent remains platform-governed and object-owned by the relevant user or organization according to the card model. Agent reassignment must preserve:
+
+1. the seafarer, shipowner and vessel data;
+2. the historical audit trail;
+3. prior correction and review evidence;
+4. active contracts and service records;
+5. the reason for reassignment.
+
+Before creating a new person, company, vessel or seafarer profile from agent-entered data, the platform must run a duplicate / existing-record check. If a likely existing user or organization is found, the platform must notify the claimant through a controlled flow. The claimant may receive full access only after proving the right to the account or card.
+
 ## 7. Master Process Map
 
 | Step | Stage | Primary result | Responsible group | Main computed task |
 |---|---|---|---|---|
+| CF-00A | Agent onboarding and authority verification | Agent organization is verified, rejected or limited | Platform Administration / Control | Review agent authority and service agreement |
+| CF-00B | Duplicate / account claim check | Existing person, company, vessel or seafarer card is linked, claimed or blocked | Platform Administration / Control | Resolve duplicate or account claim |
 | CF-01 | Lead / demand entry | Employer-side request exists | Group 0 or Group 1 | Qualify employer-side demand |
 | CF-02 | Employer and authority setup | Client and representative context is reviewable | Group 1 / Group 5 | Review employer and authority data |
 | CF-03 | Vessel context setup | Vessel or vessel-type context is structured | Group 1 / Group 5 | Review vessel context |
@@ -166,6 +213,7 @@ information stream
 -> object type
 -> current object state
 -> business-process stage
+-> agent assignment / object scope where applicable
 -> computed operation
 -> responsible group or historical active executor
 -> visible task
@@ -181,6 +229,7 @@ This prevents a task list from becoming a generic set of buttons. Each stream ha
 | Employer / shipowner demand account | Employer/company profile, representative authority, client relationship, commercial context | `draft`, `submitted`, authority evidence missing, `under_review`, `verified`, `needs_correction`, `rejected`, commercial entitlement pending | CF-01 Lead / demand entry; CF-02 Employer and authority setup; CF-05 Commercial entitlement check; CF-13 Feedback; CF-14 Billing handoff | Qualify employer-side demand; review employer and authority data; request authority correction; confirm commercial basis; record feedback; prepare billing handoff | Group 1 for client/demand intake; Group 5 for control and authority review; Group 3 for commercial/billing; Group 4 for support | Employer-side client is authorized for B2B service handling, returned for correction, paused or closed | Authorized demand-side client context, scoped employer visibility and billing/service boundary |
 | Vessel context | Vessel profile, vessel type, flag, operational context, vessel evidence documents | vessel missing, partial vessel data, `submitted`, `under_review`, `verified`, `needs_correction`, `blocked`, vessel type/category mismatch | CF-03 Vessel context setup; CF-04 Crew request structuring | Review vessel context; request vessel data correction; confirm vessel type/category readiness for demand; link vessel to crew request | Group 1 for vessel context collection; Group 5 for verification/control; `review_team` for matching relevance | Vessel context is structured enough for crew request and matching, needs correction or is blocked | Vessel characteristics available for demand requirements, matching filters and risk/control review |
 | Crew request / vacancy requirement | Crew request, vacancy request, demand workspace, structured requirement rows | `draft`, `submitted`, incomplete requirement, structured, `match_ready`, comparison ready, hard blockers, pending deletion, closed | CF-04 Crew request structuring; CF-08 Request-supply comparison; CF-09 Internal shortlist draft; CF-10 Internal approval; CF-11/CF-12 Candidate presentation | Review crew request completeness; review request-supply comparison; create internal shortlist draft; approve internal shortlist; create/review candidate presentation; confirm or reject deletion | Group 1 for intake; `review_team` for matching and shortlist; Group 5/control for exceptions; Project Owner/owners for deletion confirmation | Demand is match-ready, blocked, internally shortlisted, presentation-ready, closed or deleted by controlled approval | Human-reviewed shortlist or presentation workflow; no employer-facing candidate data until guard passes |
+| Agent authority / assignment | Agent organization, agent users, agency agreement, assigned object scope, duplicate/account claim records | `draft`, `submitted`, authority evidence missing, `under_review`, `verified`, `limited`, `suspended`, `reassigned`, duplicate risk, account claim pending | CF-00A Agent onboarding; CF-00B Duplicate / account claim; all later object-specific stages where an agent owns the operational task | Review agent authority; approve/limit/suspend agent; assign object to agent; reassign object; resolve duplicate/account claim; notify existing user or organization | Platform Administration / Control for approval and reassignment; assigned agent group for ordinary scoped operations | Agent is authorized for defined object scope, blocked, suspended or replaced | Scoped agent task visibility and responsibility for data entered under agency authority |
 
 The first three streams are the foundation:
 
@@ -204,6 +253,8 @@ The crew request / vacancy requirement stream connects the foundation streams in
 
 | Step | Trigger | Inputs | DB records read | DB records created/updated | Audit evidence | Output | Next computed task |
 |---|---|---|---|---|---|---|---|
+| CF-00A Agent onboarding and authority verification | External or GTC-operated crewing participant requests agent status | Agent company data, representative identity, agency agreement / authority evidence, service agreement acceptance | users, company records, access groups, uploaded documents, duplicate signals | future agent organization / agent-user records, authority status, access scope | agent authority review / approval / rejection event | Agent organization is verified, limited, suspended or rejected | Assign agent scope or request authority correction |
+| CF-00B Duplicate / account claim check | A person, company, vessel or seafarer profile is entered by a user or agent and similar records exist | Claimed identity, contact, documents, company registration, vessel identifiers, seafarer documents | users, employer companies, vessels, seafarer profiles, uploaded documents, audit events | account-claim or duplicate-resolution status; link/reject/merge decision when approved | duplicate check / claim notification / claim resolution event | Existing record is linked to rightful claimant, new record proceeds, or claim is blocked | Continue registration, assign object scope, or request evidence |
 | CF-01 Lead / demand entry | Employer-side inquiry, imported request or direct form | Client contact, requested role, vessel hints | users, employer drafts, imported request data | employer/vacancy draft or lead metadata | lead captured / source event | Demand lead exists | Qualify employer-side demand |
 | CF-02 Employer and authority setup | Demand lead is relevant | Company data, representative details, authority evidence | employer/company records, uploaded documents | company context, representative authority status | employer authority review event | Employer can be handled as B2B client or returned for correction | Review vessel context or request correction |
 | CF-03 Vessel context setup | Vessel-linked request exists | Vessel name/type/flag, vessel specs, operation context | vessels, reference catalogs, uploaded documents | vessel context, vessel verification status | vessel context review event | Vessel context is structured enough for demand | Review crew request completeness |
@@ -232,7 +283,7 @@ Tasks are not the source of truth. Tasks are visible work items derived from the
 The rule is:
 
 ```text
-previous stage result + current object state + role/permission + assignment relationship = visible next task
+previous stage result + current object state + role/permission + agent/object scope + assignment relationship = visible next task
 ```
 
 Required conditions:
@@ -395,6 +446,7 @@ The verified assignment rule is:
 ```text
 previous stage result
 + current object state
++ agent organization / object scope where applicable
 + responsible group/permission
 + active historical executor for the same object and group
 = visible task for person or group queue
@@ -408,6 +460,9 @@ previous stage result
 | Historical employee is inactive, blocked or no longer an active member of the responsible group | Do not assign personally; return the task to the responsible group queue. |
 | Review/control exception exists | Show task to authorized control role or Project Owner according to the operation's access contract. |
 | User only has broad unrelated group membership | Do not show unrelated client task if a narrower assignment and access boundary applies. |
+| Object is assigned to an agent organization | Show ordinary operational tasks only to users in that agent organization with the required permission, plus Platform Administration / Control where oversight is required. |
+| Agent organization is suspended, authority expired or reassigned away from the object | Remove ordinary agent visibility and route the next task to Platform Administration / Control or the newly assigned agent scope. |
+| Existing user/card claim is pending | Do not create full duplicate access; show claim-resolution task to Platform Administration / Control and a limited owner-confirmation task to the claimant where appropriate. |
 
 The current implementation uses existing audit evidence rather than a separate assignment table.
 
