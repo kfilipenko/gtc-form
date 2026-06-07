@@ -65,7 +65,7 @@ information stream
 | Employer / shipowner demand account | Company, representative authority and commercial client context | Confirm authorized B2B demand-side client and service boundary | Show tasks to Group 1, Group 5, Group 3 or support only when employer-side state requires their function. |
 | Vessel context | Vessel profile, vessel type, flag and operational context | Make vessel information structured enough for crew request and matching | Show tasks to Group 1, Group 5 or `review_team` according to vessel completeness, verification and matching relevance. |
 | Crew request / vacancy requirement | Vacancy request, demand workspace and structured requirement rows | Connect employer and vessel demand with seafarer supply for matching and shortlist | Show tasks to Group 1 or `review_team` only when the request is structured enough for the current stage, or to manager/control when deletion or exception state exists. |
-| Agent authority / assignment | Agent organization, agent user, agency evidence and assigned object scope | Confirm that a crewing agent has authority and responsibility for the objects it handles | Show ordinary object tasks only to the assigned agent organization and authorized platform/control users; show authority, duplicate and reassignment tasks to Platform Administration / Control. |
+| Agent authority / assignment | Agent organization, agent user, agency evidence, agent-created object request and assigned object scope | Confirm that a crewing agent has authority and responsibility for the objects it creates or handles | Show ordinary object tasks only to the assigned agent organization and authorized platform/control users; show authority, duplicate, object-creation and reassignment tasks to Platform Administration / Control. |
 
 Users and AI agents must not treat these streams as one generic queue. A seafarer correction task, employer authority task, vessel-context task and crew-request matching task have different owners, permissions, evidence and final decisions.
 
@@ -79,7 +79,7 @@ The user-facing rule is:
 I can work on this object because my agent organization is assigned to it and my user role has the required permission.
 ```
 
-An agent organization may enter or maintain data for a seafarer, shipowner, vessel or vacancy only when the agent has verified authority or a platform-approved assignment.
+An agent organization may create, enter or maintain data for a seafarer, shipowner, vessel or vacancy only when the agent has verified authority or a platform-approved assignment.
 
 The platform must preserve the distinction:
 
@@ -256,7 +256,7 @@ Accepted authority basis examples:
 4. representative authority for company or vessel data;
 5. platform-approved delegated service scope.
 
-The agent is responsible for the correctness of the data it enters under that authority. The platform remains responsible for access control, audit trail, data retention rules and controlled reassignment.
+The agent is responsible for the correctness of the data it creates or enters under that authority. The platform remains responsible for access control, duplicate checks, audit trail, data retention rules and controlled reassignment.
 
 Before a new person, company, vessel or seafarer card is created or activated from agent-entered data, the system must check for likely existing records.
 
@@ -274,6 +274,28 @@ Resolve account or object claim. (Object: {safe summary}; Claimant: {safe claima
 ```
 
 This rule protects existing platform data while allowing agents to bring external market participants into the platform without losing continuity.
+
+### 3.6 Agent-Created Object Rule
+
+An agent may create an object in the interest of a client only through a controlled object-creation request.
+
+Examples:
+
+1. seafarer profile created for a seafarer represented by the agent;
+2. shipowner / employer company card created for a client represented by the agent;
+3. vessel card created under authority from the owner, operator, manager or crew manager;
+4. crew request / vacancy created for an authorized shipowner-side client;
+5. physical person / account created where the claimant later confirms the right to access.
+
+The standard rule is:
+
+```text
+agent authority evidence + duplicate check + platform/control approval = source object creation
+```
+
+After approval, the created record must live in the normal platform source table. Agent responsibility is recorded through scope assignment and audit evidence, not through a separate agent-owned copy.
+
+If a duplicate or existing-record risk appears, the object must not become fully active until the duplicate / account-claim process is resolved.
 
 ## 4. Seafarer Instructions
 

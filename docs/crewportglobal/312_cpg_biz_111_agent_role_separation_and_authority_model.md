@@ -47,7 +47,7 @@ Agent organization
 = allowed agent work
 ```
 
-An agent may enter or maintain data for shipowners, vessels, seafarers and vacancies only when it has a verified basis for doing so.
+An agent may create, enter or maintain data for shipowners, vessels, seafarers and vacancies only when it has a verified basis for doing so.
 
 ## 3. Agent Responsibility
 
@@ -61,6 +61,16 @@ An agent may provide:
 6. documents confirming the agent's right to act in the defined scope.
 
 When the agent enters data under that authority, the agent is responsible for the correctness of the data entered.
+
+The agent may also initiate creation of a new platform object in the interest of a client, for example:
+
+1. physical person / account;
+2. seafarer profile;
+3. shipowner / employer company card;
+4. vessel card;
+5. crew request / vacancy.
+
+This must not create an agent-owned copy of the client record. After duplicate and authority checks, the object must be created in the normal platform source table and linked to the agent by scope assignment.
 
 This supports the platform position:
 
@@ -166,6 +176,22 @@ When an agent is replaced:
 5. active tasks are recomputed for the new agent scope;
 6. the reason for reassignment is recorded.
 
+### 8.1 Agent-Created Objects
+
+An agent-created object must follow this controlled route:
+
+```text
+agent creation request
+-> represented party and authority evidence identified
+-> duplicate / existing-record check
+-> Platform Administration / Control decision
+-> source object created or existing object linked
+-> agent object assignment created
+-> audit event recorded
+```
+
+The agent is responsible for data correctness under its authority, while CrewPortGlobal remains responsible for platform controls, duplicate checks, audit and scope enforcement.
+
 ## 9. Task Computation Rule
 
 The computed task formula must become:
@@ -215,12 +241,13 @@ Expected implementation areas:
 1. `agent_organizations`;
 2. `agent_users` or agent membership link;
 3. `agent_authority_documents`;
-4. `agent_object_assignments`;
-5. `account_claims` / duplicate-resolution workflow;
-6. task computation update with agent scope;
-7. admin/control UI for approving agents and reassignments;
-8. user notification for existing-record claims;
-9. audit events for agent authority, assignment and reassignment.
+4. `agent_object_creation_requests`;
+5. `agent_object_assignments`;
+6. `account_claims` / duplicate-resolution workflow;
+7. task computation update with agent scope;
+8. admin/control UI for approving agents, agent-created objects and reassignments;
+9. user notification for existing-record claims;
+10. audit events for agent authority, object creation, assignment and reassignment.
 
 No DDL/DML is approved by this document.
 

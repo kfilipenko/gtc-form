@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 3.01
+- Version: 3.02
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -400,8 +400,10 @@ docs/crewportglobal/
   310_cpg_biz_109_seafarer_incoming_request_correction_task_report.md
   311_cpg_biz_110_structured_terms_clarification_task.md
   312_cpg_biz_111_agent_role_separation_and_authority_model.md
+  313_cpg_biz_112_agent_organization_scope_sql_draft_report.md
   sql_drafts/
     018_contract_workspace_schema_draft.sql
+    020_agent_organization_scope_schema_draft.sql
   seafarer_application_mapping/
     source_card_field_coverage_matrix.md
     source_card_visibility_matrix.md
@@ -941,6 +943,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.02 | 2026-06-07 | GTC IT / AI Assistant | Added document 313 as CPG-BIZ-112 SQL draft report and `sql_drafts/020_agent_organization_scope_schema_draft.sql` for agent organization scope schema review |
 | 3.01 | 2026-06-07 | GTC IT / AI Assistant | Added document 312 as CPG-BIZ-111 business-process control for independent agent organizations, verified authority, object scope and duplicate/account-claim handling |
 | 3.00 | 2026-06-05 | GTC IT / AI Assistant | Added document 311 as CPG-BIZ-110 task for structured terms clarification before contract proposal |
 | 2.99 | 2026-06-05 | GTC IT / AI Assistant | Added document 310 as CPG-BIZ-109 implementation report for seafarer cabinet correction task recomputation from incoming request review reason |
