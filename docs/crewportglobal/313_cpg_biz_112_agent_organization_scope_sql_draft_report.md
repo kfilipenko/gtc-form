@@ -7,7 +7,7 @@
 - Source task: continuation after CPG-BIZ-111 approval by Project Owner
 - Version: 1.0
 - Date: 2026-06-07
-- Status: SQL draft prepared for Project Owner review; runtime migration not approved or executed
+- Status: SQL draft completed; converted into runtime migration by CPG-BIZ-113 after Project Owner approval
 
 ## 1. Purpose
 
@@ -251,21 +251,35 @@ Before runtime migration, Project Owner should review:
 5. whether account/object claims need user notifications before runtime implementation;
 6. whether `agent_scope_audit_events` should stay separate or be merged into a future unified audit table.
 
-## 13. Next Stage
+## 13. Post-Approval Result
 
-After Project Owner review, the next stage can be:
+Project Owner approval was received after this SQL draft review.
+
+The approved draft was converted into runtime migration:
 
 ```text
-CPG-BIZ-113 - Agent organization SQL draft approval and runtime migration decision
+projects/crewportglobal/app/backend/db/migrations/020_agent_organization_scope_schema.sql
 ```
 
-That stage should either:
+The implementation and verification result is recorded in:
 
-1. approve conversion of the SQL draft into a real migration with static/API tests; or
-2. return the draft for correction before migration packaging.
+```text
+docs/crewportglobal/314_cpg_biz_113_agent_organization_scope_runtime_migration_report.md
+```
 
-## 14. Revision History
+## 14. Next Stage
+
+After CPG-BIZ-113, the next stage can be:
+
+```text
+CPG-BIZ-114 - Agent organization API/UI and task-computation scope implementation
+```
+
+That stage should implement agent onboarding, authority review, object creation request review, assignment / reassignment and computed task visibility under the approved scope model.
+
+## 15. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.1 | 2026-06-07 | GTC IT / AI Assistant | Added post-approval note linking the approved draft to CPG-BIZ-113 runtime migration 020 |
 | 1.0 | 2026-06-07 | GTC IT / AI Assistant | Initial SQL draft and implementation-planning report for agent organizations, authority evidence, object assignments, duplicate claims and agent-scope audit |
