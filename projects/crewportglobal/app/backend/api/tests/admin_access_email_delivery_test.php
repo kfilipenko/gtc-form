@@ -114,8 +114,14 @@ cpg_admin_email_delivery_test_assert(
     'admin access email subject should match the approved subject'
 );
 cpg_admin_email_delivery_test_assert(
-    str_contains((string) ($message['body_text'] ?? ''), 'Your CrewPortGlobal admin access code is: 123456'),
-    'admin access email body should contain the approved code line'
+    str_contains((string) ($message['body_text'] ?? ''), "Your CrewPortGlobal admin access code is:\n\n123456"),
+    'admin access email body should put the code on a separate line'
+);
+cpg_admin_email_delivery_test_assert(
+    str_contains((string) ($message['body_html'] ?? ''), 'background:#e9fbff')
+        && str_contains((string) ($message['body_html'] ?? ''), 'letter-spacing:8px')
+        && str_contains((string) ($message['body_html'] ?? ''), '123456'),
+    'admin access HTML email body should render the code in a highlighted copy-friendly box'
 );
 cpg_admin_email_delivery_test_assert(
     str_contains((string) ($message['body_text'] ?? ''), 'If you did not request this code, ignore this message.'),
@@ -129,6 +135,10 @@ cpg_admin_email_delivery_test_assert(
 cpg_admin_email_delivery_test_assert(
     !str_contains(json_encode($summary, JSON_THROW_ON_ERROR), '123456'),
     'delivery safe summary must not expose the clear code'
+);
+cpg_admin_email_delivery_test_assert(
+    ($summary['body_html_length'] ?? 0) > 0,
+    'delivery safe summary should report HTML body length without exposing clear code'
 );
 
 $result = $delivery->sendAdminEmailCode($message);
@@ -147,6 +157,10 @@ cpg_admin_email_delivery_test_assert(
 cpg_admin_email_delivery_test_assert(
     str_contains((string) ($delivery->capturedMessages()[0]['body_text'] ?? ''), '123456'),
     'capture delivery stores clear code only inside test-only captured message payload'
+);
+cpg_admin_email_delivery_test_assert(
+    str_contains((string) ($delivery->capturedMessages()[0]['body_html'] ?? ''), '123456'),
+    'capture delivery stores HTML code only inside test-only captured message payload'
 );
 
 $smtpEnv = [
@@ -202,6 +216,10 @@ cpg_admin_email_delivery_test_assert(
 cpg_admin_email_delivery_test_assert(
     !str_contains(json_encode($smtpResult, JSON_THROW_ON_ERROR), 'present-for-validation-only'),
     'prepared SMTP delivery result must not expose SMTP password'
+);
+cpg_admin_email_delivery_test_assert(
+    str_contains(file_get_contents(__DIR__ . '/../lib/admin_access_email_delivery.php') ?: '', 'multipart/alternative'),
+    'SMTP delivery should support multipart alternative messages for HTML code formatting'
 );
 
 $sendReadyStatus = cpg_admin_access_email_delivery_status(array_merge($smtpEnv, [

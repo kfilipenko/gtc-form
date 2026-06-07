@@ -397,6 +397,9 @@ function cpg_admin_access_email_delivery_validate_message(array $message): array
         'to' => $to,
         'subject' => cpg_admin_access_email_delivery_required_string($message, 'subject'),
         'body_text' => cpg_admin_access_email_delivery_required_string($message, 'body_text'),
+        'body_html' => is_string($message['body_html'] ?? null) && trim((string) $message['body_html']) !== ''
+            ? (string) $message['body_html']
+            : null,
         'expires_at' => cpg_admin_access_email_delivery_required_string($message, 'expires_at'),
     ];
 }
@@ -410,6 +413,7 @@ function cpg_admin_access_email_delivery_safe_summary(array $message): array {
         'subject' => $validated['subject'],
         'expires_at' => $validated['expires_at'],
         'body_text_length' => strlen($validated['body_text']),
+        'body_html_length' => is_string($validated['body_html'] ?? null) ? strlen((string) $validated['body_html']) : 0,
     ];
 }
 
@@ -437,9 +441,9 @@ function cpg_admin_access_build_smtp_message(array $message, array $config): arr
             'From' => sprintf('%s <%s>', $fromName, $fromEmail),
             'To' => $validated['to'],
             'Subject' => $validated['subject'],
-            'Content-Type' => 'text/plain; charset=UTF-8',
         ],
         'body_text' => $validated['body_text'],
+        'body_html' => $validated['body_html'],
         'expires_at' => $validated['expires_at'],
     ];
 }
@@ -478,9 +482,16 @@ function cpg_admin_access_smtp_dot_stuff(string $value): string {
     return implode("\r\n", $lines);
 }
 
+function cpg_admin_access_smtp_mime_boundary(): string {
+    return 'cpg-admin-alt-' . bin2hex(random_bytes(12));
+}
+
 function cpg_admin_access_smtp_raw_message(array $prepared, string $messageId): string {
     $headers = $prepared['headers'] ?? [];
     $bodyText = (string) ($prepared['body_text'] ?? '');
+    $bodyHtml = is_string($prepared['body_html'] ?? null) && trim((string) $prepared['body_html']) !== ''
+        ? (string) $prepared['body_html']
+        : null;
 
     $headerLines = [
         'Date: ' . gmdate('D, d M Y H:i:s') . ' +0000',
@@ -489,11 +500,33 @@ function cpg_admin_access_smtp_raw_message(array $prepared, string $messageId): 
         'To: ' . cpg_admin_access_smtp_clean_header_value((string) ($headers['To'] ?? '')),
         'Subject: ' . cpg_admin_access_smtp_clean_header_value((string) ($headers['Subject'] ?? '')),
         'MIME-Version: 1.0',
-        'Content-Type: text/plain; charset=UTF-8',
-        'Content-Transfer-Encoding: 8bit',
     ];
 
-    return implode("\r\n", $headerLines) . "\r\n\r\n" . cpg_admin_access_smtp_dot_stuff($bodyText) . "\r\n";
+    if ($bodyHtml === null) {
+        $headerLines[] = 'Content-Type: text/plain; charset=UTF-8';
+        $headerLines[] = 'Content-Transfer-Encoding: 8bit';
+
+        return implode("\r\n", $headerLines) . "\r\n\r\n" . cpg_admin_access_smtp_dot_stuff($bodyText) . "\r\n";
+    }
+
+    $boundary = cpg_admin_access_smtp_mime_boundary();
+    $headerLines[] = 'Content-Type: multipart/alternative; boundary="' . $boundary . '"';
+    $body = implode("\r\n", [
+        '--' . $boundary,
+        'Content-Type: text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding: 8bit',
+        '',
+        cpg_admin_access_smtp_dot_stuff($bodyText),
+        '--' . $boundary,
+        'Content-Type: text/html; charset=UTF-8',
+        'Content-Transfer-Encoding: 8bit',
+        '',
+        cpg_admin_access_smtp_dot_stuff($bodyHtml),
+        '--' . $boundary . '--',
+        '',
+    ]);
+
+    return implode("\r\n", $headerLines) . "\r\n\r\n" . $body;
 }
 
 function cpg_admin_access_smtp_read_response(mixed $socket, string $context): array {

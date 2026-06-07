@@ -121,12 +121,31 @@ function cpg_admin_email_code_message(string $email, string $code, ?DateTimeImmu
     }
 
     $expiresAt = cpg_admin_email_code_expires_at($now);
+    $escapedCode = htmlspecialchars($normalized, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $bodyText = "Your CrewPortGlobal admin access code is:\n\n{$normalized}\n\nThis code expires in 10 minutes.\nIf you did not request this code, ignore this message.";
+    $bodyHtml = <<<HTML
+<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:24px;background:#f6fbfd;color:#0f2638;font-family:Arial,Helvetica,sans-serif;">
+    <div style="max-width:560px;margin:0 auto;padding:24px;border:1px solid #b7d7e4;border-radius:14px;background:#ffffff;">
+      <h1 style="margin:0 0 14px;font-size:22px;line-height:1.25;color:#0b3145;">CrewPortGlobal admin access code</h1>
+      <p style="margin:0 0 12px;font-size:16px;line-height:1.5;">Your CrewPortGlobal admin access code is:</p>
+      <div title="Select this code and copy it" style="margin:14px 0 18px;padding:18px 20px;border:2px solid #0b8fa3;border-radius:12px;background:#e9fbff;color:#073747;font-family:'Courier New',Courier,monospace;font-size:34px;font-weight:800;letter-spacing:8px;text-align:center;">
+        {$escapedCode}
+      </div>
+      <p style="margin:0 0 8px;font-size:14px;line-height:1.5;color:#466274;">Select the code in the box to copy it. This code expires in 10 minutes.</p>
+      <p style="margin:0;font-size:14px;line-height:1.5;color:#466274;">If you did not request this code, ignore this message.</p>
+    </div>
+  </body>
+</html>
+HTML;
 
     return [
         'purpose' => CPG_ADMIN_ACCESS_PURPOSE,
         'to' => strtolower(trim($email)),
         'subject' => 'CrewPortGlobal admin access code',
-        'body_text' => "Your CrewPortGlobal admin access code is: {$normalized}\n\nThis code expires in 10 minutes.\nIf you did not request this code, ignore this message.",
+        'body_text' => $bodyText,
+        'body_html' => $bodyHtml,
         'expires_at' => $expiresAt,
     ];
 }
