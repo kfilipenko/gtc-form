@@ -57,6 +57,21 @@
       ],
     },
     {
+      className: 'agents',
+      key: 'nav.agentPages',
+      label: 'Agents',
+      menuKey: 'nav.agentPagesMenu',
+      hintKey: 'nav.agentPagesHint',
+      hint: 'Agent organization workspace for scoped client objects and full-cycle operations.',
+      links: [
+        { href: '/agents/', key: 'nav.agentPortal', label: 'Agent Portal', hintKey: 'nav.agentPortalHint', hint: 'Open the agent organization workbench.' },
+        { href: '/create-profile/?actor=agent', key: 'nav.agentSeafarer', label: 'Seafarer', hintKey: 'nav.agentSeafarerHint', hint: 'Create or maintain a seafarer profile for a represented client.' },
+        { href: '/post-vacancy/?actor=agent', key: 'nav.agentDemand', label: 'Demand', hintKey: 'nav.agentDemandHint', hint: 'Create shipowner, vessel and vacancy data for a represented client.' },
+        { href: '/shipowners/candidates/?actor=agent', key: 'nav.agentCandidates', label: 'Candidates', hintKey: 'nav.agentCandidatesHint', hint: 'Review scoped candidate-selection work.' },
+        { href: '/contracts/workspace/?actor=agent', key: 'nav.agentContracts', label: 'Contracts', hintKey: 'nav.agentContractsHint', hint: 'Open scoped contract workspaces.' },
+      ],
+    },
+    {
       className: 'documents',
       key: 'nav.documents',
       label: 'Documents',

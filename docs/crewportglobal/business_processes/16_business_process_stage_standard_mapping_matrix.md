@@ -5,9 +5,9 @@
 - Documentation block: Business processes and operating model
 - Document type: Stage-to-standard control matrix
 - Source task: Project Owner instruction after CPG-BIZ-093 approval
-- Version: 2.7
+- Version: 2.8
 - Date: 2026-06-05
-- Status: Updated after CPG-BIZ-113 agent organization scope runtime migration
+- Status: Updated after CPG-BIZ-114 agent workbench page and navigation
 
 ## 1. Purpose
 
@@ -69,6 +69,7 @@ If a stage has no controlling standard, it must be marked as a gap and described
 | CPG-BIZ-111 | Agent role separation and authority model | Documented business-process control: agent organizations, same-rule GTC/external agents, authority evidence, duplicate/account claims and object scope |
 | CPG-BIZ-112 | Agent organization scope SQL draft | Drafted SQL/API/UI plan outside runtime migration; includes agent-created object requests, authority documents, assignments, claims and audit |
 | CPG-BIZ-113 | Agent organization scope runtime migration | Implemented migration 020 for agent organizations, agent users, authority documents, agent-created object requests, assignments, claims and agent-scope audit |
+| CPG-BIZ-114 | Agent workbench page and navigation | Implemented `/agents/` page shell and `Agents` menu group for the future scoped agent cycle without granting runtime permissions |
 | Implemented Code Standards ICS-001..003 | Reusable code standards for form lifecycle, protected upload and submit-review gate | Existing code-level standard register |
 
 ## 4. Stage-To-Standard Matrix
@@ -79,7 +80,7 @@ If a stage has no controlling standard, it must be marked as a gap and described
 | Marketing to employers / shipowners | CC-02 / before CF-01 | Employer lead | Group 0 marketing, Group 1 demand intake | BP-015, BP-009 | Partial | Standard for employer lead qualification, package offer, partner/logo publication and commercial interest evidence. |
 | Physical person registration | CC-03 | User account / physical person | Registration flow, support | BP-008, BP-014 | Covered | Need job instruction for support exceptions and failed registration recovery. |
 | Path selection after registration | CC-03 | User role path | Registration flow, support | BP-008, BP-009 | Partial | Standard for automatic routing to seafarer profile or employer/vacancy workspace after role selection. |
-| Agent onboarding, object creation and scope | CF-00A / CF-00B / CF-00C | Agent organization, agent-created object request, assignment, account/object claim | Platform Administration / Control, assigned agent organization | BP-012, BP-013, CPG-BIZ-111, CPG-BIZ-112, CPG-BIZ-113 | Runtime migration 020 implemented and verified; process documents define same-rule GTC/external agent model and duplicate/claim boundary | API/UI implementation, task-computation scope update, duplicate/claim notification workflow and reassignment workflow. |
+| Agent onboarding, object creation and scope | CF-00A / CF-00B / CF-00C | Agent organization, agent-created object request, assignment, account/object claim | Platform Administration / Control, assigned agent organization | BP-012, BP-013, CPG-BIZ-111, CPG-BIZ-112, CPG-BIZ-113, CPG-BIZ-114 | Runtime migration 020 implemented and verified; `/agents/` page and `Agents` navigation shell implemented; process documents define same-rule GTC/external agent model and duplicate/claim boundary | API implementation, task-computation scope update, duplicate/claim notification workflow and reassignment workflow. |
 | Seafarer profile completion | CC-04 / CF-06 | Seafarer supply profile | Seafarer owner, Group 2 support | BP-011, BP-014, BP-010 | Covered for current form | Need final parity check for all matching-critical fields and document-first extraction plan. |
 | Seafarer document readiness review | CF-07 | Seafarer documents and profile readiness | Verification team / Group 5 | BP-010, BP-012, BP-014 | Covered in principle and partially implemented | Job instruction for document review outcomes, correction reasons and restricted medical boundary. |
 | Employer/company registration | CC-05 / CF-02 | Employer/company card | Employer owner, Group 1, Group 5 | BP-003, BP-008, BP-014 | Partial | Standard for employer authority evidence, logo/public partner eligibility and commercial account status. |
@@ -113,7 +114,7 @@ The following standards should be created or expanded before final job descripti
 |---|---|---|
 | P1 | Employer service package and entitlement standard | Without this, subscription/package, discounts, service access and commercial start are not fully controlled. |
 | P1 | Structured terms clarification workspace standard | Required before contract proposal so salary, joining date, duration, travel, repatriation and document-readiness differences become auditable agreed terms instead of chat text. |
-| P1 | Agent organization API/UI and task-scope implementation | Required to let GTC-operated and external agents create and process client objects under verified authority without broad platform access. Runtime migration 020 is implemented; API/UI/task computation remain open. |
+| P1 | Agent organization API and task-scope implementation | Required to let GTC-operated and external agents create and process client objects under verified authority without broad platform access. Runtime migration 020 and `/agents/` page shell are implemented; API/task computation remain open. |
 | P1 | Contract workspace embedded field editing and party-review readiness guard | CPG-BIZ-102 can open a concrete workspace and show source-prefilled facts; the next gap is controlled completion of selectable embedded contract fields before party review. |
 | P1 | Embarkation and onboard-status evidence standard | Required to prove success fee, onboard status and service delivery. |
 | P1 | Monthly service evidence and billing-basis standard | Required for recurring monthly service fee and partial-month/illness/replacement cases. |
@@ -168,11 +169,12 @@ CPG-BIZ-110 has prepared the structured terms clarification task for Project Own
 CPG-BIZ-111 has documented the agent role separation model: agent organizations are independent responsible participants, GTC-operated and external agents follow the same rule, and duplicate/account claims prevent silent duplicate full-access records.
 CPG-BIZ-112 has prepared the agent organization scope SQL draft outside runtime migrations, including agent-created object requests, authority documents, object assignments, account/object claims and agent-scope audit.
 CPG-BIZ-113 has converted the approved draft into runtime migration 020 and verified it on the test DB and API regression.
+CPG-BIZ-114 has implemented the `/agents/` workbench shell and `Agents` navigation group so agent organizations have a separate visible workspace before API/task-scope wiring.
 
 The recommended next stage is:
 
 ```text
-CPG-BIZ-114 - Agent organization API/UI and task-computation scope implementation
+CPG-BIZ-115 - Agent organization API and task-computation scope implementation
 ```
 
 After that, the process should move to:
@@ -194,6 +196,7 @@ After that, the process should move to:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.8 | 2026-06-07 | GTC IT / AI Assistant | Added CPG-BIZ-114 result: `/agents/` workbench page and `Agents` navigation group implemented as safe UI shell before API/task-scope wiring |
 | 2.7 | 2026-06-07 | GTC IT / AI Assistant | Marked CPG-BIZ-113 as implemented: runtime migration 020 for agent organization scope schema was applied and verified on test DB/API regression |
 | 2.6 | 2026-06-07 | GTC IT / AI Assistant | Added CPG-BIZ-111/112 agent role separation and SQL draft controls, including agent-created object requests and corrected the future terms-clarification numbering conflict |
 | 2.5 | 2026-06-05 | GTC IT / AI Assistant | Added CPG-BIZ-110 structured terms clarification stage between shipowner candidate decision and Contract Agreement Workspace |

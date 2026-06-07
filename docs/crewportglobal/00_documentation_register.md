@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 3.02
+- Version: 3.04
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -402,6 +402,7 @@ docs/crewportglobal/
   312_cpg_biz_111_agent_role_separation_and_authority_model.md
   313_cpg_biz_112_agent_organization_scope_sql_draft_report.md
   314_cpg_biz_113_agent_organization_scope_runtime_migration_report.md
+  315_cpg_biz_114_agent_workbench_page_and_navigation_report.md
   sql_drafts/
     018_contract_workspace_schema_draft.sql
     020_agent_organization_scope_schema_draft.sql
@@ -944,6 +945,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.04 | 2026-06-07 | GTC IT / AI Assistant | Added document 315 as CPG-BIZ-114 report for the agent workbench page and Agents navigation group |
 | 3.03 | 2026-06-07 | GTC IT / AI Assistant | Added document 314 as CPG-BIZ-113 runtime migration report for agent organization scope schema and migration 020 test verification |
 | 3.02 | 2026-06-07 | GTC IT / AI Assistant | Added document 313 as CPG-BIZ-112 SQL draft report and `sql_drafts/020_agent_organization_scope_schema_draft.sql` for agent organization scope schema review |
 | 3.01 | 2026-06-07 | GTC IT / AI Assistant | Added document 312 as CPG-BIZ-111 business-process control for independent agent organizations, verified authority, object scope and duplicate/account-claim handling |

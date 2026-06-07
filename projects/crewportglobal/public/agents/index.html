@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Agents</title>
+  <meta name="description" content="Agent organization workbench for scoped seafarer, shipowner, vessel, vacancy and contract operations.">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="canonical" href="https://crewportglobal.com/agents/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/assets/crewportglobal-docs.css?v=20260530-menu-audit">
+  <link rel="stylesheet" href="/assets/crewportglobal-app.css">
+  <style>
+    .agent-layout {
+      display: grid;
+      gap: 16px;
+    }
+
+    .agent-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+      gap: 16px;
+      align-items: stretch;
+      padding: 20px;
+    }
+
+    .agent-hero h1 {
+      max-width: 780px;
+      margin: 0 0 8px;
+    }
+
+    .agent-status {
+      display: grid;
+      align-content: center;
+      gap: 8px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .agent-status strong {
+      font-size: 16px;
+      line-height: 1.25;
+    }
+
+    .agent-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .agent-summary__item,
+    .agent-operation {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .agent-summary__item {
+      display: grid;
+      gap: 4px;
+      padding: 12px;
+    }
+
+    .agent-summary__item strong {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .agent-summary__item span {
+      color: var(--muted-on-dark);
+      font-size: 13px;
+    }
+
+    .agent-operation-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .agent-operation {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .agent-operation__link {
+      display: inline-block;
+      color: var(--text-on-dark);
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.25;
+      text-decoration: none;
+    }
+
+    .agent-operation__link:hover,
+    .agent-operation__link:focus-visible {
+      color: var(--teal);
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;
+    }
+
+    .agent-operation__copy,
+    .agent-operation__meta,
+    .agent-note {
+      color: var(--muted-on-dark);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .agent-operation__copy {
+      margin: 6px 0 0;
+    }
+
+    .agent-operation__side {
+      display: grid;
+      align-content: center;
+      gap: 6px;
+    }
+
+    .agent-pill {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      min-height: 26px;
+      padding: 4px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted-on-dark);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .agent-pill.is-ready {
+      border-color: rgba(82, 198, 220, 0.6);
+      color: var(--teal);
+    }
+
+    .agent-pill.is-pending {
+      border-color: rgba(255, 139, 51, 0.48);
+      color: var(--cpg-warning);
+    }
+
+    .agent-cycle {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(96px, 1fr));
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .agent-cycle li {
+      min-height: 58px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--muted-on-dark);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.25;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    @media (max-width: 900px) {
+      .agent-hero,
+      .agent-operation {
+        grid-template-columns: 1fr;
+      }
+
+      .agent-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .agent-cycle {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .agent-summary,
+      .agent-cycle {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="doc-body cpg-app-page">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div data-cpg-theme-switcher></div>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+      <div data-cpg-account-area></div>
+    </header>
+
+    <div data-cpg-navigation="application" data-cpg-nav-active="/agents/"></div>
+    <script src="/assets/crewportglobal-navigation.js?v=20260530-menu-audit"></script>
+
+    <main class="doc-main agent-layout">
+      <section class="card agent-hero">
+        <div>
+          <p class="eyebrow">Agent organization</p>
+          <h1>Agent workbench.</h1>
+          <p class="lead-copy">Represented seafarers, shipowners, vessels, vacancies, matching and contracts must stay inside verified agent scope.</p>
+        </div>
+        <div class="agent-status" aria-live="polite">
+          <strong>Controlled scope first.</strong>
+          <span class="agent-note">The page is ready for CPG-BIZ-114 API wiring. It does not grant object access without verified authority and assignment records.</span>
+        </div>
+      </section>
+
+      <section class="agent-summary" aria-label="Agent scope summary">
+        <div class="agent-summary__item">
+          <strong>0</strong>
+          <span>verified organizations</span>
+        </div>
+        <div class="agent-summary__item">
+          <strong>0</strong>
+          <span>assigned objects</span>
+        </div>
+        <div class="agent-summary__item">
+          <strong>0</strong>
+          <span>pending requests</span>
+        </div>
+        <div class="agent-summary__item">
+          <strong>0</strong>
+          <span>active contracts</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <p class="eyebrow">Full cycle</p>
+        <h2>Agent operations</h2>
+        <div class="agent-operation-list">
+          <article class="agent-operation">
+            <div>
+              <a class="agent-operation__link" href="https://crewportglobal.com/agents/#authority">Verify agent authority. (Agent organization authority evidence.)</a>
+              <p class="agent-operation__copy">Register the agent organization, authority basis and responsible users before client-object work starts.</p>
+            </div>
+            <div class="agent-operation__side">
+              <span class="agent-pill is-pending">API pending</span>
+              <span class="agent-operation__meta">Required records: agent organization, authority document, agent user.</span>
+            </div>
+          </article>
+
+          <article class="agent-operation">
+            <div>
+              <a class="agent-operation__link" href="https://crewportglobal.com/create-profile/?actor=agent">Create represented seafarer profile. (Client object: seafarer.)</a>
+              <p class="agent-operation__copy">The agent may create or maintain a seafarer profile only under verified authority and assignment.</p>
+            </div>
+            <div class="agent-operation__side">
+              <span class="agent-pill is-ready">Form available</span>
+              <span class="agent-operation__meta">Future scope guard: agent-created object request.</span>
+            </div>
+          </article>
+
+          <article class="agent-operation">
+            <div>
+              <a class="agent-operation__link" href="https://crewportglobal.com/post-vacancy/?actor=agent">Create shipowner demand. (Client objects: shipowner, vessel, vacancy.)</a>
+              <p class="agent-operation__copy">Company, vessel and crew request data must be linked to the represented client and reviewed before wider use.</p>
+            </div>
+            <div class="agent-operation__side">
+              <span class="agent-pill is-ready">Form available</span>
+              <span class="agent-operation__meta">Future scope guard: assignment by organization and object.</span>
+            </div>
+          </article>
+
+          <article class="agent-operation">
+            <div>
+              <a class="agent-operation__link" href="https://crewportglobal.com/shipowners/candidates/?actor=agent">Review matching result. (Scoped vacancy and candidate list.)</a>
+              <p class="agent-operation__copy">Candidate visibility remains employer-safe and controlled by shortlist, presentation and assignment guards.</p>
+            </div>
+            <div class="agent-operation__side">
+              <span class="agent-pill is-pending">Scope API pending</span>
+              <span class="agent-operation__meta">No raw contact or restricted document data.</span>
+            </div>
+          </article>
+
+          <article class="agent-operation">
+            <div>
+              <a class="agent-operation__link" href="https://crewportglobal.com/contracts/workspace/?actor=agent">Prepare contract workspace. (Assigned candidate and vacancy.)</a>
+              <p class="agent-operation__copy">Contract facts must be prefetched from verified records; parties select only controlled contractual alternatives.</p>
+            </div>
+            <div class="agent-operation__side">
+              <span class="agent-pill is-pending">Scope API pending</span>
+              <span class="agent-operation__meta">Contract generation remains guarded by party approval.</span>
+            </div>
+          </article>
+
+          <article class="agent-operation">
+            <div>
+              <a class="agent-operation__link" href="https://crewportglobal.com/agents/#claims">Resolve duplicate or account claim. (Existing platform object.)</a>
+              <p class="agent-operation__copy">If a represented client already exists, the platform records a claim and routes confirmation before access is granted.</p>
+            </div>
+            <div class="agent-operation__side">
+              <span class="agent-pill is-pending">API pending</span>
+              <span class="agent-operation__meta">Prevents silent duplicate full-access records.</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="card" id="authority">
+        <p class="eyebrow">Process sequence</p>
+        <h2>Agent cycle</h2>
+        <ol class="agent-cycle">
+          <li>Authority</li>
+          <li>Object request</li>
+          <li>Assignment</li>
+          <li>Form completion</li>
+          <li>Matching</li>
+          <li>Contract</li>
+          <li>Audit</li>
+        </ol>
+      </section>
+
+      <section class="card" id="claims">
+        <p class="eyebrow">Control boundary</p>
+        <h2>What remains blocked until API implementation</h2>
+        <p class="lead-copy">Agent access is not computed from this page alone. The next implementation must read migration 020 records, verify authority, compute assignment scope and show only tasks belonging to the agent organization or assigned user.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="/assets/crewportglobal-machine-translations.js?v=53345f0f8938ec76" defer></script>
+  <script src="/assets/crewportglobal-public-i18n.js?v=20260530-menu-audit" defer></script>
+</body>
+</html>

@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.44
+- Version: 3.45
 - Status: For internal review
 
 ## 1. Purpose
@@ -178,6 +178,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.45 | 2026-06-07 | GTC IT / AI Assistant | Added CPG-BIZ-114 control for the dedicated agent workbench page and Agents navigation group before API/task-scope wiring |
 | 3.44 | 2026-06-07 | GTC IT / AI Assistant | Added CPG-BIZ-113 control after converting the approved agent organization scope SQL draft into runtime migration 020 with test DB verification |
 | 3.43 | 2026-06-07 | GTC IT / AI Assistant | Added CPG-BIZ-112 control for agent organization scope SQL draft, agent-created object requests and migration approval gate |
 | 3.42 | 2026-06-07 | GTC IT / AI Assistant | Added CPG-BIZ-111 control for agent organization authority, object-scope responsibility, same-rule GTC/external agent handling and duplicate/account-claim checks |

@@ -6,6 +6,7 @@ const appPages = [
   '/create-profile/',
   '/seafarers/job-search/',
   '/post-vacancy/',
+  '/agents/',
   '/register/',
 ];
 
@@ -22,6 +23,7 @@ const fullSiteGroups = [
   { className: 'home', title: 'Home' },
   { className: 'seafarers', title: 'Seafarers' },
   { className: 'employers', title: 'Shipowners' },
+  { className: 'agents', title: 'Agents' },
   { className: 'documents', title: 'Documents' },
   { className: 'team', title: 'Team' },
 ];
@@ -34,6 +36,11 @@ const fullSiteLinks = [
   { name: 'Vacancies', href: 'https://crewportglobal.com/vacancies/' },
   { name: 'Post Vacancy', href: 'https://crewportglobal.com/post-vacancy/' },
   { name: 'Select Candidate', href: 'https://crewportglobal.com/shipowners/candidates/' },
+  { name: 'Agent Portal', href: 'https://crewportglobal.com/agents/' },
+  { name: 'Seafarer', href: 'https://crewportglobal.com/create-profile/?actor=agent' },
+  { name: 'Demand', href: 'https://crewportglobal.com/post-vacancy/?actor=agent' },
+  { name: 'Candidates', href: 'https://crewportglobal.com/shipowners/candidates/?actor=agent' },
+  { name: 'Contracts', href: 'https://crewportglobal.com/contracts/workspace/?actor=agent' },
   { name: 'Terms', href: 'https://crewportglobal.com/legal/terms/' },
   { name: 'Privacy', href: 'https://crewportglobal.com/legal/privacy/' },
   { name: 'No Recruitment Fees', href: 'https://crewportglobal.com/legal/no-recruitment-fees/' },
@@ -130,6 +137,7 @@ test('shared theme switcher applies and persists Dark Maritime and Light Work mo
 test('cabinet, team and admin workbench pages expose the shared theme switcher', async ({ page }) => {
   const workbenchPages = [
     '/cabinet/',
+    '/agents/',
     '/team/documents/',
     '/admin/access/',
   ];
@@ -157,6 +165,7 @@ test('compact functional screens do not create page-level horizontal overflow on
   const compactPages = [
     '/register/',
     '/cabinet/',
+    '/agents/',
     '/team/documents/',
     '/admin/access/',
     '/verify/',
