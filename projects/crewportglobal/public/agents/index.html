@@ -191,6 +191,74 @@
       color: var(--text-on-dark);
     }
 
+    .agent-workspace-card {
+      display: grid;
+      gap: 14px;
+    }
+
+    .agent-workspace-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .agent-field {
+      min-height: 56px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .agent-field span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted-on-dark);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .agent-field strong {
+      color: var(--text-on-dark);
+      font-size: 14px;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+    }
+
+    .agent-action-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .agent-action-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid rgba(82, 198, 220, 0.45);
+      border-radius: 8px;
+      color: var(--text-on-dark);
+      font-size: 13px;
+      font-weight: 900;
+      text-decoration: none;
+      background: rgba(82, 198, 220, 0.1);
+    }
+
+    .agent-action-link:hover,
+    .agent-action-link:focus-visible {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    .agent-action-link[aria-disabled="true"] {
+      border-color: var(--line);
+      color: var(--muted-on-dark);
+      pointer-events: none;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
     .agent-task-title {
       display: inline-block;
       color: var(--text-on-dark);
@@ -219,6 +287,10 @@
       .agent-hero,
       .agent-operation,
       .agent-object {
+        grid-template-columns: 1fr;
+      }
+
+      .agent-workspace-grid {
         grid-template-columns: 1fr;
       }
 
@@ -310,6 +382,14 @@
         <h2>My agent tasks</h2>
         <div id="agent-task-list" class="agent-object-list" aria-live="polite"></div>
         <p id="agent-task-empty" class="agent-api-message">No computed agent tasks loaded yet.</p>
+      </section>
+
+      <section class="card agent-workspace-card" id="agent-workspace" hidden>
+        <p class="eyebrow">Scoped object workspace</p>
+        <h2 id="agent-workspace-title">Represented object</h2>
+        <p id="agent-workspace-status" class="lead-copy">Open an assigned object to see the guarded participant card.</p>
+        <div id="agent-workspace-fields" class="agent-workspace-grid" aria-live="polite"></div>
+        <div id="agent-workspace-actions" class="agent-action-list"></div>
       </section>
 
       <section class="card">
@@ -439,6 +519,11 @@
       const adminReview = document.getElementById('agent-admin-review');
       const adminReviewList = document.getElementById('agent-admin-review-list');
       const adminReviewEmpty = document.getElementById('agent-admin-review-empty');
+      const workspace = document.getElementById('agent-workspace');
+      const workspaceTitle = document.getElementById('agent-workspace-title');
+      const workspaceStatus = document.getElementById('agent-workspace-status');
+      const workspaceFields = document.getElementById('agent-workspace-fields');
+      const workspaceActions = document.getElementById('agent-workspace-actions');
 
       const setText = (node, value) => {
         if (node) {
@@ -456,6 +541,94 @@
       };
 
       const safeHashId = (prefix, raw) => `${prefix}-${String(raw || '').replace(/[^a-zA-Z0-9_-]/g, '-')}`;
+
+      const workspaceAssignmentFromUrl = () => {
+        const params = new URLSearchParams(window.location.search);
+        const value = params.get('assignment_id');
+        return value && /^[0-9a-fA-F-]{36}$/.test(value) ? value : '';
+      };
+
+      const renderWorkspaceField = (label, value) => {
+        const field = document.createElement('div');
+        field.className = 'agent-field';
+        const labelNode = document.createElement('span');
+        labelNode.textContent = label;
+        const valueNode = document.createElement('strong');
+        valueNode.textContent = value || '-';
+        field.append(labelNode, valueNode);
+        return field;
+      };
+
+      const renderAgentWorkspace = (payload) => {
+        if (!workspace || !workspaceTitle || !workspaceStatus || !workspaceFields || !workspaceActions) {
+          return;
+        }
+        const card = payload.participant_card || {};
+        const guard = payload.workspace_guard || {};
+        const management = card.managed_by || {};
+        const authority = card.authority || {};
+        workspace.hidden = false;
+        setText(workspaceTitle, card.title || 'Represented object');
+        setText(workspaceStatus, [
+          management.managed_by_label || management.managed_by_label_ru || '',
+          guard.guard_status ? `Guard: ${guard.guard_status}` : '',
+          guard.blocker ? `Blocker: ${guard.blocker}` : '',
+        ].filter(Boolean).join(' | '));
+
+        workspaceFields.innerHTML = '';
+        [
+          ['Object type', card.object_type],
+          ['Object ID', card.object_id],
+          ['Assignment', payload.assignment && payload.assignment.assignment_status],
+          ['Authority', authority.authority_type],
+          ['Authority status', authority.authority_status],
+          ['Authority valid until', authority.valid_until],
+        ].forEach(([label, value]) => {
+          workspaceFields.append(renderWorkspaceField(label, value));
+        });
+        (card.safe_fields || []).forEach((field) => {
+          workspaceFields.append(renderWorkspaceField(field.label, field.value));
+        });
+
+        workspaceActions.innerHTML = '';
+        (payload.actions || []).forEach((action) => {
+          const link = document.createElement('a');
+          link.className = 'agent-action-link';
+          link.href = action.target_url || '#agent-workspace';
+          link.textContent = action.label || action.operation_code || 'Open workspace';
+          if (!action.enabled) {
+            link.setAttribute('aria-disabled', 'true');
+          }
+          if (action.description) {
+            link.title = action.description;
+          }
+          workspaceActions.append(link);
+        });
+      };
+
+      const loadAgentWorkspace = async (assignmentId) => {
+        if (!assignmentId) {
+          return;
+        }
+        try {
+          const result = await apiGet(`/agents/objects/${encodeURIComponent(assignmentId)}/workspace`);
+          if (!result.response.ok || !result.payload.ok) {
+            if (workspace && workspaceStatus) {
+              workspace.hidden = false;
+              setText(workspaceTitle, 'Object workspace unavailable');
+              setText(workspaceStatus, result.payload.message || 'The selected assignment is not visible for this agent organization.');
+            }
+            return;
+          }
+          renderAgentWorkspace(result.payload);
+        } catch (error) {
+          if (workspace && workspaceStatus) {
+            workspace.hidden = false;
+            setText(workspaceTitle, 'Object workspace unavailable');
+            setText(workspaceStatus, 'Unable to load selected represented object.');
+          }
+        }
+      };
 
       const renderTaskRows = (container, emptyNode, tasks, idPrefix) => {
         if (!container || !emptyNode) {
@@ -508,7 +681,9 @@
           row.className = 'agent-object';
           row.id = safeHashId('agent-object', item.assignment_id);
           const copy = document.createElement('div');
-          const heading = document.createElement('strong');
+          const heading = document.createElement('a');
+          heading.className = 'agent-task-title';
+          heading.href = `/agents/?assignment_id=${encodeURIComponent(item.assignment_id || '')}#agent-workspace`;
           heading.textContent = item.object_safe_summary || `${item.object_type || 'object'} ${item.object_id || ''}`;
           const meta = document.createElement('div');
           meta.className = 'agent-object__meta';
@@ -646,6 +821,7 @@
           renderObjects(objectRows);
           renderRequests(requestRows);
           renderClaims(claimRows);
+          loadAgentWorkspace(workspaceAssignmentFromUrl());
           loadAdminReview();
         } catch (error) {
           setText(title, 'Agent API unavailable.');

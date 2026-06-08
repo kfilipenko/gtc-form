@@ -3143,6 +3143,38 @@ FROM inserted_user;
     managed_by_agent: true,
     management_allowed: true,
   });
+  const takeoverAssignmentId = takeoverObjects.objects[0].assignment_id;
+  expect(takeoverAssignmentId).toMatch(/[0-9a-f-]{36}/);
+
+  const takeoverWorkspaceResponse = await takeoverContext.get(`/agents/objects/${takeoverAssignmentId}/workspace`);
+  const takeoverWorkspaceText = await takeoverWorkspaceResponse.text();
+  expect(takeoverWorkspaceResponse.ok(), takeoverWorkspaceText).toBeTruthy();
+  const takeoverWorkspace = JSON.parse(takeoverWorkspaceText) as Record<string, any>;
+  expect(takeoverWorkspace.workspace_model).toBe('agent_scoped_object_workspace');
+  expect(takeoverWorkspace.workspace_guard).toMatchObject({
+    can_edit: true,
+    guard_status: 'ready_for_agent_scoped_edit',
+  });
+  expect(takeoverWorkspace.participant_card).toMatchObject({
+    object_type: 'person_user',
+    object_id: agentUserId,
+  });
+  expect(takeoverWorkspace.participant_card.managed_by).toMatchObject({
+    managed_by_display_name: `API Claim Agent ${unique}`,
+    managed_by_agent: true,
+    management_allowed: true,
+  });
+  expect(takeoverWorkspace.participant_card.safe_fields.some((field: Record<string, any>) => (
+    field.label === 'Email' && field.value === email
+  ))).toBe(true);
+  expect(takeoverWorkspace.actions.some((action: Record<string, any>) => (
+    action.operation_code === 'open_agent_account_workspace'
+    && action.enabled === true
+  ))).toBe(true);
+
+  const reassignedWorkspaceResponse = await agentContext.get(`/agents/objects/${assignment.assignment.assignment_id}/workspace`);
+  const reassignedWorkspaceText = await reassignedWorkspaceResponse.text();
+  expect(reassignedWorkspaceResponse.status(), reassignedWorkspaceText).toBe(404);
 
   const claimRows = Number(runApiPsql(`
 SELECT count(*)

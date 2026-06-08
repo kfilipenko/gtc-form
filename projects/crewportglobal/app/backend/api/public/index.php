@@ -12164,6 +12164,364 @@ function cpg_agent_authority_summary_from_assignment(array $row): array {
     ];
 }
 
+function cpg_agent_safe_field(string $label, mixed $value): ?array {
+    if ($value === null) {
+        return null;
+    }
+    $text = trim((string) $value);
+    if ($text === '') {
+        return null;
+    }
+    return [
+        'label' => $label,
+        'value' => $text,
+    ];
+}
+
+function cpg_agent_safe_fields(array $fieldMap): array {
+    $fields = [];
+    foreach ($fieldMap as $label => $value) {
+        $field = cpg_agent_safe_field((string) $label, $value);
+        if ($field !== null) {
+            $fields[] = $field;
+        }
+    }
+    return $fields;
+}
+
+function cpg_agent_assignment_row_by_id(string $agentOrganizationId, string $assignmentId): ?array {
+    return cpg_fetch_one_assoc(
+        "SELECT aoa.agent_object_assignment_id::text AS agent_object_assignment_id,
+                aoa.object_type,
+                aoa.object_id::text AS object_id,
+                aoa.assignment_status,
+                aoa.assignment_source,
+                aoa.visibility_scope,
+                aoa.data_responsibility_status,
+                aoa.object_safe_summary,
+                aoa.source_snapshot::text AS source_snapshot,
+                aoa.metadata::text AS metadata,
+                aoa.assigned_agent_user_id::text AS assigned_agent_user_id,
+                aoa.updated_at::text AS updated_at,
+                ao.agent_organization_id::text AS agent_organization_id,
+                ao.agent_display_name,
+                ao.agent_status,
+                ao.authority_status AS organization_authority_status,
+                aad.agent_authority_document_id::text AS agent_authority_document_id,
+                aad.authority_status AS document_authority_status,
+                aad.authority_type,
+                aad.authority_scope_type,
+                aad.authority_scope_object_id::text AS authority_scope_object_id,
+                aad.valid_from::text AS authority_valid_from,
+                aad.valid_until::text AS authority_valid_until
+         FROM crewportglobal.agent_object_assignments aoa
+         JOIN crewportglobal.agent_organizations ao
+           ON ao.agent_organization_id = aoa.agent_organization_id
+         LEFT JOIN crewportglobal.agent_authority_documents aad
+           ON aad.agent_authority_document_id = aoa.source_authority_document_id
+         WHERE aoa.agent_object_assignment_id = $1::uuid
+           AND aoa.agent_organization_id = $2::uuid
+           AND aoa.assignment_status IN ('active', 'limited', 'proposed', 'suspended', 'expired')
+           AND aoa.archived_at IS NULL
+         LIMIT 1",
+        [$assignmentId, $agentOrganizationId]
+    );
+}
+
+function cpg_agent_object_safe_snapshot(string $objectType, string $objectId): array {
+    $notFound = [
+        'object_type' => $objectType,
+        'object_id' => $objectId,
+        'record_found' => false,
+        'safe_fields' => [],
+    ];
+
+    if ($objectType === 'person_user') {
+        $row = cpg_fetch_one_assoc(
+            "SELECT u.user_id::text AS user_id,
+                    u.email,
+                    u.display_name,
+                    u.registration_status,
+                    u.is_active::text AS is_active,
+                    COALESCE(string_agg(ur.role, ', ' ORDER BY ur.role), '') AS roles
+             FROM crewportglobal.users u
+             LEFT JOIN crewportglobal.user_roles ur ON ur.user_id = u.user_id
+             WHERE u.user_id = $1::uuid
+             GROUP BY u.user_id",
+            [$objectId]
+        );
+        if (!is_array($row)) {
+            return $notFound;
+        }
+        return [
+            'object_type' => $objectType,
+            'object_id' => $objectId,
+            'record_found' => true,
+            'record_status' => $row['registration_status'] ?? null,
+            'safe_fields' => cpg_agent_safe_fields([
+                'Name' => $row['display_name'] ?? null,
+                'Email' => $row['email'] ?? null,
+                'Roles' => $row['roles'] ?? null,
+                'Registration status' => $row['registration_status'] ?? null,
+                'Active account' => $row['is_active'] ?? null,
+            ]),
+            'source_ids' => [
+                'user_id' => $row['user_id'] ?? null,
+            ],
+        ];
+    }
+
+    if ($objectType === 'seafarer_profile') {
+        $row = cpg_fetch_one_assoc(
+            "SELECT sp.seafarer_profile_id::text AS seafarer_profile_id,
+                    sp.user_id::text AS user_id,
+                    u.display_name,
+                    u.email,
+                    sp.first_name,
+                    sp.last_name,
+                    sp.primary_rank,
+                    sp.department,
+                    sp.availability_status,
+                    sp.availability_date::text AS availability_date,
+                    sp.country_code,
+                    sp.review_status
+             FROM crewportglobal.seafarer_profiles sp
+             JOIN crewportglobal.users u ON u.user_id = sp.user_id
+             WHERE sp.seafarer_profile_id = $1::uuid
+             LIMIT 1",
+            [$objectId]
+        );
+        if (!is_array($row)) {
+            return $notFound;
+        }
+        $name = trim((string) ($row['first_name'] ?? '') . ' ' . (string) ($row['last_name'] ?? ''));
+        return [
+            'object_type' => $objectType,
+            'object_id' => $objectId,
+            'record_found' => true,
+            'record_status' => $row['review_status'] ?? null,
+            'safe_fields' => cpg_agent_safe_fields([
+                'Name' => $name !== '' ? $name : ($row['display_name'] ?? null),
+                'Email' => $row['email'] ?? null,
+                'Rank' => $row['primary_rank'] ?? null,
+                'Department' => $row['department'] ?? null,
+                'Availability' => $row['availability_status'] ?? null,
+                'Availability date' => $row['availability_date'] ?? null,
+                'Country' => $row['country_code'] ?? null,
+                'Review status' => $row['review_status'] ?? null,
+            ]),
+            'source_ids' => [
+                'seafarer_profile_id' => $row['seafarer_profile_id'] ?? null,
+                'user_id' => $row['user_id'] ?? null,
+            ],
+        ];
+    }
+
+    if ($objectType === 'employer_company') {
+        $row = cpg_fetch_one_assoc(
+            "SELECT ec.company_id::text AS company_id,
+                    ec.company_name,
+                    ec.registration_number,
+                    ec.country_code,
+                    ec.company_type,
+                    ec.verification_status,
+                    cu.user_id::text AS primary_user_id,
+                    u.display_name AS primary_user_name,
+                    u.email AS primary_user_email
+             FROM crewportglobal.employer_companies ec
+             LEFT JOIN LATERAL (
+                 SELECT company_id, user_id
+                 FROM crewportglobal.company_users
+                 WHERE company_id = ec.company_id
+                 ORDER BY is_primary_contact DESC, created_at ASC
+                 LIMIT 1
+             ) cu ON TRUE
+             LEFT JOIN crewportglobal.users u ON u.user_id = cu.user_id
+             WHERE ec.company_id = $1::uuid
+             LIMIT 1",
+            [$objectId]
+        );
+        if (!is_array($row)) {
+            return $notFound;
+        }
+        return [
+            'object_type' => $objectType,
+            'object_id' => $objectId,
+            'record_found' => true,
+            'record_status' => $row['verification_status'] ?? null,
+            'safe_fields' => cpg_agent_safe_fields([
+                'Company' => $row['company_name'] ?? null,
+                'Registration number' => $row['registration_number'] ?? null,
+                'Country' => $row['country_code'] ?? null,
+                'Company type' => $row['company_type'] ?? null,
+                'Verification status' => $row['verification_status'] ?? null,
+                'Primary contact' => $row['primary_user_name'] ?? null,
+                'Primary contact email' => $row['primary_user_email'] ?? null,
+            ]),
+            'source_ids' => [
+                'company_id' => $row['company_id'] ?? null,
+                'primary_user_id' => $row['primary_user_id'] ?? null,
+            ],
+        ];
+    }
+
+    if ($objectType === 'vessel') {
+        $row = cpg_fetch_one_assoc(
+            "SELECT v.vessel_id::text AS vessel_id,
+                    v.company_id::text AS company_id,
+                    v.vessel_name,
+                    v.imo_number,
+                    v.vessel_type,
+                    v.flag_country_code,
+                    ec.company_name,
+                    cu.user_id::text AS primary_user_id
+             FROM crewportglobal.vessels v
+             LEFT JOIN crewportglobal.employer_companies ec ON ec.company_id = v.company_id
+             LEFT JOIN LATERAL (
+                 SELECT company_id, user_id
+                 FROM crewportglobal.company_users
+                 WHERE company_id = v.company_id
+                 ORDER BY is_primary_contact DESC, created_at ASC
+                 LIMIT 1
+             ) cu ON TRUE
+             WHERE v.vessel_id = $1::uuid
+             LIMIT 1",
+            [$objectId]
+        );
+        if (!is_array($row)) {
+            return $notFound;
+        }
+        return [
+            'object_type' => $objectType,
+            'object_id' => $objectId,
+            'record_found' => true,
+            'record_status' => null,
+            'safe_fields' => cpg_agent_safe_fields([
+                'Vessel' => $row['vessel_name'] ?? null,
+                'IMO' => $row['imo_number'] ?? null,
+                'Vessel type' => $row['vessel_type'] ?? null,
+                'Flag' => $row['flag_country_code'] ?? null,
+                'Company' => $row['company_name'] ?? null,
+            ]),
+            'source_ids' => [
+                'vessel_id' => $row['vessel_id'] ?? null,
+                'company_id' => $row['company_id'] ?? null,
+                'primary_user_id' => $row['primary_user_id'] ?? null,
+            ],
+        ];
+    }
+
+    if ($objectType === 'vacancy_request') {
+        $row = cpg_fetch_one_assoc(
+            "SELECT vr.vacancy_request_id::text AS vacancy_request_id,
+                    vr.created_by_user_id::text AS created_by_user_id,
+                    vr.company_id::text AS company_id,
+                    vr.vessel_id::text AS vessel_id,
+                    vr.vacancy_title,
+                    vr.rank,
+                    vr.department,
+                    vr.vessel_type,
+                    vr.join_date::text AS join_date,
+                    vr.contract_duration,
+                    vr.salary_min_usd::text AS salary_min_usd,
+                    vr.salary_max_usd::text AS salary_max_usd,
+                    vr.currency,
+                    vr.publication_status,
+                    ec.company_name,
+                    v.vessel_name
+             FROM crewportglobal.vacancy_requests vr
+             JOIN crewportglobal.employer_companies ec ON ec.company_id = vr.company_id
+             LEFT JOIN crewportglobal.vessels v ON v.vessel_id = vr.vessel_id
+             WHERE vr.vacancy_request_id = $1::uuid
+             LIMIT 1",
+            [$objectId]
+        );
+        if (!is_array($row)) {
+            return $notFound;
+        }
+        return [
+            'object_type' => $objectType,
+            'object_id' => $objectId,
+            'record_found' => true,
+            'record_status' => $row['publication_status'] ?? null,
+            'safe_fields' => cpg_agent_safe_fields([
+                'Vacancy' => $row['vacancy_title'] ?? null,
+                'Rank' => $row['rank'] ?? null,
+                'Department' => $row['department'] ?? null,
+                'Vessel type' => $row['vessel_type'] ?? null,
+                'Join date' => $row['join_date'] ?? null,
+                'Contract duration' => $row['contract_duration'] ?? null,
+                'Salary min' => $row['salary_min_usd'] ?? null,
+                'Salary max' => $row['salary_max_usd'] ?? null,
+                'Currency' => $row['currency'] ?? null,
+                'Company' => $row['company_name'] ?? null,
+                'Vessel' => $row['vessel_name'] ?? null,
+                'Publication status' => $row['publication_status'] ?? null,
+            ]),
+            'source_ids' => [
+                'vacancy_request_id' => $row['vacancy_request_id'] ?? null,
+                'created_by_user_id' => $row['created_by_user_id'] ?? null,
+                'company_id' => $row['company_id'] ?? null,
+                'vessel_id' => $row['vessel_id'] ?? null,
+            ],
+        ];
+    }
+
+    return $notFound;
+}
+
+function cpg_agent_workspace_actions(string $assignmentId, array $snapshot, bool $canEdit): array {
+    $objectType = (string) ($snapshot['object_type'] ?? '');
+    $ids = is_array($snapshot['source_ids'] ?? null) ? $snapshot['source_ids'] : [];
+    $actions = [];
+
+    $addAction = static function (string $code, string $label, string $url, string $description) use (&$actions, $canEdit): void {
+        $actions[] = [
+            'operation_code' => $code,
+            'label' => $label,
+            'target_url' => $canEdit ? $url : null,
+            'description' => $description,
+            'enabled' => $canEdit,
+        ];
+    };
+
+    if ($objectType === 'person_user') {
+        $addAction(
+            'open_agent_account_workspace',
+            'Open account workspace',
+            '/agents/?assignment_id=' . rawurlencode($assignmentId) . '#agent-workspace',
+            'Account-level work remains scoped to this agent assignment.'
+        );
+    } elseif ($objectType === 'seafarer_profile') {
+        $userId = is_string($ids['user_id'] ?? null) ? (string) $ids['user_id'] : '';
+        $addAction(
+            'edit_represented_seafarer_profile',
+            'Edit represented seafarer profile',
+            '/create-profile/?draft_id=' . rawurlencode($userId) . '&actor=agent&assignment_id=' . rawurlencode($assignmentId) . '#create-profile-form',
+            'Open the seafarer profile form with agent assignment context.'
+        );
+    } elseif (in_array($objectType, ['employer_company', 'vessel', 'vacancy_request'], true)) {
+        $draftUserId = is_string($ids['created_by_user_id'] ?? null)
+            ? (string) $ids['created_by_user_id']
+            : (is_string($ids['primary_user_id'] ?? null) ? (string) $ids['primary_user_id'] : '');
+        $addAction(
+            'edit_represented_shipowner_demand',
+            'Edit represented shipowner workspace',
+            '/post-vacancy/?draft_id=' . rawurlencode($draftUserId) . '&actor=agent&assignment_id=' . rawurlencode($assignmentId) . '#post-vacancy-form',
+            'Open the company, vessel and vacancy workspace with agent assignment context.'
+        );
+    } elseif ($objectType === 'contract_workspace') {
+        $addAction(
+            'open_contract_workspace',
+            'Open contract workspace',
+            '/contracts/workspace/?actor=agent&assignment_id=' . rawurlencode($assignmentId),
+            'Open controlled contract preparation for the represented parties.'
+        );
+    }
+
+    return $actions;
+}
+
 function cpg_agent_task_stage_for_object_type(string $objectType): string {
     return match ($objectType) {
         'person_user', 'seafarer_profile' => 'Seafarer represented-object management',
@@ -12228,7 +12586,7 @@ function cpg_agent_task_from_assignment(array $row, array $access): array {
         ],
         'authority' => cpg_agent_authority_summary_from_assignment($row),
         'management' => $management,
-        'target_url' => '/agents/?object_type=' . rawurlencode($objectType) . '&object_id=' . rawurlencode($objectId) . cpg_agent_object_anchor($assignmentId),
+        'target_url' => '/agents/?assignment_id=' . rawurlencode($assignmentId) . '#agent-workspace',
         'generated_at' => gmdate('c'),
     ];
 }
@@ -12286,6 +12644,77 @@ function handle_get_agent_objects(): void {
         'agent_display_name' => $access['agent_display_name'],
         'objects' => $objects,
         'count' => count($objects),
+        'generated_at' => gmdate('c'),
+    ]);
+}
+
+function handle_get_agent_object_workspace(string $assignmentId): void {
+    $access = cpg_agent_access_from_request();
+    $assignmentUuid = api_normalize_uuid($assignmentId);
+    if ($assignmentUuid === null) {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'invalid_agent_object_assignment_id',
+            'message' => 'Invalid agent object assignment id',
+        ]);
+    }
+
+    $row = cpg_agent_assignment_row_by_id((string) $access['agent_organization_id'], $assignmentUuid);
+    if (!is_array($row)) {
+        api_json(404, [
+            'ok' => false,
+            'error' => 'agent_object_assignment_not_found',
+            'message' => 'No object assignment is visible for this agent organization',
+            'assignment_id' => $assignmentUuid,
+        ]);
+    }
+
+    $objectType = is_string($row['object_type'] ?? null) ? (string) $row['object_type'] : '';
+    $objectId = is_string($row['object_id'] ?? null) ? (string) $row['object_id'] : '';
+    $management = cpg_agent_management_block_from_assignment($row);
+    $canEdit = (bool) ($management['management_allowed'] ?? false);
+    $snapshot = cpg_agent_object_safe_snapshot($objectType, $objectId);
+    $actions = cpg_agent_workspace_actions($assignmentUuid, $snapshot, $canEdit);
+    $summary = cpg_agent_string_value($row['object_safe_summary'] ?? null, 500)
+        ?? cpg_agent_string_value($snapshot['safe_fields'][0]['value'] ?? null, 500)
+        ?? trim($objectType . ' ' . $objectId);
+
+    api_json(200, [
+        'ok' => true,
+        'workspace_model' => 'agent_scoped_object_workspace',
+        'agent_organization_id' => $access['agent_organization_id'],
+        'agent_display_name' => $access['agent_display_name'],
+        'assignment' => [
+            'assignment_id' => $row['agent_object_assignment_id'] ?? null,
+            'object_type' => $objectType,
+            'object_id' => $objectId,
+            'assignment_status' => $row['assignment_status'] ?? null,
+            'assignment_source' => $row['assignment_source'] ?? null,
+            'visibility_scope' => $row['visibility_scope'] ?? null,
+            'data_responsibility_status' => $row['data_responsibility_status'] ?? null,
+            'assigned_agent_user_id' => $row['assigned_agent_user_id'] ?? null,
+            'object_safe_summary' => $summary,
+            'source_snapshot' => cpg_agent_json_text_to_object($row['source_snapshot'] ?? null),
+            'metadata' => cpg_agent_json_text_to_object($row['metadata'] ?? null),
+            'updated_at' => $row['updated_at'] ?? null,
+        ],
+        'participant_card' => [
+            'title' => $summary,
+            'object_type' => $objectType,
+            'object_id' => $objectId,
+            'managed_by' => $management,
+            'authority' => cpg_agent_authority_summary_from_assignment($row),
+            'safe_fields' => $snapshot['safe_fields'] ?? [],
+        ],
+        'object_snapshot' => $snapshot,
+        'workspace_guard' => [
+            'can_edit' => $canEdit,
+            'guard_status' => $canEdit ? 'ready_for_agent_scoped_edit' : 'blocked',
+            'blocker' => $canEdit ? null : ($management['management_blocker'] ?? 'agent_management_blocked'),
+            'requires_active_assignment' => true,
+            'requires_verified_authority' => true,
+        ],
+        'actions' => $actions,
         'generated_at' => gmdate('c'),
     ]);
 }
@@ -17452,6 +17881,14 @@ if ($path === '/agents/me') {
 if ($path === '/agents/objects') {
     if ($method === 'GET') {
         handle_get_agent_objects();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if (preg_match('#^/agents/objects/([^/]+)/workspace$#', $path, $matches) === 1) {
+    if ($method === 'GET') {
+        handle_get_agent_object_workspace($matches[1]);
     }
     header('Allow: GET');
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
