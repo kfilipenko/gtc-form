@@ -79,7 +79,14 @@ The user-facing rule is:
 I can work on this object because my agent organization is assigned to it and my user role has the required permission.
 ```
 
-An agent organization may create, enter or maintain data for a seafarer, shipowner, vessel or vacancy only when the agent has verified authority or a platform-approved assignment.
+An agent organization may submit a controlled object-creation request for a seafarer, shipowner, vessel or vacancy. The agent may manage that object only when verified authority evidence and an active platform-approved assignment exist.
+
+The standard distinction is:
+
+```text
+creation request is allowed as intake;
+management operation requires verified authority and active assignment.
+```
 
 The platform must preserve the distinction:
 
@@ -293,9 +300,38 @@ The standard rule is:
 agent authority evidence + duplicate check + platform/control approval = source object creation
 ```
 
+The management rule is stricter:
+
+```text
+verified authority evidence + active object assignment + required permission = agent may manage the object
+```
+
+Creating or submitting data does not grant the agent the right to represent the participant after creation.
+
 After approval, the created record must live in the normal platform source table. Agent responsibility is recorded through scope assignment and audit evidence, not through a separate agent-owned copy.
 
 If a duplicate or existing-record risk appears, the object must not become fully active until the duplicate / account-claim process is resolved.
+
+### 3.7 Agent Authority Visibility Rule
+
+When an object is managed by an agent, the authority basis must be visible in:
+
+1. the agent-managed object list; and
+2. the participant or object card.
+
+The visible authority context must show:
+
+| Element | Requirement |
+|---|---|
+| Agent organization | Name/code of the agent responsible for the object. |
+| Responsible agent user | Assigned agent user when one exists. |
+| Authority type | Power of attorney, seafarer authorization, shipowner agency agreement, vessel authority or other approved type. |
+| Authority status | submitted, under review, verified, limited, expired, rejected or revoked. |
+| Validity | `valid_from` and `valid_until` where applicable. |
+| Assignment status | active, limited, suspended, expired, reassigned or revoked. |
+| Management condition | Clear reason why management is allowed or blocked. |
+
+If authority is missing, expired, rejected or revoked, the object card should show the existing data as controlled context but must block ordinary agent management operations.
 
 ## 4. Seafarer Instructions
 

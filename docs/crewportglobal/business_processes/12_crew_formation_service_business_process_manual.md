@@ -150,6 +150,16 @@ The standard rule is:
 agent organization + verified authority + assigned object scope + user permission = allowed agent operation
 ```
 
+Creation intake and management access are intentionally separated:
+
+```text
+agent may submit an object-creation request
+but agent may manage the object only after verified authority
+and active object assignment.
+```
+
+This means an agent may start a controlled request for a seafarer, shipowner, vessel or vacancy in the interest of a client, but the agent does not receive management rights merely because it submitted the data.
+
 Agent authority evidence may include:
 
 1. agency agreement with a shipowner / employer;
@@ -178,6 +188,8 @@ Data entered by an agent remains platform-governed and object-owned by the relev
 Before creating a new person, company, vessel or seafarer profile from agent-entered data, the platform must run a duplicate / existing-record check. If a likely existing user or organization is found, the platform must notify the claimant through a controlled flow. The claimant may receive full access only after proving the right to the account or card.
 
 An agent-created object must remain a normal platform source object after approval. For example, a seafarer profile created by an agent must still be a `seafarer_profiles` record; a vessel created by an agent must still be a `vessels` record; a vacancy created by an agent must still be a `vacancy_requests` record. Agent responsibility and visibility are attached through object-scope assignment and audit, not by creating a parallel agent-owned copy.
+
+If the object is managed by an agent, the authority basis must be visible in both the agent-managed object list and the participant/object card. The visible record must identify the agent organization, assignment status, authority type, authority review status and authority validity period. If authority is missing, expired, rejected or revoked, the object may remain recorded but ordinary agent management operations must be blocked.
 
 ## 7. Master Process Map
 
@@ -259,7 +271,7 @@ The crew request / vacancy requirement stream connects the foundation streams in
 |---|---|---|---|---|---|---|---|
 | CF-00A Agent onboarding and authority verification | External or GTC-operated crewing participant requests agent status | Agent company data, representative identity, agency agreement / authority evidence, service agreement acceptance | users, company records, access groups, uploaded documents, duplicate signals | future agent organization / agent-user records, authority status, access scope | agent authority review / approval / rejection event | Agent organization is verified, limited, suspended or rejected | Assign agent scope or request authority correction |
 | CF-00B Duplicate / account claim check | A person, company, vessel or seafarer profile is entered by a user or agent and similar records exist | Claimed identity, contact, documents, company registration, vessel identifiers, seafarer documents | users, employer companies, vessels, seafarer profiles, uploaded documents, audit events | account-claim or duplicate-resolution status; link/reject/merge decision when approved | duplicate check / claim notification / claim resolution event | Existing record is linked to rightful claimant, new record proceeds, or claim is blocked | Continue registration, assign object scope, or request evidence |
-| CF-00C Agent-created object intake | Authorized agent creates a person, seafarer profile, shipowner/company card, vessel card or vacancy in a client's interest | Represented party, authority document, draft object payload, duplicate signals | users, employer companies, vessels, seafarer profiles, vacancy_requests, uploaded documents, account/object claims | agent object creation request; normal source object when approved; agent object assignment | agent object creation / duplicate check / approval / assignment event | Agent-created object is created in the normal source table, linked to existing record or blocked | Continue owner workflow or route correction/claim task |
+| CF-00C Agent-created object intake | Agent submits a controlled request to create or link a person, seafarer profile, shipowner/company card, vessel card or vacancy in a client's interest | Represented party, authority evidence if available, draft object payload, duplicate signals | users, employer companies, vessels, seafarer profiles, vacancy_requests, uploaded documents, account/object claims | agent object creation request; normal source object when approved; agent object assignment only after verified authority | agent object creation / duplicate check / authority review / approval / assignment event | Agent-created object is created in the normal source table, linked to existing record or blocked; management remains blocked until verified authority and active assignment exist | Continue owner workflow, request authority evidence, route correction/claim task or compute scoped agent task |
 | CF-01 Lead / demand entry | Employer-side inquiry, imported request or direct form | Client contact, requested role, vessel hints | users, employer drafts, imported request data | employer/vacancy draft or lead metadata | lead captured / source event | Demand lead exists | Qualify employer-side demand |
 | CF-02 Employer and authority setup | Demand lead is relevant | Company data, representative details, authority evidence | employer/company records, uploaded documents | company context, representative authority status | employer authority review event | Employer can be handled as B2B client or returned for correction | Review vessel context or request correction |
 | CF-03 Vessel context setup | Vessel-linked request exists | Vessel name/type/flag, vessel specs, operation context | vessels, reference catalogs, uploaded documents | vessel context, vessel verification status | vessel context review event | Vessel context is structured enough for demand | Review crew request completeness |

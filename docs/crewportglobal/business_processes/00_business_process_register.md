@@ -159,6 +159,7 @@ This documentation block starts from the following approved business controls:
 79. Agent organizations must be treated as independent responsible participants: an agent may enter or maintain seafarer, shipowner, vessel and vacancy data only inside verified authority evidence, assigned object scope and permission boundaries; GTC-operated agents follow the same model as external agents and may receive default unassigned work without a privileged separate role.
 80. Before creating or activating a new person, seafarer profile, shipowner/company card or vessel card, the platform must run an existing-record / duplicate-claim check; if a likely existing record exists, Platform Administration / Control must notify and verify the claimant before granting full access, linking the record, rejecting the claim or assigning controlled scope.
 81. Agent scope implementation must use an additive SQL draft and approval gate before runtime migration: agent organizations, agent users, authority documents, agent-created object requests, object assignments, account/object claims and agent-scope audit must be reviewed without applying DDL/DML until Project Owner approves migration packaging.
+82. Agent object creation and agent object management are separate controls: an agent may submit a controlled creation request for any supported object type, but management access is granted only after verified authority evidence is stored in `agent_authority_documents` and an active `agent_object_assignments` record exists; the authority basis must be visible in both the agent-managed object list and the participant/object card.
 
 ## 5. Intended Use
 
@@ -178,6 +179,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.46 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-115 control separating agent object creation from object management and requiring visible verified authority evidence before agent management access |
 | 3.45 | 2026-06-07 | GTC IT / AI Assistant | Added CPG-BIZ-114 control for the dedicated agent workbench page and Agents navigation group before API/task-scope wiring |
 | 3.44 | 2026-06-07 | GTC IT / AI Assistant | Added CPG-BIZ-113 control after converting the approved agent organization scope SQL draft into runtime migration 020 with test DB verification |
 | 3.43 | 2026-06-07 | GTC IT / AI Assistant | Added CPG-BIZ-112 control for agent organization scope SQL draft, agent-created object requests and migration approval gate |
