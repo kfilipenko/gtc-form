@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 3.08
+- Version: 3.10
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -406,6 +406,7 @@ docs/crewportglobal/
   316_cpg_biz_115_agent_api_authority_management_plan.md
   317_cpg_biz_116_agent_api_skeleton_authority_guard_report.md
   318_cpg_biz_117_agent_task_queue_authority_review_workspace_report.md
+  319_cpg_biz_118_agent_claim_reassignment_workflow_report.md
   sql_drafts/
     018_contract_workspace_schema_draft.sql
     020_agent_organization_scope_schema_draft.sql
@@ -949,6 +950,7 @@ projects/crewportglobal/
 | Version | Date | Author | Changes |
 |---|---|---|---|
 | 3.09 | 2026-06-08 | GTC IT / AI Assistant | Added document 318 as CPG-BIZ-117 implementation report for agent computed task queue, authority review workspace and agent-object authority visibility |
+| 3.10 | 2026-06-08 | GTC IT / AI Assistant | Added document 319 as CPG-BIZ-118 implementation report for agent account/object claim review and reassignment workflow |
 | 3.08 | 2026-06-08 | GTC IT / AI Assistant | Updated document 316 status to show the CPG-BIZ-115 plan was implemented by CPG-BIZ-116 |
 | 3.07 | 2026-06-08 | GTC IT / AI Assistant | Added document 317 as CPG-BIZ-116 implementation report for agent API skeleton, verified authority guard, managed-by API context and focused test evidence |
 | 3.06 | 2026-06-08 | GTC IT / AI Assistant | Updated document 316 with universal `Managed by` / `Управляется` object-card field and task-routing rules for self-managed and agent-managed objects |

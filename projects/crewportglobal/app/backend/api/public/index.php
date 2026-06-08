@@ -11641,6 +11641,42 @@ function cpg_agent_allowed_assignment_object_types(): array {
     ];
 }
 
+function cpg_agent_allowed_claim_types(): array {
+    return [
+        'person_account',
+        'seafarer_profile',
+        'employer_company',
+        'vessel',
+        'vacancy_request',
+        'agent_authority',
+    ];
+}
+
+function cpg_agent_allowed_claim_target_object_types(): array {
+    return [
+        'person_user',
+        'seafarer_profile',
+        'employer_company',
+        'vessel',
+        'vacancy_request',
+        'agent_organization',
+    ];
+}
+
+function cpg_agent_allowed_claim_statuses(): array {
+    return [
+        'submitted',
+        'under_review',
+        'evidence_requested',
+        'approved_linked',
+        'approved_new_record',
+        'rejected',
+        'cancelled',
+        'blocked_duplicate',
+        'limited_pending',
+    ];
+}
+
 function cpg_agent_allowed_party_types(): array {
     return ['seafarer', 'shipowner', 'employer_company', 'vessel_owner', 'vessel_operator', 'ship_manager', 'crew_manager', 'unknown'];
 }
@@ -11703,6 +11739,14 @@ function cpg_agent_json_object_text(array $payload): string {
     }
     $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     return $json === false ? '{}' : $json;
+}
+
+function cpg_agent_json_text_to_object(mixed $value): array {
+    if (!is_string($value) || trim($value) === '') {
+        return [];
+    }
+    $decoded = json_decode($value, true);
+    return is_array($decoded) && !array_is_list($decoded) ? $decoded : [];
 }
 
 function cpg_agent_management_allowed_status(array $row): bool {
@@ -11899,7 +11943,8 @@ function cpg_agent_scope_audit_event(
     ?string $targetObjectId,
     array $previousValue,
     array $newValue,
-    ?string $reason = null
+    ?string $reason = null,
+    ?string $accountObjectClaimId = null
 ): void {
     if (!cpg_agent_scope_tables_ready()) {
         return;
@@ -11913,6 +11958,7 @@ function cpg_agent_scope_audit_event(
            agent_user_id,
            agent_object_creation_request_id,
            agent_object_assignment_id,
+           account_object_claim_id,
            target_object_type,
            target_object_id,
            previous_value,
@@ -11927,13 +11973,14 @@ function cpg_agent_scope_audit_event(
            $4::uuid,
            $5::uuid,
            $6::uuid,
-           $7,
-           $8::uuid,
-           $9::jsonb,
+           $7::uuid,
+           $8,
+           $9::uuid,
            $10::jsonb,
-           $11,
-           NULLIF($12, '')::inet,
-           $13
+           $11::jsonb,
+           $12,
+           NULLIF($13, '')::inet,
+           $14
          )",
         [
             $eventType,
@@ -11942,6 +11989,7 @@ function cpg_agent_scope_audit_event(
             $agentUserId,
             $creationRequestId,
             $assignmentId,
+            $accountObjectClaimId,
             $targetObjectType,
             $targetObjectId,
             cpg_agent_json_object_text($previousValue),
@@ -12247,6 +12295,7 @@ function handle_get_agent_tasks(): void {
     $agentOrganizationId = (string) $access['agent_organization_id'];
     $limit = max(1, min(200, (int) ($_GET['limit'] ?? 100)));
     $assignmentRows = cpg_agent_assignment_rows($agentOrganizationId, $limit);
+    $claimRows = cpg_agent_claim_rows($agentOrganizationId, $limit);
     $requestRows = cpg_fetch_all_assoc(
         "SELECT agent_object_creation_request_id::text AS request_id,
                 intended_object_type,
@@ -12274,6 +12323,9 @@ function handle_get_agent_tasks(): void {
     foreach ($requestRows as $row) {
         $tasks[] = cpg_agent_task_from_creation_request($row);
     }
+    foreach ($claimRows as $row) {
+        $tasks[] = cpg_agent_task_from_claim($row);
+    }
 
     api_json(200, [
         'ok' => true,
@@ -12282,6 +12334,7 @@ function handle_get_agent_tasks(): void {
         'task_model' => 'data_derived_agent_scope',
         'tasks' => $tasks,
         'count' => count($tasks),
+        'claim_count' => count($claimRows),
         'generated_at' => gmdate('c'),
     ]);
 }
@@ -12496,6 +12549,224 @@ function handle_post_agent_authority_document(): void {
     ]);
 }
 
+function cpg_agent_claim_anchor(string $claimId): string {
+    return '#agent-claim-' . rawurlencode($claimId);
+}
+
+function cpg_agent_admin_claim_anchor(string $claimId): string {
+    return '#agent-admin-claim-' . rawurlencode($claimId);
+}
+
+function cpg_agent_claim_rows(string $agentOrganizationId, int $limit = 100): array {
+    return cpg_fetch_all_assoc(
+        "SELECT account_object_claim_id::text AS claim_id,
+                claim_type,
+                claimant_user_id::text AS claimant_user_id,
+                claimant_agent_organization_id::text AS claimant_agent_organization_id,
+                target_object_type,
+                target_object_id::text AS target_object_id,
+                claimed_email,
+                claimed_company_registration_number,
+                claimed_country_code,
+                claimed_imo_number,
+                claim_status,
+                linked_assignment_id::text AS linked_assignment_id,
+                duplicate_match_snapshot::text AS duplicate_match_snapshot,
+                metadata::text AS metadata,
+                resolution_note,
+                created_at::text AS created_at,
+                updated_at::text AS updated_at
+         FROM crewportglobal.account_object_claims
+         WHERE claimant_agent_organization_id = $1::uuid
+         ORDER BY updated_at DESC
+         LIMIT $2",
+        [$agentOrganizationId, $limit]
+    );
+}
+
+function cpg_agent_claim_summary(array $row): string {
+    $targetType = cpg_agent_string_value($row['target_object_type'] ?? null, 80);
+    $targetId = cpg_agent_string_value($row['target_object_id'] ?? null, 80);
+    $email = cpg_agent_string_value($row['claimed_email'] ?? null, 120);
+    $companyReg = cpg_agent_string_value($row['claimed_company_registration_number'] ?? null, 120);
+    $imo = cpg_agent_string_value($row['claimed_imo_number'] ?? null, 40);
+    $claimType = cpg_agent_string_value($row['claim_type'] ?? null, 80) ?? 'object claim';
+
+    if ($targetType !== null && $targetId !== null) {
+        return $targetType . ' ' . $targetId;
+    }
+    if ($email !== null) {
+        return $email;
+    }
+    if ($companyReg !== null) {
+        return trim($companyReg . ' ' . (string) ($row['claimed_country_code'] ?? ''));
+    }
+    if ($imo !== null) {
+        return 'IMO ' . $imo;
+    }
+
+    return $claimType;
+}
+
+function cpg_agent_task_from_claim(array $row): array {
+    $claimId = is_string($row['claim_id'] ?? null) ? (string) $row['claim_id'] : '';
+    $claimStatus = is_string($row['claim_status'] ?? null) ? (string) $row['claim_status'] : 'submitted';
+    $summary = cpg_agent_claim_summary($row);
+    $needsEvidence = in_array($claimStatus, ['evidence_requested', 'limited_pending'], true);
+    $isFinal = in_array($claimStatus, ['approved_linked', 'approved_new_record', 'rejected', 'cancelled', 'blocked_duplicate'], true);
+
+    return [
+        'task_id' => 'agent-claim-' . $claimId,
+        'task_model' => 'data_derived_agent_scope',
+        'operation_code' => $needsEvidence ? 'provide_agent_claim_evidence' : 'track_agent_account_object_claim',
+        'task_title' => ($needsEvidence ? 'Provide claim evidence.' : 'Track account/object claim.') . ' (' . $summary . '.)',
+        'process_stage' => 'Agent duplicate/account claim resolution',
+        'visibility_condition' => $isFinal
+            ? 'Shown as a completed control record after claim resolution.'
+            : 'Visible while the claim is submitted, under review or needs additional evidence before object management can be granted.',
+        'task_state' => $isFinal ? 'control_record' : ($needsEvidence ? 'agent_evidence_required' : 'platform_review_pending'),
+        'responsible' => [
+            'group' => 'agent_organization',
+            'agent_organization_id' => is_string($row['claimant_agent_organization_id'] ?? null) ? (string) $row['claimant_agent_organization_id'] : null,
+        ],
+        'claim' => [
+            'claim_id' => $claimId,
+            'claim_type' => is_string($row['claim_type'] ?? null) ? (string) $row['claim_type'] : null,
+            'claim_status' => $claimStatus,
+            'target_object_type' => is_string($row['target_object_type'] ?? null) ? (string) $row['target_object_type'] : null,
+            'target_object_id' => is_string($row['target_object_id'] ?? null) ? (string) $row['target_object_id'] : null,
+            'linked_assignment_id' => is_string($row['linked_assignment_id'] ?? null) ? (string) $row['linked_assignment_id'] : null,
+        ],
+        'target_url' => '/agents/' . cpg_agent_claim_anchor($claimId),
+        'generated_at' => gmdate('c'),
+    ];
+}
+
+function handle_get_agent_account_object_claims(): void {
+    $access = cpg_agent_access_from_request();
+    $limit = max(1, min(200, (int) ($_GET['limit'] ?? 100)));
+    $claims = cpg_agent_claim_rows((string) $access['agent_organization_id'], $limit);
+
+    api_json(200, [
+        'ok' => true,
+        'agent_organization_id' => $access['agent_organization_id'],
+        'claims' => $claims,
+        'count' => count($claims),
+        'generated_at' => gmdate('c'),
+    ]);
+}
+
+function handle_post_agent_account_object_claim(): void {
+    $access = cpg_agent_access_from_request();
+    $body = api_decode_json_body();
+    $claimType = cpg_agent_enum_value($body['claim_type'] ?? null, cpg_agent_allowed_claim_types(), '');
+    $targetObjectType = cpg_agent_enum_value($body['target_object_type'] ?? null, cpg_agent_allowed_claim_target_object_types(), '');
+    $targetObjectId = cpg_agent_nullable_uuid($body['target_object_id'] ?? null);
+    if ($claimType === '') {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'agent_claim_type_required',
+            'message' => 'A supported claim_type is required',
+            'allowed_claim_types' => cpg_agent_allowed_claim_types(),
+        ]);
+    }
+
+    $claimedEmail = cpg_agent_string_value($body['claimed_email'] ?? null, 254);
+    $claimedCompanyRegistrationNumber = cpg_agent_string_value($body['claimed_company_registration_number'] ?? null, 120);
+    $claimedCountryCode = cpg_agent_string_value($body['claimed_country_code'] ?? null, 2);
+    $claimedCountryCode = $claimedCountryCode !== null ? strtoupper($claimedCountryCode) : null;
+    $claimedImoNumber = cpg_agent_string_value($body['claimed_imo_number'] ?? null, 7);
+    $claimedDocumentHash = cpg_agent_string_value($body['claimed_document_hash'] ?? null, 64);
+    $evidenceDocumentId = cpg_agent_nullable_uuid($body['evidence_document_id'] ?? null);
+    $sourceAuthorityDocumentId = cpg_agent_nullable_uuid($body['source_authority_document_id'] ?? null);
+    $duplicateSnapshot = cpg_agent_json_object_value($body['duplicate_match_snapshot'] ?? ($body['matched_existing_snapshot'] ?? []));
+    $metadata = cpg_agent_json_object_value($body['metadata'] ?? []);
+    if ($sourceAuthorityDocumentId !== null) {
+        $metadata['source_authority_document_id'] = $sourceAuthorityDocumentId;
+    }
+    $claimReason = cpg_agent_string_value($body['claim_reason'] ?? ($body['reason'] ?? null), 1000);
+    if ($claimReason !== null) {
+        $metadata['claim_reason'] = $claimReason;
+    }
+
+    $row = cpg_fetch_one_assoc(
+        "INSERT INTO crewportglobal.account_object_claims (
+           claim_type,
+           claimant_user_id,
+           claimant_agent_organization_id,
+           target_object_type,
+           target_object_id,
+           claimed_email,
+           claimed_company_registration_number,
+           claimed_country_code,
+           claimed_imo_number,
+           claimed_document_hash,
+           duplicate_match_snapshot,
+           evidence_document_id,
+           claim_status,
+           metadata
+         ) VALUES (
+           $1,
+           $2::uuid,
+           $3::uuid,
+           NULLIF($4, ''),
+           $5::uuid,
+           $6,
+           $7,
+           $8,
+           $9,
+           $10,
+           $11::jsonb,
+           $12::uuid,
+           'submitted',
+           $13::jsonb
+         )
+         RETURNING account_object_claim_id::text AS claim_id,
+                   claim_type,
+                   claimant_agent_organization_id::text AS claimant_agent_organization_id,
+                   target_object_type,
+                   target_object_id::text AS target_object_id,
+                   claim_status,
+                   created_at::text AS created_at",
+        [
+            $claimType,
+            (string) $access['actor_user_id'],
+            (string) $access['agent_organization_id'],
+            $targetObjectType,
+            $targetObjectId,
+            $claimedEmail,
+            $claimedCompanyRegistrationNumber,
+            $claimedCountryCode,
+            $claimedImoNumber,
+            $claimedDocumentHash,
+            cpg_agent_json_object_text($duplicateSnapshot),
+            $evidenceDocumentId,
+            cpg_agent_json_object_text(array_merge(['source' => 'agent_claim_api'], $metadata)),
+        ]
+    );
+
+    $claimId = is_array($row) ? (string) ($row['claim_id'] ?? '') : '';
+    cpg_agent_scope_audit_event(
+        'agent_account_object_claim_submitted',
+        (string) $access['actor_user_id'],
+        (string) $access['agent_organization_id'],
+        (string) $access['agent_user_id'],
+        null,
+        null,
+        $targetObjectType !== '' ? $targetObjectType : null,
+        $targetObjectId,
+        [],
+        is_array($row) ? $row : [],
+        $claimReason ?? 'agent submitted account/object claim',
+        $claimId !== '' ? $claimId : null
+    );
+
+    api_json(201, [
+        'ok' => true,
+        'claim' => $row,
+    ]);
+}
+
 function require_agent_admin_access(): array {
     return require_operator_workflow_operation_access('confirm_vacancy_deletion');
 }
@@ -12570,6 +12841,43 @@ function cpg_admin_agent_object_request_task(array $row): array {
     ];
 }
 
+function cpg_admin_agent_claim_task(array $row): array {
+    $claimId = is_string($row['claim_id'] ?? null) ? (string) $row['claim_id'] : '';
+    $agentName = cpg_agent_string_value($row['agent_display_name'] ?? null, 200) ?? 'Agent organization';
+    $summary = cpg_agent_claim_summary($row);
+    $claimType = is_string($row['claim_type'] ?? null) ? (string) $row['claim_type'] : 'claim';
+    return [
+        'task_id' => 'admin-agent-claim-' . $claimId,
+        'task_model' => 'data_derived_agent_scope',
+        'operation_code' => 'review_agent_account_object_claim',
+        'task_title' => 'Review account/object claim. (Agent: ' . $agentName . ', ' . $summary . '.)',
+        'process_stage' => 'Agent duplicate/account claim resolution',
+        'visibility_condition' => 'Visible while an agent claim is submitted, under review, needs evidence or remains limited before object management is granted.',
+        'task_state' => 'platform_control_review_required',
+        'responsible' => [
+            'group' => 'platform_control',
+            'permission' => 'confirm_vacancy_deletion',
+        ],
+        'claim' => [
+            'claim_id' => $claimId,
+            'agent_organization_id' => is_string($row['claimant_agent_organization_id'] ?? null) ? (string) $row['claimant_agent_organization_id'] : null,
+            'agent_display_name' => $agentName,
+            'claim_type' => $claimType,
+            'claim_status' => is_string($row['claim_status'] ?? null) ? (string) $row['claim_status'] : null,
+            'target_object_type' => is_string($row['target_object_type'] ?? null) ? (string) $row['target_object_type'] : null,
+            'target_object_id' => is_string($row['target_object_id'] ?? null) ? (string) $row['target_object_id'] : null,
+            'claimed_email' => is_string($row['claimed_email'] ?? null) ? (string) $row['claimed_email'] : null,
+            'claimed_company_registration_number' => is_string($row['claimed_company_registration_number'] ?? null) ? (string) $row['claimed_company_registration_number'] : null,
+            'claimed_country_code' => is_string($row['claimed_country_code'] ?? null) ? (string) $row['claimed_country_code'] : null,
+            'claimed_imo_number' => is_string($row['claimed_imo_number'] ?? null) ? (string) $row['claimed_imo_number'] : null,
+            'created_at' => is_string($row['created_at'] ?? null) ? (string) $row['created_at'] : null,
+            'updated_at' => is_string($row['updated_at'] ?? null) ? (string) $row['updated_at'] : null,
+        ],
+        'target_url' => '/agents/' . cpg_agent_admin_claim_anchor($claimId),
+        'generated_at' => gmdate('c'),
+    ];
+}
+
 function handle_get_admin_agent_review_workspace(): void {
     cpg_agent_require_scope_tables();
     require_agent_admin_access();
@@ -12619,6 +12927,30 @@ function handle_get_admin_agent_review_workspace(): void {
          LIMIT $1",
         [$limit]
     );
+    $claimRows = cpg_fetch_all_assoc(
+        "SELECT aoc.account_object_claim_id::text AS claim_id,
+                aoc.claim_type,
+                aoc.claimant_user_id::text AS claimant_user_id,
+                aoc.claimant_agent_organization_id::text AS claimant_agent_organization_id,
+                ao.agent_display_name,
+                aoc.target_object_type,
+                aoc.target_object_id::text AS target_object_id,
+                aoc.claimed_email,
+                aoc.claimed_company_registration_number,
+                aoc.claimed_country_code,
+                aoc.claimed_imo_number,
+                aoc.claim_status,
+                aoc.linked_assignment_id::text AS linked_assignment_id,
+                aoc.created_at::text AS created_at,
+                aoc.updated_at::text AS updated_at
+         FROM crewportglobal.account_object_claims aoc
+         LEFT JOIN crewportglobal.agent_organizations ao
+           ON ao.agent_organization_id = aoc.claimant_agent_organization_id
+         WHERE aoc.claim_status IN ('submitted', 'under_review', 'evidence_requested', 'limited_pending')
+         ORDER BY aoc.updated_at DESC
+         LIMIT $1",
+        [$limit]
+    );
 
     $tasks = [];
     foreach ($authorityRows as $row) {
@@ -12627,6 +12959,9 @@ function handle_get_admin_agent_review_workspace(): void {
     foreach ($requestRows as $row) {
         $tasks[] = cpg_admin_agent_object_request_task($row);
     }
+    foreach ($claimRows as $row) {
+        $tasks[] = cpg_admin_agent_claim_task($row);
+    }
 
     api_json(200, [
         'ok' => true,
@@ -12634,10 +12969,12 @@ function handle_get_admin_agent_review_workspace(): void {
         'tasks' => $tasks,
         'authority_documents' => $authorityRows,
         'object_creation_requests' => $requestRows,
+        'account_object_claims' => $claimRows,
         'counts' => [
             'tasks' => count($tasks),
             'authority_documents' => count($authorityRows),
             'object_creation_requests' => count($requestRows),
+            'account_object_claims' => count($claimRows),
         ],
         'generated_at' => gmdate('c'),
     ]);
@@ -12888,6 +13225,485 @@ function handle_post_admin_agent_object_assignment(): void {
         'ok' => true,
         'assignment' => $row,
         'management' => cpg_object_management_context($objectType, $objectId),
+    ]);
+}
+
+function cpg_agent_verified_authority_for_claim(
+    string $agentOrganizationId,
+    ?string $authorityDocumentId,
+    string $targetObjectId
+): ?array {
+    if ($authorityDocumentId !== null) {
+        return cpg_fetch_one_assoc(
+            "SELECT aad.agent_authority_document_id::text AS agent_authority_document_id,
+                    aad.agent_organization_id::text AS agent_organization_id,
+                    aad.authority_status AS document_authority_status,
+                    aad.authority_type,
+                    aad.authority_scope_type,
+                    aad.authority_scope_object_id::text AS authority_scope_object_id,
+                    aad.valid_until::text AS authority_valid_until,
+                    ao.agent_status,
+                    ao.authority_status AS organization_authority_status,
+                    ao.agent_display_name
+             FROM crewportglobal.agent_authority_documents aad
+             JOIN crewportglobal.agent_organizations ao
+               ON ao.agent_organization_id = aad.agent_organization_id
+             WHERE aad.agent_authority_document_id = $1::uuid
+               AND aad.agent_organization_id = $2::uuid
+               AND aad.archived_at IS NULL
+             LIMIT 1",
+            [$authorityDocumentId, $agentOrganizationId]
+        );
+    }
+
+    return cpg_fetch_one_assoc(
+        "SELECT aad.agent_authority_document_id::text AS agent_authority_document_id,
+                aad.agent_organization_id::text AS agent_organization_id,
+                aad.authority_status AS document_authority_status,
+                aad.authority_type,
+                aad.authority_scope_type,
+                aad.authority_scope_object_id::text AS authority_scope_object_id,
+                aad.valid_until::text AS authority_valid_until,
+                ao.agent_status,
+                ao.authority_status AS organization_authority_status,
+                ao.agent_display_name
+         FROM crewportglobal.agent_authority_documents aad
+         JOIN crewportglobal.agent_organizations ao
+           ON ao.agent_organization_id = aad.agent_organization_id
+         WHERE aad.agent_organization_id = $1::uuid
+           AND aad.authority_status IN ('verified', 'limited')
+           AND aad.archived_at IS NULL
+           AND (aad.valid_until IS NULL OR aad.valid_until >= CURRENT_DATE)
+           AND (
+             aad.authority_scope_object_id IS NULL
+             OR aad.authority_scope_object_id = $2::uuid
+           )
+         ORDER BY
+           CASE WHEN aad.authority_scope_object_id = $2::uuid THEN 0 ELSE 1 END,
+           aad.updated_at DESC
+         LIMIT 1",
+        [$agentOrganizationId, $targetObjectId]
+    );
+}
+
+function cpg_agent_user_for_claim(array $claim): ?string {
+    $claimantUserId = is_string($claim['claimant_user_id'] ?? null) ? (string) $claim['claimant_user_id'] : null;
+    $agentOrganizationId = is_string($claim['claimant_agent_organization_id'] ?? null) ? (string) $claim['claimant_agent_organization_id'] : null;
+    if ($claimantUserId === null || $agentOrganizationId === null) {
+        return null;
+    }
+
+    $row = cpg_fetch_one_assoc(
+        "SELECT agent_user_id::text AS agent_user_id
+         FROM crewportglobal.agent_users
+         WHERE agent_organization_id = $1::uuid
+           AND user_id = $2::uuid
+           AND membership_status = 'active'
+         ORDER BY updated_at DESC
+         LIMIT 1",
+        [$agentOrganizationId, $claimantUserId]
+    );
+
+    return is_array($row) && is_string($row['agent_user_id'] ?? null) ? (string) $row['agent_user_id'] : null;
+}
+
+function cpg_admin_approve_agent_claim_assignment(
+    array $claim,
+    array $authority,
+    array $access,
+    string $decision,
+    ?string $reviewNote
+): array {
+    $claimId = (string) ($claim['claim_id'] ?? '');
+    $agentOrganizationId = (string) ($claim['claimant_agent_organization_id'] ?? '');
+    $targetObjectType = (string) ($claim['target_object_type'] ?? '');
+    $targetObjectId = (string) ($claim['target_object_id'] ?? '');
+    $authorityDocumentId = (string) ($authority['agent_authority_document_id'] ?? '');
+    $assignmentStatus = (string) ($authority['document_authority_status'] ?? '') === 'limited' ? 'limited' : 'active';
+    $summary = cpg_agent_claim_summary($claim);
+    $assignedAgentUserId = cpg_agent_user_for_claim($claim);
+
+    $existing = cpg_fetch_one_assoc(
+        "SELECT agent_object_assignment_id::text AS assignment_id,
+                agent_organization_id::text AS agent_organization_id,
+                assignment_status,
+                object_type,
+                object_id::text AS object_id,
+                object_safe_summary
+         FROM crewportglobal.agent_object_assignments
+         WHERE object_type = $1
+           AND object_id = $2::uuid
+           AND assignment_status IN ('active', 'limited')
+         LIMIT 1",
+        [$targetObjectType, $targetObjectId]
+    );
+
+    if (is_array($existing) && (string) ($existing['agent_organization_id'] ?? '') === $agentOrganizationId) {
+        $assignmentId = (string) ($existing['assignment_id'] ?? '');
+        $claimRow = cpg_fetch_one_assoc(
+            "UPDATE crewportglobal.account_object_claims
+             SET claim_status = $2,
+                 reviewed_by_user_id = $3::uuid,
+                 reviewed_at = now(),
+                 resolution_note = $4,
+                 linked_assignment_id = $5::uuid,
+                 updated_at = now()
+             WHERE account_object_claim_id = $1::uuid
+             RETURNING account_object_claim_id::text AS claim_id,
+                       claim_type,
+                       claimant_agent_organization_id::text AS claimant_agent_organization_id,
+                       target_object_type,
+                       target_object_id::text AS target_object_id,
+                       claim_status,
+                       linked_assignment_id::text AS linked_assignment_id,
+                       reviewed_at::text AS reviewed_at",
+            [
+                $claimId,
+                $decision,
+                $access['actor_user_id'] ?? null,
+                $reviewNote,
+                $assignmentId,
+            ]
+        );
+
+        cpg_agent_scope_audit_event(
+            'agent_account_object_claim_linked_existing_assignment',
+            is_string($access['actor_user_id'] ?? null) ? (string) $access['actor_user_id'] : null,
+            $agentOrganizationId,
+            $assignedAgentUserId,
+            null,
+            $assignmentId,
+            $targetObjectType,
+            $targetObjectId,
+            $claim,
+            is_array($claimRow) ? $claimRow : [],
+            $reviewNote ?? 'platform control linked claim to existing assignment',
+            $claimId
+        );
+
+        return [
+            'claim' => $claimRow,
+            'assignment' => $existing,
+            'reassigned_from_assignment_id' => null,
+        ];
+    }
+
+    api_tx_begin();
+    try {
+        $reassignedFromAssignmentId = null;
+        if (is_array($existing)) {
+            $reassignedFromAssignmentId = (string) ($existing['assignment_id'] ?? '');
+            api_query(
+                "UPDATE crewportglobal.agent_object_assignments
+                 SET assignment_status = 'reassigned',
+                     replacement_reason = $2,
+                     updated_at = now()
+                 WHERE agent_object_assignment_id = $1::uuid",
+                [
+                    $reassignedFromAssignmentId,
+                    $reviewNote ?? 'reassigned after approved account/object claim',
+                ]
+            );
+        }
+
+        $assignment = cpg_fetch_one_assoc(
+            "INSERT INTO crewportglobal.agent_object_assignments (
+               agent_organization_id,
+               object_type,
+               object_id,
+               assignment_status,
+               assignment_source,
+               visibility_scope,
+               data_responsibility_status,
+               source_authority_document_id,
+               assigned_by_user_id,
+               assigned_agent_user_id,
+               assigned_at,
+               valid_from,
+               object_safe_summary,
+               source_snapshot,
+               metadata
+             ) VALUES (
+               $1::uuid,
+               $2,
+               $3::uuid,
+               $4,
+               'claim_resolution',
+               CASE WHEN $4 = 'limited' THEN 'limited_execution' ELSE 'ordinary_execution' END,
+               'agent_responsible',
+               $5::uuid,
+               $6::uuid,
+               $7::uuid,
+               now(),
+               now(),
+               $8,
+               $9::jsonb,
+               $10::jsonb
+             )
+             RETURNING agent_object_assignment_id::text AS assignment_id,
+                       agent_organization_id::text AS agent_organization_id,
+                       object_type,
+                       object_id::text AS object_id,
+                       assignment_status,
+                       assigned_at::text AS assigned_at",
+            [
+                $agentOrganizationId,
+                $targetObjectType,
+                $targetObjectId,
+                $assignmentStatus,
+                $authorityDocumentId,
+                $access['actor_user_id'] ?? null,
+                $assignedAgentUserId,
+                $summary,
+                cpg_agent_json_object_text([
+                    'account_object_claim_id' => $claimId,
+                    'authority_document_id' => $authorityDocumentId,
+                    'previous_assignment_id' => $reassignedFromAssignmentId,
+                ]),
+                cpg_agent_json_object_text(['source' => 'agent_claim_resolution']),
+            ]
+        );
+
+        $assignmentId = is_array($assignment) ? (string) ($assignment['assignment_id'] ?? '') : '';
+        if ($reassignedFromAssignmentId !== null && $assignmentId !== '') {
+            api_query(
+                "UPDATE crewportglobal.agent_object_assignments
+                 SET replaced_by_assignment_id = $2::uuid,
+                     updated_at = now()
+                 WHERE agent_object_assignment_id = $1::uuid",
+                [$reassignedFromAssignmentId, $assignmentId]
+            );
+        }
+
+        $claimRow = cpg_fetch_one_assoc(
+            "UPDATE crewportglobal.account_object_claims
+             SET claim_status = $2,
+                 reviewed_by_user_id = $3::uuid,
+                 reviewed_at = now(),
+                 resolution_note = $4,
+                 linked_assignment_id = $5::uuid,
+                 updated_at = now()
+             WHERE account_object_claim_id = $1::uuid
+             RETURNING account_object_claim_id::text AS claim_id,
+                       claim_type,
+                       claimant_agent_organization_id::text AS claimant_agent_organization_id,
+                       target_object_type,
+                       target_object_id::text AS target_object_id,
+                       claim_status,
+                       linked_assignment_id::text AS linked_assignment_id,
+                       reviewed_at::text AS reviewed_at",
+            [
+                $claimId,
+                $decision,
+                $access['actor_user_id'] ?? null,
+                $reviewNote,
+                $assignmentId !== '' ? $assignmentId : null,
+            ]
+        );
+
+        api_tx_commit();
+
+        cpg_agent_scope_audit_event(
+            $reassignedFromAssignmentId !== null ? 'agent_object_assignment_reassigned' : 'agent_object_assignment_created_from_claim',
+            is_string($access['actor_user_id'] ?? null) ? (string) $access['actor_user_id'] : null,
+            $agentOrganizationId,
+            $assignedAgentUserId,
+            null,
+            $assignmentId !== '' ? $assignmentId : null,
+            $targetObjectType,
+            $targetObjectId,
+            [
+                'claim' => $claim,
+                'previous_assignment_id' => $reassignedFromAssignmentId,
+            ],
+            [
+                'claim' => is_array($claimRow) ? $claimRow : [],
+                'assignment' => is_array($assignment) ? $assignment : [],
+            ],
+            $reviewNote ?? 'platform control approved account/object claim',
+            $claimId
+        );
+
+        return [
+            'claim' => $claimRow,
+            'assignment' => $assignment,
+            'reassigned_from_assignment_id' => $reassignedFromAssignmentId,
+        ];
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        throw $error;
+    }
+}
+
+function handle_patch_admin_agent_account_object_claim_review(string $claimId): void {
+    cpg_agent_require_scope_tables();
+    $access = require_agent_admin_access();
+    $uuid = api_normalize_uuid($claimId);
+    if ($uuid === null) {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'invalid_account_object_claim_id',
+            'message' => 'Invalid account/object claim id',
+        ]);
+    }
+
+    $body = api_decode_json_body();
+    $decision = cpg_agent_enum_value(
+        $body['decision'] ?? ($body['claim_status'] ?? null),
+        ['under_review', 'evidence_requested', 'approved_linked', 'approved_new_record', 'rejected', 'cancelled', 'blocked_duplicate', 'limited_pending'],
+        ''
+    );
+    if ($decision === '') {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'agent_claim_review_decision_required',
+            'message' => 'Review decision must be under_review, evidence_requested, approved_linked, approved_new_record, rejected, cancelled, blocked_duplicate or limited_pending',
+        ]);
+    }
+
+    $reviewNote = cpg_agent_string_value($body['review_note'] ?? ($body['resolution_note'] ?? null), 1000);
+    $claim = cpg_fetch_one_assoc(
+        "SELECT aoc.account_object_claim_id::text AS claim_id,
+                aoc.claim_type,
+                aoc.claimant_user_id::text AS claimant_user_id,
+                aoc.claimant_agent_organization_id::text AS claimant_agent_organization_id,
+                aoc.target_object_type,
+                aoc.target_object_id::text AS target_object_id,
+                aoc.claimed_email,
+                aoc.claimed_company_registration_number,
+                aoc.claimed_country_code,
+                aoc.claimed_imo_number,
+                aoc.claim_status,
+                aoc.linked_assignment_id::text AS linked_assignment_id,
+                aoc.metadata::text AS metadata
+         FROM crewportglobal.account_object_claims aoc
+         WHERE aoc.account_object_claim_id = $1::uuid
+         LIMIT 1",
+        [$uuid]
+    );
+    if ($claim === null) {
+        api_json(404, [
+            'ok' => false,
+            'error' => 'account_object_claim_not_found',
+            'message' => 'Account/object claim was not found',
+        ]);
+    }
+
+    $agentOrganizationId = is_string($claim['claimant_agent_organization_id'] ?? null)
+        ? (string) $claim['claimant_agent_organization_id']
+        : null;
+    $targetObjectType = is_string($claim['target_object_type'] ?? null) ? (string) $claim['target_object_type'] : '';
+    $targetObjectId = is_string($claim['target_object_id'] ?? null) ? (string) $claim['target_object_id'] : '';
+
+    if (in_array($decision, ['approved_linked', 'approved_new_record'], true)) {
+        if ($agentOrganizationId === null || $targetObjectType === '' || $targetObjectId === '') {
+            api_json(409, [
+                'ok' => false,
+                'error' => 'agent_claim_target_required_for_approval',
+                'message' => 'Approved claims require claimant agent organization, target_object_type and target_object_id',
+                'claim' => $claim,
+            ]);
+        }
+        if (!in_array($targetObjectType, cpg_agent_allowed_assignment_object_types(), true)) {
+            api_json(409, [
+                'ok' => false,
+                'error' => 'agent_claim_target_not_assignable',
+                'message' => 'The claim target cannot be assigned to an agent organization',
+                'claim' => $claim,
+            ]);
+        }
+
+        $metadata = cpg_agent_json_text_to_object($claim['metadata'] ?? null);
+        $authorityDocumentId = cpg_agent_nullable_uuid($body['source_authority_document_id'] ?? ($metadata['source_authority_document_id'] ?? null));
+        $authority = cpg_agent_verified_authority_for_claim($agentOrganizationId, $authorityDocumentId, $targetObjectId);
+        if ($authority === null) {
+            api_json(404, [
+                'ok' => false,
+                'error' => 'agent_claim_authority_document_not_found',
+                'message' => 'Verified authority document for this claim was not found',
+                'claim' => $claim,
+            ]);
+        }
+
+        $authorityScopeObjectId = is_string($authority['authority_scope_object_id'] ?? null)
+            ? (string) $authority['authority_scope_object_id']
+            : '';
+        if ($authorityScopeObjectId !== '' && $authorityScopeObjectId !== $targetObjectId) {
+            api_json(409, [
+                'ok' => false,
+                'error' => 'agent_claim_authority_scope_mismatch',
+                'message' => 'Authority document is scoped to a different object',
+                'authority' => $authority,
+                'claim' => $claim,
+            ]);
+        }
+
+        $guardRow = array_merge($authority, [
+            'assignment_status' => (string) ($authority['document_authority_status'] ?? '') === 'limited' ? 'limited' : 'active',
+        ]);
+        if (!cpg_agent_management_allowed_status($guardRow)) {
+            api_json(409, [
+                'ok' => false,
+                'error' => 'agent_claim_authority_guard_blocked',
+                'message' => 'Claim approval requires verified authority, active agent organization and active assignment status',
+                'blocker' => cpg_agent_management_blocker($guardRow),
+                'authority' => $authority,
+                'claim' => $claim,
+            ]);
+        }
+
+        $result = cpg_admin_approve_agent_claim_assignment($claim, $authority, $access, $decision, $reviewNote);
+        api_json(200, [
+            'ok' => true,
+            'claim' => $result['claim'],
+            'assignment' => $result['assignment'],
+            'reassigned_from_assignment_id' => $result['reassigned_from_assignment_id'],
+            'management' => cpg_object_management_context($targetObjectType, $targetObjectId),
+        ]);
+    }
+
+    $row = cpg_fetch_one_assoc(
+        "UPDATE crewportglobal.account_object_claims
+         SET claim_status = $2,
+             reviewed_by_user_id = $3::uuid,
+             reviewed_at = now(),
+             resolution_note = $4,
+             updated_at = now()
+         WHERE account_object_claim_id = $1::uuid
+         RETURNING account_object_claim_id::text AS claim_id,
+                   claim_type,
+                   claimant_agent_organization_id::text AS claimant_agent_organization_id,
+                   target_object_type,
+                   target_object_id::text AS target_object_id,
+                   claim_status,
+                   linked_assignment_id::text AS linked_assignment_id,
+                   reviewed_at::text AS reviewed_at",
+        [
+            $uuid,
+            $decision,
+            $access['actor_user_id'] ?? null,
+            $reviewNote,
+        ]
+    );
+
+    cpg_agent_scope_audit_event(
+        'agent_account_object_claim_reviewed',
+        is_string($access['actor_user_id'] ?? null) ? (string) $access['actor_user_id'] : null,
+        $agentOrganizationId,
+        null,
+        null,
+        null,
+        $targetObjectType !== '' ? $targetObjectType : null,
+        $targetObjectId !== '' ? $targetObjectId : null,
+        $claim,
+        is_array($row) ? $row : [],
+        $reviewNote,
+        (string) ($claim['claim_id'] ?? $uuid)
+    );
+
+    api_json(200, [
+        'ok' => true,
+        'claim' => $row,
     ]);
 }
 
@@ -16660,6 +17476,17 @@ if ($path === '/agents/object-creation-requests') {
     api_error(405, 'method_not_allowed', 'Allowed methods: GET, POST');
 }
 
+if ($path === '/agents/account-object-claims') {
+    if ($method === 'GET') {
+        handle_get_agent_account_object_claims();
+    }
+    if ($method === 'POST') {
+        handle_post_agent_account_object_claim();
+    }
+    header('Allow: GET, POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET, POST');
+}
+
 if ($path === '/agents/authority-documents') {
     if ($method === 'POST') {
         handle_post_agent_authority_document();
@@ -16679,6 +17506,14 @@ if ($path === '/admin/agents/review-workspace') {
 if (preg_match('#^/admin/agents/authority-documents/([^/]+)/review$#', $path, $matches) === 1) {
     if ($method === 'PATCH') {
         handle_patch_admin_agent_authority_document_review($matches[1]);
+    }
+    header('Allow: PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
+}
+
+if (preg_match('#^/admin/agents/account-object-claims/([^/]+)/review$#', $path, $matches) === 1) {
+    if ($method === 'PATCH') {
+        handle_patch_admin_agent_account_object_claim_review($matches[1]);
     }
     header('Allow: PATCH');
     api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');

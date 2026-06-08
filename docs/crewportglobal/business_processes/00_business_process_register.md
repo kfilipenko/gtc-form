@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.48
+- Version: 3.50
 - Status: For internal review
 
 ## 1. Purpose
@@ -161,6 +161,7 @@ This documentation block starts from the following approved business controls:
 81. Agent scope implementation must use an additive SQL draft and approval gate before runtime migration: agent organizations, agent users, authority documents, agent-created object requests, object assignments, account/object claims and agent-scope audit must be reviewed without applying DDL/DML until Project Owner approves migration packaging.
 82. Agent object creation and agent object management are separate controls: an agent may submit a controlled creation request for any supported object type, but management access is granted only after verified authority evidence is stored in `agent_authority_documents` and an active `agent_object_assignments` record exists; every object card must show `Managed by` / `Управляется` as the current task-routing actor, and this value may be a registered user or a managing agent organization.
 83. Computed task routing must use object management context: `object state + managed_by_type + managed_by_id + required permission = visible task owner`; when a managing agent is reassigned, future tasks move to the new managing agent while the old agent remains only in audit/history.
+84. Account/object claim resolution is a controlled reassignment gate: an agent claim must be reviewed by Platform Administration / Control, linked to verified authority evidence, and only then may create or replace an active object assignment; if reassigned, the previous assignment becomes `reassigned`, the new assignment becomes the task-routing `Managed by` actor and all material steps are recorded in `agent_scope_audit_events`.
 
 ## 5. Intended Use
 
@@ -180,6 +181,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.50 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-118 implementation control for agent account/object claim review, authority-guarded reassignment and claim audit linkage |
 | 3.49 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-117 implementation control for agent computed tasks, platform-control authority review workspace and authority evidence visibility in agent object cards |
 | 3.48 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-116 implementation control for agent API skeleton, verified authority guard, object assignment and managed-by context in API/task payloads |
 | 3.47 | 2026-06-08 | GTC IT / AI Assistant | Added `Managed by` / `Управляется` as the object-level task-routing context for registered-user-managed and agent-managed objects, including reassignment behavior |

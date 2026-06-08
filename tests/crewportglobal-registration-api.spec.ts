@@ -2946,19 +2946,232 @@ FROM inserted_user;
   ))).toBe(true);
   expect(agentTasks.tasks.some((task: Record<string, any>) => task.operation_code === 'track_agent_object_request' && task.object_request?.request_id === creationRequestId)).toBe(true);
 
+  const takeoverEmail = `api.agent.claim.${unique}@example.com`;
+  const takeoverAgentCode = `APICLAIM${unique}`;
+  const takeoverContext = await playwrightRequest.newContext({
+    baseURL: 'http://127.0.0.1:38124/api/v1',
+    extraHTTPHeaders: {
+      Authorization: '',
+      'X-CPG-Operator-Token': '',
+    },
+  });
+
+  const takeoverCreateResponse = await takeoverContext.post('/auth/register-password', {
+    data: {
+      role: 'employer',
+      role_in_company: 'agent manager',
+      email: takeoverEmail,
+      full_name: 'API Claim Agent Manager',
+      password: 'CrewPortGlobal123!',
+      confirm_password: 'CrewPortGlobal123!',
+      terms_accepted: true,
+      consent_accepted: true,
+      company_name: `API Claim Agent Company ${unique}`,
+      country_code: 'AE',
+      registration_number: `AE-CLAIM-${unique}`,
+    },
+  });
+  const takeoverCreateText = await takeoverCreateResponse.text();
+  expect(takeoverCreateResponse.status(), takeoverCreateText).toBe(201);
+  const takeoverCreated = JSON.parse(takeoverCreateText) as DraftResponse & { user: { user_id: string } };
+  const takeoverUserId = takeoverCreated.user.user_id;
+
+  const takeoverBootstrap = runApiPsql(`
+WITH inserted_org AS (
+  INSERT INTO crewportglobal.agent_organizations (
+    agent_code,
+    agent_display_name,
+    organization_kind,
+    agent_status,
+    authority_status,
+    platform_service_agreement_status,
+    created_by_user_id,
+    approved_by_user_id,
+    approved_at,
+    metadata
+  ) VALUES (
+    '${takeoverAgentCode}',
+    'API Claim Agent ${unique}',
+    'external_crewing',
+    'verified',
+    'submitted',
+    'accepted',
+    '${takeoverUserId.replace(/'/g, "''")}'::uuid,
+    '${takeoverUserId.replace(/'/g, "''")}'::uuid,
+    now(),
+    '{"test_control":"CPG-BIZ-118"}'::jsonb
+  )
+  RETURNING agent_organization_id
+),
+inserted_user AS (
+  INSERT INTO crewportglobal.agent_users (
+    agent_organization_id,
+    user_id,
+    agent_user_role,
+    membership_status,
+    granted_by_user_id,
+    granted_at,
+    metadata
+  )
+  SELECT
+    inserted_org.agent_organization_id,
+    '${takeoverUserId.replace(/'/g, "''")}'::uuid,
+    'manager',
+    'active',
+    '${takeoverUserId.replace(/'/g, "''")}'::uuid,
+    now(),
+    '{"test_control":"CPG-BIZ-118"}'::jsonb
+  FROM inserted_org
+  RETURNING agent_user_id, agent_organization_id
+)
+SELECT agent_organization_id::text || '|' || agent_user_id::text
+FROM inserted_user;
+`);
+  const [takeoverAgentOrganizationId] = takeoverBootstrap.split('|');
+  expect(takeoverAgentOrganizationId).toMatch(/[0-9a-f-]{36}/);
+
+  const takeoverAuthorityResponse = await takeoverContext.post('/agents/authority-documents', {
+    data: {
+      authority_type: 'power_of_attorney',
+      authority_scope_type: 'other',
+      authority_scope_object_id: agentUserId,
+      valid_from: '2026-06-08',
+      valid_until: '2027-06-08',
+      source_reference: 'Synthetic API takeover authority evidence',
+      scope_snapshot: {
+        represented_party: 'Synthetic person account takeover',
+        represented_object_type: 'person_user',
+        represented_object_id: agentUserId,
+      },
+    },
+  });
+  const takeoverAuthorityText = await takeoverAuthorityResponse.text();
+  expect(takeoverAuthorityResponse.ok(), takeoverAuthorityText).toBeTruthy();
+  const takeoverAuthority = JSON.parse(takeoverAuthorityText) as Record<string, any>;
+  const takeoverAuthorityDocumentId = takeoverAuthority.authority_document.authority_document_id;
+
+  const takeoverAuthorityReviewResponse = await takeoverContext.patch(`/admin/agents/authority-documents/${takeoverAuthorityDocumentId}/review`, {
+    headers: {
+      'X-CPG-Operator-Token': operatorToken,
+    },
+    data: {
+      decision: 'verified',
+      review_note: 'Synthetic API test verified takeover authority.',
+    },
+  });
+  const takeoverAuthorityReviewText = await takeoverAuthorityReviewResponse.text();
+  expect(takeoverAuthorityReviewResponse.ok(), takeoverAuthorityReviewText).toBeTruthy();
+
+  const claimResponse = await takeoverContext.post('/agents/account-object-claims', {
+    data: {
+      claim_type: 'person_account',
+      target_object_type: 'person_user',
+      target_object_id: agentUserId,
+      source_authority_document_id: takeoverAuthorityDocumentId,
+      claimed_email: email,
+      claim_reason: 'Synthetic takeover claim for represented account.',
+      duplicate_match_snapshot: {
+        previous_agent_organization_id: agentOrganizationId,
+      },
+    },
+  });
+  const claimText = await claimResponse.text();
+  expect(claimResponse.ok(), claimText).toBeTruthy();
+  const claim = JSON.parse(claimText) as Record<string, any>;
+  const claimId = claim.claim.claim_id;
+  expect(claim.claim.claim_status).toBe('submitted');
+
+  const takeoverTasksBeforeReviewResponse = await takeoverContext.get('/agents/tasks');
+  const takeoverTasksBeforeReviewText = await takeoverTasksBeforeReviewResponse.text();
+  expect(takeoverTasksBeforeReviewResponse.ok(), takeoverTasksBeforeReviewText).toBeTruthy();
+  const takeoverTasksBeforeReview = JSON.parse(takeoverTasksBeforeReviewText) as Record<string, any>;
+  expect(takeoverTasksBeforeReview.tasks.some((task: Record<string, any>) => (
+    task.operation_code === 'track_agent_account_object_claim'
+    && task.claim?.claim_id === claimId
+  ))).toBe(true);
+
+  const claimWorkspaceResponse = await takeoverContext.get('/admin/agents/review-workspace', {
+    headers: {
+      'X-CPG-Operator-Token': operatorToken,
+    },
+  });
+  const claimWorkspaceText = await claimWorkspaceResponse.text();
+  expect(claimWorkspaceResponse.ok(), claimWorkspaceText).toBeTruthy();
+  const claimWorkspace = JSON.parse(claimWorkspaceText) as Record<string, any>;
+  expect(JSON.stringify(claimWorkspace.tasks)).toContain(claimId);
+  expect(claimWorkspace.tasks.some((task: Record<string, any>) => (
+    task.operation_code === 'review_agent_account_object_claim'
+    && task.claim?.claim_id === claimId
+  ))).toBe(true);
+
+  const claimReviewResponse = await takeoverContext.patch(`/admin/agents/account-object-claims/${claimId}/review`, {
+    headers: {
+      'X-CPG-Operator-Token': operatorToken,
+    },
+    data: {
+      decision: 'approved_linked',
+      source_authority_document_id: takeoverAuthorityDocumentId,
+      review_note: 'Synthetic API test approves claim and reassigns represented account.',
+    },
+  });
+  const claimReviewText = await claimReviewResponse.text();
+  expect(claimReviewResponse.ok(), claimReviewText).toBeTruthy();
+  const claimReview = JSON.parse(claimReviewText) as Record<string, any>;
+  expect(claimReview.claim.claim_status).toBe('approved_linked');
+  expect(claimReview.reassigned_from_assignment_id).toBe(assignment.assignment.assignment_id);
+  expect(claimReview.management).toMatchObject({
+    managed_by_type: 'agent_organization',
+    managed_by_display_name: `API Claim Agent ${unique}`,
+    managed_by_agent: true,
+    management_allowed: true,
+  });
+
+  const originalObjectsAfterClaimResponse = await agentContext.get('/agents/objects');
+  const originalObjectsAfterClaimText = await originalObjectsAfterClaimResponse.text();
+  expect(originalObjectsAfterClaimResponse.ok(), originalObjectsAfterClaimText).toBeTruthy();
+  const originalObjectsAfterClaim = JSON.parse(originalObjectsAfterClaimText) as Record<string, any>;
+  expect(originalObjectsAfterClaim.objects).toHaveLength(0);
+
+  const takeoverObjectsResponse = await takeoverContext.get('/agents/objects');
+  const takeoverObjectsText = await takeoverObjectsResponse.text();
+  expect(takeoverObjectsResponse.ok(), takeoverObjectsText).toBeTruthy();
+  const takeoverObjects = JSON.parse(takeoverObjectsText) as Record<string, any>;
+  expect(takeoverObjects.objects).toHaveLength(1);
+  expect(takeoverObjects.objects[0].management).toMatchObject({
+    managed_by_type: 'agent_organization',
+    managed_by_display_name: `API Claim Agent ${unique}`,
+    managed_by_agent: true,
+    management_allowed: true,
+  });
+
+  const claimRows = Number(runApiPsql(`
+SELECT count(*)
+FROM crewportglobal.account_object_claims
+WHERE account_object_claim_id = '${claimId.replace(/'/g, "''")}'::uuid
+  AND claim_status = 'approved_linked'
+  AND linked_assignment_id IS NOT NULL;
+`));
+  expect(claimRows).toBe(1);
+
   const auditCount = Number(runApiPsql(`
 SELECT count(*)
 FROM crewportglobal.agent_scope_audit_events
-WHERE agent_organization_id = '${agentOrganizationId.replace(/'/g, "''")}'::uuid
+WHERE agent_organization_id IN (
+    '${agentOrganizationId.replace(/'/g, "''")}'::uuid,
+    '${takeoverAgentOrganizationId.replace(/'/g, "''")}'::uuid
+  )
   AND event_type IN (
     'agent_authority_submitted',
     'agent_authority_reviewed',
     'agent_object_creation_requested',
-    'agent_object_assignment_created'
+    'agent_object_assignment_created',
+    'agent_account_object_claim_submitted',
+    'agent_object_assignment_reassigned'
   );
 `));
-  expect(auditCount).toBeGreaterThanOrEqual(4);
+  expect(auditCount).toBeGreaterThanOrEqual(8);
 
+  await takeoverContext.dispose();
   await agentContext.dispose();
 });
 

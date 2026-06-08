@@ -49,7 +49,7 @@
 
     .agent-summary {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 10px;
     }
 
@@ -296,6 +296,10 @@
           <span>pending requests</span>
         </div>
         <div class="agent-summary__item">
+          <strong id="agent-summary-claims">0</strong>
+          <span>claims</span>
+        </div>
+        <div class="agent-summary__item">
           <strong id="agent-summary-tasks">0</strong>
           <span>computed tasks</span>
         </div>
@@ -402,6 +406,8 @@
         <p id="agent-object-empty" class="agent-api-message">No assigned objects loaded yet.</p>
         <div id="agent-request-list" class="agent-object-list" aria-live="polite"></div>
         <p id="agent-request-empty" class="agent-api-message">No object creation requests loaded yet.</p>
+        <div id="agent-claim-list" class="agent-object-list" aria-live="polite"></div>
+        <p id="agent-claim-empty" class="agent-api-message">No account/object claims loaded yet.</p>
       </section>
 
       <section class="card" id="agent-admin-review" hidden>
@@ -420,6 +426,7 @@
       const orgCount = document.getElementById('agent-summary-organizations');
       const objectCount = document.getElementById('agent-summary-objects');
       const requestCount = document.getElementById('agent-summary-requests');
+      const claimCount = document.getElementById('agent-summary-claims');
       const taskCount = document.getElementById('agent-summary-tasks');
       const taskList = document.getElementById('agent-task-list');
       const taskEmpty = document.getElementById('agent-task-empty');
@@ -427,6 +434,8 @@
       const empty = document.getElementById('agent-object-empty');
       const requestList = document.getElementById('agent-request-list');
       const requestEmpty = document.getElementById('agent-request-empty');
+      const claimList = document.getElementById('agent-claim-list');
+      const claimEmpty = document.getElementById('agent-claim-empty');
       const adminReview = document.getElementById('agent-admin-review');
       const adminReviewList = document.getElementById('agent-admin-review-list');
       const adminReviewEmpty = document.getElementById('agent-admin-review-empty');
@@ -553,6 +562,43 @@
         });
       };
 
+      const renderClaims = (claims) => {
+        if (!claimList || !claimEmpty) {
+          return;
+        }
+        claimList.innerHTML = '';
+        if (!Array.isArray(claims) || claims.length === 0) {
+          claimEmpty.hidden = false;
+          return;
+        }
+        claimEmpty.hidden = true;
+        claims.slice(0, 20).forEach((item) => {
+          const row = document.createElement('article');
+          row.className = 'agent-object';
+          row.id = safeHashId('agent-claim', item.claim_id);
+          const copy = document.createElement('div');
+          const heading = document.createElement('strong');
+          heading.textContent = item.target_object_type && item.target_object_id
+            ? `${item.claim_type || 'claim'}: ${item.target_object_type} ${item.target_object_id}`
+            : `${item.claim_type || 'claim'}: ${item.claimed_email || item.claimed_company_registration_number || item.claimed_imo_number || 'unmatched object'}`;
+          const meta = document.createElement('div');
+          meta.className = 'agent-object__meta';
+          meta.textContent = [
+            item.claim_status,
+            item.claimed_country_code ? `Country: ${item.claimed_country_code}` : '',
+            item.linked_assignment_id ? `Assignment: ${item.linked_assignment_id}` : '',
+            item.resolution_note ? `Note: ${item.resolution_note}` : '',
+          ].filter(Boolean).join(' | ');
+          copy.append(heading, meta);
+          const pill = document.createElement('span');
+          const finalStatus = ['approved_linked', 'approved_new_record', 'rejected', 'cancelled', 'blocked_duplicate'].includes(item.claim_status);
+          pill.className = `agent-pill ${finalStatus ? 'is-ready' : 'is-pending'}`;
+          pill.textContent = item.claim_status || 'claim';
+          row.append(copy, pill);
+          claimList.append(row);
+        });
+      };
+
       const loadAdminReview = async () => {
         if (!adminReview) {
           return;
@@ -582,20 +628,24 @@
           setText(status, `Role: ${me.payload.agent_user_role || 'agent'} | Status: ${me.payload.agent_status || 'unknown'} | Authority: ${me.payload.authority_status || 'unknown'}`);
           setText(orgCount, String((me.payload.organizations || []).filter((item) => item.management_ready).length));
 
-          const [objects, requests, tasks] = await Promise.all([
+          const [objects, requests, claims, tasks] = await Promise.all([
             apiGet('/agents/objects'),
             apiGet('/agents/object-creation-requests'),
+            apiGet('/agents/account-object-claims'),
             apiGet('/agents/tasks'),
           ]);
           const objectRows = objects.payload.objects || [];
           const requestRows = requests.payload.requests || [];
+          const claimRows = claims.payload.claims || [];
           const taskRows = tasks.payload.tasks || [];
           setText(objectCount, String(objectRows.length));
           setText(requestCount, String(requestRows.filter((item) => !['created_linked', 'blocked_duplicate', 'rejected', 'cancelled'].includes(item.creation_status)).length));
+          setText(claimCount, String(claimRows.length));
           setText(taskCount, String(taskRows.length));
           renderTaskRows(taskList, taskEmpty, taskRows, 'agent-task');
           renderObjects(objectRows);
           renderRequests(requestRows);
+          renderClaims(claimRows);
           loadAdminReview();
         } catch (error) {
           setText(title, 'Agent API unavailable.');
