@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 3.05
+- Version: 3.06
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -946,6 +946,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.06 | 2026-06-08 | GTC IT / AI Assistant | Updated document 316 with universal `Managed by` / `Управляется` object-card field and task-routing rules for self-managed and agent-managed objects |
 | 3.05 | 2026-06-08 | GTC IT / AI Assistant | Added document 316 as CPG-BIZ-115 plan separating agent object creation from object management through verified authority documents and active object assignment |
 | 3.04 | 2026-06-07 | GTC IT / AI Assistant | Added document 315 as CPG-BIZ-114 report for the agent workbench page and Agents navigation group |
 | 3.03 | 2026-06-07 | GTC IT / AI Assistant | Added document 314 as CPG-BIZ-113 runtime migration report for agent organization scope schema and migration 020 test verification |

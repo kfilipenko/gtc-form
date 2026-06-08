@@ -323,6 +323,8 @@ The visible authority context must show:
 
 | Element | Requirement |
 |---|---|
+| Managed by | Stable display field: `Managed by: {display_name}` / `Управляется: {display_name}`. |
+| Manager type | `registered_user`, `agent_organization` or `platform_control`. |
 | Agent organization | Name/code of the agent responsible for the object. |
 | Responsible agent user | Assigned agent user when one exists. |
 | Authority type | Power of attorney, seafarer authorization, shipowner agency agreement, vessel authority or other approved type. |
@@ -332,6 +334,14 @@ The visible authority context must show:
 | Management condition | Clear reason why management is allowed or blocked. |
 
 If authority is missing, expired, rejected or revoked, the object card should show the existing data as controlled context but must block ordinary agent management operations.
+
+Task computation must use the same `Managed by` context:
+
+```text
+object state + managed_by_type + managed_by_id + required permission = visible task owner
+```
+
+If the object is self-managed, the task is routed to the registered user's cabinet or owner queue. If the object is agent-managed, the task is routed to the active managing agent organization or its assigned agent user. If the managing agent changes, new tasks must move to the new managing agent; the previous manager remains only as audit/history evidence.
 
 ## 4. Seafarer Instructions
 

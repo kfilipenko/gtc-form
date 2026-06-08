@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: API implementation plan for Project Owner review
 - Source task: continuation after CPG-BIZ-114 and Project Owner clarification
-- Version: 1.0
+- Version: 1.2
 - Date: 2026-06-08
 - Status: Drafted for implementation approval
 
@@ -84,18 +84,38 @@ agent_authority_documents
 | `reviewed_by_user_id` / `reviewed_at` | Кто проверил полномочие. |
 | `scope_snapshot` | Безопасный снимок области полномочий. |
 
-## 4. Где Должна Отображаться Доверенность
+## 4. Где Должны Отображаться Управляющий И Доверенность
 
-Доверенность должна быть видима в двух рабочих местах.
+Каждый объект должен иметь понятный управленческий контекст. Это поле используется не только для отображения, но и для вычисления исполнителя задач.
 
-### 4.1 Список объектов, управляемых агентом
+Основное поле:
 
-В списке объектов агента каждая строка должна показывать:
+```text
+Managed by: {registered_user_display_name | agent_display_name}
+```
+
+Русская локализация:
+
+```text
+Управляется: {имя зарегистрированного пользователя | имя управляющего агента}
+```
+
+Если объект управляется самим зарегистрированным участником, в поле указывается имя этого пользователя. Если объект управляется агентом, в поле указывается имя агентской организации.
+
+При переназначении управляющего значение этого поля должно меняться, потому что оно определяет, кому система будет назначать следующие вычисленные задачи.
+
+Доверенность должна быть видима в двух рабочих местах, когда объект управляется агентом.
+
+### 4.1 Список объектов / участников
+
+В списке объектов каждая строка должна показывать:
 
 | Element | Requirement |
 |---|---|
 | Object safe summary | Краткое безопасное описание участника или объекта. |
 | Object type | Seafarer, shipowner, vessel, vacancy, contract workspace. |
+| Managed by | `Managed by: {display_name}` / `Управляется: {display_name}`. |
+| Manager type | `registered_user`, `agent_organization` or `platform_control`. |
 | Assignment status | active, limited, suspended, expired. |
 | Authority status | verified, limited, expired, rejected, missing. |
 | Authority type | Power of attorney, seafarer authorization, shipowner agency agreement, vessel authority. |
@@ -123,7 +143,78 @@ Management blocked: authority not verified.
 8. историю assignment / reassignment;
 9. предупреждение, если полномочия истекли, ограничены или отозваны.
 
+Основное поле карточки должно иметь стабильное название:
+
+```text
+Managed by: {display_name}
+```
+
+Русская локализация:
+
+```text
+Управляется: {display_name}
+```
+
+Если объект управляется самим зарегистрированным участником:
+
+```text
+Управляется: Ivan Petrov
+Тип управляющего: registered_user
+```
+
+Если объект управляется агентом:
+
+```text
+Управляется: Ocean Crew Agency
+Тип управляющего: agent_organization
+Статус полномочий: under_review
+Управление заблокировано: доверенность не подтверждена.
+```
+
 Эта информация должна быть доступна Platform Administration / Control и пользователям, которым разрешено видеть управление их объектом.
+
+### 4.3 Object-card API display contract
+
+Любой API, возвращающий карточку объекта, должен иметь возможность добавить безопасный блок:
+
+```json
+{
+  "management": {
+    "managed_by_type": "agent_organization",
+    "managed_by_id": "uuid",
+    "managed_by_display_name": "Ocean Crew Agency",
+    "managed_by_label": "Managed by: Ocean Crew Agency",
+    "managed_by_label_ru": "Управляется: Ocean Crew Agency",
+    "managed_by_agent": true,
+    "agent_organization_id": "uuid",
+    "agent_display_name": "Ocean Crew Agency",
+    "assignment_status": "active",
+    "authority_status": "verified",
+    "authority_type": "power_of_attorney",
+    "authority_valid_until": "2027-06-08",
+    "management_allowed": true,
+    "management_blocker": null
+  }
+}
+```
+
+Если объект не управляется агентом:
+
+```json
+{
+  "management": {
+    "managed_by_type": "registered_user",
+    "managed_by_id": "uuid",
+    "managed_by_display_name": "Ivan Petrov",
+    "managed_by_label": "Managed by: Ivan Petrov",
+    "managed_by_label_ru": "Управляется: Ivan Petrov",
+    "managed_by_agent": false,
+    "agent_organization_id": null,
+    "management_allowed": true,
+    "management_blocker": null
+  }
+}
+```
 
 ## 5. API Слои
 
@@ -161,6 +252,7 @@ Management blocked: authority not verified.
 
 ```text
 object state
++ managing actor from object card
 + active agent organization
 + active agent user
 + verified authority covering object
@@ -168,6 +260,22 @@ object state
 + required permission
 = visible agent task
 ```
+
+Общее правило маршрутизации задачи:
+
+```text
+object state
++ managed_by_type
++ managed_by_id
++ required permission
+= visible task owner
+```
+
+Если `managed_by_type = registered_user`, задача назначается в личный кабинет зарегистрированного пользователя или в его owner/correction queue.
+
+Если `managed_by_type = agent_organization`, задача назначается активному агентскому исполнителю или группе агентской организации, но только при verified/limited authority и active/limited assignment.
+
+Если управляющий агент переназначен, следующие вычисленные задачи должны переходить новому управляющему агенту. Старый агент сохраняется в audit/history, но не получает новые ordinary execution tasks.
 
 Отдельное правило для creation request:
 
@@ -232,11 +340,22 @@ agent_management_blocked_missing_authority
 4. Доверенность хранится в `agent_authority_documents`.
 5. Доверенность отображается в списке управляемых агентом объектов.
 6. Доверенность отображается в карточке участника/объекта, если объект управляется агентом.
-7. Duplicate / existing-record check выполняется до предоставления полного доступа.
-8. Все authority, creation, assignment и blocked-management события пишутся в audit.
-9. `/agents/` можно подключить к API без предоставления широкого доступа к чужим данным.
+7. Карточка любого объекта показывает стабильное поле `Managed by: {display_name}` / `Управляется: {display_name}`.
+8. Вычисление задач использует `managed_by_type` и `managed_by_id` для назначения задачи зарегистрированному пользователю или управляющему агенту.
+9. При переназначении управляющего агента новые задачи назначаются новому управляющему, а старый управляющий остается только в audit/history.
+10. Duplicate / existing-record check выполняется до предоставления полного доступа.
+11. Все authority, creation, assignment, reassignment и blocked-management события пишутся в audit.
+12. `/agents/` можно подключить к API без предоставления широкого доступа к чужим данным.
 
-## 10. Next Stage
+## 10. Revision History
+
+| Version | Date | Author | Changes |
+|---|---|---|---|
+| 1.2 | 2026-06-08 | GTC IT / AI Assistant | Replaced agent-only display wording with the universal `Managed by` / `Управляется` field and added task-routing rules based on `managed_by_type` and reassignment. |
+| 1.1 | 2026-06-08 | GTC IT / AI Assistant | Intermediate agent-only wording for object-card management display; superseded by the universal v1.2 `Managed by` / `Управляется` model. |
+| 1.0 | 2026-06-08 | GTC IT / AI Assistant | Initial CPG-BIZ-115 API authority and management scope plan. |
+
+## 11. Next Stage
 
 После утверждения этого плана следующий этап:
 
@@ -253,4 +372,3 @@ CPG-BIZ-116 - Agent API skeleton and verified-authority guard implementation
 5. `POST /api/v1/agents/authority-documents`;
 6. admin review endpoints for authority and assignment;
 7. `/agents/` UI connection to live API.
-

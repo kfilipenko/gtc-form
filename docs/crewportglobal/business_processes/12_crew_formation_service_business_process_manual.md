@@ -189,7 +189,16 @@ Before creating a new person, company, vessel or seafarer profile from agent-ent
 
 An agent-created object must remain a normal platform source object after approval. For example, a seafarer profile created by an agent must still be a `seafarer_profiles` record; a vessel created by an agent must still be a `vessels` record; a vacancy created by an agent must still be a `vacancy_requests` record. Agent responsibility and visibility are attached through object-scope assignment and audit, not by creating a parallel agent-owned copy.
 
-If the object is managed by an agent, the authority basis must be visible in both the agent-managed object list and the participant/object card. The visible record must identify the agent organization, assignment status, authority type, authority review status and authority validity period. If authority is missing, expired, rejected or revoked, the object may remain recorded but ordinary agent management operations must be blocked.
+Every source object must have a visible management context for task routing:
+
+```text
+Managed by: {registered user or managing agent}
+Управляется: {зарегистрированный пользователь или управляющий агент}
+```
+
+If the object is self-managed, the field shows the registered user's name. If the object is managed by an agent, the field shows the agent organization name and the authority basis must be visible in both the agent-managed object list and the participant/object card. The visible record must identify the agent organization, assignment status, authority type, authority review status and authority validity period. If authority is missing, expired, rejected or revoked, the object may remain recorded but ordinary agent management operations must be blocked.
+
+Computed tasks must use this management context. If the managing actor changes because an object is reassigned from one agent to another, future computed tasks must be routed to the new managing actor while the previous manager remains only in audit/history.
 
 ## 7. Master Process Map
 
