@@ -107,7 +107,8 @@
 
     .agent-operation__copy,
     .agent-operation__meta,
-    .agent-note {
+    .agent-note,
+    .agent-object__meta {
       color: var(--muted-on-dark);
       font-size: 14px;
       line-height: 1.45;
@@ -167,9 +168,40 @@
       background: rgba(255, 255, 255, 0.04);
     }
 
+    .agent-object-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .agent-object {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .agent-object strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text-on-dark);
+    }
+
+    .agent-api-message {
+      margin: 10px 0 0;
+      color: var(--muted-on-dark);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
     @media (max-width: 900px) {
       .agent-hero,
-      .agent-operation {
+      .agent-operation,
+      .agent-object {
         grid-template-columns: 1fr;
       }
 
@@ -228,22 +260,22 @@
           <p class="lead-copy">Represented seafarers, shipowners, vessels, vacancies, matching and contracts must stay inside verified agent scope.</p>
         </div>
         <div class="agent-status" aria-live="polite">
-          <strong>Controlled scope first.</strong>
-          <span class="agent-note">The page is ready for CPG-BIZ-114 API wiring. It does not grant object access without verified authority and assignment records.</span>
+          <strong id="agent-api-title">Controlled scope first.</strong>
+          <span id="agent-api-status" class="agent-note">Loading agent scope from the API.</span>
         </div>
       </section>
 
       <section class="agent-summary" aria-label="Agent scope summary">
         <div class="agent-summary__item">
-          <strong>0</strong>
+          <strong id="agent-summary-organizations">0</strong>
           <span>verified organizations</span>
         </div>
         <div class="agent-summary__item">
-          <strong>0</strong>
+          <strong id="agent-summary-objects">0</strong>
           <span>assigned objects</span>
         </div>
         <div class="agent-summary__item">
-          <strong>0</strong>
+          <strong id="agent-summary-requests">0</strong>
           <span>pending requests</span>
         </div>
         <div class="agent-summary__item">
@@ -341,11 +373,101 @@
       <section class="card" id="claims">
         <p class="eyebrow">Control boundary</p>
         <h2>What remains blocked until API implementation</h2>
-        <p class="lead-copy">Agent access is not computed from this page alone. The next implementation must read migration 020 records, verify authority, compute assignment scope and show only tasks belonging to the agent organization or assigned user.</p>
+        <p class="lead-copy">Agent access is not computed from this page alone. The API reads migration 020 records, verifies authority, computes assignment scope and shows only objects belonging to the selected agent organization.</p>
+        <div id="agent-object-list" class="agent-object-list" aria-live="polite"></div>
+        <p id="agent-object-empty" class="agent-api-message">No assigned objects loaded yet.</p>
       </section>
     </main>
   </div>
 
+  <script>
+    (() => {
+      const status = document.getElementById('agent-api-status');
+      const title = document.getElementById('agent-api-title');
+      const orgCount = document.getElementById('agent-summary-organizations');
+      const objectCount = document.getElementById('agent-summary-objects');
+      const requestCount = document.getElementById('agent-summary-requests');
+      const objectList = document.getElementById('agent-object-list');
+      const empty = document.getElementById('agent-object-empty');
+
+      const setText = (node, value) => {
+        if (node) {
+          node.textContent = value;
+        }
+      };
+
+      const apiGet = async (path) => {
+        const response = await fetch(`/api/v1${path}`, {
+          credentials: 'include',
+          headers: { Accept: 'application/json' },
+        });
+        const payload = await response.json().catch(() => ({}));
+        return { response, payload };
+      };
+
+      const renderObjects = (objects) => {
+        if (!objectList || !empty) {
+          return;
+        }
+        objectList.innerHTML = '';
+        if (!Array.isArray(objects) || objects.length === 0) {
+          empty.hidden = false;
+          return;
+        }
+        empty.hidden = true;
+        objects.slice(0, 20).forEach((item) => {
+          const management = item.management || {};
+          const row = document.createElement('article');
+          row.className = 'agent-object';
+          const copy = document.createElement('div');
+          const heading = document.createElement('strong');
+          heading.textContent = item.object_safe_summary || `${item.object_type || 'object'} ${item.object_id || ''}`;
+          const meta = document.createElement('div');
+          meta.className = 'agent-object__meta';
+          meta.textContent = [
+            item.object_type,
+            item.assignment_status,
+            management.managed_by_label || management.managed_by_label_ru || 'Managed by: not set',
+          ].filter(Boolean).join(' | ');
+          copy.append(heading, meta);
+          const pill = document.createElement('span');
+          pill.className = `agent-pill ${management.management_allowed ? 'is-ready' : 'is-pending'}`;
+          pill.textContent = management.management_allowed ? 'Manageable' : (management.management_blocker || 'Blocked');
+          row.append(copy, pill);
+          objectList.append(row);
+        });
+      };
+
+      const loadAgentScope = async () => {
+        try {
+          const me = await apiGet('/agents/me');
+          if (!me.response.ok || !me.payload.ok) {
+            setText(title, 'Agent session required.');
+            setText(status, me.payload.message || 'Sign in with an active agent account to see scoped work.');
+            return;
+          }
+          setText(title, me.payload.agent_display_name || 'Agent organization');
+          setText(status, `Role: ${me.payload.agent_user_role || 'agent'} | Status: ${me.payload.agent_status || 'unknown'} | Authority: ${me.payload.authority_status || 'unknown'}`);
+          setText(orgCount, String((me.payload.organizations || []).filter((item) => item.management_ready).length));
+
+          const [objects, requests] = await Promise.all([
+            apiGet('/agents/objects'),
+            apiGet('/agents/object-creation-requests'),
+          ]);
+          const objectRows = objects.payload.objects || [];
+          const requestRows = requests.payload.requests || [];
+          setText(objectCount, String(objectRows.length));
+          setText(requestCount, String(requestRows.filter((item) => !['created_linked', 'blocked_duplicate', 'rejected', 'cancelled'].includes(item.creation_status)).length));
+          renderObjects(objectRows);
+        } catch (error) {
+          setText(title, 'Agent API unavailable.');
+          setText(status, 'Unable to load agent scope right now.');
+        }
+      };
+
+      loadAgentScope();
+    })();
+  </script>
   <script src="/assets/crewportglobal-machine-translations.js?v=53345f0f8938ec76" defer></script>
   <script src="/assets/crewportglobal-public-i18n.js?v=20260530-menu-audit" defer></script>
 </body>

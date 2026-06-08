@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.45
+- Version: 3.48
 - Status: For internal review
 
 ## 1. Purpose
@@ -180,6 +180,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.48 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-116 implementation control for agent API skeleton, verified authority guard, object assignment and managed-by context in API/task payloads |
 | 3.47 | 2026-06-08 | GTC IT / AI Assistant | Added `Managed by` / `Управляется` as the object-level task-routing context for registered-user-managed and agent-managed objects, including reassignment behavior |
 | 3.46 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-115 control separating agent object creation from object management and requiring visible verified authority evidence before agent management access |
 | 3.45 | 2026-06-07 | GTC IT / AI Assistant | Added CPG-BIZ-114 control for the dedicated agent workbench page and Agents navigation group before API/task-scope wiring |

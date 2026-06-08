@@ -7,11 +7,17 @@
 - Source task: continuation after CPG-BIZ-114 and Project Owner clarification
 - Version: 1.2
 - Date: 2026-06-08
-- Status: Drafted for implementation approval
+- Status: Approved and implemented by CPG-BIZ-116
 
 ## 1. Назначение
 
 Этот документ фиксирует уточненную модель подключения агентских организаций к API CrewPortGlobal.
+
+Implementation result is recorded in:
+
+```text
+docs/crewportglobal/317_cpg_biz_116_agent_api_skeleton_authority_guard_report.md
+```
 
 Главное правило:
 

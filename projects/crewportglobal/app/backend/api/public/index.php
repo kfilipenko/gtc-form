@@ -11587,6 +11587,1010 @@ function require_translation_review_access(): array {
     return $access;
 }
 
+function cpg_agent_scope_tables_ready(): bool {
+    static $ready = null;
+    if (is_bool($ready)) {
+        return $ready;
+    }
+
+    $row = cpg_fetch_one_assoc(
+        "SELECT count(*)::int AS table_count
+         FROM information_schema.tables
+         WHERE table_schema = 'crewportglobal'
+           AND table_name IN (
+             'agent_organizations',
+             'agent_users',
+             'agent_authority_documents',
+             'agent_object_creation_requests',
+             'agent_object_assignments',
+             'account_object_claims',
+             'agent_scope_audit_events'
+           )",
+        []
+    );
+    $ready = is_array($row) && (int) ($row['table_count'] ?? 0) === 7;
+    return $ready;
+}
+
+function cpg_agent_require_scope_tables(): void {
+    if (!cpg_agent_scope_tables_ready()) {
+        api_json(503, [
+            'ok' => false,
+            'error' => 'agent_scope_schema_not_ready',
+            'message' => 'Agent organization scope tables are not available',
+        ]);
+    }
+}
+
+function cpg_agent_allowed_object_types(): array {
+    return ['person_user', 'seafarer_profile', 'employer_company', 'vessel', 'vacancy_request'];
+}
+
+function cpg_agent_allowed_assignment_object_types(): array {
+    return [
+        'person_user',
+        'seafarer_profile',
+        'employer_company',
+        'vessel',
+        'vacancy_request',
+        'vacancy_application',
+        'shortlist_draft',
+        'shortlist_candidate',
+        'contract_workspace',
+        'voyage_support_record',
+    ];
+}
+
+function cpg_agent_allowed_party_types(): array {
+    return ['seafarer', 'shipowner', 'employer_company', 'vessel_owner', 'vessel_operator', 'ship_manager', 'crew_manager', 'unknown'];
+}
+
+function cpg_agent_allowed_authority_types(): array {
+    return [
+        'platform_service_agreement',
+        'shipowner_agency_agreement',
+        'vessel_authority',
+        'seafarer_authorization',
+        'company_registration',
+        'representative_authority',
+        'power_of_attorney',
+        'data_processing_authority',
+        'other',
+    ];
+}
+
+function cpg_agent_allowed_authority_scope_types(): array {
+    return ['platform', 'company', 'vessel', 'seafarer_profile', 'vacancy_request', 'contract_workspace', 'multiple', 'other'];
+}
+
+function cpg_agent_string_value(mixed $value, int $maxLength = 500): ?string {
+    if (!is_string($value)) {
+        return null;
+    }
+    $trimmed = trim($value);
+    if ($trimmed === '') {
+        return null;
+    }
+    return mb_strlen($trimmed) > $maxLength ? mb_substr($trimmed, 0, $maxLength) : $trimmed;
+}
+
+function cpg_agent_enum_value(mixed $value, array $allowed, string $fallback): string {
+    $normalized = is_string($value) ? strtolower(trim($value)) : '';
+    return in_array($normalized, $allowed, true) ? $normalized : $fallback;
+}
+
+function cpg_agent_nullable_uuid(mixed $value): ?string {
+    if (!is_string($value) || trim($value) === '') {
+        return null;
+    }
+    return api_normalize_uuid($value);
+}
+
+function cpg_agent_date_value(mixed $value): ?string {
+    return normalize_date_value($value);
+}
+
+function cpg_agent_json_object_value(mixed $value): array {
+    if (!is_array($value) || array_is_list($value)) {
+        return [];
+    }
+    return $value;
+}
+
+function cpg_agent_json_object_text(array $payload): string {
+    if ($payload === []) {
+        return '{}';
+    }
+    $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    return $json === false ? '{}' : $json;
+}
+
+function cpg_agent_management_allowed_status(array $row): bool {
+    $agentStatus = (string) ($row['agent_status'] ?? '');
+    $organizationAuthority = (string) ($row['organization_authority_status'] ?? ($row['authority_status'] ?? ''));
+    $assignmentStatus = (string) ($row['assignment_status'] ?? '');
+    $authorityStatus = (string) ($row['document_authority_status'] ?? '');
+    $validUntil = is_string($row['authority_valid_until'] ?? null) ? (string) $row['authority_valid_until'] : null;
+
+    if (!in_array($agentStatus, ['verified', 'limited'], true)) {
+        return false;
+    }
+    if (!in_array($organizationAuthority, ['verified', 'limited'], true)) {
+        return false;
+    }
+    if (!in_array($assignmentStatus, ['active', 'limited'], true)) {
+        return false;
+    }
+    if (!in_array($authorityStatus, ['verified', 'limited'], true)) {
+        return false;
+    }
+    if ($validUntil !== null && $validUntil !== '' && strcmp($validUntil, gmdate('Y-m-d')) < 0) {
+        return false;
+    }
+
+    return true;
+}
+
+function cpg_agent_management_blocker(array $row): ?string {
+    if (cpg_agent_management_allowed_status($row)) {
+        return null;
+    }
+
+    $agentStatus = (string) ($row['agent_status'] ?? '');
+    if (!in_array($agentStatus, ['verified', 'limited'], true)) {
+        return 'agent_organization_not_verified';
+    }
+    $organizationAuthority = (string) ($row['organization_authority_status'] ?? ($row['authority_status'] ?? ''));
+    if (!in_array($organizationAuthority, ['verified', 'limited'], true)) {
+        return 'agent_organization_authority_not_verified';
+    }
+    $assignmentStatus = (string) ($row['assignment_status'] ?? '');
+    if (!in_array($assignmentStatus, ['active', 'limited'], true)) {
+        return 'agent_object_assignment_not_active';
+    }
+    $authorityStatus = (string) ($row['document_authority_status'] ?? '');
+    if (!in_array($authorityStatus, ['verified', 'limited'], true)) {
+        return 'agent_authority_document_not_verified';
+    }
+    $validUntil = is_string($row['authority_valid_until'] ?? null) ? (string) $row['authority_valid_until'] : null;
+    if ($validUntil !== null && $validUntil !== '' && strcmp($validUntil, gmdate('Y-m-d')) < 0) {
+        return 'agent_authority_document_expired';
+    }
+
+    return 'agent_management_blocked_missing_authority';
+}
+
+function cpg_agent_management_block_from_assignment(array $row): array {
+    $displayName = cpg_agent_string_value($row['agent_display_name'] ?? null, 200) ?? 'Agent organization';
+    $allowed = cpg_agent_management_allowed_status($row);
+    $blocker = cpg_agent_management_blocker($row);
+
+    return [
+        'managed_by_type' => 'agent_organization',
+        'managed_by_id' => (string) ($row['agent_organization_id'] ?? ''),
+        'managed_by_display_name' => $displayName,
+        'managed_by_label' => 'Managed by: ' . $displayName,
+        'managed_by_label_ru' => 'Управляется: ' . $displayName,
+        'managed_by_agent' => true,
+        'agent_organization_id' => (string) ($row['agent_organization_id'] ?? ''),
+        'agent_display_name' => $displayName,
+        'assignment_id' => is_string($row['agent_object_assignment_id'] ?? null) ? (string) $row['agent_object_assignment_id'] : null,
+        'assignment_status' => is_string($row['assignment_status'] ?? null) ? (string) $row['assignment_status'] : null,
+        'assigned_agent_user_id' => is_string($row['assigned_agent_user_id'] ?? null) ? (string) $row['assigned_agent_user_id'] : null,
+        'authority_document_id' => is_string($row['agent_authority_document_id'] ?? null) ? (string) $row['agent_authority_document_id'] : null,
+        'authority_status' => is_string($row['document_authority_status'] ?? null) ? (string) $row['document_authority_status'] : null,
+        'authority_type' => is_string($row['authority_type'] ?? null) ? (string) $row['authority_type'] : null,
+        'authority_valid_until' => is_string($row['authority_valid_until'] ?? null) ? (string) $row['authority_valid_until'] : null,
+        'management_allowed' => $allowed,
+        'management_blocker' => $blocker,
+    ];
+}
+
+function cpg_object_management_context(
+    string $objectType,
+    string $objectId,
+    ?string $selfManagedUserId = null,
+    ?string $selfManagedDisplayName = null
+): array {
+    if (!cpg_agent_scope_tables_ready() || $objectType === '' || $objectId === '') {
+        $display = $selfManagedDisplayName ?? 'Registered user';
+        return [
+            'managed_by_type' => 'registered_user',
+            'managed_by_id' => $selfManagedUserId,
+            'managed_by_display_name' => $display,
+            'managed_by_label' => 'Managed by: ' . $display,
+            'managed_by_label_ru' => 'Управляется: ' . $display,
+            'managed_by_agent' => false,
+            'agent_organization_id' => null,
+            'management_allowed' => true,
+            'management_blocker' => null,
+        ];
+    }
+
+    $row = cpg_fetch_one_assoc(
+        "SELECT aoa.agent_object_assignment_id::text AS agent_object_assignment_id,
+                aoa.agent_organization_id::text AS agent_organization_id,
+                aoa.assignment_status,
+                aoa.assigned_agent_user_id::text AS assigned_agent_user_id,
+                ao.agent_display_name,
+                ao.agent_status,
+                ao.authority_status AS organization_authority_status,
+                aad.agent_authority_document_id::text AS agent_authority_document_id,
+                aad.authority_status AS document_authority_status,
+                aad.authority_type,
+                aad.valid_until::text AS authority_valid_until
+         FROM crewportglobal.agent_object_assignments aoa
+         JOIN crewportglobal.agent_organizations ao
+           ON ao.agent_organization_id = aoa.agent_organization_id
+         LEFT JOIN crewportglobal.agent_authority_documents aad
+           ON aad.agent_authority_document_id = aoa.source_authority_document_id
+         WHERE aoa.object_type = $1
+           AND aoa.object_id = $2::uuid
+           AND aoa.assignment_status IN ('active', 'limited')
+           AND aoa.visibility_scope IN ('ordinary_execution', 'limited_execution')
+           AND aoa.archived_at IS NULL
+         ORDER BY
+           CASE WHEN aoa.assignment_status = 'active' THEN 0 ELSE 1 END,
+           aoa.updated_at DESC
+         LIMIT 1",
+        [$objectType, $objectId]
+    );
+
+    if (is_array($row)) {
+        return cpg_agent_management_block_from_assignment($row);
+    }
+
+    $display = $selfManagedDisplayName ?? 'Registered user';
+    return [
+        'managed_by_type' => 'registered_user',
+        'managed_by_id' => $selfManagedUserId,
+        'managed_by_display_name' => $display,
+        'managed_by_label' => 'Managed by: ' . $display,
+        'managed_by_label_ru' => 'Управляется: ' . $display,
+        'managed_by_agent' => false,
+        'agent_organization_id' => null,
+        'management_allowed' => true,
+        'management_blocker' => null,
+    ];
+}
+
+function cpg_team_workbench_management_context(array $operation, array $context): array {
+    if (is_array($context['management'] ?? null)) {
+        return $context['management'];
+    }
+
+    $recordType = is_string($operation['record_type'] ?? null)
+        ? (string) $operation['record_type']
+        : (is_string($context['record_type'] ?? null) ? (string) $context['record_type'] : '');
+    $recordId = is_string($operation['record_id'] ?? null)
+        ? (string) $operation['record_id']
+        : (is_string($context['record_id'] ?? null) ? (string) $context['record_id'] : '');
+    $queueType = is_string($context['queue_type'] ?? null) ? (string) $context['queue_type'] : '';
+    $queueItemId = is_string($context['queue_item_id'] ?? null) ? (string) $context['queue_item_id'] : '';
+
+    $objectType = $recordType !== '' ? $recordType : $queueType;
+    $objectId = $recordId !== '' ? $recordId : $queueItemId;
+    if ($objectType === 'company_verification') {
+        $objectType = 'employer_company';
+    }
+    if ($objectType === 'vacancy_deletion_request') {
+        $objectType = 'vacancy_request';
+    }
+    if ($objectType === 'operator_shortlist_draft') {
+        $objectType = 'shortlist_draft';
+    }
+
+    $selfId = is_string($context['draft_id'] ?? null) ? (string) $context['draft_id'] : null;
+    $selfLabel = is_string($context['owner_display_name'] ?? null)
+        ? (string) $context['owner_display_name']
+        : (is_string($context['email'] ?? null) ? (string) $context['email'] : null);
+
+    return cpg_object_management_context($objectType, $objectId, $selfId, $selfLabel);
+}
+
+function cpg_agent_scope_audit_event(
+    string $eventType,
+    ?string $actorUserId,
+    ?string $agentOrganizationId,
+    ?string $agentUserId,
+    ?string $creationRequestId,
+    ?string $assignmentId,
+    ?string $targetObjectType,
+    ?string $targetObjectId,
+    array $previousValue,
+    array $newValue,
+    ?string $reason = null
+): void {
+    if (!cpg_agent_scope_tables_ready()) {
+        return;
+    }
+
+    api_query(
+        "INSERT INTO crewportglobal.agent_scope_audit_events (
+           event_type,
+           actor_user_id,
+           agent_organization_id,
+           agent_user_id,
+           agent_object_creation_request_id,
+           agent_object_assignment_id,
+           target_object_type,
+           target_object_id,
+           previous_value,
+           new_value,
+           reason,
+           ip_address,
+           user_agent
+         ) VALUES (
+           $1,
+           $2::uuid,
+           $3::uuid,
+           $4::uuid,
+           $5::uuid,
+           $6::uuid,
+           $7,
+           $8::uuid,
+           $9::jsonb,
+           $10::jsonb,
+           $11,
+           NULLIF($12, '')::inet,
+           $13
+         )",
+        [
+            $eventType,
+            $actorUserId,
+            $agentOrganizationId,
+            $agentUserId,
+            $creationRequestId,
+            $assignmentId,
+            $targetObjectType,
+            $targetObjectId,
+            cpg_agent_json_object_text($previousValue),
+            cpg_agent_json_object_text($newValue),
+            $reason,
+            is_string($_SERVER['REMOTE_ADDR'] ?? null) ? (string) $_SERVER['REMOTE_ADDR'] : '',
+            is_string($_SERVER['HTTP_USER_AGENT'] ?? null) ? (string) $_SERVER['HTTP_USER_AGENT'] : null,
+        ]
+    );
+}
+
+function cpg_agent_access_from_request(): array {
+    cpg_agent_require_scope_tables();
+    $session = cpg_auth_find_active_session();
+    if (!is_array($session) || !is_string($session['user_id'] ?? null) || $session['user_id'] === '') {
+        api_json(401, [
+            'ok' => false,
+            'error' => 'agent_account_session_required',
+            'message' => 'Agent API requires an authenticated account session',
+        ]);
+    }
+
+    $userId = (string) $session['user_id'];
+    $rows = cpg_fetch_all_assoc(
+        "SELECT au.agent_user_id::text AS agent_user_id,
+                au.agent_organization_id::text AS agent_organization_id,
+                au.agent_user_role,
+                au.membership_status,
+                ao.agent_code,
+                ao.agent_display_name,
+                ao.organization_kind,
+                ao.agent_status,
+                ao.authority_status,
+                ao.platform_service_agreement_status,
+                ao.default_routing_enabled,
+                ao.public_listing_allowed
+         FROM crewportglobal.agent_users au
+         JOIN crewportglobal.agent_organizations ao
+           ON ao.agent_organization_id = au.agent_organization_id
+         WHERE au.user_id = $1::uuid
+           AND au.membership_status = 'active'
+           AND ao.archived_at IS NULL
+         ORDER BY
+           CASE WHEN ao.agent_status IN ('verified', 'limited') THEN 0 ELSE 1 END,
+           ao.updated_at DESC",
+        [$userId]
+    );
+
+    if ($rows === []) {
+        api_json(403, [
+            'ok' => false,
+            'error' => 'agent_membership_required',
+            'message' => 'The authenticated user has no active agent organization membership',
+            'user_id' => $userId,
+        ]);
+    }
+
+    $requestedOrganizationId = cpg_agent_nullable_uuid($_GET['agent_organization_id'] ?? null);
+    $selected = $rows[0];
+    if ($requestedOrganizationId !== null) {
+        foreach ($rows as $row) {
+            if ((string) ($row['agent_organization_id'] ?? '') === $requestedOrganizationId) {
+                $selected = $row;
+                break;
+            }
+        }
+        if ((string) ($selected['agent_organization_id'] ?? '') !== $requestedOrganizationId) {
+            api_json(403, [
+                'ok' => false,
+                'error' => 'agent_organization_scope_denied',
+                'message' => 'The authenticated agent user is not active in the requested organization',
+                'agent_organization_id' => $requestedOrganizationId,
+            ]);
+        }
+    }
+
+    $organizations = array_map(static function (array $row): array {
+        $managementReady = in_array((string) ($row['agent_status'] ?? ''), ['verified', 'limited'], true)
+            && in_array((string) ($row['authority_status'] ?? ''), ['verified', 'limited'], true)
+            && (string) ($row['platform_service_agreement_status'] ?? '') === 'accepted';
+        return [
+            'agent_user_id' => (string) ($row['agent_user_id'] ?? ''),
+            'agent_organization_id' => (string) ($row['agent_organization_id'] ?? ''),
+            'agent_user_role' => (string) ($row['agent_user_role'] ?? ''),
+            'agent_code' => (string) ($row['agent_code'] ?? ''),
+            'agent_display_name' => (string) ($row['agent_display_name'] ?? ''),
+            'organization_kind' => (string) ($row['organization_kind'] ?? ''),
+            'agent_status' => (string) ($row['agent_status'] ?? ''),
+            'authority_status' => (string) ($row['authority_status'] ?? ''),
+            'platform_service_agreement_status' => (string) ($row['platform_service_agreement_status'] ?? ''),
+            'management_ready' => $managementReady,
+        ];
+    }, $rows);
+
+    return [
+        'access_model' => 'agent_account_session',
+        'actor_user_id' => $userId,
+        'actor_label' => (string) ($session['email'] ?? 'agent_session'),
+        'agent_user_id' => (string) ($selected['agent_user_id'] ?? ''),
+        'agent_organization_id' => (string) ($selected['agent_organization_id'] ?? ''),
+        'agent_display_name' => (string) ($selected['agent_display_name'] ?? ''),
+        'agent_user_role' => (string) ($selected['agent_user_role'] ?? ''),
+        'agent_status' => (string) ($selected['agent_status'] ?? ''),
+        'authority_status' => (string) ($selected['authority_status'] ?? ''),
+        'platform_service_agreement_status' => (string) ($selected['platform_service_agreement_status'] ?? ''),
+        'organizations' => $organizations,
+    ];
+}
+
+function handle_get_agent_me(): void {
+    $access = cpg_agent_access_from_request();
+    api_json(200, [
+        'ok' => true,
+        'access_model' => 'agent_account_session',
+        'actor_user_id' => $access['actor_user_id'],
+        'agent_user_id' => $access['agent_user_id'],
+        'agent_organization_id' => $access['agent_organization_id'],
+        'agent_display_name' => $access['agent_display_name'],
+        'agent_user_role' => $access['agent_user_role'],
+        'agent_status' => $access['agent_status'],
+        'authority_status' => $access['authority_status'],
+        'platform_service_agreement_status' => $access['platform_service_agreement_status'],
+        'organizations' => $access['organizations'],
+    ]);
+}
+
+function handle_get_agent_objects(): void {
+    $access = cpg_agent_access_from_request();
+    $agentOrganizationId = (string) $access['agent_organization_id'];
+    $limit = max(1, min(200, (int) ($_GET['limit'] ?? 100)));
+    $rows = cpg_fetch_all_assoc(
+        "SELECT aoa.agent_object_assignment_id::text AS agent_object_assignment_id,
+                aoa.object_type,
+                aoa.object_id::text AS object_id,
+                aoa.assignment_status,
+                aoa.visibility_scope,
+                aoa.data_responsibility_status,
+                aoa.object_safe_summary,
+                aoa.assigned_agent_user_id::text AS assigned_agent_user_id,
+                aoa.updated_at::text AS updated_at,
+                ao.agent_organization_id::text AS agent_organization_id,
+                ao.agent_display_name,
+                ao.agent_status,
+                ao.authority_status AS organization_authority_status,
+                aad.agent_authority_document_id::text AS agent_authority_document_id,
+                aad.authority_status AS document_authority_status,
+                aad.authority_type,
+                aad.valid_until::text AS authority_valid_until
+         FROM crewportglobal.agent_object_assignments aoa
+         JOIN crewportglobal.agent_organizations ao
+           ON ao.agent_organization_id = aoa.agent_organization_id
+         LEFT JOIN crewportglobal.agent_authority_documents aad
+           ON aad.agent_authority_document_id = aoa.source_authority_document_id
+         WHERE aoa.agent_organization_id = $1::uuid
+           AND aoa.assignment_status IN ('active', 'limited', 'proposed', 'suspended', 'expired')
+           AND aoa.archived_at IS NULL
+         ORDER BY aoa.updated_at DESC
+         LIMIT $2",
+        [$agentOrganizationId, $limit]
+    );
+
+    $objects = [];
+    foreach ($rows as $row) {
+        $management = cpg_agent_management_block_from_assignment($row);
+        $objects[] = [
+            'assignment_id' => $row['agent_object_assignment_id'] ?? null,
+            'object_type' => $row['object_type'] ?? null,
+            'object_id' => $row['object_id'] ?? null,
+            'object_safe_summary' => $row['object_safe_summary'] ?? null,
+            'assignment_status' => $row['assignment_status'] ?? null,
+            'visibility_scope' => $row['visibility_scope'] ?? null,
+            'data_responsibility_status' => $row['data_responsibility_status'] ?? null,
+            'updated_at' => $row['updated_at'] ?? null,
+            'management' => $management,
+        ];
+    }
+
+    api_json(200, [
+        'ok' => true,
+        'agent_organization_id' => $agentOrganizationId,
+        'agent_display_name' => $access['agent_display_name'],
+        'objects' => $objects,
+        'count' => count($objects),
+        'generated_at' => gmdate('c'),
+    ]);
+}
+
+function handle_get_agent_object_creation_requests(): void {
+    $access = cpg_agent_access_from_request();
+    $rows = cpg_fetch_all_assoc(
+        "SELECT agent_object_creation_request_id::text AS request_id,
+                intended_object_type,
+                represented_party_type,
+                creation_status,
+                duplicate_check_status,
+                created_object_type,
+                created_object_id::text AS created_object_id,
+                object_safe_summary,
+                updated_at::text AS updated_at,
+                created_at::text AS created_at
+         FROM crewportglobal.agent_object_creation_requests
+         WHERE agent_organization_id = $1::uuid
+           AND archived_at IS NULL
+         ORDER BY updated_at DESC
+         LIMIT 200",
+        [(string) $access['agent_organization_id']]
+    );
+
+    api_json(200, [
+        'ok' => true,
+        'requests' => $rows,
+        'count' => count($rows),
+    ]);
+}
+
+function handle_post_agent_object_creation_request(): void {
+    $access = cpg_agent_access_from_request();
+    $body = api_decode_json_body();
+    $intendedObjectType = cpg_agent_enum_value($body['intended_object_type'] ?? null, cpg_agent_allowed_object_types(), '');
+    $representedPartyType = cpg_agent_enum_value($body['represented_party_type'] ?? null, cpg_agent_allowed_party_types(), 'unknown');
+    if ($intendedObjectType === '') {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'agent_object_type_required',
+            'message' => 'A supported intended_object_type is required',
+            'allowed_object_types' => cpg_agent_allowed_object_types(),
+        ]);
+    }
+
+    $payloadSnapshot = cpg_agent_json_object_value($body['submitted_payload_snapshot'] ?? ($body['payload'] ?? []));
+    $objectSafeSummary = cpg_agent_string_value($body['object_safe_summary'] ?? null, 500);
+    $sourceAuthorityDocumentId = cpg_agent_nullable_uuid($body['source_authority_document_id'] ?? null);
+
+    $row = cpg_fetch_one_assoc(
+        "INSERT INTO crewportglobal.agent_object_creation_requests (
+           agent_organization_id,
+           requested_by_agent_user_id,
+           intended_object_type,
+           represented_party_type,
+           source_authority_document_id,
+           creation_status,
+           duplicate_check_status,
+           object_safe_summary,
+           submitted_payload_snapshot,
+           metadata
+         ) VALUES (
+           $1::uuid,
+           $2::uuid,
+           $3,
+           $4,
+           $5::uuid,
+           'submitted',
+           'review_required',
+           $6,
+           $7::jsonb,
+           $8::jsonb
+         )
+         RETURNING agent_object_creation_request_id::text AS request_id,
+                   creation_status,
+                   duplicate_check_status,
+                   created_at::text AS created_at",
+        [
+            (string) $access['agent_organization_id'],
+            (string) $access['agent_user_id'],
+            $intendedObjectType,
+            $representedPartyType,
+            $sourceAuthorityDocumentId,
+            $objectSafeSummary,
+            cpg_agent_json_object_text($payloadSnapshot),
+            cpg_agent_json_object_text(['source' => 'agent_api_skeleton']),
+        ]
+    );
+
+    $requestId = is_array($row) ? (string) ($row['request_id'] ?? '') : '';
+    cpg_agent_scope_audit_event(
+        'agent_object_creation_requested',
+        (string) $access['actor_user_id'],
+        (string) $access['agent_organization_id'],
+        (string) $access['agent_user_id'],
+        $requestId !== '' ? $requestId : null,
+        null,
+        $intendedObjectType,
+        null,
+        [],
+        [
+            'intended_object_type' => $intendedObjectType,
+            'represented_party_type' => $representedPartyType,
+            'creation_status' => 'submitted',
+            'duplicate_check_status' => 'review_required',
+        ],
+        'agent submitted controlled object creation request'
+    );
+
+    api_json(201, [
+        'ok' => true,
+        'request' => $row,
+    ]);
+}
+
+function handle_post_agent_authority_document(): void {
+    $access = cpg_agent_access_from_request();
+    $body = api_decode_json_body();
+    $authorityType = cpg_agent_enum_value($body['authority_type'] ?? null, cpg_agent_allowed_authority_types(), '');
+    $scopeType = cpg_agent_enum_value($body['authority_scope_type'] ?? null, cpg_agent_allowed_authority_scope_types(), 'platform');
+    if ($authorityType === '') {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'agent_authority_type_required',
+            'message' => 'A supported authority_type is required',
+            'allowed_authority_types' => cpg_agent_allowed_authority_types(),
+        ]);
+    }
+
+    $documentId = cpg_agent_nullable_uuid($body['document_id'] ?? null);
+    $scopeObjectId = cpg_agent_nullable_uuid($body['authority_scope_object_id'] ?? null);
+    $validFrom = cpg_agent_date_value($body['valid_from'] ?? null);
+    $validUntil = cpg_agent_date_value($body['valid_until'] ?? null);
+    $sourceReference = cpg_agent_string_value($body['source_reference'] ?? null, 500);
+    $scopeSnapshot = cpg_agent_json_object_value($body['scope_snapshot'] ?? []);
+    $metadata = cpg_agent_json_object_value($body['metadata'] ?? []);
+
+    $row = cpg_fetch_one_assoc(
+        "INSERT INTO crewportglobal.agent_authority_documents (
+           agent_organization_id,
+           document_id,
+           authority_type,
+           authority_scope_type,
+           authority_scope_object_id,
+           authority_status,
+           valid_from,
+           valid_until,
+           source_reference,
+           scope_snapshot,
+           metadata,
+           created_by_user_id
+         ) VALUES (
+           $1::uuid,
+           $2::uuid,
+           $3,
+           $4,
+           $5::uuid,
+           'submitted',
+           $6::date,
+           $7::date,
+           $8,
+           $9::jsonb,
+           $10::jsonb,
+           $11::uuid
+         )
+         RETURNING agent_authority_document_id::text AS authority_document_id,
+                   authority_status,
+                   authority_type,
+                   authority_scope_type,
+                   valid_from::text AS valid_from,
+                   valid_until::text AS valid_until,
+                   created_at::text AS created_at",
+        [
+            (string) $access['agent_organization_id'],
+            $documentId,
+            $authorityType,
+            $scopeType,
+            $scopeObjectId,
+            $validFrom,
+            $validUntil,
+            $sourceReference,
+            cpg_agent_json_object_text($scopeSnapshot),
+            cpg_agent_json_object_text($metadata),
+            (string) $access['actor_user_id'],
+        ]
+    );
+
+    $authorityDocumentId = is_array($row) ? (string) ($row['authority_document_id'] ?? '') : '';
+    cpg_agent_scope_audit_event(
+        'agent_authority_submitted',
+        (string) $access['actor_user_id'],
+        (string) $access['agent_organization_id'],
+        (string) $access['agent_user_id'],
+        null,
+        null,
+        $scopeType,
+        $scopeObjectId,
+        [],
+        [
+            'agent_authority_document_id' => $authorityDocumentId,
+            'authority_type' => $authorityType,
+            'authority_scope_type' => $scopeType,
+            'authority_status' => 'submitted',
+        ],
+        'agent submitted authority evidence'
+    );
+
+    api_json(201, [
+        'ok' => true,
+        'authority_document' => $row,
+    ]);
+}
+
+function require_agent_admin_access(): array {
+    return require_operator_workflow_operation_access('confirm_vacancy_deletion');
+}
+
+function handle_patch_admin_agent_authority_document_review(string $authorityDocumentId): void {
+    cpg_agent_require_scope_tables();
+    $access = require_agent_admin_access();
+    $uuid = api_normalize_uuid($authorityDocumentId);
+    if ($uuid === null) {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'invalid_agent_authority_document_id',
+            'message' => 'Invalid authority document id',
+        ]);
+    }
+
+    $body = api_decode_json_body();
+    $decision = cpg_agent_enum_value($body['decision'] ?? ($body['authority_status'] ?? null), ['verified', 'limited', 'rejected', 'expired', 'revoked'], '');
+    if ($decision === '') {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'agent_authority_review_decision_required',
+            'message' => 'Review decision must be verified, limited, rejected, expired or revoked',
+        ]);
+    }
+
+    $reviewNote = cpg_agent_string_value($body['review_note'] ?? null, 1000);
+    $previous = cpg_fetch_one_assoc(
+        "SELECT agent_authority_document_id::text AS authority_document_id,
+                agent_organization_id::text AS agent_organization_id,
+                authority_status,
+                authority_type,
+                authority_scope_type,
+                authority_scope_object_id::text AS authority_scope_object_id
+         FROM crewportglobal.agent_authority_documents
+         WHERE agent_authority_document_id = $1::uuid
+           AND archived_at IS NULL
+         LIMIT 1",
+        [$uuid]
+    );
+    if ($previous === null) {
+        api_json(404, [
+            'ok' => false,
+            'error' => 'agent_authority_document_not_found',
+            'message' => 'Authority document was not found',
+        ]);
+    }
+
+    $row = cpg_fetch_one_assoc(
+        "UPDATE crewportglobal.agent_authority_documents
+         SET authority_status = $2,
+             reviewed_by_user_id = $3::uuid,
+             reviewed_at = now(),
+             review_note = $4,
+             updated_at = now()
+         WHERE agent_authority_document_id = $1::uuid
+         RETURNING agent_authority_document_id::text AS authority_document_id,
+                   agent_organization_id::text AS agent_organization_id,
+                   authority_status,
+                   authority_type,
+                   authority_scope_type,
+                   authority_scope_object_id::text AS authority_scope_object_id,
+                   reviewed_at::text AS reviewed_at",
+        [
+            $uuid,
+            $decision,
+            $access['actor_user_id'] ?? null,
+            $reviewNote,
+        ]
+    );
+
+    if (in_array($decision, ['verified', 'limited', 'rejected', 'expired', 'revoked'], true)) {
+        api_query(
+            "UPDATE crewportglobal.agent_organizations
+             SET authority_status = $2,
+                 updated_at = now()
+             WHERE agent_organization_id = $1::uuid",
+            [(string) ($previous['agent_organization_id'] ?? ''), $decision]
+        );
+    }
+
+    cpg_agent_scope_audit_event(
+        'agent_authority_reviewed',
+        is_string($access['actor_user_id'] ?? null) ? (string) $access['actor_user_id'] : null,
+        (string) ($previous['agent_organization_id'] ?? ''),
+        null,
+        null,
+        null,
+        is_string($previous['authority_scope_type'] ?? null) ? (string) $previous['authority_scope_type'] : null,
+        is_string($previous['authority_scope_object_id'] ?? null) ? (string) $previous['authority_scope_object_id'] : null,
+        $previous,
+        is_array($row) ? $row : [],
+        $reviewNote
+    );
+
+    api_json(200, [
+        'ok' => true,
+        'authority_document' => $row,
+    ]);
+}
+
+function handle_post_admin_agent_object_assignment(): void {
+    cpg_agent_require_scope_tables();
+    $access = require_agent_admin_access();
+    $body = api_decode_json_body();
+    $agentOrganizationId = cpg_agent_nullable_uuid($body['agent_organization_id'] ?? null);
+    $objectType = cpg_agent_enum_value($body['object_type'] ?? null, cpg_agent_allowed_assignment_object_types(), '');
+    $objectId = cpg_agent_nullable_uuid($body['object_id'] ?? null);
+    $authorityDocumentId = cpg_agent_nullable_uuid($body['source_authority_document_id'] ?? null);
+    $assignmentStatus = cpg_agent_enum_value($body['assignment_status'] ?? null, ['active', 'limited'], 'active');
+    $objectSafeSummary = cpg_agent_string_value($body['object_safe_summary'] ?? null, 500);
+    if ($agentOrganizationId === null || $objectType === '' || $objectId === null || $authorityDocumentId === null) {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'agent_assignment_required_fields_missing',
+            'message' => 'agent_organization_id, object_type, object_id and source_authority_document_id are required',
+        ]);
+    }
+
+    $authority = cpg_fetch_one_assoc(
+        "SELECT aad.agent_authority_document_id::text AS agent_authority_document_id,
+                aad.agent_organization_id::text AS agent_organization_id,
+                aad.authority_status AS document_authority_status,
+                aad.authority_type,
+                aad.authority_scope_type,
+                aad.authority_scope_object_id::text AS authority_scope_object_id,
+                aad.valid_until::text AS authority_valid_until,
+                ao.agent_status,
+                ao.authority_status AS organization_authority_status,
+                ao.agent_display_name
+         FROM crewportglobal.agent_authority_documents aad
+         JOIN crewportglobal.agent_organizations ao
+           ON ao.agent_organization_id = aad.agent_organization_id
+         WHERE aad.agent_authority_document_id = $1::uuid
+           AND aad.agent_organization_id = $2::uuid
+           AND aad.archived_at IS NULL
+         LIMIT 1",
+        [$authorityDocumentId, $agentOrganizationId]
+    );
+    if ($authority === null) {
+        api_json(404, [
+            'ok' => false,
+            'error' => 'agent_authority_document_not_found',
+            'message' => 'Verified authority document for this agent organization was not found',
+        ]);
+    }
+
+    $authorityScopeObjectId = is_string($authority['authority_scope_object_id'] ?? null)
+        ? (string) $authority['authority_scope_object_id']
+        : '';
+    if ($authorityScopeObjectId !== '' && $authorityScopeObjectId !== $objectId) {
+        api_json(409, [
+            'ok' => false,
+            'error' => 'agent_assignment_authority_scope_mismatch',
+            'message' => 'Authority document is scoped to a different object',
+            'authority' => [
+                'authority_scope_type' => $authority['authority_scope_type'] ?? null,
+                'authority_scope_object_id' => $authorityScopeObjectId,
+            ],
+            'requested_assignment' => [
+                'object_type' => $objectType,
+                'object_id' => $objectId,
+            ],
+        ]);
+    }
+
+    $guardRow = array_merge($authority, [
+        'assignment_status' => $assignmentStatus,
+    ]);
+    if (!cpg_agent_management_allowed_status($guardRow)) {
+        api_json(409, [
+            'ok' => false,
+            'error' => 'agent_assignment_authority_guard_blocked',
+            'message' => 'Object assignment requires verified authority, active agent organization and active assignment status',
+            'blocker' => cpg_agent_management_blocker($guardRow),
+            'authority' => $authority,
+        ]);
+    }
+
+    $row = cpg_fetch_one_assoc(
+        "INSERT INTO crewportglobal.agent_object_assignments (
+           agent_organization_id,
+           object_type,
+           object_id,
+           assignment_status,
+           assignment_source,
+           visibility_scope,
+           data_responsibility_status,
+           source_authority_document_id,
+           assigned_by_user_id,
+           assigned_at,
+           valid_from,
+           object_safe_summary,
+           source_snapshot,
+           metadata
+         ) VALUES (
+           $1::uuid,
+           $2,
+           $3::uuid,
+           $4,
+           'authority_document',
+           CASE WHEN $4 = 'limited' THEN 'limited_execution' ELSE 'ordinary_execution' END,
+           'agent_responsible',
+           $5::uuid,
+           $6::uuid,
+           now(),
+           now(),
+           $7,
+           $8::jsonb,
+           $9::jsonb
+         )
+         RETURNING agent_object_assignment_id::text AS assignment_id,
+                   agent_organization_id::text AS agent_organization_id,
+                   object_type,
+                   object_id::text AS object_id,
+                   assignment_status,
+                   assigned_at::text AS assigned_at",
+        [
+            $agentOrganizationId,
+            $objectType,
+            $objectId,
+            $assignmentStatus,
+            $authorityDocumentId,
+            $access['actor_user_id'] ?? null,
+            $objectSafeSummary,
+            cpg_agent_json_object_text(['authority_document_id' => $authorityDocumentId]),
+            cpg_agent_json_object_text(['source' => 'agent_assignment_api_skeleton']),
+        ]
+    );
+
+    $assignmentId = is_array($row) ? (string) ($row['assignment_id'] ?? '') : '';
+    cpg_agent_scope_audit_event(
+        'agent_object_assignment_created',
+        is_string($access['actor_user_id'] ?? null) ? (string) $access['actor_user_id'] : null,
+        $agentOrganizationId,
+        null,
+        null,
+        $assignmentId !== '' ? $assignmentId : null,
+        $objectType,
+        $objectId,
+        [],
+        is_array($row) ? $row : [],
+        'platform control assigned object to verified agent authority'
+    );
+
+    api_json(201, [
+        'ok' => true,
+        'assignment' => $row,
+        'management' => cpg_object_management_context($objectType, $objectId),
+    ]);
+}
+
 function cpg_translation_repo_root(): string {
     return dirname(__DIR__, 6);
 }
@@ -11993,6 +12997,8 @@ function cpg_team_workbench_task_from_operation(
 
     $assignment = cpg_team_workbench_task_assignment($operation, $context);
     $context = cpg_team_workbench_context_with_assignment($context, $assignment);
+    $management = cpg_team_workbench_management_context($operation, $context);
+    $context['management'] = $management;
 
     return cpg_workspace_clean_record([
         'task_type' => $taskType,
@@ -12011,6 +13017,7 @@ function cpg_team_workbench_task_from_operation(
         'responsible_group_after_transition' => $operation['responsible_group_after_transition'] ?? null,
         'required_access' => $requiredAccess,
         'assignment' => $assignment,
+        'management' => $management,
         'blockers' => is_array($operation['blockers'] ?? null) ? $operation['blockers'] : [],
         'computed_from' => $operation['computed_from'] ?? 'current_data_state',
         'context' => $context,
@@ -15316,6 +16323,57 @@ if ($path === '/team/translations/review') {
     }
     header('Allow: PATCH');
     api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
+}
+
+if ($path === '/agents/me') {
+    if ($method === 'GET') {
+        handle_get_agent_me();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if ($path === '/agents/objects') {
+    if ($method === 'GET') {
+        handle_get_agent_objects();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if ($path === '/agents/object-creation-requests') {
+    if ($method === 'GET') {
+        handle_get_agent_object_creation_requests();
+    }
+    if ($method === 'POST') {
+        handle_post_agent_object_creation_request();
+    }
+    header('Allow: GET, POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET, POST');
+}
+
+if ($path === '/agents/authority-documents') {
+    if ($method === 'POST') {
+        handle_post_agent_authority_document();
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if (preg_match('#^/admin/agents/authority-documents/([^/]+)/review$#', $path, $matches) === 1) {
+    if ($method === 'PATCH') {
+        handle_patch_admin_agent_authority_document_review($matches[1]);
+    }
+    header('Allow: PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
+}
+
+if ($path === '/admin/agents/object-assignments') {
+    if ($method === 'POST') {
+        handle_post_admin_agent_object_assignment();
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
 }
 
 if ($path === '/admin/access/management') {

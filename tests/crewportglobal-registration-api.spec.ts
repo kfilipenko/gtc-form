@@ -561,6 +561,23 @@ WITH api_users AS (
   FROM crewportglobal.users
   WHERE email LIKE 'api.%@example.com'
 ),
+api_agent_orgs AS (
+  SELECT DISTINCT ao.agent_organization_id
+  FROM crewportglobal.agent_organizations ao
+  LEFT JOIN crewportglobal.agent_users au ON au.agent_organization_id = ao.agent_organization_id
+  LEFT JOIN api_users u ON u.user_id = au.user_id
+  WHERE ao.agent_code LIKE 'APIAGENT%'
+     OR u.user_id IS NOT NULL
+)
+DELETE FROM crewportglobal.agent_organizations ao
+USING api_agent_orgs orgs
+WHERE ao.agent_organization_id = orgs.agent_organization_id;
+
+WITH api_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'api.%@example.com'
+),
 	api_vacancies AS (
 	  SELECT vacancy_request_id
 	  FROM crewportglobal.vacancy_requests vr
@@ -2697,6 +2714,200 @@ WHERE u.user_id = '${accountUserId.replace(/'/g, "''")}'::uuid;
   expect(JSON.stringify(tasks.tasks)).toContain(title);
 
   await accountContext.dispose();
+});
+
+test('agent API exposes verified authority management context', async () => {
+  const unique = Date.now();
+  const email = `api.agent.scope.${unique}@example.com`;
+  const agentCode = `APIAGENT${unique}`;
+
+  const agentContext = await playwrightRequest.newContext({
+    baseURL: 'http://127.0.0.1:38124/api/v1',
+    extraHTTPHeaders: {
+      Authorization: '',
+      'X-CPG-Operator-Token': '',
+    },
+  });
+
+  const createResponse = await agentContext.post('/auth/register-password', {
+    data: {
+      role: 'employer',
+      role_in_company: 'agent manager',
+      email,
+      full_name: 'API Agent Manager',
+      password: 'CrewPortGlobal123!',
+      confirm_password: 'CrewPortGlobal123!',
+      terms_accepted: true,
+      consent_accepted: true,
+      company_name: `API Agent Company ${unique}`,
+      country_code: 'AE',
+      registration_number: `AE-AGENT-${unique}`,
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = (await createResponse.json()) as DraftResponse & { user: { user_id: string } };
+  const agentUserId = created.user.user_id;
+
+  const bootstrap = runApiPsql(`
+WITH inserted_org AS (
+  INSERT INTO crewportglobal.agent_organizations (
+    agent_code,
+    agent_display_name,
+    organization_kind,
+    agent_status,
+    authority_status,
+    platform_service_agreement_status,
+    created_by_user_id,
+    approved_by_user_id,
+    approved_at,
+    metadata
+  ) VALUES (
+    '${agentCode}',
+    'API Agent Scope ${unique}',
+    'external_crewing',
+    'verified',
+    'submitted',
+    'accepted',
+    '${agentUserId.replace(/'/g, "''")}'::uuid,
+    '${agentUserId.replace(/'/g, "''")}'::uuid,
+    now(),
+    '{"test_control":"CPG-BIZ-116"}'::jsonb
+  )
+  RETURNING agent_organization_id
+),
+inserted_user AS (
+  INSERT INTO crewportglobal.agent_users (
+    agent_organization_id,
+    user_id,
+    agent_user_role,
+    membership_status,
+    granted_by_user_id,
+    granted_at,
+    metadata
+  )
+  SELECT
+    inserted_org.agent_organization_id,
+    '${agentUserId.replace(/'/g, "''")}'::uuid,
+    'manager',
+    'active',
+    '${agentUserId.replace(/'/g, "''")}'::uuid,
+    now(),
+    '{"test_control":"CPG-BIZ-116"}'::jsonb
+  FROM inserted_org
+  RETURNING agent_user_id, agent_organization_id
+)
+SELECT agent_organization_id::text || '|' || agent_user_id::text
+FROM inserted_user;
+`);
+  const [agentOrganizationId] = bootstrap.split('|');
+  expect(agentOrganizationId).toMatch(/[0-9a-f-]{36}/);
+
+  const meResponse = await agentContext.get('/agents/me');
+  const meBody = await meResponse.text();
+  expect(meResponse.ok(), meBody).toBeTruthy();
+  const me = JSON.parse(meBody) as Record<string, any>;
+  expect(me.access_model).toBe('agent_account_session');
+  expect(me.agent_organization_id).toBe(agentOrganizationId);
+
+  const authorityResponse = await agentContext.post('/agents/authority-documents', {
+    data: {
+      authority_type: 'power_of_attorney',
+      authority_scope_type: 'other',
+      authority_scope_object_id: agentUserId,
+      valid_from: '2026-06-08',
+      valid_until: '2027-06-08',
+      source_reference: 'Synthetic API agent authority evidence',
+      scope_snapshot: {
+        represented_party: 'Synthetic person account',
+        represented_object_type: 'person_user',
+        represented_object_id: agentUserId,
+      },
+    },
+  });
+  const authorityText = await authorityResponse.text();
+  expect(authorityResponse.ok(), authorityText).toBeTruthy();
+  const authority = JSON.parse(authorityText) as Record<string, any>;
+  const authorityDocumentId = authority.authority_document.authority_document_id;
+  expect(authority.authority_document.authority_status).toBe('submitted');
+
+  const reviewResponse = await agentContext.patch(`/admin/agents/authority-documents/${authorityDocumentId}/review`, {
+    headers: {
+      'X-CPG-Operator-Token': process.env.CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN || process.env.CPG_OPERATOR_ACCESS_TOKEN || 'crewportglobal-local-operator',
+    },
+    data: {
+      decision: 'verified',
+      review_note: 'Synthetic API test verified authority.',
+    },
+  });
+  const reviewText = await reviewResponse.text();
+  expect(reviewResponse.ok(), reviewText).toBeTruthy();
+  expect(JSON.parse(reviewText).authority_document.authority_status).toBe('verified');
+
+  const requestResponse = await agentContext.post('/agents/object-creation-requests', {
+    data: {
+      intended_object_type: 'seafarer_profile',
+      represented_party_type: 'seafarer',
+      source_authority_document_id: authorityDocumentId,
+      object_safe_summary: 'Represented seafarer for API agent scope',
+      submitted_payload_snapshot: {
+        primary_rank: 'Able Seaman',
+      },
+    },
+  });
+  const requestText = await requestResponse.text();
+  expect(requestResponse.ok(), requestText).toBeTruthy();
+  expect(JSON.parse(requestText).request.creation_status).toBe('submitted');
+
+  const assignmentResponse = await agentContext.post('/admin/agents/object-assignments', {
+    headers: {
+      'X-CPG-Operator-Token': process.env.CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN || process.env.CPG_OPERATOR_ACCESS_TOKEN || 'crewportglobal-local-operator',
+    },
+    data: {
+      agent_organization_id: agentOrganizationId,
+      object_type: 'person_user',
+      object_id: agentUserId,
+      source_authority_document_id: authorityDocumentId,
+      assignment_status: 'active',
+      object_safe_summary: 'API Agent Manager managed account',
+    },
+  });
+  const assignmentText = await assignmentResponse.text();
+  expect(assignmentResponse.ok(), assignmentText).toBeTruthy();
+  const assignment = JSON.parse(assignmentText) as Record<string, any>;
+  expect(assignment.management).toMatchObject({
+    managed_by_type: 'agent_organization',
+    managed_by_display_name: `API Agent Scope ${unique}`,
+    managed_by_agent: true,
+    management_allowed: true,
+    management_blocker: null,
+  });
+
+  const objectsResponse = await agentContext.get('/agents/objects');
+  const objectsText = await objectsResponse.text();
+  expect(objectsResponse.ok(), objectsText).toBeTruthy();
+  const objects = JSON.parse(objectsText) as Record<string, any>;
+  expect(objects.objects).toHaveLength(1);
+  expect(objects.objects[0].management).toMatchObject({
+    managed_by_type: 'agent_organization',
+    managed_by_display_name: `API Agent Scope ${unique}`,
+    managed_by_agent: true,
+    management_allowed: true,
+  });
+
+  const auditCount = Number(runApiPsql(`
+SELECT count(*)
+FROM crewportglobal.agent_scope_audit_events
+WHERE agent_organization_id = '${agentOrganizationId.replace(/'/g, "''")}'::uuid
+  AND event_type IN (
+    'agent_authority_submitted',
+    'agent_authority_reviewed',
+    'agent_object_creation_requested',
+    'agent_object_assignment_created'
+  );
+`));
+  expect(auditCount).toBeGreaterThanOrEqual(4);
+
+  await agentContext.dispose();
 });
 
 test('operator can request vacancy deletion without physical delete', async ({ request }) => {
