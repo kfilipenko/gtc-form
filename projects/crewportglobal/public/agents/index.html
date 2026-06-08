@@ -191,6 +191,23 @@
       color: var(--text-on-dark);
     }
 
+    .agent-task-title {
+      display: inline-block;
+      color: var(--text-on-dark);
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.25;
+      text-decoration: none;
+    }
+
+    .agent-task-title:hover,
+    .agent-task-title:focus-visible {
+      color: var(--teal);
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;
+    }
+
     .agent-api-message {
       margin: 10px 0 0;
       color: var(--muted-on-dark);
@@ -279,9 +296,16 @@
           <span>pending requests</span>
         </div>
         <div class="agent-summary__item">
-          <strong>0</strong>
-          <span>active contracts</span>
+          <strong id="agent-summary-tasks">0</strong>
+          <span>computed tasks</span>
         </div>
+      </section>
+
+      <section class="card" id="agent-tasks">
+        <p class="eyebrow">Computed work</p>
+        <h2>My agent tasks</h2>
+        <div id="agent-task-list" class="agent-object-list" aria-live="polite"></div>
+        <p id="agent-task-empty" class="agent-api-message">No computed agent tasks loaded yet.</p>
       </section>
 
       <section class="card">
@@ -376,6 +400,15 @@
         <p class="lead-copy">Agent access is not computed from this page alone. The API reads migration 020 records, verifies authority, computes assignment scope and shows only objects belonging to the selected agent organization.</p>
         <div id="agent-object-list" class="agent-object-list" aria-live="polite"></div>
         <p id="agent-object-empty" class="agent-api-message">No assigned objects loaded yet.</p>
+        <div id="agent-request-list" class="agent-object-list" aria-live="polite"></div>
+        <p id="agent-request-empty" class="agent-api-message">No object creation requests loaded yet.</p>
+      </section>
+
+      <section class="card" id="agent-admin-review" hidden>
+        <p class="eyebrow">Platform control</p>
+        <h2>Authority and object-request review</h2>
+        <div id="agent-admin-review-list" class="agent-object-list" aria-live="polite"></div>
+        <p id="agent-admin-review-empty" class="agent-api-message">No platform-control agent review tasks loaded.</p>
       </section>
     </main>
   </div>
@@ -387,8 +420,16 @@
       const orgCount = document.getElementById('agent-summary-organizations');
       const objectCount = document.getElementById('agent-summary-objects');
       const requestCount = document.getElementById('agent-summary-requests');
+      const taskCount = document.getElementById('agent-summary-tasks');
+      const taskList = document.getElementById('agent-task-list');
+      const taskEmpty = document.getElementById('agent-task-empty');
       const objectList = document.getElementById('agent-object-list');
       const empty = document.getElementById('agent-object-empty');
+      const requestList = document.getElementById('agent-request-list');
+      const requestEmpty = document.getElementById('agent-request-empty');
+      const adminReview = document.getElementById('agent-admin-review');
+      const adminReviewList = document.getElementById('agent-admin-review-list');
+      const adminReviewEmpty = document.getElementById('agent-admin-review-empty');
 
       const setText = (node, value) => {
         if (node) {
@@ -405,6 +446,43 @@
         return { response, payload };
       };
 
+      const safeHashId = (prefix, raw) => `${prefix}-${String(raw || '').replace(/[^a-zA-Z0-9_-]/g, '-')}`;
+
+      const renderTaskRows = (container, emptyNode, tasks, idPrefix) => {
+        if (!container || !emptyNode) {
+          return;
+        }
+        container.innerHTML = '';
+        if (!Array.isArray(tasks) || tasks.length === 0) {
+          emptyNode.hidden = false;
+          return;
+        }
+        emptyNode.hidden = true;
+        tasks.slice(0, 40).forEach((item) => {
+          const row = document.createElement('article');
+          row.className = 'agent-object';
+          const hash = (item.target_url || '').split('#')[1];
+          row.id = hash || safeHashId(idPrefix, item.task_id);
+          const copy = document.createElement('div');
+          const link = document.createElement('a');
+          link.className = 'agent-task-title';
+          link.href = item.target_url || `#${row.id}`;
+          link.textContent = item.task_title || item.operation_code || 'Agent task';
+          const meta = document.createElement('div');
+          meta.className = 'agent-object__meta';
+          meta.textContent = [
+            item.process_stage ? `Stage: ${item.process_stage}` : '',
+            item.visibility_condition || '',
+          ].filter(Boolean).join(' | ');
+          copy.append(link, meta);
+          const pill = document.createElement('span');
+          pill.className = `agent-pill ${item.task_state && item.task_state.includes('active') ? 'is-ready' : 'is-pending'}`;
+          pill.textContent = item.task_state || 'computed';
+          row.append(copy, pill);
+          container.append(row);
+        });
+      };
+
       const renderObjects = (objects) => {
         if (!objectList || !empty) {
           return;
@@ -419,6 +497,7 @@
           const management = item.management || {};
           const row = document.createElement('article');
           row.className = 'agent-object';
+          row.id = safeHashId('agent-object', item.assignment_id);
           const copy = document.createElement('div');
           const heading = document.createElement('strong');
           heading.textContent = item.object_safe_summary || `${item.object_type || 'object'} ${item.object_id || ''}`;
@@ -427,6 +506,8 @@
           meta.textContent = [
             item.object_type,
             item.assignment_status,
+            item.authority && item.authority.authority_type ? `Authority: ${item.authority.authority_type}` : '',
+            item.authority && item.authority.authority_status ? `Authority status: ${item.authority.authority_status}` : '',
             management.managed_by_label || management.managed_by_label_ru || 'Managed by: not set',
           ].filter(Boolean).join(' | ');
           copy.append(heading, meta);
@@ -436,6 +517,57 @@
           row.append(copy, pill);
           objectList.append(row);
         });
+      };
+
+      const renderRequests = (requests) => {
+        if (!requestList || !requestEmpty) {
+          return;
+        }
+        requestList.innerHTML = '';
+        if (!Array.isArray(requests) || requests.length === 0) {
+          requestEmpty.hidden = false;
+          return;
+        }
+        requestEmpty.hidden = true;
+        requests.slice(0, 20).forEach((item) => {
+          const row = document.createElement('article');
+          row.className = 'agent-object';
+          row.id = safeHashId('agent-request', item.request_id);
+          const copy = document.createElement('div');
+          const heading = document.createElement('strong');
+          heading.textContent = item.object_safe_summary || `${item.intended_object_type || 'object'} request`;
+          const meta = document.createElement('div');
+          meta.className = 'agent-object__meta';
+          meta.textContent = [
+            item.intended_object_type,
+            item.represented_party_type,
+            item.creation_status,
+            item.duplicate_check_status,
+          ].filter(Boolean).join(' | ');
+          copy.append(heading, meta);
+          const pill = document.createElement('span');
+          pill.className = 'agent-pill is-pending';
+          pill.textContent = item.creation_status || 'request';
+          row.append(copy, pill);
+          requestList.append(row);
+        });
+      };
+
+      const loadAdminReview = async () => {
+        if (!adminReview) {
+          return;
+        }
+        try {
+          const admin = await apiGet('/admin/agents/review-workspace');
+          if (!admin.response.ok || !admin.payload.ok) {
+            adminReview.hidden = true;
+            return;
+          }
+          adminReview.hidden = false;
+          renderTaskRows(adminReviewList, adminReviewEmpty, admin.payload.tasks || [], 'agent-admin-review');
+        } catch (error) {
+          adminReview.hidden = true;
+        }
       };
 
       const loadAgentScope = async () => {
@@ -450,15 +582,21 @@
           setText(status, `Role: ${me.payload.agent_user_role || 'agent'} | Status: ${me.payload.agent_status || 'unknown'} | Authority: ${me.payload.authority_status || 'unknown'}`);
           setText(orgCount, String((me.payload.organizations || []).filter((item) => item.management_ready).length));
 
-          const [objects, requests] = await Promise.all([
+          const [objects, requests, tasks] = await Promise.all([
             apiGet('/agents/objects'),
             apiGet('/agents/object-creation-requests'),
+            apiGet('/agents/tasks'),
           ]);
           const objectRows = objects.payload.objects || [];
           const requestRows = requests.payload.requests || [];
+          const taskRows = tasks.payload.tasks || [];
           setText(objectCount, String(objectRows.length));
           setText(requestCount, String(requestRows.filter((item) => !['created_linked', 'blocked_duplicate', 'rejected', 'cancelled'].includes(item.creation_status)).length));
+          setText(taskCount, String(taskRows.length));
+          renderTaskRows(taskList, taskEmpty, taskRows, 'agent-task');
           renderObjects(objectRows);
+          renderRequests(requestRows);
+          loadAdminReview();
         } catch (error) {
           setText(title, 'Agent API unavailable.');
           setText(status, 'Unable to load agent scope right now.');

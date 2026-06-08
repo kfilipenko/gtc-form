@@ -180,6 +180,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.49 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-117 implementation control for agent computed tasks, platform-control authority review workspace and authority evidence visibility in agent object cards |
 | 3.48 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-116 implementation control for agent API skeleton, verified authority guard, object assignment and managed-by context in API/task payloads |
 | 3.47 | 2026-06-08 | GTC IT / AI Assistant | Added `Managed by` / `Управляется` as the object-level task-routing context for registered-user-managed and agent-managed objects, including reassignment behavior |
 | 3.46 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-115 control separating agent object creation from object management and requiring visible verified authority evidence before agent management access |

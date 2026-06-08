@@ -12068,11 +12068,8 @@ function handle_get_agent_me(): void {
     ]);
 }
 
-function handle_get_agent_objects(): void {
-    $access = cpg_agent_access_from_request();
-    $agentOrganizationId = (string) $access['agent_organization_id'];
-    $limit = max(1, min(200, (int) ($_GET['limit'] ?? 100)));
-    $rows = cpg_fetch_all_assoc(
+function cpg_agent_assignment_rows(string $agentOrganizationId, int $limit): array {
+    return cpg_fetch_all_assoc(
         "SELECT aoa.agent_object_assignment_id::text AS agent_object_assignment_id,
                 aoa.object_type,
                 aoa.object_id::text AS object_id,
@@ -12089,6 +12086,9 @@ function handle_get_agent_objects(): void {
                 aad.agent_authority_document_id::text AS agent_authority_document_id,
                 aad.authority_status AS document_authority_status,
                 aad.authority_type,
+                aad.authority_scope_type,
+                aad.authority_scope_object_id::text AS authority_scope_object_id,
+                aad.valid_from::text AS authority_valid_from,
                 aad.valid_until::text AS authority_valid_until
          FROM crewportglobal.agent_object_assignments aoa
          JOIN crewportglobal.agent_organizations ao
@@ -12102,6 +12102,118 @@ function handle_get_agent_objects(): void {
          LIMIT $2",
         [$agentOrganizationId, $limit]
     );
+}
+
+function cpg_agent_authority_summary_from_assignment(array $row): array {
+    return [
+        'authority_document_id' => is_string($row['agent_authority_document_id'] ?? null) ? (string) $row['agent_authority_document_id'] : null,
+        'authority_status' => is_string($row['document_authority_status'] ?? null) ? (string) $row['document_authority_status'] : null,
+        'authority_type' => is_string($row['authority_type'] ?? null) ? (string) $row['authority_type'] : null,
+        'authority_scope_type' => is_string($row['authority_scope_type'] ?? null) ? (string) $row['authority_scope_type'] : null,
+        'authority_scope_object_id' => is_string($row['authority_scope_object_id'] ?? null) ? (string) $row['authority_scope_object_id'] : null,
+        'valid_from' => is_string($row['authority_valid_from'] ?? null) ? (string) $row['authority_valid_from'] : null,
+        'valid_until' => is_string($row['authority_valid_until'] ?? null) ? (string) $row['authority_valid_until'] : null,
+    ];
+}
+
+function cpg_agent_task_stage_for_object_type(string $objectType): string {
+    return match ($objectType) {
+        'person_user', 'seafarer_profile' => 'Seafarer represented-object management',
+        'employer_company', 'vessel', 'vacancy_request' => 'Shipowner represented-object management',
+        'contract_workspace' => 'Contract workspace representation',
+        'voyage_support_record' => 'Voyage support representation',
+        default => 'Agent represented-object management',
+    };
+}
+
+function cpg_agent_object_anchor(string $assignmentId): string {
+    return '#agent-object-' . rawurlencode($assignmentId);
+}
+
+function cpg_agent_request_anchor(string $requestId): string {
+    return '#agent-request-' . rawurlencode($requestId);
+}
+
+function cpg_agent_authority_anchor(string $authorityDocumentId): string {
+    return '#agent-admin-authority-' . rawurlencode($authorityDocumentId);
+}
+
+function cpg_agent_admin_request_anchor(string $requestId): string {
+    return '#agent-admin-request-' . rawurlencode($requestId);
+}
+
+function cpg_agent_task_from_assignment(array $row, array $access): array {
+    $assignmentId = is_string($row['agent_object_assignment_id'] ?? null) ? (string) $row['agent_object_assignment_id'] : '';
+    $objectType = is_string($row['object_type'] ?? null) ? (string) $row['object_type'] : 'object';
+    $objectId = is_string($row['object_id'] ?? null) ? (string) $row['object_id'] : '';
+    $summary = cpg_agent_string_value($row['object_safe_summary'] ?? null, 500) ?? trim($objectType . ' ' . $objectId);
+    $management = cpg_agent_management_block_from_assignment($row);
+    $allowed = (bool) ($management['management_allowed'] ?? false);
+    $title = ($allowed ? 'Manage represented object.' : 'Resolve represented-object authority blocker.')
+        . ' (' . $objectType . ': ' . $summary . '.)';
+    $condition = $allowed
+        ? 'Visible while this object is assigned to the agent organization and authority remains verified or limited.'
+        : 'Shown as a control record until the agent authority or assignment blocker is resolved: ' . (string) ($management['management_blocker'] ?? 'agent_management_blocked');
+
+    return [
+        'task_id' => 'agent-assignment-' . $assignmentId,
+        'task_model' => 'data_derived_agent_scope',
+        'operation_code' => $allowed ? 'manage_represented_object' : 'resolve_agent_authority_blocker',
+        'task_title' => $title,
+        'process_stage' => cpg_agent_task_stage_for_object_type($objectType),
+        'visibility_condition' => $condition,
+        'task_state' => $allowed ? 'active_agent_operation' : 'control_blocked',
+        'responsible' => [
+            'group' => 'agent_organization',
+            'agent_organization_id' => (string) ($access['agent_organization_id'] ?? ''),
+            'agent_display_name' => (string) ($access['agent_display_name'] ?? ''),
+            'assigned_agent_user_id' => is_string($row['assigned_agent_user_id'] ?? null) ? (string) $row['assigned_agent_user_id'] : null,
+        ],
+        'object' => [
+            'object_type' => $objectType,
+            'object_id' => $objectId,
+            'object_safe_summary' => $summary,
+            'assignment_id' => $assignmentId,
+            'assignment_status' => is_string($row['assignment_status'] ?? null) ? (string) $row['assignment_status'] : null,
+            'visibility_scope' => is_string($row['visibility_scope'] ?? null) ? (string) $row['visibility_scope'] : null,
+            'data_responsibility_status' => is_string($row['data_responsibility_status'] ?? null) ? (string) $row['data_responsibility_status'] : null,
+        ],
+        'authority' => cpg_agent_authority_summary_from_assignment($row),
+        'management' => $management,
+        'target_url' => '/agents/?object_type=' . rawurlencode($objectType) . '&object_id=' . rawurlencode($objectId) . cpg_agent_object_anchor($assignmentId),
+        'generated_at' => gmdate('c'),
+    ];
+}
+
+function cpg_agent_task_from_creation_request(array $row): array {
+    $requestId = is_string($row['request_id'] ?? null) ? (string) $row['request_id'] : '';
+    $intendedType = is_string($row['intended_object_type'] ?? null) ? (string) $row['intended_object_type'] : 'object';
+    $status = is_string($row['creation_status'] ?? null) ? (string) $row['creation_status'] : 'submitted';
+    $summary = cpg_agent_string_value($row['object_safe_summary'] ?? null, 500) ?? $intendedType;
+    $requiresAgentAction = in_array($status, ['draft', 'evidence_requested'], true);
+
+    return [
+        'task_id' => 'agent-request-' . $requestId,
+        'task_model' => 'data_derived_agent_scope',
+        'operation_code' => $requiresAgentAction ? 'complete_agent_object_request' : 'track_agent_object_request',
+        'task_title' => ($requiresAgentAction ? 'Complete represented object request.' : 'Track represented object request.')
+            . ' (' . $intendedType . ': ' . $summary . '.)',
+        'process_stage' => 'Agent object creation and duplicate review',
+        'visibility_condition' => $requiresAgentAction
+            ? 'Visible until the agent supplies the missing evidence required for object creation review.'
+            : 'Visible as a status record until platform control approves, links, blocks or rejects the request.',
+        'task_state' => $requiresAgentAction ? 'agent_action_required' : 'waiting_for_platform_control',
+        'object_request' => $row,
+        'target_url' => '/agents/' . cpg_agent_request_anchor($requestId),
+        'generated_at' => gmdate('c'),
+    ];
+}
+
+function handle_get_agent_objects(): void {
+    $access = cpg_agent_access_from_request();
+    $agentOrganizationId = (string) $access['agent_organization_id'];
+    $limit = max(1, min(200, (int) ($_GET['limit'] ?? 100)));
+    $rows = cpg_agent_assignment_rows($agentOrganizationId, $limit);
 
     $objects = [];
     foreach ($rows as $row) {
@@ -12115,6 +12227,7 @@ function handle_get_agent_objects(): void {
             'visibility_scope' => $row['visibility_scope'] ?? null,
             'data_responsibility_status' => $row['data_responsibility_status'] ?? null,
             'updated_at' => $row['updated_at'] ?? null,
+            'authority' => cpg_agent_authority_summary_from_assignment($row),
             'management' => $management,
         ];
     }
@@ -12125,6 +12238,50 @@ function handle_get_agent_objects(): void {
         'agent_display_name' => $access['agent_display_name'],
         'objects' => $objects,
         'count' => count($objects),
+        'generated_at' => gmdate('c'),
+    ]);
+}
+
+function handle_get_agent_tasks(): void {
+    $access = cpg_agent_access_from_request();
+    $agentOrganizationId = (string) $access['agent_organization_id'];
+    $limit = max(1, min(200, (int) ($_GET['limit'] ?? 100)));
+    $assignmentRows = cpg_agent_assignment_rows($agentOrganizationId, $limit);
+    $requestRows = cpg_fetch_all_assoc(
+        "SELECT agent_object_creation_request_id::text AS request_id,
+                intended_object_type,
+                represented_party_type,
+                creation_status,
+                duplicate_check_status,
+                created_object_type,
+                created_object_id::text AS created_object_id,
+                object_safe_summary,
+                updated_at::text AS updated_at,
+                created_at::text AS created_at
+         FROM crewportglobal.agent_object_creation_requests
+         WHERE agent_organization_id = $1::uuid
+           AND creation_status NOT IN ('created_linked', 'blocked_duplicate', 'rejected', 'cancelled')
+           AND archived_at IS NULL
+         ORDER BY updated_at DESC
+         LIMIT $2",
+        [$agentOrganizationId, $limit]
+    );
+
+    $tasks = [];
+    foreach ($assignmentRows as $row) {
+        $tasks[] = cpg_agent_task_from_assignment($row, $access);
+    }
+    foreach ($requestRows as $row) {
+        $tasks[] = cpg_agent_task_from_creation_request($row);
+    }
+
+    api_json(200, [
+        'ok' => true,
+        'agent_organization_id' => $agentOrganizationId,
+        'agent_display_name' => $access['agent_display_name'],
+        'task_model' => 'data_derived_agent_scope',
+        'tasks' => $tasks,
+        'count' => count($tasks),
         'generated_at' => gmdate('c'),
     ]);
 }
@@ -12341,6 +12498,149 @@ function handle_post_agent_authority_document(): void {
 
 function require_agent_admin_access(): array {
     return require_operator_workflow_operation_access('confirm_vacancy_deletion');
+}
+
+function cpg_admin_agent_authority_task(array $row): array {
+    $authorityDocumentId = is_string($row['authority_document_id'] ?? null) ? (string) $row['authority_document_id'] : '';
+    $agentName = cpg_agent_string_value($row['agent_display_name'] ?? null, 200) ?? 'Agent organization';
+    $authorityType = is_string($row['authority_type'] ?? null) ? (string) $row['authority_type'] : 'authority';
+    $scopeType = is_string($row['authority_scope_type'] ?? null) ? (string) $row['authority_scope_type'] : 'scope';
+    return [
+        'task_id' => 'admin-agent-authority-' . $authorityDocumentId,
+        'task_model' => 'data_derived_agent_scope',
+        'operation_code' => 'review_agent_authority_evidence',
+        'task_title' => 'Review agent authority evidence. (Agent: ' . $agentName . ', ' . $authorityType . '.)',
+        'process_stage' => 'Agent authority verification',
+        'visibility_condition' => 'Visible while authority evidence is submitted or under review and has not been accepted, limited, rejected, expired or revoked.',
+        'task_state' => 'platform_control_review_required',
+        'responsible' => [
+            'group' => 'platform_control',
+            'permission' => 'confirm_vacancy_deletion',
+        ],
+        'authority_document' => [
+            'authority_document_id' => $authorityDocumentId,
+            'agent_organization_id' => is_string($row['agent_organization_id'] ?? null) ? (string) $row['agent_organization_id'] : null,
+            'agent_display_name' => $agentName,
+            'authority_type' => $authorityType,
+            'authority_scope_type' => $scopeType,
+            'authority_scope_object_id' => is_string($row['authority_scope_object_id'] ?? null) ? (string) $row['authority_scope_object_id'] : null,
+            'authority_status' => is_string($row['authority_status'] ?? null) ? (string) $row['authority_status'] : null,
+            'valid_from' => is_string($row['valid_from'] ?? null) ? (string) $row['valid_from'] : null,
+            'valid_until' => is_string($row['valid_until'] ?? null) ? (string) $row['valid_until'] : null,
+            'source_reference' => is_string($row['source_reference'] ?? null) ? (string) $row['source_reference'] : null,
+            'created_at' => is_string($row['created_at'] ?? null) ? (string) $row['created_at'] : null,
+        ],
+        'target_url' => '/agents/' . cpg_agent_authority_anchor($authorityDocumentId),
+        'generated_at' => gmdate('c'),
+    ];
+}
+
+function cpg_admin_agent_object_request_task(array $row): array {
+    $requestId = is_string($row['request_id'] ?? null) ? (string) $row['request_id'] : '';
+    $agentName = cpg_agent_string_value($row['agent_display_name'] ?? null, 200) ?? 'Agent organization';
+    $objectType = is_string($row['intended_object_type'] ?? null) ? (string) $row['intended_object_type'] : 'object';
+    $summary = cpg_agent_string_value($row['object_safe_summary'] ?? null, 500) ?? $objectType;
+    return [
+        'task_id' => 'admin-agent-object-request-' . $requestId,
+        'task_model' => 'data_derived_agent_scope',
+        'operation_code' => 'review_agent_object_creation_request',
+        'task_title' => 'Review represented-object creation request. (' . $objectType . ': ' . $summary . '.)',
+        'process_stage' => 'Agent object creation and duplicate review',
+        'visibility_condition' => 'Visible while the agent-created object request requires duplicate/control review before object creation or linking.',
+        'task_state' => 'platform_control_review_required',
+        'responsible' => [
+            'group' => 'platform_control',
+            'permission' => 'confirm_vacancy_deletion',
+        ],
+        'object_request' => [
+            'request_id' => $requestId,
+            'agent_organization_id' => is_string($row['agent_organization_id'] ?? null) ? (string) $row['agent_organization_id'] : null,
+            'agent_display_name' => $agentName,
+            'intended_object_type' => $objectType,
+            'represented_party_type' => is_string($row['represented_party_type'] ?? null) ? (string) $row['represented_party_type'] : null,
+            'creation_status' => is_string($row['creation_status'] ?? null) ? (string) $row['creation_status'] : null,
+            'duplicate_check_status' => is_string($row['duplicate_check_status'] ?? null) ? (string) $row['duplicate_check_status'] : null,
+            'object_safe_summary' => $summary,
+            'source_authority_document_id' => is_string($row['source_authority_document_id'] ?? null) ? (string) $row['source_authority_document_id'] : null,
+            'created_at' => is_string($row['created_at'] ?? null) ? (string) $row['created_at'] : null,
+            'updated_at' => is_string($row['updated_at'] ?? null) ? (string) $row['updated_at'] : null,
+        ],
+        'target_url' => '/agents/' . cpg_agent_admin_request_anchor($requestId),
+        'generated_at' => gmdate('c'),
+    ];
+}
+
+function handle_get_admin_agent_review_workspace(): void {
+    cpg_agent_require_scope_tables();
+    require_agent_admin_access();
+    $limit = max(1, min(200, (int) ($_GET['limit'] ?? 100)));
+    $authorityRows = cpg_fetch_all_assoc(
+        "SELECT aad.agent_authority_document_id::text AS authority_document_id,
+                aad.agent_organization_id::text AS agent_organization_id,
+                ao.agent_display_name,
+                aad.authority_type,
+                aad.authority_scope_type,
+                aad.authority_scope_object_id::text AS authority_scope_object_id,
+                aad.authority_status,
+                aad.valid_from::text AS valid_from,
+                aad.valid_until::text AS valid_until,
+                aad.source_reference,
+                aad.created_at::text AS created_at,
+                aad.updated_at::text AS updated_at
+         FROM crewportglobal.agent_authority_documents aad
+         JOIN crewportglobal.agent_organizations ao
+           ON ao.agent_organization_id = aad.agent_organization_id
+         WHERE aad.authority_status IN ('submitted', 'under_review')
+           AND aad.archived_at IS NULL
+           AND ao.archived_at IS NULL
+         ORDER BY aad.updated_at DESC
+         LIMIT $1",
+        [$limit]
+    );
+    $requestRows = cpg_fetch_all_assoc(
+        "SELECT aocr.agent_object_creation_request_id::text AS request_id,
+                aocr.agent_organization_id::text AS agent_organization_id,
+                ao.agent_display_name,
+                aocr.intended_object_type,
+                aocr.represented_party_type,
+                aocr.creation_status,
+                aocr.duplicate_check_status,
+                aocr.source_authority_document_id::text AS source_authority_document_id,
+                aocr.object_safe_summary,
+                aocr.created_at::text AS created_at,
+                aocr.updated_at::text AS updated_at
+         FROM crewportglobal.agent_object_creation_requests aocr
+         JOIN crewportglobal.agent_organizations ao
+           ON ao.agent_organization_id = aocr.agent_organization_id
+         WHERE aocr.creation_status IN ('submitted', 'duplicate_check_required', 'duplicate_found', 'evidence_requested', 'approved_to_create')
+           AND aocr.archived_at IS NULL
+           AND ao.archived_at IS NULL
+         ORDER BY aocr.updated_at DESC
+         LIMIT $1",
+        [$limit]
+    );
+
+    $tasks = [];
+    foreach ($authorityRows as $row) {
+        $tasks[] = cpg_admin_agent_authority_task($row);
+    }
+    foreach ($requestRows as $row) {
+        $tasks[] = cpg_admin_agent_object_request_task($row);
+    }
+
+    api_json(200, [
+        'ok' => true,
+        'task_model' => 'data_derived_agent_scope',
+        'tasks' => $tasks,
+        'authority_documents' => $authorityRows,
+        'object_creation_requests' => $requestRows,
+        'counts' => [
+            'tasks' => count($tasks),
+            'authority_documents' => count($authorityRows),
+            'object_creation_requests' => count($requestRows),
+        ],
+        'generated_at' => gmdate('c'),
+    ]);
 }
 
 function handle_patch_admin_agent_authority_document_review(string $authorityDocumentId): void {
@@ -16341,6 +16641,14 @@ if ($path === '/agents/objects') {
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
 }
 
+if ($path === '/agents/tasks') {
+    if ($method === 'GET') {
+        handle_get_agent_tasks();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
 if ($path === '/agents/object-creation-requests') {
     if ($method === 'GET') {
         handle_get_agent_object_creation_requests();
@@ -16358,6 +16666,14 @@ if ($path === '/agents/authority-documents') {
     }
     header('Allow: POST');
     api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if ($path === '/admin/agents/review-workspace') {
+    if ($method === 'GET') {
+        handle_get_admin_agent_review_workspace();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
 }
 
 if (preg_match('#^/admin/agents/authority-documents/([^/]+)/review$#', $path, $matches) === 1) {

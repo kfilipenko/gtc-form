@@ -2808,6 +2808,7 @@ FROM inserted_user;
   const me = JSON.parse(meBody) as Record<string, any>;
   expect(me.access_model).toBe('agent_account_session');
   expect(me.agent_organization_id).toBe(agentOrganizationId);
+  const operatorToken = process.env.CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN || process.env.CPG_OPERATOR_ACCESS_TOKEN || 'crewportglobal-local-operator';
 
   const authorityResponse = await agentContext.post('/agents/authority-documents', {
     data: {
@@ -2830,9 +2831,20 @@ FROM inserted_user;
   const authorityDocumentId = authority.authority_document.authority_document_id;
   expect(authority.authority_document.authority_status).toBe('submitted');
 
+  const pendingAuthorityWorkspaceResponse = await agentContext.get('/admin/agents/review-workspace', {
+    headers: {
+      'X-CPG-Operator-Token': operatorToken,
+    },
+  });
+  const pendingAuthorityWorkspaceText = await pendingAuthorityWorkspaceResponse.text();
+  expect(pendingAuthorityWorkspaceResponse.ok(), pendingAuthorityWorkspaceText).toBeTruthy();
+  const pendingAuthorityWorkspace = JSON.parse(pendingAuthorityWorkspaceText) as Record<string, any>;
+  expect(JSON.stringify(pendingAuthorityWorkspace.tasks)).toContain(authorityDocumentId);
+  expect(pendingAuthorityWorkspace.tasks.some((task: Record<string, any>) => task.operation_code === 'review_agent_authority_evidence')).toBe(true);
+
   const reviewResponse = await agentContext.patch(`/admin/agents/authority-documents/${authorityDocumentId}/review`, {
     headers: {
-      'X-CPG-Operator-Token': process.env.CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN || process.env.CPG_OPERATOR_ACCESS_TOKEN || 'crewportglobal-local-operator',
+      'X-CPG-Operator-Token': operatorToken,
     },
     data: {
       decision: 'verified',
@@ -2842,6 +2854,16 @@ FROM inserted_user;
   const reviewText = await reviewResponse.text();
   expect(reviewResponse.ok(), reviewText).toBeTruthy();
   expect(JSON.parse(reviewText).authority_document.authority_status).toBe('verified');
+
+  const reviewedAuthorityWorkspaceResponse = await agentContext.get('/admin/agents/review-workspace', {
+    headers: {
+      'X-CPG-Operator-Token': operatorToken,
+    },
+  });
+  const reviewedAuthorityWorkspaceText = await reviewedAuthorityWorkspaceResponse.text();
+  expect(reviewedAuthorityWorkspaceResponse.ok(), reviewedAuthorityWorkspaceText).toBeTruthy();
+  const reviewedAuthorityWorkspace = JSON.parse(reviewedAuthorityWorkspaceText) as Record<string, any>;
+  expect(JSON.stringify(reviewedAuthorityWorkspace.tasks)).not.toContain(`admin-agent-authority-${authorityDocumentId}`);
 
   const requestResponse = await agentContext.post('/agents/object-creation-requests', {
     data: {
@@ -2856,11 +2878,24 @@ FROM inserted_user;
   });
   const requestText = await requestResponse.text();
   expect(requestResponse.ok(), requestText).toBeTruthy();
-  expect(JSON.parse(requestText).request.creation_status).toBe('submitted');
+  const creationRequest = JSON.parse(requestText) as Record<string, any>;
+  const creationRequestId = creationRequest.request.request_id;
+  expect(creationRequest.request.creation_status).toBe('submitted');
+
+  const pendingRequestWorkspaceResponse = await agentContext.get('/admin/agents/review-workspace', {
+    headers: {
+      'X-CPG-Operator-Token': operatorToken,
+    },
+  });
+  const pendingRequestWorkspaceText = await pendingRequestWorkspaceResponse.text();
+  expect(pendingRequestWorkspaceResponse.ok(), pendingRequestWorkspaceText).toBeTruthy();
+  const pendingRequestWorkspace = JSON.parse(pendingRequestWorkspaceText) as Record<string, any>;
+  expect(JSON.stringify(pendingRequestWorkspace.tasks)).toContain(creationRequestId);
+  expect(pendingRequestWorkspace.tasks.some((task: Record<string, any>) => task.operation_code === 'review_agent_object_creation_request')).toBe(true);
 
   const assignmentResponse = await agentContext.post('/admin/agents/object-assignments', {
     headers: {
-      'X-CPG-Operator-Token': process.env.CREWPORTGLOBAL_OPERATOR_ACCESS_TOKEN || process.env.CPG_OPERATOR_ACCESS_TOKEN || 'crewportglobal-local-operator',
+      'X-CPG-Operator-Token': operatorToken,
     },
     data: {
       agent_organization_id: agentOrganizationId,
@@ -2893,6 +2928,23 @@ FROM inserted_user;
     managed_by_agent: true,
     management_allowed: true,
   });
+  expect(objects.objects[0].authority).toMatchObject({
+    authority_document_id: authorityDocumentId,
+    authority_status: 'verified',
+    authority_type: 'power_of_attorney',
+  });
+
+  const agentTasksResponse = await agentContext.get('/agents/tasks');
+  const agentTasksText = await agentTasksResponse.text();
+  expect(agentTasksResponse.ok(), agentTasksText).toBeTruthy();
+  const agentTasks = JSON.parse(agentTasksText) as Record<string, any>;
+  expect(agentTasks.task_model).toBe('data_derived_agent_scope');
+  expect(agentTasks.tasks.some((task: Record<string, any>) => (
+    task.operation_code === 'manage_represented_object'
+    && task.object?.object_id === agentUserId
+    && task.management?.managed_by_display_name === `API Agent Scope ${unique}`
+  ))).toBe(true);
+  expect(agentTasks.tasks.some((task: Record<string, any>) => task.operation_code === 'track_agent_object_request' && task.object_request?.request_id === creationRequestId)).toBe(true);
 
   const auditCount = Number(runApiPsql(`
 SELECT count(*)

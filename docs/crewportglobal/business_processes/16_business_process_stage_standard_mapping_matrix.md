@@ -7,7 +7,7 @@
 - Source task: Project Owner instruction after CPG-BIZ-093 approval
 - Version: 2.9
 - Date: 2026-06-08
-- Status: Updated after CPG-BIZ-116 agent API skeleton and authority guard
+- Status: Updated after CPG-BIZ-117 agent task queue and authority review workspace
 
 ## 1. Purpose
 
@@ -72,6 +72,7 @@ If a stage has no controlling standard, it must be marked as a gap and described
 | CPG-BIZ-114 | Agent workbench page and navigation | Implemented `/agents/` page shell and `Agents` menu group for the future scoped agent cycle without granting runtime permissions |
 | CPG-BIZ-115 | Agent API authority and management scope plan | Defines that an agent may create any supported object request, but may manage the created/linked object only after verified authority evidence and active object assignment; every object card must expose `Managed by` / `Управляется` as the task-routing actor and authority must be visible in agent lists and participant cards |
 | CPG-BIZ-116 | Agent API skeleton and verified authority guard | Implemented protected agent API endpoints, authority submission/review, controlled object assignment, object-scope mismatch guard, audit events and `management` context in API/task payloads |
+| CPG-BIZ-117 | Agent task queue routing and authority review workspace | Implemented `/agents/tasks`, platform-control `/admin/agents/review-workspace`, computed agent task titles, authority review tasks, object-request review tasks and authority evidence visibility in agent object cards |
 | Implemented Code Standards ICS-001..003 | Reusable code standards for form lifecycle, protected upload and submit-review gate | Existing code-level standard register |
 
 ## 4. Stage-To-Standard Matrix
@@ -82,7 +83,7 @@ If a stage has no controlling standard, it must be marked as a gap and described
 | Marketing to employers / shipowners | CC-02 / before CF-01 | Employer lead | Group 0 marketing, Group 1 demand intake | BP-015, BP-009 | Partial | Standard for employer lead qualification, package offer, partner/logo publication and commercial interest evidence. |
 | Physical person registration | CC-03 | User account / physical person | Registration flow, support | BP-008, BP-014 | Covered | Need job instruction for support exceptions and failed registration recovery. |
 | Path selection after registration | CC-03 | User role path | Registration flow, support | BP-008, BP-009 | Partial | Standard for automatic routing to seafarer profile or employer/vacancy workspace after role selection. |
-| Agent onboarding, object creation and scope | CF-00A / CF-00B / CF-00C | Agent organization, agent-created object request, assignment, account/object claim | Platform Administration / Control, assigned agent organization | BP-012, BP-013, CPG-BIZ-111, CPG-BIZ-112, CPG-BIZ-113, CPG-BIZ-114, CPG-BIZ-115, CPG-BIZ-116 | Runtime migration 020 implemented and verified; `/agents/` page and `Agents` navigation shell implemented; protected API skeleton implemented for agent session, authority submission, object creation requests, admin authority review, admin object assignment, object-scope mismatch guard, audit events and `Managed by` management context | Agent-specific task queue routing, authority review workspace UI, duplicate/claim notification workflow and reassignment workflow. |
+| Agent onboarding, object creation and scope | CF-00A / CF-00B / CF-00C | Agent organization, agent-created object request, assignment, account/object claim | Platform Administration / Control, assigned agent organization | BP-012, BP-013, CPG-BIZ-111, CPG-BIZ-112, CPG-BIZ-113, CPG-BIZ-114, CPG-BIZ-115, CPG-BIZ-116, CPG-BIZ-117 | Runtime migration 020 implemented and verified; `/agents/` page and `Agents` navigation shell implemented; protected API skeleton implemented for agent session, authority submission, object creation requests, admin authority review, admin object assignment, object-scope mismatch guard, audit events and `Managed by` management context; `/agents/tasks` now computes agent-visible tasks and `/admin/agents/review-workspace` computes platform-control authority/object-request review tasks | Duplicate/claim notification workflow, agent reassignment workflow and deeper object-specific edit workspaces remain future work. |
 | Seafarer profile completion | CC-04 / CF-06 | Seafarer supply profile | Seafarer owner, Group 2 support | BP-011, BP-014, BP-010 | Covered for current form | Need final parity check for all matching-critical fields and document-first extraction plan. |
 | Seafarer document readiness review | CF-07 | Seafarer documents and profile readiness | Verification team / Group 5 | BP-010, BP-012, BP-014 | Covered in principle and partially implemented | Job instruction for document review outcomes, correction reasons and restricted medical boundary. |
 | Employer/company registration | CC-05 / CF-02 | Employer/company card | Employer owner, Group 1, Group 5 | BP-003, BP-008, BP-014 | Partial | Standard for employer authority evidence, logo/public partner eligibility and commercial account status. |
@@ -116,7 +117,7 @@ The following standards should be created or expanded before final job descripti
 |---|---|---|
 | P1 | Employer service package and entitlement standard | Without this, subscription/package, discounts, service access and commercial start are not fully controlled. |
 | P1 | Structured terms clarification workspace standard | Required before contract proposal so salary, joining date, duration, travel, repatriation and document-readiness differences become auditable agreed terms instead of chat text. |
-| P1 | Agent task queue routing and authority review workspace | Required after CPG-BIZ-116 so agent-managed objects generate visible agent tasks, platform control can review authority evidence in a dedicated workspace and task ownership follows `Managed by`. |
+| P1 | Agent duplicate/account claim and reassignment workflow | Required after CPG-BIZ-117 so duplicate object/account claims and agent changes cannot create silent duplicate full-access records and task ownership can move to a new verified manager. |
 | P1 | Contract workspace embedded field editing and party-review readiness guard | CPG-BIZ-102 can open a concrete workspace and show source-prefilled facts; the next gap is controlled completion of selectable embedded contract fields before party review. |
 | P1 | Embarkation and onboard-status evidence standard | Required to prove success fee, onboard status and service delivery. |
 | P1 | Monthly service evidence and billing-basis standard | Required for recurring monthly service fee and partial-month/illness/replacement cases. |
@@ -174,32 +175,35 @@ CPG-BIZ-113 has converted the approved draft into runtime migration 020 and veri
 CPG-BIZ-114 has implemented the `/agents/` workbench shell and `Agents` navigation group so agent organizations have a separate visible workspace before API/task-scope wiring.
 CPG-BIZ-115 has defined the authority/management scope rule and universal `Managed by` task-routing context.
 CPG-BIZ-116 has implemented the protected agent API skeleton, verified-authority guard, object assignment, audit events and `management` context in API/task payloads.
+CPG-BIZ-117 has implemented agent-specific computed tasks, platform-control authority/object-request review workspace and authority evidence visibility in agent object cards.
 
 The recommended next stage is:
 
 ```text
-CPG-BIZ-117 - Agent task queue routing and authority review workspace
+CPG-BIZ-118 - Agent duplicate/account claim and reassignment workflow
 ```
 
 After that, the process should move to:
 
-1. Platform Administration / Control UI for authority documents and object creation requests;
-2. task-computation update for agent organization visible tasks;
-3. incoming request resubmission lifecycle after seafarer correction;
-4. shipowner notification SLA after incoming-request correction;
-5. structured terms clarification workspace UI/API/SQL design under a free CPG-BIZ number;
-6. contract workspace embedded field editing and party-review readiness guard;
-7. scripted contract generation guard after party approval;
-8. employer service package and entitlement standard;
-9. embarkation/onboard evidence standard;
-10. monthly service evidence and billing-basis standard;
-11. disembarkation/return support standard;
-12. role job-instruction package for the operational groups.
+1. account/object claim notification and review;
+2. agent reassignment workflow and reassignment audit;
+3. deeper object-specific agent edit workspaces;
+4. incoming request resubmission lifecycle after seafarer correction;
+5. shipowner notification SLA after incoming-request correction;
+6. structured terms clarification workspace UI/API/SQL design under a free CPG-BIZ number;
+7. contract workspace embedded field editing and party-review readiness guard;
+8. scripted contract generation guard after party approval;
+9. employer service package and entitlement standard;
+10. embarkation/onboard evidence standard;
+11. monthly service evidence and billing-basis standard;
+12. disembarkation/return support standard;
+13. role job-instruction package for the operational groups.
 
 ## 8. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.0 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-117 result: agent computed task endpoint, platform-control authority review workspace, object-request review tasks and authority evidence visibility |
 | 2.9 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-116 result: protected agent API skeleton, verified-authority guard, object assignment, audit evidence and `management` API/task context |
 | 2.8 | 2026-06-07 | GTC IT / AI Assistant | Added CPG-BIZ-114 result: `/agents/` workbench page and `Agents` navigation group implemented as safe UI shell before API/task-scope wiring |
 | 2.7 | 2026-06-07 | GTC IT / AI Assistant | Marked CPG-BIZ-113 as implemented: runtime migration 020 for agent organization scope schema was applied and verified on test DB/API regression |
