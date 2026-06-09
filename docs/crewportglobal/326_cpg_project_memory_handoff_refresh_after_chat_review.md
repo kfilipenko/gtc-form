@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Project memory and historical handoff refresh
 - Source: local Codex session `Оценить проект Crewportglobal` reviewed on 2026-06-09
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-06-09
 - Status: Active continuation memory
 
@@ -95,10 +95,18 @@ Commit: e3a8095 Enforce agent assignment context in forms
 
 CPG-BIZ-124 added runtime enforcement for agent-opened profile and demand form APIs, protected document list/upload and seafarer workspace context resolution.
 
-The recommended next stage remains:
+The Project Owner then identified a higher-order agent governance issue before implementing the notification stage:
 
 ```text
-CPG-BIZ-125 - Owner and previous-agent notifications after assignment/reassignment
+CPG-BIZ-125 - Agent representation conflict and personal contract-signature standard
+```
+
+CPG-BIZ-125 records that agent tasks must preserve represented-party capacity, dual representation must be reviewed before contract-critical decisions, and the seafarer/shipowner contract must require direct party review and personal signature by default.
+
+The owner/previous-agent notification stage is moved forward to:
+
+```text
+CPG-BIZ-126 - Owner, previous-agent and represented-party notifications after assignment/reassignment
 ```
 
 ## 6. Active Working Rules For Future Continuation

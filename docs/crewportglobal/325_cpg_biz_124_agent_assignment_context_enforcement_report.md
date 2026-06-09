@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: continuation after CPG-BIZ-119; originally queued as form-level assignment-context enforcement
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-06-09
 - Status: Implemented and verified on GTC1
 
@@ -160,10 +160,24 @@ The focused test confirms:
 
 ## 8. Next Stage
 
+Addendum on 2026-06-09:
+
+After Project Owner review, a higher-order governance standard was inserted before the notification implementation. CPG-BIZ-125 is now:
+
+```text
+CPG-BIZ-125 - Agent representation conflict and personal contract-signature standard
+```
+
+The notification implementation is moved forward to:
+
+```text
+CPG-BIZ-126 - Owner, previous-agent and represented-party notification after assignment/reassignment
+```
+
 Recommended next stage:
 
 ```text
-CPG-BIZ-125 - Owner and previous-agent notification after assignment/reassignment
+CPG-BIZ-126 - Owner, previous-agent and represented-party notification after assignment/reassignment
 ```
 
-Goal: when platform control assigns or reassigns a represented object, notify the relevant owner/previous agent and expose a safe audit-visible notification/task record without leaking unrelated object data.
+Goal: when platform control assigns or reassigns a represented object, notify the relevant owner, represented party and previous agent, and expose a safe audit-visible notification/task record without leaking unrelated object data.
