@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.52
+- Version: 3.53
 - Status: For internal review
 
 ## 1. Purpose
@@ -163,6 +163,7 @@ This documentation block starts from the following approved business controls:
 83. Computed task routing must use object management context: `object state + managed_by_type + managed_by_id + required permission = visible task owner`; when a managing agent is reassigned, future tasks move to the new managing agent while the old agent remains only in audit/history.
 84. Account/object claim resolution is a controlled reassignment gate: an agent claim must be reviewed by Platform Administration / Control, linked to verified authority evidence, and only then may create or replace an active object assignment; if reassigned, the previous assignment becomes `reassigned`, the new assignment becomes the task-routing `Managed by` actor and all material steps are recorded in `agent_scope_audit_events`.
 85. Agent-managed object work must open through a concrete scoped object workspace, not a generic list: the workspace must be addressed by `agent_object_assignment_id`, show `Managed by`, authority evidence, assignment status and safe object fields, and enable object-edit links only when active/limited assignment and verified/limited authority pass the backend guard.
+86. Participant tasks must be computed from information stream, working object, object state, business-process stage, managing participant or assignment scope, responsible group, required permission and historical active executor; each task must open the exact working object or controlled blocker state, not a generic page or list.
 
 ## 5. Intended Use
 
@@ -182,6 +183,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.53 | 2026-06-09 | GTC IT / AI Assistant | Added participant task-routing control after BP-016 synchronization: tasks derive from stream, object state, management scope, group/permission and historical active executor, and must open exact working objects |
 | 3.52 | 2026-06-09 | GTC IT / AI Assistant | Added CPG-BIZ-124 implementation control for agent assignment-context enforcement in profile, demand and protected-document form routes |
 | 3.50 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-118 implementation control for agent account/object claim review, authority-guarded reassignment and claim audit linkage |
 | 3.51 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-119 implementation control for agent-managed object participant cards and scoped object workspace guard |

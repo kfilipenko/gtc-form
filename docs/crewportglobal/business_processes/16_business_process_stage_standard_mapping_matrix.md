@@ -5,9 +5,9 @@
 - Documentation block: Business processes and operating model
 - Document type: Stage-to-standard control matrix
 - Source task: Project Owner instruction after CPG-BIZ-093 approval
-- Version: 3.3
-- Date: 2026-06-08
-- Status: Updated after CPG-BIZ-124 agent assignment-context enforcement
+- Version: 3.4
+- Date: 2026-06-09
+- Status: Synchronized after CPG-BIZ-124 and task-routing review
 
 ## 1. Purpose
 
@@ -41,6 +41,69 @@ Each stage must have:
 8. handoff to the next stage.
 
 If a stage has no controlling standard, it must be marked as a gap and described before broad implementation.
+
+## 2A. Participant Task Routing Model
+
+CrewPortGlobal does not operate as a set of static role pages.
+
+The portal operates through computed tasks derived from business records:
+
+```text
+information stream
+-> working object
+-> current object state
+-> business-process stage
+-> managing participant / agent assignment scope where applicable
+-> responsible group or owner role
+-> required permission
+-> historical active executor where applicable
+-> visible task
+-> exact working object link
+```
+
+The visible task belongs to the participant who has a valid relationship to the current stage and object.
+
+Task recipients include:
+
+| Recipient | Task source | Main surface |
+|---|---|---|
+| Seafarer owner | Own profile, documents, availability, corrections and incoming-request review results | `/cabinet/`, `/create-profile/`, `/seafarers/job-search/` |
+| Employer / shipowner owner | Own company, vessel, crew request, incoming requests, candidate decisions and contract proposal context | `/cabinet/`, `/post-vacancy/`, `/shipowners/candidates/` |
+| Agent organization / agent user | Active/limited object assignment, verified/limited authority evidence and required permission | `/agents/`, `/agents/tasks`, assignment-specific object workspace |
+| Platform Administration / Control | Authority review, object-creation request review, duplicate/account claim resolution, reassignment and control exceptions | `/admin/agents/review-workspace`, protected admin/control surfaces |
+| Verification team | Profile, company, vessel, document and authority review stages | `/team/`, `/verify/`, `/team/documents/` |
+| Review team | Request-supply comparison, shortlist, candidate presentation and incoming seafarer request review | `/team/`, `/verify/`, `/team/matching/`, `/team/shortlists/` |
+| Billing / commercial group | Service package, service evidence and billing-basis stages | Future billing/commercial workspace |
+| Project Owner / control role | Access policy, deletion confirmation, audit exceptions and governance blockers | `/admin/access/`, `/team/`, future control workspaces |
+
+Every task card must show:
+
+1. one clear primary operation;
+2. safe object summary;
+3. business-process stage;
+4. visibility condition;
+5. responsible group or owner role;
+6. assigned employee when historical active executor exists;
+7. required permission;
+8. blocker/status reason when execution is not allowed;
+9. active link to the exact internal working object.
+
+The approved task title pattern remains:
+
+```text
+{Stage action}. ({Object type}: {safe object summary}.)
+```
+
+The link must open the executable working object or controlled blocker state. Sending the user to a generic list is not compliant.
+
+Task exit rules:
+
+1. after a review/action completes, the same active task must disappear unless it remains only as a controlled blocker;
+2. the next task is recomputed from the new object state;
+3. if the same active group member previously completed an analogous operation for the same object, future tasks for that group/object are assigned to that active employee;
+4. if no active historical executor exists, the task remains in the group queue;
+5. if an object is managed by an agent organization, ordinary object tasks route to the active managing agent scope and not to unrelated broad group members;
+6. if management is reassigned, future tasks route to the new managing participant while the old participant remains in audit/history only.
 
 ## 3. Current Standard Library
 
@@ -159,53 +222,51 @@ The job instruction must define:
 
 ## 7. Immediate Next Work
 
-CPG-BIZ-094 has defined the master contract clause library and catalog seed.
-CPG-BIZ-095 has replaced the separate condition-form concept with the Contract Agreement Workspace and embedded condition fields.
-CPG-BIZ-096 has defined the future object, API, UI, guard and audit model.
-CPG-BIZ-097 has prepared an additive SQL draft outside runtime migrations.
-CPG-BIZ-098A has clarified that verified platform records prefill contract facts and that parties select only true contractual alternatives or controlled corrections.
-CPG-BIZ-098B has reconciled contract fields with existing filled-form sources and found that the SQL draft needs a direct shortlist candidate link before migration approval.
-CPG-BIZ-098C has corrected the documentation-only SQL draft with `shortlist_candidate_id` and `shortlist_candidate` source traceability.
-CPG-BIZ-098D has converted the approved draft into runtime migration 018 and verified it on the test DB and API regression.
-CPG-BIZ-099 has defined the shipowner candidate review menu, employer decision state and guarded `propose_contract` computed operation.
-CPG-BIZ-100 has implemented the employer `proceed_with_candidate` state, guarded contract proposal API/UI and Contract Agreement Workspace creation/reuse.
-CPG-BIZ-101 has implemented the Shipowners menu term, the dedicated `/shipowners/candidates/` workspace and guarded `Propose contract` handoff from employer-safe presented candidates.
-CPG-BIZ-102 has implemented the concrete `/contracts/workspace/` detail view, access guard, verified source-prefill and no-side-effect review boundary.
-CPG-BIZ-110 has prepared the structured terms clarification task for Project Owner approval so material seafarer/shipowner term differences can be resolved before contract proposal without using free chat as the source of agreement.
-CPG-BIZ-111 has documented the agent role separation model: agent organizations are independent responsible participants, GTC-operated and external agents follow the same rule, and duplicate/account claims prevent silent duplicate full-access records.
-CPG-BIZ-112 has prepared the agent organization scope SQL draft outside runtime migrations, including agent-created object requests, authority documents, object assignments, account/object claims and agent-scope audit.
-CPG-BIZ-113 has converted the approved draft into runtime migration 020 and verified it on the test DB and API regression.
-CPG-BIZ-114 has implemented the `/agents/` workbench shell and `Agents` navigation group so agent organizations have a separate visible workspace before API/task-scope wiring.
-CPG-BIZ-115 has defined the authority/management scope rule and universal `Managed by` task-routing context.
-CPG-BIZ-116 has implemented the protected agent API skeleton, verified-authority guard, object assignment, audit events and `management` context in API/task payloads.
-CPG-BIZ-117 has implemented agent-specific computed tasks, platform-control authority/object-request review workspace and authority evidence visibility in agent object cards.
+Current synchronized checkpoint:
+
+```text
+CPG-BIZ-124 is implemented.
+```
+
+The agent scope chain now includes:
+
+1. CPG-BIZ-111 - agent role separation and authority model;
+2. CPG-BIZ-112 - agent organization scope SQL draft;
+3. CPG-BIZ-113 - runtime migration 020;
+4. CPG-BIZ-114 - `/agents/` workbench shell and navigation;
+5. CPG-BIZ-115 - authority/management scope and `Managed by` task-routing context;
+6. CPG-BIZ-116 - protected agent API skeleton and verified-authority guard;
+7. CPG-BIZ-117 - agent computed tasks and platform-control authority/object-request review workspace;
+8. CPG-BIZ-118 - account/object claim and reassignment workflow;
+9. CPG-BIZ-119 - assignment-specific agent-managed object workspace;
+10. CPG-BIZ-124 - agent assignment-context enforcement in profile, demand and protected-document routes.
 
 The recommended next stage is:
 
 ```text
-CPG-BIZ-118 - Agent duplicate/account claim and reassignment workflow
+CPG-BIZ-125 - Owner and previous-agent notifications after assignment/reassignment
 ```
+
+Goal: when Platform Administration / Control assigns or reassigns a represented object, the object owner and any previous managing agent must receive a safe, audit-visible notification or task. The notification must not leak unrelated object data and must preserve the new `Managed by` routing rule.
 
 After that, the process should move to:
 
-1. account/object claim notification and review;
-2. assignment-context enforcement inside agent-opened profile and demand forms;
-3. owner/previous-agent notification after reassignment;
-4. incoming request resubmission lifecycle after seafarer correction;
-5. shipowner notification SLA after incoming-request correction;
-6. structured terms clarification workspace UI/API/SQL design under a free CPG-BIZ number;
-7. contract workspace embedded field editing and party-review readiness guard;
-8. scripted contract generation guard after party approval;
-9. employer service package and entitlement standard;
-10. embarkation/onboard evidence standard;
-11. monthly service evidence and billing-basis standard;
-12. disembarkation/return support standard;
-13. role job-instruction package for the operational groups.
+1. incoming request resubmission lifecycle after seafarer correction;
+2. shipowner notification SLA after incoming-request correction;
+3. structured terms clarification workspace UI/API/SQL design under a free CPG-BIZ number;
+4. contract workspace embedded field editing and party-review readiness guard;
+5. scripted contract generation guard after party approval;
+6. employer service package and entitlement standard;
+7. embarkation/onboard evidence standard;
+8. monthly service evidence and billing-basis standard;
+9. disembarkation/return support standard;
+10. role job-instruction package for the operational groups.
 
 ## 8. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.4 | 2026-06-09 | GTC IT / AI Assistant | Added participant task-routing model and synchronized immediate next work after CPG-BIZ-124 so CPG-BIZ-125 owner/previous-agent notifications is the current next stage |
 | 3.3 | 2026-06-09 | GTC IT / AI Assistant | Added CPG-BIZ-124 result: agent assignment-context enforcement for profile/demand draft APIs, protected documents and seafarer workspace resolution |
 | 3.2 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-119 result: assignment-specific agent object workspace, participant card, safe fields, guarded working links and next gap for form-level assignment-context enforcement |
 | 3.1 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-118 result: agent claim submission, platform-control claim review task, authority-guarded reassignment and claim-linked audit events |
