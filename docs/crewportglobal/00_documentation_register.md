@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 3.12
+- Version: 3.13
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -413,6 +413,7 @@ docs/crewportglobal/
   323_cpg_biz_122_full_shipowner_agent_agreement_example_ru.md
   324_cpg_biz_123_full_contract_ru_checkbox_radio.md
   325_cpg_biz_124_agent_assignment_context_enforcement_report.md
+  326_cpg_project_memory_handoff_refresh_after_chat_review.md
   sql_drafts/
     018_contract_workspace_schema_draft.sql
     020_agent_organization_scope_schema_draft.sql
@@ -955,6 +956,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.13 | 2026-06-09 | GTC IT / AI Assistant | Added document 326 as a project-memory handoff refresh after reviewing the earlier `Оценить проект Crewportglobal` chat, preserving product goal, fixation discipline and current CPG-BIZ-124 to CPG-BIZ-125 continuation state |
 | 3.12 | 2026-06-09 | GTC IT / AI Assistant | Added documents 321-325, including CPG-BIZ-124 implementation report for agent assignment context enforcement in profile/demand forms and protected document routes |
 | 3.09 | 2026-06-08 | GTC IT / AI Assistant | Added document 318 as CPG-BIZ-117 implementation report for agent computed task queue, authority review workspace and agent-object authority visibility |
 | 3.10 | 2026-06-08 | GTC IT / AI Assistant | Added document 319 as CPG-BIZ-118 implementation report for agent account/object claim review and reassignment workflow |
