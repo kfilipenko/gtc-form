@@ -60,6 +60,87 @@
     };
   }
 
+  function getAgentContext() {
+    if (typeof window === 'undefined' || !window.location) {
+      return {
+        isAgent: false,
+        actor: '',
+        assignmentId: '',
+        agentOrganizationId: ''
+      };
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const actor = (params.get('actor') || '').trim().toLowerCase();
+    const assignmentId = (params.get('assignment_id') || '').trim();
+    const agentOrganizationId = (params.get('agent_organization_id') || '').trim();
+    return {
+      isAgent: actor === 'agent' || assignmentId !== '',
+      actor,
+      assignmentId,
+      agentOrganizationId
+    };
+  }
+
+  function appendQuery(path, extraParams) {
+    const [base, query = ''] = path.split('?');
+    const params = new URLSearchParams(query);
+    Object.entries(extraParams || {}).forEach(([key, value]) => {
+      if (typeof value === 'string' && value.trim()) {
+        params.set(key, value.trim());
+      }
+    });
+    const serialized = params.toString();
+    return serialized ? `${base}?${serialized}` : base;
+  }
+
+  function pathWithAgentContext(path) {
+    const context = getAgentContext();
+    if (!context.isAgent) {
+      return path;
+    }
+
+    return appendQuery(path, {
+      actor: 'agent',
+      assignment_id: context.assignmentId,
+      agent_organization_id: context.agentOrganizationId
+    });
+  }
+
+  function payloadWithAgentContext(payload) {
+    const context = getAgentContext();
+    if (!context.isAgent || payload === undefined || payload === null || typeof payload !== 'object' || payload instanceof FormData) {
+      return payload;
+    }
+
+    return {
+      ...payload,
+      actor: 'agent',
+      assignment_id: context.assignmentId
+    };
+  }
+
+  function draftSearchWithContext(draftId) {
+    const params = new URLSearchParams();
+    if (typeof draftId === 'string' && draftId.trim()) {
+      params.set('draft_id', draftId.trim());
+    }
+
+    const context = getAgentContext();
+    if (context.isAgent) {
+      params.set('actor', 'agent');
+      if (context.assignmentId) {
+        params.set('assignment_id', context.assignmentId);
+      }
+      if (context.agentOrganizationId) {
+        params.set('agent_organization_id', context.agentOrganizationId);
+      }
+    }
+
+    const serialized = params.toString();
+    return serialized ? `?${serialized}` : '';
+  }
+
   function persistDraft(response) {
     if (!response || typeof response !== 'object') {
       return;
@@ -78,6 +159,7 @@
   }
 
   async function requestJson(path, method, payload) {
+    const requestPayload = payloadWithAgentContext(payload);
     const options = {
       method,
       headers: {
@@ -85,11 +167,11 @@
       }
     };
 
-    if (payload !== undefined) {
-      options.body = JSON.stringify(payload);
+    if (requestPayload !== undefined) {
+      options.body = JSON.stringify(requestPayload);
     }
 
-    const response = await fetch(`${getApiBase()}${path}`, options);
+    const response = await fetch(`${getApiBase()}${pathWithAgentContext(path)}`, options);
 
     const body = await response.json().catch(() => ({}));
     if (!response.ok) {
@@ -106,7 +188,13 @@
   }
 
   async function requestMultipart(path, method, formData) {
-    const response = await fetch(`${getApiBase()}${path}`, {
+    const context = getAgentContext();
+    if (context.isAgent) {
+      formData.append('actor', 'agent');
+      formData.append('assignment_id', context.assignmentId);
+    }
+
+    const response = await fetch(`${getApiBase()}${pathWithAgentContext(path)}`, {
       method,
       body: formData
     });
@@ -191,7 +279,8 @@
     const opts = options || {};
     const explicitDraftId = typeof opts.draftId === 'string' ? opts.draftId.trim() : '';
     const stored = getStoredDraft();
-    const resolvedDraftId = explicitDraftId || stored.draftId;
+    const agentContext = getAgentContext();
+    const resolvedDraftId = explicitDraftId || (agentContext.isAgent ? '' : stored.draftId);
 
     if (resolvedDraftId) {
       try {
@@ -217,6 +306,8 @@
     submitForOperatorReview,
     createOrUpdateDraft,
     listDocuments,
-    uploadDocument
+    uploadDocument,
+    getAgentContext,
+    draftSearchWithContext
   };
 })();

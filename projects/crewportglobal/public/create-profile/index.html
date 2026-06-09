@@ -4580,7 +4580,7 @@
         window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
 
         if (response && response.draft_id) {
-          window.history.replaceState(null, '', `?draft_id=${encodeURIComponent(response.draft_id)}`);
+          window.history.replaceState(null, '', window.CPGDrafts.draftSearchWithContext(response.draft_id));
           persistAfterBackendSave(response.draft_id);
         }
 

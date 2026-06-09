@@ -2212,7 +2212,7 @@
         });
         window.localStorage.setItem('crewportglobal.registration.email', email.value.trim());
         window.localStorage.setItem('crewportglobal.registration.role', role.value === 'crewing_manager' ? 'crewing-manager' : role.value);
-        window.history.replaceState(null, '', `?draft_id=${encodeURIComponent(response.draft_id)}`);
+        window.history.replaceState(null, '', window.CPGDrafts.draftSearchWithContext(response.draft_id));
         refreshUploadedDocuments();
         return response;
       }

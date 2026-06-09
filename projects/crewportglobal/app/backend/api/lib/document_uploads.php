@@ -507,6 +507,7 @@ function cpg_handle_get_registration_draft_documents(string $draftId): void {
     if ($uuid === null) {
         api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
     }
+    $agentContext = cpg_agent_form_request_context();
 
     $formType = null;
     if (isset($_GET['form_type'])) {
@@ -527,10 +528,17 @@ function cpg_handle_get_registration_draft_documents(string $draftId): void {
         }
     }
 
+    $role = resolve_registration_draft_role($uuid);
+    if ($role === null) {
+        api_error(404, 'draft_not_found', 'Registration draft not found');
+    }
+    cpg_agent_enforce_draft_context($agentContext, $uuid, $role);
+
     api_json(200, [
         'ok' => true,
         'draft_id' => $uuid,
         'documents' => cpg_document_read_documents($uuid, $formType),
+        'agent_context' => cpg_agent_context_public_payload($agentContext),
         'generated_at' => gmdate('c'),
     ]);
 }
@@ -555,6 +563,12 @@ function cpg_handle_post_registration_draft_document(string $draftId): void {
     if (!in_array($formType, cpg_document_form_types(), true)) {
         api_error(400, 'invalid_form_type', 'form_type must be seafarer, employer or vessel');
     }
+    $agentContext = cpg_agent_form_request_context($_POST);
+    $role = resolve_registration_draft_role($uuid);
+    if ($role === null) {
+        api_error(404, 'draft_not_found', 'Registration draft not found');
+    }
+    cpg_agent_enforce_draft_context($agentContext, $uuid, $role);
 
     $documentType = isset($_POST['document_type']) && is_string($_POST['document_type']) ? trim($_POST['document_type']) : '';
     $catalog = cpg_document_type_catalog();
@@ -699,6 +713,7 @@ function cpg_handle_post_registration_draft_document(string $draftId): void {
         'ok' => true,
         'draft_id' => $uuid,
         'document' => cpg_document_public_metadata($inserted),
+        'agent_context' => cpg_agent_context_public_payload($agentContext),
         'limits' => [
             'max_file_size_bytes' => CPG_DOCUMENT_MAX_FILE_SIZE_BYTES,
             'max_total_size_bytes' => CPG_DOCUMENT_MAX_DRAFT_SIZE_BYTES,

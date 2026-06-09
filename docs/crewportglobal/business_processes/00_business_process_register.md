@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.51
+- Version: 3.52
 - Status: For internal review
 
 ## 1. Purpose
@@ -182,6 +182,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.52 | 2026-06-09 | GTC IT / AI Assistant | Added CPG-BIZ-124 implementation control for agent assignment-context enforcement in profile, demand and protected-document form routes |
 | 3.50 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-118 implementation control for agent account/object claim review, authority-guarded reassignment and claim audit linkage |
 | 3.51 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-119 implementation control for agent-managed object participant cards and scoped object workspace guard |
 | 3.49 | 2026-06-08 | GTC IT / AI Assistant | Added CPG-BIZ-117 implementation control for agent computed tasks, platform-control authority review workspace and authority evidence visibility in agent object cards |

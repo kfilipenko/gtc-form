@@ -4510,8 +4510,14 @@ function cpg_resolve_seafarer_workspace_user(array $body = []): array {
     $session = cpg_auth_find_active_session();
     $userId = null;
     $accessModel = 'none';
+    $actor = is_string($body['actor'] ?? null)
+        ? strtolower(trim((string) $body['actor']))
+        : (is_string($_GET['actor'] ?? null) ? strtolower(trim((string) $_GET['actor'])) : '');
+    $agentFormRequested = $actor === 'agent'
+        || is_string($body['assignment_id'] ?? null)
+        || is_string($_GET['assignment_id'] ?? null);
 
-    if ($session !== null) {
+    if ($session !== null && !$agentFormRequested) {
         $userId = (string) $session['user_id'];
         $accessModel = 'authenticated_session';
     } else {
@@ -4523,7 +4529,7 @@ function cpg_resolve_seafarer_workspace_user(array $body = []): array {
         }
         $userId = api_normalize_uuid($draftId);
         if ($userId !== null) {
-            $accessModel = 'draft_id_transition';
+            $accessModel = $agentFormRequested ? 'agent_assignment_draft_context' : 'draft_id_transition';
         }
     }
 
@@ -10074,6 +10080,143 @@ function build_draft_response(string $userId, string $visibilityScope = 'owner_f
     ];
 }
 
+function cpg_agent_form_request_context(?array $body = null): array {
+    $actor = null;
+    if (is_array($body) && is_string($body['actor'] ?? null)) {
+        $actor = strtolower(trim((string) $body['actor']));
+    } elseif (is_string($_GET['actor'] ?? null)) {
+        $actor = strtolower(trim((string) $_GET['actor']));
+    }
+
+    $assignmentInput = null;
+    if (is_array($body) && is_string($body['assignment_id'] ?? null)) {
+        $assignmentInput = (string) $body['assignment_id'];
+    } elseif (is_string($_GET['assignment_id'] ?? null)) {
+        $assignmentInput = (string) $_GET['assignment_id'];
+    }
+    $assignmentId = api_normalize_uuid($assignmentInput);
+    $agentRequested = $actor === 'agent' || $assignmentInput !== null;
+
+    if (!$agentRequested) {
+        return ['is_agent_context' => false];
+    }
+    if ($assignmentId === null) {
+        api_json(403, [
+            'ok' => false,
+            'error' => 'agent_assignment_context_required',
+            'message' => 'Agent form access requires a valid assignment_id',
+        ]);
+    }
+
+    $access = cpg_agent_access_from_request();
+    $row = cpg_agent_assignment_row_by_id((string) $access['agent_organization_id'], $assignmentId);
+    if (!is_array($row)) {
+        api_json(404, [
+            'ok' => false,
+            'error' => 'agent_object_assignment_not_found',
+            'message' => 'No active object assignment is visible for this agent organization',
+            'assignment_id' => $assignmentId,
+        ]);
+    }
+
+    $management = cpg_agent_management_block_from_assignment($row);
+    if (($management['management_allowed'] ?? false) !== true) {
+        api_json(403, [
+            'ok' => false,
+            'error' => 'agent_assignment_management_blocked',
+            'message' => 'Agent assignment is not currently allowed to manage this object',
+            'assignment_id' => $assignmentId,
+            'management' => $management,
+        ]);
+    }
+
+    return [
+        'is_agent_context' => true,
+        'assignment_id' => $assignmentId,
+        'access' => $access,
+        'assignment' => $row,
+        'management' => $management,
+    ];
+}
+
+function cpg_agent_context_public_payload(array $context): ?array {
+    if (($context['is_agent_context'] ?? false) !== true) {
+        return null;
+    }
+
+    $assignment = is_array($context['assignment'] ?? null) ? $context['assignment'] : [];
+    $access = is_array($context['access'] ?? null) ? $context['access'] : [];
+    return [
+        'actor' => 'agent',
+        'access_model' => 'agent_account_session',
+        'assignment_id' => $context['assignment_id'] ?? null,
+        'agent_organization_id' => $access['agent_organization_id'] ?? null,
+        'agent_display_name' => $access['agent_display_name'] ?? null,
+        'object_type' => $assignment['object_type'] ?? null,
+        'object_id' => $assignment['object_id'] ?? null,
+        'management' => $context['management'] ?? null,
+    ];
+}
+
+function cpg_agent_context_attach_response(array $response, array $context): array {
+    $payload = cpg_agent_context_public_payload($context);
+    if ($payload !== null) {
+        $response['agent_context'] = $payload;
+    }
+    return $response;
+}
+
+function cpg_agent_assignment_draft_source_ids(array $context): array {
+    $assignment = is_array($context['assignment'] ?? null) ? $context['assignment'] : [];
+    $objectType = is_string($assignment['object_type'] ?? null) ? (string) $assignment['object_type'] : '';
+    $objectId = is_string($assignment['object_id'] ?? null) ? (string) $assignment['object_id'] : '';
+    if ($objectType === '' || $objectId === '') {
+        return [];
+    }
+
+    $snapshot = cpg_agent_object_safe_snapshot($objectType, $objectId);
+    return is_array($snapshot['source_ids'] ?? null) ? $snapshot['source_ids'] : [];
+}
+
+function cpg_agent_enforce_draft_context(array $context, string $draftId, string $role): void {
+    if (($context['is_agent_context'] ?? false) !== true) {
+        return;
+    }
+
+    $assignment = is_array($context['assignment'] ?? null) ? $context['assignment'] : [];
+    $objectType = is_string($assignment['object_type'] ?? null) ? (string) $assignment['object_type'] : '';
+    $objectId = is_string($assignment['object_id'] ?? null) ? (string) $assignment['object_id'] : '';
+    $sourceIds = cpg_agent_assignment_draft_source_ids($context);
+    $matches = false;
+
+    if ($objectType === 'person_user' && $objectId === $draftId) {
+        $matches = true;
+    } elseif ($role === 'seafarer') {
+        $matches = $objectType === 'seafarer_profile'
+            && is_string($sourceIds['user_id'] ?? null)
+            && (string) $sourceIds['user_id'] === $draftId;
+    } else {
+        $matches = in_array($objectType, ['employer_company', 'vessel', 'vacancy_request'], true)
+            && (
+                (is_string($sourceIds['primary_user_id'] ?? null) && (string) $sourceIds['primary_user_id'] === $draftId)
+                || (is_string($sourceIds['created_by_user_id'] ?? null) && (string) $sourceIds['created_by_user_id'] === $draftId)
+            );
+    }
+
+    if (!$matches) {
+        api_json(403, [
+            'ok' => false,
+            'error' => 'agent_assignment_draft_mismatch',
+            'message' => 'Agent assignment does not authorize access to this draft form context',
+            'draft_id' => $draftId,
+            'role' => $role,
+            'assignment_id' => $context['assignment_id'] ?? null,
+            'assignment_object_type' => $objectType,
+            'assignment_object_id' => $objectId,
+        ]);
+    }
+}
+
 function cpg_questionnaire_decode_list(mixed $value): array {
     if (is_array($value)) {
         return array_values($value);
@@ -10346,6 +10489,7 @@ function handle_get_draft_completeness(string $draftId): void {
     if ($uuid === null) {
         api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
     }
+    $agentContext = cpg_agent_form_request_context();
 
     $roleParam = $_GET['role'] ?? null;
     $preferredRole = null;
@@ -10356,7 +10500,13 @@ function handle_get_draft_completeness(string $draftId): void {
         }
     }
 
-    api_json(200, cpg_registration_draft_completeness($uuid, $preferredRole));
+    $role = resolve_registration_draft_role($uuid, $preferredRole);
+    if ($role === null) {
+        api_error(404, 'draft_not_found', 'Registration draft not found');
+    }
+    cpg_agent_enforce_draft_context($agentContext, $uuid, $role);
+
+    api_json(200, cpg_agent_context_attach_response(cpg_registration_draft_completeness($uuid, $role), $agentContext));
 }
 
 function cpg_draft_submit_review_blocked_payload(string $draftId, ?string $preferredRole = null): array {
@@ -10390,6 +10540,7 @@ function handle_post_draft_submit_review(string $draftId): void {
     }
 
     $body = api_decode_json_body();
+    $agentContext = cpg_agent_form_request_context($body);
     $requestedRole = array_key_exists('role', $body) ? api_normalize_role($body['role']) : null;
     if (array_key_exists('role', $body) && $requestedRole === null) {
         api_error(400, 'invalid_role', 'role must be one of seafarer, employer, shipowner, crewing_manager');
@@ -10397,6 +10548,7 @@ function handle_post_draft_submit_review(string $draftId): void {
 
     $preflight = cpg_registration_draft_completeness($uuid, $requestedRole);
     $role = is_string($preflight['role'] ?? null) ? (string) $preflight['role'] : '';
+    cpg_agent_enforce_draft_context($agentContext, $uuid, $role);
     $completeness = is_array($preflight['completeness'] ?? null) ? $preflight['completeness'] : [];
     if (($completeness['can_submit_to_operator'] ?? false) !== true) {
         api_json(409, cpg_draft_submit_review_blocked_payload($uuid, $requestedRole));
@@ -10512,6 +10664,7 @@ function handle_post_draft_submit_review(string $draftId): void {
             'new_statuses' => $newStatuses,
             'computed_queue_types' => $queueTypes,
             'vacancy_request_id' => $vacancyRequestId,
+            'agent_context' => cpg_agent_context_public_payload($agentContext),
         ], 'registration_submit_review_gate');
 
         api_tx_commit();
@@ -10528,6 +10681,7 @@ function handle_post_draft_submit_review(string $draftId): void {
         'submitted_for_operator_review' => true,
     ];
     $response['side_effects'] = $sideEffects;
+    $response = cpg_agent_context_attach_response($response, $agentContext);
     api_json(200, $response);
 }
 
@@ -10921,6 +11075,15 @@ function upsert_company_context(string $userId, string $role, array $body): arra
 
 function handle_create_draft(): void {
     $body = api_decode_json_body();
+    $agentContext = cpg_agent_form_request_context($body);
+    if (($agentContext['is_agent_context'] ?? false) === true) {
+        api_json(403, [
+            'ok' => false,
+            'error' => 'agent_existing_assignment_draft_required',
+            'message' => 'Agent form creation must start from an approved represented-object assignment, not an unscoped new draft',
+            'agent_context' => cpg_agent_context_public_payload($agentContext),
+        ]);
+    }
     api_tx_begin();
 
     try {
@@ -10956,6 +11119,7 @@ function handle_get_draft(string $draftId): void {
     if ($uuid === null) {
         api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
     }
+    $agentContext = cpg_agent_form_request_context();
 
     $visibilityScope = cpg_normalize_visibility_scope($_GET['visibility'] ?? null, 'owner_full');
     if ($visibilityScope !== 'owner_full') {
@@ -10971,11 +11135,19 @@ function handle_get_draft(string $draftId): void {
         }
     }
 
-    api_json(200, build_draft_response($uuid, $visibilityScope, $preferredRole));
+    $role = resolve_registration_draft_role($uuid, $preferredRole);
+    if ($role === null) {
+        api_error(404, 'draft_not_found', 'Registration draft not found');
+    }
+    cpg_agent_enforce_draft_context($agentContext, $uuid, $role);
+
+    api_json(200, cpg_agent_context_attach_response(build_draft_response($uuid, $visibilityScope, $role), $agentContext));
 }
 
 function handle_get_seafarer_workspace(): void {
+    $agentContext = cpg_agent_form_request_context();
     [$userId, $accessModel] = cpg_resolve_seafarer_workspace_user();
+    cpg_agent_enforce_draft_context($agentContext, $userId, 'seafarer');
     $visibilityScope = cpg_normalize_visibility_scope($_GET['visibility'] ?? null, 'owner_full');
     if ($visibilityScope !== 'owner_full') {
         require_operator_or_team_queue_access();
@@ -10988,17 +11160,21 @@ function handle_get_seafarer_workspace(): void {
         'visibility_scope' => $visibilityScope,
         'draft_id' => $userId,
         'workspace' => cpg_seafarer_workspace_summary_for_scope($workspace, $visibilityScope),
+        'agent_context' => cpg_agent_context_public_payload($agentContext),
     ]);
 }
 
 function handle_get_seafarer_consents(): void {
+    $agentContext = cpg_agent_form_request_context();
     [$userId, $accessModel] = cpg_resolve_seafarer_workspace_user();
+    cpg_agent_enforce_draft_context($agentContext, $userId, 'seafarer');
     api_json(200, [
         'ok' => true,
         'draft_id' => $userId,
         'access_model' => $accessModel,
         'consent_event_model' => cpg_seafarer_consent_event_model(),
         'consent_summary' => cpg_seafarer_consent_summary($userId),
+        'agent_context' => cpg_agent_context_public_payload($agentContext),
     ]);
 }
 
@@ -11013,6 +11189,8 @@ function handle_post_seafarer_consent(): void {
     }
 
     [$userId, $accessModel] = cpg_resolve_seafarer_workspace_user($body);
+    $agentContext = cpg_agent_form_request_context($body);
+    cpg_agent_enforce_draft_context($agentContext, $userId, 'seafarer');
 
     api_tx_begin();
     try {
@@ -11029,6 +11207,7 @@ function handle_post_seafarer_consent(): void {
         'access_model' => $accessModel,
         'consent' => $event,
         'consent_summary' => cpg_seafarer_consent_summary($userId),
+        'agent_context' => cpg_agent_context_public_payload($agentContext),
     ]);
 }
 
@@ -11040,6 +11219,8 @@ function handle_patch_seafarer_consent_withdraw(string $consentType): void {
 
     $body = api_decode_json_body();
     [$userId, $accessModel] = cpg_resolve_seafarer_workspace_user($body);
+    $agentContext = cpg_agent_form_request_context($body);
+    cpg_agent_enforce_draft_context($agentContext, $userId, 'seafarer');
 
     api_tx_begin();
     try {
@@ -11058,6 +11239,7 @@ function handle_patch_seafarer_consent_withdraw(string $consentType): void {
         'withdrawn' => $withdrawn,
         'withdrawn_count' => count($withdrawn),
         'consent_summary' => cpg_seafarer_consent_summary($userId),
+        'agent_context' => cpg_agent_context_public_payload($agentContext),
     ]);
 }
 
@@ -11081,6 +11263,8 @@ function handle_patch_seafarer_workspace_section(string $section): void {
     }
 
     [$userId, $accessModel] = cpg_resolve_seafarer_workspace_user($body);
+    $agentContext = cpg_agent_form_request_context($body);
+    cpg_agent_enforce_draft_context($agentContext, $userId, 'seafarer');
     $context = cpg_seafarer_profile_sync_context($userId);
     $metadata = cpg_decode_json_object(is_string($context['document_metadata']) ? $context['document_metadata'] : null);
     $workspace = isset($metadata['seafarer_workspace']) && is_array($metadata['seafarer_workspace'])
@@ -11139,6 +11323,7 @@ function handle_patch_seafarer_workspace_section(string $section): void {
         'draft_id' => $userId,
         'section' => $section,
         'workspace' => cpg_read_seafarer_workspace_summary($userId),
+        'agent_context' => cpg_agent_context_public_payload($agentContext),
     ]);
 }
 
@@ -11157,6 +11342,8 @@ function handle_patch_seafarer_document_readiness(): void {
     }
 
     [$userId, $accessModel] = cpg_resolve_seafarer_workspace_user($body);
+    $agentContext = cpg_agent_form_request_context($body);
+    cpg_agent_enforce_draft_context($agentContext, $userId, 'seafarer');
     $context = cpg_seafarer_profile_sync_context($userId);
     $metadata = cpg_decode_json_object(is_string($context['document_metadata']) ? $context['document_metadata'] : null);
     foreach ($documentReadiness as $key => $value) {
@@ -11202,6 +11389,7 @@ function handle_patch_seafarer_document_readiness(): void {
         'access_model' => $accessModel,
         'draft_id' => $userId,
         'document_metadata' => $metadata,
+        'agent_context' => cpg_agent_context_public_payload($agentContext),
     ]);
 }
 
@@ -11212,6 +11400,7 @@ function handle_patch_draft(string $draftId): void {
     }
 
     $body = api_decode_json_body();
+    $agentContext = cpg_agent_form_request_context($body);
 
     $requestedRole = api_normalize_role($body['role'] ?? null);
     if (array_key_exists('role', $body) && $requestedRole === null) {
@@ -11226,6 +11415,7 @@ function handle_patch_draft(string $draftId): void {
     if ($requestedRole !== null && $role !== $requestedRole) {
         api_error(400, 'role_not_available_for_draft', 'requested role is not available for this registration draft');
     }
+    cpg_agent_enforce_draft_context($agentContext, $uuid, $role);
 
     api_tx_begin();
     try {
@@ -11261,7 +11451,7 @@ function handle_patch_draft(string $draftId): void {
         }
 
         api_tx_commit();
-        api_json(200, build_draft_response($uuid, 'owner_full', $role));
+        api_json(200, cpg_agent_context_attach_response(build_draft_response($uuid, 'owner_full', $role), $agentContext));
     } catch (Throwable $error) {
         api_tx_rollback();
         api_error(500, 'draft_update_failed', $error->getMessage());

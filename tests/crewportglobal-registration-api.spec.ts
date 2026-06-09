@@ -2934,6 +2934,153 @@ FROM inserted_user;
     authority_type: 'power_of_attorney',
   });
 
+  const assignmentId = assignment.assignment.assignment_id;
+  expect(assignmentId).toMatch(/[0-9a-f-]{36}/);
+
+  const missingAssignmentPatchResponse = await agentContext.patch(`/registration/drafts/${agentUserId}?actor=agent`, {
+    data: {
+      role: 'employer',
+      company_name: `API Agent Missing Assignment ${unique}`,
+    },
+  });
+  const missingAssignmentPatchText = await missingAssignmentPatchResponse.text();
+  expect(missingAssignmentPatchResponse.status(), missingAssignmentPatchText).toBe(403);
+  expect(JSON.parse(missingAssignmentPatchText).error).toBe('agent_assignment_context_required');
+
+  const scopedDemandPatchResponse = await agentContext.patch(`/registration/drafts/${agentUserId}?actor=agent&assignment_id=${assignmentId}`, {
+    data: {
+      actor: 'agent',
+      assignment_id: assignmentId,
+      role: 'employer',
+      role_in_company: 'manager',
+      company_name: `API Agent Scoped Demand ${unique}`,
+      country_code: 'AE',
+      vacancy: {
+        vacancy_title: 'Scoped Agent Demand',
+        rank: 'Chief Officer',
+        department: 'deck',
+        vessel_type: 'Bulk Carrier',
+      },
+    },
+  });
+  const scopedDemandPatchText = await scopedDemandPatchResponse.text();
+  expect(scopedDemandPatchResponse.ok(), scopedDemandPatchText).toBeTruthy();
+  const scopedDemandPatch = JSON.parse(scopedDemandPatchText) as Record<string, any>;
+  expect(scopedDemandPatch.agent_context).toMatchObject({
+    actor: 'agent',
+    assignment_id: assignmentId,
+    object_type: 'person_user',
+    object_id: agentUserId,
+  });
+  expect(scopedDemandPatch.payload.company.company_name).toBe(`API Agent Scoped Demand ${unique}`);
+
+  const representedSeafarerEmail = `api.agent.seafarer.${unique}@example.com`;
+  const representedSeafarerResponse = await agentContext.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email: representedSeafarerEmail,
+      full_name: 'Represented Agent Seafarer',
+      rank: 'Able Seaman',
+      department: 'deck',
+      availability_status: 'available_now',
+    },
+  });
+  const representedSeafarerText = await representedSeafarerResponse.text();
+  expect(representedSeafarerResponse.status(), representedSeafarerText).toBe(201);
+  const representedSeafarer = JSON.parse(representedSeafarerText) as DraftResponse;
+  const representedSeafarerDraftId = representedSeafarer.draft_id;
+  const representedSeafarerProfileId = runApiPsql(`
+SELECT seafarer_profile_id::text
+FROM crewportglobal.seafarer_profiles
+WHERE user_id = '${representedSeafarerDraftId.replace(/'/g, "''")}'::uuid
+LIMIT 1;
+`);
+  expect(representedSeafarerProfileId).toMatch(/[0-9a-f-]{36}/);
+
+  const seafarerAuthorityResponse = await agentContext.post('/agents/authority-documents', {
+    data: {
+      authority_type: 'seafarer_authorization',
+      authority_scope_type: 'seafarer_profile',
+      authority_scope_object_id: representedSeafarerProfileId,
+      valid_from: '2026-06-08',
+      valid_until: '2027-06-08',
+      source_reference: 'Synthetic API seafarer form authority evidence',
+      scope_snapshot: {
+        represented_party: 'Synthetic seafarer profile',
+        represented_object_type: 'seafarer_profile',
+        represented_object_id: representedSeafarerProfileId,
+      },
+    },
+  });
+  const seafarerAuthorityText = await seafarerAuthorityResponse.text();
+  expect(seafarerAuthorityResponse.ok(), seafarerAuthorityText).toBeTruthy();
+  const seafarerAuthority = JSON.parse(seafarerAuthorityText) as Record<string, any>;
+  const seafarerAuthorityDocumentId = seafarerAuthority.authority_document.authority_document_id;
+
+  const seafarerAuthorityReviewResponse = await agentContext.patch(`/admin/agents/authority-documents/${seafarerAuthorityDocumentId}/review`, {
+    headers: {
+      'X-CPG-Operator-Token': operatorToken,
+    },
+    data: {
+      decision: 'verified',
+      review_note: 'Synthetic API test verified seafarer form authority.',
+    },
+  });
+  const seafarerAuthorityReviewText = await seafarerAuthorityReviewResponse.text();
+  expect(seafarerAuthorityReviewResponse.ok(), seafarerAuthorityReviewText).toBeTruthy();
+
+  const seafarerAssignmentResponse = await agentContext.post('/admin/agents/object-assignments', {
+    headers: {
+      'X-CPG-Operator-Token': operatorToken,
+    },
+    data: {
+      agent_organization_id: agentOrganizationId,
+      object_type: 'seafarer_profile',
+      object_id: representedSeafarerProfileId,
+      source_authority_document_id: seafarerAuthorityDocumentId,
+      assignment_status: 'active',
+      object_safe_summary: 'API represented seafarer profile',
+    },
+  });
+  const seafarerAssignmentText = await seafarerAssignmentResponse.text();
+  expect(seafarerAssignmentResponse.ok(), seafarerAssignmentText).toBeTruthy();
+  const seafarerAssignment = JSON.parse(seafarerAssignmentText) as Record<string, any>;
+  const seafarerAssignmentId = seafarerAssignment.assignment.assignment_id;
+
+  const scopedSeafarerWorkspaceResponse = await agentContext.get(
+    `/seafarer/workspace?draft_id=${representedSeafarerDraftId}&actor=agent&assignment_id=${seafarerAssignmentId}`
+  );
+  const scopedSeafarerWorkspaceText = await scopedSeafarerWorkspaceResponse.text();
+  expect(scopedSeafarerWorkspaceResponse.ok(), scopedSeafarerWorkspaceText).toBeTruthy();
+  const scopedSeafarerWorkspace = JSON.parse(scopedSeafarerWorkspaceText) as Record<string, any>;
+  expect(scopedSeafarerWorkspace.access_model).toBe('agent_assignment_draft_context');
+  expect(scopedSeafarerWorkspace.agent_context).toMatchObject({
+    actor: 'agent',
+    assignment_id: seafarerAssignmentId,
+    object_type: 'seafarer_profile',
+  });
+
+  const otherSeafarerResponse = await agentContext.post('/registration/drafts', {
+    data: {
+      role: 'seafarer',
+      email: `api.agent.other-seafarer.${unique}@example.com`,
+      full_name: 'Other Agent Seafarer',
+      rank: 'Motorman',
+      department: 'engine',
+      availability_status: 'available_now',
+    },
+  });
+  const otherSeafarerText = await otherSeafarerResponse.text();
+  expect(otherSeafarerResponse.status(), otherSeafarerText).toBe(201);
+  const otherSeafarer = JSON.parse(otherSeafarerText) as DraftResponse;
+
+  const mismatchedSeafarerDraftResponse = await agentContext.get(
+    `/seafarer/workspace?draft_id=${otherSeafarer.draft_id}&actor=agent&assignment_id=${seafarerAssignmentId}`
+  );
+  const mismatchedSeafarerDraftText = await mismatchedSeafarerDraftResponse.text();
+  expect(mismatchedSeafarerDraftResponse.status(), mismatchedSeafarerDraftText).toBe(403);
+  expect(JSON.parse(mismatchedSeafarerDraftText).error).toBe('agent_assignment_draft_mismatch');
+
   const agentTasksResponse = await agentContext.get('/agents/tasks');
   const agentTasksText = await agentTasksResponse.text();
   expect(agentTasksResponse.ok(), agentTasksText).toBeTruthy();
@@ -3130,7 +3277,12 @@ FROM inserted_user;
   const originalObjectsAfterClaimText = await originalObjectsAfterClaimResponse.text();
   expect(originalObjectsAfterClaimResponse.ok(), originalObjectsAfterClaimText).toBeTruthy();
   const originalObjectsAfterClaim = JSON.parse(originalObjectsAfterClaimText) as Record<string, any>;
-  expect(originalObjectsAfterClaim.objects).toHaveLength(0);
+  expect(originalObjectsAfterClaim.objects.some((item: Record<string, any>) => (
+    item.object_type === 'person_user' && item.object_id === agentUserId
+  ))).toBe(false);
+  expect(originalObjectsAfterClaim.objects.some((item: Record<string, any>) => (
+    item.assignment_id === seafarerAssignmentId
+  ))).toBe(true);
 
   const takeoverObjectsResponse = await takeoverContext.get('/agents/objects');
   const takeoverObjectsText = await takeoverObjectsResponse.text();
