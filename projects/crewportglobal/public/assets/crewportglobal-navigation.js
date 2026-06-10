@@ -716,6 +716,60 @@
     bindAccountArea(mount);
   }
 
+  function createLanguageSelector() {
+    return [
+      '<div id="language-selector" class="language-selector">',
+      '  <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">',
+      '    <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>',
+      '    <span class="language-toggle__copy">',
+      '      <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>',
+      '      <span class="language-toggle__label" id="current-language-label">English</span>',
+      '    </span>',
+      '    <span class="language-toggle__chevron" aria-hidden="true">▾</span>',
+      '  </button>',
+      '  <div id="header-language-menu" class="language-menu" hidden>',
+      '    <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>',
+      '  </div>',
+      '</div>',
+    ].join('\n');
+  }
+
+  function createSiteHeader() {
+    return [
+      '<a class="brand" href="https://crewportglobal.com/">',
+      '  <span class="brand-mark" translate="no">CPG</span>',
+      '  <span class="brand-copy">',
+      '    <strong translate="no">CrewPortGlobal</strong>',
+      '    <span data-i18n="site.tagline">Maritime jobs and crew platform</span>',
+      '  </span>',
+      '</a>',
+      '<div class="site-header__actions">',
+      '  <div data-cpg-theme-switcher></div>',
+      createLanguageSelector().split('\n').map((line) => `  ${line}`).join('\n'),
+      '  <div data-cpg-account-area></div>',
+      '</div>',
+    ].join('\n');
+  }
+
+  function renderSiteHeaders() {
+    document.querySelectorAll('.site-header').forEach((header) => {
+      header.innerHTML = createSiteHeader();
+      header.dataset.cpgSharedHeader = 'true';
+    });
+  }
+
+  function lockBrandMarks() {
+    document.querySelectorAll('.brand-mark, .cabinet-brand-mark, .shortlist-brand-mark, .registry-brand-mark, .matching-brand-mark, .team-mark, .admin-mark').forEach((mark) => {
+      mark.setAttribute('translate', 'no');
+      mark.textContent = 'CPG';
+    });
+
+    document.querySelectorAll('.brand-copy strong, .cabinet-brand-copy strong').forEach((name) => {
+      name.setAttribute('translate', 'no');
+      name.textContent = 'CrewPortGlobal';
+    });
+  }
+
   function ensureHeaderActions(header) {
     let actions = header.querySelector(':scope > .site-header__actions');
     if (!actions) {
@@ -841,6 +895,8 @@
     }
   }
 
+  renderSiteHeaders();
+  lockBrandMarks();
   document.querySelectorAll('[data-cpg-navigation]').forEach(renderNavigation);
   renderHeaderThemeSwitchers();
   renderHeaderAccountAreas();

@@ -233,6 +233,7 @@ html[data-cpg-theme="light"] .document-type-row__title {
   justify-content: flex-end;
   gap: 10px;
   margin-left: auto;
+  min-width: 0;
 }
 
 .language-selector {
@@ -695,6 +696,7 @@ html[data-cpg-theme="light"] .cpg-account__field input {
   display: inline-flex;
   align-items: center;
   gap: 14px;
+  min-width: 0;
   text-decoration: none;
 }
 
@@ -704,20 +706,27 @@ html[data-cpg-theme="light"] .cpg-account__field input {
   justify-content: center;
   width: 48px;
   height: 48px;
+  flex: 0 0 48px;
   border-radius: 16px;
   background: linear-gradient(135deg, #0d1c2d, #1c4460);
   color: var(--text-on-dark);
   font-weight: 700;
   letter-spacing: 0.08em;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-transform: uppercase;
 }
 
 .brand-copy {
   display: grid;
   gap: 2px;
+  min-width: 0;
 }
 
 .brand-copy strong {
   font-size: 18px;
+  overflow-wrap: anywhere;
 }
 
 .brand-copy span {

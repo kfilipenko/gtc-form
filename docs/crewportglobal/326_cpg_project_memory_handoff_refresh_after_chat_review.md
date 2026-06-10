@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Project memory and historical handoff refresh
 - Source: local Codex session `Оценить проект Crewportglobal` reviewed on 2026-06-09
-- Version: 1.9
+- Version: 2.0
 - Date: 2026-06-10
 - Status: Active continuation memory
 
@@ -202,6 +202,15 @@ Document: docs/crewportglobal/330_cpg_biz_128_public_legal_documents_hub_and_age
 ```
 
 The `/legal/` section is now the canonical public place for platform standards, agreements, policies and operating rules. Public runtime links must use published legal URLs such as `/legal/agent-agreement/`, not raw internal `/docs/crewportglobal/*.md` files. The shipowner-agent framework agreement is published as the first agent appointment standard in this section, and the older `/shipowners/agent-agreement/` preview route redirects to it.
+
+On 2026-06-10 the shared public/application header model was fixed as:
+
+```text
+CPG-BIZ-129 - Shared public header component
+Document: docs/crewportglobal/331_cpg_biz_129_shared_public_header_component_report.md
+```
+
+Ordinary pages using `.site-header` are now normalized by `projects/crewportglobal/public/assets/crewportglobal-navigation.js`. The `CPG` brand mark and `CrewPortGlobal` brand name are protected from translation, and header design changes should be made in the shared runtime/CSS instead of repeating manual HTML edits across pages.
 
 Recommended next work remains inside CPG-BIZ-127 follow-up slices:
 
