@@ -7,11 +7,13 @@
   ];
 
   const DOCUMENT_LINKS = [
+    { href: '/legal/', key: 'nav.documents', label: 'Documents' },
     { href: '/legal/terms/', key: 'nav.terms', label: 'Terms' },
     { href: '/legal/privacy/', key: 'nav.privacy', label: 'Privacy' },
     { href: '/legal/no-recruitment-fees/', key: 'nav.noRecruitmentFees', label: 'No Recruitment Fees' },
     { href: '/legal/seafarer-candidate-agreement/', key: 'nav.seafarerAgreement', label: 'Seafarer Agreement' },
     { href: '/legal/shipowner-service-terms/', key: 'nav.shipownerAgreement', label: 'Shipowner Agreement' },
+    { href: '/legal/agent-agreement/', key: 'nav.agentAgreement', label: 'Agent Agreement' },
     { href: '/legal/recruitment-and-matching-policy/', key: 'nav.matchingPolicy', label: 'Matching Policy' },
     { href: '/legal/verification-policy/', key: 'nav.verificationPolicy', label: 'Verification Policy' },
     { href: '/legal/complaints/', key: 'nav.complaints', label: 'Complaints' },
@@ -79,11 +81,13 @@
       hintKey: 'nav.documentsHint',
       hint: 'Open legal, trust and policy documents.',
       links: [
+        { href: '/legal/', key: 'nav.documents', label: 'Documents', hint: 'Document hub.' },
         { href: '/legal/terms/', key: 'nav.terms', label: 'Terms', hint: 'Platform terms.' },
         { href: '/legal/privacy/', key: 'nav.privacy', label: 'Privacy', hint: 'Privacy policy.' },
         { href: '/legal/no-recruitment-fees/', key: 'nav.noRecruitmentFees', label: 'No Recruitment Fees', hint: 'No-fee rule for seafarers.' },
         { href: '/legal/seafarer-candidate-agreement/', key: 'nav.seafarerAgreement', label: 'Seafarer Agreement', hint: 'Candidate agreement.' },
         { href: '/legal/shipowner-service-terms/', key: 'nav.shipownerAgreement', label: 'Shipowner Agreement', hint: 'B2B service terms.' },
+        { href: '/legal/agent-agreement/', key: 'nav.agentAgreement', label: 'Agent Agreement', hint: 'Shipowner-agent appointment framework.' },
         { href: '/legal/recruitment-and-matching-policy/', key: 'nav.matchingPolicy', label: 'Matching Policy', hint: 'Human-reviewed matching policy.' },
         { href: '/legal/verification-policy/', key: 'nav.verificationPolicy', label: 'Verification Policy', hint: 'Verification policy.' },
         { href: '/legal/complaints/', key: 'nav.complaints', label: 'Complaints', hint: 'Complaint handling procedure.' },

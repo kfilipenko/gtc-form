@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Project memory and historical handoff refresh
 - Source: local Codex session `Оценить проект Crewportglobal` reviewed on 2026-06-09
-- Version: 1.8
+- Version: 1.9
 - Date: 2026-06-10
 - Status: Active continuation memory
 
@@ -193,6 +193,15 @@ email: test.agent@crewportglobal.test
 password: TestAgent#2026
 agent_code: TEST_AGENT_001
 ```
+
+On 2026-06-10 the public document publication model was fixed as:
+
+```text
+CPG-BIZ-128 - Public legal documents hub and agent agreement publication
+Document: docs/crewportglobal/330_cpg_biz_128_public_legal_documents_hub_and_agent_agreement_report.md
+```
+
+The `/legal/` section is now the canonical public place for platform standards, agreements, policies and operating rules. Public runtime links must use published legal URLs such as `/legal/agent-agreement/`, not raw internal `/docs/crewportglobal/*.md` files. The shipowner-agent framework agreement is published as the first agent appointment standard in this section, and the older `/shipowners/agent-agreement/` preview route redirects to it.
 
 Recommended next work remains inside CPG-BIZ-127 follow-up slices:
 
