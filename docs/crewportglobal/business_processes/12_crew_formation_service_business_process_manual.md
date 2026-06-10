@@ -5,6 +5,7 @@
 - Business-process ID: BP-012
 - Source task: CPG-BIZ-012 approved execution task, document 199
 - Baseline: BP-001 through BP-011, CPG-DEMAND-017 through CPG-DEMAND-035
+- Version: 1.1
 - Date: 2026-05-26
 - Document type: Controlling business-process manual
 - Status: Drafted for Project Owner review
@@ -168,6 +169,18 @@ Agent authority evidence may include:
 4. company registration and representative authority evidence;
 5. platform service agreement accepting audit, data correctness and no-fee controls.
 
+For a shipowner-agent appointment created inside CrewPortGlobal, the platform must distinguish:
+
+```text
+framework agreement acceptance
+-> platform-side authority / POA evidence
+-> active representative management where scope rules pass
+-> separate Service Order / commercial addendum / request for paid service
+-> paid service activation and billing basis
+```
+
+The framework agreement is a standard adhesion-form package. It regulates legal relationship, authority, no-fee boundary, responsibility, notifications and platform control. It must not be treated as automatic agreement on price, success fee, SLA or payment terms. Commercial terms are agreed separately for the concrete service.
+
 The agent is responsible for the correctness of data it creates, enters or submits under its agency authority. This supports the platform model:
 
 ```text
@@ -278,14 +291,14 @@ The crew request / vacancy requirement stream connects the foundation streams in
 
 | Step | Trigger | Inputs | DB records read | DB records created/updated | Audit evidence | Output | Next computed task |
 |---|---|---|---|---|---|---|---|
-| CF-00A Agent onboarding and authority verification | External or GTC-operated crewing participant requests agent status | Agent company data, representative identity, agency agreement / authority evidence, service agreement acceptance | users, company records, access groups, uploaded documents, duplicate signals | future agent organization / agent-user records, authority status, access scope | agent authority review / approval / rejection event | Agent organization is verified, limited, suspended or rejected | Assign agent scope or request authority correction |
+| CF-00A Agent onboarding and authority verification | External or GTC-operated crewing participant requests agent status or receives an in-system shipowner offer | Agent company data, representative identity, framework agency agreement acceptance, authority / POA evidence, commercial terms status | users, company records, access groups, uploaded documents, duplicate signals, offer records where implemented | future agent organization / agent-user records, authority status, access scope, framework agreement acceptance status, commercial terms status | agent authority review / approval / rejection event; framework agreement accepted event | Agent organization is verified, limited, suspended or rejected; representative management may be active only inside verified authority; paid service remains blocked until Service Order / commercial addendum / request is accepted | Assign agent scope, request authority correction or route commercial terms task |
 | CF-00B Duplicate / account claim check | A person, company, vessel or seafarer profile is entered by a user or agent and similar records exist | Claimed identity, contact, documents, company registration, vessel identifiers, seafarer documents | users, employer companies, vessels, seafarer profiles, uploaded documents, audit events | account-claim or duplicate-resolution status; link/reject/merge decision when approved | duplicate check / claim notification / claim resolution event | Existing record is linked to rightful claimant, new record proceeds, or claim is blocked | Continue registration, assign object scope, or request evidence |
 | CF-00C Agent-created object intake | Agent submits a controlled request to create or link a person, seafarer profile, shipowner/company card, vessel card or vacancy in a client's interest | Represented party, authority evidence if available, draft object payload, duplicate signals | users, employer companies, vessels, seafarer profiles, vacancy_requests, uploaded documents, account/object claims | agent object creation request; normal source object when approved; agent object assignment only after verified authority | agent object creation / duplicate check / authority review / approval / assignment event | Agent-created object is created in the normal source table, linked to existing record or blocked; management remains blocked until verified authority and active assignment exist | Continue owner workflow, request authority evidence, route correction/claim task or compute scoped agent task |
 | CF-01 Lead / demand entry | Employer-side inquiry, imported request or direct form | Client contact, requested role, vessel hints | users, employer drafts, imported request data | employer/vacancy draft or lead metadata | lead captured / source event | Demand lead exists | Qualify employer-side demand |
 | CF-02 Employer and authority setup | Demand lead is relevant | Company data, representative details, authority evidence | employer/company records, uploaded documents | company context, representative authority status | employer authority review event | Employer can be handled as B2B client or returned for correction | Review vessel context or request correction |
 | CF-03 Vessel context setup | Vessel-linked request exists | Vessel name/type/flag, vessel specs, operation context | vessels, reference catalogs, uploaded documents | vessel context, vessel verification status | vessel context review event | Vessel context is structured enough for demand | Review crew request completeness |
 | CF-04 Crew request structuring | Employer request is submitted/imported | Rank, department, vessel type, join date, duration, salary, certificates, training, visa/language/sea-service requirements | vacancy request, `demand_requirement_items`, reference catalogs | normalized demand workspace and requirement rows | demand structuring event | Crew request is match-ready or has blockers | Confirm commercial basis or compare request-supply |
-| CF-05 Commercial entitlement check | Service workflow is active or employer requests candidate processing | Service scope, payer, terms, entitlement | employer context, service/payment metadata | commercial status / entitlement metadata | commercial approval or pending event | Work may proceed, pause or require billing action | Continue matching or prepare billing/support task |
+| CF-05 Commercial entitlement check | Service workflow becomes paid, employer requests candidate processing or agent service requires commercial activation | Service scope, payer, Service Order / commercial addendum / request, tariff or price basis, payment terms, entitlement | employer context, service/payment metadata, framework agreement status, authority / assignment records | commercial status / entitlement metadata; Service Order / commercial addendum acceptance status; paid-service activation status | commercial approval, service-order acceptance or pending event | Paid work may proceed, remain non-billable, pause or require billing action | Continue matching, keep service in `commercial_terms_pending`, or prepare billing/support task |
 | CF-06 Seafarer supply intake | Seafarer registers or imported profile exists | Identity, rank, certificates, availability, preferences, documents | seafarer profile, source cards, reference catalogs | profile/workspace records, consent events where available | profile intake event | Candidate supply exists | Review profile completeness |
 | CF-07 Document and readiness review | Profile has documents or correction tasks | Uploaded documents, source cards, readiness data | uploaded documents, seafarer workspace, review states | review status, correction tasks, readiness flags | document/profile review event | Candidate is ready, blocked or needs correction | Compare request-supply or request correction |
 | CF-08 Request-supply comparison | Crew request and supply are structured | Demand requirements, candidate summaries | vacancy request, demand requirements, seafarer summaries | No side effect; computed result only | optional comparison-view audit if required | Match explanation and blockers | Create internal shortlist draft if candidates are eligible |
@@ -517,13 +530,15 @@ This is a computed assignment model. It does not create a manual assignment reco
 
 | Gate | Required before passing | May not be bypassed |
 |---|---|---|
+| Framework agreement gate | Standard platform terms are accepted by the parties and authority evidence is issued/recorded where required | Agent management must not be activated from an unsigned package or arbitrary external contract. |
+| Commercial terms gate | A Service Order, commercial addendum, request or approved price-basis record defines the paid service, tariff/payment logic and SLA where applicable | Billing basis, paid service activation, success fee and SLA penalties/bonuses must not be triggered by the framework agreement alone. |
 | Employer authority gate | Company/representative context is sufficient | Candidate data must not be shared with unauthorized requester. |
 | Demand structuring gate | Crew request has structured rank/vessel/timing/core requirements | Shortlist must not be built on vague demand. |
 | Candidate readiness gate | Profile, documents and source-card corrections are acceptable | Candidate must not be presented from incomplete or restricted data. |
 | Internal shortlist guard | Included candidates pass search, consent and correction checks | Employer visibility remains false. |
 | Internal approval gate | Reviewer approves internal draft | Review application must not be created from unapproved draft. |
 | Employer-presentation guard | Candidate summary is allow-listed and human-reviewed | Restricted fields must not enter employer payload. |
-| Billing/service completion gate | Service output and commercial basis are confirmed | Billing must not be triggered by incomplete or prohibited service. |
+| Billing/service completion gate | Service output and commercial basis are confirmed | Billing must not be triggered by incomplete service, prohibited service or framework-only agreement without commercial terms. |
 
 ## 13. Revenue And Billing Boundary
 

@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Project memory and historical handoff refresh
 - Source: local Codex session `Оценить проект Crewportglobal` reviewed on 2026-06-09
-- Version: 1.7
+- Version: 1.8
 - Date: 2026-06-10
 - Status: Active continuation memory
 
@@ -153,7 +153,7 @@ shipowner sends in-system offer to agent
 + agent accepts/signs standard adhesion-form agreement package
 + POA / authority document is issued and recorded on the CrewPortGlobal side where applicable
 + mandatory appendices
-+ tariff / price basis or separate signed price agreement
++ commercial terms status: separate Service Order / commercial addendum / request pending or accepted
 + signatory authority verification
 + one-active-manager check
 + delegated operational lock
@@ -161,7 +161,9 @@ shipowner sends in-system offer to agent
 = active shipowner-side agent management
 ```
 
-The contract text now clarifies that the shipowner cannot directly appoint an agent inside the platform before the agent accepts the standard platform agreement package. The agreement is treated as a CrewPortGlobal standard form / adhesion contract: arbitrary external contracts may be uploaded as evidence for Platform Administration / Control review, but they do not automatically activate platform-controlled agent management because CrewPortGlobal cannot enforce unnormalized terms. Wage, joining, return and repatriation terms inside the shipowner-agent agreement are coordination terms for request handling, SEA preparation and evidence control. They do not replace the seafarer employment agreement, applicable law, CBA or mandatory MLC protections. The next implementation stage should therefore use the shipowner offer to agent, agent acceptance/signature, platform-side authority and activation scenario as the first CPG-BIZ-127 runtime slice.
+The contract text now clarifies that the shipowner cannot directly appoint an agent inside the platform before the agent accepts the standard platform agreement package. The agreement is treated as a CrewPortGlobal standard form / adhesion framework contract: arbitrary external contracts may be uploaded as evidence for Platform Administration / Control review, but they do not automatically activate platform-controlled agent management because CrewPortGlobal cannot enforce unnormalized terms.
+
+Commercial price is deliberately separated from framework acceptance. The parties may accept the legal/authority/no-fee/notification framework without agreeing a concrete service price. Paid service activation, billing basis, success fee, SLA penalties/bonuses and invoices require a separate Service Order / commercial addendum / request or approved price-basis record. Wage, joining, return and repatriation terms inside the shipowner-agent agreement are coordination terms for request handling, SEA preparation and evidence control. They do not replace the seafarer employment agreement, applicable law, CBA or mandatory MLC protections. The next implementation stage should therefore use the shipowner offer to agent, agent acceptance/signature, platform-side authority, `commercial_terms_pending` and separate commercial activation scenario as the first CPG-BIZ-127 runtime slice.
 
 ## 6. Active Working Rules For Future Continuation
 

@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 3.20
+- Version: 3.21
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -958,6 +958,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.21 | 2026-06-10 | GTC IT / AI Assistant | Clarified CPG-BIZ-123, BP-012, BP-015 and BP-016 around framework adhesion agreement versus separate Service Order / commercial addendum: parties may accept legal terms without agreeing price, while paid service, billing basis, success fee and SLA require separate commercial agreement |
 | 3.20 | 2026-06-10 | GTC IT / AI Assistant | Clarified CPG-BIZ-123 and CPG-BIZ-127 around in-system shipowner-agent offer and acceptance: shipowner sends a contract offer, agent accepts the standard adhesion-form package, platform-side authority and price basis are recorded, and only then can active agent management be activated |
 | 3.19 | 2026-06-10 | GTC IT / AI Assistant | Updated document 324 CPG-BIZ-123 shipowner-agent agreement template with portal appointment activation gate, POA/appendix signing requirements, no-fee/MLC coordination boundaries, exclusive delegated management and participant notification ledger clauses |
 | 3.18 | 2026-06-10 | GTC IT / AI Assistant | Added CPG-BIZ-126 participant governance notification ledger requirements for physical-person notifications on authority confirmation, representation agreement/POA, delegation, document-stage and obligation-stage milestones; updated CPG-BIZ-127 next runtime slice accordingly |

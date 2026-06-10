@@ -5,8 +5,8 @@
 - Business-process ID: BP-015
 - Source task: Project Owner approval after CPG-BIZ-051
 - Baseline: BP-001, BP-002, BP-003, BP-008, BP-012, BP-013, BP-014
-- Version: 1.0
-- Date: 2026-05-30
+- Version: 1.1
+- Date: 2026-06-10
 - Document type: Controlling business-process manual
 - Status: Drafted for Project Owner review
 
@@ -78,6 +78,36 @@ No-fee control:
 
 Любые optional seafarer services должны быть добровольными, отделенными от трудоустройства и не влияющими на доступ к matching.
 
+## 4A. Рамочный договор и коммерческие условия
+
+CrewPortGlobal должен разделять два разных слоя:
+
+```text
+рамочный договор присоединения
+!=
+коммерческое согласование конкретной услуги
+```
+
+Рамочный договор присоединения фиксирует правовые условия работы: полномочия, ограничения, no-fee boundary, ответственность, уведомления, отзыв полномочий, audit/control route и правила платформенного контроля.
+
+Коммерческие условия конкретной услуги фиксируются отдельно:
+
+1. Service Order;
+2. коммерческим приложением;
+3. заявкой;
+4. отдельным подписанным ценовым приложением;
+5. утвержденным price-basis record.
+
+Акцепт рамочного договора не должен создавать billing basis, success fee, SLA-штраф/бонус или обязательство оплаты конкретной услуги. До отдельного коммерческого согласования услуга остается в статусе:
+
+```text
+commercial_terms_pending
+free_until_commercial_agreement
+non_billable_representative_management
+```
+
+Это позволяет сторонам быстро присоединиться к правовой рамке платформы без навязывания коммерческих условий.
+
 ## 5. Круговой процесс компании
 
 ```mermaid
@@ -130,7 +160,7 @@ flowchart LR
 | CC-05 | Employer registration | Employer/company card | Employer / Group 1 | Complete employer authority data | Employer account ready for verification. |
 | CC-06 | Vessel registration | Vessel context card | Employer / Group 1 | Complete vessel context | Vessel context usable for crew request. |
 | CC-07 | Client verification | Employer/vessel/authority evidence | Group 5 | Review authority and vessel evidence | Authorized or correction-required client context. |
-| CC-08 | Service package setup | Service entitlement / package | Group 3 | Confirm service package | Active entitlement or commercial follow-up task. |
+| CC-08 | Framework agreement and commercial terms setup | Framework agreement, authority package, Service Order / commercial addendum | Group 3 / Group 5 / represented participant | Confirm framework terms and commercial basis | Framework terms accepted; authority may proceed; paid service active only after Service Order / commercial addendum or commercial follow-up task. |
 | CC-09 | Crew request intake | Vacancy / crew request | Employer / Group 1 | Complete crew request | Structured demand ready for matching. |
 | CC-10 | Matching preparation | Demand plus supply | Review team | Review request-supply comparison | Candidate blockers and fit explanation visible. |
 | CC-11 | Internal shortlist | Shortlist draft | Review team | Create / approve internal shortlist | Approved internal candidate set. |
@@ -152,7 +182,8 @@ flowchart LR
 | Seafarer profile | Structured profile, documents, consent, no-fee acknowledgement | `profile_saved`, `submit_review_requested` |
 | Employer/company | Company data, representative authority, registration documents | `employer_authority_reviewed` |
 | Vessel | Vessel type, flag, particulars, evidence documents | `vessel_context_reviewed` |
-| Service package | Accepted service scope, package, commercial terms | `service_entitlement_created` |
+| Framework agreement | Accepted standard legal terms, authority/POA status, notification record | `framework_terms_accepted`, `authority_recorded` |
+| Commercial terms | Service Order / commercial addendum / request, tariff or price basis, payer, payment terms, SLA where applicable | `service_order_accepted`, `commercial_terms_accepted`, `service_entitlement_created` |
 | Crew request | Rank, department, vessel type, joining date, salary, requirements | `crew_request_submitted`, `demand_structured` |
 | Matching | Candidate comparison, blockers, safe summary | `matching_reviewed` or computed read event if required |
 | Shortlist | Internal draft, approval guard, approval decision | `shortlist_draft_created`, `shortlist_approved_internal` |
@@ -425,9 +456,9 @@ This process follows the same documented-information logic already used in BP-01
 | ISO-style element | CrewPortGlobal interpretation |
 |---|---|
 | Process owner | Project Owner / responsible business owner for the end-to-end cycle. |
-| Inputs | Lead, profile, company, vessel, request, documents, consent, commercial terms. |
+| Inputs | Lead, profile, company, vessel, request, documents, consent, framework terms, authority evidence and commercial terms where a paid service is requested. |
 | Activities | Registration, verification, matching, review, presentation, boarding, voyage support, disembarkation/return support, service confirmation, billing. |
-| Outputs | Verified records, candidate presentation, embarkation/return evidence, service evidence, invoice basis, retention task. |
+| Outputs | Verified records, framework acceptance, commercial service order where needed, candidate presentation, embarkation/return evidence, service evidence, invoice basis, retention task. |
 | Records | Cards, documents, audit events, decisions, evidence, billing records. |
 | Controls | Human approval, no-fee rule, scoped visibility, completeness gate, correction route. |
 | Improvement | Describe process, verify in application, correct, test, then proceed. |

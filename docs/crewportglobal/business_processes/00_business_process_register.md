@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.60
+- Version: 3.61
 - Status: For internal review
 
 ## 1. Purpose
@@ -170,7 +170,8 @@ This documentation block starts from the following approved business controls:
 90. Physical person registration is always self-registration or personal claim/activation: after authentication, the user selects platform capacity such as seafarer, shipowner/employer representative, agent representative or internal team member; agent appointment is optional and must never be a mandatory condition for ordinary participation on the platform.
 91. Representative appointment is exclusive delegated operational management, not shared editing: while an active representative assignment exists for an object/scope, ordinary operational editing belongs to the representative; the participant keeps non-delegable account-security and representative-governance rights to view, appoint, replace, revoke and receive notices.
 92. Delegated participant governance requires durable notifications: every authority confirmation, representative agreement/POA event, delegation activation/revocation/reassignment, document-stage milestone and obligation-stage milestone must create a persistent notification record for the represented physical person with safe summary, actor, object, assignment, document reference where applicable and action status.
-93. Shipowner-agent appointment in CrewPortGlobal must not activate from direct appointment or a signed service agreement alone: the shipowner first sends an in-system offer to the agent, the agent accepts/signs the standard platform adhesion-form package, platform-side POA/authority is issued and recorded where applicable, mandatory appendices and price basis are fixed or separately agreed, signatory authority is verified, the one-active-manager check passes, delegated operational lock is applied and durable notification records are created for the shipowner physical representative.
+93. Shipowner-agent appointment in CrewPortGlobal must not activate from direct appointment or a signed service agreement alone: the shipowner first sends an in-system offer to the agent, the agent accepts/signs the standard platform adhesion-form framework package, platform-side POA/authority is issued and recorded where applicable, mandatory appendices and commercial-terms status are fixed, signatory authority is verified, the one-active-manager check passes, delegated operational lock is applied and durable notification records are created for the shipowner physical representative.
+94. Framework agreement acceptance and commercial terms must be separated: parties may accept the standard legal/authority/no-fee/notification framework without agreeing a concrete service price, while paid service activation, billing basis, success fee, SLA penalties/bonuses and invoices require a separate Service Order, commercial addendum, request or approved price-basis record.
 
 ## 5. Intended Use
 
@@ -190,6 +191,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.61 | 2026-06-10 | GTC IT / AI Assistant | Added framework-versus-commercial control: legal adhesion agreement and authority may be accepted separately from concrete price, while paid service activation and billing require Service Order / commercial addendum / request or approved price basis |
 | 3.60 | 2026-06-10 | GTC IT / AI Assistant | Clarified shipowner-agent appointment control: runtime starts with an in-system offer, requires agent acceptance of the standard adhesion-form package, platform-side authority and price basis, and cannot auto-activate from arbitrary external contracts |
 | 3.59 | 2026-06-10 | GTC IT / AI Assistant | Added shipowner-agent portal appointment control requiring signed agreement, POA/authority, mandatory appendices, signatory verification, one-active-manager check, delegated lock and notification ledger record before active management |
 | 3.58 | 2026-06-10 | GTC IT / AI Assistant | Added participant governance notification control requiring durable physical-person notifications for authority, representative agreement/POA, delegation, document-stage and obligation-stage milestones |
