@@ -32,6 +32,7 @@
         'role.actionsTitle': 'Main actions',
         'role.actionCabinet': 'Open my cabinet',
         'role.actionDemand': 'Post vacancy',
+        'role.actionAgent': 'Appoint agent',
         'role.actionCandidates': 'Select candidate',
         'role.actionTerms': 'Shipowner service terms'
       },
@@ -53,6 +54,7 @@
         'role.actionsTitle': 'Основные действия',
         'role.actionCabinet': 'Открыть мой кабинет',
         'role.actionDemand': 'Разместить вакансию',
+        'role.actionAgent': 'Назначить агента',
         'role.actionCandidates': 'Подобрать кандидата',
         'role.actionTerms': 'Условия для судовладельца'
       }
@@ -99,6 +101,7 @@
             <p class="eyebrow" data-i18n="role.actionsTitle">Main actions</p>
             <a class="library-link" href="/cabinet/"><strong data-i18n="role.actionCabinet">Open my cabinet</strong></a>
             <a class="library-link" href="/post-vacancy/"><strong data-i18n="role.actionDemand">Post vacancy</strong></a>
+            <a id="shipowner-agent-appointment-link" class="library-link" href="/shipowners/candidates/#agent-assignment"><strong data-i18n="role.actionAgent">Appoint agent</strong></a>
             <a class="library-link" href="/shipowners/candidates/"><strong data-i18n="role.actionCandidates">Select candidate</strong></a>
             <a class="library-link" href="/legal/shipowner-service-terms/"><strong data-i18n="role.actionTerms">Shipowner service terms</strong></a>
           </section>
@@ -106,5 +109,21 @@
       </section>
     </main>
   </div>
+  <script>
+    (function () {
+      const link = document.getElementById('shipowner-agent-appointment-link');
+      if (!link) return;
+      try {
+        const currentUrlDraftId = new URLSearchParams(window.location.search).get('draft_id') || '';
+        const draftId = currentUrlDraftId || window.localStorage.getItem('crewportglobal.registration.draft_id') || '';
+        const trimmed = draftId.trim();
+        if (trimmed) {
+          link.href = `/shipowners/candidates/?draft_id=${encodeURIComponent(trimmed)}#agent-assignment`;
+        }
+      } catch (error) {
+        // Keep the generic route when browser storage is unavailable.
+      }
+    })();
+  </script>
 </body>
 </html>

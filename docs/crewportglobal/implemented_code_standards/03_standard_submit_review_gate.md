@@ -182,4 +182,4 @@ If submit-review logic changes, update:
 1. owner correction resubmission gate;
 2. team-side review-completion gate consistency;
 3. future dedicated company and vessel forms;
-4. computed task model standardization under `ICS-004`.
+4. computed task model standardization under planned `ICS-005`.

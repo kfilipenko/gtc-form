@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Project memory and historical handoff refresh
 - Source: local Codex session `Оценить проект Crewportglobal` reviewed on 2026-06-09
-- Version: 2.2
+- Version: 2.3
 - Date: 2026-06-10
 - Status: Active continuation memory
 
@@ -239,6 +239,18 @@ Document: docs/crewportglobal/333_cpg_biz_131_heading_contrast_normalization_rep
 ```
 
 Application, participant and public legal pages now rely on shared `.cpg-app-page` heading rules in `projects/crewportglobal/public/assets/crewportglobal-app.css`. Dark-theme headings on `/seafarers/`, `/shipowners/`, `/agents/overview/`, `/legal/` and the standalone `/team/` page are explicitly high-contrast so document prose styles or legacy page variables cannot make section headings unreadable.
+
+On 2026-06-10 the shipowner-to-agent appointment process was made more discoverable and separately standardized:
+
+```text
+BP-017 - Shipowner Agent Appointment And Framework Agreement Process
+Document: docs/crewportglobal/business_processes/17_shipowner_agent_appointment_and_framework_agreement_process.md
+
+ICS-004 - Shipowner-Agent Framework Offer Acceptance Standard
+Document: docs/crewportglobal/implemented_code_standards/04_standard_shipowner_agent_framework_offer_acceptance.md
+```
+
+The shipowner section and shared shipowner navigation now expose `Appoint agent / Назначить агента`, deep-linking to `/shipowners/candidates/#agent-assignment`. The exact link format for a known shipowner draft remains `/shipowners/candidates/?draft_id={shipowner_user_id}#agent-assignment`.
 
 Recommended next work remains inside CPG-BIZ-127 follow-up slices:
 

@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.61
+- Version: 3.63
 - Status: For internal review
 
 ## 1. Purpose
@@ -51,6 +51,7 @@ docs/crewportglobal/business_processes/
 	  14_standard_form_lifecycle_and_validation_module.md
 	  15_crewportglobal_commercial_operating_cycle.md
 	  16_business_process_stage_standard_mapping_matrix.md
+	  17_shipowner_agent_appointment_and_framework_agreement_process.md
 ```
 
 ## 3. Active Business-Process Documents
@@ -73,6 +74,7 @@ docs/crewportglobal/business_processes/
 | BP-014 | `14_standard_form_lifecycle_and_validation_module.md` | CPG-BIZ-041 / Document 230 | Approved standard for staged implementation | Standard form lifecycle and validation module covering role-aware draft context, save, autosave, completeness, protected upload, submit-review gate, numbered missing items and computed task integration |
 | BP-015 | `15_crewportglobal_commercial_operating_cycle.md` | CPG-BIZ-052 / Document 246 | Drafted for owner review | Full circular commercial operating cycle from marketing and registration to service packages, request processing, embarkation, monthly service evidence, billing, retention and repeat marketing |
 | BP-016 | `16_business_process_stage_standard_mapping_matrix.md` | Project Owner instruction after CPG-BIZ-093 | Drafted for owner review | Stage-to-standard mapping matrix connecting commercial and operational process stages with controlling standards, coverage status, gaps and future job-instruction inputs |
+| BP-017 | `17_shipowner_agent_appointment_and_framework_agreement_process.md` | Project Owner instruction after CPG-BIZ-127 UI review | Active process standard | Dedicated shipowner-to-agent appointment process: shipowner offer, agent acceptance, platform authority, one active assignment, commercial pending status and notification ledger records |
 
 ## 4. Core Controls Introduced By This Block
 
@@ -172,6 +174,7 @@ This documentation block starts from the following approved business controls:
 92. Delegated participant governance requires durable notifications: every authority confirmation, representative agreement/POA event, delegation activation/revocation/reassignment, document-stage milestone and obligation-stage milestone must create a persistent notification record for the represented physical person with safe summary, actor, object, assignment, document reference where applicable and action status.
 93. Shipowner-agent appointment in CrewPortGlobal must not activate from direct appointment or a signed service agreement alone: the shipowner first sends an in-system offer to the agent, the agent accepts/signs the standard platform adhesion-form framework package, platform-side POA/authority is issued and recorded where applicable, mandatory appendices and commercial-terms status are fixed, signatory authority is verified, the one-active-manager check passes, delegated operational lock is applied and durable notification records are created for the shipowner physical representative.
 94. Framework agreement acceptance and commercial terms must be separated: parties may accept the standard legal/authority/no-fee/notification framework without agreeing a concrete service price, while paid service activation, billing basis, success fee, SLA penalties/bonuses and invoices require a separate Service Order, commercial addendum, request or approved price-basis record.
+95. The visible shipowner action for agent appointment must be available from the shipowner section and must open the exact working object: `/shipowners/candidates/#agent-assignment` or the same route with `draft_id={shipowner_user_id}`. A generic candidate-selection label is not sufficient as the only discoverable route for appointing an agent.
 
 ## 5. Intended Use
 
@@ -191,6 +194,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.63 | 2026-06-10 | GTC IT / AI Assistant | Added BP-017 as the dedicated shipowner-agent appointment process and recorded that the visible shipowner action must deep-link to `/shipowners/candidates/#agent-assignment` |
 | 3.62 | 2026-06-10 | GTC IT / AI Assistant | Added CPG-BIZ-127 runtime control: shipowner can send an in-system framework offer to a registered agent, agent checkbox acceptance activates verified authority and one active assignment, notification ledger records are persisted, and commercial terms remain pending until a separate Service Order / commercial addendum |
 | 3.61 | 2026-06-10 | GTC IT / AI Assistant | Added framework-versus-commercial control: legal adhesion agreement and authority may be accepted separately from concrete price, while paid service activation and billing require Service Order / commercial addendum / request or approved price basis |
 | 3.60 | 2026-06-10 | GTC IT / AI Assistant | Clarified shipowner-agent appointment control: runtime starts with an in-system offer, requires agent acceptance of the standard adhesion-form package, platform-side authority and price basis, and cannot auto-activate from arbitrary external contracts |

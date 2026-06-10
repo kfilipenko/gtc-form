@@ -59,6 +59,7 @@
         { href: '/shipowners/', key: 'nav.shipownersOverview', label: 'Shipowners Overview', hintKey: 'nav.shipownersOverviewHint', hint: 'Understand the shipowner role, request cycle and next actions.' },
         { href: '/cabinet/', dynamicHref: 'currentCabinet', key: 'nav.shipownerCabinet', label: 'My Cabinet', hintKey: 'nav.shipownerCabinetHint', hint: 'Open the personal cabinet with current shipowner tasks.' },
         { href: '/post-vacancy/', key: 'nav.postVacancy', label: 'Post Vacancy', hint: 'Add company, vessel and crew request data.' },
+        { href: '/shipowners/candidates/#agent-assignment', dynamicHref: 'shipownerAgentAppointment', key: 'nav.appointAgent', label: 'Appoint Agent', hintKey: 'nav.appointAgentHint', hint: 'Select a registered agent or invite your agent to register, then send the framework agreement offer.' },
         { href: '/shipowners/candidates/', key: 'nav.selectCandidate', label: 'Select Candidate', hint: 'Review presented candidates and propose contract.' },
       ],
     },
@@ -158,6 +159,8 @@
       'nav.shipownersOverviewHint': 'Понять роль судовладельца, цикл заявки и следующие действия.',
       'nav.shipownerCabinet': 'Мой кабинет',
       'nav.postVacancy': 'Разместить вакансию',
+      'nav.appointAgent': 'Назначить агента',
+      'nav.appointAgentHint': 'Выбрать зарегистрированного агента или пригласить своего агента к регистрации и направить предложение рамочного договора.',
       'nav.selectCandidate': 'Подобрать кандидата',
       'nav.agentPages': 'Агентам',
       'nav.agentPagesMenu': 'Страницы агента',
@@ -222,6 +225,9 @@
   function resolvedHref(item) {
     if (item && item.dynamicHref === 'currentCabinet') {
       return currentDraftCabinetHref() || item.href;
+    }
+    if (item && item.dynamicHref === 'shipownerAgentAppointment') {
+      return currentShipownerAgentAppointmentHref() || item.href;
     }
     return item && item.href ? item.href : '/';
   }
@@ -345,6 +351,19 @@
       return trimmed ? `/cabinet/?draft_id=${encodeURIComponent(trimmed)}` : '';
     } catch (error) {
       return '';
+    }
+  }
+
+  function currentShipownerAgentAppointmentHref() {
+    try {
+      const currentUrlDraftId = new URLSearchParams(window.location.search).get('draft_id') || '';
+      const draftId = currentUrlDraftId || window.localStorage.getItem('crewportglobal.registration.draft_id') || '';
+      const trimmed = draftId.trim();
+      return trimmed
+        ? `/shipowners/candidates/?draft_id=${encodeURIComponent(trimmed)}#agent-assignment`
+        : '/shipowners/candidates/#agent-assignment';
+    } catch (error) {
+      return '/shipowners/candidates/#agent-assignment';
     }
   }
 
