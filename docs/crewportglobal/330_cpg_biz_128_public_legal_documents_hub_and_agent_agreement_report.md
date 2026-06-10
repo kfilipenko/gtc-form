@@ -80,6 +80,17 @@ HTTP route results:
 /shipowners/agent-agreement/    200 OK redirect page
 ```
 
+Additional localization correction after visual review:
+
+```text
+2026-06-10
+- added page-level English/Russian dictionaries for /legal/
+- added page-level English/Russian dictionaries for /legal/agent-agreement/
+- bound visible document text to data-i18n keys
+- marked the CPG brand abbreviation as non-translatable on the new public legal pages
+- verified with Playwright using crewportglobal.language=ru
+```
+
 ## 6. Next Relevant Work
 
 The next document-publication slices should convert remaining real platform agreements into `/legal/` pages and connect generated agreement previews to those canonical public URLs.
