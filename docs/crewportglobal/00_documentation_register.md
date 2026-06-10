@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 3.18
+- Version: 3.19
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -958,6 +958,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.19 | 2026-06-10 | GTC IT / AI Assistant | Updated document 324 CPG-BIZ-123 shipowner-agent agreement template with portal appointment activation gate, POA/appendix signing requirements, no-fee/MLC coordination boundaries, exclusive delegated management and participant notification ledger clauses |
 | 3.18 | 2026-06-10 | GTC IT / AI Assistant | Added CPG-BIZ-126 participant governance notification ledger requirements for physical-person notifications on authority confirmation, representation agreement/POA, delegation, document-stage and obligation-stage milestones; updated CPG-BIZ-127 next runtime slice accordingly |
 | 3.17 | 2026-06-10 | GTC IT / AI Assistant | Clarified CPG-BIZ-126 and BP-008 around exclusive delegated operational management: participant credentials remain personal, but active representative appointment transfers operational editing for the delegated scope to one representative while the participant keeps appointment/revocation rights |
 | 3.16 | 2026-06-10 | GTC IT / AI Assistant | Clarified CPG-BIZ-126 and BP-008 so physical persons self-register first, then select platform capacity; agent appointment is optional and agent-created records are preparation/invitation contexts rather than ordinary active user accounts |

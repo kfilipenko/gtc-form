@@ -5,8 +5,8 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Project memory and historical handoff refresh
 - Source: local Codex session `Оценить проект Crewportglobal` reviewed on 2026-06-09
-- Version: 1.5
-- Date: 2026-06-09
+- Version: 1.6
+- Date: 2026-06-10
 - Status: Active continuation memory
 
 ## 1. Purpose
@@ -145,6 +145,21 @@ The runtime notification implementation is now:
 ```text
 CPG-BIZ-127 - Participant governance notification ledger API/UI implementation
 ```
+
+After review of the shipowner-agent agreement package, document 324 / CPG-BIZ-123 was updated as the first practical appointment package for this runtime stage:
+
+```text
+shipowner-agent agreement
++ POA / authority document where applicable
++ mandatory appendices
++ signatory authority verification
++ one-active-manager check
++ delegated operational lock
++ durable notification to the shipowner physical representative
+= active shipowner-side agent management
+```
+
+The contract text now clarifies that wage, joining, return and repatriation terms inside the shipowner-agent agreement are coordination terms for request handling, SEA preparation and evidence control. They do not replace the seafarer employment agreement, applicable law, CBA or mandatory MLC protections. The next implementation stage should therefore use the shipowner appoints agent scenario as the first CPG-BIZ-127 runtime slice.
 
 ## 6. Active Working Rules For Future Continuation
 
