@@ -3,115 +3,210 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CrewPortGlobal — Shipowner-Agent Framework Agreement | CrewPortGlobal</title>
-  <meta id="page-description" name="description" content="Standard CrewPortGlobal shipowner-agent framework agreement for in-platform authority, one-manager assignment and notification ledger controls.">
+  <title>CrewPortGlobal — Shipowner-Agent Agreement Package | CrewPortGlobal</title>
+  <meta id="page-description" name="description" content="Full CrewPortGlobal shipowner-agent agreement package with authority document, mandatory appendices, one-manager rule and notification ledger controls.">
   <link rel="canonical" href="https://crewportglobal.com/legal/agent-agreement/">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="stylesheet" href="../../assets/crewportglobal-docs.css?v=20260530-menu-audit">
+  <style>
+    .contract-note {
+      display: grid;
+      gap: 8px;
+      padding: 16px;
+      border: 1px solid rgba(16, 118, 135, 0.24);
+      border-radius: 8px;
+      background: rgba(16, 118, 135, 0.08);
+    }
+    .contract-meta-grid,
+    .appendix-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+    .contract-meta-grid div,
+    .appendix-card {
+      padding: 14px;
+      border: 1px solid rgba(126, 201, 217, 0.2);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.045);
+    }
+    .appendix-card strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+    .signature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .signature-box {
+      min-height: 92px;
+      padding: 14px;
+      border: 1px solid rgba(126, 201, 217, 0.24);
+      border-radius: 8px;
+    }
+    @media (max-width: 760px) {
+      .contract-meta-grid,
+      .appendix-grid,
+      .signature-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
   <script>
     window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
       en: {
-        'site.pageTitle': 'CrewPortGlobal — Shipowner-Agent Framework Agreement | CrewPortGlobal',
-        'site.metaDescription': 'Standard CrewPortGlobal shipowner-agent framework agreement for in-platform authority, one-manager assignment and notification ledger controls.',
-        'legal.agent.eyebrow': 'Legal / Platform Standard',
-        'legal.agent.title': 'Shipowner-Agent Framework Agreement',
-        'legal.agent.lead': 'Standard in-platform agreement for appointing an agent to represent a shipowner inside CrewPortGlobal.',
-        'legal.agent.focus': 'Agent appointment',
+        'site.pageTitle': 'CrewPortGlobal — Shipowner-Agent Agreement Package | CrewPortGlobal',
+        'site.metaDescription': 'Authoritative English CrewPortGlobal shipowner-agent agreement package with authority document, mandatory appendices, one-manager rule and notification ledger controls.',
+        'legal.agent.eyebrow': 'Legal / Contract Package',
+        'legal.agent.title': 'Shipowner-Agent Agreement Package',
+        'legal.agent.lead': 'Full standard agreement package for appointing an agent to represent a shipowner inside CrewPortGlobal.',
+        'legal.agent.focus': 'Agreement + authority + appendices',
         'legal.agent.documentsHome': 'Documents home',
+        'legal.agent.fullText': 'Open full authoritative text',
         'legal.agent.openWorkspace': 'Open shipowner workspace',
-        'legal.agent.intro': 'This page publishes the CrewPortGlobal standard framework used when a shipowner invites a registered agent to manage shipowner-side work on the platform. The document is intended to operate as a platform accession agreement: the legal relationship is created by in-system offer and acceptance, while commercial terms are agreed separately.',
-        'legal.agent.partiesTitle': '1. Parties and accession format',
-        'legal.agent.partiesCopy': 'The agreement is concluded between the shipowner or other authorized shipowner-side participant and the agent or agent company selected in CrewPortGlobal. The shipowner initiates the offer inside the platform. The agent accepts the published framework terms inside the platform. CrewPortGlobal records the agreement event, authority evidence, assignment status and notifications.',
-        'legal.agent.purposeTitle': '2. What this agreement does',
-        'legal.agent.purposeCopy': 'The agreement creates a controlled representation basis inside CrewPortGlobal. It allows the agent to perform operational actions for the shipowner only within the authority and assignment scope recorded by the platform. External contracts, emails or powers of attorney may be stored as evidence, but they do not automatically activate platform management rights unless the platform assignment is created.',
-        'legal.agent.activationTitle': '3. Platform activation rule',
-        'legal.agent.activation1': 'the shipowner must initiate the offer inside CrewPortGlobal;',
-        'legal.agent.activation2': 'the agent must accept the framework agreement inside CrewPortGlobal;',
-        'legal.agent.activation3': 'the platform records verified authority evidence;',
-        'legal.agent.activation4': 'only one active managing agent may control the same shipowner object at a time;',
-        'legal.agent.activation5': 'the represented participant must be able to see important notifications and intervene through controlled replacement or revocation procedures.',
-        'legal.agent.commercialTitle': '4. Commercial terms are separate',
-        'legal.agent.commercialCopy': 'This framework agreement does not impose a fixed service price. Commercial terms, service fees, success fees, SLA, billing basis and invoices must be agreed separately through a Service Order, commercial addendum, request or approved price-basis record.',
-        'legal.agent.scopeTitle': '5. Scope of agent work',
-        'legal.agent.scopeCopy': 'The agent may assist the shipowner with crew search, vessel or vacancy preparation, document coordination, contract preparation support and communication with seafarers, but only within the authority, assignment and data-responsibility scope recorded in the platform. The agent must act in good faith, keep the interests of represented parties visible, and must not use the appointment to hide conflicts of interest or bypass participant consent.',
-        'legal.agent.notificationsTitle': '6. Notifications and governance rights',
-        'legal.agent.notificationsCopy': 'CrewPortGlobal records material events in the participant governance notification ledger. The shipowner should receive notice when an offer is sent, accepted, rejected, revoked, replaced, or when an authority or assignment status changes. The shipowner keeps governance rights to review important events and to revoke or replace the agent through controlled platform procedures.',
-        'legal.agent.protectionTitle': '7. Protection of seafarers and shipowners',
-        'legal.agent.protectionCopy': 'The agreement must not be used to bypass mandatory seafarer protections, MLC-aligned no-fee rules, wage obligations, insurance, repatriation, family protection or the seafarer employment agreement. Contract-critical employment terms remain subject to party review and applicable law.',
-        'legal.agent.acceptanceTitle': '8. Acceptance text',
-        'legal.agent.acceptanceCopy': 'I agree to the terms of the framework accession agreement.',
-        'legal.agent.statusTitle': '9. Current implementation status',
-        'legal.agent.statusCopy': 'CrewPortGlobal currently supports the first runtime slice: shipowner offer, agent acceptance, authority record, active assignment and notification ledger records. Future slices will add commercial Service Orders, agent replacement/revocation, seafarer-side representation and full generated contract documents.',
-        'legal.agent.sidebarTitle': 'Working system documents',
-        'legal.agent.sidebarCopy': 'These pages explain the legal and operational documents used by CrewPortGlobal workflows.',
-        'legal.link.indexType': 'Index',
+        'legal.agent.version': 'Authoritative template: CPG-BIZ-132 v1.0',
+        'legal.agent.note': 'This page is the public English contract package used by the platform offer/acceptance flow. A generated signing instance will fill the variables, parties, scope, authority and commercial status. Russian CPG-BIZ-123 is a convenience translation.',
+        'legal.agent.languageTitle': 'Language priority',
+        'legal.agent.languageCopy': 'The English Shipowner-Agent Agreement Package is the authoritative CrewPortGlobal portal version. Translations are provided for convenience and do not override the English source unless a generated signing instance expressly states another controlling language.',
+        'legal.agent.partiesTitle': '1. Parties',
+        'legal.agent.partiesCopy': 'The agreement is concluded between the shipowner or authorized shipowner-side participant as Principal and the selected registered agent or agent company as Agent. The Principal sends the offer inside CrewPortGlobal. The Agent accepts the agreement package inside CrewPortGlobal.',
+        'legal.agent.subjectTitle': '2. Subject',
+        'legal.agent.subjectCopy': 'The Agent provides crew-search, candidate presentation, document coordination, interview, joining and request-support services only within the authority and delegated scope recorded by CrewPortGlobal. The seafarer employment agreement remains a separate contract between the seafarer and the shipowner/employer or other authorized employer-side party.',
+        'legal.agent.offerTitle': '3. Offer, acceptance and platform appointment',
+        'legal.agent.offerCopy': 'Sending the offer does not by itself appoint the Agent. Active management starts only after the Agent accepts the full agreement package, the authority document is recorded where required, the one-active-manager check passes and participant notifications are created.',
+        'legal.agent.authorityTitle': '4. Authority and power of attorney',
+        'legal.agent.authorityCopy': 'The Agent acts under Appendix 2 authority document / power of attorney. Without separate authority the Agent may not sign employment agreements, change seafarer wage terms, issue financial guarantees, transfer the Principal account credentials or create a second active manager for the same scope.',
+        'legal.agent.commercialTitle': '5. Commercial terms',
+        'legal.agent.commercialCopy': 'The legal framework may be accepted without a fixed service price. Service fee, success fee, SLA penalties or bonuses, billing basis and invoices require a separate Service Order, commercial appendix, request or approved price-basis record. Until then the status remains commercial_terms_pending.',
+        'legal.agent.seafarerTitle': '6. Seafarer protection and no-fee boundary',
+        'legal.agent.seafarerCopy': 'The Agent must not charge seafarers prohibited recruitment or placement fees, retain seafarer documents, mislead candidates about vessel, rank, wage, contract duration, repatriation or family protection, or bypass personal review of contract-critical employment terms.',
+        'legal.agent.dataTitle': '7. Documents, data and confidentiality',
+        'legal.agent.dataCopy': 'Documents and personal data may be used only for the agreement, crew request and verified platform workflow. Protected documents must remain inside controlled storage and may be shared only under lawful basis, authority evidence and scoped visibility rules.',
+        'legal.agent.notificationsTitle': '8. Notifications and governance rights',
+        'legal.agent.notificationsCopy': 'CrewPortGlobal records material events in the participant governance notification ledger: offer sent, offer accepted, authority recorded, assignment activated, commercial status changed, document prepared, candidate found, contract workspace prepared, replacement, revocation or compliance blocker. The Principal keeps governance rights to view, replace, revoke and request control review.',
+        'legal.agent.termTitle': '9. Term, termination and disputes',
+        'legal.agent.termCopy': 'The agreement remains effective for the selected term or until completion, termination, revocation or replacement under the recorded platform process. Dispute forum, governing law and notice period are selected in the generated instance.',
+        'legal.agent.appendicesTitle': '10. Mandatory appendices',
+        'legal.agent.appendix1': 'Appendix 1 — Price list / Service Order / commercial status',
+        'legal.agent.appendix1Copy': 'Commercial terms may be pending, separately agreed or free until commercial agreement.',
+        'legal.agent.appendix2': 'Appendix 2 — Power of attorney / authority document',
+        'legal.agent.appendix2Copy': 'Scope of permitted actions, restrictions, term, territory and substitution rule.',
+        'legal.agent.appendix3': 'Appendix 3 — Work procedure and SLA',
+        'legal.agent.appendix3Copy': 'Request initiation, shortlist, document check, pre-contract coordination, joining and closure stages.',
+        'legal.agent.appendix4': 'Appendix 4 — Field catalogue',
+        'legal.agent.appendix4Copy': 'Approved radio/checkbox variables used by the generated contract and platform controls.',
+        'legal.agent.appendix5': 'Appendix 5 — Calculation and SLA matrix',
+        'legal.agent.appendix5Copy': 'Formulae for candidate fee, stage fee, success fee, replacement and SLA adjustment.',
+        'legal.agent.appendix6': 'Appendix 6 — Crew request form',
+        'legal.agent.appendix6Copy': 'Vessel, rank, joining date, contract duration, wage range and special requirements.',
+        'legal.agent.appendix7': 'Appendix 7 — Stage acceptance act',
+        'legal.agent.appendix7Copy': 'Evidence list, result summary, acceptance status and party signatures.',
+        'legal.agent.appendix8': 'Appendix 8 — Replacement and expense matrix',
+        'legal.agent.appendix8Copy': 'Medical, disciplinary, operational and pre-joining replacement scenarios.',
+        'legal.agent.appendix9': 'Appendix 9 — Document register',
+        'legal.agent.appendix9Copy': 'Passport, seaman book, medical certificate, STCW and contract package status.',
+        'legal.agent.appendix10': 'Appendix 10 — Party details',
+        'legal.agent.appendix10Copy': 'Legal names, registration numbers, addresses, bank details, contacts and emails.',
+        'legal.agent.appendix11': 'Appendix 11 — Portal appointment and notifications',
+        'legal.agent.appendix11Copy': 'Delegated scope, management mode, exclusive management, ledger records and activation blockers.',
+        'legal.agent.appendix12': 'Appendix 12 — Signing and acceptance checklist',
+        'legal.agent.appendix12Copy': 'Confirmation that the parties accept the full agreement package, not a short reference page.',
+        'legal.agent.poaTitle': 'Appendix 2 summary: authority document',
+        'legal.agent.poaCopy': 'The Principal authorizes the Agent to receive and process requests, request candidate documents, communicate with candidates and counterparties, provide reports, coordinate joining logistics, manage the delegated CrewPortGlobal scope and prepare contract workspace records without final SEA signature authority unless separately granted.',
+        'legal.agent.acceptanceTitle': 'Acceptance text',
+        'legal.agent.acceptanceCopy': 'I agree to the Agent Agreement, authority document / power of attorney, mandatory appendices and CrewPortGlobal portal appointment rules. I understand that commercial terms are agreed separately unless fixed in a Service Order, commercial appendix, request or approved price-basis record.',
+        'legal.agent.signTitle': 'Signatures / electronic acceptance',
+        'legal.agent.signPrincipal': 'Principal / shipowner-side participant',
+        'legal.agent.signAgent': 'Agent / agent company',
+        'legal.agent.statusTitle': 'Implementation status',
+        'legal.agent.statusCopy': 'CrewPortGlobal currently supports offer, acceptance, authority record, active assignment and notification ledger records. Future slices will add immutable generated contract snapshots, Service Orders, replacement/revocation, seafarer-side representation and delivery/read state.',
+        'legal.agent.sidebarTitle': 'Related system documents',
+        'legal.agent.sidebarCopy': 'These pages explain the legal and operating documents used by CrewPortGlobal workflows.',
         'legal.link.documentsHome': 'Documents Home',
-        'legal.link.documentsHomeCopy': 'Main map of published platform documents, policies, agreements and future standards.',
-        'legal.link.platformType': 'Platform',
         'legal.link.termsTitle': 'Terms of Service',
-        'legal.link.termsCopy': 'Core platform rules for participants and AI-assisted workflow support.',
-        'legal.link.agentType': 'Agent',
         'legal.link.agentTitle': 'Shipowner-Agent Agreement',
-        'legal.link.agentCopy': 'Framework appointment, authority, one-manager rule and notification ledger controls.',
-        'legal.link.seafarerType': 'Seafarer',
-        'legal.link.seafarerTitle': 'Seafarer Candidate Agreement',
-        'legal.link.seafarerCopy': 'No-fee candidate agreement for profile, documents and reviewed matching.',
-        'legal.link.b2bType': 'B2B',
         'legal.link.shipownerTitle': 'Shipowner Service Terms',
-        'legal.link.shipownerCopy': 'Service and compliance baseline for shipowners and related business users.'
+        'legal.link.seafarerTitle': 'Seafarer Candidate Agreement'
       },
       ru: {
-        'site.pageTitle': 'CrewPortGlobal — Рамочный договор судовладельца и агента | CrewPortGlobal',
-        'site.metaDescription': 'Стандартный рамочный договор CrewPortGlobal между судовладельцем и агентом для полномочий внутри платформы, правила одного управляющего и журнала уведомлений.',
-        'legal.agent.eyebrow': 'Юридический документ / стандарт платформы',
-        'legal.agent.title': 'Рамочный договор судовладельца и агента',
-        'legal.agent.lead': 'Стандартное соглашение внутри платформы для назначения агента представителем судовладельца в CrewPortGlobal.',
-        'legal.agent.focus': 'Назначение агента',
+        'site.pageTitle': 'CrewPortGlobal — Агентский договорный пакет судовладельца и агента | CrewPortGlobal',
+        'site.metaDescription': 'Полный договорный пакет CrewPortGlobal между судовладельцем и агентом: договор, доверенность, обязательные приложения, правило одного управляющего и журнал уведомлений.',
+        'legal.agent.eyebrow': 'Юридический документ / договорный пакет',
+        'legal.agent.title': 'Агентский договорный пакет судовладельца и агента',
+        'legal.agent.lead': 'Полная стандартная форма договора для назначения агента представителем судовладельца внутри CrewPortGlobal.',
+        'legal.agent.focus': 'Договор + полномочия + приложения',
         'legal.agent.documentsHome': 'Раздел документов',
+        'legal.agent.fullText': 'Открыть полный английский текст',
         'legal.agent.openWorkspace': 'Открыть рабочее место судовладельца',
-        'legal.agent.intro': 'Эта страница публикует стандарт CrewPortGlobal, применяемый, когда судовладелец приглашает зарегистрированного агента управлять работой со стороны судовладельца на платформе. Документ действует как договор присоединения платформы: юридическая связь создается предложением и акцептом внутри системы, а коммерческие условия согласуются отдельно.',
-        'legal.agent.partiesTitle': '1. Стороны и формат присоединения',
-        'legal.agent.partiesCopy': 'Договор заключается между судовладельцем или иным уполномоченным участником со стороны судовладельца и агентом или агентской компанией, выбранной в CrewPortGlobal. Судовладелец направляет предложение внутри платформы. Агент принимает опубликованные рамочные условия внутри платформы. CrewPortGlobal фиксирует событие договора, доказательства полномочий, статус назначения и уведомления.',
-        'legal.agent.purposeTitle': '2. Что регулирует договор',
-        'legal.agent.purposeCopy': 'Договор создает контролируемое основание представительства внутри CrewPortGlobal. Он позволяет агенту выполнять операционные действия для судовладельца только в пределах полномочий и назначения, зафиксированных платформой. Внешние договоры, письма или доверенности могут храниться как доказательства, но сами по себе не активируют права управления на платформе без созданного платформенного назначения.',
-        'legal.agent.activationTitle': '3. Правило активации на платформе',
-        'legal.agent.activation1': 'судовладелец должен направить предложение внутри CrewPortGlobal;',
-        'legal.agent.activation2': 'агент должен принять рамочный договор внутри CrewPortGlobal;',
-        'legal.agent.activation3': 'платформа фиксирует подтвержденные доказательства полномочий;',
-        'legal.agent.activation4': 'одним объектом судовладельца одновременно может управлять только один активный агент;',
-        'legal.agent.activation5': 'представляемый участник должен видеть важные уведомления и иметь возможность вмешаться через контролируемую замену или отзыв полномочий.',
-        'legal.agent.commercialTitle': '4. Коммерческие условия согласуются отдельно',
-        'legal.agent.commercialCopy': 'Этот рамочный договор не устанавливает фиксированную стоимость услуг. Коммерческие условия, стоимость услуг, success fee, SLA, база расчета и счета должны согласовываться отдельно через Service Order, коммерческое приложение, заявку или утвержденную ценовую основу.',
-        'legal.agent.scopeTitle': '5. Объем работы агента',
-        'legal.agent.scopeCopy': 'Агент может помогать судовладельцу с поиском экипажа, подготовкой судна или вакансии, координацией документов, поддержкой подготовки договоров и коммуникацией с моряками, но только в пределах полномочий, назначения и ответственности за данные, зафиксированных на платформе. Агент должен действовать добросовестно, сохранять видимость интересов представляемых сторон и не использовать назначение для сокрытия конфликта интересов или обхода согласия участника.',
-        'legal.agent.notificationsTitle': '6. Уведомления и права управления',
-        'legal.agent.notificationsCopy': 'CrewPortGlobal фиксирует существенные события в журнале уведомлений участника. Судовладелец должен получать уведомления, когда предложение отправлено, принято, отклонено, отозвано, заменено, либо когда изменяется статус полномочий или назначения. Судовладелец сохраняет права управления для просмотра важных событий, отзыва или замены агента через контролируемые процедуры платформы.',
-        'legal.agent.protectionTitle': '7. Защита моряков и судовладельцев',
-        'legal.agent.protectionCopy': 'Договор не должен использоваться для обхода обязательных защит моряка, правил MLC об отсутствии сборов, обязательств по заработной плате, страхованию, репатриации, защите семьи или трудового договора моряка. Критически важные условия трудоустройства остаются предметом проверки сторонами и применимого права.',
-        'legal.agent.acceptanceTitle': '8. Текст акцепта',
-        'legal.agent.acceptanceCopy': 'С условиями рамочного договора присоединения согласен.',
-        'legal.agent.statusTitle': '9. Текущий статус реализации',
-        'legal.agent.statusCopy': 'CrewPortGlobal сейчас поддерживает первый runtime-сценарий: предложение судовладельца, акцепт агента, запись полномочий, активное назначение и записи журнала уведомлений. Следующие этапы добавят коммерческие Service Orders, замену или отзыв агента, представительство со стороны моряка и полные сгенерированные договоры.',
-        'legal.agent.sidebarTitle': 'Рабочие документы системы',
+        'legal.agent.version': 'Основной шаблон: CPG-BIZ-132 v1.0',
+        'legal.agent.note': 'Эта страница является публичным английским договорным пакетом, используемым в процессе предложения и акцепта на платформе. Сгенерированный экземпляр для подписания заполнит переменные, стороны, scope, полномочия и коммерческий статус. Русский CPG-BIZ-123 является переводом для удобства.',
+        'legal.agent.languageTitle': 'Приоритет языка',
+        'legal.agent.languageCopy': 'Английский Shipowner-Agent Agreement Package является основной версией портала CrewPortGlobal. Переводы предоставляются для удобства и не заменяют английский источник, если сгенерированный экземпляр для подписания прямо не указывает другой приоритетный язык.',
+        'legal.agent.partiesTitle': '1. Стороны',
+        'legal.agent.partiesCopy': 'Договор заключается между судовладельцем или уполномоченным участником со стороны судовладельца как Принципалом и выбранным зарегистрированным агентом или агентской компанией как Агентом. Принципал направляет предложение внутри CrewPortGlobal. Агент принимает договорный пакет внутри CrewPortGlobal.',
+        'legal.agent.subjectTitle': '2. Предмет договора',
+        'legal.agent.subjectCopy': 'Агент оказывает услуги по поиску экипажа, представлению кандидатов, координации документов, интервью, посадке и сопровождению заявок только в пределах полномочий и делегированного scope, зафиксированных CrewPortGlobal. Трудовой договор моряка остается отдельным договором между моряком и судовладельцем/работодателем или иным уполномоченным лицом со стороны работодателя.',
+        'legal.agent.offerTitle': '3. Предложение, акцепт и назначение на платформе',
+        'legal.agent.offerCopy': 'Направление предложения само по себе не назначает Агента. Активное управление начинается только после акцепта Агентом полного договорного пакета, фиксации authority document при необходимости, прохождения проверки одного активного управляющего и создания уведомлений участникам.',
+        'legal.agent.authorityTitle': '4. Полномочия и доверенность',
+        'legal.agent.authorityCopy': 'Агент действует на основании Приложения 2 — доверенности / authority document. Без отдельного полномочия Агент не вправе подписывать трудовые договоры, изменять зарплатные условия моряка, выдавать финансовые гарантии, получать учетные данные Принципала или создавать второго активного управляющего по тому же scope.',
+        'legal.agent.commercialTitle': '5. Коммерческие условия',
+        'legal.agent.commercialCopy': 'Правовая рамка может быть принята без фиксированной цены услуги. Стоимость услуг, success fee, SLA-штрафы или бонусы, база расчета и счета требуют отдельного Service Order, коммерческого приложения, заявки или утвержденного price-basis record. До этого статус остается commercial_terms_pending.',
+        'legal.agent.seafarerTitle': '6. Защита моряка и no-fee boundary',
+        'legal.agent.seafarerCopy': 'Агент не вправе взимать с моряка запрещенные recruitment/placement fees, удерживать документы моряка, вводить кандидата в заблуждение о судне, должности, зарплате, сроке контракта, репатриации или защите семьи, либо обходить личную проверку критически важных условий трудоустройства.',
+        'legal.agent.dataTitle': '7. Документы, данные и конфиденциальность',
+        'legal.agent.dataCopy': 'Документы и персональные данные используются только для исполнения договора, заявки и проверенного рабочего процесса платформы. Защищенные документы должны храниться в контролируемом хранилище и передаваться только при наличии законного основания, полномочий и scoped visibility rules.',
+        'legal.agent.notificationsTitle': '8. Уведомления и права управления',
+        'legal.agent.notificationsCopy': 'CrewPortGlobal фиксирует существенные события в журнале уведомлений участника: предложение направлено, предложение принято, полномочия зафиксированы, назначение активировано, коммерческий статус изменен, документ подготовлен, кандидат найден, contract workspace создан, замена, отзыв или compliance blocker. Принципал сохраняет права просмотра, замены, отзыва и запроса контрольной проверки.',
+        'legal.agent.termTitle': '9. Срок, расторжение и споры',
+        'legal.agent.termCopy': 'Договор действует в течение выбранного срока либо до исполнения, расторжения, отзыва или замены по зафиксированному процессу платформы. Форум разрешения споров, применимое право и срок уведомления выбираются в сгенерированном экземпляре.',
+        'legal.agent.appendicesTitle': '10. Обязательные приложения',
+        'legal.agent.appendix1': 'Приложение 1 — Прайс-лист / Service Order / коммерческий статус',
+        'legal.agent.appendix1Copy': 'Коммерческие условия могут ожидать согласования, быть согласованы отдельно или быть неплатными до отдельного соглашения.',
+        'legal.agent.appendix2': 'Приложение 2 — Доверенность / authority document',
+        'legal.agent.appendix2Copy': 'Объем разрешенных действий, ограничения, срок, территория и правило передоверия.',
+        'legal.agent.appendix3': 'Приложение 3 — Регламент работ и SLA',
+        'legal.agent.appendix3Copy': 'Инициация заявки, shortlist, проверка документов, предконтрактное согласование, посадка и закрытие.',
+        'legal.agent.appendix4': 'Приложение 4 — Каталог полей',
+        'legal.agent.appendix4Copy': 'Утвержденные radio/checkbox переменные для генерации договора и платформенного контроля.',
+        'legal.agent.appendix5': 'Приложение 5 — Матрица расчетов и SLA',
+        'legal.agent.appendix5Copy': 'Формулы candidate fee, stage fee, success fee, замены и SLA adjustment.',
+        'legal.agent.appendix6': 'Приложение 6 — Форма заявки',
+        'legal.agent.appendix6Copy': 'Судно, должность, дата посадки, срок контракта, зарплатный диапазон и особые требования.',
+        'legal.agent.appendix7': 'Приложение 7 — Акт приемки этапа',
+        'legal.agent.appendix7Copy': 'Документы-основания, результат этапа, статус приемки и подписи сторон.',
+        'legal.agent.appendix8': 'Приложение 8 — Матрица замены и расходов',
+        'legal.agent.appendix8Copy': 'Медицинские, дисциплинарные, операционные и pre-joining сценарии замены.',
+        'legal.agent.appendix9': 'Приложение 9 — Реестр документов',
+        'legal.agent.appendix9Copy': 'Паспорт, seaman book, медицинский сертификат, STCW и статус контрактного пакета.',
+        'legal.agent.appendix10': 'Приложение 10 — Реквизиты сторон',
+        'legal.agent.appendix10Copy': 'Наименования, регистрационные номера, адреса, банковские реквизиты, контакты и email.',
+        'legal.agent.appendix11': 'Приложение 11 — Портальное назначение и уведомления',
+        'legal.agent.appendix11Copy': 'Делегированный scope, режим управления, exclusive management, ledger records и блокеры активации.',
+        'legal.agent.appendix12': 'Приложение 12 — Чеклист подписания и акцепта',
+        'legal.agent.appendix12Copy': 'Подтверждение, что стороны принимают полный договорный пакет, а не краткую справочную страницу.',
+        'legal.agent.poaTitle': 'Краткое содержание Приложения 2: доверенность',
+        'legal.agent.poaCopy': 'Принципал уполномочивает Агента принимать и обрабатывать заявки, запрашивать документы кандидатов, вести коммуникации с кандидатами и контрагентами, передавать отчеты, координировать посадочную логистику, управлять делегированным scope в CrewPortGlobal и готовить записи contract workspace без права финальной подписи SEA, если такое право не предоставлено отдельно.',
+        'legal.agent.acceptanceTitle': 'Текст акцепта',
+        'legal.agent.acceptanceCopy': 'С условиями Агентского договора, доверенности / authority document, обязательных приложений и правил портального назначения Агента согласен. Понимаю, что коммерческие условия согласуются отдельно, если они не зафиксированы в Service Order, коммерческом приложении, заявке или утвержденном price-basis record.',
+        'legal.agent.signTitle': 'Подписи / электронный акцепт',
+        'legal.agent.signPrincipal': 'Принципал / участник со стороны судовладельца',
+        'legal.agent.signAgent': 'Агент / агентская компания',
+        'legal.agent.statusTitle': 'Статус реализации',
+        'legal.agent.statusCopy': 'CrewPortGlobal сейчас поддерживает предложение, акцепт, запись полномочий, активное назначение и записи журнала уведомлений. Следующие этапы добавят immutable generated contract snapshots, Service Orders, замену/отзыв, представительство со стороны моряка и delivery/read state.',
+        'legal.agent.sidebarTitle': 'Связанные документы системы',
         'legal.agent.sidebarCopy': 'Эти страницы объясняют юридические и операционные документы, используемые рабочими процессами CrewPortGlobal.',
-        'legal.link.indexType': 'Индекс',
         'legal.link.documentsHome': 'Раздел документов',
-        'legal.link.documentsHomeCopy': 'Главная карта опубликованных документов платформы, политик, соглашений и будущих стандартов.',
-        'legal.link.platformType': 'Платформа',
         'legal.link.termsTitle': 'Условия использования',
-        'legal.link.termsCopy': 'Основные правила платформы для участников и AI-поддержки рабочих процессов.',
-        'legal.link.agentType': 'Агент',
         'legal.link.agentTitle': 'Договор судовладельца и агента',
-        'legal.link.agentCopy': 'Рамочное назначение, полномочия, правило одного управляющего и контроль через журнал уведомлений.',
-        'legal.link.seafarerType': 'Моряк',
-        'legal.link.seafarerTitle': 'Соглашение кандидата-моряка',
-        'legal.link.seafarerCopy': 'Соглашение без рекрутинговых сборов для профиля, документов и подбора с участием человека.',
-        'legal.link.b2bType': 'B2B',
         'legal.link.shipownerTitle': 'Условия сервиса для судовладельца',
-        'legal.link.shipownerCopy': 'Сервисная и комплаенс-основа для судовладельцев и связанных бизнес-пользователей.'
+        'legal.link.seafarerTitle': 'Соглашение кандидата-моряка'
       }
     };
   </script>
@@ -122,7 +217,7 @@
   <div class="site-shell">
     <header class="site-header">
       <a class="brand" href="https://crewportglobal.com/">
-          <span class="brand-mark" translate="no">CPG</span>
+        <span class="brand-mark" translate="no">CPG</span>
         <span class="brand-copy">
           <strong translate="no">CrewPortGlobal</strong>
           <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
@@ -149,93 +244,105 @@
     <main class="doc-main">
       <section class="doc-hero card">
         <div>
-          <p class="eyebrow" data-i18n="legal.agent.eyebrow">Legal / Platform Standard</p>
-          <h1 data-i18n="legal.agent.title">Shipowner-Agent Framework Agreement</h1>
-          <p class="lead" data-i18n="legal.agent.lead">Standard in-platform agreement for appointing an agent to represent a shipowner inside CrewPortGlobal.</p>
+          <p class="eyebrow" data-i18n="legal.agent.eyebrow">Legal / Contract Package</p>
+          <h1 data-i18n="legal.agent.title">Shipowner-Agent Agreement Package</h1>
+          <p class="lead" data-i18n="legal.agent.lead">Full standard agreement package for appointing an agent to represent a shipowner inside CrewPortGlobal.</p>
         </div>
         <div class="hero-meta">
           <div>
             <span class="meta-label" data-i18n="doc.primaryFocus">Primary focus</span>
-            <strong data-i18n="legal.agent.focus">Agent appointment</strong>
+            <strong data-i18n="legal.agent.focus">Agreement + authority + appendices</strong>
           </div>
           <div class="hero-actions">
             <a class="button primary" href="https://crewportglobal.com/legal/" data-i18n="legal.agent.documentsHome">Documents home</a>
-            <a class="button secondary" href="https://crewportglobal.com/shipowners/candidates/" data-i18n="legal.agent.openWorkspace">Open shipowner workspace</a>
+            <a class="button secondary" href="https://crewportglobal.com/legal/agent-agreement/text/" data-i18n="legal.agent.fullText">Open full authoritative text</a>
+            <a class="button secondary" href="https://crewportglobal.com/shipowners/candidates/#agent-assignment" data-i18n="legal.agent.openWorkspace">Open shipowner workspace</a>
           </div>
         </div>
       </section>
 
       <section class="doc-layout">
         <article class="doc-content card prose">
-          <p data-i18n="legal.agent.intro">This page publishes the CrewPortGlobal standard framework used when a shipowner invites a registered agent to manage shipowner-side work on the platform. The document is intended to operate as a platform accession agreement: the legal relationship is created by in-system offer and acceptance, while commercial terms are agreed separately.</p>
+          <div class="contract-note">
+            <strong data-i18n="legal.agent.version">Authoritative template: CPG-BIZ-132 v1.0</strong>
+            <span data-i18n="legal.agent.note">This page is the public English contract package used by the platform offer/acceptance flow. A generated signing instance will fill the variables, parties, scope, authority and commercial status. Russian CPG-BIZ-123 is a convenience translation.</span>
+          </div>
 
-          <h2 data-i18n="legal.agent.partiesTitle">1. Parties and accession format</h2>
-          <p data-i18n="legal.agent.partiesCopy">The agreement is concluded between the shipowner or other authorized shipowner-side participant and the agent or agent company selected in CrewPortGlobal. The shipowner initiates the offer inside the platform. The agent accepts the published framework terms inside the platform. CrewPortGlobal records the agreement event, authority evidence, assignment status and notifications.</p>
+          <h2 data-i18n="legal.agent.languageTitle">Language priority</h2>
+          <p data-i18n="legal.agent.languageCopy">The English Shipowner-Agent Agreement Package is the authoritative CrewPortGlobal portal version. Translations are provided for convenience and do not override the English source unless a generated signing instance expressly states another controlling language.</p>
 
-          <h2 data-i18n="legal.agent.purposeTitle">2. What this agreement does</h2>
-          <p data-i18n="legal.agent.purposeCopy">The agreement creates a controlled representation basis inside CrewPortGlobal. It allows the agent to perform operational actions for the shipowner only within the authority and assignment scope recorded by the platform. External contracts, emails or powers of attorney may be stored as evidence, but they do not automatically activate platform management rights unless the platform assignment is created.</p>
+          <h2 data-i18n="legal.agent.partiesTitle">1. Parties</h2>
+          <p data-i18n="legal.agent.partiesCopy">The agreement is concluded between the shipowner or authorized shipowner-side participant as Principal and the selected registered agent or agent company as Agent. The Principal sends the offer inside CrewPortGlobal. The Agent accepts the agreement package inside CrewPortGlobal.</p>
 
-          <h2 data-i18n="legal.agent.activationTitle">3. Platform activation rule</h2>
-          <ul>
-            <li data-i18n="legal.agent.activation1">the shipowner must initiate the offer inside CrewPortGlobal;</li>
-            <li data-i18n="legal.agent.activation2">the agent must accept the framework agreement inside CrewPortGlobal;</li>
-            <li data-i18n="legal.agent.activation3">the platform records verified authority evidence;</li>
-            <li data-i18n="legal.agent.activation4">only one active managing agent may control the same shipowner object at a time;</li>
-            <li data-i18n="legal.agent.activation5">the represented participant must be able to see important notifications and intervene through controlled replacement or revocation procedures.</li>
-          </ul>
+          <h2 data-i18n="legal.agent.subjectTitle">2. Subject</h2>
+          <p data-i18n="legal.agent.subjectCopy">The Agent provides crew-search, candidate presentation, document coordination, interview, joining and request-support services only within the authority and delegated scope recorded by CrewPortGlobal. The seafarer employment agreement remains a separate contract between the seafarer and the shipowner/employer or other authorized employer-side party.</p>
 
-          <h2 data-i18n="legal.agent.commercialTitle">4. Commercial terms are separate</h2>
-          <p data-i18n="legal.agent.commercialCopy">This framework agreement does not impose a fixed service price. Commercial terms, service fees, success fees, SLA, billing basis and invoices must be agreed separately through a Service Order, commercial addendum, request or approved price-basis record.</p>
+          <h2 data-i18n="legal.agent.offerTitle">3. Offer, acceptance and platform appointment</h2>
+          <p data-i18n="legal.agent.offerCopy">Sending the offer does not by itself appoint the Agent. Active management starts only after the Agent accepts the full agreement package, the authority document is recorded where required, the one-active-manager check passes and participant notifications are created.</p>
 
-          <h2 data-i18n="legal.agent.scopeTitle">5. Scope of agent work</h2>
-          <p data-i18n="legal.agent.scopeCopy">The agent may assist the shipowner with crew search, vessel or vacancy preparation, document coordination, contract preparation support and communication with seafarers, but only within the authority, assignment and data-responsibility scope recorded in the platform. The agent must act in good faith, keep the interests of represented parties visible, and must not use the appointment to hide conflicts of interest or bypass participant consent.</p>
+          <h2 data-i18n="legal.agent.authorityTitle">4. Authority and power of attorney</h2>
+          <p data-i18n="legal.agent.authorityCopy">The Agent acts under Appendix 2 authority document / power of attorney. Without separate authority the Agent may not sign employment agreements, change seafarer wage terms, issue financial guarantees, transfer the Principal account credentials or create a second active manager for the same scope.</p>
 
-          <h2 data-i18n="legal.agent.notificationsTitle">6. Notifications and governance rights</h2>
-          <p data-i18n="legal.agent.notificationsCopy">CrewPortGlobal records material events in the participant governance notification ledger. The shipowner should receive notice when an offer is sent, accepted, rejected, revoked, replaced, or when an authority or assignment status changes. The shipowner keeps governance rights to review important events and to revoke or replace the agent through controlled platform procedures.</p>
+          <h2 data-i18n="legal.agent.commercialTitle">5. Commercial terms</h2>
+          <p data-i18n="legal.agent.commercialCopy">The legal framework may be accepted without a fixed service price. Service fee, success fee, SLA penalties or bonuses, billing basis and invoices require a separate Service Order, commercial appendix, request or approved price-basis record. Until then the status remains commercial_terms_pending.</p>
 
-          <h2 data-i18n="legal.agent.protectionTitle">7. Protection of seafarers and shipowners</h2>
-          <p data-i18n="legal.agent.protectionCopy">The agreement must not be used to bypass mandatory seafarer protections, MLC-aligned no-fee rules, wage obligations, insurance, repatriation, family protection or the seafarer employment agreement. Contract-critical employment terms remain subject to party review and applicable law.</p>
+          <h2 data-i18n="legal.agent.seafarerTitle">6. Seafarer protection and no-fee boundary</h2>
+          <p data-i18n="legal.agent.seafarerCopy">The Agent must not charge seafarers prohibited recruitment or placement fees, retain seafarer documents, mislead candidates about vessel, rank, wage, contract duration, repatriation or family protection, or bypass personal review of contract-critical employment terms.</p>
 
-          <h2 data-i18n="legal.agent.acceptanceTitle">8. Acceptance text</h2>
-          <p><strong data-i18n="legal.agent.acceptanceCopy">I agree to the terms of the framework accession agreement.</strong></p>
+          <h2 data-i18n="legal.agent.dataTitle">7. Documents, data and confidentiality</h2>
+          <p data-i18n="legal.agent.dataCopy">Documents and personal data may be used only for the agreement, crew request and verified platform workflow. Protected documents must remain inside controlled storage and may be shared only under lawful basis, authority evidence and scoped visibility rules.</p>
 
-          <h2 data-i18n="legal.agent.statusTitle">9. Current implementation status</h2>
-          <p data-i18n="legal.agent.statusCopy">CrewPortGlobal currently supports the first runtime slice: shipowner offer, agent acceptance, authority record, active assignment and notification ledger records. Future slices will add commercial Service Orders, agent replacement/revocation, seafarer-side representation and full generated contract documents.</p>
+          <h2 data-i18n="legal.agent.notificationsTitle">8. Notifications and governance rights</h2>
+          <p data-i18n="legal.agent.notificationsCopy">CrewPortGlobal records material events in the participant governance notification ledger: offer sent, offer accepted, authority recorded, assignment activated, commercial status changed, document prepared, candidate found, contract workspace prepared, replacement, revocation or compliance blocker. The Principal keeps governance rights to view, replace, revoke and request control review.</p>
+
+          <h2 data-i18n="legal.agent.termTitle">9. Term, termination and disputes</h2>
+          <p data-i18n="legal.agent.termCopy">The agreement remains effective for the selected term or until completion, termination, revocation or replacement under the recorded platform process. Dispute forum, governing law and notice period are selected in the generated instance.</p>
+
+          <h2 data-i18n="legal.agent.appendicesTitle">10. Mandatory appendices</h2>
+          <div class="appendix-grid">
+            <div class="appendix-card"><strong data-i18n="legal.agent.appendix1">Appendix 1 — Price list / Service Order / commercial status</strong><span data-i18n="legal.agent.appendix1Copy">Commercial terms may be pending, separately agreed or free until commercial agreement.</span></div>
+            <div class="appendix-card"><strong data-i18n="legal.agent.appendix2">Appendix 2 — Power of attorney / authority document</strong><span data-i18n="legal.agent.appendix2Copy">Scope of permitted actions, restrictions, term, territory and substitution rule.</span></div>
+            <div class="appendix-card"><strong data-i18n="legal.agent.appendix3">Appendix 3 — Work procedure and SLA</strong><span data-i18n="legal.agent.appendix3Copy">Request initiation, shortlist, document check, pre-contract coordination, joining and closure stages.</span></div>
+            <div class="appendix-card"><strong data-i18n="legal.agent.appendix4">Appendix 4 — Field catalogue</strong><span data-i18n="legal.agent.appendix4Copy">Approved radio/checkbox variables used by the generated contract and platform controls.</span></div>
+            <div class="appendix-card"><strong data-i18n="legal.agent.appendix5">Appendix 5 — Calculation and SLA matrix</strong><span data-i18n="legal.agent.appendix5Copy">Formulae for candidate fee, stage fee, success fee, replacement and SLA adjustment.</span></div>
+            <div class="appendix-card"><strong data-i18n="legal.agent.appendix6">Appendix 6 — Crew request form</strong><span data-i18n="legal.agent.appendix6Copy">Vessel, rank, joining date, contract duration, wage range and special requirements.</span></div>
+            <div class="appendix-card"><strong data-i18n="legal.agent.appendix7">Appendix 7 — Stage acceptance act</strong><span data-i18n="legal.agent.appendix7Copy">Evidence list, result summary, acceptance status and party signatures.</span></div>
+            <div class="appendix-card"><strong data-i18n="legal.agent.appendix8">Appendix 8 — Replacement and expense matrix</strong><span data-i18n="legal.agent.appendix8Copy">Medical, disciplinary, operational and pre-joining replacement scenarios.</span></div>
+            <div class="appendix-card"><strong data-i18n="legal.agent.appendix9">Appendix 9 — Document register</strong><span data-i18n="legal.agent.appendix9Copy">Passport, seaman book, medical certificate, STCW and contract package status.</span></div>
+            <div class="appendix-card"><strong data-i18n="legal.agent.appendix10">Appendix 10 — Party details</strong><span data-i18n="legal.agent.appendix10Copy">Legal names, registration numbers, addresses, bank details, contacts and emails.</span></div>
+            <div class="appendix-card"><strong data-i18n="legal.agent.appendix11">Appendix 11 — Portal appointment and notifications</strong><span data-i18n="legal.agent.appendix11Copy">Delegated scope, management mode, exclusive management, ledger records and activation blockers.</span></div>
+            <div class="appendix-card"><strong data-i18n="legal.agent.appendix12">Appendix 12 — Signing and acceptance checklist</strong><span data-i18n="legal.agent.appendix12Copy">Confirmation that the parties accept the full agreement package, not a short reference page.</span></div>
+          </div>
+
+          <h2 data-i18n="legal.agent.poaTitle">Appendix 2 summary: authority document</h2>
+          <p data-i18n="legal.agent.poaCopy">The Principal authorizes the Agent to receive and process requests, request candidate documents, communicate with candidates and counterparties, provide reports, coordinate joining logistics, manage the delegated CrewPortGlobal scope and prepare contract workspace records without final SEA signature authority unless separately granted.</p>
+
+          <h2 data-i18n="legal.agent.acceptanceTitle">Acceptance text</h2>
+          <p><strong data-i18n="legal.agent.acceptanceCopy">I agree to the Agent Agreement, authority document / power of attorney, mandatory appendices and CrewPortGlobal portal appointment rules. I understand that commercial terms are agreed separately unless fixed in a Service Order, commercial appendix, request or approved price-basis record.</strong></p>
+
+          <h2 data-i18n="legal.agent.signTitle">Signatures / electronic acceptance</h2>
+          <div class="signature-grid">
+            <div class="signature-box"><strong data-i18n="legal.agent.signPrincipal">Principal / shipowner-side participant</strong></div>
+            <div class="signature-box"><strong data-i18n="legal.agent.signAgent">Agent / agent company</strong></div>
+          </div>
+
+          <h2 data-i18n="legal.agent.statusTitle">Implementation status</h2>
+          <p data-i18n="legal.agent.statusCopy">CrewPortGlobal currently supports offer, acceptance, authority record, active assignment and notification ledger records. Future slices will add immutable generated contract snapshots, Service Orders, replacement/revocation, seafarer-side representation and delivery/read state.</p>
         </article>
 
         <aside class="doc-sidebar">
           <section class="card sidebar-panel">
             <p class="eyebrow" data-i18n="doc.publicationSet">Publication set</p>
-            <h2 data-i18n="legal.agent.sidebarTitle">Working system documents</h2>
-            <p data-i18n="legal.agent.sidebarCopy">These pages explain the legal and operational documents used by CrewPortGlobal workflows.</p>
+            <h2 data-i18n="legal.agent.sidebarTitle">Related system documents</h2>
+            <p data-i18n="legal.agent.sidebarCopy">These pages explain the legal and operating documents used by CrewPortGlobal workflows.</p>
           </section>
 
           <section class="card library-grid">
-            <a class="library-link" href="https://crewportglobal.com/legal/">
-              <span class="library-type" data-i18n="legal.link.indexType">Index</span>
-              <strong data-i18n="legal.link.documentsHome">Documents Home</strong>
-              <span data-i18n="legal.link.documentsHomeCopy">Main map of published platform documents, policies, agreements and future standards.</span>
-            </a>
-            <a class="library-link" href="https://crewportglobal.com/legal/terms/">
-              <span class="library-type" data-i18n="legal.link.platformType">Platform</span>
-              <strong data-i18n="legal.link.termsTitle">Terms of Service</strong>
-              <span data-i18n="legal.link.termsCopy">Core platform rules for participants and AI-assisted workflow support.</span>
-            </a>
-            <a class="library-link is-active" href="https://crewportglobal.com/legal/agent-agreement/">
-              <span class="library-type" data-i18n="legal.link.agentType">Agent</span>
-              <strong data-i18n="legal.link.agentTitle">Shipowner-Agent Agreement</strong>
-              <span data-i18n="legal.link.agentCopy">Framework appointment, authority, one-manager rule and notification ledger controls.</span>
-            </a>
-            <a class="library-link" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/">
-              <span class="library-type" data-i18n="legal.link.seafarerType">Seafarer</span>
-              <strong data-i18n="legal.link.seafarerTitle">Seafarer Candidate Agreement</strong>
-              <span data-i18n="legal.link.seafarerCopy">No-fee candidate agreement for profile, documents and reviewed matching.</span>
-            </a>
-            <a class="library-link" href="https://crewportglobal.com/legal/shipowner-service-terms/">
-              <span class="library-type" data-i18n="legal.link.b2bType">B2B</span>
-              <strong data-i18n="legal.link.shipownerTitle">Shipowner Service Terms</strong>
-              <span data-i18n="legal.link.shipownerCopy">Service and compliance baseline for shipowners and related business users.</span>
-            </a>
+            <a class="library-link" href="https://crewportglobal.com/legal/"><strong data-i18n="legal.link.documentsHome">Documents Home</strong></a>
+            <a class="library-link" href="https://crewportglobal.com/legal/terms/"><strong data-i18n="legal.link.termsTitle">Terms of Service</strong></a>
+            <a class="library-link is-active" href="https://crewportglobal.com/legal/agent-agreement/"><strong data-i18n="legal.link.agentTitle">Shipowner-Agent Agreement</strong></a>
+            <a class="library-link" href="https://crewportglobal.com/legal/shipowner-service-terms/"><strong data-i18n="legal.link.shipownerTitle">Shipowner Service Terms</strong></a>
+            <a class="library-link" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/"><strong data-i18n="legal.link.seafarerTitle">Seafarer Candidate Agreement</strong></a>
           </section>
         </aside>
       </section>

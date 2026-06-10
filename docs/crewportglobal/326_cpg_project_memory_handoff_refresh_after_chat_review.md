@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Project memory and historical handoff refresh
 - Source: local Codex session `Оценить проект Crewportglobal` reviewed on 2026-06-09
-- Version: 2.3
+- Version: 2.4
 - Date: 2026-06-10
 - Status: Active continuation memory
 
@@ -146,7 +146,7 @@ The runtime notification implementation is now:
 CPG-BIZ-127 - Participant governance notification ledger API/UI implementation
 ```
 
-After review of the shipowner-agent agreement package, document 324 / CPG-BIZ-123 was updated as the first practical offer/acceptance appointment package for this runtime stage:
+After review of the shipowner-agent agreement package, document 324 / CPG-BIZ-123 was updated as the Russian working version for the first practical offer/acceptance appointment package for this runtime stage. On 2026-06-10, document 334 / CPG-BIZ-132 was created as the authoritative English portal contract package:
 
 ```text
 shipowner sends in-system offer to agent
@@ -161,7 +161,7 @@ shipowner sends in-system offer to agent
 = active shipowner-side agent management
 ```
 
-The contract text now clarifies that the shipowner cannot directly appoint an agent inside the platform before the agent accepts the standard platform agreement package. The agreement is treated as a CrewPortGlobal standard form / adhesion framework contract: arbitrary external contracts may be uploaded as evidence for Platform Administration / Control review, but they do not automatically activate platform-controlled agent management because CrewPortGlobal cannot enforce unnormalized terms.
+The contract text now clarifies that the shipowner cannot directly appoint an agent inside the platform before the agent accepts the standard platform agreement package. The authoritative source is `docs/crewportglobal/334_cpg_biz_132_shipowner_agent_agreement_package_en.md`; `docs/crewportglobal/324_cpg_biz_123_full_contract_ru_checkbox_radio.md` is a Russian convenience translation. The agreement is treated as a CrewPortGlobal standard form / adhesion framework contract: arbitrary external contracts may be uploaded as evidence for Platform Administration / Control review, but they do not automatically activate platform-controlled agent management because CrewPortGlobal cannot enforce unnormalized terms.
 
 Commercial price is deliberately separated from framework acceptance. The parties may accept the legal/authority/no-fee/notification framework without agreeing a concrete service price. Paid service activation, billing basis, success fee, SLA penalties/bonuses and invoices require a separate Service Order / commercial addendum / request or approved price-basis record. Wage, joining, return and repatriation terms inside the shipowner-agent agreement are coordination terms for request handling, SEA preparation and evidence control. They do not replace the seafarer employment agreement, applicable law, CBA or mandatory MLC protections. The next implementation stage should therefore use the shipowner offer to agent, agent acceptance/signature, platform-side authority, `commercial_terms_pending` and separate commercial activation scenario as the first CPG-BIZ-127 runtime slice.
 
@@ -201,7 +201,7 @@ CPG-BIZ-128 - Public legal documents hub and agent agreement publication
 Document: docs/crewportglobal/330_cpg_biz_128_public_legal_documents_hub_and_agent_agreement_report.md
 ```
 
-The `/legal/` section is now the canonical public place for platform standards, agreements, policies and operating rules. Public runtime links must use published legal URLs such as `/legal/agent-agreement/`, not raw internal `/docs/crewportglobal/*.md` files. The shipowner-agent framework agreement is published as the first agent appointment standard in this section, and the older `/shipowners/agent-agreement/` preview route redirects to it.
+The `/legal/` section is now the canonical public place for platform standards, agreements, policies and operating rules. Public runtime links must use published legal URLs such as `/legal/agent-agreement/`, not raw internal `/docs/crewportglobal/*.md` files. The shipowner-agent agreement page must publish the full authoritative English package, not a short link/summary; Russian text is shown as a convenience translation. The older `/shipowners/agent-agreement/` preview route redirects to it.
 
 On 2026-06-10 the shared public/application header model was fixed as:
 

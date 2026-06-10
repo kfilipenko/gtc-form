@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 3.21
+- Version: 3.23
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -417,6 +417,11 @@ docs/crewportglobal/
   327_cpg_biz_125_agent_representation_conflict_and_personal_signature_standard.md
   328_cpg_biz_126_participant_representative_appointment_and_assignment_notification_standard.md
   329_cpg_biz_127_participant_governance_notification_ledger_implementation_report.md
+  330_cpg_biz_128_public_legal_documents_hub_and_agent_agreement_report.md
+  331_cpg_biz_129_shared_public_header_component_report.md
+  332_cpg_biz_130_participant_section_landing_pages_and_menu_sync_report.md
+  333_cpg_biz_131_heading_contrast_normalization_report.md
+  334_cpg_biz_132_shipowner_agent_agreement_package_en.md
   sql_drafts/
     018_contract_workspace_schema_draft.sql
     020_agent_organization_scope_schema_draft.sql
@@ -959,6 +964,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.23 | 2026-06-10 | GTC IT / AI Assistant | Added document 334 as CPG-BIZ-132 authoritative English shipowner-agent agreement package and registered documents 330-333 from the public legal/header/participant landing/heading contrast work sequence |
 | 3.22 | 2026-06-10 | GTC IT / AI Assistant | Added document 329 as CPG-BIZ-127 first runtime implementation report for shipowner agent-offer UI/API, agent checkbox acceptance, platform authority/assignment activation, participant notification ledger, test agent seed and smoke verification |
 | 3.21 | 2026-06-10 | GTC IT / AI Assistant | Clarified CPG-BIZ-123, BP-012, BP-015 and BP-016 around framework adhesion agreement versus separate Service Order / commercial addendum: parties may accept legal terms without agreeing price, while paid service, billing basis, success fee and SLA require separate commercial agreement |
 | 3.20 | 2026-06-10 | GTC IT / AI Assistant | Clarified CPG-BIZ-123 and CPG-BIZ-127 around in-system shipowner-agent offer and acceptance: shipowner sends a contract offer, agent accepts the standard adhesion-form package, platform-side authority and price basis are recorded, and only then can active agent management be activated |

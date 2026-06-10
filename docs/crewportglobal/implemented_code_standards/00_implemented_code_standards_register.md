@@ -5,7 +5,7 @@
 - Documentation block: Implemented code standards
 - Document type: Dedicated implemented-standard register
 - Format: Markdown
-- Version: 1.9
+- Version: 1.10
 - Date: 2026-06-10
 - Status: Active implementation control
 
@@ -91,7 +91,7 @@ Each implemented standard should have a dedicated document with:
 | ICS-001 | Standard form lifecycle, including matching-readiness field classification, catalog-backed country-code selects, repeated-country copy helpers, vessel-context field mapping, document-first completion placement and English/Latin-only form input guard where applicable | `projects/crewportglobal/public/assets/crewportglobal-form-lifecycle.js` plus page adapter context and `projects/crewportglobal/public/assets/crewportglobal-reference-catalogs.js` | `/create-profile/`, `/post-vacancy/` | Active |
 | ICS-002 | Standard protected upload, including compact one-button row-level document checklist adapters for finite document catalogs and separate employer/vessel form-type adapters on the same page | `projects/crewportglobal/public/assets/crewportglobal-protected-upload.js` with `createController(config)` and `createDocumentChecklist(config)` | `/create-profile/`, `/post-vacancy/` | Active |
 | ICS-003 | Submit-to-operator review gate | `projects/crewportglobal/app/backend/api/public/index.php` / `handle_post_draft_submit_review()` plus `window.CPGDrafts.submitForOperatorReview()` | `/create-profile/`, `/post-vacancy/` | Active |
-| ICS-004 | Shipowner-agent framework offer acceptance standard | `projects/crewportglobal/app/backend/api/public/index.php` offer/acceptance handlers plus migration `021_agent_framework_offer_notification_ledger.sql` | `/shipowners/candidates/#agent-assignment`, `/agents/` | Active |
+| ICS-004 | Shipowner-agent framework offer acceptance standard using authoritative English `CPG-BIZ-132 v1.0` agreement package with Russian `CPG-BIZ-123` as convenience translation | `projects/crewportglobal/app/backend/api/public/index.php` offer/acceptance handlers plus migration `021_agent_framework_offer_notification_ledger.sql` | `/shipowners/candidates/#agent-assignment`, `/agents/` | Active |
 
 ## 6. Planned Implemented Standards
 

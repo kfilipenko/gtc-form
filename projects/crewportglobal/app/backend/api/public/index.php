@@ -9337,6 +9337,10 @@ function cpg_shipowner_agent_context_from_draft(string $draftId): array {
     ];
 }
 
+function cpg_shipowner_agent_authoritative_acceptance_text(): string {
+    return 'I agree to the Shipowner-Agent Agreement, authority document / power of attorney, mandatory appendices and CrewPortGlobal portal appointment rules. I understand that commercial terms are agreed separately unless fixed in a Service Order, commercial addendum, request or approved price-basis record.';
+}
+
 function cpg_agent_registered_options(): array {
     if (!cpg_agent_scope_tables_ready()) {
         return [];
@@ -9482,10 +9486,10 @@ function handle_get_employer_agent_assignment_options(): void {
             'verification_status' => $context['verification_status'],
         ],
         'framework_template' => [
-            'code' => 'CPG-BIZ-123',
-            'version' => '1.3',
-            'title' => 'Shipowner-agent framework agreement',
-            'acceptance_text' => 'С условиями рамочного договора присоединения согласен',
+            'code' => 'CPG-BIZ-132',
+            'version' => '1.0',
+            'title' => 'Shipowner-agent agreement package (authoritative English version)',
+            'acceptance_text' => cpg_shipowner_agent_authoritative_acceptance_text(),
             'commercial_terms_default_status' => 'commercial_terms_pending',
         ],
         'agents' => cpg_agent_registered_options(),
@@ -9587,12 +9591,16 @@ function handle_post_employer_agent_framework_offer(): void {
         ];
     }
     $contractSnapshot = [
-        'framework_template_code' => 'CPG-BIZ-123',
-        'framework_template_version' => '1.3',
+        'framework_template_code' => 'CPG-BIZ-132',
+        'framework_template_version' => '1.0',
         'agreement_type' => 'framework_adhesion_agreement',
-        'acceptance_text' => 'С условиями рамочного договора присоединения согласен',
+        'agreement_language' => 'en',
+        'authoritative_language' => 'en',
+        'translation_reference' => 'CPG-BIZ-123 v1.4 RU',
+        'acceptance_text' => cpg_shipowner_agent_authoritative_acceptance_text(),
         'commercial_terms_status' => 'commercial_terms_pending',
-        'generated_contract_reference' => '/docs/crewportglobal/324_cpg_biz_123_full_contract_ru_checkbox_radio.md',
+        'generated_contract_reference' => '/legal/agent-agreement/',
+        'contract_package_reference' => 'CPG-BIZ-132 v1.0',
     ];
 
     $offerNumber = cpg_agent_framework_offer_number();
@@ -9665,8 +9673,8 @@ function handle_post_employer_agent_framework_offer(): void {
             'company_id' => $context['company_id'],
             'agent_organization_id' => $agentOrganizationId,
             'commercial_terms_status' => 'commercial_terms_pending',
-            'framework_template_code' => 'CPG-BIZ-123',
-            'framework_template_version' => '1.3',
+            'framework_template_code' => 'CPG-BIZ-132',
+            'framework_template_version' => '1.0',
         ];
         cpg_agent_create_participant_notification(
             $draftId,
@@ -9786,8 +9794,8 @@ function cpg_agent_task_from_framework_offer(array $row): array {
     $offerId = is_string($row['offer_id'] ?? null) ? (string) $row['offer_id'] : '';
     $status = is_string($row['offer_status'] ?? null) ? (string) $row['offer_status'] : '';
     $companyName = cpg_agent_string_value($row['shipowner_company_name'] ?? null, 200) ?? 'shipowner company';
-    $templateCode = cpg_agent_string_value($row['framework_template_code'] ?? null, 40) ?? 'CPG-BIZ-123';
-    $version = cpg_agent_string_value($row['framework_template_version'] ?? null, 20) ?? '1.3';
+    $templateCode = cpg_agent_string_value($row['framework_template_code'] ?? null, 40) ?? 'CPG-BIZ-132';
+    $version = cpg_agent_string_value($row['framework_template_version'] ?? null, 20) ?? '1.0';
     $requiresAction = $status === 'sent';
 
     return [
@@ -9840,7 +9848,7 @@ function handle_post_agent_framework_agreement_offer_accept(string $offerId): vo
     $body = api_decode_json_body();
     $accepted = ($body['framework_terms_accepted'] ?? null) === true || ($body['accepted'] ?? null) === true;
     $acceptanceText = cpg_agent_string_value($body['acceptance_text'] ?? null, 500)
-        ?? 'С условиями рамочного договора присоединения согласен';
+        ?? cpg_shipowner_agent_authoritative_acceptance_text();
     if (!$accepted) {
         api_json(400, [
             'ok' => false,
@@ -9946,8 +9954,8 @@ function handle_post_agent_framework_agreement_offer_accept(string $offerId): vo
             'offer_number' => $offer['offer_number'] ?? null,
             'represented_object_type' => $objectType,
             'represented_object_id' => $objectId,
-            'framework_template_code' => $offer['framework_template_code'] ?? 'CPG-BIZ-123',
-            'framework_template_version' => $offer['framework_template_version'] ?? '1.3',
+            'framework_template_code' => $offer['framework_template_code'] ?? 'CPG-BIZ-132',
+            'framework_template_version' => $offer['framework_template_version'] ?? '1.0',
             'acceptance_text' => $acceptanceText,
             'delegated_scope' => cpg_agent_json_text_to_object($offer['delegated_scope'] ?? null),
             'commercial_terms_status' => $offer['commercial_terms_status'] ?? 'commercial_terms_pending',

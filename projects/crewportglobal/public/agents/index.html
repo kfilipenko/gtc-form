@@ -757,7 +757,7 @@
             checkbox.type = 'checkbox';
             checkbox.dataset.offerAcceptance = item.offer_id || '';
             const checkText = document.createElement('span');
-            checkText.textContent = item.acceptance_text || 'С условиями рамочного договора присоединения согласен';
+            checkText.textContent = item.acceptance_text || 'I agree to the Shipowner-Agent Agreement, authority document / power of attorney, mandatory appendices and CrewPortGlobal portal appointment rules. I understand that commercial terms are agreed separately unless fixed in a Service Order, commercial addendum, request or approved price-basis record.';
             check.append(checkbox, checkText);
             copy.append(check);
           }
@@ -793,7 +793,7 @@
         setText(status, 'Accepting framework agreement offer.');
         const result = await apiPost(`/agents/framework-agreement-offers/${encodeURIComponent(offerId)}/accept`, {
           framework_terms_accepted: true,
-          acceptance_text: 'С условиями рамочного договора присоединения согласен',
+          acceptance_text: 'I agree to the Shipowner-Agent Agreement, authority document / power of attorney, mandatory appendices and CrewPortGlobal portal appointment rules. I understand that commercial terms are agreed separately unless fixed in a Service Order, commercial addendum, request or approved price-basis record.',
         });
         if (!result.response.ok || !result.payload.ok) {
           setText(status, result.payload.message || 'Unable to accept framework agreement offer.');

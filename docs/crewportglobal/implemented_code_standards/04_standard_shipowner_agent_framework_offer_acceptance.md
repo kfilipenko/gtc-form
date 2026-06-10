@@ -4,7 +4,7 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Implemented code standards
 - Document type: Implemented code standard
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-06-10
 - Status: Active
 
@@ -35,6 +35,14 @@ Current represented object:
 
 ```text
 employer_company
+```
+
+Controlling contract source:
+
+```text
+CPG-BIZ-132 v1.0 - Shipowner-Agent Agreement Package (EN, authoritative portal version)
+Public URL: /legal/agent-agreement/
+Russian convenience translation: CPG-BIZ-123 v1.4
 ```
 
 Future adopters:
@@ -134,6 +142,9 @@ Offer creation:
 | `framework_terms_status` | `offered` |
 | `authority_status` | `pending` |
 | `commercial_terms_status` | `commercial_terms_pending` |
+| `framework_template_code` | `CPG-BIZ-132` |
+| `framework_template_version` | `1.0` |
+| `authoritative_language` | `en` |
 
 Agent acceptance:
 
@@ -143,6 +154,8 @@ Agent acceptance:
 | `framework_terms_status` | `accepted` |
 | `authority_status` | `verified` |
 | `commercial_terms_status` | `commercial_terms_pending` |
+| `framework_template_code` | `CPG-BIZ-132` |
+| `framework_template_version` | `1.0` |
 
 Assignment creation:
 
@@ -195,8 +208,9 @@ If this standard changes, update:
 4. `/agents/` offer/task adapter;
 5. navigation links that expose the appointment action;
 6. BP-017 and BP-016;
-7. the public `/legal/agent-agreement/` document when legal/commercial wording changes;
-8. runtime verification and implementation report.
+7. `docs/crewportglobal/334_cpg_biz_132_shipowner_agent_agreement_package_en.md` when authoritative contract wording changes;
+8. the public `/legal/agent-agreement/` document when legal/commercial wording changes;
+9. runtime verification and implementation report.
 
 ## 10. Next Adoption Targets
 
@@ -205,3 +219,10 @@ If this standard changes, update:
 3. seafarer-side representative appointment;
 4. generated agreement instance and immutable snapshot;
 5. notification read/delivery lifecycle.
+
+## 11. Revision History
+
+| Version | Date | Author | Changes |
+|---|---|---|---|
+| 1.1 | 2026-06-10 | GTC IT / AI Assistant | Switched runtime contract source to authoritative English CPG-BIZ-132 v1.0, keeping Russian CPG-BIZ-123 as a convenience translation |
+| 1.0 | 2026-06-10 | GTC IT / AI Assistant | Initial implemented-code standard for shipowner-agent framework offer acceptance |

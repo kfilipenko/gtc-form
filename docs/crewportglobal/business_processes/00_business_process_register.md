@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.63
+- Version: 3.64
 - Status: For internal review
 
 ## 1. Purpose
@@ -175,6 +175,7 @@ This documentation block starts from the following approved business controls:
 93. Shipowner-agent appointment in CrewPortGlobal must not activate from direct appointment or a signed service agreement alone: the shipowner first sends an in-system offer to the agent, the agent accepts/signs the standard platform adhesion-form framework package, platform-side POA/authority is issued and recorded where applicable, mandatory appendices and commercial-terms status are fixed, signatory authority is verified, the one-active-manager check passes, delegated operational lock is applied and durable notification records are created for the shipowner physical representative.
 94. Framework agreement acceptance and commercial terms must be separated: parties may accept the standard legal/authority/no-fee/notification framework without agreeing a concrete service price, while paid service activation, billing basis, success fee, SLA penalties/bonuses and invoices require a separate Service Order, commercial addendum, request or approved price-basis record.
 95. The visible shipowner action for agent appointment must be available from the shipowner section and must open the exact working object: `/shipowners/candidates/#agent-assignment` or the same route with `draft_id={shipowner_user_id}`. A generic candidate-selection label is not sufficient as the only discoverable route for appointing an agent.
+96. The shipowner-agent agreement package used by runtime appointment offers must have an authoritative English portal source: `CPG-BIZ-132 v1.0`. Translations, including Russian `CPG-BIZ-123`, are convenience versions and must not override the English source unless a generated signing instance expressly states another controlling language.
 
 ## 5. Intended Use
 
@@ -194,6 +195,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.64 | 2026-06-10 | GTC IT / AI Assistant | Added authoritative English CPG-BIZ-132 shipowner-agent agreement package control and clarified that Russian CPG-BIZ-123 is a convenience translation |
 | 3.63 | 2026-06-10 | GTC IT / AI Assistant | Added BP-017 as the dedicated shipowner-agent appointment process and recorded that the visible shipowner action must deep-link to `/shipowners/candidates/#agent-assignment` |
 | 3.62 | 2026-06-10 | GTC IT / AI Assistant | Added CPG-BIZ-127 runtime control: shipowner can send an in-system framework offer to a registered agent, agent checkbox acceptance activates verified authority and one active assignment, notification ledger records are persisted, and commercial terms remain pending until a separate Service Order / commercial addendum |
 | 3.61 | 2026-06-10 | GTC IT / AI Assistant | Added framework-versus-commercial control: legal adhesion agreement and authority may be accepted separately from concrete price, while paid service activation and billing require Service Order / commercial addendum / request or approved price basis |

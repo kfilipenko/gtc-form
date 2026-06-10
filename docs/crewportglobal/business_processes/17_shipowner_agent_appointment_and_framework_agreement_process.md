@@ -4,7 +4,7 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Business processes and operating model
 - Process owner: Project Owner / Platform Administration / Control
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-06-10
 - Status: Active process standard for implemented first runtime slice
 
@@ -58,6 +58,7 @@ Public legal document:
 
 ```text
 /legal/agent-agreement/
+/legal/agent-agreement/text/
 ```
 
 ## 3. Participants
@@ -88,9 +89,9 @@ The process may start only when:
 1. The shipowner opens the shipowner workspace and selects `Appoint agent / Назначить агента`.
 2. The shipowner chooses a registered agent from the list or selects the invitation option for an unregistered agent.
 3. If the agent is not registered, the page prepares an email invitation asking the agent to register before platform appointment can continue.
-4. If the agent is registered, the shipowner previews or opens the standard framework agreement.
+4. If the agent is registered, the shipowner previews or opens the standard full agreement package.
 5. The shipowner confirms the framework/commercial separation checkbox.
-6. The shipowner sends an in-system framework agreement offer.
+6. The shipowner sends an in-system agreement package offer referencing the authoritative English `CPG-BIZ-132 v1.0` package.
 7. CrewPortGlobal records the offer with:
    - `offer_status = sent`;
    - `framework_terms_status = offered`;
@@ -115,6 +116,8 @@ The shipowner does not directly appoint an agent by pressing a single appointmen
 The shipowner sends an offer. The appointment becomes active only after the agent accepts the CrewPortGlobal standard framework agreement package inside the platform and the authority/assignment records are created.
 
 The agreement is a platform standard / adhesion-form framework agreement. External contracts, letters or powers of attorney may be stored as evidence for Control review, but they do not automatically activate platform management rights unless the CrewPortGlobal assignment process is completed.
+
+The controlling contract source is the English `CPG-BIZ-132 - Shipowner-Agent Agreement Package (EN, Authoritative Portal Version)`. Russian `CPG-BIZ-123` is maintained as a working translation/convenience version for user review and system discussions. Public runtime links must open `/legal/agent-agreement/`, which publishes the English-authoritative contract package and explains the translation priority. Full source text is published at `/legal/agent-agreement/text/`.
 
 ## 7. Commercial Terms Rule
 
@@ -184,7 +187,8 @@ crewportglobal.agent_scope_audit_events
 
 | Document | Purpose |
 |---|---|
-| `docs/crewportglobal/324_cpg_biz_123_full_contract_ru_checkbox_radio.md` | Full shipowner-agent framework agreement source/template. |
+| `docs/crewportglobal/334_cpg_biz_132_shipowner_agent_agreement_package_en.md` | Authoritative English full shipowner-agent agreement package: main agreement, authority/POA, appendices, commercial-status rule and signing checklist. |
+| `docs/crewportglobal/324_cpg_biz_123_full_contract_ru_checkbox_radio.md` | Russian working translation/convenience version of the shipowner-agent agreement package. |
 | `docs/crewportglobal/329_cpg_biz_127_participant_governance_notification_ledger_implementation_report.md` | Runtime implementation report for offer, acceptance, authority, assignment and notifications. |
 | `docs/crewportglobal/330_cpg_biz_128_public_legal_documents_hub_and_agent_agreement_report.md` | Public legal document publication model. |
 | `docs/crewportglobal/business_processes/16_business_process_stage_standard_mapping_matrix.md` | Stage-to-standard mapping and current implementation coverage. |
@@ -205,4 +209,5 @@ The following stages remain future work:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.1 | 2026-06-10 | GTC IT / AI Assistant | Added authoritative English CPG-BIZ-132 contract package as the controlling source for shipowner-agent offers, with Russian CPG-BIZ-123 kept as a convenience translation |
 | 1.0 | 2026-06-10 | GTC IT / AI Assistant | Initial dedicated process document for shipowner-to-agent offer, framework acceptance, platform authority, one active assignment, commercial pending status and notifications |
