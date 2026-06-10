@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.54
+- Version: 3.55
 - Status: For internal review
 
 ## 1. Purpose
@@ -164,8 +164,9 @@ This documentation block starts from the following approved business controls:
 84. Account/object claim resolution is a controlled reassignment gate: an agent claim must be reviewed by Platform Administration / Control, linked to verified authority evidence, and only then may create or replace an active object assignment; if reassigned, the previous assignment becomes `reassigned`, the new assignment becomes the task-routing `Managed by` actor and all material steps are recorded in `agent_scope_audit_events`.
 85. Agent-managed object work must open through a concrete scoped object workspace, not a generic list: the workspace must be addressed by `agent_object_assignment_id`, show `Managed by`, authority evidence, assignment status and safe object fields, and enable object-edit links only when active/limited assignment and verified/limited authority pass the backend guard.
 86. Participant tasks must be computed from information stream, working object, object state, business-process stage, managing participant or assignment scope, responsible group, required permission and historical active executor; each task must open the exact working object or controlled blocker state, not a generic page or list.
-87. Agent-visible tasks and agent actions must include represented-party capacity: `agent_for_seafarer`, `agent_for_shipowner`, `agent_for_vessel_operator`, `agent_for_platform_service` or `platform_control_delegate`; if the same agent represents materially opposed parties in one transaction, the object must enter a dual-representation review blocker before contract-critical decisions proceed.
+87. Agent-visible tasks and agent actions must include represented-party capacity: `agent_for_seafarer`, `agent_for_shipowner`, `agent_for_vessel_operator`, `agent_for_platform_service` or `platform_control_delegate`; ordinary dual-interest facilitation is permitted in crewing work, but formal dual-management or final approval/signature authority for materially opposed parties must enter control review before contract-critical decisions proceed.
 88. Seafarer/shipowner contract work must require direct party review and personal signature by default: an agent may prepare, coordinate and upload evidence inside verified authority scope, but cannot replace seafarer and shipowner/employer approval of contract-critical terms; representative signing is a controlled exception requiring authority, legal/control review and explicit audit evidence.
+89. A participant object may have only one active managing representative at a time: an agent may create/request a seafarer, shipowner/company, vessel or vacancy record, but the represented participant must personally claim/activate the account and appoint, reject or replace the agent unless an enhanced authority exception is approved by Platform Administration / Control.
 
 ## 5. Intended Use
 
@@ -185,6 +186,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.55 | 2026-06-10 | GTC IT / AI Assistant | Added CPG-BIZ-126 control for participant representative appointment, agent-created party activation, one-active-manager routing and safe reassignment notifications; clarified that ordinary dual-interest facilitation is permitted |
 | 3.54 | 2026-06-09 | GTC IT / AI Assistant | Added CPG-BIZ-125 controls for agent representation capacity, dual-representation blockers and personal seafarer/shipowner contract review/signature by default |
 | 3.53 | 2026-06-09 | GTC IT / AI Assistant | Added participant task-routing control after BP-016 synchronization: tasks derive from stream, object state, management scope, group/permission and historical active executor, and must open exact working objects |
 | 3.52 | 2026-06-09 | GTC IT / AI Assistant | Added CPG-BIZ-124 implementation control for agent assignment-context enforcement in profile, demand and protected-document form routes |

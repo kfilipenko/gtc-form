@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Implementation report
 - Source task: continuation after CPG-BIZ-119; originally queued as form-level assignment-context enforcement
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-06-09
 - Status: Implemented and verified on GTC1
 
@@ -174,10 +174,24 @@ The notification implementation is moved forward to:
 CPG-BIZ-126 - Owner, previous-agent and represented-party notification after assignment/reassignment
 ```
 
+Addendum on 2026-06-10:
+
+After the Project Owner clarified that ordinary crewing work is dual-interest facilitation by nature, CPG-BIZ-126 was broadened into a participant representative appointment standard:
+
+```text
+CPG-BIZ-126 - Participant representative appointment and assignment notification standard
+```
+
+The runtime notification implementation moves to:
+
+```text
+CPG-BIZ-127 - Participant representative appointment notifications API/UI implementation
+```
+
 Recommended next stage:
 
 ```text
-CPG-BIZ-126 - Owner, previous-agent and represented-party notification after assignment/reassignment
+CPG-BIZ-127 - Participant representative appointment notifications API/UI implementation
 ```
 
-Goal: when platform control assigns or reassigns a represented object, notify the relevant owner, represented party and previous agent, and expose a safe audit-visible notification/task record without leaking unrelated object data.
+Goal: when an agent creates, claims, receives, loses or replaces management of a represented participant object, notify the represented participant, new agent, previous agent and Platform Administration / Control, and expose safe audit-visible notification/task records without leaking unrelated object data.

@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 3.14
+- Version: 3.15
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -415,6 +415,7 @@ docs/crewportglobal/
   325_cpg_biz_124_agent_assignment_context_enforcement_report.md
   326_cpg_project_memory_handoff_refresh_after_chat_review.md
   327_cpg_biz_125_agent_representation_conflict_and_personal_signature_standard.md
+  328_cpg_biz_126_participant_representative_appointment_and_assignment_notification_standard.md
   sql_drafts/
     018_contract_workspace_schema_draft.sql
     020_agent_organization_scope_schema_draft.sql
@@ -957,6 +958,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.15 | 2026-06-10 | GTC IT / AI Assistant | Added document 328 as CPG-BIZ-126 standard for participant representative appointment, agent-created party activation, one-active-manager rule and assignment notifications; updated CPG-BIZ-125, document 325 and project memory to clarify ordinary dual-interest agent facilitation is allowed and runtime notifications move to CPG-BIZ-127 |
 | 3.14 | 2026-06-09 | GTC IT / AI Assistant | Added document 327 as CPG-BIZ-125 standard for agent representation capacity, dual-representation conflict handling and personal seafarer/shipowner contract review/signature rule; amended document 325 next-stage note so notifications move to CPG-BIZ-126 |
 | 3.13 | 2026-06-09 | GTC IT / AI Assistant | Added document 326 as a project-memory handoff refresh after reviewing the earlier `Оценить проект Crewportglobal` chat, preserving product goal, fixation discipline and current CPG-BIZ-124 to CPG-BIZ-125 continuation state |
 | 3.12 | 2026-06-09 | GTC IT / AI Assistant | Added documents 321-325, including CPG-BIZ-124 implementation report for agent assignment context enforcement in profile/demand forms and protected document routes |

@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Project memory and historical handoff refresh
 - Source: local Codex session `Оценить проект Crewportglobal` reviewed on 2026-06-09
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-06-09
 - Status: Active continuation memory
 
@@ -101,12 +101,20 @@ The Project Owner then identified a higher-order agent governance issue before i
 CPG-BIZ-125 - Agent representation conflict and personal contract-signature standard
 ```
 
-CPG-BIZ-125 records that agent tasks must preserve represented-party capacity, dual representation must be reviewed before contract-critical decisions, and the seafarer/shipowner contract must require direct party review and personal signature by default.
+CPG-BIZ-125 records that agent tasks must preserve represented-party capacity, ordinary dual-interest facilitation is permitted, formal dual-management/final authority must be controlled before contract-critical decisions, and the seafarer/shipowner contract must require direct party review and personal signature by default.
 
-The owner/previous-agent notification stage is moved forward to:
+After the Project Owner clarified that agents naturally facilitate both sides but participants must retain account and representative choice, CPG-BIZ-126 was documented as:
 
 ```text
-CPG-BIZ-126 - Owner, previous-agent and represented-party notifications after assignment/reassignment
+CPG-BIZ-126 - Participant representative appointment and assignment notification standard
+```
+
+CPG-BIZ-126 records the compromise model: an agent may create and prepare participant records, but the participant should become a registered/claimed platform party, personally appoint/reject/replace the managing representative unless an enhanced authority exception is approved, and the system must keep only one active managing representative per object.
+
+The runtime notification implementation is now:
+
+```text
+CPG-BIZ-127 - Participant representative appointment notifications API/UI implementation
 ```
 
 ## 6. Active Working Rules For Future Continuation

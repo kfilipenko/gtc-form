@@ -5,8 +5,8 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Business-process, contract-control and task-routing standard
 - Source task: Project Owner instruction on agent role complexity, seafarer/shipowner contract standardization and personal party signing
-- Version: 1.0
-- Date: 2026-06-09
+- Version: 1.1
+- Date: 2026-06-10
 - Status: Drafted for Project Owner, platform-control and maritime legal review
 
 ## 1. Purpose
@@ -19,7 +19,21 @@ The Project Owner identified a material risk:
 An agent may perform work usually done by a shipowner and work usually done by a seafarer under separate agreements, but the interests of those parties do not always coincide.
 ```
 
-The platform must therefore not treat the agent as a simple replacement for either party.
+The Project Owner later clarified that a crewing agent, by the nature of the service, usually works with both sides: the shipowner needs crew and the seafarer needs a suitable contract.
+
+CrewPortGlobal must therefore distinguish:
+
+```text
+normal dual-interest facilitation
+```
+
+from:
+
+```text
+formal dual representation / signature authority / final decision authority
+```
+
+The platform must not treat the agent as a simple replacement for either party, but it also must not prohibit ordinary crewing work where the agent coordinates the interests of both sides.
 
 The standard goal is:
 
@@ -28,6 +42,7 @@ The standard goal is:
 3. let agents coordinate work only inside explicit represented-party capacity and authority evidence;
 4. require direct party review and signature by default before the final seafarer/shipowner contract is executed;
 5. identify and control dual-representation situations before work proceeds into contract-critical decisions.
+6. allow an agent to act as an honest facilitator for both sides when the parties remain visible, informed and able to confirm or replace representation.
 
 This document is not legal advice. The production master contract, signature model and representative-signing exceptions must be reviewed by a qualified maritime lawyer for the relevant flag state, applicable CBA, shipowner/employer jurisdiction, seafarer context and recruitment/placement licensing model.
 
@@ -66,7 +81,7 @@ Main gaps to close before runtime signature/generation:
 
 1. The platform must distinguish preparation by an agent from approval/signature by the actual parties.
 2. The task-routing model must show which party the agent is representing for each task.
-3. Dual representation in one transaction must create a control blocker before contract-critical fields are finalized.
+3. Ordinary dual-interest facilitation must be allowed, but formal dual-management or final decision/signature authority for both sides must create a control blocker before contract-critical fields are finalized.
 4. Representative signing must be treated as a controlled exception, not the ordinary portal flow.
 
 ## 4. Representation Capacity Standard
@@ -100,6 +115,42 @@ Representing: {seafarer / shipowner / vessel operator / platform service}
 Authority: {authority document reference and status}
 ```
 
+## 4A. Dual-Interest Facilitation Standard
+
+CrewPortGlobal accepts the commercial reality that an agent may search for a seafarer for a shipowner and at the same time communicate with and assist the seafarer.
+
+This ordinary crewing function is permitted as:
+
+```text
+dual_interest_facilitation
+```
+
+It is not a prohibited conflict by itself.
+
+The agent may, in a dual-interest facilitation role:
+
+1. receive a shipowner/vessel/crew request;
+2. search for suitable seafarers;
+3. communicate proposed terms to the seafarer;
+4. collect documents and readiness information;
+5. coordinate interviews and corrections;
+6. prepare a structured terms comparison;
+7. help both sides understand open terms, blockers and next tasks.
+
+The agent must not convert dual-interest facilitation into hidden final authority.
+
+The safe platform compromise is:
+
+```text
+agent may facilitate both sides
++ each side must become visible as a platform participant
++ each side must control or explicitly appoint its own managing representative
++ final contract-critical approvals route to the real party
+= practical crewing workflow without silent loss of party autonomy
+```
+
+The platform should not force every seafarer to have a separate agent. A seafarer may be self-managed. The shipowner may have an agent. One agent may facilitate the placement. The control point is not the existence of one coordinating agent; the control point is whether the actual parties can see, approve and replace the representative relationship.
+
 ## 5. Personal Party Review And Signature Rule
 
 Default rule:
@@ -124,6 +175,17 @@ The agent must not, by default:
 3. sign for the seafarer;
 4. sign for the shipowner/employer merely because the agent manages the object in the portal;
 5. bypass party review because a power of attorney exists.
+
+The same principle applies to platform registration.
+
+An agent may create or request creation of a participant record, but the represented seafarer or shipowner/employer should become a registered platform participant, accept the platform account/terms personally and either:
+
+1. continue as self-managed;
+2. personally appoint the agent as managing representative;
+3. reject the agent's management request;
+4. appoint a different agent.
+
+Until this happens, agent-created participant records should be treated as limited preparation records, not as fully party-controlled accounts.
 
 Employer-side representative signing may be lawful in some cases because the MLC allows the shipowner or a representative of the shipowner to sign the SEA. CrewPortGlobal must still treat this as an authority-controlled employer-side signature context, not as ordinary agent substitution.
 
@@ -154,7 +216,9 @@ The exception must not be hidden inside a generic `approved` status.
 
 ## 7. Dual-Representation Conflict Standard
 
-Dual representation exists when the same agent organization, agent user or controlled affiliate acts for more than one materially interested party in the same transaction, including:
+Dual-interest facilitation is permitted.
+
+Dual-representation conflict exists only when the same agent organization, agent user or controlled affiliate seeks to hold formal management, final approval or signature authority for more than one materially interested party in the same transaction, including:
 
 1. seafarer and shipowner/employer in the same contract workspace;
 2. seafarer and vessel/operator where vessel/operator interests affect wages, travel, insurance, repatriation or termination;
@@ -164,8 +228,10 @@ Dual representation exists when the same agent organization, agent user or contr
 When detected, the workspace/task must be marked:
 
 ```text
-dual_representation_review_required
+dual_management_review_required
 ```
+
+The older label `dual_representation_review_required` remains acceptable as a legacy blocker name, but future UI/API wording should prefer `dual_management_review_required` because ordinary dual-interest facilitation is not prohibited.
 
 Allowed while blocked:
 
@@ -190,6 +256,18 @@ Conflict clearance requires:
 3. Platform Administration / Control approval;
 4. legal/control review where contract-critical terms are affected;
 5. separate audit events for each party confirmation.
+
+The preferred clearance route is party activation:
+
+```text
+agent-created participant record
+-> participant registers or claims account
+-> participant reviews the agent relationship
+-> participant personally appoints, rejects or replaces agent
+-> only one active managing representative remains for that participant object
+```
+
+Power-of-attorney clearance is allowed only as an enhanced exception route and must not remove the party's right to receive notice, review contract-critical terms and replace the agent where legally and practically possible.
 
 ## 8. Contract-Critical Fields Requiring Direct Party Approval
 
@@ -243,15 +321,17 @@ If the task is contract-critical and the agent is not the actual party, the task
 
 ## 10. Recommended Next Implementation Stage
 
-Because CPG-BIZ-125 is now fixed as the representation/conflict/signature standard, the previously recommended notification task moves forward to CPG-BIZ-126.
+Because CPG-BIZ-125 is now fixed as the representation/conflict/signature standard, the previously recommended notification task moves forward to a broader CPG-BIZ-126 representative-appointment stage.
 
 Recommended next stage:
 
 ```text
-CPG-BIZ-126 - Owner, previous-agent and represented-party notifications after assignment/reassignment
+CPG-BIZ-126 - Participant representative appointment and assignment notification standard
 ```
 
-The notification must include:
+The next stage must cover not only shipowner-agent changes, but also seafarer-agent changes, agent-created participant activation and the one-active-manager rule.
+
+The notification/appointment model must include:
 
 1. object type and safe object summary;
 2. new managing agent organization;
@@ -260,7 +340,8 @@ The notification must include:
 5. representation capacity;
 6. authority reference/status;
 7. whether the reassignment affects contract-critical work;
-8. safe action link or blocker explanation.
+8. whether the participant has personally activated/claimed the account;
+9. safe action link or blocker explanation.
 
 ## 11. Controlled Boundaries
 
