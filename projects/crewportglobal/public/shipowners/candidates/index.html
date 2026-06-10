@@ -85,6 +85,17 @@
       background: rgba(255, 255, 255, 0.06);
     }
 
+    .agent-assignment-field select option {
+      color: #0f1f2c;
+      background: #ffffff;
+    }
+
+    .agent-assignment-field select option[value="__invite_agent__"] {
+      color: #05212b;
+      font-weight: 900;
+      background: #52c6dc;
+    }
+
     .agent-assignment-confirm {
       display: flex;
       gap: 12px;
@@ -418,7 +429,7 @@
         </div>
         <div class="agent-agreement-tools" id="agent-agreement-tools">
           <button id="agent-agreement-preview-action" class="agent-agreement-link" type="button" data-i18n="shipowners.candidates.agent.previewAgreement">Preview agreement</button>
-          <a class="agent-agreement-link" href="/docs/crewportglobal/324_cpg_biz_123_full_contract_ru_checkbox_radio.md" target="_blank" rel="noopener" data-i18n="shipowners.candidates.agent.openTemplate">Open full template</a>
+          <a class="agent-agreement-link" href="/shipowners/agent-agreement/" target="_blank" rel="noopener" data-i18n="shipowners.candidates.agent.openTemplate">Open full template</a>
         </div>
         <section id="agent-agreement-preview" class="agent-agreement-preview" aria-live="polite" hidden></section>
         <label id="agent-framework-confirm-row" class="agent-assignment-confirm">
@@ -1336,6 +1347,16 @@
       if (agentSelect) {
         agentSelect.addEventListener('change', updateAgentAppointmentMode);
       }
+
+      window.addEventListener('crewportglobal:languagechange', () => {
+        if (agentSelect) {
+          const inviteOption = Array.from(agentSelect.options).find((option) => option.value === inviteAgentValue);
+          if (inviteOption) {
+            inviteOption.textContent = t('shipowners.candidates.agent.inviteOption');
+          }
+        }
+        updateAgentAppointmentMode();
+      });
 
       if (agentAgreementPreviewAction) {
         agentAgreementPreviewAction.addEventListener('click', () => renderAgreementPreview(null));
