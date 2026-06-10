@@ -158,6 +158,10 @@ The personal cabinet assembles visible work areas from those cards.
 
 Agent appointment is optional. A registered participant may act personally, appoint an agent representative, replace an agent representative or revoke representation at any stage allowed by the relevant workflow and contract-critical blockers.
 
+Appointment is an exclusive operational delegation, not shared editing.
+
+While a representative assignment is active for a specific object or scope, ordinary operational editing for that object/scope belongs to the representative. The registered participant keeps account-security and representative-governance rights: view status, appoint, replace, revoke and receive notices. The participant should not edit the same operational form sections until the delegation is revoked, suspended, expired or returned to self-management.
+
 ## 6. Step 1 - Public Entry
 
 The user arrives at the public website.
@@ -225,6 +229,8 @@ linked physical person
 ```
 
 Authentication does not grant broad data visibility.
+
+Login credentials, e-mail-code access, password or other authentication secrets are personal and must not be shared with a representative. Representative access must be granted through platform authorization, assignment and audit records.
 
 ## 9. Step 4 - Intended Path Selection
 

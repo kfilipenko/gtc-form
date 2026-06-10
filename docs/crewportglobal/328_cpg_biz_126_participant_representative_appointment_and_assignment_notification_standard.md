@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Business-process and future implementation standard
 - Source task: continuation after CPG-BIZ-125 and Project Owner clarification on agent dual-interest work, participant autonomy, self-registration and one-active-manager principle
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-06-10
 - Status: Drafted for Project Owner review before runtime implementation
 
@@ -41,6 +41,7 @@ physical person self-registers first
 + participant must personally accept platform participation
 + participant must appoint, reject or replace the managing representative
 + the system allows only one active managing representative per object
++ delegated operational rights are exclusive while delegation is active
 = practical workflow with controlled representation
 ```
 
@@ -117,6 +118,56 @@ The user may then:
 
 Agent appointment is optional. CrewPortGlobal should not make agent appointment a mandatory stage for seafarers or shipowners.
 
+The physical person's login, e-mail, password or authentication method must never be transferred to an agent or any other participant.
+
+Representative appointment must be done inside the platform through an explicit rights-transfer action, not by sharing credentials.
+
+## 2B. Exclusive Delegated Management Principle
+
+CrewPortGlobal must avoid shared editing of the same operational section by the participant and the appointed representative.
+
+Shared editing would create confusion about:
+
+1. who changed a field;
+2. which value is current;
+3. who is responsible for completeness;
+4. which task should be active;
+5. whether the participant or the agent approved a condition.
+
+Therefore, representative appointment is not a second editor model.
+
+It is an exclusive delegated management model:
+
+```text
+self-managed participant
+-> appoints representative
+-> operational rights for the delegated object/scope move to the representative
+-> participant keeps only representative-governance rights
+-> participant may revoke/replace representative and return to self-management
+```
+
+The participant keeps non-delegable rights:
+
+1. control login credentials and account security;
+2. view appointment status and safe audit history;
+3. appoint a representative;
+4. revoke a representative;
+5. replace a representative;
+6. receive required notices;
+7. personally approve or sign where the applicable contract/legal workflow requires personal action and no enhanced authority exception has been approved.
+
+While an active representative assignment exists, ordinary operational editing rights for the delegated object/scope belong to the active representative, not simultaneously to the participant.
+
+The participant may see read-only status and may start revocation/change workflow, but should not edit the same operational form sections unless the assignment is revoked, suspended, expired or converted back to `self_managed`.
+
+This rule applies per delegated object/scope, for example:
+
+1. seafarer profile management;
+2. employer/company card management;
+3. vessel card management;
+4. vacancy/crew request management;
+5. contract workspace preparation where representative authority allows it.
+
 ## 3. One-Active-Manager Rule
 
 For platform task routing, a participant object cannot have two active managing agents at the same time.
@@ -138,7 +189,8 @@ Allowed management states:
 | `agent_created_pending_party_activation` | Agent created/requested a preparation or invitation record, but the physical person has not yet self-registered/claimed/activated it personally. |
 | `party_activation_pending` | Invitation or claim route has been sent to the represented participant. |
 | `representation_agreement_pending_signature` | Participant is reviewing the agent representation agreement or authority evidence. |
-| `active_agent_management` | Participant or Platform Administration / Control approved one active managing agent for the object. |
+| `active_agent_management` | Participant or Platform Administration / Control approved one active managing agent for the object; ordinary operational editing belongs to that agent while the assignment is active. |
+| `delegated_operational_lock` | Participant retains representative-governance rights, but operational form editing is locked to the active representative for the delegated object/scope. |
 | `change_requested` | Participant, current agent, claimant agent or Platform Administration / Control requested representative replacement. |
 | `reassignment_control_review` | Platform Administration / Control is reviewing replacement evidence. |
 | `reassigned` | Previous assignment was replaced and remains only in audit/history. |
@@ -181,6 +233,7 @@ agent creates/request preparation or invitation object
 -> participant reviews agent representation agreement
 -> participant appoints agent, rejects agent or selects self-management
 -> system activates only one managing representative
+-> operational editing for delegated scope moves to the representative
 -> previous agent, new agent and control roles receive safe notifications
 ```
 
@@ -249,6 +302,7 @@ If a new assignment is approved:
 3. previous assignment remains visible only in audit/history;
 4. ordinary future tasks route to the new managing participant;
 5. open contract-critical tasks are recomputed and may require fresh party confirmation.
+6. participant operational editing stays locked for the delegated scope until the new assignment is revoked, suspended, expired or returned to self-management.
 
 ## 8. Required Notifications
 
@@ -316,6 +370,7 @@ Future implementation should add:
 6. task recomputation after assignment status changes;
 7. tests proving that two active managers cannot exist for the same object.
 8. tests proving that agent-created preparation records do not create an active physical-person service account without self-registration or approved enhanced authority.
+9. tests proving that participant operational editing is locked while an exclusive delegated representative assignment is active, while representative-governance actions remain available.
 
 No runtime migration or API behavior is changed by this document itself.
 
@@ -334,3 +389,4 @@ Suggested first slice:
 3. expose participant-facing tasks for agent-created pending activation and agent appointment review;
 4. expose previous-agent/new-agent notification tasks after reassignment;
 5. keep contract-critical approvals blocked until party activation or enhanced authority is verified.
+6. enforce delegated operational lock so the participant and representative cannot edit the same delegated form scope concurrently.

@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Project memory and historical handoff refresh
 - Source: local Codex session `Оценить проект Crewportglobal` reviewed on 2026-06-09
-- Version: 1.3
+- Version: 1.4
 - Date: 2026-06-09
 - Status: Active continuation memory
 
@@ -120,6 +120,15 @@ physical person self-registers first
 ```
 
 Agent-created records are preparation/invitation contexts, not ordinary active physical-person service accounts. This applies equally to seafarer, shipowner/employer-side and agent-side participants.
+
+The Project Owner then clarified that representative appointment must not create shared editing. The active model is:
+
+```text
+participant credentials remain personal
++ representative appointment transfers operational editing for the delegated object/scope
++ participant keeps governance rights to view, appoint, replace and revoke
++ no concurrent participant/agent editing of the same delegated section
+```
 
 The runtime notification implementation is now:
 
