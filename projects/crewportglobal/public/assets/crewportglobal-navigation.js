@@ -33,12 +33,14 @@
     },
     {
       className: 'seafarers',
+      href: '/seafarers/',
       key: 'nav.seafarerPages',
       label: 'Seafarers',
       menuKey: 'nav.seafarerPagesMenu',
       hintKey: 'nav.seafarerPagesHint',
       hint: 'Actions for seafarer profile completion, job search and reviewed vacancy access.',
       links: [
+        { href: '/seafarers/', key: 'nav.seafarersOverview', label: 'Seafarers Overview', hintKey: 'nav.seafarersOverviewHint', hint: 'Understand the seafarer role, process and next actions.' },
         { href: '/cabinet/', dynamicHref: 'currentCabinet', key: 'nav.seafarerCabinet', label: 'My Cabinet', hintKey: 'nav.seafarerCabinetHint', hint: 'Open the personal cabinet with current seafarer tasks.' },
         { href: '/create-profile/', key: 'nav.createProfile', label: 'Create Profile', hint: 'Complete the seafarer profile and documents.' },
         { href: '/seafarers/job-search/', key: 'nav.jobSearch', label: 'Job Search', hintKey: 'nav.jobSearchHint', hint: 'Find matching vacancies from the saved seafarer profile.' },
@@ -47,12 +49,14 @@
     },
     {
       className: 'employers',
+      href: '/shipowners/',
       key: 'nav.employerPages',
       label: 'Shipowners',
       menuKey: 'nav.employerPagesMenu',
       hintKey: 'nav.employerPagesHint',
       hint: 'Actions for shipowner vessel data, crew requests and candidate selection.',
       links: [
+        { href: '/shipowners/', key: 'nav.shipownersOverview', label: 'Shipowners Overview', hintKey: 'nav.shipownersOverviewHint', hint: 'Understand the shipowner role, request cycle and next actions.' },
         { href: '/cabinet/', dynamicHref: 'currentCabinet', key: 'nav.shipownerCabinet', label: 'My Cabinet', hintKey: 'nav.shipownerCabinetHint', hint: 'Open the personal cabinet with current shipowner tasks.' },
         { href: '/post-vacancy/', key: 'nav.postVacancy', label: 'Post Vacancy', hint: 'Add company, vessel and crew request data.' },
         { href: '/shipowners/candidates/', key: 'nav.selectCandidate', label: 'Select Candidate', hint: 'Review presented candidates and propose contract.' },
@@ -60,12 +64,14 @@
     },
     {
       className: 'agents',
+      href: '/agents/overview/',
       key: 'nav.agentPages',
       label: 'Agents',
       menuKey: 'nav.agentPagesMenu',
       hintKey: 'nav.agentPagesHint',
       hint: 'Agent organization workspace for scoped client objects and full-cycle operations.',
       links: [
+        { href: '/agents/overview/', key: 'nav.agentsOverview', label: 'Agents Overview', hintKey: 'nav.agentsOverviewHint', hint: 'Understand the agent role, authority and platform boundaries.' },
         { href: '/agents/', key: 'nav.agentPortal', label: 'Agent Portal', hintKey: 'nav.agentPortalHint', hint: 'Open the agent organization workbench.' },
         { href: '/create-profile/?actor=agent', key: 'nav.agentSeafarer', label: 'Seafarer', hintKey: 'nav.agentSeafarerHint', hint: 'Create or maintain a seafarer profile for a represented client.' },
         { href: '/post-vacancy/?actor=agent', key: 'nav.agentDemand', label: 'Demand', hintKey: 'nav.agentDemandHint', hint: 'Create shipowner, vessel and vacancy data for a represented client.' },
@@ -75,6 +81,7 @@
     },
     {
       className: 'documents',
+      href: '/legal/',
       key: 'nav.documents',
       label: 'Documents',
       menuKey: 'nav.documentsMenu',
@@ -95,6 +102,7 @@
     },
     {
       className: 'team',
+      href: '/team/',
       key: 'nav.teamPages',
       label: 'Team',
       menuKey: 'nav.teamPagesMenu',
@@ -122,6 +130,90 @@
     { lane: 'support_operator', key: 'operator.role.supportOperator', label: 'Support Operator' },
     { lane: 'platform_administrator', key: 'operator.role.platformAdministrator', label: 'Platform Administrator' },
   ];
+
+  const NAV_RUNTIME_TRANSLATIONS = {
+    ru: {
+      'site.tagline': 'Морская платформа вакансий и экипажей',
+      'site.languageLabel': 'Язык',
+      'nav.home': 'Главная',
+      'nav.homeGroup': 'Главная',
+      'nav.homeHint': 'Главная публичная страница.',
+      'nav.homeGroupMenu': 'Главная и обзорные страницы',
+      'nav.homeGroupHint': 'Открыть главную страницу с реестром и циклом BP-015.',
+      'nav.seafarerPages': 'Моряки',
+      'nav.seafarerPagesMenu': 'Страницы для моряков',
+      'nav.seafarerPagesHint': 'Действия для регистрации моряка, заполнения профиля, поиска работы и просмотра вакансий.',
+      'nav.seafarersOverview': 'Обзор для моряков',
+      'nav.seafarersOverviewHint': 'Понять роль моряка, процесс и следующие действия.',
+      'nav.seafarerCabinet': 'Мой кабинет',
+      'nav.seafarerCabinetHint': 'Открыть личный кабинет с текущими задачами моряка.',
+      'nav.createProfile': 'Создать профиль',
+      'nav.jobSearch': 'Поиск работы',
+      'nav.jobSearchHint': 'Найти подходящие вакансии по сохраненному профилю моряка.',
+      'nav.vacancies': 'Вакансии',
+      'nav.employerPages': 'Судовладельцы',
+      'nav.employerPagesMenu': 'Страницы судовладельца',
+      'nav.employerPagesHint': 'Действия для данных судна, заявок на экипаж и подбора кандидатов.',
+      'nav.shipownersOverview': 'Обзор для судовладельцев',
+      'nav.shipownersOverviewHint': 'Понять роль судовладельца, цикл заявки и следующие действия.',
+      'nav.shipownerCabinet': 'Мой кабинет',
+      'nav.postVacancy': 'Разместить вакансию',
+      'nav.selectCandidate': 'Подобрать кандидата',
+      'nav.agentPages': 'Агенты',
+      'nav.agentPagesMenu': 'Страницы агента',
+      'nav.agentPagesHint': 'Рабочее пространство агентской организации для клиентских объектов и полного цикла операций.',
+      'nav.agentsOverview': 'Обзор для агентов',
+      'nav.agentsOverviewHint': 'Понять роль агента, полномочия и границы платформы.',
+      'nav.agentPortal': 'Кабинет агента',
+      'nav.agentPortalHint': 'Открыть рабочее пространство агентской организации.',
+      'nav.agentSeafarer': 'Моряк',
+      'nav.agentSeafarerHint': 'Создать или вести профиль моряка для представляемого клиента.',
+      'nav.agentDemand': 'Спрос',
+      'nav.agentDemandHint': 'Создать данные судовладельца, судна и вакансии для представляемого клиента.',
+      'nav.agentCandidates': 'Кандидаты',
+      'nav.agentCandidatesHint': 'Проверить подбор кандидатов в пределах agent scope.',
+      'nav.agentContracts': 'Контракты',
+      'nav.agentContractsHint': 'Открыть contract workspace в пределах agent scope.',
+      'nav.documents': 'Документы',
+      'nav.documentsMenu': 'Меню документов',
+      'nav.documentsHint': 'Открыть юридические документы, trust-center и политики.',
+      'nav.terms': 'Условия',
+      'nav.privacy': 'Конфиденциальность',
+      'nav.noRecruitmentFees': 'Без рекрутинговых сборов',
+      'nav.seafarerAgreement': 'Соглашение моряка',
+      'nav.shipownerAgreement': 'Соглашение судовладельца',
+      'nav.agentAgreement': 'Агентский договор',
+      'nav.matchingPolicy': 'Политика подбора',
+      'nav.verificationPolicy': 'Политика проверки',
+      'nav.complaints': 'Жалобы',
+      'nav.teamPages': 'Команда',
+      'nav.teamPagesMenu': 'Страницы команды',
+      'nav.teamPagesHint': 'Защищенные рабочие пространства команды для задач и операций.',
+      'nav.teamPortal': 'Кабинет команды',
+      'nav.teamDocuments': 'Проверка документов',
+      'nav.teamMatching': 'Сравнение запроса и кандидатов',
+      'nav.teamRegistry': 'Реестр данных',
+      'nav.teamShortlists': 'Черновики shortlists',
+      'nav.teamTranslations': 'Проверка переводов',
+      'nav.operatorQueue': 'Очередь оператора',
+      'nav.adminAccess': 'Управление доступом',
+      'nav.fullSiteMenu': 'Полное меню сайта',
+      'nav.applicationMenu': 'Меню приложения',
+      'operator.nav.menu': 'Навигация оператора',
+      'operator.nav.roles': 'Ролевые линии',
+      'operator.nav.rolesMenu': 'Меню ролевых линий',
+      'operator.nav.documents': 'Справочные документы',
+      'operator.nav.documentsMenu': 'Меню справочных документов',
+      'operator.role.verifier': 'Проверяющий',
+      'operator.role.reviewer': 'Ревьюер',
+      'operator.role.complaintOperator': 'Оператор жалоб',
+      'operator.role.billingOperator': 'Биллинг',
+      'operator.role.supportOperator': 'Поддержка',
+      'operator.role.platformAdministrator': 'Администратор платформы',
+      'operator.lane.all': 'Все задачи',
+      'verify.nav.queue': 'Очередь оператора'
+    }
+  };
 
   function absoluteHref(href) {
     return `${SITE_ORIGIN}${href}`;
@@ -177,7 +269,8 @@
   }
 
   function createSiteMenuGroup(group, activeHref) {
-    const isActive = group.links.some((item) => item.href === activeHref || resolvedHref(item) === activeHref);
+    const groupHref = group.href || (group.links[0] ? resolvedHref(group.links[0]) : '/');
+    const isActive = groupHref === activeHref || group.links.some((item) => item.href === activeHref || resolvedHref(item) === activeHref);
     const active = isActive ? ' is-active' : '';
     if (group.links.length === 1) {
       const item = group.links[0];
@@ -187,7 +280,7 @@
     return [
       `<details class="nav-menu nav-menu--site-group nav-menu--${group.className}">`,
       `  <summary class="nav-menu__summary${active}"${titleAttributes(group)} aria-label="${escapeAttribute(group.label)}" data-i18n-aria-label="${group.menuKey}">`,
-      `    <span data-i18n="${group.key}">${group.label}</span>`,
+      `    <a class="nav-menu__home" href="${absoluteHref(groupHref)}" data-i18n="${group.key}">${group.label}</a>`,
       '    <span class="nav-menu__chevron" aria-hidden="true">▾</span>',
       '  </summary>',
       `  <div class="nav-menu__panel" data-i18n-aria-label="${group.menuKey}">`,
@@ -339,8 +432,56 @@
   applyThemeMode(themeMode);
 
   function accountLanguage() {
+    try {
+      const stored = window.localStorage.getItem('crewportglobal.language');
+      if (stored && ACCOUNT_LABELS[stored]) {
+        return stored;
+      }
+    } catch (error) {
+      // Account labels remain readable in the default language when storage is unavailable.
+    }
     const language = document.documentElement.lang || 'en';
     return ACCOUNT_LABELS[language] ? language : 'en';
+  }
+
+  function navigationLanguage() {
+    try {
+      const stored = window.localStorage.getItem('crewportglobal.language');
+      if (stored && NAV_RUNTIME_TRANSLATIONS[stored]) {
+        return stored;
+      }
+    } catch (error) {
+      // Navigation remains readable in the default language when storage is unavailable.
+    }
+    const documentLanguage = document.documentElement.lang || 'en';
+    return NAV_RUNTIME_TRANSLATIONS[documentLanguage] ? documentLanguage : 'en';
+  }
+
+  function navigationLabel(key) {
+    const language = navigationLanguage();
+    return (NAV_RUNTIME_TRANSLATIONS[language] && NAV_RUNTIME_TRANSLATIONS[language][key]) || '';
+  }
+
+  function applyNavigationRuntimeTranslations(root) {
+    const scope = root || document;
+    scope.querySelectorAll('[data-i18n]').forEach((element) => {
+      const translated = navigationLabel(element.dataset.i18n);
+      if (translated) {
+        element.textContent = translated;
+      }
+    });
+    scope.querySelectorAll('[data-i18n-title]').forEach((element) => {
+      const translated = navigationLabel(element.dataset.i18nTitle);
+      if (translated) {
+        element.setAttribute('title', translated);
+      }
+    });
+    scope.querySelectorAll('[data-i18n-aria-label]').forEach((element) => {
+      const translated = navigationLabel(element.dataset.i18nAriaLabel);
+      if (translated) {
+        element.setAttribute('aria-label', translated);
+      }
+    });
   }
 
   function accountLabel(key) {
@@ -880,6 +1021,12 @@
     }
   }
 
+  document.addEventListener('click', (event) => {
+    if (event.target.closest('.nav-menu__home')) {
+      event.stopPropagation();
+    }
+  });
+
   const themeMedia = typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-color-scheme: light)') : null;
   if (themeMedia) {
     const handleSystemThemeChange = () => {
@@ -900,11 +1047,13 @@
   document.querySelectorAll('[data-cpg-navigation]').forEach(renderNavigation);
   renderHeaderThemeSwitchers();
   renderHeaderAccountAreas();
+  applyNavigationRuntimeTranslations(document);
   fetchAccountState().then(renderAllAccountAreas);
   window.addEventListener('crewportglobal:authchanged', () => fetchAccountState().then(renderAllAccountAreas));
   window.addEventListener('crewportglobal:profilephotochanged', () => fetchAccountState().then(renderAllAccountAreas));
   window.addEventListener('crewportglobal:languagechange', () => {
     renderAllThemeSwitchers();
     renderAllAccountAreas();
+    applyNavigationRuntimeTranslations(document);
   });
 })();

@@ -770,6 +770,18 @@ html[data-cpg-theme="light"] .cpg-account__field input {
   border: 1px solid transparent;
 }
 
+.nav-menu__home {
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  text-decoration: none;
+}
+
+.nav-menu__home:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
 .nav-link.is-active,
 .nav-menu[open] > .nav-menu__summary,
 .nav-menu__summary.is-active,

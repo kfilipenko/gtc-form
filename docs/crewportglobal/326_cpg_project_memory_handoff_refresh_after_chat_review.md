@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Project memory and historical handoff refresh
 - Source: local Codex session `Оценить проект Crewportglobal` reviewed on 2026-06-09
-- Version: 2.0
+- Version: 2.1
 - Date: 2026-06-10
 - Status: Active continuation memory
 
@@ -211,6 +211,25 @@ Document: docs/crewportglobal/331_cpg_biz_129_shared_public_header_component_rep
 ```
 
 Ordinary pages using `.site-header` are now normalized by `projects/crewportglobal/public/assets/crewportglobal-navigation.js`. The `CPG` brand mark and `CrewPortGlobal` brand name are protected from translation, and header design changes should be made in the shared runtime/CSS instead of repeating manual HTML edits across pages.
+
+On 2026-06-10 the top menu / section landing model was fixed as:
+
+```text
+CPG-BIZ-130 - Participant section landing pages and menu synchronization
+Document: docs/crewportglobal/332_cpg_biz_130_participant_section_landing_pages_and_menu_sync_report.md
+```
+
+Main navigation tabs now have explanatory landing destinations:
+
+```text
+Seafarers  -> /seafarers/
+Shipowners -> /shipowners/
+Agents     -> /agents/overview/
+Documents  -> /legal/
+Team       -> /team/
+```
+
+Dropdown menus remain for direct workflow actions. The existing `/agents/` route remains the live agent portal because backend notifications and agent tasks already target it.
 
 Recommended next work remains inside CPG-BIZ-127 follow-up slices:
 
