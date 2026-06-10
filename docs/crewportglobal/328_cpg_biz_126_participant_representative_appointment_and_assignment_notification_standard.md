@@ -4,8 +4,8 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Business-process and future implementation standard
-- Source task: continuation after CPG-BIZ-125 and Project Owner clarification on agent dual-interest work, participant autonomy and one-active-manager principle
-- Version: 1.0
+- Source task: continuation after CPG-BIZ-125 and Project Owner clarification on agent dual-interest work, participant autonomy, self-registration and one-active-manager principle
+- Version: 1.1
 - Date: 2026-06-10
 - Status: Drafted for Project Owner review before runtime implementation
 
@@ -17,7 +17,7 @@ The standard covers:
 
 1. seafarer representative appointment;
 2. shipowner/employer representative appointment;
-3. agent-created participant records;
+3. agent-created preparation/invitation records;
 4. participant account activation and claim;
 5. personal appointment or rejection of an agent by the represented participant;
 6. replacement of a current managing agent;
@@ -34,7 +34,9 @@ But CrewPortGlobal must also preserve party autonomy.
 The compromise standard is:
 
 ```text
-agent may create and prepare participant records
+physical person self-registers first
++ registered user selects platform capacity
++ agent may create preparation/invitation records
 + participant must become a registered/claimed platform party
 + participant must personally accept platform participation
 + participant must appoint, reject or replace the managing representative
@@ -67,6 +69,54 @@ permit disclosed dual-side facilitation
 = practical crewing agency model with participant protection
 ```
 
+## 2A. Self-Registration And Authorization Principle
+
+CrewPortGlobal must keep three concepts separate:
+
+```text
+registration
+authentication
+authorization / platform capacity
+```
+
+Registration is always the registration of a physical person and service account.
+
+The ordinary rule is:
+
+```text
+every physical person self-registers
+```
+
+This applies to:
+
+1. a seafarer;
+2. a shipowner who is a physical person;
+3. a physical person acting for a shipowner/employer company;
+4. a physical person acting for an agent organization;
+5. a physical person acting for an internal/platform role.
+
+After registration and authentication, the user chooses or requests one or more platform capacities:
+
+| Capacity | Meaning |
+|---|---|
+| `seafarer` | The person acts as a seafarer and may create/manage a seafarer supply profile. |
+| `shipowner_individual` | The person acts as an individual shipowner where legally applicable. |
+| `shipowner_company_representative` | The person acts for a shipowner/employer/company after authority evidence is reviewed. |
+| `agent_representative` | The person acts for an agent organization after membership/authority is reviewed. |
+| `platform_team_member` | The person acts for an internal team group after admin authorization. |
+
+A user may hold more than one capacity only when each capacity has its own evidence, status and scope.
+
+The user may then:
+
+1. act personally/self-managed;
+2. appoint an agent representative;
+3. replace an agent representative;
+4. revoke an agent representative;
+5. continue without an agent.
+
+Agent appointment is optional. CrewPortGlobal should not make agent appointment a mandatory stage for seafarers or shipowners.
+
 ## 3. One-Active-Manager Rule
 
 For platform task routing, a participant object cannot have two active managing agents at the same time.
@@ -85,7 +135,7 @@ Allowed management states:
 | State | Meaning |
 |---|---|
 | `self_managed` | The participant controls the object directly without an active managing agent. |
-| `agent_created_pending_party_activation` | Agent created/requested the participant record, but the participant has not yet claimed/activated it personally. |
+| `agent_created_pending_party_activation` | Agent created/requested a preparation or invitation record, but the physical person has not yet self-registered/claimed/activated it personally. |
 | `party_activation_pending` | Invitation or claim route has been sent to the represented participant. |
 | `representation_agreement_pending_signature` | Participant is reviewing the agent representation agreement or authority evidence. |
 | `active_agent_management` | Participant or Platform Administration / Control approved one active managing agent for the object. |
@@ -95,17 +145,19 @@ Allowed management states:
 | `revoked` | Participant or control role ended the assignment. |
 | `blocked_control_review` | Assignment cannot proceed because evidence, consent, conflict or authority is insufficient. |
 
-## 4. Agent-Created Participant Records
+## 4. Agent-Created Preparation And Invitation Records
 
-An agent may create or request creation of:
+An agent may create or request creation of preparation/invitation records for:
 
-1. physical person/user context;
-2. seafarer profile;
-3. employer/company card;
-4. vessel card;
-5. vacancy/crew request context.
+1. seafarer profile draft;
+2. employer/company card draft;
+3. vessel card draft;
+4. vacancy/crew request context;
+5. invitation to a physical person to register/claim the prepared context.
 
-But agent creation is not the same as participant self-authorization.
+The agent must not create an active service account or complete physical-person registration instead of the person.
+
+Agent preparation is not the same as participant self-registration, authentication or authorization.
 
 Until the participant has claimed/activated the account or a controlled power-of-attorney exception is approved:
 
@@ -114,15 +166,17 @@ Until the participant has claimed/activated the account or a controlled power-of
 3. the record must show `pending_party_activation`;
 4. contract-critical approvals must remain blocked;
 5. final platform participation, representation appointment and contract signature must not be treated as personally accepted by the participant.
+6. no ordinary login credential should be treated as accepted by the represented physical person.
 
 ## 5. Participant Personal Appointment Route
 
 Preferred route:
 
 ```text
-agent creates/request participant object
+agent creates/request preparation or invitation object
 -> platform sends safe invitation to participant
--> participant registers or claims account
+-> physical person self-registers or claims account
+-> participant selects platform capacity
 -> participant accepts platform terms and no-fee / service boundaries where applicable
 -> participant reviews agent representation agreement
 -> participant appoints agent, rejects agent or selects self-management
@@ -138,13 +192,15 @@ This route should be the default for both:
 The participant's personal appointment must create audit evidence:
 
 1. participant user ID;
-2. object type and object ID;
-3. agent organization ID;
-4. representation capacity;
-5. agreement/version reference;
-6. timestamp;
-7. IP/device/session evidence where available;
-8. whether any contract-critical workspace was already open.
+2. physical person ID;
+3. selected platform capacity;
+4. object type and object ID;
+5. agent organization ID;
+6. representation capacity;
+7. agreement/version reference;
+8. timestamp;
+9. IP/device/session evidence where available;
+10. whether any contract-critical workspace was already open.
 
 ## 6. Enhanced Power-Of-Attorney Route
 
@@ -161,7 +217,7 @@ Required controls:
 1. uploaded authority document;
 2. identity of represented party;
 3. scope of authority;
-4. whether the agent may register the party on the platform;
+4. whether the agent may prepare an invitation/claim context for the party on the platform;
 5. whether the agent may appoint itself as managing representative;
 6. whether the agent may approve non-contract-critical operational tasks;
 7. whether the agent may approve contract-critical terms;
@@ -259,6 +315,7 @@ Future implementation should add:
 5. admin/control review actions for enhanced authority and representative change;
 6. task recomputation after assignment status changes;
 7. tests proving that two active managers cannot exist for the same object.
+8. tests proving that agent-created preparation records do not create an active physical-person service account without self-registration or approved enhanced authority.
 
 No runtime migration or API behavior is changed by this document itself.
 

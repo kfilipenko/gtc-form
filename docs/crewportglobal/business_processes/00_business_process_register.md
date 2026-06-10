@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.55
+- Version: 3.56
 - Status: For internal review
 
 ## 1. Purpose
@@ -166,7 +166,8 @@ This documentation block starts from the following approved business controls:
 86. Participant tasks must be computed from information stream, working object, object state, business-process stage, managing participant or assignment scope, responsible group, required permission and historical active executor; each task must open the exact working object or controlled blocker state, not a generic page or list.
 87. Agent-visible tasks and agent actions must include represented-party capacity: `agent_for_seafarer`, `agent_for_shipowner`, `agent_for_vessel_operator`, `agent_for_platform_service` or `platform_control_delegate`; ordinary dual-interest facilitation is permitted in crewing work, but formal dual-management or final approval/signature authority for materially opposed parties must enter control review before contract-critical decisions proceed.
 88. Seafarer/shipowner contract work must require direct party review and personal signature by default: an agent may prepare, coordinate and upload evidence inside verified authority scope, but cannot replace seafarer and shipowner/employer approval of contract-critical terms; representative signing is a controlled exception requiring authority, legal/control review and explicit audit evidence.
-89. A participant object may have only one active managing representative at a time: an agent may create/request a seafarer, shipowner/company, vessel or vacancy record, but the represented participant must personally claim/activate the account and appoint, reject or replace the agent unless an enhanced authority exception is approved by Platform Administration / Control.
+89. A participant object may have only one active managing representative at a time: an agent may create/request a seafarer, shipowner/company, vessel or vacancy preparation context, but the represented participant must personally claim/activate the account and appoint, reject or replace the agent unless an enhanced authority exception is approved by Platform Administration / Control.
+90. Physical person registration is always self-registration or personal claim/activation: after authentication, the user selects platform capacity such as seafarer, shipowner/employer representative, agent representative or internal team member; agent appointment is optional and must never be a mandatory condition for ordinary participation on the platform.
 
 ## 5. Intended Use
 
@@ -186,6 +187,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.56 | 2026-06-10 | GTC IT / AI Assistant | Added self-registration and platform-capacity authorization control: physical persons register personally, then may act self-managed or appoint/replace an optional representative; agents may prepare invitation contexts but not ordinary active user accounts |
 | 3.55 | 2026-06-10 | GTC IT / AI Assistant | Added CPG-BIZ-126 control for participant representative appointment, agent-created party activation, one-active-manager routing and safe reassignment notifications; clarified that ordinary dual-interest facilitation is permitted |
 | 3.54 | 2026-06-09 | GTC IT / AI Assistant | Added CPG-BIZ-125 controls for agent representation capacity, dual-representation blockers and personal seafarer/shipowner contract review/signature by default |
 | 3.53 | 2026-06-09 | GTC IT / AI Assistant | Added participant task-routing control after BP-016 synchronization: tasks derive from stream, object state, management scope, group/permission and historical active executor, and must open exact working objects |

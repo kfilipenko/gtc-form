@@ -132,20 +132,31 @@ Physical Person Registration Card
 Service Account / Login Card
 ```
 
-Then the person selects or receives one or more paths:
+The ordinary rule is:
+
+```text
+physical person self-registers
+```
+
+An agent, employer, seafarer, shipowner or internal specialist does not become a platform actor through another participant's account. A third party may invite the person or prepare a draft context for review, but the physical person must personally register or claim the account before ordinary participant rights are activated.
+
+Then the authenticated person selects or receives one or more platform capacities:
 
 ```text
 seafarer workforce / supply
-employer-side requester / demand
+shipowner / employer-side requester / demand
+agent organization representative
 internal team member
 support case participant
 review/control assignment
 Project Owner/admin assignment
 ```
 
-Each path creates draft or confirmed cards.
+Each capacity creates draft or confirmed cards, subject to its own authority evidence and review status.
 
 The personal cabinet assembles visible work areas from those cards.
+
+Agent appointment is optional. A registered participant may act personally, appoint an agent representative, replace an agent representative or revoke representation at any stage allowed by the relevant workflow and contract-critical blockers.
 
 ## 6. Step 1 - Public Entry
 
@@ -223,7 +234,8 @@ Options:
 
 ```text
 I am a seafarer
-I request crew / I represent an employer-side client
+I am a shipowner / I request crew / I represent an employer-side client
+I represent an agent organization
 I was invited by the CrewPortGlobal team
 I need support
 ```
@@ -231,6 +243,14 @@ I need support
 The selected path creates a draft card and tasks.
 
 It does not create final authorization.
+
+Final authorization depends on the capacity:
+
+1. seafarer capacity requires the user's own seafarer profile context;
+2. shipowner/employer company capacity requires company authority evidence unless the person is an individual owner where legally applicable;
+3. agent capacity requires agent organization membership and authority review;
+4. internal team capacity requires admin approval;
+5. representative actions require a separate appointment, verified authority or approved enhanced-authority exception.
 
 ## 10. Seafarer Registration Procedure
 

@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Project memory and historical handoff refresh
 - Source: local Codex session `Оценить проект Crewportglobal` reviewed on 2026-06-09
-- Version: 1.2
+- Version: 1.3
 - Date: 2026-06-09
 - Status: Active continuation memory
 
@@ -109,7 +109,17 @@ After the Project Owner clarified that agents naturally facilitate both sides bu
 CPG-BIZ-126 - Participant representative appointment and assignment notification standard
 ```
 
-CPG-BIZ-126 records the compromise model: an agent may create and prepare participant records, but the participant should become a registered/claimed platform party, personally appoint/reject/replace the managing representative unless an enhanced authority exception is approved, and the system must keep only one active managing representative per object.
+CPG-BIZ-126 records the compromise model: an agent may create and prepare invitation/preparation records, but the participant should become a registered/claimed platform party, personally appoint/reject/replace the managing representative unless an enhanced authority exception is approved, and the system must keep only one active managing representative per object.
+
+On 2026-06-10 this model was clarified further:
+
+```text
+physical person self-registers first
+-> authenticated user selects platform capacity
+-> user may act self-managed or appoint/replace an optional representative
+```
+
+Agent-created records are preparation/invitation contexts, not ordinary active physical-person service accounts. This applies equally to seafarer, shipowner/employer-side and agent-side participants.
 
 The runtime notification implementation is now:
 

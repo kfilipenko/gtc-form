@@ -5,9 +5,9 @@
 - Documentation block: Business processes and operating model
 - Document type: Stage-to-standard control matrix
 - Source task: Project Owner instruction after CPG-BIZ-093 approval
-- Version: 3.6
+- Version: 3.7
 - Date: 2026-06-10
-- Status: Synchronized after CPG-BIZ-126 participant representative appointment standard
+- Status: Synchronized after CPG-BIZ-126 self-registration and representative appointment clarification
 
 ## 1. Purpose
 
@@ -140,7 +140,7 @@ Task exit rules:
 | CPG-BIZ-119 | Agent-managed object participant cards and scoped object workspace | Implemented assignment-specific `/agents/objects/{assignment_id}/workspace`, safe participant cards, `Managed by` authority context, workspace guard and assignment-specific UI links |
 | CPG-BIZ-124 | Agent assignment context enforcement in profile and demand forms | Implemented runtime guard for agent-opened profile/demand draft routes, completeness, submit-review, protected document list/upload and seafarer workspace resolution |
 | CPG-BIZ-125 | Agent representation capacity, dual-interest facilitation, conflict boundary and personal contract-signature rule | Documented standard requiring represented-party capacity in agent tasks/actions, allowing ordinary dual-interest facilitation, controlling formal dual-management/final authority and requiring direct seafarer/shipowner party review/signature for contract-critical terms |
-| CPG-BIZ-126 | Participant representative appointment and assignment notification standard | Documented standard for agent-created participant activation, participant self-appointment/rejection/replacement of representatives, one-active-manager rule and safe notifications to represented parties, previous agents, new agents and control roles |
+| CPG-BIZ-126 | Participant representative appointment and assignment notification standard | Documented standard for physical-person self-registration, platform-capacity authorization, optional representative appointment/replacement, agent-created preparation/invitation contexts, one-active-manager rule and safe notifications to represented parties, previous agents, new agents and control roles |
 | Implemented Code Standards ICS-001..003 | Reusable code standards for form lifecycle, protected upload and submit-review gate | Existing code-level standard register |
 
 ## 4. Stage-To-Standard Matrix
@@ -151,7 +151,7 @@ Task exit rules:
 | Marketing to employers / shipowners | CC-02 / before CF-01 | Employer lead | Group 0 marketing, Group 1 demand intake | BP-015, BP-009 | Partial | Standard for employer lead qualification, package offer, partner/logo publication and commercial interest evidence. |
 | Physical person registration | CC-03 | User account / physical person | Registration flow, support | BP-008, BP-014 | Covered | Need job instruction for support exceptions and failed registration recovery. |
 | Path selection after registration | CC-03 | User role path | Registration flow, support | BP-008, BP-009 | Partial | Standard for automatic routing to seafarer profile or employer/vacancy workspace after role selection. |
-| Agent onboarding, object creation and scope | CF-00A / CF-00B / CF-00C | Agent organization, agent-created object request, assignment, account/object claim, participant representative appointment | Platform Administration / Control, assigned agent organization, represented participant | BP-012, BP-013, CPG-BIZ-111, CPG-BIZ-112, CPG-BIZ-113, CPG-BIZ-114, CPG-BIZ-115, CPG-BIZ-116, CPG-BIZ-117, CPG-BIZ-118, CPG-BIZ-119, CPG-BIZ-124, CPG-BIZ-125, CPG-BIZ-126 | Runtime migration 020 implemented and verified; `/agents/` page and `Agents` navigation shell implemented; protected API skeleton implemented for agent session, authority submission, object creation requests, admin authority review, admin object assignment, object-scope mismatch guard, audit events and `Managed by` management context; `/agents/tasks` now computes agent-visible tasks; `/admin/agents/review-workspace` computes platform-control authority/object-request/claim review tasks; claim approval can link or reassign active object management under verified authority; `/agents/objects/{assignment_id}/workspace` opens a concrete participant card with safe fields, authority context and guarded working links; agent-opened profile/demand draft APIs now enforce `actor=agent&assignment_id=...` against the active assignment before save, completeness, submit-review and protected-document operations; agent task routing must preserve represented-party capacity, allow ordinary dual-interest facilitation, require participant activation/appointment for durable management and maintain one active managing representative per object | Runtime participant appointment notifications and owner/new-agent/previous-agent tasks remain future implementation work under CPG-BIZ-127. |
+| Agent onboarding, object creation and scope | CF-00A / CF-00B / CF-00C | Agent organization, agent-created preparation/invitation request, assignment, account/object claim, participant representative appointment | Platform Administration / Control, assigned agent organization, represented participant | BP-012, BP-013, CPG-BIZ-111, CPG-BIZ-112, CPG-BIZ-113, CPG-BIZ-114, CPG-BIZ-115, CPG-BIZ-116, CPG-BIZ-117, CPG-BIZ-118, CPG-BIZ-119, CPG-BIZ-124, CPG-BIZ-125, CPG-BIZ-126 | Runtime migration 020 implemented and verified; `/agents/` page and `Agents` navigation shell implemented; protected API skeleton implemented for agent session, authority submission, object creation requests, admin authority review, admin object assignment, object-scope mismatch guard, audit events and `Managed by` management context; `/agents/tasks` now computes agent-visible tasks; `/admin/agents/review-workspace` computes platform-control authority/object-request/claim review tasks; claim approval can link or reassign active object management under verified authority; `/agents/objects/{assignment_id}/workspace` opens a concrete participant card with safe fields, authority context and guarded working links; agent-opened profile/demand draft APIs now enforce `actor=agent&assignment_id=...` against the active assignment before save, completeness, submit-review and protected-document operations; agent task routing must preserve represented-party capacity, allow ordinary dual-interest facilitation, require physical-person self-registration or personal claim/activation before durable participant authority, keep agent appointment optional and maintain one active managing representative per object | Runtime participant appointment notifications and owner/new-agent/previous-agent tasks remain future implementation work under CPG-BIZ-127. |
 | Seafarer profile completion | CC-04 / CF-06 | Seafarer supply profile | Seafarer owner, Group 2 support | BP-011, BP-014, BP-010 | Covered for current form | Need final parity check for all matching-critical fields and document-first extraction plan. |
 | Seafarer document readiness review | CF-07 | Seafarer documents and profile readiness | Verification team / Group 5 | BP-010, BP-012, BP-014 | Covered in principle and partially implemented | Job instruction for document review outcomes, correction reasons and restricted medical boundary. |
 | Employer/company registration | CC-05 / CF-02 | Employer/company card | Employer owner, Group 1, Group 5 | BP-003, BP-008, BP-014 | Partial | Standard for employer authority evidence, logo/public partner eligibility and commercial account status. |
@@ -227,7 +227,7 @@ The job instruction must define:
 Current synchronized checkpoint:
 
 ```text
-CPG-BIZ-126 is documented.
+CPG-BIZ-126 is documented and clarified for self-registration / platform-capacity authorization.
 ```
 
 The agent scope chain now includes:
@@ -243,7 +243,7 @@ The agent scope chain now includes:
 9. CPG-BIZ-119 - assignment-specific agent-managed object workspace;
 10. CPG-BIZ-124 - agent assignment-context enforcement in profile, demand and protected-document routes;
 11. CPG-BIZ-125 - agent representation capacity, dual-interest facilitation, formal dual-management blocker and personal seafarer/shipowner contract review/signature rule;
-12. CPG-BIZ-126 - participant representative appointment, agent-created party activation, one-active-manager rule and assignment notification standard.
+12. CPG-BIZ-126 - physical-person self-registration, platform-capacity authorization, optional representative appointment, agent-created preparation/invitation contexts, one-active-manager rule and assignment notification standard.
 
 The recommended next stage is:
 
@@ -270,6 +270,7 @@ After that, the process should move to:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.7 | 2026-06-10 | GTC IT / AI Assistant | Clarified CPG-BIZ-126 and BP-008 around physical-person self-registration, platform-capacity authorization and optional representative appointment; agent-created records are preparation/invitation contexts, not ordinary active user accounts |
 | 3.6 | 2026-06-10 | GTC IT / AI Assistant | Added CPG-BIZ-126 participant representative appointment and assignment-notification standard, clarified ordinary dual-interest facilitation and moved runtime notification implementation to CPG-BIZ-127 |
 | 3.5 | 2026-06-09 | GTC IT / AI Assistant | Added CPG-BIZ-125 as the agent representation/conflict/personal-signature standard and moved owner/previous-agent notification work to CPG-BIZ-126 with represented-party capacity context |
 | 3.4 | 2026-06-09 | GTC IT / AI Assistant | Added participant task-routing model and synchronized immediate next work after CPG-BIZ-124 so CPG-BIZ-125 owner/previous-agent notifications is the current next stage |
