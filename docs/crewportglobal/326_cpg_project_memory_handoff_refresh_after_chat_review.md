@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Project memory and historical handoff refresh
 - Source: local Codex session `Оценить проект Crewportglobal` reviewed on 2026-06-09
-- Version: 1.4
+- Version: 1.5
 - Date: 2026-06-09
 - Status: Active continuation memory
 
@@ -130,10 +130,20 @@ participant credentials remain personal
 + no concurrent participant/agent editing of the same delegated section
 ```
 
+The Project Owner then clarified that delegation must also preserve governance visibility. Active rule:
+
+```text
+every authority confirmation, representative agreement/POA event,
+delegation status change, document-stage milestone and obligation-stage milestone
+must create a durable notification record for the represented physical person
+```
+
+This lets the physical person see process progress and intervene through revoke, replace or control-review actions without sharing operational editing.
+
 The runtime notification implementation is now:
 
 ```text
-CPG-BIZ-127 - Participant representative appointment notifications API/UI implementation
+CPG-BIZ-127 - Participant governance notification ledger API/UI implementation
 ```
 
 ## 6. Active Working Rules For Future Continuation

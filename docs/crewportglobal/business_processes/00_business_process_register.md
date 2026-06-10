@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.57
+- Version: 3.58
 - Status: For internal review
 
 ## 1. Purpose
@@ -169,6 +169,7 @@ This documentation block starts from the following approved business controls:
 89. A participant object may have only one active managing representative at a time: an agent may create/request a seafarer, shipowner/company, vessel or vacancy preparation context, but the represented participant must personally claim/activate the account and appoint, reject or replace the agent unless an enhanced authority exception is approved by Platform Administration / Control.
 90. Physical person registration is always self-registration or personal claim/activation: after authentication, the user selects platform capacity such as seafarer, shipowner/employer representative, agent representative or internal team member; agent appointment is optional and must never be a mandatory condition for ordinary participation on the platform.
 91. Representative appointment is exclusive delegated operational management, not shared editing: while an active representative assignment exists for an object/scope, ordinary operational editing belongs to the representative; the participant keeps non-delegable account-security and representative-governance rights to view, appoint, replace, revoke and receive notices.
+92. Delegated participant governance requires durable notifications: every authority confirmation, representative agreement/POA event, delegation activation/revocation/reassignment, document-stage milestone and obligation-stage milestone must create a persistent notification record for the represented physical person with safe summary, actor, object, assignment, document reference where applicable and action status.
 
 ## 5. Intended Use
 
@@ -188,6 +189,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.58 | 2026-06-10 | GTC IT / AI Assistant | Added participant governance notification control requiring durable physical-person notifications for authority, representative agreement/POA, delegation, document-stage and obligation-stage milestones |
 | 3.57 | 2026-06-10 | GTC IT / AI Assistant | Added exclusive delegated management control: participant credentials remain personal, representative appointment transfers operational editing for the delegated scope to one active representative while the participant keeps appointment/revocation governance rights |
 | 3.56 | 2026-06-10 | GTC IT / AI Assistant | Added self-registration and platform-capacity authorization control: physical persons register personally, then may act self-managed or appoint/replace an optional representative; agents may prepare invitation contexts but not ordinary active user accounts |
 | 3.55 | 2026-06-10 | GTC IT / AI Assistant | Added CPG-BIZ-126 control for participant representative appointment, agent-created party activation, one-active-manager routing and safe reassignment notifications; clarified that ordinary dual-interest facilitation is permitted |

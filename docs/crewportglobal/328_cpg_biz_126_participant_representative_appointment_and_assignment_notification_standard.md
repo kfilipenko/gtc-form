@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Business-process and future implementation standard
 - Source task: continuation after CPG-BIZ-125 and Project Owner clarification on agent dual-interest work, participant autonomy, self-registration and one-active-manager principle
-- Version: 1.2
+- Version: 1.3
 - Date: 2026-06-10
 - Status: Drafted for Project Owner review before runtime implementation
 
@@ -122,6 +122,19 @@ The physical person's login, e-mail, password or authentication method must neve
 
 Representative appointment must be done inside the platform through an explicit rights-transfer action, not by sharing credentials.
 
+Representative appointment must also be supported by formal authority evidence.
+
+For ordinary participant-to-agent delegation, the platform must require:
+
+1. signed representation agreement between the participant and the agent or agent organization;
+2. power of attorney / authority document where the delegated action requires legal authority beyond ordinary platform management;
+3. clear scope of delegated objects and actions;
+4. validity period or open-ended status with revocation route;
+5. participant confirmation that the agent receives exclusive operational management for the delegated scope;
+6. audit record linking the signed document, authority evidence and active assignment.
+
+Without this evidence, the platform may store a request or draft appointment, but must not activate ordinary agent management for the participant object.
+
 ## 2B. Exclusive Delegated Management Principle
 
 CrewPortGlobal must avoid shared editing of the same operational section by the participant and the appointed representative.
@@ -167,6 +180,85 @@ This rule applies per delegated object/scope, for example:
 3. vessel card management;
 4. vacancy/crew request management;
 5. contract workspace preparation where representative authority allows it.
+
+## 2C. Participant Governance Notifications
+
+Exclusive delegation must not make the physical person blind.
+
+The represented participant keeps governance visibility over important events and may intervene through:
+
+1. revoke representative;
+2. replace representative;
+3. request Platform Administration / Control review;
+4. personally approve or reject a contract-critical stage where required;
+5. challenge an action that appears outside authority.
+
+Every important event in a delegated scope must create a durable notification record addressed to the physical person / service account.
+
+The notification must not be only an email, banner or temporary UI message.
+
+Future code must persist the notification event so the participant can later see:
+
+1. what happened;
+2. who acted;
+3. under which representative assignment;
+4. which object/document/workflow stage was affected;
+5. when the notification was created/sent/read;
+6. which action is available to the participant.
+
+Minimum code-level notification record:
+
+| Field | Purpose |
+|---|---|
+| `notification_id` | Immutable notification record ID. |
+| `recipient_user_id` | Registered physical-person service account receiving the notice. |
+| `recipient_physical_person_id` | Linked physical person where available. |
+| `represented_object_type` | Seafarer profile, company, vessel, vacancy, contract workspace or other object. |
+| `represented_object_id` | Exact object ID. |
+| `agent_object_assignment_id` | Active or historical delegated assignment that caused the notice. |
+| `event_type` | Controlled event code. |
+| `event_stage` | Business-process stage such as authorization, vessel registration, candidate found or contract prepared. |
+| `event_actor_type` | Participant, agent, platform control, system or team role. |
+| `event_actor_id` | User/agent/control actor where available. |
+| `safe_summary` | Short safe human-readable summary. |
+| `document_reference_id` | Generated/prepared/signed document reference where applicable. |
+| `requires_participant_action` | Boolean flag for appointment, contract-critical approval or review-needed event. |
+| `action_type` | View, approve, reject, revoke, replace, request_control_review or acknowledge. |
+| `delivery_status` | Pending, sent, failed, read, acknowledged, actioned. |
+| `created_at`, `sent_at`, `read_at`, `actioned_at` | Timeline evidence. |
+| `payload_hash` | Evidence that the visible notification content was not silently changed. |
+
+Notification payloads must expose safe summaries, not unrelated private records.
+
+## 2D. Minimum Participant Notification Stages
+
+The platform should notify the physical person at least at these stages.
+
+| Stage | Event examples | Recipient | Required participant ability |
+|---|---|---|---|
+| Registration / account security | Account created, email confirmed, login method changed | Physical person | Review security event; report unauthorized access |
+| Platform capacity request | Seafarer, shipowner/company representative or agent representative capacity requested/submitted | Physical person | View requested capacity; cancel/continue |
+| Authority confirmation | Company authority, agent membership, representation authority or POA submitted/reviewed/approved/rejected | Physical person and relevant control role | View result; correct evidence; request control review |
+| Representative agreement | Representation agreement prepared, sent, signed, rejected or expired | Physical person, agent, control where required | Sign, reject, revoke, replace, request review |
+| Delegation activation | Agent assignment activated, limited, suspended, revoked, expired or reassigned | Physical person, new agent, previous agent, control | View status; revoke/replace/request review |
+| Agent-created preparation | Agent created profile/company/vessel/vacancy preparation context or invitation | Physical person where contact exists; control | Claim account; reject/continue |
+| Seafarer profile milestone | Profile draft prepared, submitted, corrected, verified or blocked | Seafarer physical person | View status; revoke/replace/request correction |
+| Shipowner/company milestone | Company card prepared, authority submitted, reviewed, verified or blocked | Shipowner/company representative physical person | View status; correct evidence; revoke/replace/request review |
+| Vessel milestone | Vessel draft registered, documents uploaded, vessel verified or blocked | Shipowner/company representative physical person | View status; correct evidence; revoke/replace/request review |
+| Crew request/vacancy milestone | Crew request prepared, submitted, corrected, published/approved or blocked | Shipowner/company representative physical person | View status; revoke/replace/request review |
+| Candidate/search milestone | Suitable seafarer found, shortlist prepared, candidate presented, seafarer requested consideration | Seafarer and/or shipowner side depending on safe visibility | View safe status; request review; proceed where allowed |
+| Terms clarification | Salary, joining, duration, travel, repatriation or other material term proposed/changed/agreed/blocked | Seafarer and shipowner physical persons | Review, approve/reject where required |
+| Contract workspace | Contract workspace created, populated, missing fields resolved, ready for party review, ready for signature | Seafarer and shipowner physical persons | Review contract-critical content; approve/reject/sign where required |
+| Generated document | SEA/contract/authority/representation document generated, signed, rejected, amended or superseded | Relevant physical persons and control where required | View document reference; approve/sign/challenge |
+| Embarkation / service evidence | Joining arranged, boarding confirmed, failed joining, replacement, monthly service evidence | Relevant seafarer and shipowner/company physical persons | View status; request correction/review |
+| Repatriation / return | Disembarkation, return plan, repatriation support, return completed or blocked | Seafarer and shipowner/company physical persons | View status; request control/support |
+| Billing / completion where applicable | Service completion, invoice basis, dispute or closure event | Shipowner/company representative and internal billing/control | View basis; dispute/request review |
+
+General rule:
+
+```text
+if an event changes authority, delegated management, participant-visible status, document state, contract-critical terms or an obligation milestone, notify the physical person and persist the notification record.
+```
 
 ## 3. One-Active-Manager Rule
 
@@ -279,6 +371,7 @@ Required controls:
 10. revocation route;
 11. Platform Administration / Control review;
 12. legal/control review where signature or dual-side final authority is claimed.
+13. durable notification to the represented physical person when the enhanced authority route is submitted, approved, rejected, limited, revoked or used for a material action.
 
 Even under enhanced authority, the participant should receive notice where contact details are available and should be able to claim the account or challenge the representation.
 
@@ -317,6 +410,8 @@ Notification is required when:
 7. assignment is revoked, suspended, expired or limited;
 8. contract-critical workspace is affected by representative change;
 9. enhanced power-of-attorney route is approved or rejected.
+10. any delegated stage creates, changes, signs, rejects or supersedes a document;
+11. an obligation milestone is completed or blocked by the agent.
 
 Recipients:
 
@@ -329,6 +424,8 @@ Recipients:
 | Agent reassignment | Participant; new agent; previous agent; Platform Administration / Control. |
 | Contract-critical reassignment | Participant; new agent; previous agent; opposite contract party where safe and necessary; Platform Administration / Control. |
 | Enhanced authority exception | Participant where contact is available; agent; Platform Administration / Control; legal/control role where required. |
+| Document-stage milestone | Relevant physical person, active representative, Platform Administration / Control where required. |
+| Obligation-stage milestone | Relevant physical person, active representative and responsible team/control role where required. |
 
 Notification payload must include only safe data:
 
@@ -343,6 +440,7 @@ Notification payload must include only safe data:
 9. whether party activation is pending;
 10. whether contract-critical work is blocked or needs fresh review;
 11. safe action link or blocker explanation.
+12. document reference/status where a document was prepared, generated, signed, rejected or superseded.
 
 ## 9. Computed Tasks
 
@@ -371,6 +469,8 @@ Future implementation should add:
 7. tests proving that two active managers cannot exist for the same object.
 8. tests proving that agent-created preparation records do not create an active physical-person service account without self-registration or approved enhanced authority.
 9. tests proving that participant operational editing is locked while an exclusive delegated representative assignment is active, while representative-governance actions remain available.
+10. persistent notification ledger records for all participant governance, authority, document-stage and obligation-stage events.
+11. tests proving that notification records are created for authorization confirmation, representative agreement/POA events, vessel registration, candidate found/presented, contract workspace prepared/ready and document generated/signed/rejected.
 
 No runtime migration or API behavior is changed by this document itself.
 
@@ -379,14 +479,15 @@ No runtime migration or API behavior is changed by this document itself.
 Recommended implementation after Project Owner approval:
 
 ```text
-CPG-BIZ-127 - Participant representative appointment notifications API/UI implementation
+CPG-BIZ-127 - Participant governance notification ledger API/UI implementation
 ```
 
 Suggested first slice:
 
 1. preserve the existing one-active-assignment database rule;
-2. add safe assignment notification records or audit-derived notification payloads;
+2. add persistent participant notification ledger records or audit-derived notification payloads with durable storage;
 3. expose participant-facing tasks for agent-created pending activation and agent appointment review;
 4. expose previous-agent/new-agent notification tasks after reassignment;
 5. keep contract-critical approvals blocked until party activation or enhanced authority is verified.
 6. enforce delegated operational lock so the participant and representative cannot edit the same delegated form scope concurrently.
+7. emit notification records for authority confirmation, representative agreement/POA, document-stage and obligation-stage milestones.

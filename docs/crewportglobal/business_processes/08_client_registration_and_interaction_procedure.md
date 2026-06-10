@@ -162,6 +162,21 @@ Appointment is an exclusive operational delegation, not shared editing.
 
 While a representative assignment is active for a specific object or scope, ordinary operational editing for that object/scope belongs to the representative. The registered participant keeps account-security and representative-governance rights: view status, appoint, replace, revoke and receive notices. The participant should not edit the same operational form sections until the delegation is revoked, suspended, expired or returned to self-management.
 
+The platform must notify the registered participant about material events in the delegated scope.
+
+At minimum, notifications are required for:
+
+1. capacity/authority confirmation;
+2. representative agreement or power-of-attorney submitted, signed, rejected, limited or revoked;
+3. delegation activated, suspended, reassigned, revoked or expired;
+4. profile/company/vessel/vacancy preparation submitted, verified, corrected or blocked;
+5. candidate found, shortlist prepared or candidate presented where visibility is safe;
+6. terms clarification and contract workspace milestones;
+7. document prepared, generated, signed, rejected, amended or superseded;
+8. boarding, service evidence, repatriation/return and service-completion milestones.
+
+These notices must be persisted as platform notification records, not only delivered as temporary UI messages.
+
 ## 6. Step 1 - Public Entry
 
 The user arrives at the public website.
