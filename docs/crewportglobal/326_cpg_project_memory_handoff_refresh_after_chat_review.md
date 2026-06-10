@@ -5,7 +5,7 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Project memory and historical handoff refresh
 - Source: local Codex session `Оценить проект Crewportglobal` reviewed on 2026-06-09
-- Version: 2.1
+- Version: 2.2
 - Date: 2026-06-10
 - Status: Active continuation memory
 
@@ -230,6 +230,15 @@ Team       -> /team/
 ```
 
 Dropdown menus remain for direct workflow actions. The existing `/agents/` route remains the live agent portal because backend notifications and agent tasks already target it.
+
+On 2026-06-10 the shared heading contrast model was fixed as:
+
+```text
+CPG-BIZ-131 - Shared heading contrast normalization
+Document: docs/crewportglobal/333_cpg_biz_131_heading_contrast_normalization_report.md
+```
+
+Application, participant and public legal pages now rely on shared `.cpg-app-page` heading rules in `projects/crewportglobal/public/assets/crewportglobal-app.css`. Dark-theme headings on `/seafarers/`, `/shipowners/`, `/agents/overview/`, `/legal/` and the standalone `/team/` page are explicitly high-contrast so document prose styles or legacy page variables cannot make section headings unreadable.
 
 Recommended next work remains inside CPG-BIZ-127 follow-up slices:
 

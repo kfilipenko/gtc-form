@@ -79,6 +79,7 @@
       margin: 0;
       color: var(--team-text);
       font-size: 24px;
+      font-weight: 900;
       line-height: 1.2;
     }
     .team-subtitle {
@@ -327,6 +328,32 @@
     }
     .team-task-feedback[hidden] {
       display: none;
+    }
+    html[data-cpg-theme="dark"] {
+      --team-bg: #06131d;
+      --team-surface: #102436;
+      --team-surface-soft: #172d40;
+      --team-text: #f4f8fb;
+      --team-muted: #c9d6e2;
+      --team-border: #29475f;
+      --team-border-strong: #3e6078;
+      --team-primary: #4ec9d8;
+      --team-primary-strong: #83e4ef;
+      --team-danger: #ff7d6d;
+      --team-success: #79dda5;
+    }
+    html[data-cpg-theme="dark"] .team-header,
+    html[data-cpg-theme="dark"] .team-panel,
+    html[data-cpg-theme="dark"] .team-card {
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+    }
+    html[data-cpg-theme="dark"] .team-button.secondary {
+      background: #172d40;
+      color: #f4f8fb;
+    }
+    html[data-cpg-theme="dark"] .team-task__number,
+    html[data-cpg-theme="dark"] .team-task__badge {
+      background: rgba(78, 201, 216, 0.14);
     }
     @media (max-width: 760px) {
       .team-header {

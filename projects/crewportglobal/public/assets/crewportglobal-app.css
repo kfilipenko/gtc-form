@@ -1027,9 +1027,11 @@ html[data-cpg-theme="dark"] .cpg-app-page .app-empty {
 .cpg-app-page h1,
 .cpg-app-page .app-title,
 .cpg-app-page .landing-title {
+  color: var(--app-ink);
   max-width: 980px;
   margin-top: 0;
   font-size: clamp(28px, 4vw, 42px);
+  font-weight: 900;
   line-height: 1.08;
   letter-spacing: 0;
 }
@@ -1037,16 +1039,62 @@ html[data-cpg-theme="dark"] .cpg-app-page .app-empty {
 .cpg-app-page h2,
 .cpg-app-page .section-title,
 .cpg-app-page .details-title {
+  color: var(--app-ink);
   font-size: clamp(20px, 2vw, 26px);
+  font-weight: 900;
   line-height: 1.18;
   letter-spacing: 0;
 }
 
 .cpg-app-page h3,
 .cpg-app-page .app-card-title {
+  color: var(--app-ink);
   font-size: 17px;
+  font-weight: 900;
   line-height: 1.25;
   letter-spacing: 0;
+}
+
+.cpg-app-page .doc-content .eyebrow,
+.cpg-app-page .doc-content .library-type,
+.cpg-app-page .doc-content .meta-label {
+  color: var(--app-ocean-dark);
+}
+
+.cpg-app-page .prose h2,
+.cpg-app-page .prose h3,
+.cpg-app-page .doc-content h2,
+.cpg-app-page .doc-content h3 {
+  color: var(--app-ink);
+}
+
+.cpg-app-page .doc-content .prose p,
+.cpg-app-page .doc-content .prose li,
+.cpg-app-page .prose p,
+.cpg-app-page .prose li {
+  color: var(--app-muted);
+}
+
+html[data-cpg-theme="dark"] .cpg-app-page h1,
+html[data-cpg-theme="dark"] .cpg-app-page h2,
+html[data-cpg-theme="dark"] .cpg-app-page h3,
+html[data-cpg-theme="dark"] .cpg-app-page .app-title,
+html[data-cpg-theme="dark"] .cpg-app-page .landing-title,
+html[data-cpg-theme="dark"] .cpg-app-page .section-title,
+html[data-cpg-theme="dark"] .cpg-app-page .details-title,
+html[data-cpg-theme="dark"] .cpg-app-page .app-card-title,
+html[data-cpg-theme="dark"] .cpg-app-page .prose h2,
+html[data-cpg-theme="dark"] .cpg-app-page .prose h3,
+html[data-cpg-theme="dark"] .cpg-app-page .doc-content h2,
+html[data-cpg-theme="dark"] .cpg-app-page .doc-content h3 {
+  color: #f4f8fb;
+}
+
+html[data-cpg-theme="dark"] .cpg-app-page .doc-content .prose p,
+html[data-cpg-theme="dark"] .cpg-app-page .doc-content .prose li,
+html[data-cpg-theme="dark"] .cpg-app-page .prose p,
+html[data-cpg-theme="dark"] .cpg-app-page .prose li {
+  color: #c9d6e2;
 }
 
 .cpg-app-page .lead-copy,
