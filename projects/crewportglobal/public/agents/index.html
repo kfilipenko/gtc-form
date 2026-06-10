@@ -252,6 +252,42 @@
       color: var(--teal);
     }
 
+    .agent-inline-button {
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid rgba(82, 198, 220, 0.45);
+      border-radius: 8px;
+      color: var(--text-on-dark);
+      font-size: 13px;
+      font-weight: 900;
+      background: rgba(82, 198, 220, 0.1);
+      cursor: pointer;
+    }
+
+    .agent-inline-button:hover,
+    .agent-inline-button:focus-visible {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    .agent-inline-button:disabled {
+      border-color: var(--line);
+      color: var(--muted-on-dark);
+      cursor: not-allowed;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .agent-acceptance-check {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      margin-top: 8px;
+      color: var(--muted-on-dark);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
     .agent-action-link[aria-disabled="true"] {
       border-color: var(--line);
       color: var(--muted-on-dark);
@@ -384,6 +420,13 @@
         <p id="agent-task-empty" class="agent-api-message">No computed agent tasks loaded yet.</p>
       </section>
 
+      <section class="card" id="agent-framework-offers">
+        <p class="eyebrow">Framework agreements</p>
+        <h2>Shipowner offers</h2>
+        <div id="agent-framework-offer-list" class="agent-object-list" aria-live="polite"></div>
+        <p id="agent-framework-offer-empty" class="agent-api-message">No framework agreement offers loaded yet.</p>
+      </section>
+
       <section class="card agent-workspace-card" id="agent-workspace" hidden>
         <p class="eyebrow">Scoped object workspace</p>
         <h2 id="agent-workspace-title">Represented object</h2>
@@ -510,6 +553,8 @@
       const taskCount = document.getElementById('agent-summary-tasks');
       const taskList = document.getElementById('agent-task-list');
       const taskEmpty = document.getElementById('agent-task-empty');
+      const frameworkOfferList = document.getElementById('agent-framework-offer-list');
+      const frameworkOfferEmpty = document.getElementById('agent-framework-offer-empty');
       const objectList = document.getElementById('agent-object-list');
       const empty = document.getElementById('agent-object-empty');
       const requestList = document.getElementById('agent-request-list');
@@ -535,6 +580,20 @@
         const response = await fetch(`/api/v1${path}`, {
           credentials: 'include',
           headers: { Accept: 'application/json' },
+        });
+        const payload = await response.json().catch(() => ({}));
+        return { response, payload };
+      };
+
+      const apiPost = async (path, body) => {
+        const response = await fetch(`/api/v1${path}`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body || {}),
         });
         const payload = await response.json().catch(() => ({}));
         return { response, payload };
@@ -663,6 +722,85 @@
           row.append(copy, pill);
           container.append(row);
         });
+      };
+
+      const renderFrameworkOffers = (offers) => {
+        if (!frameworkOfferList || !frameworkOfferEmpty) {
+          return;
+        }
+        frameworkOfferList.innerHTML = '';
+        if (!Array.isArray(offers) || offers.length === 0) {
+          frameworkOfferEmpty.hidden = false;
+          return;
+        }
+        frameworkOfferEmpty.hidden = true;
+        offers.slice(0, 20).forEach((item) => {
+          const row = document.createElement('article');
+          row.className = 'agent-object';
+          row.id = safeHashId('agent-offer', item.offer_id);
+          const copy = document.createElement('div');
+          const heading = document.createElement('strong');
+          heading.textContent = `${item.offer_number || 'Offer'}: ${item.shipowner_company_name || 'Shipowner company'}`;
+          const meta = document.createElement('div');
+          meta.className = 'agent-object__meta';
+          meta.textContent = [
+            item.offer_status,
+            item.framework_terms_status ? `Framework: ${item.framework_terms_status}` : '',
+            item.authority_status ? `Authority: ${item.authority_status}` : '',
+            item.commercial_terms_status ? `Commercial: ${item.commercial_terms_status}` : '',
+          ].filter(Boolean).join(' | ');
+          copy.append(heading, meta);
+          if (item.offer_status === 'sent') {
+            const check = document.createElement('label');
+            check.className = 'agent-acceptance-check';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.dataset.offerAcceptance = item.offer_id || '';
+            const checkText = document.createElement('span');
+            checkText.textContent = item.acceptance_text || 'С условиями рамочного договора присоединения согласен';
+            check.append(checkbox, checkText);
+            copy.append(check);
+          }
+          const side = document.createElement('div');
+          side.className = 'agent-operation__side';
+          const pill = document.createElement('span');
+          pill.className = `agent-pill ${item.offer_status === 'activated' ? 'is-ready' : 'is-pending'}`;
+          pill.textContent = item.offer_status || 'offer';
+          side.append(pill);
+          if (item.offer_status === 'sent') {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'agent-inline-button';
+            button.dataset.acceptOfferId = item.offer_id || '';
+            button.textContent = 'Accept';
+            side.append(button);
+          }
+          row.append(copy, side);
+          frameworkOfferList.append(row);
+        });
+      };
+
+      const acceptFrameworkOffer = async (offerId) => {
+        if (!offerId) {
+          return;
+        }
+        const checkbox = Array.from(document.querySelectorAll('[data-offer-acceptance]'))
+          .find((node) => node.dataset.offerAcceptance === offerId);
+        if (!checkbox || checkbox.checked !== true) {
+          setText(status, 'Confirm framework agreement terms before accepting the offer.');
+          return;
+        }
+        setText(status, 'Accepting framework agreement offer.');
+        const result = await apiPost(`/agents/framework-agreement-offers/${encodeURIComponent(offerId)}/accept`, {
+          framework_terms_accepted: true,
+          acceptance_text: 'С условиями рамочного договора присоединения согласен',
+        });
+        if (!result.response.ok || !result.payload.ok) {
+          setText(status, result.payload.message || 'Unable to accept framework agreement offer.');
+          return;
+        }
+        setText(status, 'Framework agreement accepted. Management assignment activated.');
+        loadAgentScope();
       };
 
       const renderObjects = (objects) => {
@@ -803,21 +941,24 @@
           setText(status, `Role: ${me.payload.agent_user_role || 'agent'} | Status: ${me.payload.agent_status || 'unknown'} | Authority: ${me.payload.authority_status || 'unknown'}`);
           setText(orgCount, String((me.payload.organizations || []).filter((item) => item.management_ready).length));
 
-          const [objects, requests, claims, tasks] = await Promise.all([
+          const [objects, requests, claims, tasks, offers] = await Promise.all([
             apiGet('/agents/objects'),
             apiGet('/agents/object-creation-requests'),
             apiGet('/agents/account-object-claims'),
             apiGet('/agents/tasks'),
+            apiGet('/agents/framework-agreement-offers'),
           ]);
           const objectRows = objects.payload.objects || [];
           const requestRows = requests.payload.requests || [];
           const claimRows = claims.payload.claims || [];
           const taskRows = tasks.payload.tasks || [];
+          const offerRows = offers.payload.offers || [];
           setText(objectCount, String(objectRows.length));
           setText(requestCount, String(requestRows.filter((item) => !['created_linked', 'blocked_duplicate', 'rejected', 'cancelled'].includes(item.creation_status)).length));
           setText(claimCount, String(claimRows.length));
           setText(taskCount, String(taskRows.length));
           renderTaskRows(taskList, taskEmpty, taskRows, 'agent-task');
+          renderFrameworkOffers(offerRows);
           renderObjects(objectRows);
           renderRequests(requestRows);
           renderClaims(claimRows);
@@ -828,6 +969,16 @@
           setText(status, 'Unable to load agent scope right now.');
         }
       };
+
+      if (frameworkOfferList) {
+        frameworkOfferList.addEventListener('click', (event) => {
+          const target = event.target.closest('[data-accept-offer-id]');
+          if (!target) {
+            return;
+          }
+          acceptFrameworkOffer(target.dataset.acceptOfferId || '');
+        });
+      }
 
       loadAgentScope();
     })();

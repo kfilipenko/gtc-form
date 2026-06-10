@@ -142,6 +142,7 @@ Task exit rules:
 | CPG-BIZ-124 | Agent assignment context enforcement in profile and demand forms | Implemented runtime guard for agent-opened profile/demand draft routes, completeness, submit-review, protected document list/upload and seafarer workspace resolution |
 | CPG-BIZ-125 | Agent representation capacity, dual-interest facilitation, conflict boundary and personal contract-signature rule | Documented standard requiring represented-party capacity in agent tasks/actions, allowing ordinary dual-interest facilitation, controlling formal dual-management/final authority and requiring direct seafarer/shipowner party review/signature for contract-critical terms |
 | CPG-BIZ-126 | Participant representative appointment and assignment notification standard | Documented standard for physical-person self-registration, platform-capacity authorization, optional representative appointment/replacement, signed representation agreement/POA evidence, exclusive delegated operational management, participant governance notification ledger, agent-created preparation/invitation contexts, one-active-manager rule and safe notifications to represented parties, previous agents, new agents and control roles |
+| CPG-BIZ-127 | Participant governance notification ledger API/UI implementation | Implemented first runtime slice: shipowner agent-selection panel, in-system framework offer, agent offer list/task, checkbox acceptance, verified shipowner-agency authority document, active one-manager assignment, participant notification ledger records and test agent seed; commercial terms remain `commercial_terms_pending` until separate Service Order / commercial addendum |
 | Implemented Code Standards ICS-001..003 | Reusable code standards for form lifecycle, protected upload and submit-review gate | Existing code-level standard register |
 
 ## 4. Stage-To-Standard Matrix
@@ -178,6 +179,8 @@ Task exit rules:
 | Computed task visibility and assignment | Cross-stage | Task computed from object state | All operational groups | BP-012, BP-013, CPG-BIZ-014..030 reports | Covered for current team task model | Job instruction must define task ownership by stage and exception escalation. |
 | Public site functional alignment | Cross-stage | Public pages and CTAs | Group 0 / product owner | BP-009, BP-015, CPG-BIZ-054..087 reports, CPG-BIZ-101 | Partial | Continue removing duplicate descriptive pages from normal navigation and keep only role/action pages. |
 
+CPG-BIZ-127 update: the first runtime slice is now implemented for shipowner-to-agent appointment. `/shipowners/candidates/` can send a framework offer to a registered agent; `/agents/` can display and accept that offer; the backend records authority, one active assignment and participant notification ledger records. Remaining CPG-BIZ-127 work is commercial Service Order / addendum activation, previous-agent replacement/revocation, seafarer-side appointment, notification delivery/read state and delegated operational lock coverage.
+
 ## 5. Gap Register
 
 The following standards should be created or expanded before final job descriptions are issued.
@@ -186,7 +189,7 @@ The following standards should be created or expanded before final job descripti
 |---|---|---|
 | P1 | Employer service package, Service Order and entitlement standard | Without this, subscription/package, discounts, service access, commercial terms, paid service activation and billing start are not fully controlled. |
 | P1 | Structured terms clarification workspace standard | Required before contract proposal so salary, joining date, duration, travel, repatriation and document-readiness differences become auditable agreed terms instead of chat text. |
-| P1 | Participant governance notification ledger API/UI implementation | Required after CPG-BIZ-126 and the CPG-BIZ-123 shipowner-agent offer/acceptance package so seafarers and shipowners can claim agent-created records, send/accept/reject representative offers, appoint/reject/replace representatives and receive durable audit-visible notifications for authority, representative agreement/POA, delegation, document-stage and obligation-stage milestones. |
+| P1 | Participant governance notification ledger API/UI follow-up slices | First shipowner-to-agent offer/acceptance slice is implemented under CPG-BIZ-127. Remaining work must add Service Order / commercial addendum activation, previous-agent replacement/revocation, seafarer-side appointment, notification read/delivery lifecycle and delegated operational lock across all edit surfaces. |
 | P1 | Contract workspace embedded field editing and party-review readiness guard | CPG-BIZ-102 can open a concrete workspace and show source-prefilled facts; the next gap is controlled completion of selectable embedded contract fields before party review. |
 | P1 | Embarkation and onboard-status evidence standard | Required to prove success fee, onboard status and service delivery. |
 | P1 | Monthly service evidence and billing-basis standard | Required for recurring monthly service fee and partial-month/illness/replacement cases. |
@@ -228,7 +231,7 @@ The job instruction must define:
 Current synchronized checkpoint:
 
 ```text
-CPG-BIZ-123 shipowner-agent agreement template is updated as a future portal offer/acceptance framework agreement package with separate commercial terms, and CPG-BIZ-126 remains the governing standard for participant representative appointment and notification.
+CPG-BIZ-127 first runtime slice is implemented: shipowner sends an in-system framework offer to a registered agent, agent accepts/signs by checkbox, platform creates authority and one active assignment, and notification ledger records are persisted while commercial terms remain pending.
 ```
 
 The agent scope chain now includes:
@@ -244,15 +247,16 @@ The agent scope chain now includes:
 9. CPG-BIZ-119 - assignment-specific agent-managed object workspace;
 10. CPG-BIZ-124 - agent assignment-context enforcement in profile, demand and protected-document routes;
 11. CPG-BIZ-125 - agent representation capacity, dual-interest facilitation, formal dual-management blocker and personal seafarer/shipowner contract review/signature rule;
-12. CPG-BIZ-126 - physical-person self-registration, platform-capacity authorization, optional representative appointment, signed representation agreement/POA evidence, exclusive delegated operational management, participant governance notification ledger, agent-created preparation/invitation contexts, one-active-manager rule and assignment notification standard.
+12. CPG-BIZ-126 - physical-person self-registration, platform-capacity authorization, optional representative appointment, signed representation agreement/POA evidence, exclusive delegated operational management, participant governance notification ledger, agent-created preparation/invitation contexts, one-active-manager rule and assignment notification standard;
+13. CPG-BIZ-127 - first runtime shipowner-agent framework offer, agent acceptance, authority/assignment activation and notification ledger implementation.
 
 The recommended next stage is:
 
 ```text
-CPG-BIZ-127 - Participant governance notification ledger API/UI implementation
+CPG-BIZ-127 follow-up - Service Order / commercial addendum activation and representative-notification expansion
 ```
 
-Goal: implement the first runtime slice of the CPG-BIZ-126 model, using the CPG-BIZ-123 shipowner-agent offer/acceptance framework package as the first activation scenario. A shipowner may send an in-system offer to an agent, but active representative management starts only after the agent accepts/signs the standard platform adhesion-form framework package, platform-side POA/authority is issued/recorded where applicable, mandatory appendices are fixed, signatory authority is verified, one-active-manager check passes and notification ledger records are created. Commercial price is not part of the framework acceptance by default: the assignment may enter `commercial_terms_pending`, and paid service, billing basis, success fee and SLA calculations require a separate Service Order / commercial addendum / request or approved price-basis record. For any later agent-created, claimed, received, lost or replaced management of a represented participant object, authority confirmation, document preparation/generation/signature/rejection or obligation milestone completion/blocker, the represented participant, new agent, previous agent and Platform Administration / Control must receive safe computed notifications/tasks. The implementation must persist notification ledger records, must not leak unrelated object data, must preserve the one-active-manager rule, must lock participant operational editing while delegation is active and must keep contract-critical work blocked until party activation or enhanced authority is verified.
+Goal: build the commercial activation layer that follows the implemented framework appointment. The next slice should let the parties record a separate Service Order / commercial addendum / request or approved price-basis record, move paid-service status beyond `commercial_terms_pending`, and keep notification ledger records for commercial acceptance, billing readiness and any representative replacement/revocation. The same work should expand the notification ledger toward previous-agent/new-agent/represented-party tasks and begin enforcing delegated operational locks on all participant edit surfaces.
 
 After that, the process should move to:
 
@@ -271,6 +275,7 @@ After that, the process should move to:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.13 | 2026-06-10 | GTC IT / AI Assistant | Added CPG-BIZ-127 first runtime implementation result: shipowner agent offer, agent checkbox acceptance, authority/assignment activation, notification ledger, test agent seed and next follow-up for commercial Service Order/addendum |
 | 3.12 | 2026-06-10 | GTC IT / AI Assistant | Clarified CPG-BIZ-123/BP-012/BP-015 separation between framework adhesion agreement and separate Service Order / commercial addendum: representative management may activate after authority, while paid service, billing basis, success fee and SLA require separate commercial agreement |
 | 3.11 | 2026-06-10 | GTC IT / AI Assistant | Clarified CPG-BIZ-123 and CPG-BIZ-127 first runtime scenario: shipowner sends an in-system offer, agent accepts the standard adhesion-form package, platform-side authority and price basis are recorded, and only then can active agent management be activated |
 | 3.10 | 2026-06-10 | GTC IT / AI Assistant | Added CPG-BIZ-123 shipowner-agent agreement package as a controlling standard for agent onboarding, including portal activation gate, POA/appendix signing, delegated lock and notification-ledger prerequisites; clarified CPG-BIZ-127 first runtime scenario |

@@ -9317,6 +9317,885 @@ function handle_get_shipowner_candidate_selection(): void {
     ]);
 }
 
+function cpg_shipowner_agent_context_from_draft(string $draftId): array {
+    $role = read_role_for_user($draftId);
+    if ($role === null || $role === 'seafarer') {
+        api_error(404, 'shipowner_draft_not_found', 'Shipowner draft not found');
+    }
+
+    $company = read_primary_company_for_user($draftId);
+    if ($company === null || !isset($company['company_id'])) {
+        api_error(404, 'shipowner_company_not_found', 'Shipowner company not found');
+    }
+
+    return [
+        'draft_id' => $draftId,
+        'role' => $role,
+        'company_id' => (string) $company['company_id'],
+        'company_name' => is_string($company['company_name'] ?? null) ? (string) $company['company_name'] : null,
+        'verification_status' => is_string($company['verification_status'] ?? null) ? (string) $company['verification_status'] : null,
+    ];
+}
+
+function cpg_agent_registered_options(): array {
+    if (!cpg_agent_scope_tables_ready()) {
+        return [];
+    }
+
+    return cpg_fetch_all_assoc(
+        "SELECT ao.agent_organization_id::text AS agent_organization_id,
+                ao.agent_code,
+                ao.agent_display_name,
+                ao.organization_kind,
+                ao.agent_status,
+                ao.authority_status,
+                ao.platform_service_agreement_status,
+                ao.public_listing_allowed,
+                count(au.agent_user_id)::int AS active_user_count
+         FROM crewportglobal.agent_organizations ao
+         LEFT JOIN crewportglobal.agent_users au
+           ON au.agent_organization_id = ao.agent_organization_id
+          AND au.membership_status = 'active'
+         WHERE ao.agent_status IN ('verified', 'limited')
+           AND ao.authority_status IN ('verified', 'limited')
+           AND ao.platform_service_agreement_status = 'accepted'
+           AND ao.archived_at IS NULL
+         GROUP BY ao.agent_organization_id
+         ORDER BY ao.public_listing_allowed DESC, ao.agent_display_name ASC
+         LIMIT 100",
+        []
+    );
+}
+
+function cpg_agent_framework_offer_public_row(array $row): array {
+    return [
+        'offer_id' => is_string($row['offer_id'] ?? null) ? (string) $row['offer_id'] : null,
+        'offer_number' => is_string($row['offer_number'] ?? null) ? (string) $row['offer_number'] : null,
+        'shipowner_user_id' => is_string($row['shipowner_user_id'] ?? null) ? (string) $row['shipowner_user_id'] : null,
+        'shipowner_company_id' => is_string($row['shipowner_company_id'] ?? null) ? (string) $row['shipowner_company_id'] : null,
+        'shipowner_company_name' => is_string($row['shipowner_company_name'] ?? null) ? (string) $row['shipowner_company_name'] : null,
+        'agent_organization_id' => is_string($row['agent_organization_id'] ?? null) ? (string) $row['agent_organization_id'] : null,
+        'agent_display_name' => is_string($row['agent_display_name'] ?? null) ? (string) $row['agent_display_name'] : null,
+        'represented_object_type' => is_string($row['represented_object_type'] ?? null) ? (string) $row['represented_object_type'] : null,
+        'represented_object_id' => is_string($row['represented_object_id'] ?? null) ? (string) $row['represented_object_id'] : null,
+        'offer_status' => is_string($row['offer_status'] ?? null) ? (string) $row['offer_status'] : null,
+        'framework_terms_status' => is_string($row['framework_terms_status'] ?? null) ? (string) $row['framework_terms_status'] : null,
+        'authority_status' => is_string($row['authority_status'] ?? null) ? (string) $row['authority_status'] : null,
+        'commercial_terms_status' => is_string($row['commercial_terms_status'] ?? null) ? (string) $row['commercial_terms_status'] : null,
+        'framework_template_code' => is_string($row['framework_template_code'] ?? null) ? (string) $row['framework_template_code'] : null,
+        'framework_template_version' => is_string($row['framework_template_version'] ?? null) ? (string) $row['framework_template_version'] : null,
+        'signature_method' => is_string($row['signature_method'] ?? null) ? (string) $row['signature_method'] : null,
+        'acceptance_text' => is_string($row['acceptance_text'] ?? null) ? (string) $row['acceptance_text'] : null,
+        'source_authority_document_id' => is_string($row['source_authority_document_id'] ?? null) ? (string) $row['source_authority_document_id'] : null,
+        'assignment_id' => is_string($row['assignment_id'] ?? null) ? (string) $row['assignment_id'] : null,
+        'offered_at' => is_string($row['offered_at'] ?? null) ? (string) $row['offered_at'] : null,
+        'accepted_at' => is_string($row['accepted_at'] ?? null) ? (string) $row['accepted_at'] : null,
+        'activated_at' => is_string($row['activated_at'] ?? null) ? (string) $row['activated_at'] : null,
+    ];
+}
+
+function cpg_agent_framework_offers_for_company(string $companyId): array {
+    if (!cpg_agent_framework_tables_ready()) {
+        return [];
+    }
+
+    $rows = cpg_fetch_all_assoc(
+        "SELECT afo.agent_framework_agreement_offer_id::text AS offer_id,
+                afo.offer_number,
+                afo.shipowner_user_id::text AS shipowner_user_id,
+                afo.shipowner_company_id::text AS shipowner_company_id,
+                ec.company_name AS shipowner_company_name,
+                afo.agent_organization_id::text AS agent_organization_id,
+                ao.agent_display_name,
+                afo.represented_object_type,
+                afo.represented_object_id::text AS represented_object_id,
+                afo.offer_status,
+                afo.framework_terms_status,
+                afo.authority_status,
+                afo.commercial_terms_status,
+                afo.framework_template_code,
+                afo.framework_template_version,
+                afo.signature_method,
+                afo.acceptance_text,
+                afo.source_authority_document_id::text AS source_authority_document_id,
+                afo.agent_object_assignment_id::text AS assignment_id,
+                afo.offered_at::text AS offered_at,
+                afo.accepted_at::text AS accepted_at,
+                afo.activated_at::text AS activated_at
+         FROM crewportglobal.agent_framework_agreement_offers afo
+         JOIN crewportglobal.agent_organizations ao
+           ON ao.agent_organization_id = afo.agent_organization_id
+         JOIN crewportglobal.employer_companies ec
+           ON ec.company_id = afo.shipowner_company_id
+         WHERE afo.shipowner_company_id = $1::uuid
+           AND afo.archived_at IS NULL
+         ORDER BY afo.updated_at DESC
+         LIMIT 100",
+        [$companyId]
+    );
+
+    return array_map('cpg_agent_framework_offer_public_row', $rows);
+}
+
+function cpg_participant_notifications_for_user(string $userId, string $objectType, string $objectId): array {
+    if (!cpg_agent_framework_tables_ready()) {
+        return [];
+    }
+
+    return cpg_fetch_all_assoc(
+        "SELECT participant_notification_id::text AS notification_id,
+                event_type,
+                event_stage,
+                safe_summary,
+                action_type,
+                delivery_status,
+                payload_hash,
+                created_at::text AS created_at
+         FROM crewportglobal.participant_notification_ledger
+         WHERE recipient_user_id = $1::uuid
+           AND represented_object_type = $2
+           AND represented_object_id = $3::uuid
+         ORDER BY created_at DESC
+         LIMIT 50",
+        [$userId, $objectType, $objectId]
+    );
+}
+
+function cpg_agent_framework_offer_number(): string {
+    return 'CPG-AO-' . gmdate('Ymd-His') . '-' . strtoupper(substr(bin2hex(random_bytes(3)), 0, 6));
+}
+
+function handle_get_employer_agent_assignment_options(): void {
+    cpg_agent_require_framework_tables();
+    $draftId = api_normalize_uuid($_GET['draft_id'] ?? null);
+    if ($draftId === null) {
+        api_error(400, 'invalid_draft_id', 'draft_id must be a valid UUID');
+    }
+
+    $context = cpg_shipowner_agent_context_from_draft($draftId);
+    api_json(200, [
+        'ok' => true,
+        'draft_id' => $draftId,
+        'company' => [
+            'company_id' => $context['company_id'],
+            'company_name' => $context['company_name'],
+            'verification_status' => $context['verification_status'],
+        ],
+        'framework_template' => [
+            'code' => 'CPG-BIZ-123',
+            'version' => '1.3',
+            'title' => 'Shipowner-agent framework agreement',
+            'acceptance_text' => 'С условиями рамочного договора присоединения согласен',
+            'commercial_terms_default_status' => 'commercial_terms_pending',
+        ],
+        'agents' => cpg_agent_registered_options(),
+        'offers' => cpg_agent_framework_offers_for_company($context['company_id']),
+        'notifications' => cpg_participant_notifications_for_user($draftId, 'employer_company', $context['company_id']),
+        'generated_at' => gmdate('c'),
+    ]);
+}
+
+function handle_post_employer_agent_framework_offer(): void {
+    cpg_agent_require_framework_tables();
+    $body = api_decode_json_body();
+    $draftId = api_normalize_uuid($body['draft_id'] ?? $body['shipowner_user_id'] ?? null);
+    $agentOrganizationId = cpg_agent_nullable_uuid($body['agent_organization_id'] ?? null);
+    if ($draftId === null || $agentOrganizationId === null) {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'agent_offer_required_fields_missing',
+            'message' => 'draft_id and agent_organization_id are required',
+        ]);
+    }
+
+    $context = cpg_shipowner_agent_context_from_draft($draftId);
+    $agent = cpg_fetch_one_assoc(
+        "SELECT agent_organization_id::text AS agent_organization_id,
+                agent_display_name,
+                agent_status,
+                authority_status,
+                platform_service_agreement_status
+         FROM crewportglobal.agent_organizations
+         WHERE agent_organization_id = $1::uuid
+           AND agent_status IN ('verified', 'limited')
+           AND authority_status IN ('verified', 'limited')
+           AND platform_service_agreement_status = 'accepted'
+           AND archived_at IS NULL
+         LIMIT 1",
+        [$agentOrganizationId]
+    );
+    if (!is_array($agent)) {
+        api_json(404, [
+            'ok' => false,
+            'error' => 'registered_agent_not_found',
+            'message' => 'Selected registered agent is not available for appointment offers',
+        ]);
+    }
+
+    $activeAssignment = cpg_fetch_one_assoc(
+        "SELECT aoa.agent_object_assignment_id::text AS assignment_id,
+                aoa.agent_organization_id::text AS agent_organization_id,
+                ao.agent_display_name,
+                aoa.assignment_status
+         FROM crewportglobal.agent_object_assignments aoa
+         JOIN crewportglobal.agent_organizations ao
+           ON ao.agent_organization_id = aoa.agent_organization_id
+         WHERE aoa.object_type = 'employer_company'
+           AND aoa.object_id = $1::uuid
+           AND aoa.assignment_status IN ('active', 'limited')
+           AND aoa.archived_at IS NULL
+         LIMIT 1",
+        [$context['company_id']]
+    );
+    if (is_array($activeAssignment)) {
+        api_json(409, [
+            'ok' => false,
+            'error' => 'shipowner_company_already_managed',
+            'message' => 'This shipowner company already has an active managing agent assignment',
+            'assignment' => $activeAssignment,
+        ]);
+    }
+
+    $existing = cpg_fetch_one_assoc(
+        "SELECT agent_framework_agreement_offer_id::text AS offer_id,
+                offer_status
+         FROM crewportglobal.agent_framework_agreement_offers
+         WHERE shipowner_company_id = $1::uuid
+           AND agent_organization_id = $2::uuid
+           AND represented_object_type = 'employer_company'
+           AND represented_object_id = $1::uuid
+           AND offer_status IN ('sent', 'accepted')
+           AND archived_at IS NULL
+         LIMIT 1",
+        [$context['company_id'], $agentOrganizationId]
+    );
+    if (is_array($existing)) {
+        api_json(409, [
+            'ok' => false,
+            'error' => 'agent_offer_already_open',
+            'message' => 'An open offer for this agent and shipowner company already exists',
+            'offer' => $existing,
+        ]);
+    }
+
+    $delegatedScope = cpg_agent_json_object_value($body['delegated_scope'] ?? []);
+    if ($delegatedScope === []) {
+        $delegatedScope = [
+            'objects' => ['company_card'],
+            'management_mode' => 'framework_representative_management',
+            'commercial_terms_status' => 'commercial_terms_pending',
+        ];
+    }
+    $contractSnapshot = [
+        'framework_template_code' => 'CPG-BIZ-123',
+        'framework_template_version' => '1.3',
+        'agreement_type' => 'framework_adhesion_agreement',
+        'acceptance_text' => 'С условиями рамочного договора присоединения согласен',
+        'commercial_terms_status' => 'commercial_terms_pending',
+        'generated_contract_reference' => '/docs/crewportglobal/324_cpg_biz_123_full_contract_ru_checkbox_radio.md',
+    ];
+
+    $offerNumber = cpg_agent_framework_offer_number();
+    api_tx_begin();
+    try {
+        $row = cpg_fetch_one_assoc(
+            "INSERT INTO crewportglobal.agent_framework_agreement_offers (
+               offer_number,
+               shipowner_user_id,
+               shipowner_company_id,
+               agent_organization_id,
+               represented_object_type,
+               represented_object_id,
+               offer_status,
+               framework_terms_status,
+               authority_status,
+               commercial_terms_status,
+               delegated_scope,
+               contract_snapshot,
+               offered_by_user_id,
+               metadata
+             ) VALUES (
+               $1,
+               $2::uuid,
+               $3::uuid,
+               $4::uuid,
+               'employer_company',
+               $3::uuid,
+               'sent',
+               'offered',
+               'pending',
+               'commercial_terms_pending',
+               $5::jsonb,
+               $6::jsonb,
+               $2::uuid,
+               $7::jsonb
+             )
+             RETURNING agent_framework_agreement_offer_id::text AS offer_id,
+                       offer_number,
+                       shipowner_user_id::text AS shipowner_user_id,
+                       shipowner_company_id::text AS shipowner_company_id,
+                       agent_organization_id::text AS agent_organization_id,
+                       represented_object_type,
+                       represented_object_id::text AS represented_object_id,
+                       offer_status,
+                       framework_terms_status,
+                       authority_status,
+                       commercial_terms_status,
+                       framework_template_code,
+                       framework_template_version,
+                       signature_method,
+                       acceptance_text,
+                       offered_at::text AS offered_at",
+            [
+                $offerNumber,
+                $draftId,
+                $context['company_id'],
+                $agentOrganizationId,
+                cpg_agent_json_object_text($delegatedScope),
+                cpg_agent_json_object_text($contractSnapshot),
+                cpg_agent_json_object_text(['source' => 'shipowner_agent_assignment_ui']),
+            ]
+        );
+        $offerId = is_array($row) ? (string) ($row['offer_id'] ?? '') : '';
+        $summary = 'Shipowner ' . (string) ($context['company_name'] ?? $context['company_id'])
+            . ' sent framework agreement offer to agent ' . (string) ($agent['agent_display_name'] ?? $agentOrganizationId);
+        $payload = [
+            'offer_id' => $offerId,
+            'offer_number' => $offerNumber,
+            'company_id' => $context['company_id'],
+            'agent_organization_id' => $agentOrganizationId,
+            'commercial_terms_status' => 'commercial_terms_pending',
+            'framework_template_code' => 'CPG-BIZ-123',
+            'framework_template_version' => '1.3',
+        ];
+        cpg_agent_create_participant_notification(
+            $draftId,
+            null,
+            'employer_company',
+            $context['company_id'],
+            'agent_framework_offer_sent',
+            'framework_offer',
+            $summary,
+            'view',
+            $payload,
+            $draftId,
+            $offerId,
+            null,
+            $agentOrganizationId
+        );
+        cpg_agent_create_participant_notification(
+            null,
+            $agentOrganizationId,
+            'employer_company',
+            $context['company_id'],
+            'agent_framework_offer_received',
+            'framework_offer',
+            $summary,
+            'accept',
+            $payload,
+            $draftId,
+            $offerId,
+            null,
+            $agentOrganizationId
+        );
+        cpg_agent_scope_audit_event(
+            'agent_framework_offer_sent',
+            $draftId,
+            $agentOrganizationId,
+            null,
+            null,
+            null,
+            'employer_company',
+            $context['company_id'],
+            [],
+            $payload,
+            'shipowner sent framework agreement offer to registered agent'
+        );
+
+        api_tx_commit();
+        api_json(201, [
+            'ok' => true,
+            'offer' => array_merge(cpg_agent_framework_offer_public_row(array_merge($row ?? [], [
+                'agent_display_name' => $agent['agent_display_name'] ?? null,
+                'shipowner_company_name' => $context['company_name'],
+            ])), [
+                'contract_snapshot' => $contractSnapshot,
+            ]),
+            'notification_summary' => [
+                'shipowner_notification_created' => true,
+                'agent_notification_created' => true,
+            ],
+        ]);
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'agent_offer_create_failed', $error->getMessage());
+    }
+}
+
+function cpg_agent_framework_offer_rows_for_agent(string $agentOrganizationId, int $limit = 100): array {
+    if (!cpg_agent_framework_tables_ready()) {
+        return [];
+    }
+
+    return cpg_fetch_all_assoc(
+        "SELECT afo.agent_framework_agreement_offer_id::text AS offer_id,
+                afo.offer_number,
+                afo.shipowner_user_id::text AS shipowner_user_id,
+                afo.shipowner_company_id::text AS shipowner_company_id,
+                ec.company_name AS shipowner_company_name,
+                afo.agent_organization_id::text AS agent_organization_id,
+                ao.agent_display_name,
+                afo.represented_object_type,
+                afo.represented_object_id::text AS represented_object_id,
+                afo.offer_status,
+                afo.framework_terms_status,
+                afo.authority_status,
+                afo.commercial_terms_status,
+                afo.framework_template_code,
+                afo.framework_template_version,
+                afo.signature_method,
+                afo.acceptance_text,
+                afo.delegated_scope::text AS delegated_scope,
+                afo.contract_snapshot::text AS contract_snapshot,
+                afo.source_authority_document_id::text AS source_authority_document_id,
+                afo.agent_object_assignment_id::text AS assignment_id,
+                afo.offered_at::text AS offered_at,
+                afo.accepted_at::text AS accepted_at,
+                afo.activated_at::text AS activated_at
+         FROM crewportglobal.agent_framework_agreement_offers afo
+         JOIN crewportglobal.agent_organizations ao
+           ON ao.agent_organization_id = afo.agent_organization_id
+         JOIN crewportglobal.employer_companies ec
+           ON ec.company_id = afo.shipowner_company_id
+         WHERE afo.agent_organization_id = $1::uuid
+           AND afo.archived_at IS NULL
+         ORDER BY afo.updated_at DESC
+         LIMIT $2",
+        [$agentOrganizationId, $limit]
+    );
+}
+
+function cpg_agent_framework_offer_response_row(array $row): array {
+    $public = cpg_agent_framework_offer_public_row($row);
+    $public['delegated_scope'] = cpg_agent_json_text_to_object($row['delegated_scope'] ?? null);
+    $public['contract_snapshot'] = cpg_agent_json_text_to_object($row['contract_snapshot'] ?? null);
+    return $public;
+}
+
+function cpg_agent_task_from_framework_offer(array $row): array {
+    $offerId = is_string($row['offer_id'] ?? null) ? (string) $row['offer_id'] : '';
+    $status = is_string($row['offer_status'] ?? null) ? (string) $row['offer_status'] : '';
+    $companyName = cpg_agent_string_value($row['shipowner_company_name'] ?? null, 200) ?? 'shipowner company';
+    $templateCode = cpg_agent_string_value($row['framework_template_code'] ?? null, 40) ?? 'CPG-BIZ-123';
+    $version = cpg_agent_string_value($row['framework_template_version'] ?? null, 20) ?? '1.3';
+    $requiresAction = $status === 'sent';
+
+    return [
+        'task_id' => 'agent-framework-offer-' . $offerId,
+        'task_model' => 'data_derived_agent_scope',
+        'operation_code' => $requiresAction ? 'accept_shipowner_framework_agreement' : 'track_shipowner_framework_agreement',
+        'task_title' => ($requiresAction ? 'Accept shipowner framework agreement offer.' : 'Track shipowner framework agreement.')
+            . ' (' . $companyName . '.)',
+        'process_stage' => 'Shipowner-agent framework agreement and authority activation',
+        'visibility_condition' => 'Visible while a shipowner framework agreement offer is recorded for this agent organization.',
+        'task_state' => $requiresAction ? 'agent_action_required' : 'waiting_for_next_stage',
+        'framework_offer' => cpg_agent_framework_offer_response_row($row),
+        'target_url' => '/agents/#agent-offer-' . rawurlencode($offerId),
+        'generated_at' => gmdate('c'),
+        'contract_reference' => [
+            'template_code' => $templateCode,
+            'template_version' => $version,
+        ],
+    ];
+}
+
+function handle_get_agent_framework_agreement_offers(): void {
+    cpg_agent_require_framework_tables();
+    $access = cpg_agent_access_from_request();
+    $rows = cpg_agent_framework_offer_rows_for_agent((string) $access['agent_organization_id'], 100);
+    $offers = array_map('cpg_agent_framework_offer_response_row', $rows);
+
+    api_json(200, [
+        'ok' => true,
+        'agent_organization_id' => $access['agent_organization_id'],
+        'agent_display_name' => $access['agent_display_name'],
+        'offers' => $offers,
+        'count' => count($offers),
+        'generated_at' => gmdate('c'),
+    ]);
+}
+
+function handle_post_agent_framework_agreement_offer_accept(string $offerId): void {
+    cpg_agent_require_framework_tables();
+    $offerUuid = api_normalize_uuid($offerId);
+    if ($offerUuid === null) {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'invalid_agent_framework_offer_id',
+            'message' => 'Invalid agent framework agreement offer id',
+        ]);
+    }
+
+    $access = cpg_agent_access_from_request();
+    $body = api_decode_json_body();
+    $accepted = ($body['framework_terms_accepted'] ?? null) === true || ($body['accepted'] ?? null) === true;
+    $acceptanceText = cpg_agent_string_value($body['acceptance_text'] ?? null, 500)
+        ?? 'С условиями рамочного договора присоединения согласен';
+    if (!$accepted) {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'framework_terms_acceptance_required',
+            'message' => 'The agent must confirm agreement with the framework agreement terms',
+        ]);
+    }
+
+    api_tx_begin();
+    try {
+        $offer = cpg_fetch_one_assoc(
+            "SELECT afo.agent_framework_agreement_offer_id::text AS offer_id,
+                    afo.offer_number,
+                    afo.shipowner_user_id::text AS shipowner_user_id,
+                    afo.shipowner_company_id::text AS shipowner_company_id,
+                    ec.company_name AS shipowner_company_name,
+                    afo.agent_organization_id::text AS agent_organization_id,
+                    ao.agent_display_name,
+                    afo.represented_object_type,
+                    afo.represented_object_id::text AS represented_object_id,
+                    afo.offer_status,
+                    afo.framework_terms_status,
+                    afo.authority_status,
+                    afo.commercial_terms_status,
+                    afo.framework_template_code,
+                    afo.framework_template_version,
+                    afo.signature_method,
+                    afo.acceptance_text,
+                    afo.delegated_scope::text AS delegated_scope,
+                    afo.contract_snapshot::text AS contract_snapshot,
+                    afo.source_authority_document_id::text AS source_authority_document_id,
+                    afo.agent_object_assignment_id::text AS assignment_id,
+                    afo.offered_at::text AS offered_at,
+                    afo.accepted_at::text AS accepted_at,
+                    afo.activated_at::text AS activated_at
+             FROM crewportglobal.agent_framework_agreement_offers afo
+             JOIN crewportglobal.agent_organizations ao
+               ON ao.agent_organization_id = afo.agent_organization_id
+             JOIN crewportglobal.employer_companies ec
+               ON ec.company_id = afo.shipowner_company_id
+             WHERE afo.agent_framework_agreement_offer_id = $1::uuid
+               AND afo.agent_organization_id = $2::uuid
+               AND afo.archived_at IS NULL
+             FOR UPDATE",
+            [$offerUuid, (string) $access['agent_organization_id']]
+        );
+        if (!is_array($offer)) {
+            api_tx_rollback();
+            api_json(404, [
+                'ok' => false,
+                'error' => 'agent_framework_offer_not_found',
+                'message' => 'Framework agreement offer is not visible for this agent organization',
+            ]);
+        }
+        if ((string) ($offer['offer_status'] ?? '') === 'activated') {
+            api_tx_commit();
+            api_json(200, [
+                'ok' => true,
+                'offer' => cpg_agent_framework_offer_response_row($offer),
+                'already_activated' => true,
+            ]);
+        }
+        if ((string) ($offer['offer_status'] ?? '') !== 'sent') {
+            api_tx_rollback();
+            api_json(409, [
+                'ok' => false,
+                'error' => 'agent_framework_offer_not_acceptible',
+                'message' => 'Only sent framework agreement offers can be accepted',
+                'offer_status' => $offer['offer_status'] ?? null,
+            ]);
+        }
+
+        $objectType = (string) ($offer['represented_object_type'] ?? 'employer_company');
+        $objectId = (string) ($offer['represented_object_id'] ?? '');
+        $activeAssignment = cpg_fetch_one_assoc(
+            "SELECT aoa.agent_object_assignment_id::text AS assignment_id,
+                    aoa.agent_organization_id::text AS agent_organization_id,
+                    ao.agent_display_name,
+                    aoa.assignment_status
+             FROM crewportglobal.agent_object_assignments aoa
+             JOIN crewportglobal.agent_organizations ao
+               ON ao.agent_organization_id = aoa.agent_organization_id
+             WHERE aoa.object_type = $1
+               AND aoa.object_id = $2::uuid
+               AND aoa.assignment_status IN ('active', 'limited')
+               AND aoa.archived_at IS NULL
+             LIMIT 1",
+            [$objectType, $objectId]
+        );
+        if (is_array($activeAssignment)) {
+            api_tx_rollback();
+            api_json(409, [
+                'ok' => false,
+                'error' => 'represented_object_already_managed',
+                'message' => 'The represented object already has an active managing agent assignment',
+                'assignment' => $activeAssignment,
+            ]);
+        }
+
+        $scopeSnapshot = [
+            'source' => 'agent_framework_offer_acceptance',
+            'offer_id' => $offerUuid,
+            'offer_number' => $offer['offer_number'] ?? null,
+            'represented_object_type' => $objectType,
+            'represented_object_id' => $objectId,
+            'framework_template_code' => $offer['framework_template_code'] ?? 'CPG-BIZ-123',
+            'framework_template_version' => $offer['framework_template_version'] ?? '1.3',
+            'acceptance_text' => $acceptanceText,
+            'delegated_scope' => cpg_agent_json_text_to_object($offer['delegated_scope'] ?? null),
+            'commercial_terms_status' => $offer['commercial_terms_status'] ?? 'commercial_terms_pending',
+        ];
+        $authority = cpg_fetch_one_assoc(
+            "INSERT INTO crewportglobal.agent_authority_documents (
+               agent_organization_id,
+               authority_type,
+               authority_scope_type,
+               authority_scope_object_id,
+               authority_status,
+               valid_from,
+               reviewed_by_user_id,
+               reviewed_at,
+               review_note,
+               source_reference,
+               scope_snapshot,
+               metadata,
+               created_by_user_id
+             ) VALUES (
+               $1::uuid,
+               'shipowner_agency_agreement',
+               'company',
+               $2::uuid,
+               'verified',
+               CURRENT_DATE,
+               $3::uuid,
+               now(),
+               $4,
+               $5,
+               $6::jsonb,
+               $7::jsonb,
+               $8::uuid
+             )
+             RETURNING agent_authority_document_id::text AS authority_document_id,
+                       authority_type,
+                       authority_scope_type,
+                       authority_scope_object_id::text AS authority_scope_object_id,
+                       authority_status,
+                       valid_from::text AS valid_from,
+                       source_reference",
+            [
+                (string) $access['agent_organization_id'],
+                $objectId,
+                (string) $access['actor_user_id'],
+                'Automatically verified by shipowner offer and agent checkbox acceptance in CrewPortGlobal.',
+                (string) ($offer['offer_number'] ?? ''),
+                cpg_agent_json_object_text($scopeSnapshot),
+                cpg_agent_json_object_text([
+                    'source' => 'agent_framework_offer_acceptance',
+                    'signature_method' => 'checkbox_acceptance',
+                    'accepted_by_agent_user_id' => (string) $access['agent_user_id'],
+                    'accepted_by_user_id' => (string) $access['actor_user_id'],
+                    'shipowner_user_id' => (string) ($offer['shipowner_user_id'] ?? ''),
+                    'commercial_terms_status' => $offer['commercial_terms_status'] ?? 'commercial_terms_pending',
+                ]),
+                (string) ($offer['shipowner_user_id'] ?? null),
+            ]
+        );
+        $authorityId = is_array($authority) ? (string) ($authority['authority_document_id'] ?? '') : '';
+        $objectSummary = cpg_agent_string_value($offer['shipowner_company_name'] ?? null, 500)
+            ?? trim($objectType . ' ' . $objectId);
+        $assignment = cpg_fetch_one_assoc(
+            "INSERT INTO crewportglobal.agent_object_assignments (
+               agent_organization_id,
+               object_type,
+               object_id,
+               assignment_status,
+               assignment_source,
+               visibility_scope,
+               data_responsibility_status,
+               source_authority_document_id,
+               assigned_by_user_id,
+               assigned_agent_user_id,
+               assigned_at,
+               valid_from,
+               object_safe_summary,
+               source_snapshot,
+               metadata
+             ) VALUES (
+               $1::uuid,
+               $2,
+               $3::uuid,
+               'active',
+               'authority_document',
+               'ordinary_execution',
+               'agent_responsible',
+               $4::uuid,
+               $5::uuid,
+               $6::uuid,
+               now(),
+               now(),
+               $7,
+               $8::jsonb,
+               $9::jsonb
+             )
+             RETURNING agent_object_assignment_id::text AS assignment_id,
+                       agent_organization_id::text AS agent_organization_id,
+                       object_type,
+                       object_id::text AS object_id,
+                       assignment_status,
+                       assignment_source,
+                       visibility_scope,
+                       data_responsibility_status,
+                       object_safe_summary,
+                       assigned_at::text AS assigned_at",
+            [
+                (string) $access['agent_organization_id'],
+                $objectType,
+                $objectId,
+                $authorityId,
+                (string) ($offer['shipowner_user_id'] ?? ''),
+                (string) $access['agent_user_id'],
+                $objectSummary,
+                cpg_agent_json_object_text(array_merge($scopeSnapshot, [
+                    'authority_document_id' => $authorityId,
+                ])),
+                cpg_agent_json_object_text([
+                    'source' => 'agent_framework_offer_acceptance',
+                    'offer_id' => $offerUuid,
+                    'commercial_terms_status' => $offer['commercial_terms_status'] ?? 'commercial_terms_pending',
+                    'commercial_terms_required_before_billing' => true,
+                ]),
+            ]
+        );
+        $assignmentId = is_array($assignment) ? (string) ($assignment['assignment_id'] ?? '') : '';
+        $updatedOffer = cpg_fetch_one_assoc(
+            "UPDATE crewportglobal.agent_framework_agreement_offers
+             SET offer_status = 'activated',
+                 framework_terms_status = 'accepted',
+                 authority_status = 'verified',
+                 accepted_by_user_id = $2::uuid,
+                 accepted_at = now(),
+                 activated_at = now(),
+                 source_authority_document_id = $3::uuid,
+                 agent_object_assignment_id = $4::uuid,
+                 status_reason = 'Agent accepted framework agreement terms and platform authority was activated.',
+                 metadata = metadata || $5::jsonb
+             WHERE agent_framework_agreement_offer_id = $1::uuid
+             RETURNING agent_framework_agreement_offer_id::text AS offer_id,
+                       offer_number,
+                       shipowner_user_id::text AS shipowner_user_id,
+                       shipowner_company_id::text AS shipowner_company_id,
+                       agent_organization_id::text AS agent_organization_id,
+                       represented_object_type,
+                       represented_object_id::text AS represented_object_id,
+                       offer_status,
+                       framework_terms_status,
+                       authority_status,
+                       commercial_terms_status,
+                       framework_template_code,
+                       framework_template_version,
+                       signature_method,
+                       acceptance_text,
+                       delegated_scope::text AS delegated_scope,
+                       contract_snapshot::text AS contract_snapshot,
+                       source_authority_document_id::text AS source_authority_document_id,
+                       agent_object_assignment_id::text AS assignment_id,
+                       offered_at::text AS offered_at,
+                       accepted_at::text AS accepted_at,
+                       activated_at::text AS activated_at",
+            [
+                $offerUuid,
+                (string) $access['actor_user_id'],
+                $authorityId,
+                $assignmentId,
+                cpg_agent_json_object_text([
+                    'accepted_by_agent_user_id' => (string) $access['agent_user_id'],
+                    'accepted_by_user_id' => (string) $access['actor_user_id'],
+                    'acceptance_text' => $acceptanceText,
+                ]),
+            ]
+        );
+
+        $summary = 'Agent ' . (string) ($offer['agent_display_name'] ?? $access['agent_display_name'])
+            . ' accepted framework agreement and activated management for ' . $objectSummary;
+        $payload = [
+            'offer_id' => $offerUuid,
+            'offer_number' => $offer['offer_number'] ?? null,
+            'authority_document_id' => $authorityId,
+            'assignment_id' => $assignmentId,
+            'represented_object_type' => $objectType,
+            'represented_object_id' => $objectId,
+            'commercial_terms_status' => $offer['commercial_terms_status'] ?? 'commercial_terms_pending',
+        ];
+        cpg_agent_create_participant_notification(
+            (string) ($offer['shipowner_user_id'] ?? ''),
+            null,
+            $objectType,
+            $objectId,
+            'agent_framework_offer_accepted',
+            'authority_activation',
+            $summary,
+            'view',
+            $payload,
+            (string) $access['actor_user_id'],
+            $offerUuid,
+            $assignmentId,
+            (string) $access['agent_organization_id'],
+            $authorityId
+        );
+        cpg_agent_create_participant_notification(
+            null,
+            (string) $access['agent_organization_id'],
+            $objectType,
+            $objectId,
+            'agent_assignment_activated',
+            'authority_activation',
+            $summary,
+            'view',
+            $payload,
+            (string) $access['actor_user_id'],
+            $offerUuid,
+            $assignmentId,
+            (string) $access['agent_organization_id'],
+            $authorityId
+        );
+        cpg_agent_scope_audit_event(
+            'agent_framework_offer_accepted',
+            (string) $access['actor_user_id'],
+            (string) $access['agent_organization_id'],
+            (string) $access['agent_user_id'],
+            null,
+            $assignmentId,
+            $objectType,
+            $objectId,
+            ['offer_status' => $offer['offer_status'] ?? null],
+            $payload,
+            'agent accepted shipowner framework agreement offer'
+        );
+
+        api_tx_commit();
+        api_json(200, [
+            'ok' => true,
+            'offer' => cpg_agent_framework_offer_response_row(array_merge($updatedOffer ?? [], [
+                'agent_display_name' => $offer['agent_display_name'] ?? $access['agent_display_name'],
+                'shipowner_company_name' => $offer['shipowner_company_name'] ?? null,
+            ])),
+            'authority' => $authority,
+            'assignment' => $assignment,
+            'notifications_recorded' => true,
+        ]);
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'agent_framework_offer_accept_failed', $error->getMessage());
+    }
+}
+
 function cpg_contract_workspace_tables_ready(): bool {
     $row = cpg_fetch_one_assoc(
         "SELECT to_regclass('crewportglobal.contract_workspace_instances') AS workspaces_table,
@@ -11812,6 +12691,37 @@ function cpg_agent_require_scope_tables(): void {
     }
 }
 
+function cpg_agent_framework_tables_ready(): bool {
+    static $ready = null;
+    if (is_bool($ready)) {
+        return $ready;
+    }
+
+    $row = cpg_fetch_one_assoc(
+        "SELECT count(*)::int AS table_count
+         FROM information_schema.tables
+         WHERE table_schema = 'crewportglobal'
+           AND table_name IN (
+             'agent_framework_agreement_offers',
+             'participant_notification_ledger'
+           )",
+        []
+    );
+    $ready = is_array($row) && (int) ($row['table_count'] ?? 0) === 2;
+    return $ready;
+}
+
+function cpg_agent_require_framework_tables(): void {
+    cpg_agent_require_scope_tables();
+    if (!cpg_agent_framework_tables_ready()) {
+        api_json(503, [
+            'ok' => false,
+            'error' => 'agent_framework_schema_not_ready',
+            'message' => 'Agent framework agreement offer and notification ledger tables are not available',
+        ]);
+    }
+}
+
 function cpg_agent_allowed_object_types(): array {
     return ['person_user', 'seafarer_profile', 'employer_company', 'vessel', 'vacancy_request'];
 }
@@ -11937,6 +12847,96 @@ function cpg_agent_json_text_to_object(mixed $value): array {
     }
     $decoded = json_decode($value, true);
     return is_array($decoded) && !array_is_list($decoded) ? $decoded : [];
+}
+
+function cpg_agent_notification_payload_hash(array $payload): string {
+    return hash('sha256', cpg_agent_json_object_text($payload));
+}
+
+function cpg_agent_create_participant_notification(
+    ?string $recipientUserId,
+    ?string $recipientAgentOrganizationId,
+    string $representedObjectType,
+    string $representedObjectId,
+    string $eventType,
+    string $eventStage,
+    string $safeSummary,
+    string $actionType,
+    array $payload,
+    ?string $createdByUserId = null,
+    ?string $offerId = null,
+    ?string $assignmentId = null,
+    ?string $agentOrganizationId = null,
+    ?string $documentReferenceId = null
+): ?array {
+    if (!cpg_agent_framework_tables_ready()) {
+        return null;
+    }
+
+    $row = cpg_fetch_one_assoc(
+        "INSERT INTO crewportglobal.participant_notification_ledger (
+           recipient_user_id,
+           recipient_agent_organization_id,
+           represented_object_type,
+           represented_object_id,
+           agent_framework_agreement_offer_id,
+           agent_object_assignment_id,
+           agent_organization_id,
+           event_type,
+           event_stage,
+           safe_summary,
+           action_type,
+           delivery_status,
+           document_reference_id,
+           payload_hash,
+           payload,
+           created_by_user_id
+         ) VALUES (
+           $1::uuid,
+           $2::uuid,
+           $3,
+           $4::uuid,
+           $5::uuid,
+           $6::uuid,
+           $7::uuid,
+           $8,
+           $9,
+           $10,
+           $11,
+           'recorded',
+           $12::uuid,
+           $13,
+           $14::jsonb,
+           $15::uuid
+         )
+         RETURNING participant_notification_id::text AS notification_id,
+                   event_type,
+                   event_stage,
+                   safe_summary,
+                   action_type,
+                   delivery_status,
+                   payload_hash,
+                   created_at::text AS created_at",
+        [
+            $recipientUserId,
+            $recipientAgentOrganizationId,
+            $representedObjectType,
+            $representedObjectId,
+            $offerId,
+            $assignmentId,
+            $agentOrganizationId,
+            $eventType,
+            $eventStage,
+            $safeSummary,
+            $actionType,
+            $documentReferenceId,
+            cpg_agent_notification_payload_hash($payload),
+            cpg_agent_json_object_text($payload),
+            $createdByUserId,
+        ]
+    );
+
+    return is_array($row) ? $row : null;
 }
 
 function cpg_agent_management_allowed_status(array $row): bool {
@@ -12914,6 +13914,7 @@ function handle_get_agent_tasks(): void {
     $agentOrganizationId = (string) $access['agent_organization_id'];
     $limit = max(1, min(200, (int) ($_GET['limit'] ?? 100)));
     $assignmentRows = cpg_agent_assignment_rows($agentOrganizationId, $limit);
+    $offerRows = cpg_agent_framework_offer_rows_for_agent($agentOrganizationId, $limit);
     $claimRows = cpg_agent_claim_rows($agentOrganizationId, $limit);
     $requestRows = cpg_fetch_all_assoc(
         "SELECT agent_object_creation_request_id::text AS request_id,
@@ -12936,6 +13937,11 @@ function handle_get_agent_tasks(): void {
     );
 
     $tasks = [];
+    foreach ($offerRows as $row) {
+        if (in_array((string) ($row['offer_status'] ?? ''), ['sent', 'accepted'], true)) {
+            $tasks[] = cpg_agent_task_from_framework_offer($row);
+        }
+    }
     foreach ($assignmentRows as $row) {
         $tasks[] = cpg_agent_task_from_assignment($row, $access);
     }
@@ -12953,6 +13959,7 @@ function handle_get_agent_tasks(): void {
         'task_model' => 'data_derived_agent_scope',
         'tasks' => $tasks,
         'count' => count($tasks),
+        'framework_offer_count' => count($offerRows),
         'claim_count' => count($claimRows),
         'generated_at' => gmdate('c'),
     ]);
@@ -18092,6 +19099,22 @@ if ($path === '/agents/tasks') {
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
 }
 
+if ($path === '/agents/framework-agreement-offers') {
+    if ($method === 'GET') {
+        handle_get_agent_framework_agreement_offers();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if (preg_match('#^/agents/framework-agreement-offers/([^/]+)/accept$#', $path, $matches) === 1) {
+    if ($method === 'POST') {
+        handle_post_agent_framework_agreement_offer_accept($matches[1]);
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
 if ($path === '/agents/object-creation-requests') {
     if ($method === 'GET') {
         handle_get_agent_object_creation_requests();
@@ -18460,6 +19483,22 @@ if ($method === 'GET' && $path === '/registry-summary') {
 
 if ($method === 'GET' && $path === '/employer/candidate-selection') {
     handle_get_shipowner_candidate_selection();
+}
+
+if ($path === '/employer/agent-assignment/options') {
+    if ($method === 'GET') {
+        handle_get_employer_agent_assignment_options();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
+if ($path === '/employer/agent-assignment/offers') {
+    if ($method === 'POST') {
+        handle_post_employer_agent_framework_offer();
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
 }
 
 if (preg_match('#^/contract-workspaces/([^/]+)$#', $path, $matches) === 1) {

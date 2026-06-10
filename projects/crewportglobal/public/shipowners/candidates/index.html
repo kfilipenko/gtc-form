@@ -46,6 +46,69 @@
       gap: 12px;
     }
 
+    .agent-assignment-card {
+      display: grid;
+      gap: 14px;
+    }
+
+    .agent-assignment-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .agent-assignment-field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .agent-assignment-field label,
+    .agent-assignment-confirm {
+      color: var(--muted-on-dark);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .agent-assignment-field select {
+      min-height: 42px;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--text-on-dark);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .agent-assignment-confirm {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      max-width: 760px;
+    }
+
+    .agent-offer-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .agent-offer-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .agent-offer-row strong {
+      display: block;
+      color: var(--text-on-dark);
+      line-height: 1.25;
+    }
+
     .request-card,
     .candidate-card {
       display: grid;
@@ -107,6 +170,11 @@
       .selection-hero {
         grid-template-columns: 1fr;
       }
+
+      .agent-assignment-grid,
+      .agent-offer-row {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -151,6 +219,27 @@
           <strong id="selection-status-title" data-i18n="shipowners.candidates.status.loading">Loading candidate selection.</strong>
           <span id="selection-status-copy" data-i18n="shipowners.candidates.status.copy">Only approved presentations are shown here.</span>
         </div>
+      </section>
+
+      <section class="card agent-assignment-card" id="agent-assignment">
+        <div>
+          <p class="eyebrow" data-i18n="shipowners.candidates.agent.eyebrow">Agent appointment</p>
+          <h2 data-i18n="shipowners.candidates.agent.title">Appoint a managing agent</h2>
+          <p id="agent-assignment-status" class="muted" data-i18n="shipowners.candidates.agent.loading">Loading registered agents.</p>
+        </div>
+        <div class="agent-assignment-grid">
+          <div class="agent-assignment-field">
+            <label for="agent-assignment-select" data-i18n="shipowners.candidates.agent.select">Registered agent</label>
+            <select id="agent-assignment-select"></select>
+          </div>
+          <button id="agent-offer-send" class="button primary" type="button" data-i18n="shipowners.candidates.agent.send">Send offer</button>
+        </div>
+        <label class="agent-assignment-confirm">
+          <input id="agent-framework-confirm" type="checkbox">
+          <span data-i18n="shipowners.candidates.agent.confirm">I understand that the framework agreement is concluded inside CrewPortGlobal; commercial terms are agreed separately.</span>
+        </label>
+        <div id="agent-offer-list" class="agent-offer-list" aria-live="polite"></div>
+        <div id="agent-notification-list" class="agent-offer-list" aria-live="polite"></div>
       </section>
 
       <section class="card">
@@ -218,7 +307,20 @@
         'shipowners.candidates.availability': 'Availability',
         'shipowners.candidates.match': 'Match',
         'shipowners.candidates.matchText': 'Presented by controlled shortlist and review workflow.',
-        'shipowners.candidates.noDraft': 'Open this page from a shipowner account or add draft_id to the URL.'
+        'shipowners.candidates.noDraft': 'Open this page from a shipowner account or add draft_id to the URL.',
+        'shipowners.candidates.agent.eyebrow': 'Agent appointment',
+        'shipowners.candidates.agent.title': 'Appoint a managing agent',
+        'shipowners.candidates.agent.loading': 'Loading registered agents.',
+        'shipowners.candidates.agent.select': 'Registered agent',
+        'shipowners.candidates.agent.send': 'Send offer',
+        'shipowners.candidates.agent.confirm': 'I understand that the framework agreement is concluded inside CrewPortGlobal; commercial terms are agreed separately.',
+        'shipowners.candidates.agent.empty': 'No registered agents are available for appointment.',
+        'shipowners.candidates.agent.ready': 'Select an agent and send a framework agreement offer.',
+        'shipowners.candidates.agent.confirmRequired': 'Confirm the framework agreement condition before sending.',
+        'shipowners.candidates.agent.sent': 'Framework agreement offer sent.',
+        'shipowners.candidates.agent.failed': 'Agent appointment offer failed.',
+        'shipowners.candidates.agent.offers': 'Agreement offers',
+        'shipowners.candidates.agent.notifications': 'Notifications'
       },
       ru: {
         'site.tagline': 'Морская платформа документов и подбора экипажей',
@@ -263,7 +365,20 @@
         'shipowners.candidates.availability': 'Готовность',
         'shipowners.candidates.match': 'Совпадение',
         'shipowners.candidates.matchText': 'Кандидат представлен через контролируемый shortlist и review workflow.',
-        'shipowners.candidates.noDraft': 'Откройте страницу из аккаунта судовладельца или добавьте draft_id в URL.'
+        'shipowners.candidates.noDraft': 'Откройте страницу из аккаунта судовладельца или добавьте draft_id в URL.',
+        'shipowners.candidates.agent.eyebrow': 'Назначение агента',
+        'shipowners.candidates.agent.title': 'Назначить управляющего агента',
+        'shipowners.candidates.agent.loading': 'Загружаем зарегистрированных агентов.',
+        'shipowners.candidates.agent.select': 'Зарегистрированный агент',
+        'shipowners.candidates.agent.send': 'Направить предложение',
+        'shipowners.candidates.agent.confirm': 'Я понимаю, что рамочный договор заключается внутри CrewPortGlobal; коммерческие условия согласуются отдельно.',
+        'shipowners.candidates.agent.empty': 'Нет зарегистрированных агентов, доступных для назначения.',
+        'shipowners.candidates.agent.ready': 'Выберите агента и направьте предложение о заключении рамочного договора.',
+        'shipowners.candidates.agent.confirmRequired': 'Подтвердите условие рамочного договора перед отправкой.',
+        'shipowners.candidates.agent.sent': 'Предложение рамочного договора направлено.',
+        'shipowners.candidates.agent.failed': 'Не удалось направить предложение агенту.',
+        'shipowners.candidates.agent.offers': 'Предложения договора',
+        'shipowners.candidates.agent.notifications': 'Уведомления'
       }
     };
   </script>
@@ -279,9 +394,16 @@
       const incomingTitle = document.getElementById('incoming-section-title');
       const statusTitle = document.getElementById('selection-status-title');
       const statusCopy = document.getElementById('selection-status-copy');
+      const agentStatus = document.getElementById('agent-assignment-status');
+      const agentSelect = document.getElementById('agent-assignment-select');
+      const agentConfirm = document.getElementById('agent-framework-confirm');
+      const agentSend = document.getElementById('agent-offer-send');
+      const agentOfferList = document.getElementById('agent-offer-list');
+      const agentNotificationList = document.getElementById('agent-notification-list');
 
       let currentDraftId = '';
       let selectionPayload = null;
+      let agentAssignmentPayload = null;
 
       function language() {
         const lang = document.documentElement.lang || 'en';
@@ -306,6 +428,9 @@
       }
 
       function setDynamicText(element, text) {
+        if (!element) {
+          return;
+        }
         element.removeAttribute('data-i18n');
         element.textContent = text;
       }
@@ -340,6 +465,41 @@
       async function fetchSelection(draftId) {
         const response = await fetch(`/api/v1/employer/candidate-selection?draft_id=${encodeURIComponent(draftId)}`, {
           cache: 'no-store'
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const error = new Error(body.message || `Request failed with status ${response.status}`);
+          error.payload = body;
+          throw error;
+        }
+        return body;
+      }
+
+      async function fetchAgentAssignmentOptions(draftId) {
+        const response = await fetch(`/api/v1/employer/agent-assignment/options?draft_id=${encodeURIComponent(draftId)}`, {
+          cache: 'no-store',
+          headers: { Accept: 'application/json' }
+        });
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const error = new Error(body.message || `Request failed with status ${response.status}`);
+          error.payload = body;
+          throw error;
+        }
+        return body;
+      }
+
+      async function postAgentFrameworkOffer(agentOrganizationId) {
+        const response = await fetch('/api/v1/employer/agent-assignment/offers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          },
+          body: JSON.stringify({
+            draft_id: currentDraftId,
+            agent_organization_id: agentOrganizationId
+          })
         });
         const body = await response.json().catch(() => ({}));
         if (!response.ok) {
@@ -567,6 +727,131 @@
         document.querySelectorAll('.request-select-action, .contract-proposal-action').forEach((button) => {
           button.disabled = disabled;
         });
+        if (agentSend) {
+          agentSend.disabled = disabled;
+        }
+      }
+
+      function renderAgentRows(container, title, rows, emptyText, formatter) {
+        if (!container) {
+          return;
+        }
+        container.innerHTML = '';
+        const heading = document.createElement('strong');
+        heading.textContent = title;
+        container.appendChild(heading);
+        if (!Array.isArray(rows) || rows.length === 0) {
+          const empty = document.createElement('p');
+          empty.className = 'muted';
+          empty.textContent = emptyText;
+          container.appendChild(empty);
+          return;
+        }
+        rows.slice(0, 12).forEach((row) => {
+          const item = document.createElement('article');
+          item.className = 'agent-offer-row';
+          const copy = document.createElement('div');
+          const label = document.createElement('strong');
+          label.textContent = formatter(row, 'title');
+          const meta = document.createElement('span');
+          meta.className = 'request-card__meta';
+          meta.textContent = formatter(row, 'meta');
+          copy.append(label, meta);
+          const pill = document.createElement('span');
+          pill.className = 'meta-pill';
+          pill.textContent = formatter(row, 'status');
+          item.append(copy, pill);
+          container.appendChild(item);
+        });
+      }
+
+      function renderAgentAssignment(payload) {
+        agentAssignmentPayload = payload;
+        const agents = Array.isArray(payload.agents) ? payload.agents : [];
+        if (agentSelect) {
+          agentSelect.innerHTML = '';
+          agents.forEach((agent) => {
+            const option = document.createElement('option');
+            option.value = agent.agent_organization_id || '';
+            option.textContent = `${agent.agent_display_name || agent.agent_code || 'Agent'} (${agent.agent_status || 'registered'})`;
+            agentSelect.appendChild(option);
+          });
+        }
+        setDynamicText(agentStatus, agents.length ? t('shipowners.candidates.agent.ready') : t('shipowners.candidates.agent.empty'));
+        if (agentSend) {
+          agentSend.disabled = agents.length === 0;
+        }
+        renderAgentRows(
+          agentOfferList,
+          t('shipowners.candidates.agent.offers'),
+          payload.offers || [],
+          '-',
+          (row, part) => {
+            if (part === 'title') {
+              return `${row.offer_number || 'Offer'}: ${row.agent_display_name || 'Agent'}`;
+            }
+            if (part === 'status') {
+              return row.offer_status || 'sent';
+            }
+            return [
+              row.framework_terms_status ? `framework: ${row.framework_terms_status}` : '',
+              row.authority_status ? `authority: ${row.authority_status}` : '',
+              row.commercial_terms_status ? `commercial: ${row.commercial_terms_status}` : '',
+            ].filter(Boolean).join(' | ');
+          }
+        );
+        renderAgentRows(
+          agentNotificationList,
+          t('shipowners.candidates.agent.notifications'),
+          payload.notifications || [],
+          '-',
+          (row, part) => {
+            if (part === 'title') {
+              return row.safe_summary || row.event_type || 'Notification';
+            }
+            if (part === 'status') {
+              return row.delivery_status || 'recorded';
+            }
+            return [row.event_stage, row.created_at].filter(Boolean).join(' | ');
+          }
+        );
+      }
+
+      async function refreshAgentAssignment() {
+        if (!currentDraftId) {
+          return;
+        }
+        try {
+          const payload = await fetchAgentAssignmentOptions(currentDraftId);
+          renderAgentAssignment(payload);
+        } catch (error) {
+          setDynamicText(agentStatus, error.message || t('shipowners.candidates.agent.failed'));
+          console.error(error);
+        }
+      }
+
+      async function sendAgentOffer() {
+        if (!agentSelect || !agentSelect.value) {
+          return;
+        }
+        if (!agentConfirm || !agentConfirm.checked) {
+          setDynamicText(agentStatus, t('shipowners.candidates.agent.confirmRequired'));
+          return;
+        }
+        setBusy(true);
+        try {
+          await postAgentFrameworkOffer(agentSelect.value);
+          setDynamicText(agentStatus, t('shipowners.candidates.agent.sent'));
+          if (agentConfirm) {
+            agentConfirm.checked = false;
+          }
+          await refreshAgentAssignment();
+        } catch (error) {
+          setDynamicText(agentStatus, error.message || t('shipowners.candidates.agent.failed'));
+          console.error(error);
+        } finally {
+          setBusy(false);
+        }
       }
 
       async function proposeContract(applicationId) {
@@ -657,6 +942,10 @@
         proposeContract(target.dataset.applicationId || '');
       });
 
+      if (agentSend) {
+        agentSend.addEventListener('click', sendAgentOffer);
+      }
+
       async function init() {
         currentDraftId = getDraftId();
         if (!currentDraftId) {
@@ -667,6 +956,7 @@
         try {
           selectionPayload = await fetchSelection(currentDraftId);
           renderPage(selectionPayload);
+          refreshAgentAssignment();
         } catch (error) {
           setDynamicText(statusTitle, t('shipowners.candidates.status.error'));
           setDynamicText(statusCopy, error.message || '');

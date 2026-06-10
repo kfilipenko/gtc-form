@@ -165,6 +165,45 @@ The contract text now clarifies that the shipowner cannot directly appoint an ag
 
 Commercial price is deliberately separated from framework acceptance. The parties may accept the legal/authority/no-fee/notification framework without agreeing a concrete service price. Paid service activation, billing basis, success fee, SLA penalties/bonuses and invoices require a separate Service Order / commercial addendum / request or approved price-basis record. Wage, joining, return and repatriation terms inside the shipowner-agent agreement are coordination terms for request handling, SEA preparation and evidence control. They do not replace the seafarer employment agreement, applicable law, CBA or mandatory MLC protections. The next implementation stage should therefore use the shipowner offer to agent, agent acceptance/signature, platform-side authority, `commercial_terms_pending` and separate commercial activation scenario as the first CPG-BIZ-127 runtime slice.
 
+On 2026-06-10 the first CPG-BIZ-127 runtime slice was implemented and recorded as document 329:
+
+```text
+CPG-BIZ-127 - Participant governance notification ledger API/UI implementation
+Document: docs/crewportglobal/329_cpg_biz_127_participant_governance_notification_ledger_implementation_report.md
+```
+
+Implemented result:
+
+```text
+shipowner /shipowners/candidates/ selects registered agent
+-> shipowner sends in-system framework offer
+-> agent /agents/ sees offer as task/card
+-> agent checkbox-accepts standard framework terms
+-> backend creates verified shipowner_agency_agreement authority
+-> backend creates active agent_object_assignment for employer_company
+-> backend records participant_notification_ledger events
+-> commercial_terms_status remains commercial_terms_pending
+```
+
+Test agent seed now exists:
+
+```text
+projects/crewportglobal/app/backend/db/seeds/001_test_agent.sql
+email: test.agent@crewportglobal.test
+password: TestAgent#2026
+agent_code: TEST_AGENT_001
+```
+
+Recommended next work remains inside CPG-BIZ-127 follow-up slices:
+
+```text
+Service Order / commercial addendum activation
++ previous-agent replacement/revocation
++ seafarer-side representative appointment
++ notification read/delivery lifecycle
++ delegated operational lock coverage across participant edit surfaces
+```
+
 ## 6. Active Working Rules For Future Continuation
 
 1. Use `/var/www/gtc-form` as the active CrewPortGlobal repository.

@@ -191,6 +191,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.62 | 2026-06-10 | GTC IT / AI Assistant | Added CPG-BIZ-127 runtime control: shipowner can send an in-system framework offer to a registered agent, agent checkbox acceptance activates verified authority and one active assignment, notification ledger records are persisted, and commercial terms remain pending until a separate Service Order / commercial addendum |
 | 3.61 | 2026-06-10 | GTC IT / AI Assistant | Added framework-versus-commercial control: legal adhesion agreement and authority may be accepted separately from concrete price, while paid service activation and billing require Service Order / commercial addendum / request or approved price basis |
 | 3.60 | 2026-06-10 | GTC IT / AI Assistant | Clarified shipowner-agent appointment control: runtime starts with an in-system offer, requires agent acceptance of the standard adhesion-form package, platform-side authority and price basis, and cannot auto-activate from arbitrary external contracts |
 | 3.59 | 2026-06-10 | GTC IT / AI Assistant | Added shipowner-agent portal appointment control requiring signed agreement, POA/authority, mandatory appendices, signatory verification, one-active-manager check, delegated lock and notification ledger record before active management |
