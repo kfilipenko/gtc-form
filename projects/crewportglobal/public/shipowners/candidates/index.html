@@ -20,10 +20,15 @@
 
     .selection-hero {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(420px, 1fr) minmax(260px, 360px);
       gap: 16px;
       align-items: end;
       padding: 20px;
+    }
+
+    .selection-hero > div:first-child,
+    .selection-hero .lead-copy {
+      max-width: 760px;
     }
 
     .selection-hero h1 {
@@ -53,9 +58,8 @@
 
     .agent-assignment-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr);
       gap: 10px;
-      align-items: end;
     }
 
     .agent-assignment-field {
@@ -74,6 +78,7 @@
     .agent-assignment-field select {
       min-height: 42px;
       width: 100%;
+      padding: 0 10px;
       border: 1px solid var(--line);
       border-radius: 8px;
       color: var(--text-on-dark);
@@ -82,9 +87,74 @@
 
     .agent-assignment-confirm {
       display: flex;
-      gap: 8px;
+      gap: 12px;
       align-items: flex-start;
       max-width: 760px;
+      padding: 12px;
+      border: 1px solid rgba(82, 198, 220, 0.45);
+      border-radius: 8px;
+      background: rgba(82, 198, 220, 0.08);
+    }
+
+    .agent-assignment-confirm input {
+      flex: 0 0 auto;
+      width: 30px;
+      height: 30px;
+      margin: 0;
+      accent-color: var(--teal);
+    }
+
+    .agent-assignment-confirm span {
+      color: var(--teal);
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.4;
+    }
+
+    .agent-offer-send {
+      justify-self: start;
+      min-height: 48px;
+      padding: 12px 18px;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .agent-invite-form {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .agent-invite-form[hidden] {
+      display: none;
+    }
+
+    .agent-invite-form label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted-on-dark);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .agent-invite-form input,
+    .agent-invite-form textarea {
+      width: 100%;
+      min-height: 42px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--text-on-dark);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .agent-invite-form textarea,
+    .agent-invite-form .is-wide {
+      grid-column: 1 / -1;
     }
 
     .agent-offer-list {
@@ -172,7 +242,8 @@
       }
 
       .agent-assignment-grid,
-      .agent-offer-row {
+      .agent-offer-row,
+      .agent-invite-form {
         grid-template-columns: 1fr;
       }
     }
@@ -224,20 +295,33 @@
       <section class="card agent-assignment-card" id="agent-assignment">
         <div>
           <p class="eyebrow" data-i18n="shipowners.candidates.agent.eyebrow">Agent appointment</p>
-          <h2 data-i18n="shipowners.candidates.agent.title">Appoint a managing agent</h2>
           <p id="agent-assignment-status" class="muted" data-i18n="shipowners.candidates.agent.loading">Loading registered agents.</p>
         </div>
         <div class="agent-assignment-grid">
           <div class="agent-assignment-field">
-            <label for="agent-assignment-select" data-i18n="shipowners.candidates.agent.select">Registered agent</label>
+            <label for="agent-assignment-select" data-i18n="shipowners.candidates.agent.select">Select an agent from the list or invite your agent to register on the portal</label>
             <select id="agent-assignment-select"></select>
           </div>
-          <button id="agent-offer-send" class="button primary" type="button" data-i18n="shipowners.candidates.agent.send">Send offer</button>
         </div>
-        <label class="agent-assignment-confirm">
+        <div id="agent-invite-form" class="agent-invite-form" hidden>
+          <label>
+            <span data-i18n="shipowners.candidates.agent.inviteName">Agent name</span>
+            <input id="agent-invite-name" type="text" autocomplete="organization">
+          </label>
+          <label>
+            <span data-i18n="shipowners.candidates.agent.inviteEmail">Agent email</span>
+            <input id="agent-invite-email" type="email" autocomplete="email">
+          </label>
+          <label class="is-wide">
+            <span data-i18n="shipowners.candidates.agent.inviteMessage">Message</span>
+            <textarea id="agent-invite-message" rows="4"></textarea>
+          </label>
+        </div>
+        <label id="agent-framework-confirm-row" class="agent-assignment-confirm">
           <input id="agent-framework-confirm" type="checkbox">
           <span data-i18n="shipowners.candidates.agent.confirm">I understand that the framework agreement is concluded inside CrewPortGlobal; commercial terms are agreed separately.</span>
         </label>
+        <button id="agent-offer-send" class="button primary agent-offer-send" type="button" data-i18n="shipowners.candidates.agent.send">Send offer</button>
         <div id="agent-offer-list" class="agent-offer-list" aria-live="polite"></div>
         <div id="agent-notification-list" class="agent-offer-list" aria-live="polite"></div>
       </section>
@@ -309,14 +393,21 @@
         'shipowners.candidates.matchText': 'Presented by controlled shortlist and review workflow.',
         'shipowners.candidates.noDraft': 'Open this page from a shipowner account or add draft_id to the URL.',
         'shipowners.candidates.agent.eyebrow': 'Agent appointment',
-        'shipowners.candidates.agent.title': 'Appoint a managing agent',
         'shipowners.candidates.agent.loading': 'Loading registered agents.',
-        'shipowners.candidates.agent.select': 'Registered agent',
+        'shipowners.candidates.agent.select': 'Select an agent from the list or invite your agent to register on the portal',
+        'shipowners.candidates.agent.inviteOption': 'Invite my agent',
+        'shipowners.candidates.agent.inviteName': 'Agent name',
+        'shipowners.candidates.agent.inviteEmail': 'Agent email',
+        'shipowners.candidates.agent.inviteMessage': 'Message',
         'shipowners.candidates.agent.send': 'Send offer',
+        'shipowners.candidates.agent.sendInvite': 'Send invitation',
         'shipowners.candidates.agent.confirm': 'I understand that the framework agreement is concluded inside CrewPortGlobal; commercial terms are agreed separately.',
         'shipowners.candidates.agent.empty': 'No registered agents are available for appointment.',
         'shipowners.candidates.agent.ready': 'Select an agent and send a framework agreement offer.',
-        'shipowners.candidates.agent.confirmRequired': 'Confirm the framework agreement condition before sending.',
+        'shipowners.candidates.agent.confirmRequired': 'Mark agreement with the framework terms before sending.',
+        'shipowners.candidates.agent.inviteReady': 'Enter your agent email and send a registration invitation.',
+        'shipowners.candidates.agent.inviteEmailRequired': 'Enter a valid agent email.',
+        'shipowners.candidates.agent.inviteSent': 'Invitation prepared for your agent.',
         'shipowners.candidates.agent.sent': 'Framework agreement offer sent.',
         'shipowners.candidates.agent.failed': 'Agent appointment offer failed.',
         'shipowners.candidates.agent.offers': 'Agreement offers',
@@ -367,14 +458,21 @@
         'shipowners.candidates.matchText': 'Кандидат представлен через контролируемый shortlist и review workflow.',
         'shipowners.candidates.noDraft': 'Откройте страницу из аккаунта судовладельца или добавьте draft_id в URL.',
         'shipowners.candidates.agent.eyebrow': 'Назначение агента',
-        'shipowners.candidates.agent.title': 'Назначить управляющего агента',
         'shipowners.candidates.agent.loading': 'Загружаем зарегистрированных агентов.',
-        'shipowners.candidates.agent.select': 'Зарегистрированный агент',
+        'shipowners.candidates.agent.select': 'Выберите агента из списка или предложите Вашему агенту зарегистрироваться на портале',
+        'shipowners.candidates.agent.inviteOption': 'Пригласить моего агента',
+        'shipowners.candidates.agent.inviteName': 'Имя агента',
+        'shipowners.candidates.agent.inviteEmail': 'Email агента',
+        'shipowners.candidates.agent.inviteMessage': 'Сообщение',
         'shipowners.candidates.agent.send': 'Направить предложение',
+        'shipowners.candidates.agent.sendInvite': 'Отправить приглашение',
         'shipowners.candidates.agent.confirm': 'Я понимаю, что рамочный договор заключается внутри CrewPortGlobal; коммерческие условия согласуются отдельно.',
         'shipowners.candidates.agent.empty': 'Нет зарегистрированных агентов, доступных для назначения.',
         'shipowners.candidates.agent.ready': 'Выберите агента и направьте предложение о заключении рамочного договора.',
-        'shipowners.candidates.agent.confirmRequired': 'Подтвердите условие рамочного договора перед отправкой.',
+        'shipowners.candidates.agent.confirmRequired': 'Отметьте согласие с условиями рамочного договора.',
+        'shipowners.candidates.agent.inviteReady': 'Укажите email Вашего агента и отправьте приглашение пройти регистрацию.',
+        'shipowners.candidates.agent.inviteEmailRequired': 'Укажите корректный email агента.',
+        'shipowners.candidates.agent.inviteSent': 'Приглашение для агента подготовлено.',
         'shipowners.candidates.agent.sent': 'Предложение рамочного договора направлено.',
         'shipowners.candidates.agent.failed': 'Не удалось направить предложение агенту.',
         'shipowners.candidates.agent.offers': 'Предложения договора',
@@ -396,14 +494,20 @@
       const statusCopy = document.getElementById('selection-status-copy');
       const agentStatus = document.getElementById('agent-assignment-status');
       const agentSelect = document.getElementById('agent-assignment-select');
+      const agentConfirmRow = document.getElementById('agent-framework-confirm-row');
       const agentConfirm = document.getElementById('agent-framework-confirm');
       const agentSend = document.getElementById('agent-offer-send');
       const agentOfferList = document.getElementById('agent-offer-list');
       const agentNotificationList = document.getElementById('agent-notification-list');
+      const agentInviteForm = document.getElementById('agent-invite-form');
+      const agentInviteName = document.getElementById('agent-invite-name');
+      const agentInviteEmail = document.getElementById('agent-invite-email');
+      const agentInviteMessage = document.getElementById('agent-invite-message');
 
       let currentDraftId = '';
       let selectionPayload = null;
       let agentAssignmentPayload = null;
+      const inviteAgentValue = '__invite_agent__';
 
       function language() {
         const lang = document.documentElement.lang || 'en';
@@ -732,21 +836,52 @@
         }
       }
 
+      function isInviteAgentSelected() {
+        return agentSelect && agentSelect.value === inviteAgentValue;
+      }
+
+      function updateAgentAppointmentMode() {
+        const inviteMode = isInviteAgentSelected();
+        if (agentInviteForm) {
+          agentInviteForm.hidden = !inviteMode;
+        }
+        if (agentConfirmRow) {
+          agentConfirmRow.hidden = inviteMode;
+        }
+        if (agentSend) {
+          agentSend.textContent = inviteMode ? t('shipowners.candidates.agent.sendInvite') : t('shipowners.candidates.agent.send');
+          agentSend.disabled = !agentSelect || !agentSelect.value;
+        }
+        if (inviteMode) {
+          setDynamicText(agentStatus, t('shipowners.candidates.agent.inviteReady'));
+          if (agentInviteMessage && !agentInviteMessage.value.trim()) {
+            agentInviteMessage.value = [
+              'Здравствуйте.',
+              '',
+              'Предлагаю Вам зарегистрироваться на портале CrewPortGlobal, чтобы мы могли продолжить оформление агентского представительства и дальнейшую работу в системе.',
+              '',
+              'После регистрации я смогу направить Вам предложение о заключении рамочного договора внутри портала.',
+            ].join('\n');
+          }
+        } else if (agentAssignmentPayload) {
+          const agents = Array.isArray(agentAssignmentPayload.agents) ? agentAssignmentPayload.agents : [];
+          setDynamicText(agentStatus, agents.length ? t('shipowners.candidates.agent.ready') : t('shipowners.candidates.agent.empty'));
+        }
+      }
+
       function renderAgentRows(container, title, rows, emptyText, formatter) {
         if (!container) {
           return;
         }
         container.innerHTML = '';
+        if (!Array.isArray(rows) || rows.length === 0) {
+          container.hidden = true;
+          return;
+        }
+        container.hidden = false;
         const heading = document.createElement('strong');
         heading.textContent = title;
         container.appendChild(heading);
-        if (!Array.isArray(rows) || rows.length === 0) {
-          const empty = document.createElement('p');
-          empty.className = 'muted';
-          empty.textContent = emptyText;
-          container.appendChild(empty);
-          return;
-        }
         rows.slice(0, 12).forEach((row) => {
           const item = document.createElement('article');
           item.className = 'agent-offer-row';
@@ -776,11 +911,16 @@
             option.textContent = `${agent.agent_display_name || agent.agent_code || 'Agent'} (${agent.agent_status || 'registered'})`;
             agentSelect.appendChild(option);
           });
+          const inviteOption = document.createElement('option');
+          inviteOption.value = inviteAgentValue;
+          inviteOption.textContent = t('shipowners.candidates.agent.inviteOption');
+          agentSelect.appendChild(inviteOption);
         }
         setDynamicText(agentStatus, agents.length ? t('shipowners.candidates.agent.ready') : t('shipowners.candidates.agent.empty'));
         if (agentSend) {
-          agentSend.disabled = agents.length === 0;
+          agentSend.disabled = !agentSelect || !agentSelect.value;
         }
+        updateAgentAppointmentMode();
         renderAgentRows(
           agentOfferList,
           t('shipowners.candidates.agent.offers'),
@@ -834,6 +974,10 @@
         if (!agentSelect || !agentSelect.value) {
           return;
         }
+        if (isInviteAgentSelected()) {
+          sendAgentInvitation();
+          return;
+        }
         if (!agentConfirm || !agentConfirm.checked) {
           setDynamicText(agentStatus, t('shipowners.candidates.agent.confirmRequired'));
           return;
@@ -852,6 +996,20 @@
         } finally {
           setBusy(false);
         }
+      }
+
+      function sendAgentInvitation() {
+        const email = agentInviteEmail ? agentInviteEmail.value.trim() : '';
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+          setDynamicText(agentStatus, t('shipowners.candidates.agent.inviteEmailRequired'));
+          return;
+        }
+        const name = agentInviteName && agentInviteName.value.trim() ? agentInviteName.value.trim() : t('shipowners.candidates.agent.inviteOption');
+        const message = agentInviteMessage && agentInviteMessage.value.trim() ? agentInviteMessage.value.trim() : '';
+        const subject = encodeURIComponent('CrewPortGlobal agent registration invitation');
+        const body = encodeURIComponent(`${name}\n\n${message}\n\nhttps://crewportglobal.com/register/`);
+        window.location.href = `mailto:${encodeURIComponent(email)}?subject=${subject}&body=${body}`;
+        setDynamicText(agentStatus, t('shipowners.candidates.agent.inviteSent'));
       }
 
       async function proposeContract(applicationId) {
@@ -944,6 +1102,10 @@
 
       if (agentSend) {
         agentSend.addEventListener('click', sendAgentOffer);
+      }
+
+      if (agentSelect) {
+        agentSelect.addEventListener('change', updateAgentAppointmentMode);
       }
 
       async function init() {
