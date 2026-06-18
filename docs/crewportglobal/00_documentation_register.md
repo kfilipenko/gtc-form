@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 3.23
+- Version: 3.24
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -422,6 +422,7 @@ docs/crewportglobal/
   332_cpg_biz_130_participant_section_landing_pages_and_menu_sync_report.md
   333_cpg_biz_131_heading_contrast_normalization_report.md
   334_cpg_biz_132_shipowner_agent_agreement_package_en.md
+  335_cpg_biz_133_agent_agreement_full_text_html_publication_report.md
   sql_drafts/
     018_contract_workspace_schema_draft.sql
     020_agent_organization_scope_schema_draft.sql
@@ -964,6 +965,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.24 | 2026-06-18 | GTC IT / AI Assistant | Added document 335 as CPG-BIZ-133 report for publishing the full shipowner-agent agreement as HTML on `/legal/agent-agreement/` and `/legal/agent-agreement/text/` |
 | 3.23 | 2026-06-10 | GTC IT / AI Assistant | Added document 334 as CPG-BIZ-132 authoritative English shipowner-agent agreement package and registered documents 330-333 from the public legal/header/participant landing/heading contrast work sequence |
 | 3.22 | 2026-06-10 | GTC IT / AI Assistant | Added document 329 as CPG-BIZ-127 first runtime implementation report for shipowner agent-offer UI/API, agent checkbox acceptance, platform authority/assignment activation, participant notification ledger, test agent seed and smoke verification |
 | 3.21 | 2026-06-10 | GTC IT / AI Assistant | Clarified CPG-BIZ-123, BP-012, BP-015 and BP-016 around framework adhesion agreement versus separate Service Order / commercial addendum: parties may accept legal terms without agreeing price, while paid service, billing basis, success fee and SLA require separate commercial agreement |

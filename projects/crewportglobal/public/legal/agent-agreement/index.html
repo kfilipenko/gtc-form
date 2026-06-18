@@ -50,6 +50,35 @@
       border: 1px solid rgba(126, 201, 217, 0.24);
       border-radius: 8px;
     }
+    .full-contract-panel {
+      max-height: 70vh;
+      overflow: auto;
+      margin-top: 16px;
+      padding: 18px;
+      border: 1px solid rgba(126, 201, 217, 0.24);
+      border-radius: 8px;
+      background: rgba(3, 13, 24, 0.28);
+    }
+    .full-contract-panel h2,
+    .full-contract-panel h3,
+    .full-contract-panel h4 {
+      color: var(--paper-strong);
+    }
+    .full-contract-panel p,
+    .full-contract-panel li {
+      color: var(--text-on-dark);
+    }
+    .full-contract-panel code {
+      padding: 1px 5px;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .full-contract-panel pre {
+      overflow: auto;
+      padding: 14px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.22);
+    }
     @media (max-width: 760px) {
       .contract-meta-grid,
       .appendix-grid,
@@ -69,6 +98,9 @@
         'legal.agent.focus': 'Agreement + authority + appendices',
         'legal.agent.documentsHome': 'Documents home',
         'legal.agent.fullText': 'Open full authoritative text',
+        'legal.agent.fullTextTitle': 'Full authoritative contract text',
+        'legal.agent.fullTextCopy': 'The complete English source is shown below for visual review. The separate full-text page opens the same content as an HTML page, not as a downloaded file.',
+        'legal.agent.fullTextLoading': 'Loading full authoritative contract text.',
         'legal.agent.openWorkspace': 'Open shipowner workspace',
         'legal.agent.version': 'Authoritative template: CPG-BIZ-132 v1.0',
         'legal.agent.note': 'This page is the public English contract package used by the platform offer/acceptance flow. A generated signing instance will fill the variables, parties, scope, authority and commercial status. Russian CPG-BIZ-123 is a convenience translation.',
@@ -143,6 +175,9 @@
         'legal.agent.focus': 'Договор + полномочия + приложения',
         'legal.agent.documentsHome': 'Раздел документов',
         'legal.agent.fullText': 'Открыть полный английский текст',
+        'legal.agent.fullTextTitle': 'Полный основной текст договора',
+        'legal.agent.fullTextCopy': 'Полный английский источник показан ниже для визуальной проверки. Отдельная страница полного текста открывает тот же документ как HTML-страницу, без скачивания файла.',
+        'legal.agent.fullTextLoading': 'Загружаем полный основной текст договора.',
         'legal.agent.openWorkspace': 'Открыть рабочее место судовладельца',
         'legal.agent.version': 'Основной шаблон: CPG-BIZ-132 v1.0',
         'legal.agent.note': 'Эта страница является публичным английским договорным пакетом, используемым в процессе предложения и акцепта на платформе. Сгенерированный экземпляр для подписания заполнит переменные, стороны, scope, полномочия и коммерческий статус. Русский CPG-BIZ-123 является переводом для удобства.',
@@ -328,6 +363,10 @@
 
           <h2 data-i18n="legal.agent.statusTitle">Implementation status</h2>
           <p data-i18n="legal.agent.statusCopy">CrewPortGlobal currently supports offer, acceptance, authority record, active assignment and notification ledger records. Future slices will add immutable generated contract snapshots, Service Orders, replacement/revocation, seafarer-side representation and delivery/read state.</p>
+
+          <h2 data-i18n="legal.agent.fullTextTitle">Full authoritative contract text</h2>
+          <p data-i18n="legal.agent.fullTextCopy">The complete English source is shown below for visual review. The separate full-text page opens the same content as an HTML page, not as a downloaded file.</p>
+          <div class="full-contract-panel" data-markdown-document data-src="/legal/agent-agreement/text/index.md" data-i18n="legal.agent.fullTextLoading">Loading full authoritative contract text.</div>
         </article>
 
         <aside class="doc-sidebar">
@@ -348,5 +387,6 @@
       </section>
     </main>
   </div>
+  <script src="/assets/crewportglobal-markdown-document.js?v=20260618-agent-agreement" defer></script>
 </body>
 </html>
