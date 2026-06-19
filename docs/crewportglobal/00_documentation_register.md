@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 3.27
+- Version: 3.28
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -425,6 +425,7 @@ docs/crewportglobal/
   335_cpg_biz_133_agent_agreement_full_text_html_publication_report.md
   336_cpg_biz_134_authoritative_legal_publication_and_agent_template_registry.md
   337_cpg_biz_135_unified_contract_workspace_for_agent_and_direct_party_agreements.md
+  338_cpg_biz_137_agent_assisted_direct_contract_drafting_task.md
   sql_drafts/
     018_contract_workspace_schema_draft.sql
     020_agent_organization_scope_schema_draft.sql
@@ -967,6 +968,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.28 | 2026-06-19 | GTC IT / AI Assistant | Added document 338 as CPG-BIZ-137 for agent-assisted direct seafarer-shipowner contract drafting through the existing Contract Agreement Workspace |
 | 3.27 | 2026-06-19 | GTC IT / AI Assistant | Added document 337 as CPG-BIZ-135 for unified contract workspace/template/script handling of direct seafarer-shipowner, shipowner-agent and future seafarer-agent agreements |
 | 3.26 | 2026-06-19 | GTC IT / AI Assistant | Removed public Shipowner-Agent Agreement wording that advertised Russian CPG-BIZ-123 as a public translation; kept the English CPG-BIZ-132 publication as the visible contract source |
 | 3.25 | 2026-06-19 | GTC IT / AI Assistant | Added document 336 as CPG-BIZ-134 for single canonical legal publication cleanup and approved shipowner-agent agreement template-registry task |

@@ -5,7 +5,7 @@
 - Business-process ID: BP-012
 - Source task: CPG-BIZ-012 approved execution task, document 199
 - Baseline: BP-001 through BP-011, CPG-DEMAND-017 through CPG-DEMAND-035
-- Version: 1.2
+- Version: 1.3
 - Date: 2026-06-19
 - Document type: Controlling business-process manual
 - Status: Drafted for Project Owner review
@@ -237,6 +237,33 @@ All three agreement types must use the same master template / embedded field / a
 
 The agent may coordinate both sides as ordinary dual-interest facilitation, but the direct seafarer-shipowner contract remains subject to direct party review and personal signature by default. If an agent seeks formal management, final approval or signature authority for either party, the relevant shipowner-agent or seafarer-agent agreement, authority evidence, appendix checklist, one-active-manager check and notification record must exist first.
 
+### 6.3 Agent-Assisted Direct Contract Drafting
+
+CrewPortGlobal accepts `agent_assisted_drafting` as the main practical working mode for ordinary crewing-agent involvement in the direct seafarer-shipowner contract.
+
+The mode means:
+
+```text
+authorized agent prepares the populated direct SEA draft
++ verified source facts remain database-filled
++ agent may edit only permitted contract variables
++ seafarer and shipowner/employer personally review and approve the populated draft
+```
+
+The agent does not manually recreate party data, vessel data, document metadata or company identity inside the contract. These values come from approved platform records under the source-first Contract Workspace rule.
+
+The agent may prepare negotiated variables such as joining date, duration, wage amount, currency, payment schedule, travel arrangement and repatriation/return details only when the authority scope and field rules allow it. Those values remain draft proposals until both real parties approve the current preview.
+
+If a party rejects or requests correction, the agent may correct the permitted fields and submit a new draft version. A changed draft must invalidate earlier party approvals that were tied to a previous preview hash.
+
+This mode supports seafarers who cannot comfortably manage the full portal workflow by allowing a simplified party-review/signature route, but the simplified route must still show the populated agreement, key contract-critical terms and correction option before approval.
+
+The controlling task is:
+
+```text
+CPG-BIZ-137 - Agent-Assisted Direct Contract Drafting Task
+```
+
 ## 7. Master Process Map
 
 | Step | Stage | Primary result | Responsible group | Main computed task |
@@ -258,7 +285,7 @@ The agent may coordinate both sides as ordinary dual-interest facilitation, but 
 | CF-12 | Employer-facing presentation | Approved candidate summary is shared | Group 1 / `review_team` | Present candidate to employer |
 | CF-13 | Employer feedback and outcome | Employer decision or follow-up is recorded | Group 1 / Group 4 | Record employer feedback |
 | CF-13A | Structured terms clarification | Material seafarer/shipowner terms are agreed or blocked | Shipowner, seafarer, responsible team / Group 5 when needed | Clarify contract-relevant terms |
-| CF-14 | Contract and embarkation support | Direct SEA workspace, relevant agent-agreement workspaces, joining and boarding evidence exist | Group 1 / Group 4 / Group 5 / represented agent where scoped | Confirm contract, authority, appendices and boarding evidence |
+| CF-14 | Contract and embarkation support | Direct SEA workspace, relevant agent-agreement workspaces, agent-assisted draft where applicable, joining and boarding evidence exist | Group 1 / Group 4 / Group 5 / represented agent where scoped | Confirm contract, authority, draft version, party approvals, appendices and boarding evidence |
 | CF-15 | Active voyage and monthly service evidence | Work-period evidence exists | Group 4 / Group 3 | Confirm monthly service evidence |
 | CF-16 | Disembarkation and return support | Return / repatriation arrangement is known and completed | Group 4 / responsible manager | Confirm seafarer return arrangement |
 | CF-17 | Service completion and billing | Service result and billing basis exist | Group 3 | Prepare billing / completion record |
@@ -333,7 +360,7 @@ The crew request / vacancy requirement stream connects the foundation streams in
 | CF-12 Employer-facing presentation | Human review approves employer-visible summary | Data-minimized candidate summary, employer request | vacancy application, employer-facing payload rules | candidate status / presented state where approved | candidate presentation event | Employer receives approved summary | Record employer feedback |
 | CF-13 Employer feedback and outcome | Employer responds or follow-up date arrives | Feedback, interview interest, rejection, request changes | employer request, presented candidates, notes | feedback status, follow-up task, outcome metadata | employer feedback event | Outcome known or follow-up scheduled | Service completion, further shortlist, or support task |
 | CF-13A Structured terms clarification | Shipowner proceeds with candidate, seafarer requests contract consideration, or material term mismatch is detected | Candidate selection, vacancy terms, seafarer preferences, vessel context, document readiness, travel/return terms | seafarer profile, vacancy request, vessel context, candidate-selection/application record, review outcomes | terms clarification workspace or agreed terms sheet when implemented; no contract side effects before guard | term proposal / acceptance / rejection / team-review event | Material terms are agreed, blocked or closed without agreement | Prepare contract workspace only when all material terms are agreed and guards pass |
-| CF-14 Contract and embarkation support | Employer proceeds with candidate or contract is uploaded | Contract, joining date/place, vessel, position, travel responsibility, boarding evidence | employer request, selected candidate, uploaded documents, vessel context | employment/voyage support status, boarding evidence, seafarer availability status | contract verified / embarkation confirmed event | Seafarer is pending embarkation, onboard active, blocked or replacement-required | Confirm monthly service evidence or resolve joining blocker |
+| CF-14 Contract and embarkation support | Employer proceeds with candidate, agent-assisted draft is ready, or contract is uploaded | Contract workspace, draft version, party approvals, joining date/place, vessel, position, travel responsibility, boarding evidence | employer request, selected candidate, uploaded documents, vessel context, agent assignment/authority where applicable, contract workspace | contract workspace status, draft version, party review status, employment/voyage support status, boarding evidence, seafarer availability status | contract draft prepared / party review requested / contract verified / embarkation confirmed event | Seafarer is pending party review, pending embarkation, onboard active, blocked or replacement-required | Confirm party approval/signature, monthly service evidence or resolve joining blocker |
 | CF-15 Active voyage and monthly service evidence | Seafarer is onboard active during a billing period | Work period, continued onboard status, illness/early-disembarkation signals | employment/voyage support record, employer notes, support evidence | monthly service evidence and billing-period status | monthly service confirmed event | Actual worked-period basis exists or exception/replacement is needed | Prepare invoice basis or return/replacement task |
 | CF-16 Disembarkation and return support | Contract end approaches, early disembarkation is signaled or disembarkation is confirmed | Disembarkation date/reason, return destination, payer/responsible party, travel support notes | contract/voyage record, employer instructions, seafarer profile | return support status, availability refresh trigger, replacement signal if needed | disembarkation / return support event | Seafarer returned or return/support exception is visible | Update availability, close service, replace or escalate |
 | CF-17 Service completion and billing | Service output meets commercial rule | Completed presentation/support result, embarkation/monthly/return evidence where relevant, commercial terms | employer/client records, service metadata, outcome | service completion / billing basis record | billing handoff event | GTC service-fee basis exists | Prepare invoice/reward attribution |
@@ -836,4 +863,5 @@ The next implementation-planning stage should extract the already verified `/cre
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.3 | 2026-06-19 | GTC IT / AI Assistant | Added CPG-BIZ-137 agent-assisted direct contract drafting mode and linked CF-14 to draft versions, party review and agent authority scope |
 | 1.2 | 2026-06-19 | GTC IT / AI Assistant | Added agent-enabled contract triad and linked direct SEA, shipowner-agent and seafarer-agent agreements to the unified CPG-BIZ-135 contract workspace/template/generation model |

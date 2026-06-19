@@ -214,6 +214,8 @@ direct seafarer-shipowner agreement
 
 Do not create a separate contract-generation script for agent agreements. The existing contract workspace module must be generalized by `contract_kind`, template code/version, source adapters, required appendix/evidence checklist and party approvals. The current runtime code is still SEA-specialized: it selects the latest approved template globally and requires seafarer/employer/vessel/vacancy columns. The next implementation must add a compatibility layer before generating shipowner-agent or seafarer-agent contract instances.
 
+On 2026-06-19, the Project Owner accepted `agent_assisted_drafting` as the main practical working mode for ordinary agent participation in the direct seafarer-shipowner contract. This is now documented as `CPG-BIZ-137 - Agent-Assisted Direct Contract Drafting Task` in `docs/crewportglobal/338_cpg_biz_137_agent_assisted_direct_contract_drafting_task.md`. The agent may open eligible direct SEA workspaces in its assignment scope, prepare permitted contract-variable proposals and send a versioned draft to the real parties. Verified source facts remain database-filled, fixed clauses stay immutable, and final party review/signature remains required by default. Programming for this task must not start until the Project Owner confirms the task.
+
 On 2026-06-10 the shared public/application header model was fixed as:
 
 ```text
