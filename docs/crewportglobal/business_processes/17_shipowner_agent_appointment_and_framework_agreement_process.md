@@ -116,7 +116,7 @@ The shipowner sends an offer. The appointment becomes active only after the agen
 
 The agreement is a platform standard / adhesion-form framework agreement. External contracts, letters or powers of attorney may be stored as evidence for Control review, but they do not automatically activate platform management rights unless the CrewPortGlobal assignment process is completed.
 
-The controlling contract source is the English `CPG-BIZ-132 - Shipowner-Agent Agreement Package (EN, Authoritative Portal Version)`. Russian `CPG-BIZ-123` is maintained as a working translation/convenience version for user review and system discussions. Public runtime links must open the single canonical publication URL `/legal/agent-agreement/`, which publishes the English-authoritative contract package and explains the translation priority. Working pages may show only a short description and a link to that canonical legal URL.
+The controlling contract source is the English `CPG-BIZ-132 - Shipowner-Agent Agreement Package (EN, Authoritative Portal Version)`. Russian `CPG-BIZ-123` is maintained as a working/reference version for internal review and system discussions. Public runtime links must open the single canonical publication URL `/legal/agent-agreement/`, which publishes the English-authoritative contract package and explains the language priority without advertising Russian CPG-BIZ-123 as a public translation. Working pages may show only a short description and a link to that canonical legal URL.
 
 ## 7. Commercial Terms Rule
 
@@ -187,7 +187,7 @@ crewportglobal.agent_scope_audit_events
 | Document | Purpose |
 |---|---|
 | `docs/crewportglobal/334_cpg_biz_132_shipowner_agent_agreement_package_en.md` | Authoritative English full shipowner-agent agreement package: main agreement, authority/POA, appendices, commercial-status rule and signing checklist. |
-| `docs/crewportglobal/324_cpg_biz_123_full_contract_ru_checkbox_radio.md` | Russian working translation/convenience version of the shipowner-agent agreement package. |
+| `docs/crewportglobal/324_cpg_biz_123_full_contract_ru_checkbox_radio.md` | Russian working/reference version of the shipowner-agent agreement package for internal review and system discussions. |
 | `docs/crewportglobal/329_cpg_biz_127_participant_governance_notification_ledger_implementation_report.md` | Runtime implementation report for offer, acceptance, authority, assignment and notifications. |
 | `docs/crewportglobal/330_cpg_biz_128_public_legal_documents_hub_and_agent_agreement_report.md` | Public legal document publication model. |
 | `docs/crewportglobal/business_processes/16_business_process_stage_standard_mapping_matrix.md` | Stage-to-standard mapping and current implementation coverage. |
@@ -208,5 +208,6 @@ The following stages remain future work:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
-| 1.1 | 2026-06-10 | GTC IT / AI Assistant | Added authoritative English CPG-BIZ-132 contract package as the controlling source for shipowner-agent offers, with Russian CPG-BIZ-123 kept as a convenience translation |
+| 1.2 | 2026-06-19 | GTC IT / AI Assistant | Removed public convenience-translation wording from the shipowner-agent agreement publication rule |
+| 1.1 | 2026-06-10 | GTC IT / AI Assistant | Added authoritative English CPG-BIZ-132 contract package as the controlling source for shipowner-agent offers, with Russian CPG-BIZ-123 kept as a supporting working reference |
 | 1.0 | 2026-06-10 | GTC IT / AI Assistant | Initial dedicated process document for shipowner-to-agent offer, framework acceptance, platform authority, one active assignment, commercial pending status and notifications |

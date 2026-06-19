@@ -966,7 +966,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
-| 3.26 | 2026-06-19 | GTC IT / AI Assistant | Removed public Shipowner-Agent Agreement wording that advertised Russian CPG-BIZ-123 as a convenience translation; kept the English CPG-BIZ-132 publication as the visible contract source |
+| 3.26 | 2026-06-19 | GTC IT / AI Assistant | Removed public Shipowner-Agent Agreement wording that advertised Russian CPG-BIZ-123 as a public translation; kept the English CPG-BIZ-132 publication as the visible contract source |
 | 3.25 | 2026-06-19 | GTC IT / AI Assistant | Added document 336 as CPG-BIZ-134 for single canonical legal publication cleanup and approved shipowner-agent agreement template-registry task |
 | 3.24 | 2026-06-18 | GTC IT / AI Assistant | Added document 335 as CPG-BIZ-133 report for publishing the full shipowner-agent agreement as HTML on `/legal/agent-agreement/` and `/legal/agent-agreement/text/` |
 | 3.23 | 2026-06-10 | GTC IT / AI Assistant | Added document 334 as CPG-BIZ-132 authoritative English shipowner-agent agreement package and registered documents 330-333 from the public legal/header/participant landing/heading contrast work sequence |

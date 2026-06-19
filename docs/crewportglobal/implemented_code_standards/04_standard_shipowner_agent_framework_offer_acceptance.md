@@ -4,8 +4,8 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Implemented code standards
 - Document type: Implemented code standard
-- Version: 1.1
-- Date: 2026-06-10
+- Version: 1.2
+- Date: 2026-06-19
 - Status: Active
 
 ## 1. Purpose
@@ -42,7 +42,7 @@ Controlling contract source:
 ```text
 CPG-BIZ-132 v1.0 - Shipowner-Agent Agreement Package (EN, authoritative portal version)
 Public URL: /legal/agent-agreement/
-Russian convenience translation: CPG-BIZ-123 v1.4
+Russian working/reference version: CPG-BIZ-123 v1.4
 ```
 
 Publication rule:
@@ -232,5 +232,6 @@ If this standard changes, update:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
-| 1.1 | 2026-06-10 | GTC IT / AI Assistant | Switched runtime contract source to authoritative English CPG-BIZ-132 v1.0, keeping Russian CPG-BIZ-123 as a convenience translation |
+| 1.2 | 2026-06-19 | GTC IT / AI Assistant | Replaced public convenience-translation wording with internal working/reference version language for Russian CPG-BIZ-123 |
+| 1.1 | 2026-06-10 | GTC IT / AI Assistant | Switched runtime contract source to authoritative English CPG-BIZ-132 v1.0, keeping Russian CPG-BIZ-123 as a supporting working reference |
 | 1.0 | 2026-06-10 | GTC IT / AI Assistant | Initial implemented-code standard for shipowner-agent framework offer acceptance |
