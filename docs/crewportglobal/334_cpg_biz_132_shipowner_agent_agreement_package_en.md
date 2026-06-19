@@ -6,15 +6,14 @@
 - Template code: CPG-BIZ-132
 - Template version: 1.0
 - Authoritative language: English
-- Convenience translation: `CPG-BIZ-123 v1.4 RU` (Russian working translation)
 - Date: 2026-06-10
 - Status: Authoritative portal contract package draft; requires qualified maritime-law review before production signing with real counterparties
 
 ## Language Priority
 
 1. This English document is the authoritative CrewPortGlobal portal source for the Shipowner-Agent Agreement Package.
-2. Translations, including the Russian `CPG-BIZ-123` working version, are provided for user convenience and platform review.
-3. If a translation conflicts with this English document, this English document controls unless a generated signing instance expressly states another controlling language.
+2. Any translated or supporting material is informational only and does not replace this English source.
+3. If another-language material conflicts with this English document, this English document controls unless a generated signing instance expressly states another controlling language.
 
 ## Field And Choice Notation
 
@@ -735,18 +734,17 @@ The Agent confirms:
 The system must record:
 
 1. template package version: `CPG-BIZ-132 v1.0`;
-2. Russian convenience translation: `CPG-BIZ-123 v1.4`;
-3. public package URL: `/legal/agent-agreement/`;
-4. offer_id;
-5. agent_organization_id;
-6. represented_object_type and represented_object_id;
-7. delegated_scope;
-8. authority_document_id where applicable;
-9. commercial_terms_status;
-10. acceptance_text;
-11. actor_user_id and timestamp;
-12. notification ledger event;
-13. hash / immutable snapshot when generated instances are implemented.
+2. public package URL: `/legal/agent-agreement/`;
+3. offer_id;
+4. agent_organization_id;
+5. represented_object_type and represented_object_id;
+6. delegated_scope;
+7. authority_document_id where applicable;
+8. commercial_terms_status;
+9. acceptance_text;
+10. actor_user_id and timestamp;
+11. notification ledger event;
+12. hash / immutable snapshot when generated instances are implemented.
 
 ---
 
