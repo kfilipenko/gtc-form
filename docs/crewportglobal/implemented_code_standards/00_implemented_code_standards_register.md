@@ -5,7 +5,7 @@
 - Documentation block: Implemented code standards
 - Document type: Dedicated implemented-standard register
 - Format: Markdown
-- Version: 1.11
+- Version: 1.12
 - Date: 2026-06-19
 - Status: Active implementation control
 

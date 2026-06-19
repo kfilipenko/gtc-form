@@ -3,7 +3,7 @@
 - Project: CrewPortGlobal.com
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Document type: Implementation report and approved follow-up task
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-06-19
 - Status: Cleanup implemented; template-registry work approved for next implementation slice
 
@@ -143,16 +143,25 @@ curl -I http://127.0.0.1:8787/legal/agent-agreement/text/
 
 ## 9. Next Implementation Recommendation
 
-Recommended next stage:
+Previous recommended next stage:
 
 ```text
 CPG-BIZ-135 - Shipowner-Agent Agreement Template Registry API/UI design
 ```
 
-This next stage should design the database objects, API response shape and contract-workspace UI adapter for the `CPG-BIZ-132` agreement template.
+This recommendation has been expanded by CPG-BIZ-135 after the Project Owner clarified that the agent must be able to conclude agreements with both seafarer and shipowner, while the direct seafarer-shipowner agreement remains central.
+
+Current next stage:
+
+```text
+CPG-BIZ-136 - Contract Workspace Multi-Template Registry API/UI implementation
+```
+
+The next implementation should design the database objects, API response shape and contract-workspace UI adapter for multiple `contract_kind` values, including `shipowner_agent_framework`, `seafarer_agent_representation` and `seafarer_shipowner_employment`.
 
 ## 10. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.1 | 2026-06-19 | GTC IT / AI Assistant | Expanded next-stage recommendation from shipowner-agent-only template registry to the unified multi-template contract workspace model fixed in CPG-BIZ-135 |
 | 1.0 | 2026-06-19 | GTC IT / AI Assistant | Fixed legal publication model, removed duplicate/raw markdown publication paths and defined the approved agent-agreement template registry task |

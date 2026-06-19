@@ -5,8 +5,8 @@
 - Business-process ID: BP-012
 - Source task: CPG-BIZ-012 approved execution task, document 199
 - Baseline: BP-001 through BP-011, CPG-DEMAND-017 through CPG-DEMAND-035
-- Version: 1.1
-- Date: 2026-05-26
+- Version: 1.2
+- Date: 2026-06-19
 - Document type: Controlling business-process manual
 - Status: Drafted for Project Owner review
 
@@ -213,6 +213,30 @@ If the object is self-managed, the field shows the registered user's name. If th
 
 Computed tasks must use this management context. If the managing actor changes because an object is reassigned from one agent to another, future computed tasks must be routed to the new managing actor while the previous manager remains only in audit/history.
 
+### 6.2 Agent-Enabled Contract Triad
+
+The direct contract between seafarer and shipowner/employer remains the central contract for employment terms.
+
+When an agent enters the process, CrewPortGlobal must distinguish three possible agreement workspaces:
+
+| Agreement | Parties | Process role |
+|---|---|---|
+| Direct seafarer-shipowner agreement | Seafarer and shipowner/employer | Governs wage, vessel, rank, joining, repatriation, insurance, complaint and signature/copy terms. |
+| Shipowner-agent agreement | Shipowner/employer and agent organization | Gives the agent authority to manage shipowner-side work inside recorded scope. |
+| Seafarer-agent representation agreement | Seafarer and agent organization | Gives the agent authority to manage seafarer-side profile/document/support work inside recorded scope. |
+
+The three agreements must not be implemented as three unrelated scripts.
+
+The controlling standard is:
+
+```text
+CPG-BIZ-135 - Unified Contract Workspace For Agent And Direct Party Agreements
+```
+
+All three agreement types must use the same master template / embedded field / appendix / party approval / generated instance model, with different `contract_kind` values and source adapters.
+
+The agent may coordinate both sides as ordinary dual-interest facilitation, but the direct seafarer-shipowner contract remains subject to direct party review and personal signature by default. If an agent seeks formal management, final approval or signature authority for either party, the relevant shipowner-agent or seafarer-agent agreement, authority evidence, appendix checklist, one-active-manager check and notification record must exist first.
+
 ## 7. Master Process Map
 
 | Step | Stage | Primary result | Responsible group | Main computed task |
@@ -234,7 +258,7 @@ Computed tasks must use this management context. If the managing actor changes b
 | CF-12 | Employer-facing presentation | Approved candidate summary is shared | Group 1 / `review_team` | Present candidate to employer |
 | CF-13 | Employer feedback and outcome | Employer decision or follow-up is recorded | Group 1 / Group 4 | Record employer feedback |
 | CF-13A | Structured terms clarification | Material seafarer/shipowner terms are agreed or blocked | Shipowner, seafarer, responsible team / Group 5 when needed | Clarify contract-relevant terms |
-| CF-14 | Contract and embarkation support | Contract, joining and boarding evidence exist | Group 1 / Group 4 / Group 5 | Confirm contract and boarding evidence |
+| CF-14 | Contract and embarkation support | Direct SEA workspace, relevant agent-agreement workspaces, joining and boarding evidence exist | Group 1 / Group 4 / Group 5 / represented agent where scoped | Confirm contract, authority, appendices and boarding evidence |
 | CF-15 | Active voyage and monthly service evidence | Work-period evidence exists | Group 4 / Group 3 | Confirm monthly service evidence |
 | CF-16 | Disembarkation and return support | Return / repatriation arrangement is known and completed | Group 4 / responsible manager | Confirm seafarer return arrangement |
 | CF-17 | Service completion and billing | Service result and billing basis exist | Group 3 | Prepare billing / completion record |
@@ -807,3 +831,9 @@ docs/crewportglobal/business_processes/14_standard_form_lifecycle_and_validation
 ```
 
 The next implementation-planning stage should extract the already verified `/create-profile/` save/completeness behavior into a shared frontend lifecycle helper before the same standard is applied to `/post-vacancy/`.
+
+## 20. Revision History
+
+| Version | Date | Author | Changes |
+|---|---|---|---|
+| 1.2 | 2026-06-19 | GTC IT / AI Assistant | Added agent-enabled contract triad and linked direct SEA, shipowner-agent and seafarer-agent agreements to the unified CPG-BIZ-135 contract workspace/template/generation model |

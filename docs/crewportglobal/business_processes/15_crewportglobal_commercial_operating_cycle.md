@@ -5,8 +5,8 @@
 - Business-process ID: BP-015
 - Source task: Project Owner approval after CPG-BIZ-051
 - Baseline: BP-001, BP-002, BP-003, BP-008, BP-012, BP-013, BP-014
-- Version: 1.1
-- Date: 2026-06-10
+- Version: 1.2
+- Date: 2026-06-19
 - Document type: Controlling business-process manual
 - Status: Drafted for Project Owner review
 
@@ -107,6 +107,33 @@ non_billable_representative_management
 ```
 
 Это позволяет сторонам быстро присоединиться к правовой рамке платформы без навязывания коммерческих условий.
+
+## 4B. Единый договорный workspace для разных договоров
+
+Коммерческий процесс должен использовать тот же договорный механизм, что и прямой договор моряк-судовладелец.
+
+Разные договоры выбираются не отдельными скриптами, а через:
+
+```text
+contract_kind
++ approved template_code/version
++ source adapter
++ appendix/evidence checklist
++ party approvals
++ generated snapshot/hash
+```
+
+Минимальный набор `contract_kind`:
+
+| Contract kind | Commercial/process role |
+|---|---|
+| `seafarer_shipowner_employment` | Direct SEA / employment-support agreement; not a billing agreement with the seafarer. |
+| `shipowner_agent_framework` | Shipowner-side representative management and authority; paid service remains separate until Service Order / commercial addendum / request. |
+| `seafarer_agent_representation` | Optional seafarer-side representation; must preserve no-fee boundary and personal account/representative governance rights. |
+
+The commercial group must not activate billing, success fee, SLA penalty/bonus or invoice basis from a framework agreement alone.
+
+Service Order, commercial addendum, request or approved price-basis record may be linked as an appendix/evidence item in the contract workspace, but it remains a separate commercial document with its own acceptance and billing guard.
 
 ## 5. Круговой процесс компании
 
@@ -481,3 +508,9 @@ The purpose:
 6. prepare the final public/authenticated navigation model.
 
 No code changes should be made from BP-015 alone. Page changes should follow the next approved inventory task.
+
+## 17. Revision History
+
+| Version | Date | Author | Changes |
+|---|---|---|---|
+| 1.2 | 2026-06-19 | GTC IT / AI Assistant | Added unified contract workspace rule for commercial/framework agreements and clarified Service Order/addendum linkage as separate appendix/evidence with billing guard |

@@ -203,6 +203,17 @@ Document: docs/crewportglobal/330_cpg_biz_128_public_legal_documents_hub_and_age
 
 The `/legal/` section is now the only canonical public place for platform standards, agreements, policies and operating rules. Public runtime links must use published legal URLs such as `/legal/agent-agreement/`, not raw internal `/docs/crewportglobal/*.md` files and not public `index.md` files. A document has one public full-text URL. Other pages may show only a short description, status/version and a link to the canonical legal document. The shipowner-agent agreement page publishes the full authoritative English package at `/legal/agent-agreement/` and does not advertise Russian CPG-BIZ-123 as a public translation. The older `/shipowners/agent-agreement/` preview route redirects to it.
 
+On 2026-06-19, CPG-BIZ-135 fixed the next contract automation direction:
+
+```text
+direct seafarer-shipowner agreement
++ shipowner-agent framework agreement
++ future seafarer-agent representation agreement
+= one unified Contract Agreement Workspace / template / appendix / generation mechanism
+```
+
+Do not create a separate contract-generation script for agent agreements. The existing contract workspace module must be generalized by `contract_kind`, template code/version, source adapters, required appendix/evidence checklist and party approvals. The current runtime code is still SEA-specialized: it selects the latest approved template globally and requires seafarer/employer/vessel/vacancy columns. The next implementation must add a compatibility layer before generating shipowner-agent or seafarer-agent contract instances.
+
 On 2026-06-10 the shared public/application header model was fixed as:
 
 ```text

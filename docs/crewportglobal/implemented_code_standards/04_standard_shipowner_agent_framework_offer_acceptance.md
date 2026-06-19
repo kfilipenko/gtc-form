@@ -4,7 +4,7 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Implemented code standards
 - Document type: Implemented code standard
-- Version: 1.2
+- Version: 1.3
 - Date: 2026-06-19
 - Status: Active
 
@@ -50,6 +50,13 @@ Publication rule:
 ```text
 The full agreement has one public URL only: /legal/agent-agreement/
 Operational pages may show short descriptions and links, but must not duplicate the full legal text.
+```
+
+Runtime snapshot rule:
+
+```text
+contract_snapshot must identify the authoritative CPG-BIZ-132 package and /legal/agent-agreement/ URL.
+It must not expose a translation_reference field or suggest that a supporting working reference is a public contract source.
 ```
 
 Future adopters:
@@ -232,6 +239,7 @@ If this standard changes, update:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.3 | 2026-06-19 | GTC IT / AI Assistant | Removed translation reference from runtime contract snapshot rule and aligned ICS-004 with the single authoritative CPG-BIZ-132 public package |
 | 1.2 | 2026-06-19 | GTC IT / AI Assistant | Replaced public convenience-translation wording with internal working/reference version language for Russian CPG-BIZ-123 |
 | 1.1 | 2026-06-10 | GTC IT / AI Assistant | Switched runtime contract source to authoritative English CPG-BIZ-132 v1.0, keeping Russian CPG-BIZ-123 as a supporting working reference |
 | 1.0 | 2026-06-10 | GTC IT / AI Assistant | Initial implemented-code standard for shipowner-agent framework offer acceptance |

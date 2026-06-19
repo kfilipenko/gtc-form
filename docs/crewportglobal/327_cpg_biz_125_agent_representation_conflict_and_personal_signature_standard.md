@@ -5,8 +5,8 @@
 - Stage: Stage 1 - Digital Maritime Crew Data and Matching Platform
 - Document type: Business-process, contract-control and task-routing standard
 - Source task: Project Owner instruction on agent role complexity, seafarer/shipowner contract standardization and personal party signing
-- Version: 1.1
-- Date: 2026-06-10
+- Version: 1.2
+- Date: 2026-06-19
 - Status: Drafted for Project Owner, platform-control and maritime legal review
 
 ## 1. Purpose
@@ -191,6 +191,28 @@ Employer-side representative signing may be lawful in some cases because the MLC
 
 Seafarer-side signing must remain personal by default. Signing by a representative for the seafarer is a high-risk exception and must require legal/control review, verified legal basis, explicit seafarer consent evidence and a visible exception audit event.
 
+## 5A. Agent Agreements Before Representative Management
+
+An agent may facilitate communication between seafarer and shipowner/employer, but formal management of either side requires a separate agreement with that represented side.
+
+Required agreement split:
+
+| Agent capacity | Required agreement | Contract workspace kind |
+|---|---|---|
+| `agent_for_shipowner` | Shipowner-agent framework agreement with authority/POA and appendices. | `shipowner_agent_framework` |
+| `agent_for_seafarer` | Seafarer-agent representation agreement with seafarer authority/consent, no-fee acknowledgement and appendices. | `seafarer_agent_representation` |
+| SEA preparation facilitator | No final party substitution; may prepare values only inside verified authority and audit scope. | Direct `seafarer_shipowner_employment` workspace remains between the parties. |
+
+The same unified contract workspace/template/generation model must handle these agreements under CPG-BIZ-135.
+
+The agent must not gain operational management rights merely because it submitted data or communicated with both sides. Management begins only after:
+
+1. the relevant represented-side agreement exists;
+2. authority/consent evidence is recorded;
+3. mandatory appendices are complete;
+4. one-active-manager rule passes;
+5. participant notification ledger records are created.
+
 ## 6. Representative-Signing Exception Gate
 
 If any party proposes signature through a representative or power of attorney, the contract workspace must enter:
@@ -323,6 +345,12 @@ If the task is contract-critical and the agent is not the actual party, the task
 
 Because CPG-BIZ-125 is now fixed as the representation/conflict/signature standard, the previously recommended notification task moves forward to a broader CPG-BIZ-126 representative-appointment stage.
 
+After CPG-BIZ-126, CPG-BIZ-127, CPG-BIZ-132 and CPG-BIZ-134, the current contract-specific next stage is CPG-BIZ-135 / CPG-BIZ-136:
+
+```text
+unify direct SEA, shipowner-agent and seafarer-agent agreements under one contract workspace/template/generation mechanism
+```
+
 Recommended next stage:
 
 ```text
@@ -350,3 +378,9 @@ This standard does not implement a runtime feature by itself.
 No final contract signature, representative exception, dual-representation clearance or contract generation should be implemented until the relevant API/UI/database task is separately approved and verified.
 
 This standard also does not decide the final legal wording of the SEA. It fixes the platform behavior required before legal wording can be safely operationalized.
+
+## 12. Revision History
+
+| Version | Date | Author | Changes |
+|---|---|---|---|
+| 1.2 | 2026-06-19 | GTC IT / AI Assistant | Added required represented-side agent agreements and linked shipowner-agent, seafarer-agent and direct SEA work to the unified CPG-BIZ-135 contract workspace model |

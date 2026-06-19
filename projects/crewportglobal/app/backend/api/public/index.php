@@ -9596,7 +9596,6 @@ function handle_post_employer_agent_framework_offer(): void {
         'agreement_type' => 'framework_adhesion_agreement',
         'agreement_language' => 'en',
         'authoritative_language' => 'en',
-        'translation_reference' => 'CPG-BIZ-123 v1.4 RU',
         'acceptance_text' => cpg_shipowner_agent_authoritative_acceptance_text(),
         'commercial_terms_status' => 'commercial_terms_pending',
         'generated_contract_reference' => '/legal/agent-agreement/',

@@ -4,8 +4,8 @@
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Documentation block: Business processes and operating model
 - Process owner: Project Owner / Platform Administration / Control
-- Version: 1.1
-- Date: 2026-06-10
+- Version: 1.3
+- Date: 2026-06-19
 - Status: Active process standard for implemented first runtime slice
 
 ## 1. Purpose
@@ -118,6 +118,38 @@ The agreement is a platform standard / adhesion-form framework agreement. Extern
 
 The controlling contract source is the English `CPG-BIZ-132 - Shipowner-Agent Agreement Package (EN, Authoritative Portal Version)`. Russian `CPG-BIZ-123` is maintained as a working/reference version for internal review and system discussions. Public runtime links must open the single canonical publication URL `/legal/agent-agreement/`, which publishes the English-authoritative contract package and explains the language priority without advertising Russian CPG-BIZ-123 as a public translation. Working pages may show only a short description and a link to that canonical legal URL.
 
+The implemented first runtime slice currently stores a framework-offer snapshot in `agent_framework_agreement_offers`. The next contract-automation slice must migrate or link this flow into the unified Contract Agreement Workspace model defined by `CPG-BIZ-135`.
+
+Required future relationship:
+
+```text
+shipowner-agent offer
+-> contract_kind = shipowner_agent_framework
+-> approved template = CPG-BIZ-132
+-> appendix/evidence checklist
+-> shipowner and agent approvals
+-> generated snapshot/hash
+-> authority/assignment activation
+```
+
+This process must not receive its own standalone generation script.
+
+## 6A. Relationship To Seafarer-Agent Representation
+
+The shipowner-agent process is only one side of agent representation.
+
+If an agent represents a seafarer, CrewPortGlobal must use a separate seafarer-agent representation agreement:
+
+```text
+contract_kind = seafarer_agent_representation
+```
+
+That agreement must record the seafarer's personal authority/consent, no-fee acknowledgement, profile/document support scope, personal account governance rights, revocation/replacement route and notifications.
+
+The same agent may perform ordinary dual-interest facilitation for a crewing workflow. This does not by itself make the agent the final decision-maker for both sides.
+
+Formal management or final signature authority for both seafarer and shipowner/employer in the same SEA workflow must trigger the CPG-BIZ-125 control review and cannot move the direct seafarer-shipowner contract to signature readiness without party confirmations.
+
 ## 7. Commercial Terms Rule
 
 The framework agreement may be accepted before a concrete service price is agreed.
@@ -208,6 +240,7 @@ The following stages remain future work:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.3 | 2026-06-19 | GTC IT / AI Assistant | Linked shipowner-agent appointment to the unified CPG-BIZ-135 contract workspace model and added the seafarer-agent representation relationship boundary |
 | 1.2 | 2026-06-19 | GTC IT / AI Assistant | Removed public convenience-translation wording from the shipowner-agent agreement publication rule |
 | 1.1 | 2026-06-10 | GTC IT / AI Assistant | Added authoritative English CPG-BIZ-132 contract package as the controlling source for shipowner-agent offers, with Russian CPG-BIZ-123 kept as a supporting working reference |
 | 1.0 | 2026-06-10 | GTC IT / AI Assistant | Initial dedicated process document for shipowner-to-agent offer, framework acceptance, platform authority, one active assignment, commercial pending status and notifications |
