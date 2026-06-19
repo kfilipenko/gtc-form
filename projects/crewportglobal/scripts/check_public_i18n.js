@@ -235,8 +235,8 @@ for (const code of [...languageCodes].sort()) {
 }
 
 const reviewRequired = [
-  'projects/crewportglobal/public/legal/**/*.md',
-  'projects/crewportglobal/public/for-seafarers/index.md',
+  'projects/crewportglobal/content/public_pages/legal/**/*.md',
+  'projects/crewportglobal/content/public_pages/for-seafarers/index.md',
 ];
 
 console.log(`Checked ${htmlFiles.length} public HTML files and ${usage.size} unique i18n keys.`);

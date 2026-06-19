@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 3.24
+- Version: 3.25
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -423,6 +423,7 @@ docs/crewportglobal/
   333_cpg_biz_131_heading_contrast_normalization_report.md
   334_cpg_biz_132_shipowner_agent_agreement_package_en.md
   335_cpg_biz_133_agent_agreement_full_text_html_publication_report.md
+  336_cpg_biz_134_authoritative_legal_publication_and_agent_template_registry.md
   sql_drafts/
     018_contract_workspace_schema_draft.sql
     020_agent_organization_scope_schema_draft.sql
@@ -965,6 +966,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.25 | 2026-06-19 | GTC IT / AI Assistant | Added document 336 as CPG-BIZ-134 for single canonical legal publication cleanup and approved shipowner-agent agreement template-registry task |
 | 3.24 | 2026-06-18 | GTC IT / AI Assistant | Added document 335 as CPG-BIZ-133 report for publishing the full shipowner-agent agreement as HTML on `/legal/agent-agreement/` and `/legal/agent-agreement/text/` |
 | 3.23 | 2026-06-10 | GTC IT / AI Assistant | Added document 334 as CPG-BIZ-132 authoritative English shipowner-agent agreement package and registered documents 330-333 from the public legal/header/participant landing/heading contrast work sequence |
 | 3.22 | 2026-06-10 | GTC IT / AI Assistant | Added document 329 as CPG-BIZ-127 first runtime implementation report for shipowner agent-offer UI/API, agent checkbox acceptance, platform authority/assignment activation, participant notification ledger, test agent seed and smoke verification |

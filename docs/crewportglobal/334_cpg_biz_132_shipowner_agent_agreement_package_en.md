@@ -6,7 +6,7 @@
 - Template code: CPG-BIZ-132
 - Template version: 1.0
 - Authoritative language: English
-- Convenience translation: `docs/crewportglobal/324_cpg_biz_123_full_contract_ru_checkbox_radio.md` (Russian working translation)
+- Convenience translation: `CPG-BIZ-123 v1.4 RU` (Russian working translation)
 - Date: 2026-06-10
 - Status: Authoritative portal contract package draft; requires qualified maritime-law review before production signing with real counterparties
 
@@ -737,17 +737,16 @@ The system must record:
 1. template package version: `CPG-BIZ-132 v1.0`;
 2. Russian convenience translation: `CPG-BIZ-123 v1.4`;
 3. public package URL: `/legal/agent-agreement/`;
-4. public full text URL: `/legal/agent-agreement/text/`;
-5. offer_id;
-6. agent_organization_id;
-7. represented_object_type and represented_object_id;
-8. delegated_scope;
-9. authority_document_id where applicable;
-10. commercial_terms_status;
-11. acceptance_text;
-12. actor_user_id and timestamp;
-13. notification ledger event;
-14. hash / immutable snapshot when generated instances are implemented.
+4. offer_id;
+5. agent_organization_id;
+6. represented_object_type and represented_object_id;
+7. delegated_scope;
+8. authority_document_id where applicable;
+9. commercial_terms_status;
+10. acceptance_text;
+11. actor_user_id and timestamp;
+12. notification ledger event;
+13. hash / immutable snapshot when generated instances are implemented.
 
 ---
 

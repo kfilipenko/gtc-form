@@ -58,7 +58,6 @@ Public legal document:
 
 ```text
 /legal/agent-agreement/
-/legal/agent-agreement/text/
 ```
 
 ## 3. Participants
@@ -117,7 +116,7 @@ The shipowner sends an offer. The appointment becomes active only after the agen
 
 The agreement is a platform standard / adhesion-form framework agreement. External contracts, letters or powers of attorney may be stored as evidence for Control review, but they do not automatically activate platform management rights unless the CrewPortGlobal assignment process is completed.
 
-The controlling contract source is the English `CPG-BIZ-132 - Shipowner-Agent Agreement Package (EN, Authoritative Portal Version)`. Russian `CPG-BIZ-123` is maintained as a working translation/convenience version for user review and system discussions. Public runtime links must open `/legal/agent-agreement/`, which publishes the English-authoritative contract package and explains the translation priority. Full source text is published at `/legal/agent-agreement/text/`.
+The controlling contract source is the English `CPG-BIZ-132 - Shipowner-Agent Agreement Package (EN, Authoritative Portal Version)`. Russian `CPG-BIZ-123` is maintained as a working translation/convenience version for user review and system discussions. Public runtime links must open the single canonical publication URL `/legal/agent-agreement/`, which publishes the English-authoritative contract package and explains the translation priority. Working pages may show only a short description and a link to that canonical legal URL.
 
 ## 7. Commercial Terms Rule
 

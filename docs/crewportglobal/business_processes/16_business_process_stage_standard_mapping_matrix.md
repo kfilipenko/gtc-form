@@ -5,9 +5,9 @@
 - Documentation block: Business processes and operating model
 - Document type: Stage-to-standard control matrix
 - Source task: Project Owner instruction after CPG-BIZ-093 approval
-- Version: 3.14
+- Version: 3.15
 - Date: 2026-06-10
-- Status: Synchronized after authoritative English CPG-BIZ-132 shipowner-agent agreement package creation
+- Status: Synchronized after CPG-BIZ-134 single canonical legal publication cleanup
 
 ## 1. Purpose
 
@@ -140,6 +140,7 @@ Task exit rules:
 | CPG-BIZ-119 | Agent-managed object participant cards and scoped object workspace | Implemented assignment-specific `/agents/objects/{assignment_id}/workspace`, safe participant cards, `Managed by` authority context, workspace guard and assignment-specific UI links |
 | CPG-BIZ-123 | Shipowner-agent agreement checkbox/radio template | Updated full RU template for future portal generation and agent appointment activation, including shipowner offer, agent acceptance, standard framework adhesion-form boundary, platform-side POA/authority, separate Service Order / commercial addendum / request for paid services, no-fee/SEA coordination boundaries, exclusive delegated management and notification ledger clauses |
 | CPG-BIZ-132 | Shipowner-agent agreement package EN authoritative version | Created the controlling English portal contract package for shipowner-agent appointment offers: main agreement, authority/POA, mandatory appendices, commercial-status separation, language-priority clause, platform appointment rule and signing/acceptance checklist |
+| CPG-BIZ-134 | Authoritative legal publication and agent agreement template registry | Implemented single canonical publication cleanup for public legal documents and defined the next agent-agreement template registry task with clause IDs, embedded fields, DB source mapping, generated snapshots and hash controls |
 | CPG-BIZ-124 | Agent assignment context enforcement in profile and demand forms | Implemented runtime guard for agent-opened profile/demand draft routes, completeness, submit-review, protected document list/upload and seafarer workspace resolution |
 | CPG-BIZ-125 | Agent representation capacity, dual-interest facilitation, conflict boundary and personal contract-signature rule | Documented standard requiring represented-party capacity in agent tasks/actions, allowing ordinary dual-interest facilitation, controlling formal dual-management/final authority and requiring direct seafarer/shipowner party review/signature for contract-critical terms |
 | CPG-BIZ-126 | Participant representative appointment and assignment notification standard | Documented standard for physical-person self-registration, platform-capacity authorization, optional representative appointment/replacement, signed representation agreement/POA evidence, exclusive delegated operational management, participant governance notification ledger, agent-created preparation/invitation contexts, one-active-manager rule and safe notifications to represented parties, previous agents, new agents and control roles |
@@ -279,6 +280,7 @@ After that, the process should move to:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.15 | 2026-06-19 | GTC IT / AI Assistant | Added CPG-BIZ-134 single canonical legal publication cleanup and agent-agreement template registry task as the next control after CPG-BIZ-132 |
 | 3.14 | 2026-06-10 | GTC IT / AI Assistant | Added CPG-BIZ-132 as the authoritative English shipowner-agent agreement package and synchronized runtime offer/acceptance mapping with the public legal publication source |
 | 3.13 | 2026-06-10 | GTC IT / AI Assistant | Added CPG-BIZ-127 first runtime implementation result and synchronized BP-017 / ICS-004 as controlling standards for the visible shipowner agent-appointment action, framework offer acceptance, authority/assignment activation, notification ledger and next follow-up for commercial Service Order/addendum |
 | 3.12 | 2026-06-10 | GTC IT / AI Assistant | Clarified CPG-BIZ-123/BP-012/BP-015 separation between framework adhesion agreement and separate Service Order / commercial addendum: representative management may activate after authority, while paid service, billing basis, success fee and SLA require separate commercial agreement |

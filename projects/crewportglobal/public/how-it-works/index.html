@@ -3,137 +3,168 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CrewPortGlobal - Process overview</title>
-  <meta id="page-description" name="description" content="CrewPortGlobal process overview is now shown as a compact BP-015 operating cycle on the home page.">
-  <link rel="canonical" href="https://crewportglobal.com/#home-process-cycle">
+  <title>CrewPortGlobal — BP-015 Cycle | CrewPortGlobal</title>
+    <meta name="description" content="Shows the compact operating cycle from registration to matching, billing evidence and repeat work.">
+  <link rel="canonical" href="https://crewportglobal.com/how-it-works/">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="shortcut icon" href="/favicon.ico">
-  <link rel="stylesheet" href="../assets/crewportglobal-docs.css?v=20260530-bp015-home">
-  <style>
-    .process-redirect {
-      display: grid;
-      gap: 18px;
-      padding: 28px;
-    }
-
-    .process-summary {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .process-summary li {
-      padding: 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(78, 196, 213, 0.18);
-      background: rgba(255, 255, 255, 0.045);
-      color: var(--muted-on-dark);
-      line-height: 1.45;
-    }
-
-    .process-summary strong {
-      display: block;
-      color: var(--paper-strong);
-      margin-bottom: 4px;
-    }
-
-    @media (max-width: 860px) {
-      .process-summary {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
-  <script>
-    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
-      en: {
-        'site.pageTitle': 'CrewPortGlobal - Process overview',
-        'site.metaDescription': 'CrewPortGlobal process overview is now shown as a compact BP-015 operating cycle on the home page.',
-        'process.eyebrow': 'Process overview',
-        'process.title': 'The operating cycle is now on the home page.',
-        'process.lead': 'CrewPortGlobal keeps the process explanation compact: registration, structured data, verification, matching, presentation, embarkation, billing evidence and repeat voyage.',
-        'process.cta': 'Open BP-015 cycle on home page',
-        'process.home': 'Back to home',
-        'process.step1.title': 'Register',
-        'process.step1.copy': 'Create the correct seafarer or employer route.',
-        'process.step2.title': 'Complete data',
-        'process.step2.copy': 'Save structured data for matching.',
-        'process.step3.title': 'Verify and match',
-        'process.step3.copy': 'Review evidence and explain blockers.',
-        'process.step4.title': 'Deliver service',
-        'process.step4.copy': 'Present, confirm boarding, bill and repeat.'
-      },
-      ru: {
-        'site.pageTitle': 'CrewPortGlobal - Схема процесса',
-        'site.metaDescription': 'Схема процесса CrewPortGlobal теперь показана как компактный операционный цикл BP-015 на главной странице.',
-        'process.eyebrow': 'Схема процесса',
-        'process.title': 'Операционный цикл теперь находится на главной странице.',
-        'process.lead': 'CrewPortGlobal оставляет объяснение процесса компактным: регистрация, структурированные данные, проверка, сопоставление, представление, посадка, доказательства для счета и следующий рейс.',
-        'process.cta': 'Открыть цикл BP-015 на главной',
-        'process.home': 'На главную',
-        'process.step1.title': 'Регистрация',
-        'process.step1.copy': 'Создать правильный маршрут моряка или работодателя.',
-        'process.step2.title': 'Заполнение данных',
-        'process.step2.copy': 'Сохранить структурированные данные для сопоставления.',
-        'process.step3.title': 'Проверка и подбор',
-        'process.step3.copy': 'Проверить доказательства и объяснить блокеры.',
-        'process.step4.title': 'Оказание услуги',
-        'process.step4.copy': 'Представить, подтвердить посадку, выставить счет и вернуть цикл.'
-      }
-    };
-  </script>
-  <script src="/assets/crewportglobal-machine-translations.js?v=53345f0f8938ec76" defer></script>
-  <script src="../assets/crewportglobal-public-i18n.js?v=20260530-bp015-home" defer></script>
+  <link rel="stylesheet" href="../assets/crewportglobal-docs.css">
+    <script src="../assets/crewportglobal-machine-translations.js?v=53345f0f8938ec76" defer></script>
+    <script src="../assets/crewportglobal-public-i18n.js" defer></script>
 </head>
-<body class="doc-body cpg-app-page" data-enable-public-translate="true">
+<body class="doc-body" data-enable-public-translate="true">
   <div class="site-shell">
     <header class="site-header">
       <a class="brand" href="https://crewportglobal.com/">
         <span class="brand-mark">CPG</span>
         <span class="brand-copy">
           <strong>CrewPortGlobal</strong>
-          <span data-i18n="site.tagline">Maritime jobs and crew platform</span>
+                    <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
         </span>
       </a>
-      <div id="language-selector" class="language-selector">
-        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
-          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
-          <span class="language-toggle__copy">
-            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
-            <span class="language-toggle__label" id="current-language-label">English</span>
-          </span>
-          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
-        </button>
-        <div id="header-language-menu" class="language-menu" hidden>
-          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
-        </div>
-      </div>
+            <div id="language-selector" class="language-selector">
+                <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+                    <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+                    <span class="language-toggle__copy">
+                        <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+                        <span class="language-toggle__label" id="current-language-label">English</span>
+                    </span>
+                    <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+                </button>
+                <div id="header-language-menu" class="language-menu" hidden>
+                    <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+                </div>
+            </div>
     </header>
 
-    <div data-cpg-navigation="application" data-cpg-nav-active="/"></div>
-    <script src="../assets/crewportglobal-navigation.js?v=20260530-bp015-home"></script>
+    <div data-cpg-navigation="documents" data-cpg-nav-active="/how-it-works/"></div>
+    <script src="../assets/crewportglobal-navigation.js"></script>
 
     <main class="doc-main">
-      <section class="card process-redirect">
-        <p class="eyebrow" data-i18n="process.eyebrow">Process overview</p>
-        <h1 data-i18n="process.title">The operating cycle is now on the home page.</h1>
-        <p class="lead" data-i18n="process.lead">CrewPortGlobal keeps the process explanation compact: registration, structured data, verification, matching, presentation, embarkation, billing evidence and repeat voyage.</p>
-        <div class="actions">
-          <a class="button primary" href="https://crewportglobal.com/#home-process-cycle" data-i18n="process.cta">Open BP-015 cycle on home page</a>
-          <a class="button secondary" href="https://crewportglobal.com/" data-i18n="process.home">Back to home</a>
+      <section class="doc-hero card">
+        <div>
+          <p class="eyebrow">Overview</p>
+          <h1>CrewPortGlobal — BP-015 Cycle</h1>
+          <p class="lead">Shows the compact operating cycle from registration to matching, billing evidence and repeat work.</p>
+
         </div>
-        <ul class="process-summary">
-          <li><strong data-i18n="process.step1.title">Register</strong><span data-i18n="process.step1.copy">Create the correct seafarer or employer route.</span></li>
-          <li><strong data-i18n="process.step2.title">Complete data</strong><span data-i18n="process.step2.copy">Save structured data for matching.</span></li>
-          <li><strong data-i18n="process.step3.title">Verify and match</strong><span data-i18n="process.step3.copy">Review evidence and explain blockers.</span></li>
-          <li><strong data-i18n="process.step4.title">Deliver service</strong><span data-i18n="process.step4.copy">Present, confirm boarding, bill and repeat.</span></li>
-        </ul>
+        <div class="hero-meta">
+          <div>
+                        <span class="meta-label" data-i18n="doc.primaryFocus">Primary focus</span>
+            <strong>For seafarers</strong>
+          </div>
+          <div class="hero-actions">
+                        <a class="button primary" href="https://crewportglobal.com/" data-i18n="doc.backToHome">Back to home</a>
+
+          </div>
+        </div>
+      </section>
+
+
+
+      <section class="doc-layout">
+        <article class="doc-content card prose">
+          <p>CrewPortGlobal is being prepared as a practical maritime jobs and crew workflow platform where useful actions appear before long declarations.</p>
+<h2>For seafarers</h2>
+<ol>
+<li>Create a profile and start from the onboarding acceptance route.</li>
+<li>Add document metadata, contact email and availability.</li>
+<li>Track completeness and submit the profile for human review.</li>
+<li>Stay ready for public vacancies as they become available.</li>
+</ol>
+<h2>For employers</h2>
+<ol>
+<li>Register company intent and employer context.</li>
+<li>Post vacancy requirements for rank, vessel type, salary, join date and duration.</li>
+<li>Review prepared seafarer profiles after human review.</li>
+<li>Keep communication controlled and based on reviewed information.</li>
+</ol>
+<h2>Governance</h2>
+<ul>
+<li>AI may assist with collection, summarization and matching support.</li>
+<li>Human review is required before final candidate submission or comparable readiness decisions.</li>
+<li>The public site does not claim live vacancies unless approved vacancy data exists.</li>
+<li>The public site does not imply automatic employment, automatic approval or automatic verification.</li>
+</ul>
+
+        </article>
+
+        <aside class="doc-sidebar">
+          <section class="card sidebar-panel">
+                        <p class="eyebrow" data-i18n="doc.publicationSet">Publication set</p>
+                        <h2 data-i18n="doc.clientFacingLibrary">Client-facing library</h2>
+                        <p data-i18n="doc.libraryBody">All public CrewPortGlobal documents share the same navigation, routing model and visual treatment.</p>
+          </section>
+
+
+
+          <section class="card library-grid">
+            <a class="library-link" href="https://crewportglobal.com/about/">
+  <span class="library-type">Positioning</span>
+  <strong>Project Scope</strong>
+  <span>Defines what CrewPortGlobal is, what it is not, and how the Stage 1 commercial model is framed.</span>
+</a>
+<a class="library-link is-active" href="https://crewportglobal.com/how-it-works/">
+  <span class="library-type">Overview</span>
+  <strong>BP-015 Cycle</strong>
+  <span>Shows the compact operating cycle from registration to matching, billing evidence and repeat work.</span>
+</a>
+<a class="library-link" href="https://crewportglobal.com/for-shipowners/">
+  <span class="library-type">Audience</span>
+  <strong>For Employers</strong>
+  <span>Present your company clearly, prepare vacancy requests and review candidate profiles through a controlled maritime hiring workflow.</span>
+</a>
+<a class="library-link" href="https://crewportglobal.com/for-seafarers/">
+  <span class="library-type">Audience</span>
+  <strong>For Seafarers</strong>
+  <span>Present your maritime experience clearly, keep documents organised and stay ready for reviewed vacancies without recruitment fees.</span>
+</a>
+<a class="library-link" href="https://crewportglobal.com/legal/no-recruitment-fees/">
+  <span class="library-type">Policy</span>
+  <strong>No Recruitment Fees</strong>
+  <span>Core trust rule: seafarers must not be charged recruitment, placement or employment-access fees.</span>
+</a>
+<a class="library-link" href="https://crewportglobal.com/legal/privacy/">
+  <span class="library-type">Legal</span>
+  <strong>Privacy</strong>
+  <span>Initial public privacy baseline for profile, document, operational and compliance data.</span>
+</a>
+<a class="library-link" href="https://crewportglobal.com/legal/seafarer-candidate-agreement/">
+  <span class="library-type">Trust Center</span>
+  <strong>Seafarer Agreement</strong>
+  <span>No-fee candidate agreement for seafarers covering profiles, documents, document readiness and human-reviewed matching workflows.</span>
+</a>
+<a class="library-link" href="https://crewportglobal.com/legal/terms/">
+  <span class="library-type">Legal</span>
+  <strong>Terms</strong>
+  <span>Core platform rules for the early public launch and AI-assisted workflow support.</span>
+</a>
+<a class="library-link" href="https://crewportglobal.com/legal/shipowner-service-terms/">
+  <span class="library-type">B2B</span>
+  <strong>Shipowner Agreement</strong>
+  <span>Commercial and compliance baseline for shipowners, vessel operators, ship managers and crew managers using CrewPortGlobal.</span>
+</a>
+<a class="library-link" href="https://crewportglobal.com/legal/recruitment-and-matching-policy/">
+  <span class="library-type">Trust Center</span>
+  <strong>Matching Policy</strong>
+  <span>Human-reviewed matching rules, non-discrimination baseline and MLC-aligned handling of candidate presentation.</span>
+</a>
+<a class="library-link" href="https://crewportglobal.com/legal/verification-policy/">
+  <span class="library-type">Compliance</span>
+  <strong>Verification Policy</strong>
+  <span>Identity, business-client and vessel verification baseline for both sides of the crew workflow.</span>
+</a>
+<a class="library-link" href="https://crewportglobal.com/legal/complaints/">
+  <span class="library-type">Procedure</span>
+  <strong>Complaints</strong>
+  <span>Public complaint intake, expected evidence, priority handling and temporary contact channels.</span>
+</a>
+          </section>
+        </aside>
       </section>
     </main>
-  </div>
+    </div>
 </body>
 </html>

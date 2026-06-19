@@ -21,6 +21,7 @@ except ModuleNotFoundError as exc:
 SITE_ORIGIN: Final = "https://crewportglobal.com"
 PROJECT_ROOT: Final = Path(__file__).resolve().parent.parent
 PUBLIC_ROOT: Final = PROJECT_ROOT / "public"
+CONTENT_ROOT: Final = PROJECT_ROOT / "content" / "public_pages"
 CSS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-docs.css"
 I18N_JS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-public-i18n.js"
 MACHINE_I18N_JS_PATH: Final = PUBLIC_ROOT / "assets" / "crewportglobal-machine-translations.js"
@@ -163,17 +164,13 @@ def slug_to_clean_url(slug: str) -> str:
     return f"{SITE_ORIGIN}/{slug}/"
 
 
-def slug_to_raw_url(slug: str) -> str:
-    return f"{SITE_ORIGIN}/{slug}/index.md"
-
-
 def first_section_title(html_body: str) -> str | None:
     match = re.search(r"<h2>(.*?)</h2>", html_body)
     return match.group(1) if match else None
 
 
 def load_doc(slug: str) -> dict[str, object]:
-    markdown_path = PUBLIC_ROOT / slug / "index.md"
+    markdown_path = CONTENT_ROOT / slug / "index.md"
     metadata, markdown_body = split_frontmatter(markdown_path.read_text(encoding="utf-8"))
     page_title, body_markdown = extract_title(markdown_body)
     return {
@@ -249,9 +246,6 @@ def render_hero_ctas(doc: dict[str, object]) -> str:
     items = []
     for item in doc.get("hero_ctas", []):
         items.append(f'<a class="button {item["style"]}" href="{item["href"]}">{item["label"]}</a>')
-    items.append(
-        f'<a class="button secondary" href="{slug_to_raw_url(doc["slug"])}" data-i18n="doc.canonicalMarkdown">Canonical Markdown</a>'
-    )
     return "\n".join(items)
 
 

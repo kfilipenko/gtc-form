@@ -11,6 +11,8 @@ CrewPortGlobal public documents must be published in the portal legal/document s
 
 The `/legal/` section is now treated as the public map of real platform standards, agreements, policies and operating rules. It should gradually move from general educational descriptions to the actual documents used by the CrewPortGlobal system.
 
+Each formal document must have one canonical public full-text URL under `/legal/`. Other portal pages may show only a short description, document status/version and a link to the canonical legal URL. Public `index.md` links, duplicate full-text pages and working-page copies of legal text are not allowed.
+
 ## 2. Implemented Result
 
 The public legal section now includes:

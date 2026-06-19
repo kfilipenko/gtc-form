@@ -45,6 +45,13 @@ Public URL: /legal/agent-agreement/
 Russian convenience translation: CPG-BIZ-123 v1.4
 ```
 
+Publication rule:
+
+```text
+The full agreement has one public URL only: /legal/agent-agreement/
+Operational pages may show short descriptions and links, but must not duplicate the full legal text.
+```
+
 Future adopters:
 
 1. shipowner representative replacement/revocation;
@@ -193,6 +200,7 @@ Focused verification commands:
 ```text
 php -l projects/crewportglobal/app/backend/api/public/index.php
 php -S 127.0.0.1:8787 -t projects/crewportglobal/public projects/crewportglobal/public/router.php
+node projects/crewportglobal/scripts/check_public_document_publication.js
 GET /shipowners/candidates/?draft_id={shipowner_user_id}
 GET /legal/agent-agreement/
 GET /api/v1/employer/agent-assignment/options?draft_id={shipowner_user_id}

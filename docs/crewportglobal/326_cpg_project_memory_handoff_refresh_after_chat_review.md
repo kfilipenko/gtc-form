@@ -201,7 +201,7 @@ CPG-BIZ-128 - Public legal documents hub and agent agreement publication
 Document: docs/crewportglobal/330_cpg_biz_128_public_legal_documents_hub_and_agent_agreement_report.md
 ```
 
-The `/legal/` section is now the canonical public place for platform standards, agreements, policies and operating rules. Public runtime links must use published legal URLs such as `/legal/agent-agreement/`, not raw internal `/docs/crewportglobal/*.md` files. The shipowner-agent agreement page must publish the full authoritative English package, not a short link/summary; Russian text is shown as a convenience translation. The older `/shipowners/agent-agreement/` preview route redirects to it.
+The `/legal/` section is now the only canonical public place for platform standards, agreements, policies and operating rules. Public runtime links must use published legal URLs such as `/legal/agent-agreement/`, not raw internal `/docs/crewportglobal/*.md` files and not public `index.md` files. A document has one public full-text URL. Other pages may show only a short description, status/version and a link to the canonical legal document. The shipowner-agent agreement page publishes the full authoritative English package at `/legal/agent-agreement/`; Russian text is shown as a convenience translation. The older `/shipowners/agent-agreement/` preview route redirects to it.
 
 On 2026-06-10 the shared public/application header model was fixed as:
 

@@ -5,7 +5,7 @@
 - Document type: Implementation report
 - Version: 1.0
 - Date: 2026-06-18
-- Status: Implemented
+- Status: Superseded by CPG-BIZ-134 single-canonical-publication cleanup
 
 ## 1. Issue
 
@@ -13,6 +13,18 @@ External visual review showed two publication problems:
 
 1. `/legal/agent-agreement/` displayed a contract overview and appendix summary, but not the full authoritative contract text.
 2. `/legal/agent-agreement/text/` resolved to `index.md` in production and could open a browser save dialog instead of displaying the contract inside the portal.
+
+## 1A. Superseding Decision
+
+After further standards review, the `/legal/agent-agreement/text/` full-text route was identified as a second publication of the same document. CrewPortGlobal documents must have one canonical public full-text URL under `/legal/`.
+
+The corrected rule is:
+
+```text
+Full agent agreement text: /legal/agent-agreement/
+Legacy /legal/agent-agreement/text/: redirect only, no duplicated text
+Operational pages: short description + link to /legal/agent-agreement/
+```
 
 ## 2. Fix
 

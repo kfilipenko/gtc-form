@@ -51,8 +51,6 @@
       border-radius: 8px;
     }
     .full-contract-panel {
-      max-height: 70vh;
-      overflow: auto;
       margin-top: 16px;
       padding: 18px;
       border: 1px solid rgba(126, 201, 217, 0.24);
@@ -97,10 +95,8 @@
         'legal.agent.lead': 'Full standard agreement package for appointing an agent to represent a shipowner inside CrewPortGlobal.',
         'legal.agent.focus': 'Agreement + authority + appendices',
         'legal.agent.documentsHome': 'Documents home',
-        'legal.agent.fullText': 'Open full authoritative text',
         'legal.agent.fullTextTitle': 'Full authoritative contract text',
-        'legal.agent.fullTextCopy': 'The complete English source is shown below for visual review. The separate full-text page opens the same content as an HTML page, not as a downloaded file.',
-        'legal.agent.fullTextLoading': 'Loading full authoritative contract text.',
+        'legal.agent.fullTextCopy': 'The complete English source is shown below as the single canonical public publication for this agreement.',
         'legal.agent.openWorkspace': 'Open shipowner workspace',
         'legal.agent.version': 'Authoritative template: CPG-BIZ-132 v1.0',
         'legal.agent.note': 'This page is the public English contract package used by the platform offer/acceptance flow. A generated signing instance will fill the variables, parties, scope, authority and commercial status. Russian CPG-BIZ-123 is a convenience translation.',
@@ -174,10 +170,8 @@
         'legal.agent.lead': 'Полная стандартная форма договора для назначения агента представителем судовладельца внутри CrewPortGlobal.',
         'legal.agent.focus': 'Договор + полномочия + приложения',
         'legal.agent.documentsHome': 'Раздел документов',
-        'legal.agent.fullText': 'Открыть полный английский текст',
         'legal.agent.fullTextTitle': 'Полный основной текст договора',
-        'legal.agent.fullTextCopy': 'Полный английский источник показан ниже для визуальной проверки. Отдельная страница полного текста открывает тот же документ как HTML-страницу, без скачивания файла.',
-        'legal.agent.fullTextLoading': 'Загружаем полный основной текст договора.',
+        'legal.agent.fullTextCopy': 'Полный английский источник показан ниже как единственная каноническая публичная публикация этого договора.',
         'legal.agent.openWorkspace': 'Открыть рабочее место судовладельца',
         'legal.agent.version': 'Основной шаблон: CPG-BIZ-132 v1.0',
         'legal.agent.note': 'Эта страница является публичным английским договорным пакетом, используемым в процессе предложения и акцепта на платформе. Сгенерированный экземпляр для подписания заполнит переменные, стороны, scope, полномочия и коммерческий статус. Русский CPG-BIZ-123 является переводом для удобства.',
@@ -290,7 +284,6 @@
           </div>
           <div class="hero-actions">
             <a class="button primary" href="https://crewportglobal.com/legal/" data-i18n="legal.agent.documentsHome">Documents home</a>
-            <a class="button secondary" href="https://crewportglobal.com/legal/agent-agreement/text/" data-i18n="legal.agent.fullText">Open full authoritative text</a>
             <a class="button secondary" href="https://crewportglobal.com/shipowners/candidates/#agent-assignment" data-i18n="legal.agent.openWorkspace">Open shipowner workspace</a>
           </div>
         </div>
@@ -365,8 +358,663 @@
           <p data-i18n="legal.agent.statusCopy">CrewPortGlobal currently supports offer, acceptance, authority record, active assignment and notification ledger records. Future slices will add immutable generated contract snapshots, Service Orders, replacement/revocation, seafarer-side representation and delivery/read state.</p>
 
           <h2 data-i18n="legal.agent.fullTextTitle">Full authoritative contract text</h2>
-          <p data-i18n="legal.agent.fullTextCopy">The complete English source is shown below for visual review. The separate full-text page opens the same content as an HTML page, not as a downloaded file.</p>
-          <div class="full-contract-panel" data-markdown-document data-src="/legal/agent-agreement/text/index.md" data-i18n="legal.agent.fullTextLoading">Loading full authoritative contract text.</div>
+          <p data-i18n="legal.agent.fullTextCopy">The complete English source is shown below as the single canonical public publication for this agreement.</p>
+          <div class="full-contract-panel">
+<h2>CPG-BIZ-132 - Shipowner-Agent Agreement Package (EN, Authoritative Portal Version)</h2>
+<ul>
+<li>Project: CrewPortGlobal.com</li>
+<li>Company: GTC INFORMATION TECHNOLOGY FZ-LLC</li>
+<li>Document type: Authoritative English contract package for platform publication and future generated signing instances</li>
+<li>Template code: CPG-BIZ-132</li>
+<li>Template version: 1.0</li>
+<li>Authoritative language: English</li>
+<li>Convenience translation: <code>CPG-BIZ-123 v1.4 RU</code> (Russian working translation)</li>
+<li>Date: 2026-06-10</li>
+<li>Status: Authoritative portal contract package draft; requires qualified maritime-law review before production signing with real counterparties</li>
+</ul>
+<h3>Language Priority</h3>
+<ol>
+<li>This English document is the authoritative CrewPortGlobal portal source for the Shipowner-Agent Agreement Package.</li>
+<li>Translations, including the Russian <code>CPG-BIZ-123</code> working version, are provided for user convenience and platform review.</li>
+<li>If a translation conflicts with this English document, this English document controls unless a generated signing instance expressly states another controlling language.</li>
+</ol>
+<h3>Field And Choice Notation</h3>
+<ol>
+<li>Value field: <code>{{field_name}}</code></li>
+<li>Single choice:</li>
+</ol>
+<ul>
+<li>○ option 1</li>
+<li>○ option 2</li>
+<li>○ option 3</li>
+</ul>
+<ol>
+<li>Multiple choice:</li>
+</ol>
+<ul>
+<li>□ option 1</li>
+<li>□ option 2</li>
+<li>□ option 3</li>
+</ul>
+<hr>
+<h3>SHIPOWNER-AGENT AGREEMENT No. {{contract_number}}</h3>
+<p>Place: {{contract_city}}</p>
+<p>Date: {{contract_date}}</p>
+<p>{{shipowner_legal_name}}, represented by {{shipowner_signer_name}}, acting on the basis of {{shipowner_signer_basis}}, hereinafter referred to as the &quot;Principal&quot;, and {{agent_legal_name}}, represented by {{agent_signer_name}}, acting on the basis of {{agent_signer_basis}}, hereinafter referred to as the &quot;Agent&quot;, together the &quot;Parties&quot;, agree as follows.</p>
+<h3>1. Subject Matter</h3>
+<p>1.1. The Agent shall, on the Principal&#39;s instruction and in the Principal&#39;s interests, provide crew-search, candidate presentation, document coordination, interview, joining, request-support and related services for the Principal&#39;s vessels, crew requests and candidate workflows.</p>
+<p>1.2. The Agent may act only within this Agreement, Appendix 2 (Power of Attorney / Authority Document), the delegated scope recorded in CrewPortGlobal and any signed Service Order or commercial appendix.</p>
+<p>1.3. The seafarer employment agreement (&quot;SEA&quot;) is a separate agreement between the seafarer and the shipowner, employer or other duly authorized employer-side party. This Agreement does not replace the SEA, applicable law, collective bargaining agreement or mandatory maritime labour protections.</p>
+<p>1.4. This Agreement is a CrewPortGlobal standard framework adhesion-form agreement package. It regulates legal relationship, authority, restrictions, no-fee boundary, platform governance, notifications, data responsibility and the one-active-manager rule.</p>
+<p>1.5. Acceptance of this Agreement does not by itself agree a fixed service price, success fee, SLA penalty or billing basis. Commercial terms are agreed separately through a Service Order, commercial appendix, request, order form or approved price-basis record.</p>
+<h3>2. Definitions</h3>
+<p>2.1. &quot;CrewPortGlobal&quot; means the platform and workflow system operated for structured maritime crew data, matching, documents, contract preparation and participant governance.</p>
+<p>2.2. &quot;Request&quot; means the Principal&#39;s instruction for crew search, candidate presentation or related work.</p>
+<p>2.3. &quot;Candidate&quot; means a seafarer considered, shortlisted or presented for a Request.</p>
+<p>2.4. &quot;Successful joining&quot; means verified arrival and commencement of service by the Candidate on the relevant vessel or employment context.</p>
+<p>2.5. &quot;Delegated scope&quot; means the object or workflow area that the Principal authorizes the Agent to manage in CrewPortGlobal.</p>
+<p>2.6. &quot;Authority Document&quot; means Appendix 2, a power of attorney or other platform-approved authority evidence.</p>
+<p>2.7. &quot;Commercial Terms Pending&quot; means the Parties have accepted the legal framework but have not yet agreed the paid service basis, price, success fee, SLA economics or invoice basis.</p>
+<h3>3. Agent Duties And Authority Boundaries</h3>
+<p>3.1. The Agent may perform the following duties where included in the delegated scope:</p>
+<ul>
+<li>□ receive and review Requests;</li>
+<li>□ identify and present candidate shortlists;</li>
+<li>□ coordinate candidate documents;</li>
+<li>□ organize interviews and term clarification;</li>
+<li>□ coordinate joining logistics;</li>
+<li>□ prepare stage reports and closing documents;</li>
+<li>□ prepare contract workspace records without final SEA signature authority unless separately granted.</li>
+</ul>
+<p>3.2. The Agent may not, without separate express written authority:</p>
+<ul>
+<li>□ sign a seafarer employment agreement on behalf of the Principal;</li>
+<li>□ change a seafarer&#39;s wage, allotment, deduction or repatriation terms;</li>
+<li>□ issue financial guarantees or payment obligations on behalf of the Principal;</li>
+<li>□ transfer, receive or use the Principal&#39;s password, email code or personal account credentials;</li>
+<li>□ create a second active manager for the same delegated object or scope.</li>
+</ul>
+<p>3.3. The Agent must act in good faith and in accordance with recorded authority, applicable law, platform controls and the legitimate interests of represented parties.</p>
+<h3>4. Offer, Acceptance And Platform Appointment</h3>
+<p>4.1. Inside CrewPortGlobal, the Principal first sends an offer to the Agent to conclude this Agreement and receive authority for a defined object or scope.</p>
+<p>4.2. Sending an offer does not create active appointment and does not transfer operational management.</p>
+<p>4.3. The Agent may accept the offer only inside CrewPortGlobal by signing this Agreement package or by approved electronic acceptance confirming:</p>
+<ul>
+<li>□ I agree to the Agent Agreement, Authority Document / power of attorney, mandatory appendices and CrewPortGlobal portal appointment rules;</li>
+<li>□ I understand that acceptance covers the full contract package and not merely a short reference page or link;</li>
+<li>□ the Agent signatory authority is confirmed;</li>
+<li>□ commercial terms are agreed separately unless already fixed in a Service Order, commercial appendix, request or approved price-basis record;</li>
+<li>□ the Authority Document must be issued and recorded in CrewPortGlobal where authority is required.</li>
+</ul>
+<p>4.4. CrewPortGlobal may activate Agent management only after:</p>
+<ol>
+<li>the Principal has sent the in-platform offer;</li>
+<li>the Agent has accepted this Agreement package;</li>
+<li>the Authority Document has been issued or recorded where applicable;</li>
+<li>mandatory appendices and checklist are accepted;</li>
+<li>signatory authority is confirmed;</li>
+<li>the one-active-manager check passes;</li>
+<li>the participant notification ledger records are created.</li>
+</ol>
+<p>4.5. External agreements, emails or powers of attorney may be uploaded as evidence for Platform Administration / Control review. They do not automatically activate platform management unless the CrewPortGlobal assignment process is completed.</p>
+<h3>5. Delegated Scope And Exclusive Management</h3>
+<p>5.1. The delegated scope may include:</p>
+<ul>
+<li>□ Principal company card;</li>
+<li>□ vessel;</li>
+<li>□ crew request / vacancy;</li>
+<li>□ candidate shortlist / presentation;</li>
+<li>□ contract workspace;</li>
+<li>□ joining / voyage support;</li>
+<li>□ other scope: {{delegated_scope_other}}.</li>
+</ul>
+<p>5.2. While active Agent management exists, operational editing within the delegated scope belongs to the Agent. The Principal keeps governance rights to view, receive notifications, revoke, replace and request Platform Administration / Control review.</p>
+<p>5.3. Only one active managing Agent may control the same represented object or scope at the same time.</p>
+<h3>6. Commercial Terms And Payment</h3>
+<p>6.1. Pricing model:</p>
+<ul>
+<li>○ candidate fee only;</li>
+<li>○ stage fee only;</li>
+<li>○ successful joining fee only;</li>
+<li>○ stage fee + successful joining fee;</li>
+<li>○ candidate fee + stage fee + successful joining fee;</li>
+<li>○ other: {{pricing_mode_other}}.</li>
+</ul>
+<p>6.2. Settlement currency:</p>
+<ul>
+<li>○ USD;</li>
+<li>○ EUR;</li>
+<li>○ AED;</li>
+<li>○ other: {{settlement_currency_other}}.</li>
+</ul>
+<p>6.3. Payment schedule:</p>
+<ul>
+<li>○ advance + stage payments + final payment;</li>
+<li>○ post-payment against accepted acts;</li>
+<li>○ monthly consolidation;</li>
+<li>○ other: {{payment_schedule_other}}.</li>
+</ul>
+<p>6.4. Commercial terms are not agreed merely by accepting this Agreement. The Parties must separately agree each paid service, tariff, success fee, SLA economic consequence, payment schedule and billing basis.</p>
+<p>6.5. If no commercial basis is recorded, the service status must remain:</p>
+<pre><code>commercial_terms_pending</code></pre>
+<p>6.6. Commercial terms pending does not prevent legal representative management where authority exists, but it prevents paid service activation, invoice basis, success fee calculation and SLA economic adjustment.</p>
+<h3>7. Seafarer Wage, Joining And Repatriation Coordination</h3>
+<p>7.1. Wage payment frequency for coordination:</p>
+<ul>
+<li>○ monthly;</li>
+<li>○ every 15 days;</li>
+<li>○ for the whole contract period;</li>
+<li>○ other: {{seafarer_wage_frequency_other}}.</li>
+</ul>
+<p>7.2. Wage payment channel for coordination:</p>
+<ul>
+<li>○ seafarer&#39;s bank account;</li>
+<li>○ seafarer&#39;s bank card;</li>
+<li>○ cash through authorized representative where lawful;</li>
+<li>○ mixed method.</li>
+</ul>
+<p>7.3. Joining logistics arranger:</p>
+<ul>
+<li>○ Principal;</li>
+<li>○ Agent;</li>
+<li>○ jointly.</li>
+</ul>
+<p>7.4. Repatriation arranger:</p>
+<ul>
+<li>○ Principal;</li>
+<li>○ Agent on Principal&#39;s instruction;</li>
+<li>○ jointly.</li>
+</ul>
+<p>7.5. These coordination terms do not reduce mandatory seafarer rights under the SEA, applicable law, collective bargaining agreement or the Maritime Labour Convention, 2006 where applicable.</p>
+<h3>8. No-Fee Boundary And Seafarer Protection</h3>
+<p>8.1. The Agent must not charge, directly or indirectly, prohibited recruitment, placement or employment-access fees to seafarers.</p>
+<p>8.2. The Agent must not retain seafarer documents, misrepresent vessel, rank, wages, contract duration, joining terms, insurance, repatriation, family protection or complaint rights.</p>
+<p>8.3. The Agent must ensure that contract-critical employment terms are visible for personal review by the seafarer and the relevant shipowner/employer-side party unless a controlled legal exception is approved and recorded.</p>
+<p>8.4. The Agent must not use dual involvement in seafarer-side and shipowner-side coordination to hide conflicts of interest or bypass participant consent.</p>
+<h3>9. Documents, Data And Evidence</h3>
+<p>9.1. Document channels:</p>
+<ul>
+<li>□ CrewPortGlobal;</li>
+<li>□ corporate email;</li>
+<li>□ protected file exchange;</li>
+<li>□ paper original where required.</li>
+</ul>
+<p>9.2. Document statuses:</p>
+<ul>
+<li>□ received;</li>
+<li>□ under review;</li>
+<li>□ verified;</li>
+<li>□ correction required;</li>
+<li>□ rejected.</li>
+</ul>
+<p>9.3. Protected documents must not be stored in public directories or shared outside the lawful and scoped visibility model.</p>
+<p>9.4. Each material document-stage and obligation-stage event must create or update audit evidence where required by platform standards.</p>
+<h3>10. SLA, Acceptance And Stage Completion</h3>
+<p>10.1. SLA metrics may include:</p>
+<ul>
+<li>□ T1 first response time;</li>
+<li>□ T2 first shortlist deadline;</li>
+<li>□ T3 document check completion deadline;</li>
+<li>□ Q1 interview-ready candidate ratio;</li>
+<li>□ Q2 successful joining ratio.</li>
+</ul>
+<p>10.2. Stage acceptance method:</p>
+<ul>
+<li>○ bilateral acceptance act;</li>
+<li>○ electronic platform confirmation;</li>
+<li>○ identified email confirmation;</li>
+<li>○ mixed method.</li>
+</ul>
+<p>10.3. Silent acceptance may apply only to B2B stage acceptance where lawful and agreed. It does not apply to:</p>
+<ul>
+<li>□ this Agreement;</li>
+<li>□ Authority Document;</li>
+<li>□ Agent appointment / revocation / replacement;</li>
+<li>□ seafarer wage, repatriation or SEA terms;</li>
+<li>□ waiver of mandatory rights;</li>
+<li>□ SEA or other employment document signature.</li>
+</ul>
+<h3>11. Liability And Compliance</h3>
+<p>11.1. The Agent is responsible for quality and timeliness within the recorded scope and authority.</p>
+<p>11.2. The Principal remains responsible for lawful employment, wage obligations, shipowner/employer compliance and mandatory seafarer protections.</p>
+<p>11.3. The Agent&#39;s liability cap does not apply to fraud, wilful breach, action outside authority, unauthorized document signature, prohibited seafarer fees, document retention, confidentiality/data breach, sanctions, anti-corruption or other compliance breach.</p>
+<h3>12. Confidentiality And Personal Data</h3>
+<p>12.1. The Parties shall use confidential information and personal data only for performance of this Agreement, the relevant Request and lawful CrewPortGlobal workflows.</p>
+<p>12.2. The Parties shall maintain appropriate organizational and technical measures to protect data.</p>
+<p>12.3. Transfer to third parties is permitted only where lawful, authorized and compatible with the recorded scope.</p>
+<h3>13. Term, Termination And Disputes</h3>
+<p>13.1. Agreement term:</p>
+<ul>
+<li>○ until {{contract_term_end_date}};</li>
+<li>○ until full performance;</li>
+<li>○ auto-renewal for {{auto_renewal_period_months}} months.</li>
+</ul>
+<p>13.2. Termination grounds:</p>
+<ul>
+<li>□ mutual agreement;</li>
+<li>□ material breach;</li>
+<li>□ repeated SLA breach;</li>
+<li>□ sanctions/compliance breach;</li>
+<li>□ platform revocation or replacement event;</li>
+<li>□ other agreed ground.</li>
+</ul>
+<p>13.3. Termination notice: {{termination_notice_days}} calendar days.</p>
+<p>13.4. Governing law:</p>
+<ul>
+<li>○ laws of {{governing_law_country}};</li>
+<li>○ other: {{governing_law_other}}.</li>
+</ul>
+<p>13.5. Dispute forum:</p>
+<ul>
+<li>○ court at Principal&#39;s place;</li>
+<li>○ arbitration: {{arbitration_institution}};</li>
+<li>○ other: {{dispute_forum_other}}.</li>
+</ul>
+<h3>14. Appendices And Priority</h3>
+<p>14.1. The following appendices form an integral part of this Agreement:</p>
+<ul>
+<li>□ Appendix 1 - Price List / Service Order / Commercial Status;</li>
+<li>□ Appendix 2 - Power of Attorney / Authority Document;</li>
+<li>□ Appendix 3 - Work Procedure and SLA;</li>
+<li>□ Appendix 4 - Field Catalogue;</li>
+<li>□ Appendix 5 - Calculation and SLA Matrix;</li>
+<li>□ Appendix 6 - Crew Request Form;</li>
+<li>□ Appendix 7 - Stage Acceptance Act;</li>
+<li>□ Appendix 8 - Replacement and Expense Matrix;</li>
+<li>□ Appendix 9 - Document Register;</li>
+<li>□ Appendix 10 - Party Details;</li>
+<li>□ Appendix 11 - Portal Appointment and Notifications;</li>
+<li>□ Appendix 12 - Signing and Acceptance Checklist.</li>
+</ul>
+<p>14.2. Priority in case of conflict:</p>
+<ol>
+<li>this Agreement;</li>
+<li>Appendix 2 - Power of Attorney / Authority Document;</li>
+<li>Appendix 11 - Portal Appointment and Notifications;</li>
+<li>Appendix 12 - Signing and Acceptance Checklist;</li>
+<li>Appendix 5 - Calculation and SLA Matrix;</li>
+<li>Appendix 1 - Price List / Service Order / Commercial Status;</li>
+<li>Appendix 3 - Work Procedure and SLA;</li>
+<li>other appendices.</li>
+</ol>
+<p>14.3. Signatures:</p>
+<p>Principal: __________________ / {{shipowner_signer_name}}</p>
+<p>Agent: __________________ / {{agent_signer_name}}</p>
+<hr>
+<h3>Appendix 1 - Price List / Service Order / Commercial Status</h3>
+<p>| Code | Service | Unit | Amount | Currency | Charge trigger | Payment term |</p>
+<p>|---|---|---:|---:|---|---|---|</p>
+<p>| SVC-CANDIDATE | Candidate presentation | per candidate | {{candidate_fee_amount}} | {{settlement_currency}} | candidate accepted for review | {{invoice_payment_days}} business days |</p>
+<p>| SVC-STAGE-0 | Request initiation | per stage | {{stage0_fee_amount}} | {{settlement_currency}} | stage accepted | {{invoice_payment_days}} business days |</p>
+<p>| SVC-STAGE-1 | Search and shortlist | per stage | {{stage1_fee_amount}} | {{settlement_currency}} | stage accepted | {{invoice_payment_days}} business days |</p>
+<p>| SVC-STAGE-2 | Document check | per stage | {{stage2_fee_amount}} | {{settlement_currency}} | stage accepted | {{invoice_payment_days}} business days |</p>
+<p>| SVC-STAGE-3 | Pre-contract coordination | per stage | {{stage3_fee_amount}} | {{settlement_currency}} | stage accepted | {{invoice_payment_days}} business days |</p>
+<p>| SVC-STAGE-4 | Joining coordination | per stage | {{stage4_fee_amount}} | {{settlement_currency}} | stage accepted | {{invoice_payment_days}} business days |</p>
+<p>| SVC-STAGE-5 | Request closure | per stage | {{stage5_fee_amount}} | {{settlement_currency}} | stage accepted | {{invoice_payment_days}} business days |</p>
+<p>| SVC-SUCCESS-JOIN | Successful joining | per event | {{success_fee_amount}} | {{settlement_currency}} | joined_onboard_confirmed | {{invoice_payment_days}} business days |</p>
+<p>| SVC-REPLACEMENT | Replacement | per replacement | {{replacement_fee_amount}} | {{settlement_currency}} | replacement policy | {{invoice_payment_days}} business days |</p>
+<p>Commercial status:</p>
+<ul>
+<li>○ commercial_terms_pending;</li>
+<li>○ service_order_accepted;</li>
+<li>○ commercial_appendix_signed;</li>
+<li>○ free_until_commercial_agreement.</li>
+</ul>
+<hr>
+<h3>Appendix 2 - Power Of Attorney / Authority Document</h3>
+<p>Power of Attorney / Authority No. {{poa_number}}</p>
+<p>Place: {{poa_city}}</p>
+<p>Date: {{poa_date}}</p>
+<p>{{shipowner_legal_name}}, represented by {{shipowner_signer_name}}, authorizes {{agent_representative_full_name}} acting for {{agent_legal_name}} to perform the following actions within this Agreement and delegated CrewPortGlobal scope:</p>
+<ul>
+<li>□ receive and process Requests;</li>
+<li>□ request candidate documents;</li>
+<li>□ communicate with candidates and counterparties;</li>
+<li>□ provide reports and confirmations to the Principal;</li>
+<li>□ coordinate joining and logistics;</li>
+<li>□ operate the delegated CrewPortGlobal scope;</li>
+<li>□ prepare contract workspace records without final SEA signature authority.</li>
+</ul>
+<p>Restrictions:</p>
+<ul>
+<li>□ no authority to sign seafarer employment agreements;</li>
+<li>□ no authority to change seafarer wage terms;</li>
+<li>□ no authority to issue financial guarantees for the Principal;</li>
+<li>□ no authority to receive or use Principal account credentials;</li>
+<li>□ no authority to create a second active manager for the same scope.</li>
+</ul>
+<p>Substitution:</p>
+<ul>
+<li>○ permitted with written consent;</li>
+<li>○ prohibited.</li>
+</ul>
+<p>Term:</p>
+<ul>
+<li>○ until {{poa_end_date}};</li>
+<li>○ until revoked;</li>
+<li>○ for {{poa_term_months}} months.</li>
+</ul>
+<p>Territory:</p>
+<ul>
+<li>○ unrestricted;</li>
+<li>○ restricted: {{poa_territory_text}}.</li>
+</ul>
+<p>Principal signature: __________________ / {{shipowner_signer_name}}</p>
+<hr>
+<h3>Appendix 3 - Work Procedure And SLA</h3>
+<h4>Stage 0 - Request Initiation</h4>
+<p>Input: request form.</p>
+<p>Output: request confirmed.</p>
+<p>SLA: first response within {{sla_t1_hours}} hours.</p>
+<h4>Stage 1 - Search And Shortlist</h4>
+<p>Input: confirmed request.</p>
+<p>Output: shortlist of at least {{shortlist_min_count}} candidates or market deficit report.</p>
+<p>SLA: within {{sla_t2_days}} calendar days.</p>
+<h4>Stage 2 - Document Check And Interview</h4>
+<p>Input: shortlist.</p>
+<p>Output: document readiness status and interview results.</p>
+<p>SLA: within {{sla_t3_days}} calendar days.</p>
+<h4>Stage 3 - Pre-Contract Coordination</h4>
+<p>Input: approved candidate.</p>
+<p>Output: clarified key terms and contract workspace readiness.</p>
+<h4>Stage 4 - Joining Coordination</h4>
+<p>Input: complete document package.</p>
+<p>Output: joining confirmation.</p>
+<h4>Stage 5 - Request Closure</h4>
+<p>Input: confirmed joining or closure without hire.</p>
+<p>Output: act, report and final status.</p>
+<p>Closure without hire reason:</p>
+<ul>
+<li>○ request withdrawn;</li>
+<li>○ no suitable candidates;</li>
+<li>○ candidate rejected terms;</li>
+<li>○ force majeure;</li>
+<li>○ other: {{close_without_hire_reason_other}}.</li>
+</ul>
+<hr>
+<h3>Appendix 4 - Field Catalogue</h3>
+<p>Single-choice fields:</p>
+<ul>
+<li>○ pricing_mode;</li>
+<li>○ settlement_currency;</li>
+<li>○ payment_schedule_mode;</li>
+<li>○ replacement_policy;</li>
+<li>○ seafarer_wage_frequency;</li>
+<li>○ seafarer_wage_channel;</li>
+<li>○ joining_logistics_arranger;</li>
+<li>○ repatriation_arranger;</li>
+<li>○ liability_cap_rule;</li>
+<li>○ contract_term_mode;</li>
+<li>○ dispute_forum;</li>
+<li>○ governing_law;</li>
+<li>○ agent_assignment_status;</li>
+<li>○ delegated_operational_lock_status;</li>
+<li>○ agent_assignment_offer_status;</li>
+<li>○ price_basis_status;</li>
+<li>○ commercial_terms_status;</li>
+<li>○ paid_service_activation_status.</li>
+</ul>
+<p>Multiple-choice fields:</p>
+<ul>
+<li>□ agent_scope_actions;</li>
+<li>□ agent_scope_restrictions;</li>
+<li>□ applied_charges;</li>
+<li>□ document_channels;</li>
+<li>□ document_statuses;</li>
+<li>□ sla_kpi_set;</li>
+<li>□ termination_grounds;</li>
+<li>□ attachments_included;</li>
+<li>□ delegated_scope_objects;</li>
+<li>□ participant_notification_events;</li>
+<li>□ authority_evidence_required.</li>
+</ul>
+<hr>
+<h3>Appendix 5 - Calculation And SLA Matrix</h3>
+<p>Base parameters:</p>
+<ol>
+<li>candidate_fee_amount = {{candidate_fee_amount}}</li>
+<li>success_fee_amount = {{success_fee_amount}}</li>
+<li>replacement_warranty_days = {{replacement_warranty_days}}</li>
+<li>replacement_discount_percent = {{replacement_discount_percent}}</li>
+<li>sla_penalty_percent_per_breach = {{sla_penalty_percent_per_breach}}</li>
+<li>sla_penalty_cap_per_request = {{sla_penalty_cap_per_request}}</li>
+<li>sla_bonus_percent = {{sla_bonus_percent}}</li>
+<li>sla_bonus_cap_per_month = {{sla_bonus_cap_per_month}}</li>
+</ol>
+<p>Formulae:</p>
+<ol>
+<li>Candidate total = accepted_candidates_count x candidate_fee_amount.</li>
+<li>Stage total = sum of accepted stages.</li>
+<li>Success total = confirmed_joins_count x success_fee_amount.</li>
+<li>Replacement total = by replacement_policy.</li>
+<li>SLA adjustment = bonus_total - penalty_total.</li>
+<li>Invoice total = Candidate + Stage + Success + Replacement + SLA adjustment.</li>
+</ol>
+<p>Limitations:</p>
+<ul>
+<li>□ no double charging of one result;</li>
+<li>□ total per request may not be below zero;</li>
+<li>□ bonus is disabled after a critical compliance incident.</li>
+</ul>
+<hr>
+<h3>Appendix 6 - Crew Request Form</h3>
+<ol>
+<li>Request number: {{request_number}}</li>
+<li>Vessel: {{vessel_name}}</li>
+<li>Rank / position: {{rank_position}}</li>
+<li>Joining date: {{join_date}}</li>
+<li>Trading area: {{trading_area}}</li>
+<li>Contract duration: {{contract_duration}}</li>
+<li>Wage / range: {{salary_range}}</li>
+<li>Special requirements: {{special_requirements}}</li>
+<li>Urgency:</li>
+</ol>
+<ul>
+<li>○ high;</li>
+<li>○ standard;</li>
+<li>○ planned.</li>
+</ul>
+<hr>
+<h3>Appendix 7 - Stage Acceptance Act</h3>
+<p>Act No. {{act_number}} dated {{act_date}}</p>
+<ol>
+<li>Request: {{request_number}}</li>
+<li>Stage code:</li>
+</ol>
+<ul>
+<li>○ STAGE-0;</li>
+<li>○ STAGE-1;</li>
+<li>○ STAGE-2;</li>
+<li>○ STAGE-3;</li>
+<li>○ STAGE-4;</li>
+<li>○ STAGE-5.</li>
+</ul>
+<ol>
+<li>Stage result: {{stage_result_summary}}</li>
+<li>Evidence documents: {{stage_evidence_list}}</li>
+<li>Principal comments: {{principal_comments}}</li>
+<li>Act status:</li>
+</ol>
+<ul>
+<li>○ accepted;</li>
+<li>○ accepted with comments;</li>
+<li>○ returned for correction.</li>
+</ul>
+<p>Principal: __________________</p>
+<p>Agent: __________________</p>
+<hr>
+<h3>Appendix 8 - Replacement And Expense Matrix</h3>
+<p>| Ground | Initiator | Replacement service | Logistics | Documents | Note |</p>
+<p>|---|---|---|---|---|---|</p>
+<p>| Medical | Principal / master | by policy | by repatriation payer | medical document | reason must be recorded |</p>
+<p>| Disciplinary | Principal | by policy | by matrix | incident act | event must be recorded |</p>
+<p>| Operational | Principal | by policy | by matrix | voyage-change evidence | ground must be recorded |</p>
+<p>| Refusal before joining | Candidate | by policy | by agreement | written refusal | reason must be recorded |</p>
+<hr>
+<h3>Appendix 9 - Document Register</h3>
+<p>| Document | Responsible party | Status | Updated at | Comment |</p>
+<p>|---|---|---|---|---|</p>
+<p>| Passport | Candidate | {{doc_status_passport}} | {{doc_update_date_1}} | {{doc_comment_1}} |</p>
+<p>| Seaman book | Candidate | {{doc_status_seaman_book}} | {{doc_update_date_2}} | {{doc_comment_2}} |</p>
+<p>| Medical certificate | Candidate | {{doc_status_medical}} | {{doc_update_date_3}} | {{doc_comment_3}} |</p>
+<p>| STCW | Candidate | {{doc_status_stcw}} | {{doc_update_date_4}} | {{doc_comment_4}} |</p>
+<p>| Contract package | Principal / Agent | {{doc_status_contract_pack}} | {{doc_update_date_5}} | {{doc_comment_5}} |</p>
+<p>Allowed statuses:</p>
+<ul>
+<li>○ received;</li>
+<li>○ under review;</li>
+<li>○ verified;</li>
+<li>○ correction required;</li>
+<li>○ rejected.</li>
+</ul>
+<hr>
+<h3>Appendix 10 - Party Details</h3>
+<h4>Principal</h4>
+<p>Legal name: {{shipowner_legal_name}}</p>
+<p>Registration number: {{shipowner_reg_no}}</p>
+<p>Address: {{shipowner_address}}</p>
+<p>Bank details: {{shipowner_bank_details}}</p>
+<p>Contact: {{shipowner_contract_contact}}</p>
+<p>Email: {{shipowner_contract_email}}</p>
+<h4>Agent</h4>
+<p>Legal name: {{agent_legal_name}}</p>
+<p>Registration number: {{agent_reg_no}}</p>
+<p>Address: {{agent_address}}</p>
+<p>Bank details: {{agent_bank_details}}</p>
+<p>Contact: {{agent_contract_contact}}</p>
+<p>Email: {{agent_contract_email}}</p>
+<hr>
+<h3>Appendix 11 - Portal Appointment And Notifications</h3>
+<h4>1. Offer And Acceptance</h4>
+<ol>
+<li>The Principal sends the Agent an offer to conclude this Agreement package and receive authority.</li>
+<li>The Agent accepts only by signed agreement package or approved electronic acceptance.</li>
+<li>Acceptance must confirm: <code>I agree to the Agent Agreement, authority document / power of attorney, mandatory appendices and CrewPortGlobal portal appointment rules</code>.</li>
+<li>Acceptance of the legal framework does not agree a fixed price.</li>
+<li>Before acceptance the Agent has no active operational management.</li>
+<li>After acceptance the system checks agreement package, authority, appendices, commercial status, signatory authority, one-active-manager rule and Principal notification.</li>
+<li>Paid service, billing basis, success fee and SLA economics activate only after separate commercial basis.</li>
+</ol>
+<h4>2. Management Modes</h4>
+<ul>
+<li>○ self-managed before appointment activation;</li>
+<li>○ active_agent_management;</li>
+<li>○ limited_agent_management;</li>
+<li>○ suspended_agent_management;</li>
+<li>○ revoked_agent_management;</li>
+<li>○ reassigned_agent_management.</li>
+</ul>
+<h4>3. Mandatory Notifications</h4>
+<p>CrewPortGlobal must create persistent notifications for:</p>
+<ul>
+<li>□ Principal authority confirmation;</li>
+<li>□ Agent authority confirmation;</li>
+<li>□ offer sent;</li>
+<li>□ offer accepted / rejected / expired;</li>
+<li>□ agreement package accepted;</li>
+<li>□ commercial terms pending / agreed / rejected;</li>
+<li>□ agreement / authority document prepared;</li>
+<li>□ agreement / authority document signed;</li>
+<li>□ Agent assignment activated;</li>
+<li>□ Agent assignment limited / suspended / revoked / replaced;</li>
+<li>□ vessel or request registered or changed;</li>
+<li>□ candidate found;</li>
+<li>□ shortlist prepared;</li>
+<li>□ candidate presented;</li>
+<li>□ contract workspace prepared;</li>
+<li>□ document created / signed / rejected / replaced;</li>
+<li>□ SLA stage completed;</li>
+<li>□ blocker or compliance incident.</li>
+</ul>
+<h4>4. Minimum Notification Record</h4>
+<ol>
+<li>notification_id = {{notification_id}}</li>
+<li>recipient_user_id = {{principal_user_id}}</li>
+<li>represented_object_type = {{represented_object_type}}</li>
+<li>represented_object_id = {{represented_object_id}}</li>
+<li>agent_object_assignment_id = {{agent_object_assignment_id}}</li>
+<li>event_type = {{notification_event_type}}</li>
+<li>event_stage = {{notification_event_stage}}</li>
+<li>safe_summary = {{notification_safe_summary}}</li>
+<li>document_reference_id = {{document_reference_id}}</li>
+<li>action_type = {{notification_action_type}}</li>
+<li>delivery_status = {{notification_delivery_status}}</li>
+<li>payload_hash = {{notification_payload_hash}}</li>
+</ol>
+<h4>5. Activation Blockers</h4>
+<p>Agent appointment must not activate if:</p>
+<ul>
+<li>□ signed Agreement package is missing;</li>
+<li>□ in-platform offer or Agent acceptance is missing;</li>
+<li>□ Authority Document is missing where legally significant action is required;</li>
+<li>□ mandatory appendix is not agreed;</li>
+<li>□ commercial status is not recorded;</li>
+<li>□ signatory authority is not confirmed;</li>
+<li>□ another active manager exists for the same scope;</li>
+<li>□ Principal notification is not created;</li>
+<li>□ external contract has not passed Platform Administration / Control review;</li>
+<li>□ compliance blocker exists.</li>
+</ul>
+<hr>
+<h3>Appendix 12 - Signing And Acceptance Checklist</h3>
+<h4>1. Agreement Package</h4>
+<p>The Parties confirm that they accept the full package:</p>
+<ul>
+<li>□ main Agreement;</li>
+<li>□ Appendix 1 Price List / Service Order / commercial status;</li>
+<li>□ Appendix 2 Power of Attorney / Authority Document;</li>
+<li>□ Appendix 3 Work Procedure and SLA;</li>
+<li>□ Appendix 4 Field Catalogue;</li>
+<li>□ Appendix 5 Calculation and SLA Matrix;</li>
+<li>□ Appendix 6 Crew Request Form;</li>
+<li>□ Appendix 7 Stage Acceptance Act;</li>
+<li>□ Appendix 8 Replacement and Expense Matrix;</li>
+<li>□ Appendix 9 Document Register;</li>
+<li>□ Appendix 10 Party Details;</li>
+<li>□ Appendix 11 Portal Appointment and Notifications.</li>
+</ul>
+<h4>2. Principal Confirmations</h4>
+<p>The Principal confirms:</p>
+<ul>
+<li>□ the selected Agent is the intended recipient;</li>
+<li>□ the Principal understands the transferred authority;</li>
+<li>□ Principal account credentials are not transferred;</li>
+<li>□ Agent appointment is exclusive operational management for the selected scope;</li>
+<li>□ the Principal keeps view, notification, revocation, replacement and control-review rights;</li>
+<li>□ commercial terms are separately agreed or remain <code>commercial_terms_pending</code>.</li>
+</ul>
+<h4>3. Agent Confirmations</h4>
+<p>The Agent confirms:</p>
+<ul>
+<li>□ acceptance of the full Agreement package;</li>
+<li>□ action only within the Authority Document;</li>
+<li>□ no SEA signature or contract-critical change without separate authority and party confirmation where required;</li>
+<li>□ no prohibited seafarer fees;</li>
+<li>□ no retention of seafarer documents;</li>
+<li>□ compliance with the one-active-manager rule;</li>
+<li>□ work through CrewPortGlobal within the recorded scope and notification controls.</li>
+</ul>
+<h4>4. System Records</h4>
+<p>The system must record:</p>
+<ol>
+<li>template package version: <code>CPG-BIZ-132 v1.0</code>;</li>
+<li>Russian convenience translation: <code>CPG-BIZ-123 v1.4</code>;</li>
+<li>public package URL: <code>/legal/agent-agreement/</code>;</li>
+<li>offer_id;</li>
+<li>agent_organization_id;</li>
+<li>represented_object_type and represented_object_id;</li>
+<li>delegated_scope;</li>
+<li>authority_document_id where applicable;</li>
+<li>commercial_terms_status;</li>
+<li>acceptance_text;</li>
+<li>actor_user_id and timestamp;</li>
+<li>notification ledger event;</li>
+<li>hash / immutable snapshot when generated instances are implemented.</li>
+</ol>
+<hr>
+<h3>Legal Review Notice</h3>
+<p>This document is a full English standard contract package template for CrewPortGlobal platform generation and publication. It must be reviewed by qualified maritime counsel before production use with real counterparties, taking into account governing law, flag State requirements, collective bargaining agreements, licence requirements and counterparty practice.</p>
+          </div>
         </article>
 
         <aside class="doc-sidebar">
@@ -387,6 +1035,5 @@
       </section>
     </main>
   </div>
-  <script src="/assets/crewportglobal-markdown-document.js?v=20260618-agent-agreement" defer></script>
 </body>
 </html>
