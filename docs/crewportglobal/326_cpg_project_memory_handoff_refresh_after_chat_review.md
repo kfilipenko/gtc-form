@@ -230,6 +230,15 @@ https://crewportglobal.com/legal/platform-overview/
 
 Implementation report: `docs/crewportglobal/342_cpg_biz_139_portal_overview_publication_report.md`. The page is linked from `/legal/` and from the shared Documents menu.
 
+The CrewPortGlobal implementation experience also triggered a cross-project methodology extraction:
+
+```text
+GTC-STD-001 - Project Delivery And AI Collaboration Standard Task
+Directory: docs/gtc_project_delivery_standard/
+```
+
+This new section is intended to preserve reusable rules for future GTC projects: domain and publication setup, business-process-first development, documentation/register discipline, AI agent collaboration, verification, deployment and git fixation.
+
 On 2026-06-10 the shared public/application header model was fixed as:
 
 ```text
