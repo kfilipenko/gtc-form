@@ -220,6 +220,8 @@ On 2026-07-08, the first runtime slice was implemented and fixed in `docs/crewpo
 
 Also on 2026-07-08, `CPG-BIZ-138 - Agent Contract Workflow Menu and Workspace Task` was implemented in `docs/crewportglobal/340_cpg_biz_138_agent_contract_workflow_menu_and_workspace_task.md`. The shared `Agents` menu now exposes `/agents/contracts/` through a `Contracts` accordion, with subordinate stage links for prepare contract, agree terms, edit draft and send to parties for approval. This is a UI/workflow entry only: it preserves backend-computed task targets and must not become a blank contract generator.
 
+Also on 2026-07-08, `CPG-BIZ-139 - CrewPortGlobal Portal Overview And International Standards Publication Task` was created in `docs/crewportglobal/341_cpg_biz_139_portal_overview_stakeholder_publication_task.md`. This is the single source for a future public stakeholder overview page at `/legal/platform-overview/`. It consolidates portal purpose, implemented functions, business-process/task routing logic and international maritime standards alignment without duplicating the full legal contracts or policy texts already published through `/legal/`.
+
 On 2026-06-10 the shared public/application header model was fixed as:
 
 ```text
