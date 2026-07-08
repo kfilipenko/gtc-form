@@ -50,6 +50,113 @@ const CPG_ADMIN_ACCESS_TEAM_LINKS = [
         'url' => 'https://crewportglobal.com/team/documents/',
     ],
     [
+        'label' => 'Request-Supply Comparison',
+        'url' => 'https://crewportglobal.com/team/matching/',
+    ],
+    [
+        'label' => 'Shortlist Drafts',
+        'url' => 'https://crewportglobal.com/team/shortlists/',
+    ],
+    [
+        'label' => 'Registry Detail',
+        'url' => 'https://crewportglobal.com/team/registry/',
+    ],
+    [
+        'label' => 'Translation Review',
+        'url' => 'https://crewportglobal.com/team/translations/',
+    ],
+    [
+        'label' => 'GitHub repository',
+        'url' => 'https://github.com/kfilipenko/gtc-form',
+    ],
+    [
+        'label' => 'Main implementation issue',
+        'url' => 'https://github.com/kfilipenko/gtc-form/issues/8',
+    ],
+];
+
+const CPG_ADMIN_ACCESS_ADMIN_EXECUTABLE_LINKS = [
+    [
+        'label' => 'CrewPortGlobal public site',
+        'url' => 'https://crewportglobal.com/',
+    ],
+    [
+        'label' => 'Register',
+        'url' => 'https://crewportglobal.com/register/',
+    ],
+    [
+        'label' => 'Current Cabinet',
+        'url' => 'https://crewportglobal.com/cabinet/',
+    ],
+    [
+        'label' => 'Create Profile',
+        'url' => 'https://crewportglobal.com/create-profile/',
+    ],
+    [
+        'label' => 'Seafarer Job Search',
+        'url' => 'https://crewportglobal.com/seafarers/job-search/',
+    ],
+    [
+        'label' => 'Vacancies',
+        'url' => 'https://crewportglobal.com/vacancies/',
+    ],
+    [
+        'label' => 'Post Vacancy',
+        'url' => 'https://crewportglobal.com/post-vacancy/',
+    ],
+    [
+        'label' => 'Shipowner Candidate Selection',
+        'url' => 'https://crewportglobal.com/shipowners/candidates/',
+    ],
+    [
+        'label' => 'Shipowner Agent Appointment',
+        'url' => 'https://crewportglobal.com/shipowners/candidates/#agent-assignment',
+    ],
+    [
+        'label' => 'Agent Portal',
+        'url' => 'https://crewportglobal.com/agents/',
+    ],
+    [
+        'label' => 'Agent Contract Workflow',
+        'url' => 'https://crewportglobal.com/agents/contracts/',
+    ],
+    [
+        'label' => 'Operator Queue',
+        'url' => 'https://crewportglobal.com/verify/',
+    ],
+    [
+        'label' => 'Team Portal',
+        'url' => 'https://crewportglobal.com/team/',
+    ],
+    [
+        'label' => 'Document Review Queue',
+        'url' => 'https://crewportglobal.com/team/documents/',
+    ],
+    [
+        'label' => 'Request-Supply Comparison',
+        'url' => 'https://crewportglobal.com/team/matching/',
+    ],
+    [
+        'label' => 'Shortlist Drafts',
+        'url' => 'https://crewportglobal.com/team/shortlists/',
+    ],
+    [
+        'label' => 'Registry Detail',
+        'url' => 'https://crewportglobal.com/team/registry/',
+    ],
+    [
+        'label' => 'Translation Review',
+        'url' => 'https://crewportglobal.com/team/translations/',
+    ],
+    [
+        'label' => 'Access Admin',
+        'url' => 'https://crewportglobal.com/admin/access/',
+    ],
+    [
+        'label' => 'Legal Documents',
+        'url' => 'https://crewportglobal.com/legal/',
+    ],
+    [
         'label' => 'GitHub repository',
         'url' => 'https://github.com/kfilipenko/gtc-form',
     ],
@@ -205,6 +312,31 @@ function cpg_admin_access_user_can_receive_admin_code(array $user): bool {
 
     $roles = cpg_admin_access_string_list($user['roles'] ?? ($user['role_codes'] ?? []));
     return array_intersect($roles, ['platform_administrator', 'project_owner']) !== [];
+}
+
+function cpg_admin_access_user_can_view_all_executable_links(array $user): bool {
+    if (cpg_admin_access_user_id($user) === null || !cpg_admin_access_user_is_active($user)) {
+        return false;
+    }
+
+    $groups = cpg_admin_access_string_list($user['groups'] ?? ($user['group_codes'] ?? []));
+    if (array_intersect($groups, [CPG_ADMIN_ACCESS_OWNER_GROUP, CPG_ADMIN_ACCESS_PLATFORM_ADMIN_GROUP]) !== []) {
+        return true;
+    }
+
+    $permissions = cpg_admin_access_string_list($user['permissions'] ?? []);
+    if (in_array(CPG_ADMIN_ACCESS_REQUIRED_PERMISSION, $permissions, true)) {
+        return true;
+    }
+
+    $roles = cpg_admin_access_string_list($user['roles'] ?? ($user['role_codes'] ?? []));
+    return array_intersect($roles, ['platform_administrator', 'project_owner']) !== [];
+}
+
+function cpg_admin_access_links_for_user(array $user): array {
+    return cpg_admin_access_user_can_view_all_executable_links($user)
+        ? CPG_ADMIN_ACCESS_ADMIN_EXECUTABLE_LINKS
+        : CPG_ADMIN_ACCESS_TEAM_LINKS;
 }
 
 function cpg_admin_access_user_can_view_team_links(array $user): bool {
@@ -1018,6 +1150,6 @@ function cpg_admin_access_team_links_with_storage(
                 CPG_ADMIN_ACCESS_VERIFICATION_TEAM_GROUP,
             ],
         ],
-        'links' => CPG_ADMIN_ACCESS_TEAM_LINKS,
+        'links' => cpg_admin_access_links_for_user($session),
     ]);
 }

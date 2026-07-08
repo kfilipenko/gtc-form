@@ -129,9 +129,48 @@ Register
 Create Profile
 Post Vacancy
 Operator Queue
+Document Review Queue
+Request-Supply Comparison
+Shortlist Drafts
+Registry Detail
+Translation Review
 GitHub repository
 Main implementation issue
 ```
+
+Follow-up on 2026-07-08:
+
+```text
+Owner/admin sessions now receive the full executable portal link set from
+GET /api/v1/admin/access/team-links.
+```
+
+The expanded owner/admin link set includes:
+
+```text
+Current Cabinet
+Create Profile
+Seafarer Job Search
+Vacancies
+Post Vacancy
+Shipowner Candidate Selection
+Shipowner Agent Appointment
+Agent Portal
+Agent Contract Workflow
+Operator Queue
+Team Portal
+Document Review Queue
+Request-Supply Comparison
+Shortlist Drafts
+Registry Detail
+Translation Review
+Access Admin
+Legal Documents
+GitHub repository
+Main implementation issue
+```
+
+Ordinary `cpg_team` sessions continue to receive protected team links only and do not receive the `Access Admin` link.
 
 ## 6. Database Safety
 
@@ -194,6 +233,23 @@ php projects/crewportglobal/app/backend/api/tests/admin_access_flow_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_pg_storage_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_public_routes_test.php
 php projects/crewportglobal/app/backend/api/tests/admin_access_contract_test.php
+```
+
+Follow-up verification on 2026-07-08:
+
+```bash
+php -l projects/crewportglobal/app/backend/api/lib/admin_access_flow.php
+php -l projects/crewportglobal/app/backend/api/public/index.php
+php projects/crewportglobal/app/backend/api/tests/admin_access_flow_test.php
+```
+
+Verified behavior:
+
+```text
+owner/admin team-links includes /admin/access/
+owner/admin team-links includes /agents/contracts/
+cpg_team team-links does not include /admin/access/
+cpg_team team-links includes executable team workspaces such as /team/matching/
 ```
 
 Owner access result:

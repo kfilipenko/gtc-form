@@ -178,6 +178,16 @@ cpg_admin_flow_test_assert(
     ($teamLinks['payload']['access_model']['mode'] ?? null) === 'group_membership',
     'team links should report group membership access mode'
 );
+$ownerLinks = $teamLinks['payload']['links'] ?? [];
+$ownerLinkUrls = array_map(static fn (array $link): string => (string) ($link['url'] ?? ''), is_array($ownerLinks) ? $ownerLinks : []);
+cpg_admin_flow_test_assert(
+    in_array('https://crewportglobal.com/admin/access/', $ownerLinkUrls, true),
+    'owner team links should expose the admin access console'
+);
+cpg_admin_flow_test_assert(
+    in_array('https://crewportglobal.com/agents/contracts/', $ownerLinkUrls, true),
+    'owner team links should expose the agent contract workflow'
+);
 
 $teamStorage = new CpgAdminAccessMemoryStorage([
     [
@@ -218,6 +228,23 @@ cpg_admin_flow_test_assert(
 cpg_admin_flow_test_assert(
     cpg_admin_access_team_links_with_storage($teamStorage, $teamSessionToken, new DateTimeImmutable('2026-05-15T12:02:00+00:00'))['status'] === 200,
     'cpg_team group sessions should open protected team links'
+);
+$teamLinksOnly = cpg_admin_access_team_links_with_storage(
+    $teamStorage,
+    $teamSessionToken,
+    new DateTimeImmutable('2026-05-15T12:02:00+00:00')
+);
+$teamLinkUrls = array_map(
+    static fn (array $link): string => (string) ($link['url'] ?? ''),
+    is_array($teamLinksOnly['payload']['links'] ?? null) ? $teamLinksOnly['payload']['links'] : []
+);
+cpg_admin_flow_test_assert(
+    !in_array('https://crewportglobal.com/admin/access/', $teamLinkUrls, true),
+    'cpg_team group sessions must not expose the admin access console link'
+);
+cpg_admin_flow_test_assert(
+    in_array('https://crewportglobal.com/team/matching/', $teamLinkUrls, true),
+    'cpg_team group sessions should expose executable team workspaces'
 );
 cpg_admin_flow_test_assert(
     cpg_admin_access_management_snapshot_with_storage($teamStorage, $teamSessionToken, new DateTimeImmutable('2026-05-15T12:02:00+00:00'))['status'] === 403,

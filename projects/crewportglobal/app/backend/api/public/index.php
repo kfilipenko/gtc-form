@@ -823,7 +823,7 @@ function handle_get_admin_access_team_links(): void {
                         CPG_ADMIN_ACCESS_VERIFICATION_TEAM_GROUP,
                     ],
                 ],
-                'links' => CPG_ADMIN_ACCESS_TEAM_LINKS,
+                'links' => cpg_admin_access_links_for_user($accountAccess),
             ]);
         }
     }

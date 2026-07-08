@@ -5,7 +5,7 @@
 - Stage: Stage 1 — Digital Maritime Crew Data and Matching Platform
 - Document type: Internal master register
 - Format: Markdown
-- Version: 3.31
+- Version: 3.32
 - Status: For internal review
 
 ## 1. Purpose of this register
@@ -970,6 +970,7 @@ projects/crewportglobal/
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.32 | 2026-07-08 | GTC IT / AI Assistant | Updated CPG-ACCESS-019 protected team-links behavior: owner/admin sessions receive the full executable portal link set while ordinary `cpg_team` sessions remain limited to team workspaces |
 | 3.31 | 2026-07-08 | GTC IT / AI Assistant | Updated CPG-BIZ-138 to fix the shared Agents contract menu as an accordion: stage actions are subordinate to `Contracts`, not peer agent menu items |
 | 3.30 | 2026-07-08 | GTC IT / AI Assistant | Added document 340 as CPG-BIZ-138 for the shared agent contract workflow menu and `/agents/contracts/` workspace: prepare contract, agree terms, edit draft and send to parties for approval |
 | 3.29 | 2026-07-08 | GTC IT / AI Assistant | Added document 339 as the CPG-BIZ-137 implementation report and operating order for agent-scoped direct contract drafting, permitted embedded-field saves, preview hash/audit updates and party-review notification requests |
