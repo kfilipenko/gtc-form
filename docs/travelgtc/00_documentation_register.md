@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.4
+- Version: 0.5
 - Date: 2026-07-08
-- Status: First Travel Network Lab public prototype implemented
+- Status: Server-side publication completed, Timeweb DNS switch pending
 
 ## 1. Purpose
 
@@ -32,6 +32,8 @@ The first stage is intentionally small:
 | `002_travelgtc_concept_001_visual_reference_review_report.md` | TRAVELGTC-CONCEPT-001 - Visual Reference Review Report | Fixes the first interpretation of uploaded visual references and product direction. | Implemented |
 | `003_travelgtc_web_001_first_travel_network_lab_public_prototype_task.md` | TRAVELGTC-WEB-001 - First Travel Network Lab Public Prototype | Defines the first static public prototype under the final Travel Network Lab concept. | Implemented |
 | `004_travelgtc_web_001_first_travel_network_lab_public_prototype_report.md` | TRAVELGTC-WEB-001 - First Travel Network Lab Public Prototype Report | Fixes the implementation of the first public landing page and requested routes. | Implemented |
+| `005_travelgtc_deploy_001_public_nginx_publication_task.md` | TRAVELGTC-DEPLOY-001 - Public Nginx Publication | Defines server-side nginx publication for `travelgtc.com`. | Implemented, DNS pending |
+| `006_travelgtc_deploy_001_public_nginx_publication_report.md` | TRAVELGTC-DEPLOY-001 - Public Nginx Publication Report | Fixes live-root sync, nginx enablement, smoke checks and Timeweb DNS gap. | Implemented, DNS pending |
 
 ## 3. Project Source Locations
 
@@ -39,6 +41,8 @@ The first stage is intentionally small:
 |---|---|---|
 | Project source | `projects/travelgtc/` | Website source, public assets, deploy scripts and future app code. |
 | Public source | `projects/travelgtc/public/` | Files intended for public website publication. |
+| Live root | `/var/www/travelgtc.com` | Server-side published static site root. |
+| Nginx config | `/etc/nginx/sites-available/travelgtc.com.conf` | Enabled server block for `travelgtc.com` and `www.travelgtc.com`. |
 | Public home prototype | `projects/travelgtc/public/index.html` | First Travel Network Lab public landing page. |
 | Image inbox | `projects/travelgtc/public/assets/images/inbox/` | Place raw source images here for review and later processing. |
 | Processed images | `projects/travelgtc/public/assets/images/processed/` | Place optimized and approved web images here. |
@@ -58,6 +62,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.5 | 2026-07-08 | GTC IT / AI Assistant | Added server-side publication task/report, live root and DNS pending status |
 | 0.4 | 2026-07-08 | GTC IT / AI Assistant | Added first Travel Network Lab public prototype task/report and route status |
 | 0.3 | 2026-07-08 | GTC IT / AI Assistant | Added visual reference and product direction document after Project Owner uploaded mockups |
 | 0.2 | 2026-07-08 | GTC IT / AI Assistant | Added bootstrap implementation report to the register |

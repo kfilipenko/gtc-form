@@ -3,7 +3,7 @@
 - Project: TravelGTC
 - Project code: travelgtc
 - Domain: travelgtc.com
-- Status: First public prototype implemented
+- Status: Server-side publication completed, Timeweb DNS switch pending
 
 ## Purpose
 
@@ -34,6 +34,7 @@ projects/travelgtc/
         processed/
     legal/
   deploy/
+    nginx/
   scripts/
 ```
 
@@ -56,6 +57,27 @@ projects/travelgtc/
 /about/
 /contacts/
 ```
+
+## Publication
+
+Server-side publication uses:
+
+```text
+Live root: /var/www/travelgtc.com
+Deploy script: projects/travelgtc/scripts/deploy_public_live.sh
+Nginx template: projects/travelgtc/deploy/nginx/travelgtc.com.conf
+Installed nginx config: /etc/nginx/sites-available/travelgtc.com.conf
+```
+
+Run publication sync:
+
+```bash
+projects/travelgtc/scripts/deploy_public_live.sh
+```
+
+The deploy script excludes raw `public/assets/images/inbox/` files from the live root.
+
+Public domain visibility still requires the Timeweb DNS A records for `travelgtc.com` and `www.travelgtc.com` to point to `20.91.187.79`.
 
 ## Related Documentation
 
