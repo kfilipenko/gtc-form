@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.5
+- Version: 0.6
 - Date: 2026-07-08
-- Status: Server-side publication completed, Timeweb DNS switch pending
+- Status: Server-side publication and SSL completed, DNS cache propagation pending
 
 ## 1. Purpose
 
@@ -62,6 +62,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.6 | 2026-07-08 | GTC IT / AI Assistant | Recorded SSL completion and DNS cache propagation status |
 | 0.5 | 2026-07-08 | GTC IT / AI Assistant | Added server-side publication task/report, live root and DNS pending status |
 | 0.4 | 2026-07-08 | GTC IT / AI Assistant | Added first Travel Network Lab public prototype task/report and route status |
 | 0.3 | 2026-07-08 | GTC IT / AI Assistant | Added visual reference and product direction document after Project Owner uploaded mockups |

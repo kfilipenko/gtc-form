@@ -3,7 +3,7 @@
 - Project: TravelGTC
 - Project code: travelgtc
 - Domain: travelgtc.com
-- Status: Server-side publication completed, Timeweb DNS switch pending
+- Status: Server-side publication and SSL completed, DNS cache propagation pending
 
 ## Purpose
 
@@ -77,7 +77,7 @@ projects/travelgtc/scripts/deploy_public_live.sh
 
 The deploy script excludes raw `public/assets/images/inbox/` files from the live root.
 
-Public domain visibility still requires the Timeweb DNS A records for `travelgtc.com` and `www.travelgtc.com` to point to `20.91.187.79`.
+Public domain visibility depends on recursive DNS cache propagation. Authoritative Timeweb DNS points `travelgtc.com` and `www.travelgtc.com` to `20.91.187.79`, and Let's Encrypt SSL is issued for both names.
 
 ## Related Documentation
 

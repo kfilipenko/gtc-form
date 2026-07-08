@@ -6,13 +6,13 @@
 - Document type: Deploy/release report
 - Version: 0.1
 - Date: 2026-07-08
-- Status: Server-side publication completed, Timeweb DNS switch pending
+- Status: Server-side publication and SSL completed, DNS cache propagation pending
 
 ## 1. Purpose
 
 This report fixes the server-side publication of the first Travel Network Lab prototype.
 
-The site is deployed on this server and ready for DNS cutover. The public domain is not yet serving it because Timeweb DNS still points to `92.53.96.246`.
+The site is deployed on this server and has a valid Let's Encrypt certificate. Timeweb authoritative DNS now points to this server, but some public recursive DNS caches may temporarily keep old `A` / `AAAA` values.
 
 ## 2. Release Scope
 
@@ -23,7 +23,8 @@ The site is deployed on this server and ready for DNS cutover. The public domain
 5. Excluded `assets/images/inbox/` from live publication.
 6. Installed nginx config to `/etc/nginx/sites-available/travelgtc.com.conf`.
 7. Enabled nginx site through `/etc/nginx/sites-enabled/travelgtc.com.conf`.
-8. Reloaded nginx.
+8. Issued Let's Encrypt certificate for `travelgtc.com` and `www.travelgtc.com`.
+9. Reloaded nginx with HTTPS redirects and canonical `www` to root redirect.
 
 ## 3. Deploy Command
 
@@ -39,6 +40,7 @@ sudo install -m 0644 projects/travelgtc/deploy/nginx/travelgtc.com.conf /etc/ngi
 sudo ln -sfn /etc/nginx/sites-available/travelgtc.com.conf /etc/nginx/sites-enabled/travelgtc.com.conf
 sudo nginx -t
 sudo systemctl reload nginx
+sudo certbot certonly --webroot -w /var/www/travelgtc.com -d travelgtc.com -d www.travelgtc.com --non-interactive --agree-tos
 ```
 
 ## 4. Pre-Deploy Checks
@@ -54,6 +56,7 @@ Result:
 PASS: deploy script syntax check passed.
 PASS: nginx configuration syntax is ok.
 PASS: nginx configuration test is successful.
+PASS: Let's Encrypt certificate issued for `travelgtc.com` and `www.travelgtc.com`.
 ```
 
 ## 5. Live Smoke Checks
@@ -76,6 +79,9 @@ Result:
 ```text
 PASS: all local Host-header route checks returned HTTP 200.
 PASS: public-IP Host-header check returned HTTP 200 at http://20.91.187.79/ with Host travelgtc.com.
+PASS: HTTPS checks with forced DNS to `20.91.187.79` returned HTTP 200 for all prototype routes.
+PASS: `http://travelgtc.com/` redirects to `https://travelgtc.com/`.
+PASS: `http://www.travelgtc.com/` and `https://www.travelgtc.com/` redirect to `https://travelgtc.com/`.
 PASS: expected markers `Travel Network Lab`, `Создавайте путешествия`, `Создайте собственный маршрут` and footer disclaimer text are present in live root.
 PASS: `/var/www/travelgtc.com/assets/images/inbox/` is not present in live root.
 ```
@@ -91,38 +97,32 @@ curl -I --max-time 8 http://travelgtc.com/
 Result:
 
 ```text
-travelgtc.com -> 92.53.96.246
-www.travelgtc.com -> 92.53.96.246
-External HTTP to current DNS target timed out.
+Timeweb authoritative DNS now returns `20.91.187.79` for `travelgtc.com` and `www.travelgtc.com`.
+Public recursive DNS caches may temporarily keep old values, including the removed Timeweb IPv6 AAAA record.
 ```
 
-## 6. Required Timeweb DNS Changes
+## 6. Timeweb DNS Changes
 
-In the Timeweb DNS zone for `travelgtc.com`, set:
+The required Timeweb DNS values are:
 
 | Record | Type | Value |
 |---|---|---|
 | `@` / `travelgtc.com` | A | `20.91.187.79` |
 | `www` / `www.travelgtc.com` | A | `20.91.187.79` |
 
-Remove or replace the current IPv6 AAAA record unless this server receives a confirmed public IPv6 address for the site:
+The previous IPv6 AAAA record should stay removed unless this server receives a confirmed public IPv6 address for the site:
 
 ```text
 travelgtc.com AAAA 2a03:6f00:1::5c35:60f6
 ```
 
-After DNS propagation, issue SSL:
-
-```bash
-sudo certbot --nginx -d travelgtc.com -d www.travelgtc.com
-```
-
-Then run live smoke checks against:
+Certificate issued:
 
 ```text
-https://travelgtc.com/
-https://travelgtc.com/create-trip/
-https://travelgtc.com/contacts/
+Certificate: /etc/letsencrypt/live/travelgtc.com/fullchain.pem
+Key: /etc/letsencrypt/live/travelgtc.com/privkey.pem
+Domains: travelgtc.com www.travelgtc.com
+Expires: 2026-10-06
 ```
 
 ## 7. Rollback
@@ -137,9 +137,9 @@ https://travelgtc.com/contacts/
 
 ```text
 Server-side publication completed.
-The site is available through nginx on this server when requested with Host travelgtc.com.
-Public domain cutover is pending Timeweb DNS update from 92.53.96.246 to 20.91.187.79.
-SSL is pending DNS propagation.
+HTTPS is configured with a valid Let's Encrypt certificate.
+The site is available through nginx on this server for `travelgtc.com`.
+Public availability depends on recursive DNS cache propagation after the Timeweb DNS switch.
 ```
 
 ## 9. Revision History

@@ -6,7 +6,8 @@ SOURCE_ROOT="${PROJECT_ROOT}/public"
 LIVE_ROOT="${LIVE_ROOT:-/var/www/travelgtc.com}"
 LOCK_FILE="${LOCK_FILE:-/tmp/travelgtc-public-deploy.lock}"
 PUBLIC_HOST="${PUBLIC_HOST:-travelgtc.com}"
-LOCAL_SMOKE_URL="${LOCAL_SMOKE_URL:-http://127.0.0.1}"
+LOCAL_SMOKE_IP="${LOCAL_SMOKE_IP:-127.0.0.1}"
+LOCAL_SMOKE_SCHEME="${LOCAL_SMOKE_SCHEME:-https}"
 DRY_RUN=0
 SKIP_SMOKE=0
 
@@ -78,7 +79,7 @@ routes=(
 )
 
 for route in "${routes[@]}"; do
-  code="$(curl -sS -o /tmp/travelgtc-live-smoke.out -w '%{http_code}' -H "Host: ${PUBLIC_HOST}" "${LOCAL_SMOKE_URL}${route}")"
+  code="$(curl -sS -o /tmp/travelgtc-live-smoke.out -w '%{http_code}' --resolve "${PUBLIC_HOST}:443:${LOCAL_SMOKE_IP}" "${LOCAL_SMOKE_SCHEME}://${PUBLIC_HOST}${route}")"
   if [[ "$code" != "200" ]]; then
     echo "Smoke failed for ${route}: HTTP ${code}" >&2
     exit 1

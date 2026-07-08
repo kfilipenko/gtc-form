@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.4
+- Version: 0.5
 - Date: 2026-07-08
-- Status: Active, server-side publication completed, Timeweb DNS switch pending
+- Status: Active, server-side publication and SSL completed, DNS cache propagation pending
 
 ## 1. Current State
 
@@ -63,9 +63,9 @@ Deploy script: projects/travelgtc/scripts/deploy_public_live.sh
 Current blocker for public domain:
 
 ```text
-travelgtc.com still points to Timeweb IP 92.53.96.246.
-Required A record target for this server: 20.91.187.79.
-SSL can be issued only after DNS points to this server.
+Authoritative Timeweb DNS points to 20.91.187.79.
+Some public recursive DNS caches may temporarily keep old Timeweb A/AAAA records.
+SSL is issued for travelgtc.com and www.travelgtc.com.
 ```
 
 ## 2. Working Rules
@@ -82,17 +82,16 @@ SSL can be issued only after DNS points to this server.
 
 Recommended next steps:
 
-1. update Timeweb DNS A records for `travelgtc.com` and `www.travelgtc.com` to `20.91.187.79`;
-2. remove current Timeweb AAAA record unless IPv6 is confirmed for this server;
-3. after DNS propagation, issue Let's Encrypt SSL with `sudo certbot --nginx -d travelgtc.com -d www.travelgtc.com`;
-4. run live HTTPS smoke checks;
-5. confirm production contact links for MAX, Telegram and email;
-6. define privacy/consent and backend/CRM handling for forms.
+1. wait for recursive DNS caches to stop returning old Timeweb A/AAAA values;
+2. run live HTTPS smoke checks without forced DNS;
+3. confirm production contact links for MAX, Telegram and email;
+4. define privacy/consent and backend/CRM handling for forms.
 
 ## 4. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.5 | 2026-07-08 | GTC IT / AI Assistant | Recorded authoritative DNS switch and Let's Encrypt SSL completion |
 | 0.4 | 2026-07-08 | GTC IT / AI Assistant | Recorded server-side publication, live root, nginx config and Timeweb DNS blocker |
 | 0.3 | 2026-07-08 | GTC IT / AI Assistant | Recorded final Travel Network Lab concept and first public prototype routes |
 | 0.2 | 2026-07-08 | GTC IT / AI Assistant | Added visual reference location and interpreted TravelGTC product direction |
