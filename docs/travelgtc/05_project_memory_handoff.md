@@ -4,13 +4,21 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.1
+- Version: 0.2
 - Date: 2026-07-08
-- Status: Active
+- Status: Active, visual concept received
 
 ## 1. Current State
 
 TravelGTC was initialized as a new GTC website project.
+
+Project Owner added first visual references to:
+
+```text
+projects/travelgtc/public/assets/images/inbox/foto/
+```
+
+Current interpreted direction: travel network / club / community platform where people create travel ideas, gather others, join trips/events, use partner opportunities and develop a network-based travel business.
 
 Created project areas:
 
@@ -33,10 +41,11 @@ projects/travelgtc/public/legal/
 
 ## 3. Next Recommended Step
 
-Project Owner should fill or approve:
+Project Owner should review and approve or correct:
 
 ```text
 docs/travelgtc/01_project_scope_and_positioning.md
+docs/travelgtc/03_visual_reference_and_product_direction.md
 ```
 
 After that, create:
@@ -50,4 +59,5 @@ After that, create:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.2 | 2026-07-08 | GTC IT / AI Assistant | Added visual reference location and interpreted TravelGTC product direction |
 | 0.1 | 2026-07-08 | GTC IT / AI Assistant | Initial TravelGTC project memory handoff |

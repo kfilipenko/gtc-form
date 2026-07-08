@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.2
+- Version: 0.3
 - Date: 2026-07-08
-- Status: Initial project section created
+- Status: Visual concept references recorded
 
 ## 1. Purpose
 
@@ -26,8 +26,10 @@ The first stage is intentionally small:
 | `00_documentation_register.md` | TravelGTC - Documentation Register | Project documentation index and fixation point. | Active |
 | `01_project_scope_and_positioning.md` | TravelGTC - Project Scope And Development Goals | First document for defining project goals, positioning, audience, first pages and required materials. | Draft for Project Owner input |
 | `02_domain_dns_ssl_publication_checklist.md` | TravelGTC - Domain, DNS, SSL And Publication Checklist | Domain and publication setup checklist for `travelgtc.com`. | Draft |
+| `03_visual_reference_and_product_direction.md` | TravelGTC - Visual Reference And Product Direction | Records interpretation of the Project Owner visual mockups and converts them into product/page direction. | Draft for Project Owner review |
 | `05_project_memory_handoff.md` | TravelGTC - Project Memory Handoff | Short memory document for future AI sessions and project continuation. | Active |
 | `001_travelgtc_init_001_project_section_and_goal_document_report.md` | TRAVELGTC-INIT-001 - Project Section And Goal Document Bootstrap Report | Fixes the creation of the first project structure, documentation section and image inbox. | Implemented |
+| `002_travelgtc_concept_001_visual_reference_review_report.md` | TRAVELGTC-CONCEPT-001 - Visual Reference Review Report | Fixes the first interpretation of uploaded visual references and product direction. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -53,5 +55,6 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.3 | 2026-07-08 | GTC IT / AI Assistant | Added visual reference and product direction document after Project Owner uploaded mockups |
 | 0.2 | 2026-07-08 | GTC IT / AI Assistant | Added bootstrap implementation report to the register |
 | 0.1 | 2026-07-08 | GTC IT / AI Assistant | Initial TravelGTC documentation section, image folders and goal document register |
