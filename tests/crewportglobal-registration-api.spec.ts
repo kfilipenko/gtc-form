@@ -578,6 +578,31 @@ WITH api_users AS (
   FROM crewportglobal.users
   WHERE email LIKE 'api.%@example.com'
 ),
+api_profiles AS (
+  SELECT seafarer_profile_id
+  FROM crewportglobal.seafarer_profiles sp
+  JOIN api_users au ON au.user_id = sp.user_id
+),
+api_vacancies AS (
+  SELECT vacancy_request_id
+  FROM crewportglobal.vacancy_requests vr
+  JOIN api_users au ON au.user_id = vr.created_by_user_id
+),
+api_workspaces AS (
+  SELECT contract_workspace_id
+  FROM crewportglobal.contract_workspace_instances cwi
+  WHERE cwi.vacancy_request_id IN (SELECT vacancy_request_id FROM api_vacancies)
+     OR cwi.seafarer_profile_id IN (SELECT seafarer_profile_id FROM api_profiles)
+)
+DELETE FROM crewportglobal.participant_notification_ledger pnl
+WHERE pnl.recipient_user_id IN (SELECT user_id FROM api_users)
+   OR pnl.represented_object_id IN (SELECT contract_workspace_id FROM api_workspaces);
+
+WITH api_users AS (
+  SELECT user_id
+  FROM crewportglobal.users
+  WHERE email LIKE 'api.%@example.com'
+),
 	api_vacancies AS (
 	  SELECT vacancy_request_id
 	  FROM crewportglobal.vacancy_requests vr
@@ -1452,6 +1477,7 @@ test('employer vacancy request flows through review to public vacancy board', as
         vessel_name: 'MV Published Star',
         vessel_type: 'Bulk Carrier',
         imo_number: 'IMO9101234',
+        flag_country_code: 'PA',
       },
       vacancy: {
         vacancy_title: 'Chief Officer',
@@ -1852,6 +1878,244 @@ test('employer vacancy request flows through review to public vacancy board', as
   expect(contractProposalRepeat.status()).toBe(200);
   const contractProposalRepeatBody = (await contractProposalRepeat.json()) as Record<string, unknown>;
   expect(contractProposalRepeatBody.reused_existing_workspace).toBe(true);
+
+  const contractWorkspaceId = (contractProposalBody.contract_workspace as Record<string, unknown>).contract_workspace_id as string;
+  const agentContext = await playwrightRequest.newContext({
+    baseURL: 'http://127.0.0.1:38124/api/v1',
+    extraHTTPHeaders: {
+      Authorization: '',
+      'X-CPG-Operator-Token': '',
+    },
+  });
+  const agentRegister = await agentContext.post('/auth/register-password', {
+    data: {
+      role: 'employer',
+      role_in_company: 'agent manager',
+      email: `api.agent.contract.${unique}@example.com`,
+      full_name: 'API Contract Drafting Agent',
+      password: 'CrewPortGlobal123!',
+      confirm_password: 'CrewPortGlobal123!',
+      terms_accepted: true,
+      consent_accepted: true,
+      company_name: `API Contract Agent ${unique}`,
+      country_code: 'AE',
+      registration_number: `AE-CONTRACT-AGENT-${unique}`,
+    },
+  });
+  const agentRegisterText = await agentRegister.text();
+  expect(agentRegister.status(), agentRegisterText).toBe(201);
+  const registeredAgent = JSON.parse(agentRegisterText) as DraftResponse & { user: { user_id: string } };
+  const agentUserId = registeredAgent.user.user_id;
+  const safeAgentUserId = agentUserId.replace(/'/g, "''");
+  const safeVacancyRequestId = String(vacancy.vacancy_request_id).replace(/'/g, "''");
+  const agentBootstrap = runApiPsql(`
+WITH inserted_org AS (
+  INSERT INTO crewportglobal.agent_organizations (
+    agent_code,
+    agent_display_name,
+    organization_kind,
+    agent_status,
+    authority_status,
+    platform_service_agreement_status,
+    approved_by_user_id,
+    approved_at,
+    created_by_user_id,
+    metadata
+  ) VALUES (
+    'APIAGENTDRAFT${unique}',
+    'API Contract Drafting Agent ${unique}',
+    'external_crewing',
+    'verified',
+    'verified',
+    'accepted',
+    '${safeAgentUserId}'::uuid,
+    now(),
+    '${safeAgentUserId}'::uuid,
+    '{"test_control":"CPG-BIZ-137"}'::jsonb
+  )
+  RETURNING agent_organization_id
+),
+inserted_user AS (
+  INSERT INTO crewportglobal.agent_users (
+    agent_organization_id,
+    user_id,
+    agent_user_role,
+    membership_status,
+    granted_by_user_id,
+    granted_at,
+    metadata
+  )
+  SELECT
+    inserted_org.agent_organization_id,
+    '${safeAgentUserId}'::uuid,
+    'manager',
+    'active',
+    '${safeAgentUserId}'::uuid,
+    now(),
+    '{"test_control":"CPG-BIZ-137"}'::jsonb
+  FROM inserted_org
+  RETURNING agent_user_id, agent_organization_id
+),
+inserted_authority AS (
+  INSERT INTO crewportglobal.agent_authority_documents (
+    agent_organization_id,
+    authority_type,
+    authority_scope_type,
+    authority_scope_object_id,
+    authority_status,
+    valid_from,
+    valid_until,
+    reviewed_by_user_id,
+    reviewed_at,
+    review_note,
+    source_reference,
+    scope_snapshot,
+    created_by_user_id,
+    metadata
+  )
+  SELECT
+    inserted_user.agent_organization_id,
+    'shipowner_agency_agreement',
+    'vacancy_request',
+    '${safeVacancyRequestId}'::uuid,
+    'verified',
+    '2026-07-08'::date,
+    '2027-07-08'::date,
+    '${safeAgentUserId}'::uuid,
+    now(),
+    'Synthetic CPG-BIZ-137 test authority',
+    'Synthetic shipowner authority for contract drafting',
+    jsonb_build_object('represented_object_type', 'vacancy_request', 'represented_object_id', '${safeVacancyRequestId}'),
+    '${safeAgentUserId}'::uuid,
+    '{"test_control":"CPG-BIZ-137"}'::jsonb
+  FROM inserted_user
+  RETURNING agent_authority_document_id, agent_organization_id
+),
+inserted_assignment AS (
+  INSERT INTO crewportglobal.agent_object_assignments (
+    agent_organization_id,
+    object_type,
+    object_id,
+    assignment_status,
+    assignment_source,
+    visibility_scope,
+    data_responsibility_status,
+    source_authority_document_id,
+    assigned_by_user_id,
+    assigned_agent_user_id,
+    assigned_at,
+    valid_from,
+    object_safe_summary,
+    source_snapshot,
+    metadata
+  )
+  SELECT
+    inserted_authority.agent_organization_id,
+    'vacancy_request',
+    '${safeVacancyRequestId}'::uuid,
+    'active',
+    'authority_document',
+    'ordinary_execution',
+    'agent_responsible',
+    inserted_authority.agent_authority_document_id,
+    '${safeAgentUserId}'::uuid,
+    inserted_user.agent_user_id,
+    now(),
+    now(),
+    'API contract drafting vacancy assignment',
+    jsonb_build_object('contract_workspace_id', '${contractWorkspaceId.replace(/'/g, "''")}'),
+    '{"test_control":"CPG-BIZ-137"}'::jsonb
+  FROM inserted_authority, inserted_user
+  RETURNING agent_object_assignment_id, source_authority_document_id
+)
+SELECT inserted_org.agent_organization_id::text || '|' ||
+       inserted_assignment.agent_object_assignment_id::text || '|' ||
+       inserted_assignment.source_authority_document_id::text
+FROM inserted_org, inserted_assignment;
+`);
+  const [contractAgentOrganizationId, contractAssignmentId] = agentBootstrap.split('|');
+  expect(contractAgentOrganizationId).toMatch(/[0-9a-f-]{36}/);
+  expect(contractAssignmentId).toMatch(/[0-9a-f-]{36}/);
+
+  const contractDraftingTasksResponse = await agentContext.get('/agents/contract-drafting/tasks');
+  const contractDraftingTasksText = await contractDraftingTasksResponse.text();
+  expect(contractDraftingTasksResponse.ok(), contractDraftingTasksText).toBeTruthy();
+  const contractDraftingTasks = JSON.parse(contractDraftingTasksText) as Record<string, any>;
+  expect(contractDraftingTasks.tasks.some((task: Record<string, any>) => (
+    task.operation_code === 'prepare_direct_contract_draft'
+    && task.object?.object_id === contractWorkspaceId
+    && String(task.target_url || '').includes(`assignment_id=${contractAssignmentId}`)
+  ))).toBe(true);
+
+  const agentWorkspaceResponse = await agentContext.get(
+    `/contract-workspaces/${contractWorkspaceId}?actor=agent&assignment_id=${contractAssignmentId}`
+  );
+  const agentWorkspaceText = await agentWorkspaceResponse.text();
+  expect(agentWorkspaceResponse.ok(), agentWorkspaceText).toBeTruthy();
+  const agentWorkspace = JSON.parse(agentWorkspaceText) as Record<string, any>;
+  expect(agentWorkspace.visibility_scope).toBe('agent_assisted_direct_contract_drafting');
+  expect(agentWorkspace.contract_workspace.agent_drafting).toMatchObject({
+    mode: 'assisted_drafting',
+    assignment_id: contractAssignmentId,
+    can_prepare_draft: true,
+    can_sign_for_parties: false,
+  });
+  const agentFields = agentWorkspace.contract_workspace.embedded_fields as Array<Record<string, any>>;
+  expect(agentFields.find((field) => field.field_code === 'C-1.1')?.editable_by_current_actor).toBe(false);
+  expect(agentFields.find((field) => field.field_code === 'C-8.1')?.editable_by_current_actor).toBe(true);
+
+  const saveDraftTermsResponse = await agentContext.patch(
+    `/contract-workspaces/${contractWorkspaceId}/fields?actor=agent&assignment_id=${contractAssignmentId}`,
+    {
+      data: {
+        values: {
+          'C-5.1': '2026-08-15',
+          'C-5.2': '4 months +/- 1',
+          'C-6.1': 'USD 6500-7200 per month',
+          'C-6.2': 'USD',
+          'C-8.1': 'Shipowner',
+          'C-9.1': 'Shipowner',
+        },
+      },
+    }
+  );
+  const saveDraftTermsText = await saveDraftTermsResponse.text();
+  expect(saveDraftTermsResponse.ok(), saveDraftTermsText).toBeTruthy();
+  const saveDraftTerms = JSON.parse(saveDraftTermsText) as Record<string, any>;
+  expect(saveDraftTerms.result.preview_hash).toMatch(/^[0-9a-f]{64}$/);
+  expect(saveDraftTerms.contract_workspace.guard.status).toBe('ready_for_party_review');
+  expect(saveDraftTerms.contract_workspace.agent_drafting.can_submit_party_review).toBe(true);
+
+  const submitPartyReviewResponse = await agentContext.post(
+    `/contract-workspaces/${contractWorkspaceId}/submit-party-review?actor=agent&assignment_id=${contractAssignmentId}`,
+    { data: {} }
+  );
+  const submitPartyReviewText = await submitPartyReviewResponse.text();
+  expect(submitPartyReviewResponse.ok(), submitPartyReviewText).toBeTruthy();
+  const submitPartyReview = JSON.parse(submitPartyReviewText) as Record<string, any>;
+  expect(submitPartyReview.contract_workspace.workspace.workspace_status).toBe('party_review');
+  expect(submitPartyReview.result.notification_count).toBeGreaterThanOrEqual(2);
+  const approvalStatuses = (submitPartyReview.contract_workspace.approvals as Array<Record<string, any>>)
+    .map((approval) => `${approval.party_type}:${approval.approval_status}`);
+  expect(approvalStatuses).toContain('seafarer:requested');
+  expect(approvalStatuses).toContain('employer:requested');
+  const contractAuditAndNotificationCounts = runApiPsql(`
+SELECT
+  (SELECT count(*)::int
+   FROM crewportglobal.contract_generation_audit_events
+   WHERE contract_workspace_id = '${contractWorkspaceId.replace(/'/g, "''")}'::uuid
+     AND event_type IN ('contract_workspace_field_changed', 'contract_workspace_review_requested'))::text
+  || '|' ||
+  (SELECT count(*)::int
+   FROM crewportglobal.participant_notification_ledger
+   WHERE represented_object_type = 'contract_workspace'
+     AND represented_object_id = '${contractWorkspaceId.replace(/'/g, "''")}'::uuid
+     AND event_type = 'contract_draft_review_requested')::text;
+`);
+  const [auditCount, notificationCount] = contractAuditAndNotificationCounts.split('|').map(Number);
+  expect(auditCount).toBeGreaterThanOrEqual(2);
+  expect(notificationCount).toBeGreaterThanOrEqual(2);
+  await agentContext.dispose();
 
   const employerDraftAfterContract = await request.get(`/registration/drafts/${created.draft_id}`);
   expect(employerDraftAfterContract.status()).toBe(200);

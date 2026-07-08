@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.68
+- Version: 3.69
 - Status: For internal review
 
 ## 1. Purpose
@@ -181,6 +181,7 @@ This documentation block starts from the following approved business controls:
 99. When an agent acts for both crewing sides, CrewPortGlobal must separate ordinary dual-interest facilitation from formal management or signature authority. The agent must have a shipowner-agent agreement for shipowner-side management and a seafarer-agent representation agreement for seafarer-side management, while the direct seafarer-shipowner contract remains subject to personal party review/signature by default.
 100. Contract templates must carry a required appendix/evidence registry. Authority/POA, delegated scope, no-fee acknowledgement, commercial status, Service Order reference where applicable, notification ledger references and signature/acceptance evidence must be structured checklist/source records, not untracked free-text attachments.
 101. Agent-assisted direct contract drafting is the approved main working mode for ordinary crewing-agent involvement in a direct seafarer-shipowner contract: an authorized agent may open eligible direct SEA workspaces, prepare permitted contract-variable proposals from agreed terms and send the populated draft to the real parties, but verified source facts remain database-filled, fixed clauses remain immutable and final party approval/signature remains required by default.
+102. The first runtime slice of agent-assisted direct contract drafting is implemented as ICS-005: agent tasks must open the exact Contract Workspace, assignment/authority/source scope must be checked by backend guard, permitted embedded fields may be saved with preview-hash/audit evidence, and party-review requests must create approval-request rows plus participant notification ledger records without giving the agent party-signature authority.
 
 ## 5. Intended Use
 
@@ -200,6 +201,7 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.69 | 2026-07-08 | GTC IT / AI Assistant | Added implemented ICS-005 control for CPG-BIZ-137 first runtime slice: exact agent contract workspace task, guarded assignment/authority/source access, permitted embedded-field save, preview hash/audit and party-review notification request |
 | 3.68 | 2026-06-19 | GTC IT / AI Assistant | Added CPG-BIZ-137 control for agent-assisted direct contract drafting through the existing Contract Agreement Workspace with party review/signature preserved |
 | 3.67 | 2026-06-19 | GTC IT / AI Assistant | Added CPG-BIZ-135 controls for unified multi-template contract workspace/generation, agent agreements with both sides and required appendix/evidence registry |
 | 3.66 | 2026-06-19 | GTC IT / AI Assistant | Replaced current shipowner-agent agreement translation wording with informational working/reference material language and removed public convenience-translation phrasing |

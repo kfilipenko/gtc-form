@@ -7,7 +7,7 @@
 - Source request: Project Owner approval of the `Assisted drafting` agent mode after CPG-BIZ-135
 - Version: 1.0
 - Date: 2026-06-19
-- Status: For Project Owner approval; no programming authorized before approval
+- Status: Approved by Project Owner; first runtime slice implemented 2026-07-08
 
 ## 1. Purpose
 
@@ -27,7 +27,7 @@ seafarer <-> shipowner / employer
 
 The agent may negotiate, coordinate and prepare a draft, but must not become a hidden contractual party and must not replace personal party approval by default.
 
-This task does not authorize code, SQL, runtime migration, signature-provider integration or legal text changes until the Project Owner approves it.
+Project Owner approval was received for implementation. The first runtime slice is recorded in `339_cpg_biz_137_agent_assisted_direct_contract_drafting_implementation_report.md`.
 
 ## 2. Standards Reviewed Before This Task
 
@@ -421,4 +421,5 @@ Future implementation must verify:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.1 | 2026-07-08 | GTC IT / AI Assistant | Recorded Project Owner approval and linked first runtime implementation slice: agent-scoped workspace access, permitted embedded-field saves, preview hash/audit updates, party-review request and notification ledger records |
 | 1.0 | 2026-06-19 | GTC IT / AI Assistant | Created Project Owner approval task for agent-assisted direct seafarer-shipowner contract drafting through the existing Contract Agreement Workspace |

@@ -67,10 +67,64 @@
 
     .field-row {
       display: grid;
-      grid-template-columns: 108px minmax(0, 1fr) 140px 160px;
+      grid-template-columns: 108px minmax(0, 1fr) 130px 160px minmax(160px, 220px);
       gap: 10px;
       align-items: center;
       padding: 10px 12px;
+    }
+
+    .agent-drafting-panel {
+      display: grid;
+      gap: 12px;
+      border-color: rgba(77, 210, 222, 0.45);
+      background: rgba(77, 210, 222, 0.07);
+    }
+
+    .agent-drafting-panel[hidden] {
+      display: none;
+    }
+
+    .agent-drafting-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .field-control {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .contract-input,
+    .contract-select {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-on-dark);
+      font: inherit;
+      font-size: 14px;
+      padding: 8px 10px;
+    }
+
+    .contract-button {
+      min-height: 38px;
+      border: 1px solid rgba(77, 210, 222, 0.65);
+      border-radius: 8px;
+      background: var(--teal);
+      color: #001219;
+      cursor: pointer;
+      font-weight: 900;
+      padding: 8px 12px;
+    }
+
+    .contract-button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
     }
 
     .field-code,
@@ -78,6 +132,7 @@
     .source-pill {
       display: inline-flex;
       width: fit-content;
+      max-width: 100%;
       align-items: center;
       min-height: 26px;
       padding: 3px 8px;
@@ -85,6 +140,7 @@
       border-radius: 999px;
       color: var(--muted-on-dark);
       font-size: 13px;
+      overflow-wrap: anywhere;
     }
 
     .status-pill.is-ready {
@@ -165,6 +221,14 @@
         </div>
       </section>
 
+      <section class="card agent-drafting-panel" id="agent-drafting-panel" hidden>
+        <p class="eyebrow" data-i18n="contract.workspace.agent.eyebrow">Agent drafting</p>
+        <h2 data-i18n="contract.workspace.agent.title">Assisted direct contract preparation</h2>
+        <div id="agent-drafting-meta" class="agent-drafting-meta"></div>
+        <button id="submit-party-review" class="contract-button" type="button" data-i18n="contract.workspace.submitReview">Send to parties for review</button>
+        <span id="agent-action-status" class="source-pill" aria-live="polite"></span>
+      </section>
+
       <section class="card">
         <p class="eyebrow" data-i18n="contract.workspace.facts.eyebrow">Verified source facts</p>
         <h2 data-i18n="contract.workspace.facts.title">Prefilled from approved platform records</h2>
@@ -197,8 +261,19 @@
         'contract.workspace.loading': 'Loading contract workspace.',
         'contract.workspace.loaded': '{number} loaded.',
         'contract.workspace.error': 'Unable to load contract workspace.',
-        'contract.workspace.noParams': 'Open this page from a candidate card or provide workspace_id and draft_id.',
+        'contract.workspace.noParams': 'Open this page from a candidate card or provide workspace_id with draft_id or agent assignment.',
         'contract.workspace.status.copy': 'No contract is generated or signed on this screen.',
+        'contract.workspace.agent.eyebrow': 'Agent drafting',
+        'contract.workspace.agent.title': 'Assisted direct contract preparation',
+        'contract.workspace.agent.mode': 'Mode',
+        'contract.workspace.agent.assignment': 'Assignment',
+        'contract.workspace.agent.capacity': 'Capacity',
+        'contract.workspace.agent.cannotSign': 'Party signature required',
+        'contract.workspace.save': 'Save',
+        'contract.workspace.saved': 'Saved.',
+        'contract.workspace.submitReview': 'Send to parties for review',
+        'contract.workspace.reviewRequested': 'Review requested.',
+        'contract.workspace.notEditable': 'Source record',
         'contract.workspace.facts.eyebrow': 'Verified source facts',
         'contract.workspace.facts.title': 'Prefilled from approved platform records',
         'contract.workspace.fields.eyebrow': 'Embedded fields',
@@ -223,8 +298,19 @@
         'contract.workspace.loading': 'Загружаем рабочее пространство договора.',
         'contract.workspace.loaded': 'Загружено: {number}.',
         'contract.workspace.error': 'Не удалось загрузить рабочее пространство договора.',
-        'contract.workspace.noParams': 'Откройте страницу из карточки кандидата или передайте workspace_id и draft_id.',
+        'contract.workspace.noParams': 'Откройте страницу из карточки кандидата или передайте workspace_id с draft_id либо назначением агента.',
         'contract.workspace.status.copy': 'На этом экране договор не создается, не подписывается и не генерируется.',
+        'contract.workspace.agent.eyebrow': 'Подготовка агентом',
+        'contract.workspace.agent.title': 'Подготовка прямого договора с участием агента',
+        'contract.workspace.agent.mode': 'Режим',
+        'contract.workspace.agent.assignment': 'Назначение',
+        'contract.workspace.agent.capacity': 'Полномочие',
+        'contract.workspace.agent.cannotSign': 'Требуется подпись сторон',
+        'contract.workspace.save': 'Сохранить',
+        'contract.workspace.saved': 'Сохранено.',
+        'contract.workspace.submitReview': 'Направить сторонам на проверку',
+        'contract.workspace.reviewRequested': 'Проверка запрошена.',
+        'contract.workspace.notEditable': 'Исходная запись',
         'contract.workspace.facts.eyebrow': 'Проверенные исходные факты',
         'contract.workspace.facts.title': 'Заполнено из утвержденных записей платформы',
         'contract.workspace.fields.eyebrow': 'Встроенные поля договора',
@@ -252,6 +338,12 @@
       const fieldGrid = document.getElementById('field-grid');
       const clauseGrid = document.getElementById('clause-grid');
       const guardLine = document.getElementById('guard-line');
+      const agentPanel = document.getElementById('agent-drafting-panel');
+      const agentMeta = document.getElementById('agent-drafting-meta');
+      const agentActionStatus = document.getElementById('agent-action-status');
+      const submitReviewButton = document.getElementById('submit-party-review');
+      let currentData = null;
+      let currentParams = null;
 
       function language() {
         const lang = document.documentElement.lang || 'en';
@@ -280,21 +372,62 @@
         const search = new URLSearchParams(window.location.search);
         const workspaceId = (search.get('workspace_id') || '').trim();
         const draftId = (search.get('draft_id') || '').trim();
-        return { workspaceId, draftId };
+        const actor = (search.get('actor') || '').trim().toLowerCase();
+        const assignmentId = (search.get('assignment_id') || '').trim();
+        return { workspaceId, draftId, actor, assignmentId };
       }
 
       function valueOrDash(value) {
         return value === null || value === undefined || String(value).trim() === '' ? '-' : String(value);
       }
 
-      async function fetchWorkspace(workspaceId, draftId) {
-        const response = await fetch(`/api/v1/contract-workspaces/${encodeURIComponent(workspaceId)}?draft_id=${encodeURIComponent(draftId)}`);
+      function workspaceQuery() {
+        const query = new URLSearchParams();
+        if (currentParams.actor === 'agent') {
+          query.set('actor', 'agent');
+          query.set('assignment_id', currentParams.assignmentId);
+        } else {
+          query.set('draft_id', currentParams.draftId);
+        }
+        return query.toString();
+      }
+
+      async function apiRequest(path, options) {
+        const response = await fetch(path, {
+          credentials: 'include',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          ...(options || {}),
+        });
         const body = await response.json().catch(() => ({}));
         if (!response.ok) {
           const error = new Error(body.message || `Request failed with status ${response.status}`);
           error.payload = body;
           throw error;
         }
+        return body;
+      }
+
+      async function fetchWorkspace(workspaceId) {
+        const body = await apiRequest(`/api/v1/contract-workspaces/${encodeURIComponent(workspaceId)}?${workspaceQuery()}`);
+        return body.contract_workspace;
+      }
+
+      async function saveField(fieldCode, value) {
+        const body = await apiRequest(`/api/v1/contract-workspaces/${encodeURIComponent(currentParams.workspaceId)}/fields?${workspaceQuery()}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ values: { [fieldCode]: value } }),
+        });
+        return body.contract_workspace;
+      }
+
+      async function submitPartyReview() {
+        const body = await apiRequest(`/api/v1/contract-workspaces/${encodeURIComponent(currentParams.workspaceId)}/submit-party-review?${workspaceQuery()}`, {
+          method: 'POST',
+          body: JSON.stringify({}),
+        });
         return body.contract_workspace;
       }
 
@@ -343,6 +476,81 @@
         ]));
       }
 
+      function renderAgentPanel(data) {
+        const drafting = data.agent_drafting || null;
+        if (!agentPanel || !agentMeta || !submitReviewButton) {
+          return;
+        }
+        if (!drafting) {
+          agentPanel.hidden = true;
+          return;
+        }
+        agentPanel.hidden = false;
+        agentMeta.innerHTML = '';
+        [
+          `${t('contract.workspace.agent.mode')}: ${drafting.mode || '-'}`,
+          `${t('contract.workspace.agent.assignment')}: ${drafting.assignment_id || '-'}`,
+          `${t('contract.workspace.agent.capacity')}: ${drafting.representation_capacity || '-'}`,
+          t('contract.workspace.agent.cannotSign')
+        ].forEach((text) => {
+          const pill = document.createElement('span');
+          pill.className = 'source-pill';
+          pill.textContent = text;
+          agentMeta.appendChild(pill);
+        });
+        submitReviewButton.disabled = !drafting.can_submit_party_review;
+      }
+
+      function createFieldControl(field) {
+        const control = document.createElement('div');
+        control.className = 'field-control';
+        if (!field.editable_by_current_actor) {
+          const readOnly = document.createElement('span');
+          readOnly.className = 'source-pill';
+          readOnly.textContent = t('contract.workspace.notEditable');
+          control.appendChild(readOnly);
+          return control;
+        }
+
+        const code = field.field_code || '';
+        let input;
+        if (code === 'C-8.1' || code === 'C-9.1') {
+          input = document.createElement('select');
+          input.className = 'contract-select';
+          const options = [
+            '',
+            'Shipowner',
+            'Seafarer',
+            'Agent arranges at shipowner cost',
+            'As agreed in direct SEA'
+          ];
+          const currentValue = valueOrDash(field.display_value) === '-' ? '' : String(field.display_value);
+          if (currentValue && !options.includes(currentValue)) {
+            options.push(currentValue);
+          }
+          options.forEach((optionValue) => {
+            const option = document.createElement('option');
+            option.value = optionValue;
+            option.textContent = optionValue || '-';
+            input.appendChild(option);
+          });
+        } else {
+          input = document.createElement('input');
+          input.className = 'contract-input';
+          input.type = code === 'C-5.1' ? 'date' : 'text';
+        }
+        input.dataset.contractValue = 'true';
+        input.value = valueOrDash(field.display_value) === '-' ? '' : String(field.display_value);
+
+        const button = document.createElement('button');
+        button.className = 'contract-button';
+        button.type = 'button';
+        button.dataset.saveField = code;
+        button.textContent = t('contract.workspace.save');
+        control.append(input, button);
+        return control;
+      }
+
       function renderFields(data) {
         const guard = data.guard || {};
         const missing = Array.isArray(guard.missing_field_codes) ? guard.missing_field_codes : [];
@@ -384,6 +592,7 @@
           source.className = 'source-pill';
           source.textContent = [field.source_object_type || field.source_type || '-', field.source_field_code || ''].filter(Boolean).join(': ');
           row.appendChild(source);
+          row.appendChild(createFieldControl(field));
           fieldGrid.appendChild(row);
         });
       }
@@ -408,28 +617,75 @@
       }
 
       function render(data) {
+        currentData = data;
         const workspace = data.workspace || {};
         setDynamicText(statusTitle, tp('contract.workspace.loaded', { number: workspace.workspace_number || workspace.contract_workspace_id || '-' }));
         setDynamicText(statusCopy, `${workspace.workspace_status || '-'} / ${data.template ? data.template.template_version : '-'}`);
+        renderAgentPanel(data);
         renderFacts(data);
         renderFields(data);
         renderClauses(data);
       }
 
       async function init() {
-        const { workspaceId, draftId } = params();
-        if (!workspaceId || !draftId) {
+        currentParams = params();
+        const requiresAgentAssignment = currentParams.actor === 'agent';
+        if (!currentParams.workspaceId || (requiresAgentAssignment && !currentParams.assignmentId) || (!requiresAgentAssignment && !currentParams.draftId)) {
           setDynamicText(statusTitle, t('contract.workspace.noParams'));
           setDynamicText(statusCopy, '');
           return;
         }
         try {
-          render(await fetchWorkspace(workspaceId, draftId));
+          render(await fetchWorkspace(currentParams.workspaceId));
         } catch (error) {
           setDynamicText(statusTitle, t('contract.workspace.error'));
           setDynamicText(statusCopy, error.message || '');
           console.error(error);
         }
+      }
+
+      if (fieldGrid) {
+        fieldGrid.addEventListener('click', async (event) => {
+          const target = event.target.closest('[data-save-field]');
+          if (!target || !currentParams) {
+            return;
+          }
+          const row = target.closest('.field-row');
+          const input = row ? row.querySelector('[data-contract-value]') : null;
+          const fieldCode = target.dataset.saveField || '';
+          if (!input || !fieldCode) {
+            return;
+          }
+          target.disabled = true;
+          setDynamicText(agentActionStatus, '');
+          try {
+            render(await saveField(fieldCode, input.value));
+            setDynamicText(agentActionStatus, t('contract.workspace.saved'));
+          } catch (error) {
+            setDynamicText(agentActionStatus, error.message || t('contract.workspace.error'));
+            console.error(error);
+          } finally {
+            target.disabled = false;
+          }
+        });
+      }
+
+      if (submitReviewButton) {
+        submitReviewButton.addEventListener('click', async () => {
+          submitReviewButton.disabled = true;
+          setDynamicText(agentActionStatus, '');
+          try {
+            render(await submitPartyReview());
+            setDynamicText(agentActionStatus, t('contract.workspace.reviewRequested'));
+          } catch (error) {
+            setDynamicText(agentActionStatus, error.message || t('contract.workspace.error'));
+            console.error(error);
+          } finally {
+            if (currentData && currentData.agent_drafting) {
+              submitReviewButton.disabled = !currentData.agent_drafting.can_submit_party_review;
+            }
+          }
+        });
       }
 
       init();

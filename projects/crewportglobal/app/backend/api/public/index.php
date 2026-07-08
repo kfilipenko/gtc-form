@@ -10441,7 +10441,203 @@ function cpg_contract_workspace_access(string $workspaceId, string $draftId): ?a
     );
 }
 
-function cpg_contract_workspace_detail(string $workspaceId): ?array {
+function cpg_contract_agent_field_policies(): array {
+    return [
+        'C-5.1' => [
+            'clause_id' => 'MC-005',
+            'label' => 'Joining date',
+            'choice_type' => 'date',
+            'source_type' => 'controlled_input',
+        ],
+        'C-5.2' => [
+            'clause_id' => 'MC-005',
+            'label' => 'Contract duration',
+            'choice_type' => 'text_controlled',
+            'source_type' => 'controlled_input',
+        ],
+        'C-6.1' => [
+            'clause_id' => 'MC-006',
+            'label' => 'Salary / wage terms',
+            'choice_type' => 'money',
+            'source_type' => 'controlled_input',
+        ],
+        'C-6.2' => [
+            'clause_id' => 'MC-006',
+            'label' => 'Currency',
+            'choice_type' => 'single',
+            'source_type' => 'controlled_input',
+        ],
+        'C-8.1' => [
+            'clause_id' => 'MC-008',
+            'label' => 'Joining travel responsibility',
+            'choice_type' => 'single',
+            'source_type' => 'catalog',
+        ],
+        'C-9.1' => [
+            'clause_id' => 'MC-009',
+            'label' => 'Return / repatriation responsibility',
+            'choice_type' => 'single',
+            'source_type' => 'catalog',
+        ],
+    ];
+}
+
+function cpg_contract_agent_editable_field_codes(): array {
+    return array_keys(cpg_contract_agent_field_policies());
+}
+
+function cpg_contract_workspace_source_ids(string $workspaceId): ?array {
+    return cpg_fetch_one_assoc(
+        "SELECT cwi.contract_workspace_id::text AS contract_workspace_id,
+                cwi.seafarer_profile_id::text AS seafarer_profile_id,
+                cwi.employer_company_id::text AS employer_company_id,
+                cwi.vessel_id::text AS vessel_id,
+                cwi.vacancy_request_id::text AS vacancy_request_id,
+                cwi.created_by_user_id::text AS created_by_user_id,
+                sp.user_id::text AS seafarer_user_id,
+                cu.user_id::text AS employer_primary_user_id
+         FROM crewportglobal.contract_workspace_instances cwi
+         JOIN crewportglobal.seafarer_profiles sp ON sp.seafarer_profile_id = cwi.seafarer_profile_id
+         LEFT JOIN LATERAL (
+             SELECT company_id, user_id
+             FROM crewportglobal.company_users
+             WHERE company_id = cwi.employer_company_id
+             ORDER BY is_primary_contact DESC, created_at ASC
+             LIMIT 1
+         ) cu ON TRUE
+         WHERE cwi.contract_workspace_id = $1::uuid
+           AND cwi.archived_at IS NULL
+         LIMIT 1",
+        [$workspaceId]
+    );
+}
+
+function cpg_contract_uuid_equals(?string $left, ?string $right): bool {
+    return is_string($left) && is_string($right) && strtolower($left) === strtolower($right);
+}
+
+function cpg_contract_workspace_agent_scope(array $workspaceIds, array $assignment): ?array {
+    $objectType = is_string($assignment['object_type'] ?? null) ? (string) $assignment['object_type'] : '';
+    $objectId = is_string($assignment['object_id'] ?? null) ? (string) $assignment['object_id'] : '';
+
+    $matches = [
+        'contract_workspace' => ['contract_workspace_id', 'contract_workspace_facilitation'],
+        'employer_company' => ['employer_company_id', 'shipowner_representation'],
+        'vessel' => ['vessel_id', 'shipowner_vessel_representation'],
+        'vacancy_request' => ['vacancy_request_id', 'shipowner_request_representation'],
+        'seafarer_profile' => ['seafarer_profile_id', 'seafarer_representation'],
+        'person_user' => ['seafarer_user_id', 'person_account_representation'],
+    ];
+
+    if (isset($matches[$objectType])) {
+        [$sourceKey, $capacity] = $matches[$objectType];
+        if (cpg_contract_uuid_equals($objectId, is_string($workspaceIds[$sourceKey] ?? null) ? (string) $workspaceIds[$sourceKey] : null)) {
+            return [
+                'scope_match' => true,
+                'representation_capacity' => $capacity,
+                'matched_object_type' => $objectType,
+                'matched_object_id' => $objectId,
+            ];
+        }
+    }
+
+    if ($objectType === 'person_user') {
+        $employerUserId = is_string($workspaceIds['employer_primary_user_id'] ?? null)
+            ? (string) $workspaceIds['employer_primary_user_id']
+            : (is_string($workspaceIds['created_by_user_id'] ?? null) ? (string) $workspaceIds['created_by_user_id'] : null);
+        if (cpg_contract_uuid_equals($objectId, $employerUserId)) {
+            return [
+                'scope_match' => true,
+                'representation_capacity' => 'shipowner_account_representation',
+                'matched_object_type' => $objectType,
+                'matched_object_id' => $objectId,
+            ];
+        }
+    }
+
+    return null;
+}
+
+function cpg_contract_workspace_agent_access(string $workspaceId, mixed $assignmentId): array {
+    cpg_agent_require_scope_tables();
+    $access = cpg_agent_access_from_request();
+    $assignmentUuid = api_normalize_uuid($assignmentId);
+    if ($assignmentUuid === null) {
+        api_error(400, 'invalid_agent_object_assignment_id', 'assignment_id must be a valid UUID for agent contract access');
+    }
+
+    $assignment = cpg_agent_assignment_row_by_id((string) $access['agent_organization_id'], $assignmentUuid);
+    if (!is_array($assignment)) {
+        api_error(404, 'agent_object_assignment_not_found', 'No object assignment is visible for this agent organization');
+    }
+
+    $workspaceIds = cpg_contract_workspace_source_ids($workspaceId);
+    if (!is_array($workspaceIds)) {
+        api_error(404, 'contract_workspace_not_found', 'Contract workspace not found');
+    }
+
+    $management = cpg_agent_management_block_from_assignment($assignment);
+    $scope = cpg_contract_workspace_agent_scope($workspaceIds, $assignment);
+
+    return [
+        'access_model' => 'agent_assisted_direct_contract_drafting',
+        'agent_access' => $access,
+        'assignment' => $assignment,
+        'workspace_source_ids' => $workspaceIds,
+        'management' => $management,
+        'scope' => $scope,
+        'scope_match' => is_array($scope),
+        'management_allowed' => (bool) ($management['management_allowed'] ?? false),
+        'editable_field_codes' => cpg_contract_agent_editable_field_codes(),
+    ];
+}
+
+function cpg_contract_workspace_require_agent_access(string $workspaceId): array {
+    $context = cpg_contract_workspace_agent_access($workspaceId, $_GET['assignment_id'] ?? null);
+    if (($context['scope_match'] ?? false) !== true) {
+        api_json(403, [
+            'ok' => false,
+            'error' => 'contract_workspace_outside_agent_scope',
+            'message' => 'The selected contract workspace is outside this agent assignment scope',
+            'assignment_id' => $context['assignment']['agent_object_assignment_id'] ?? null,
+        ]);
+    }
+    if (($context['management_allowed'] ?? false) !== true) {
+        api_json(403, [
+            'ok' => false,
+            'error' => 'agent_contract_drafting_blocked',
+            'message' => 'Agent authority is not ready for contract drafting',
+            'management' => $context['management'] ?? [],
+        ]);
+    }
+    return $context;
+}
+
+function cpg_contract_workspace_actor_context_from_agent(array $context): array {
+    $access = is_array($context['agent_access'] ?? null) ? $context['agent_access'] : [];
+    $assignment = is_array($context['assignment'] ?? null) ? $context['assignment'] : [];
+    $scope = is_array($context['scope'] ?? null) ? $context['scope'] : [];
+
+    return [
+        'actor' => 'agent',
+        'access_model' => 'agent_assisted_direct_contract_drafting',
+        'actor_user_id' => is_string($access['actor_user_id'] ?? null) ? (string) $access['actor_user_id'] : null,
+        'agent_user_id' => is_string($access['agent_user_id'] ?? null) ? (string) $access['agent_user_id'] : null,
+        'agent_organization_id' => is_string($access['agent_organization_id'] ?? null) ? (string) $access['agent_organization_id'] : null,
+        'agent_display_name' => is_string($access['agent_display_name'] ?? null) ? (string) $access['agent_display_name'] : null,
+        'assignment_id' => is_string($assignment['agent_object_assignment_id'] ?? null) ? (string) $assignment['agent_object_assignment_id'] : null,
+        'assignment_object_type' => is_string($assignment['object_type'] ?? null) ? (string) $assignment['object_type'] : null,
+        'assignment_object_id' => is_string($assignment['object_id'] ?? null) ? (string) $assignment['object_id'] : null,
+        'representation_capacity' => is_string($scope['representation_capacity'] ?? null) ? (string) $scope['representation_capacity'] : null,
+        'can_prepare_draft' => ($context['scope_match'] ?? false) === true && ($context['management_allowed'] ?? false) === true,
+        'editable_field_codes' => is_array($context['editable_field_codes'] ?? null) ? $context['editable_field_codes'] : [],
+        'requires_party_review' => true,
+        'requires_party_signature' => true,
+        'can_sign_for_parties' => false,
+    ];
+}
+
+function cpg_contract_workspace_detail(string $workspaceId, ?array $actorContext = null): ?array {
     $workspace = cpg_fetch_one_assoc(
         "SELECT cwi.contract_workspace_id::text AS contract_workspace_id,
                 cwi.workspace_number,
@@ -10575,11 +10771,17 @@ function cpg_contract_workspace_detail(string $workspaceId): ?array {
     }
 
     $embeddedFields = [];
+    $editableFieldCodes = is_array($actorContext['editable_field_codes'] ?? null) ? $actorContext['editable_field_codes'] : [];
+    $canPrepareDraft = ($actorContext['can_prepare_draft'] ?? false) === true;
     foreach ($sourceFields as $field) {
         $code = (string) $field['field_code'];
         if (isset($storedByCode[$code])) {
             $field = array_merge($field, $storedByCode[$code]);
         }
+        $field['editable_by_current_actor'] = $canPrepareDraft && in_array($code, $editableFieldCodes, true);
+        $field['edit_policy'] = $field['editable_by_current_actor']
+            ? 'agent_controlled_contractual_choice'
+            : 'verified_source_record_only';
         $embeddedFields[] = $field;
     }
 
@@ -10625,8 +10827,27 @@ function cpg_contract_workspace_detail(string $workspaceId): ?array {
 
     $missingFields = array_values(array_filter($embeddedFields, static fn(array $field): bool => ($field['completion_status'] ?? 'missing') === 'missing'));
     $guardStatus = $missingFields === [] ? 'ready_for_party_review' : 'blocked_missing_embedded_fields';
+    $agentDrafting = null;
+    if (is_array($actorContext) && ($actorContext['actor'] ?? null) === 'agent') {
+        $agentDrafting = [
+            'mode' => 'assisted_drafting',
+            'representation_capacity' => $actorContext['representation_capacity'] ?? null,
+            'assignment_id' => $actorContext['assignment_id'] ?? null,
+            'agent_organization_id' => $actorContext['agent_organization_id'] ?? null,
+            'agent_display_name' => $actorContext['agent_display_name'] ?? null,
+            'can_prepare_draft' => $canPrepareDraft,
+            'can_submit_party_review' => $canPrepareDraft && $guardStatus === 'ready_for_party_review',
+            'editable_field_codes' => $editableFieldCodes,
+            'source_record_editing_allowed' => false,
+            'requires_party_review' => true,
+            'requires_party_signature' => true,
+            'can_sign_for_parties' => false,
+        ];
+    }
 
     return [
+        'actor_context' => $actorContext,
+        'agent_drafting' => $agentDrafting,
         'workspace' => [
             'contract_workspace_id' => $workspace['contract_workspace_id'],
             'workspace_number' => $workspace['workspace_number'],
@@ -10720,10 +10941,474 @@ function cpg_contract_workspace_detail(string $workspaceId): ?array {
     ];
 }
 
+function cpg_contract_agent_display_value(mixed $value, string $fieldCode): ?string {
+    if (is_array($value)) {
+        if ($fieldCode === 'C-6.1') {
+            $amount = cpg_agent_string_value($value['amount'] ?? ($value['salary'] ?? null), 80);
+            $currency = cpg_agent_string_value($value['currency'] ?? null, 10);
+            $period = cpg_agent_string_value($value['period'] ?? null, 80);
+            $parts = array_values(array_filter([$amount, $currency, $period], static fn(?string $item): bool => $item !== null));
+            if ($parts !== []) {
+                return implode(' ', $parts);
+            }
+        }
+        foreach (['display_value', 'value', 'text', 'label'] as $key) {
+            $candidate = cpg_agent_string_value($value[$key] ?? null, 500);
+            if ($candidate !== null) {
+                return $candidate;
+            }
+        }
+        return null;
+    }
+
+    return cpg_agent_string_value($value, 500);
+}
+
+function cpg_contract_agent_value_code(?string $displayValue): ?string {
+    if ($displayValue === null) {
+        return null;
+    }
+    $code = preg_replace('/[^a-z0-9]+/', '_', strtolower($displayValue));
+    $code = is_string($code) ? trim($code, '_') : '';
+    if ($code === '') {
+        return null;
+    }
+    return substr($code, 0, 80);
+}
+
+function cpg_contract_agent_normalized_field(string $fieldCode, mixed $value): array {
+    $policies = cpg_contract_agent_field_policies();
+    if (!isset($policies[$fieldCode])) {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'contract_field_not_agent_editable',
+            'message' => 'This contract field cannot be prepared by an agent',
+            'field_code' => $fieldCode,
+            'editable_field_codes' => array_keys($policies),
+        ]);
+    }
+
+    $policy = $policies[$fieldCode];
+    $displayValue = cpg_contract_agent_display_value($value, $fieldCode);
+    if ($fieldCode === 'C-5.1' && $displayValue !== null) {
+        $normalizedDate = normalize_date_value($displayValue);
+        if ($normalizedDate === null) {
+            api_json(400, [
+                'ok' => false,
+                'error' => 'invalid_contract_joining_date',
+                'message' => 'Joining date must be a valid date',
+                'field_code' => $fieldCode,
+            ]);
+        }
+        $displayValue = $normalizedDate;
+    }
+    if ($fieldCode === 'C-6.2' && $displayValue !== null) {
+        $currency = strtoupper(trim($displayValue));
+        if (!preg_match('/^[A-Z]{3}$/', $currency)) {
+            api_json(400, [
+                'ok' => false,
+                'error' => 'invalid_contract_currency',
+                'message' => 'Currency must use a three-letter code',
+                'field_code' => $fieldCode,
+            ]);
+        }
+        $displayValue = $currency;
+    }
+
+    return [
+        'field_code' => $fieldCode,
+        'clause_id' => (string) $policy['clause_id'],
+        'label' => (string) $policy['label'],
+        'choice_type' => (string) $policy['choice_type'],
+        'source_type' => (string) $policy['source_type'],
+        'display_value' => $displayValue,
+        'value_code' => cpg_contract_agent_value_code($displayValue),
+        'completion_status' => $displayValue === null ? 'missing' : 'ready',
+    ];
+}
+
+function cpg_contract_workspace_preview_hash(string $workspaceId): string {
+    $row = cpg_fetch_one_assoc(
+        "SELECT contract_workspace_id::text AS contract_workspace_id,
+                workspace_number,
+                source_snapshot_hash,
+                master_contract_template_id::text AS master_contract_template_id,
+                contract_field_catalog_id::text AS contract_field_catalog_id
+         FROM crewportglobal.contract_workspace_instances
+         WHERE contract_workspace_id = $1::uuid
+         LIMIT 1",
+        [$workspaceId]
+    );
+    $fields = cpg_fetch_all_assoc(
+        "SELECT field_code,
+                clause_id,
+                choice_type,
+                source_type,
+                value_code,
+                value_json::text AS value_json,
+                display_value,
+                completion_status
+         FROM crewportglobal.contract_embedded_field_values
+         WHERE contract_workspace_id = $1::uuid
+         ORDER BY field_code",
+        [$workspaceId]
+    );
+    foreach ($fields as &$field) {
+        $field['value_json'] = cpg_decode_json_object(is_string($field['value_json'] ?? null) ? $field['value_json'] : null);
+    }
+    unset($field);
+
+    return hash('sha256', cpg_workspace_json([
+        'workspace' => is_array($row) ? $row : ['contract_workspace_id' => $workspaceId],
+        'embedded_fields' => $fields,
+    ]));
+}
+
+function cpg_contract_workspace_audit_event(
+    string $eventType,
+    string $workspaceId,
+    ?string $actorUserId,
+    array $actorContext,
+    array $fieldCodes,
+    array $payload,
+    ?string $sourceSnapshotHash = null,
+    ?string $previewHash = null
+): void {
+    api_query(
+        "INSERT INTO crewportglobal.contract_generation_audit_events (
+            event_type,
+            contract_workspace_id,
+            actor_user_id,
+            actor_context,
+            field_codes,
+            event_payload,
+            source_snapshot_hash,
+            preview_hash
+         ) VALUES (
+            $1,
+            $2::uuid,
+            $3::uuid,
+            $4::jsonb,
+            $5::jsonb,
+            $6::jsonb,
+            $7,
+            $8
+         )",
+        [
+            $eventType,
+            $workspaceId,
+            $actorUserId,
+            cpg_workspace_json($actorContext),
+            json_encode(array_values($fieldCodes), JSON_UNESCAPED_SLASHES) ?: '[]',
+            cpg_workspace_json($payload),
+            $sourceSnapshotHash,
+            $previewHash,
+        ]
+    );
+}
+
+function cpg_contract_workspace_save_agent_fields(string $workspaceId, array $agentContext, array $fields): array {
+    $actorContext = cpg_contract_workspace_actor_context_from_agent($agentContext);
+    $actorUserId = is_string($actorContext['actor_user_id'] ?? null) ? (string) $actorContext['actor_user_id'] : null;
+    $assignmentId = is_string($actorContext['assignment_id'] ?? null) ? (string) $actorContext['assignment_id'] : null;
+    $normalizedFields = [];
+    foreach ($fields as $fieldCode => $value) {
+        $fieldCode = strtoupper(trim((string) $fieldCode));
+        if ($fieldCode === '') {
+            continue;
+        }
+        $normalizedFields[$fieldCode] = cpg_contract_agent_normalized_field($fieldCode, $value);
+    }
+    if ($normalizedFields === []) {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'contract_fields_required',
+            'message' => 'At least one contract field value is required',
+        ]);
+    }
+
+    api_tx_begin();
+    try {
+        foreach ($normalizedFields as $field) {
+            $sourceStatus = [
+                'source_rule' => 'agent_assisted_controlled_drafting',
+                'assignment_id' => $assignmentId,
+                'agent_organization_id' => $actorContext['agent_organization_id'] ?? null,
+                'requires_party_review' => true,
+            ];
+            $valueJson = [
+                'display_value' => $field['display_value'],
+                'prepared_by' => 'agent_assisted_drafting',
+                'assignment_id' => $assignmentId,
+            ];
+            api_query(
+                "INSERT INTO crewportglobal.contract_embedded_field_values (
+                    contract_workspace_id,
+                    field_code,
+                    clause_id,
+                    choice_type,
+                    source_type,
+                    source_object_type,
+                    source_object_id,
+                    source_field_code,
+                    source_status_snapshot,
+                    value_code,
+                    value_json,
+                    display_value,
+                    requiredness,
+                    completion_status,
+                    last_changed_by_user_id
+                 ) VALUES (
+                    $1::uuid,
+                    $2,
+                    $3,
+                    $4,
+                    $5,
+                    'contract_workspace',
+                    $1::uuid,
+                    $2,
+                    $6::jsonb,
+                    $7,
+                    $8::jsonb,
+                    $9,
+                    'required',
+                    $10,
+                    $11::uuid
+                 )
+                 ON CONFLICT (contract_workspace_id, field_code)
+                 DO UPDATE SET
+                    clause_id = EXCLUDED.clause_id,
+                    choice_type = EXCLUDED.choice_type,
+                    source_type = EXCLUDED.source_type,
+                    source_object_type = EXCLUDED.source_object_type,
+                    source_object_id = EXCLUDED.source_object_id,
+                    source_field_code = EXCLUDED.source_field_code,
+                    source_status_snapshot = EXCLUDED.source_status_snapshot,
+                    value_code = EXCLUDED.value_code,
+                    value_json = EXCLUDED.value_json,
+                    display_value = EXCLUDED.display_value,
+                    requiredness = EXCLUDED.requiredness,
+                    completion_status = EXCLUDED.completion_status,
+                    last_changed_by_user_id = EXCLUDED.last_changed_by_user_id,
+                    last_changed_at = now(),
+                    updated_at = now()",
+                [
+                    $workspaceId,
+                    $field['field_code'],
+                    $field['clause_id'],
+                    $field['choice_type'],
+                    $field['source_type'],
+                    cpg_workspace_json($sourceStatus),
+                    $field['value_code'],
+                    cpg_workspace_json($valueJson),
+                    $field['display_value'],
+                    $field['completion_status'],
+                    $actorUserId,
+                ]
+            );
+        }
+
+        $previewHash = cpg_contract_workspace_preview_hash($workspaceId);
+        api_query(
+            "UPDATE crewportglobal.contract_workspace_instances
+             SET workspace_status = CASE
+                   WHEN workspace_status IN ('draft_from_platform_data', 'blocked_missing_data') THEN 'prepare_fields'
+                   ELSE workspace_status
+                 END,
+                 preview_hash = $2,
+                 updated_at = now()
+             WHERE contract_workspace_id = $1::uuid",
+            [$workspaceId, $previewHash]
+        );
+        cpg_contract_workspace_audit_event(
+            'contract_workspace_field_changed',
+            $workspaceId,
+            $actorUserId,
+            $actorContext,
+            array_keys($normalizedFields),
+            [
+                'change_source' => 'agent_assisted_drafting',
+                'changed_fields' => array_values(array_keys($normalizedFields)),
+                'requires_party_review' => true,
+                'does_not_sign_contract' => true,
+            ],
+            null,
+            $previewHash
+        );
+        api_tx_commit();
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'contract_workspace_field_save_failed', $error->getMessage());
+    }
+
+    return [
+        'preview_hash' => $previewHash ?? null,
+        'changed_field_codes' => array_values(array_keys($normalizedFields)),
+    ];
+}
+
+function cpg_contract_workspace_party_review_recipients(string $workspaceId): array {
+    $ids = cpg_contract_workspace_source_ids($workspaceId);
+    if (!is_array($ids)) {
+        return [];
+    }
+    $employerUserId = is_string($ids['employer_primary_user_id'] ?? null)
+        ? (string) $ids['employer_primary_user_id']
+        : (is_string($ids['created_by_user_id'] ?? null) ? (string) $ids['created_by_user_id'] : null);
+
+    return [
+        'seafarer' => is_string($ids['seafarer_user_id'] ?? null) ? (string) $ids['seafarer_user_id'] : null,
+        'employer' => $employerUserId,
+    ];
+}
+
+function cpg_contract_workspace_request_party_review(string $workspaceId, array $agentContext, array $detail): array {
+    $actorContext = cpg_contract_workspace_actor_context_from_agent($agentContext);
+    $actorUserId = is_string($actorContext['actor_user_id'] ?? null) ? (string) $actorContext['actor_user_id'] : null;
+    $assignmentId = is_string($actorContext['assignment_id'] ?? null) ? (string) $actorContext['assignment_id'] : null;
+    $agentOrganizationId = is_string($actorContext['agent_organization_id'] ?? null) ? (string) $actorContext['agent_organization_id'] : null;
+    $previewHash = is_string($detail['workspace']['preview_hash'] ?? null) && trim((string) $detail['workspace']['preview_hash']) !== ''
+        ? (string) $detail['workspace']['preview_hash']
+        : cpg_contract_workspace_preview_hash($workspaceId);
+    $workspaceNumber = is_string($detail['workspace']['workspace_number'] ?? null) ? (string) $detail['workspace']['workspace_number'] : $workspaceId;
+    $recipients = cpg_contract_workspace_party_review_recipients($workspaceId);
+    $notifications = [];
+
+    api_tx_begin();
+    try {
+        api_query(
+            "UPDATE crewportglobal.contract_workspace_instances
+             SET workspace_status = 'party_review',
+                 preview_hash = $2,
+                 updated_at = now()
+             WHERE contract_workspace_id = $1::uuid",
+            [$workspaceId, $previewHash]
+        );
+
+        foreach ($recipients as $partyType => $partyUserId) {
+            api_query(
+                "INSERT INTO crewportglobal.contract_workspace_party_approvals (
+                    contract_workspace_id,
+                    party_type,
+                    party_user_id,
+                    approval_status,
+                    ip_context,
+                    requested_at
+                 ) VALUES (
+                    $1::uuid,
+                    $2,
+                    $3::uuid,
+                    'requested',
+                    $4::jsonb,
+                    now()
+                 )
+                 ON CONFLICT (
+                    contract_workspace_id,
+                    party_type,
+                    COALESCE(party_user_id, '00000000-0000-0000-0000-000000000000'::uuid)
+                 )
+                 DO UPDATE SET
+                    approval_status = 'requested',
+                    approved_preview_hash = NULL,
+                    approval_note = NULL,
+                    ip_context = EXCLUDED.ip_context,
+                    requested_at = now(),
+                    approved_at = NULL,
+                    withdrawn_at = NULL,
+                    updated_at = now()",
+                [
+                    $workspaceId,
+                    $partyType,
+                    $partyUserId,
+                    cpg_workspace_json([
+                        'requested_by' => 'agent_assisted_drafting',
+                        'assignment_id' => $assignmentId,
+                        'preview_hash' => $previewHash,
+                    ]),
+                ]
+            );
+
+            if ($partyUserId !== null) {
+                $reviewUrl = '/contracts/workspace/?workspace_id=' . rawurlencode($workspaceId) . '&draft_id=' . rawurlencode($partyUserId);
+                $notification = cpg_agent_create_participant_notification(
+                    $partyUserId,
+                    null,
+                    'contract_workspace',
+                    $workspaceId,
+                    'contract_draft_review_requested',
+                    'contract_party_review',
+                    $workspaceNumber . ' prepared by agent for party review',
+                    'review',
+                    [
+                        'workspace_id' => $workspaceId,
+                        'workspace_number' => $workspaceNumber,
+                        'party_type' => $partyType,
+                        'review_url' => $reviewUrl,
+                        'preview_hash' => $previewHash,
+                        'agent_drafting_mode' => 'assisted_drafting',
+                    ],
+                    $actorUserId,
+                    null,
+                    $assignmentId,
+                    $agentOrganizationId
+                );
+                if (is_array($notification)) {
+                    $notifications[] = $notification;
+                }
+            }
+        }
+
+        cpg_contract_workspace_audit_event(
+            'contract_workspace_review_requested',
+            $workspaceId,
+            $actorUserId,
+            $actorContext,
+            [],
+            [
+                'requested_by' => 'agent_assisted_drafting',
+                'party_types' => array_keys($recipients),
+                'notification_count' => count($notifications),
+                'does_not_sign_contract' => true,
+            ],
+            is_string($detail['workspace']['source_snapshot_hash'] ?? null) ? (string) $detail['workspace']['source_snapshot_hash'] : null,
+            $previewHash
+        );
+
+        api_tx_commit();
+    } catch (Throwable $error) {
+        api_tx_rollback();
+        api_error(500, 'contract_workspace_review_request_failed', $error->getMessage());
+    }
+
+    return [
+        'preview_hash' => $previewHash,
+        'notifications' => $notifications,
+        'notification_count' => count($notifications),
+    ];
+}
+
 function handle_get_contract_workspace(string $workspaceId): void {
     $uuid = api_normalize_uuid($workspaceId);
     if ($uuid === null) {
         api_error(400, 'invalid_contract_workspace_id', 'contract_workspace_id must be a valid UUID');
+    }
+
+    $actor = strtolower(trim((string) ($_GET['actor'] ?? '')));
+    if ($actor === 'agent') {
+        $agentContext = cpg_contract_workspace_require_agent_access($uuid);
+        $actorContext = cpg_contract_workspace_actor_context_from_agent($agentContext);
+        $detail = cpg_contract_workspace_detail($uuid, $actorContext);
+        if ($detail === null) {
+            api_error(404, 'contract_workspace_not_found', 'Contract workspace not found');
+        }
+
+        api_json(200, [
+            'ok' => true,
+            'actor' => 'agent',
+            'assignment_id' => $actorContext['assignment_id'] ?? null,
+            'visibility_scope' => 'agent_assisted_direct_contract_drafting',
+            'contract_workspace' => $detail,
+        ]);
     }
 
     $draftId = api_normalize_uuid($_GET['draft_id'] ?? null);
@@ -10745,6 +11430,81 @@ function handle_get_contract_workspace(string $workspaceId): void {
         'draft_id' => $draftId,
         'visibility_scope' => 'contract_workspace_party_safe_detail',
         'contract_workspace' => $detail,
+    ]);
+}
+
+function handle_patch_contract_workspace_fields(string $workspaceId): void {
+    $uuid = api_normalize_uuid($workspaceId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_contract_workspace_id', 'contract_workspace_id must be a valid UUID');
+    }
+    if (strtolower(trim((string) ($_GET['actor'] ?? ''))) !== 'agent') {
+        api_error(400, 'agent_actor_required', 'Contract field preparation requires actor=agent');
+    }
+
+    $agentContext = cpg_contract_workspace_require_agent_access($uuid);
+    $body = api_decode_json_body();
+    $values = $body['values'] ?? null;
+    if (!is_array($values)) {
+        api_json(400, [
+            'ok' => false,
+            'error' => 'contract_field_values_required',
+            'message' => 'values must be an object keyed by contract field code',
+        ]);
+    }
+    if (array_is_list($values)) {
+        $mapped = [];
+        foreach ($values as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $fieldCode = cpg_agent_string_value($item['field_code'] ?? null, 30);
+            if ($fieldCode !== null) {
+                $mapped[$fieldCode] = $item['value'] ?? ($item['display_value'] ?? null);
+            }
+        }
+        $values = $mapped;
+    }
+
+    $result = cpg_contract_workspace_save_agent_fields($uuid, $agentContext, $values);
+    $detail = cpg_contract_workspace_detail($uuid, cpg_contract_workspace_actor_context_from_agent($agentContext));
+    api_json(200, [
+        'ok' => true,
+        'result' => $result,
+        'contract_workspace' => $detail,
+    ]);
+}
+
+function handle_post_contract_workspace_submit_party_review(string $workspaceId): void {
+    $uuid = api_normalize_uuid($workspaceId);
+    if ($uuid === null) {
+        api_error(400, 'invalid_contract_workspace_id', 'contract_workspace_id must be a valid UUID');
+    }
+    if (strtolower(trim((string) ($_GET['actor'] ?? ''))) !== 'agent') {
+        api_error(400, 'agent_actor_required', 'Party review request requires actor=agent');
+    }
+
+    $agentContext = cpg_contract_workspace_require_agent_access($uuid);
+    $actorContext = cpg_contract_workspace_actor_context_from_agent($agentContext);
+    $detail = cpg_contract_workspace_detail($uuid, $actorContext);
+    if ($detail === null) {
+        api_error(404, 'contract_workspace_not_found', 'Contract workspace not found');
+    }
+    if (($detail['guard']['status'] ?? '') !== 'ready_for_party_review') {
+        api_json(409, [
+            'ok' => false,
+            'error' => 'contract_workspace_not_ready_for_party_review',
+            'message' => 'All required embedded contract fields must be ready before party review',
+            'guard' => $detail['guard'] ?? [],
+        ]);
+    }
+
+    $result = cpg_contract_workspace_request_party_review($uuid, $agentContext, $detail);
+    $updated = cpg_contract_workspace_detail($uuid, $actorContext);
+    api_json(200, [
+        'ok' => true,
+        'result' => $result,
+        'contract_workspace' => $updated,
     ]);
 }
 
@@ -13664,11 +14424,65 @@ function cpg_agent_object_safe_snapshot(string $objectType, string $objectId): a
         ];
     }
 
+    if ($objectType === 'contract_workspace') {
+        $row = cpg_fetch_one_assoc(
+            "SELECT cwi.contract_workspace_id::text AS contract_workspace_id,
+                    cwi.workspace_number,
+                    cwi.workspace_status,
+                    cwi.preview_hash,
+                    cwi.seafarer_profile_id::text AS seafarer_profile_id,
+                    cwi.employer_company_id::text AS employer_company_id,
+                    cwi.vessel_id::text AS vessel_id,
+                    cwi.vacancy_request_id::text AS vacancy_request_id,
+                    sp.first_name AS seafarer_name,
+                    sp.primary_rank AS seafarer_rank,
+                    ec.company_name,
+                    v.vessel_name,
+                    vr.vacancy_title,
+                    vr.rank AS request_rank
+             FROM crewportglobal.contract_workspace_instances cwi
+             JOIN crewportglobal.seafarer_profiles sp ON sp.seafarer_profile_id = cwi.seafarer_profile_id
+             JOIN crewportglobal.employer_companies ec ON ec.company_id = cwi.employer_company_id
+             JOIN crewportglobal.vessels v ON v.vessel_id = cwi.vessel_id
+             JOIN crewportglobal.vacancy_requests vr ON vr.vacancy_request_id = cwi.vacancy_request_id
+             WHERE cwi.contract_workspace_id = $1::uuid
+               AND cwi.archived_at IS NULL
+             LIMIT 1",
+            [$objectId]
+        );
+        if (!is_array($row)) {
+            return $notFound;
+        }
+        return [
+            'object_type' => $objectType,
+            'object_id' => $objectId,
+            'record_found' => true,
+            'record_status' => $row['workspace_status'] ?? null,
+            'safe_fields' => cpg_agent_safe_fields([
+                'Workspace' => $row['workspace_number'] ?? null,
+                'Status' => $row['workspace_status'] ?? null,
+                'Seafarer' => trim((string) ($row['seafarer_name'] ?? '') . ' / ' . (string) ($row['seafarer_rank'] ?? '')),
+                'Shipowner' => $row['company_name'] ?? null,
+                'Vessel' => $row['vessel_name'] ?? null,
+                'Crew request' => trim((string) ($row['vacancy_title'] ?? '') . ' / ' . (string) ($row['request_rank'] ?? '')),
+                'Preview hash' => $row['preview_hash'] ?? null,
+            ]),
+            'source_ids' => [
+                'contract_workspace_id' => $row['contract_workspace_id'] ?? null,
+                'seafarer_profile_id' => $row['seafarer_profile_id'] ?? null,
+                'company_id' => $row['employer_company_id'] ?? null,
+                'vessel_id' => $row['vessel_id'] ?? null,
+                'vacancy_request_id' => $row['vacancy_request_id'] ?? null,
+            ],
+        ];
+    }
+
     return $notFound;
 }
 
 function cpg_agent_workspace_actions(string $assignmentId, array $snapshot, bool $canEdit): array {
     $objectType = (string) ($snapshot['object_type'] ?? '');
+    $objectId = is_string($snapshot['object_id'] ?? null) ? (string) $snapshot['object_id'] : '';
     $ids = is_array($snapshot['source_ids'] ?? null) ? $snapshot['source_ids'] : [];
     $actions = [];
 
@@ -13708,10 +14522,13 @@ function cpg_agent_workspace_actions(string $assignmentId, array $snapshot, bool
             'Open the company, vessel and vacancy workspace with agent assignment context.'
         );
     } elseif ($objectType === 'contract_workspace') {
+        $workspaceId = is_string($ids['contract_workspace_id'] ?? null)
+            ? (string) $ids['contract_workspace_id']
+            : $objectId;
         $addAction(
             'open_contract_workspace',
             'Open contract workspace',
-            '/contracts/workspace/?actor=agent&assignment_id=' . rawurlencode($assignmentId),
+            '/contracts/workspace/?workspace_id=' . rawurlencode($workspaceId) . '&actor=agent&assignment_id=' . rawurlencode($assignmentId),
             'Open controlled contract preparation for the represented parties.'
         );
     }
@@ -13784,6 +14601,130 @@ function cpg_agent_task_from_assignment(array $row, array $access): array {
         'authority' => cpg_agent_authority_summary_from_assignment($row),
         'management' => $management,
         'target_url' => '/agents/?assignment_id=' . rawurlencode($assignmentId) . '#agent-workspace',
+        'generated_at' => gmdate('c'),
+    ];
+}
+
+function cpg_agent_contract_drafting_rows(string $agentOrganizationId, int $limit): array {
+    if (!cpg_contract_workspace_tables_ready()) {
+        return [];
+    }
+
+    return cpg_fetch_all_assoc(
+        "SELECT DISTINCT ON (cwi.contract_workspace_id)
+                aoa.agent_object_assignment_id::text AS agent_object_assignment_id,
+                aoa.object_type,
+                aoa.object_id::text AS object_id,
+                aoa.assignment_status,
+                aoa.visibility_scope,
+                aoa.data_responsibility_status,
+                aoa.object_safe_summary,
+                aoa.assigned_agent_user_id::text AS assigned_agent_user_id,
+                aoa.updated_at::text AS updated_at,
+                ao.agent_organization_id::text AS agent_organization_id,
+                ao.agent_display_name,
+                ao.agent_status,
+                ao.authority_status AS organization_authority_status,
+                aad.agent_authority_document_id::text AS agent_authority_document_id,
+                aad.authority_status AS document_authority_status,
+                aad.authority_type,
+                aad.authority_scope_type,
+                aad.authority_scope_object_id::text AS authority_scope_object_id,
+                aad.valid_from::text AS authority_valid_from,
+                aad.valid_until::text AS authority_valid_until,
+                cwi.contract_workspace_id::text AS contract_workspace_id,
+                cwi.workspace_number,
+                cwi.workspace_status,
+                cwi.preview_hash,
+                cwi.updated_at::text AS workspace_updated_at,
+                sp.first_name AS seafarer_name,
+                sp.primary_rank AS seafarer_rank,
+                ec.company_name,
+                v.vessel_name,
+                vr.vacancy_title
+         FROM crewportglobal.agent_object_assignments aoa
+         JOIN crewportglobal.agent_organizations ao
+           ON ao.agent_organization_id = aoa.agent_organization_id
+         LEFT JOIN crewportglobal.agent_authority_documents aad
+           ON aad.agent_authority_document_id = aoa.source_authority_document_id
+         JOIN crewportglobal.contract_workspace_instances cwi
+           ON (
+                (aoa.object_type = 'contract_workspace' AND aoa.object_id = cwi.contract_workspace_id)
+                OR (aoa.object_type = 'employer_company' AND aoa.object_id = cwi.employer_company_id)
+                OR (aoa.object_type = 'vessel' AND aoa.object_id = cwi.vessel_id)
+                OR (aoa.object_type = 'vacancy_request' AND aoa.object_id = cwi.vacancy_request_id)
+                OR (aoa.object_type = 'seafarer_profile' AND aoa.object_id = cwi.seafarer_profile_id)
+              )
+         JOIN crewportglobal.seafarer_profiles sp ON sp.seafarer_profile_id = cwi.seafarer_profile_id
+         JOIN crewportglobal.employer_companies ec ON ec.company_id = cwi.employer_company_id
+         JOIN crewportglobal.vessels v ON v.vessel_id = cwi.vessel_id
+         JOIN crewportglobal.vacancy_requests vr ON vr.vacancy_request_id = cwi.vacancy_request_id
+         WHERE aoa.agent_organization_id = $1::uuid
+           AND aoa.assignment_status IN ('active', 'limited', 'proposed', 'suspended', 'expired')
+           AND aoa.archived_at IS NULL
+           AND cwi.archived_at IS NULL
+           AND cwi.workspace_status NOT IN ('voided', 'superseded')
+         ORDER BY cwi.contract_workspace_id,
+                  CASE aoa.object_type
+                    WHEN 'contract_workspace' THEN 1
+                    WHEN 'vacancy_request' THEN 2
+                    WHEN 'vessel' THEN 3
+                    WHEN 'employer_company' THEN 4
+                    WHEN 'seafarer_profile' THEN 5
+                    ELSE 9
+                  END,
+                  cwi.updated_at DESC
+         LIMIT $2",
+        [$agentOrganizationId, $limit]
+    );
+}
+
+function cpg_agent_task_from_contract_drafting_row(array $row, array $access): array {
+    $assignmentId = is_string($row['agent_object_assignment_id'] ?? null) ? (string) $row['agent_object_assignment_id'] : '';
+    $workspaceId = is_string($row['contract_workspace_id'] ?? null) ? (string) $row['contract_workspace_id'] : '';
+    $workspaceNumber = cpg_agent_string_value($row['workspace_number'] ?? null, 120) ?? $workspaceId;
+    $management = cpg_agent_management_block_from_assignment($row);
+    $allowed = (bool) ($management['management_allowed'] ?? false);
+    $seafarer = trim((string) ($row['seafarer_name'] ?? '') . ' / ' . (string) ($row['seafarer_rank'] ?? ''));
+    $summary = implode(' | ', array_values(array_filter([
+        $workspaceNumber,
+        $seafarer !== '/' ? trim($seafarer, ' /') : '',
+        cpg_agent_string_value($row['company_name'] ?? null, 160),
+        cpg_agent_string_value($row['vessel_name'] ?? null, 160),
+    ], static fn(?string $item): bool => $item !== null && $item !== '')));
+
+    return [
+        'task_id' => 'agent-contract-drafting-' . $workspaceId,
+        'task_model' => 'data_derived_agent_contract_workspace',
+        'operation_code' => $allowed ? 'prepare_direct_contract_draft' : 'resolve_agent_authority_blocker',
+        'task_title' => ($allowed ? 'Prepare direct contract draft.' : 'Resolve contract drafting authority blocker.')
+            . ' (' . $summary . '.)',
+        'process_stage' => 'Agent-assisted direct SEA drafting',
+        'visibility_condition' => $allowed
+            ? 'Visible while the contract workspace is linked to an object assigned to this agent organization.'
+            : 'Shown as a control record until the assignment or authority blocker is resolved.',
+        'task_state' => $allowed ? 'active_agent_contract_drafting' : 'control_blocked',
+        'responsible' => [
+            'group' => 'agent_organization',
+            'agent_organization_id' => (string) ($access['agent_organization_id'] ?? ''),
+            'agent_display_name' => (string) ($access['agent_display_name'] ?? ''),
+            'assigned_agent_user_id' => is_string($row['assigned_agent_user_id'] ?? null) ? (string) $row['assigned_agent_user_id'] : null,
+        ],
+        'object' => [
+            'object_type' => 'contract_workspace',
+            'object_id' => $workspaceId,
+            'object_safe_summary' => $summary,
+            'assignment_id' => $assignmentId,
+            'assignment_object_type' => is_string($row['object_type'] ?? null) ? (string) $row['object_type'] : null,
+            'assignment_object_id' => is_string($row['object_id'] ?? null) ? (string) $row['object_id'] : null,
+            'workspace_status' => is_string($row['workspace_status'] ?? null) ? (string) $row['workspace_status'] : null,
+            'preview_hash' => is_string($row['preview_hash'] ?? null) ? (string) $row['preview_hash'] : null,
+        ],
+        'authority' => cpg_agent_authority_summary_from_assignment($row),
+        'management' => $management,
+        'target_url' => $allowed
+            ? '/contracts/workspace/?workspace_id=' . rawurlencode($workspaceId) . '&actor=agent&assignment_id=' . rawurlencode($assignmentId)
+            : '/agents/?assignment_id=' . rawurlencode($assignmentId) . '#agent-workspace',
         'generated_at' => gmdate('c'),
     ];
 }
@@ -13921,6 +14862,7 @@ function handle_get_agent_tasks(): void {
     $agentOrganizationId = (string) $access['agent_organization_id'];
     $limit = max(1, min(200, (int) ($_GET['limit'] ?? 100)));
     $assignmentRows = cpg_agent_assignment_rows($agentOrganizationId, $limit);
+    $contractDraftingRows = cpg_agent_contract_drafting_rows($agentOrganizationId, $limit);
     $offerRows = cpg_agent_framework_offer_rows_for_agent($agentOrganizationId, $limit);
     $claimRows = cpg_agent_claim_rows($agentOrganizationId, $limit);
     $requestRows = cpg_fetch_all_assoc(
@@ -13949,7 +14891,13 @@ function handle_get_agent_tasks(): void {
             $tasks[] = cpg_agent_task_from_framework_offer($row);
         }
     }
+    foreach ($contractDraftingRows as $row) {
+        $tasks[] = cpg_agent_task_from_contract_drafting_row($row, $access);
+    }
     foreach ($assignmentRows as $row) {
+        if ((string) ($row['object_type'] ?? '') === 'contract_workspace') {
+            continue;
+        }
         $tasks[] = cpg_agent_task_from_assignment($row, $access);
     }
     foreach ($requestRows as $row) {
@@ -13967,7 +14915,26 @@ function handle_get_agent_tasks(): void {
         'tasks' => $tasks,
         'count' => count($tasks),
         'framework_offer_count' => count($offerRows),
+        'contract_drafting_count' => count($contractDraftingRows),
         'claim_count' => count($claimRows),
+        'generated_at' => gmdate('c'),
+    ]);
+}
+
+function handle_get_agent_contract_drafting_tasks(): void {
+    $access = cpg_agent_access_from_request();
+    $agentOrganizationId = (string) $access['agent_organization_id'];
+    $limit = max(1, min(200, (int) ($_GET['limit'] ?? 100)));
+    $rows = cpg_agent_contract_drafting_rows($agentOrganizationId, $limit);
+    $tasks = array_map(static fn(array $row): array => cpg_agent_task_from_contract_drafting_row($row, $access), $rows);
+
+    api_json(200, [
+        'ok' => true,
+        'agent_organization_id' => $agentOrganizationId,
+        'agent_display_name' => $access['agent_display_name'],
+        'task_model' => 'data_derived_agent_contract_workspace',
+        'tasks' => $tasks,
+        'count' => count($tasks),
         'generated_at' => gmdate('c'),
     ]);
 }
@@ -19106,6 +20073,14 @@ if ($path === '/agents/tasks') {
     api_error(405, 'method_not_allowed', 'Allowed methods: GET');
 }
 
+if ($path === '/agents/contract-drafting/tasks') {
+    if ($method === 'GET') {
+        handle_get_agent_contract_drafting_tasks();
+    }
+    header('Allow: GET');
+    api_error(405, 'method_not_allowed', 'Allowed methods: GET');
+}
+
 if ($path === '/agents/framework-agreement-offers') {
     if ($method === 'GET') {
         handle_get_agent_framework_agreement_offers();
@@ -19503,6 +20478,22 @@ if ($path === '/employer/agent-assignment/options') {
 if ($path === '/employer/agent-assignment/offers') {
     if ($method === 'POST') {
         handle_post_employer_agent_framework_offer();
+    }
+    header('Allow: POST');
+    api_error(405, 'method_not_allowed', 'Allowed methods: POST');
+}
+
+if (preg_match('#^/contract-workspaces/([^/]+)/fields$#', $path, $matches) === 1) {
+    if ($method === 'PATCH') {
+        handle_patch_contract_workspace_fields($matches[1]);
+    }
+    header('Allow: PATCH');
+    api_error(405, 'method_not_allowed', 'Allowed methods: PATCH');
+}
+
+if (preg_match('#^/contract-workspaces/([^/]+)/submit-party-review$#', $path, $matches) === 1) {
+    if ($method === 'POST') {
+        handle_post_contract_workspace_submit_party_review($matches[1]);
     }
     header('Allow: POST');
     api_error(405, 'method_not_allowed', 'Allowed methods: POST');

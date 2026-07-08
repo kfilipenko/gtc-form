@@ -5,8 +5,8 @@
 - Documentation block: Implemented code standards
 - Document type: Dedicated implemented-standard register
 - Format: Markdown
-- Version: 1.12
-- Date: 2026-06-19
+- Version: 1.13
+- Date: 2026-07-08
 - Status: Active implementation control
 
 ## 1. Purpose
@@ -92,14 +92,15 @@ Each implemented standard should have a dedicated document with:
 | ICS-002 | Standard protected upload, including compact one-button row-level document checklist adapters for finite document catalogs and separate employer/vessel form-type adapters on the same page | `projects/crewportglobal/public/assets/crewportglobal-protected-upload.js` with `createController(config)` and `createDocumentChecklist(config)` | `/create-profile/`, `/post-vacancy/` | Active |
 | ICS-003 | Submit-to-operator review gate | `projects/crewportglobal/app/backend/api/public/index.php` / `handle_post_draft_submit_review()` plus `window.CPGDrafts.submitForOperatorReview()` | `/create-profile/`, `/post-vacancy/` | Active |
 | ICS-004 | Shipowner-agent framework offer acceptance standard using authoritative English `CPG-BIZ-132 v1.0` agreement package with Russian `CPG-BIZ-123` kept only as an internal working/reference version | `projects/crewportglobal/app/backend/api/public/index.php` offer/acceptance handlers plus migration `021_agent_framework_offer_notification_ledger.sql` | `/shipowners/candidates/#agent-assignment`, `/agents/` | Active |
+| ICS-005 | Agent-assisted direct contract drafting standard: agent-scoped workspace access, permitted embedded-field saves, preview-hash/audit updates and party-review notification request without agent signature authority | `projects/crewportglobal/app/backend/api/public/index.php` contract workspace and agent task helpers plus `/contracts/workspace/` adapter | `/agents/`, `/contracts/workspace/`, `/api/v1/agents/tasks`, `/api/v1/agents/contract-drafting/tasks` | Active |
 
 ## 6. Planned Implemented Standards
 
 | Planned ID | Standard | Expected canonical implementation area | Reason |
 |---|---|---|---|
-| ICS-005 | Computed task model | Backend task computation helper/service | Needed to unify task stage, assignee, visibility condition and object link logic. |
-| ICS-006 | Task display and deep-link model | Shared frontend task renderer + backend task payload contract | Needed to prevent task lists from showing non-executable buttons or generic queues. |
-| ICS-007 | Approval guard model | Backend guard helper/service | Needed for internal shortlist, presentation and employer-facing guard consistency. |
+| ICS-006 | Computed task model | Backend task computation helper/service | Needed to unify task stage, assignee, visibility condition and object link logic. |
+| ICS-007 | Task display and deep-link model | Shared frontend task renderer + backend task payload contract | Needed to prevent task lists from showing non-executable buttons or generic queues. |
+| ICS-008 | Approval guard model | Backend guard helper/service | Needed for internal shortlist, presentation and employer-facing guard consistency. |
 
 ## 7. Change Control
 

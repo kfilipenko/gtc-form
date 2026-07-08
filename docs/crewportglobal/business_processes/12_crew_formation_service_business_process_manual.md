@@ -5,8 +5,8 @@
 - Business-process ID: BP-012
 - Source task: CPG-BIZ-012 approved execution task, document 199
 - Baseline: BP-001 through BP-011, CPG-DEMAND-017 through CPG-DEMAND-035
-- Version: 1.3
-- Date: 2026-06-19
+- Version: 1.4
+- Date: 2026-07-08
 - Document type: Controlling business-process manual
 - Status: Drafted for Project Owner review
 
@@ -262,6 +262,36 @@ The controlling task is:
 
 ```text
 CPG-BIZ-137 - Agent-Assisted Direct Contract Drafting Task
+```
+
+The implemented runtime order is:
+
+```text
+existing direct SEA workspace
+-> agent task computed from assigned source object
+-> /contracts/workspace/?workspace_id=...&actor=agent&assignment_id=...
+-> assignment / authority / source-scope guard
+-> agent saves permitted embedded fields only
+-> preview_hash and audit event are updated
+-> agent sends populated draft to seafarer and shipowner/employer for party review
+-> party approval / correction remains a direct-party step
+```
+
+The implemented field boundary is:
+
+| Agent-preparable embedded field | Purpose |
+|---|---|
+| `C-5.1` | Joining date |
+| `C-5.2` | Contract duration |
+| `C-6.1` | Salary / wage terms |
+| `C-6.2` | Currency |
+| `C-8.1` | Joining travel responsibility |
+| `C-9.1` | Return / repatriation responsibility |
+
+The controlling implementation report is:
+
+```text
+CPG-BIZ-137 - Agent-Assisted Direct Contract Drafting Implementation Report
 ```
 
 ## 7. Master Process Map
@@ -863,5 +893,6 @@ The next implementation-planning stage should extract the already verified `/cre
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.4 | 2026-07-08 | GTC IT / AI Assistant | Fixed the implemented runtime order for agent-assisted direct contract drafting: computed task, exact workspace link, assignment/authority/source guard, permitted embedded fields, preview hash/audit and party-review request |
 | 1.3 | 2026-06-19 | GTC IT / AI Assistant | Added CPG-BIZ-137 agent-assisted direct contract drafting mode and linked CF-14 to draft versions, party review and agent authority scope |
 | 1.2 | 2026-06-19 | GTC IT / AI Assistant | Added agent-enabled contract triad and linked direct SEA, shipowner-agent and seafarer-agent agreements to the unified CPG-BIZ-135 contract workspace/template/generation model |
