@@ -1,0 +1,57 @@
+# TravelGTC - Documentation Register
+
+- Project: TravelGTC
+- Project code: travelgtc
+- Domain: travelgtc.com
+- Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
+- Version: 0.2
+- Date: 2026-07-08
+- Status: Initial project section created
+
+## 1. Purpose
+
+This register is the canonical documentation entry point for the TravelGTC project.
+
+The first stage is intentionally small:
+
+1. create a stable project documentation section;
+2. create a source folder for website images;
+3. create the first goal and development objectives document;
+4. prepare domain/publication tracking before website implementation begins.
+
+## 2. Current Documents
+
+| Document | Title | Purpose | Status |
+|---|---|---|---|
+| `00_documentation_register.md` | TravelGTC - Documentation Register | Project documentation index and fixation point. | Active |
+| `01_project_scope_and_positioning.md` | TravelGTC - Project Scope And Development Goals | First document for defining project goals, positioning, audience, first pages and required materials. | Draft for Project Owner input |
+| `02_domain_dns_ssl_publication_checklist.md` | TravelGTC - Domain, DNS, SSL And Publication Checklist | Domain and publication setup checklist for `travelgtc.com`. | Draft |
+| `05_project_memory_handoff.md` | TravelGTC - Project Memory Handoff | Short memory document for future AI sessions and project continuation. | Active |
+| `001_travelgtc_init_001_project_section_and_goal_document_report.md` | TRAVELGTC-INIT-001 - Project Section And Goal Document Bootstrap Report | Fixes the creation of the first project structure, documentation section and image inbox. | Implemented |
+
+## 3. Project Source Locations
+
+| Area | Path | Purpose |
+|---|---|---|
+| Project source | `projects/travelgtc/` | Website source, public assets, deploy scripts and future app code. |
+| Public source | `projects/travelgtc/public/` | Files intended for public website publication. |
+| Image inbox | `projects/travelgtc/public/assets/images/inbox/` | Place raw source images here for review and later processing. |
+| Processed images | `projects/travelgtc/public/assets/images/processed/` | Place optimized and approved web images here. |
+| Public documents | `projects/travelgtc/public/legal/` | Future public policies, conditions or documents for the site. |
+
+## 4. Standards Applied
+
+The project was started under:
+
+1. `docs/gtc_project_delivery_standard/03_project_structure_and_publication_model.md`
+2. `docs/gtc_project_delivery_standard/05_task_definition_and_fixation_standard.md`
+3. `docs/gtc_project_delivery_standard/06_ai_agent_collaboration_standard.md`
+4. `docs/gtc_project_delivery_standard/07_documentation_register_and_memory_standard.md`
+5. `docs/gtc_project_delivery_standard/12_new_project_bootstrap_templates_and_starter_kit.md`
+
+## 5. Revision History
+
+| Version | Date | Author | Changes |
+|---|---|---|---|
+| 0.2 | 2026-07-08 | GTC IT / AI Assistant | Added bootstrap implementation report to the register |
+| 0.1 | 2026-07-08 | GTC IT / AI Assistant | Initial TravelGTC documentation section, image folders and goal document register |
