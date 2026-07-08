@@ -3,7 +3,7 @@
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Scope: cross-project delivery methodology for GTC web/application projects
 - Document type: Methodology register
-- Version: 0.2
+- Version: 0.3
 - Date: 2026-07-08
 - Status: Baseline package created for Project Owner review
 
@@ -28,6 +28,7 @@ The standards in this section are not CrewPortGlobal product documents. They def
 | `09_testing_deploy_and_release_standard.md` | GTC-STD-009 - Testing, Deploy And Release Standard | Verification scale, public deploy script pattern, live smoke checks, rollback and artifacts. | Baseline standard |
 | `10_security_access_and_authority_standard.md` | GTC-STD-010 - Security, Access And Authority Standard | Personal account, role/permission, admin access, representative authority, notification and secret rules. | Baseline standard |
 | `11_lessons_from_crewportglobal.md` | GTC-STD-011 - Lessons From CrewPortGlobal | Reusable lessons and proven patterns from the CrewPortGlobal implementation. | Baseline knowledge transfer |
+| `12_new_project_bootstrap_templates_and_starter_kit.md` | GTC-STD-012 - New Project Bootstrap Templates And Starter Kit | Reusable templates for project docs, tasks, reports, app operations docs, AI startup and definition-of-done checklists. | Baseline starter kit |
 
 ## 3. Source Experience
 
@@ -65,9 +66,25 @@ The GTC project-delivery standard should preserve these working principles:
 9. git fixation after approved repository changes;
 10. Project Owner and AI agent collaboration rules.
 
-## 5. Revision History
+## 5. Template Starter Kit
+
+Reusable templates live in:
+
+```text
+docs/gtc_project_delivery_standard/templates/
+```
+
+Template groups:
+
+1. `project_docs/` - documentation register, scope, domain/publication, business process, memory and implemented-code standards templates;
+2. `task_docs/` - task, implementation report, standard, public-page publication report and deploy/release report templates;
+3. `app_ops/` - `APP.md`, `DEPLOY.md`, `STORAGE.md`, `RUNBOOK.md` templates;
+4. `checklists/` - AI startup, definition of done, live publication and new directory layout checklists.
+
+## 6. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.3 | 2026-07-08 | GTC IT / AI Assistant | Added GTC-STD-012 and starter kit templates for new project bootstrap |
 | 0.2 | 2026-07-08 | GTC IT / AI Assistant | Added baseline GTC-STD-002..011 standards transferring significant CrewPortGlobal project-delivery experience for future projects |
 | 0.1 | 2026-07-08 | GTC IT / AI Assistant | Initial register for cross-project delivery methodology |

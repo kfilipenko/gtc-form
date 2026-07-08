@@ -179,17 +179,22 @@ Before implementation of the full package, decide:
 
 ## 10. Proposed Next Step
 
-Suggested follow-up after Project Owner review of the baseline package:
+Follow-up completed after Project Owner approval:
 
 ```text
 GTC-STD-012 - Create reusable templates for new project bootstrap
 ```
 
-The next task should create reusable templates for `APP.md`, `DEPLOY.md`, `STORAGE.md`, `RUNBOOK.md`, documentation register, public legal hub and project memory handoff.
+Reusable templates for `APP.md`, `DEPLOY.md`, `STORAGE.md`, `RUNBOOK.md`, documentation register, public/legal publication, task/report standards, project memory handoff, AI startup and definition of done are now recorded under:
+
+```text
+docs/gtc_project_delivery_standard/templates/
+```
 
 ## 11. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.3 | 2026-07-08 | GTC IT / AI Assistant | Recorded GTC-STD-012 starter kit templates as completed follow-up |
 | 0.2 | 2026-07-08 | GTC IT / AI Assistant | Marked baseline package as created and aligned document list with GTC-STD-002..011 |
 | 0.1 | 2026-07-08 | GTC IT / AI Assistant | Initial cross-project delivery and AI collaboration standard task |

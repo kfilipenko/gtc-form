@@ -254,6 +254,15 @@ GTC-STD-010 - Security, Access And Authority Standard
 GTC-STD-011 - Lessons From CrewPortGlobal
 ```
 
+The next reusable layer was also created:
+
+```text
+GTC-STD-012 - New Project Bootstrap Templates And Starter Kit
+Templates: docs/gtc_project_delivery_standard/templates/
+```
+
+The starter kit contains project documentation templates, task/report/standard templates, app operations templates, AI startup checklist, definition of done, live publication checklist and new-project directory layout.
+
 On 2026-06-10 the shared public/application header model was fixed as:
 
 ```text
