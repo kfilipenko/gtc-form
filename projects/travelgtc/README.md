@@ -3,19 +3,31 @@
 - Project: TravelGTC
 - Project code: travelgtc
 - Domain: travelgtc.com
-- Status: Initial source section
+- Status: First public prototype implemented
 
 ## Purpose
 
 This folder contains source files for the TravelGTC website project.
 
-The project was initialized with a public assets area first so the Project Owner can add images and source materials before page implementation begins.
+The project now contains the first static public prototype for the final concept:
+
+```text
+Travel Network Lab
+```
 
 ## Current Layout
 
 ```text
 projects/travelgtc/
   public/
+    index.html
+    travel-lifestyle/
+    club/
+    create-trip/
+    business-model/
+    events/
+    about/
+    contacts/
     assets/
       images/
         inbox/
@@ -32,11 +44,25 @@ projects/travelgtc/
 3. After review and optimization, approved web images should be placed in `public/assets/images/processed/`.
 4. Public pages should reference only processed/approved images.
 
+## Prototype Routes
+
+```text
+/
+/travel-lifestyle/
+/club/
+/create-trip/
+/business-model/
+/events/
+/about/
+/contacts/
+```
+
 ## Related Documentation
 
 ```text
 docs/travelgtc/00_documentation_register.md
 docs/travelgtc/01_project_scope_and_positioning.md
 docs/travelgtc/02_domain_dns_ssl_publication_checklist.md
+docs/travelgtc/03_visual_reference_and_product_direction.md
 docs/travelgtc/05_project_memory_handoff.md
 ```

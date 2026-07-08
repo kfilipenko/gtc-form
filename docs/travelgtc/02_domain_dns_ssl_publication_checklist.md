@@ -7,9 +7,9 @@
 - Source root: `/var/www/gtc-form/projects/travelgtc`
 - Public source: `/var/www/gtc-form/projects/travelgtc/public`
 - Live root: to be confirmed
-- Version: 0.1
+- Version: 0.2
 - Date: 2026-07-08
-- Status: Draft
+- Status: Draft, first public prototype routes defined
 
 ## 1. Purpose
 
@@ -41,15 +41,22 @@ No live deployment is confirmed in this document yet. It is a preparation docume
 
 ## 4. First Smoke-Test Targets
 
-To be defined after first page implementation:
+First prototype routes to smoke-test after publication:
 
 ```text
 https://travelgtc.com/
-https://travelgtc.com/legal/
+https://travelgtc.com/travel-lifestyle/
+https://travelgtc.com/club/
+https://travelgtc.com/create-trip/
+https://travelgtc.com/business-model/
+https://travelgtc.com/events/
+https://travelgtc.com/about/
+https://travelgtc.com/contacts/
 ```
 
 ## 5. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.2 | 2026-07-08 | GTC IT / AI Assistant | Added first public prototype route smoke-test targets |
 | 0.1 | 2026-07-08 | GTC IT / AI Assistant | Initial domain and publication checklist for travelgtc.com |

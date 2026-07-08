@@ -18,6 +18,15 @@ processed/
 4. Public pages should use files from `processed/`.
 5. Do not delete originals from `inbox/` unless the Project Owner asks for cleanup.
 
+## Processed Public Assets
+
+The first public prototype uses optimized WebP versions of the approved visual mockups:
+
+```text
+processed/travel-network-lab-landing-reference.webp
+processed/travel-network-lab-structure-reference.webp
+```
+
 ## Current Reference Notes
 
 The first uploaded image set contains:

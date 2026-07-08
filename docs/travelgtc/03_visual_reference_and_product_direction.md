@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Document type: Visual reference analysis
-- Version: 0.1
+- Version: 0.2
 - Date: 2026-07-08
-- Status: Draft for Project Owner review
+- Status: Final concept applied to first public prototype
 
 ## 1. Purpose
 
@@ -29,6 +29,12 @@ The goal is to preserve the product idea before implementation work begins.
 ## 3. Interpreted Product Idea
 
 TravelGTC is not just a travel brochure site.
+
+The Project Owner approved the final concept name:
+
+```text
+Travel Network Lab
+```
 
 The references describe a travel network platform with four connected promises:
 
@@ -103,23 +109,23 @@ It should include at least one practical interaction:
 
 ## 9. Recommended Next Task
 
-Create a first public landing-page task for Project Owner approval:
+The first public landing-page task was implemented:
 
 ```text
-TRAVELGTC-WEB-001 - First Landing Page Prototype
+TRAVELGTC-WEB-001 - First Travel Network Lab Public Prototype
 ```
 
-The task should define:
+Next work should define:
 
-1. page sections;
-2. selected reference image;
-3. copy language;
-4. CTA behavior;
-5. responsive/mobile requirements;
-6. legal text required before publication.
+1. backend/CRM behavior for submitted forms;
+2. privacy/consent text before real lead collection;
+3. confirmed MAX/Telegram/email contact links;
+4. deploy model and live smoke checks for `travelgtc.com`;
+5. replacement or approval of final production photo assets if needed.
 
 ## 10. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.2 | 2026-07-08 | GTC IT / AI Assistant | Recorded final Travel Network Lab concept and first prototype implementation direction |
 | 0.1 | 2026-07-08 | GTC IT / AI Assistant | Initial interpretation of Project Owner visual references |

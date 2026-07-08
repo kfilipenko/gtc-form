@@ -5,9 +5,9 @@
 - Domain: travelgtc.com
 - Company: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Owner: Project Owner
-- Version: 0.2
+- Version: 0.3
 - Date: 2026-07-08
-- Status: Draft updated from visual references
+- Status: Final concept approved, first public prototype implemented
 
 ## 1. Purpose
 
@@ -17,17 +17,19 @@ Its purpose is to define what the site must become before design, page structure
 
 ## 2. Product Goal
 
-TravelGTC is a travel network and club platform that helps people create travel ideas, gather a group, join trips/events, use partner opportunities and grow a community-based travel business around recommendations, shared experiences and support.
+TravelGTC is implemented under the final concept name `Travel Network Lab`.
+
+Travel Network Lab is a travel network and club platform that helps people create travel ideas, gather a group, join trips/events, use partner opportunities and grow a community-based travel business around recommendations, shared experiences and support.
 
 ## 3. Initial Positioning
 
-Current working assumption after visual reference review:
+Approved direction after Project Owner task definition:
 
 ```text
-TravelGTC should be positioned as a modern travel community and opportunity platform:
-travel as lifestyle, club membership, events, shared routes, partner offers and network business.
-The first website should explain the concept quickly and lead the visitor to a practical action:
-create a travel idea, learn about opportunities or contact the project team.
+Travel Network Lab should be positioned as a modern travel club with business opportunity:
+travel as lifestyle, community, own routes/events, partner offers and network development.
+The first website must first show the dream of travel, then the power of community,
+then calmly introduce the business model.
 ```
 
 ## 4. Participants / Users
@@ -79,14 +81,14 @@ They show a direction based on travel lifestyle, community, club benefits, route
 
 ## 7. First Implementation Stage
 
-Stage 1 should focus on:
+Stage 1 now focuses on:
 
 1. approved product goal and positioning;
-2. domain/publication plan for `travelgtc.com`;
+2. first static public prototype in `projects/travelgtc/public/`;
 3. first content map and navigation based on the club/network model;
-4. selected visual assets from the image inbox;
-5. first public page or prototype after Project Owner approval;
-6. simple lead form or contact action for travel ideas and partner inquiries.
+4. selected visual assets optimized from the image inbox;
+5. simple frontend form for travel ideas and contact actions;
+6. future backend/legal/deploy work before real lead collection or publication.
 
 ## 8. What The Project Is Not Yet
 
@@ -104,16 +106,25 @@ Until the Project Owner confirms the scope, the project is not yet:
 The visual references suggest the following first navigation:
 
 1. Home
-2. About
-3. Opportunities
-4. Travel / Journeys
-5. Club
-6. Business Model
-7. Events
-8. Blog
-9. Contacts
+2. Travel / Journeys
+3. Club
+4. Create route
+5. Business Model
+6. Events
+7. Contacts
 
-The first public version may combine some of these pages into one landing page, but the long-term structure should keep them as separate content sections.
+Implemented prototype routes:
+
+```text
+/
+/travel-lifestyle/
+/club/
+/create-trip/
+/business-model/
+/events/
+/about/
+/contacts/
+```
 
 ## 10. Visual Direction
 
@@ -129,5 +140,6 @@ The first public version may combine some of these pages into one landing page, 
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.3 | 2026-07-08 | GTC IT / AI Assistant | Recorded final Travel Network Lab concept and first public prototype routes |
 | 0.2 | 2026-07-08 | GTC IT / AI Assistant | Updated product goal, participants, site structure and visual direction from Project Owner visual references |
 | 0.1 | 2026-07-08 | GTC IT / AI Assistant | Initial project goal and positioning document |
