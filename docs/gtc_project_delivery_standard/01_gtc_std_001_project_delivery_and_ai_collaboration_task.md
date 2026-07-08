@@ -5,7 +5,7 @@
 - Document type: Cross-project methodology task
 - Version: 0.1
 - Date: 2026-07-08
-- Status: Drafted for Project Owner review
+- Status: Baseline package created for Project Owner review
 - Source experience: CrewPortGlobal implementation cycle
 
 ## 1. Purpose
@@ -60,20 +60,20 @@ The CrewPortGlobal work produced repeatable practices:
 
 ## 4. Proposed Methodology Package
 
-The first implementation of the GTC standard should create these documents.
+The first implementation of the GTC standard created these documents.
 
 | Proposed document | Purpose |
 |---|---|
-| `01_project_initiation_and_domain_setup.md` | Domain, DNS, SSL, nginx/public root, source root, ownership, backups and launch checklist. |
-| `02_project_structure_and_publication_model.md` | Repository layout, public source, live root, legal/documents hub, one public URL per document and no-duplicate-publication rule. |
-| `03_business_process_first_development.md` | Rule that pages and functions are derived from participant, business stage, working object, task, evidence and next stage. |
-| `04_task_definition_and_fixation_standard.md` | How to write tasks, implementation reports, acceptance criteria, verification evidence, clean artifacts and git commits. |
-| `05_ai_agent_collaboration_standard.md` | Working rules for Project Owner and AI agent: context refresh, standards reading, autonomy, clarification boundaries, memory updates and final reports. |
-| `06_documentation_register_and_memory_standard.md` | Register numbering, version history, task/report relationship, handoff memory and cross-project continuity. |
-| `07_frontend_navigation_and_page_publication_standard.md` | Shared header/navigation, participant landing pages, document hub, page translations, visual review and mobile checks. |
-| `08_testing_deploy_and_release_standard.md` | Syntax checks, unit/API tests, i18n checks, deploy script, live smoke checks, screenshots and rollback notes. |
-| `09_security_access_and_authority_standard.md` | Authentication, admin access, authority evidence, role/permission controls and protected operations. |
-| `10_lessons_from_crewportglobal.md` | Practical lessons and examples showing how the methodology was proven in a real project. |
+| `02_project_initiation_and_domain_setup.md` | Domain, DNS, SSL, nginx/public root, source root, ownership, backups and launch checklist. |
+| `03_project_structure_and_publication_model.md` | Repository layout, public source, live root, legal/documents hub, one public URL per document and no-duplicate-publication rule. |
+| `04_business_process_first_development.md` | Rule that pages and functions are derived from participant, business stage, working object, task, evidence and next stage. |
+| `05_task_definition_and_fixation_standard.md` | How to write tasks, implementation reports, acceptance criteria, verification evidence, clean artifacts and git commits. |
+| `06_ai_agent_collaboration_standard.md` | Working rules for Project Owner and AI agent: context refresh, standards reading, autonomy, clarification boundaries, memory updates and final reports. |
+| `07_documentation_register_and_memory_standard.md` | Register numbering, version history, task/report relationship, handoff memory and cross-project continuity. |
+| `08_frontend_navigation_and_page_publication_standard.md` | Shared header/navigation, participant landing pages, document hub, page translations, visual review and mobile checks. |
+| `09_testing_deploy_and_release_standard.md` | Syntax checks, unit/API tests, i18n checks, deploy script, live smoke checks, screenshots and rollback notes. |
+| `10_security_access_and_authority_standard.md` | Authentication, admin access, authority evidence, role/permission controls and protected operations. |
+| `11_lessons_from_crewportglobal.md` | Practical lessons and examples showing how the methodology was proven in a real project. |
 
 ## 5. Operating Principles To Fix
 
@@ -179,16 +179,17 @@ Before implementation of the full package, decide:
 
 ## 10. Proposed Next Step
 
-After Project Owner approval:
+Suggested follow-up after Project Owner review of the baseline package:
 
 ```text
-GTC-STD-002 - Create reusable project initiation, publication and fixation standard package
+GTC-STD-012 - Create reusable templates for new project bootstrap
 ```
 
-This next task should create the actual standard documents listed in section 4.
+The next task should create reusable templates for `APP.md`, `DEPLOY.md`, `STORAGE.md`, `RUNBOOK.md`, documentation register, public legal hub and project memory handoff.
 
 ## 11. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.2 | 2026-07-08 | GTC IT / AI Assistant | Marked baseline package as created and aligned document list with GTC-STD-002..011 |
 | 0.1 | 2026-07-08 | GTC IT / AI Assistant | Initial cross-project delivery and AI collaboration standard task |

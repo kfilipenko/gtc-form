@@ -3,9 +3,9 @@
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Scope: cross-project delivery methodology for GTC web/application projects
 - Document type: Methodology register
-- Version: 0.1
+- Version: 0.2
 - Date: 2026-07-08
-- Status: Drafted for Project Owner review
+- Status: Baseline package created for Project Owner review
 
 ## 1. Purpose
 
@@ -17,7 +17,17 @@ The standards in this section are not CrewPortGlobal product documents. They def
 
 | Document | Title | Purpose | Status |
 |---|---|---|---|
-| `01_gtc_std_001_project_delivery_and_ai_collaboration_task.md` | GTC-STD-001 - Project Delivery And AI Collaboration Standard Task | Task to create the first cross-project methodology package for domain setup, publication, development, documentation, verification, fixation and Project Owner / AI agent collaboration. | Drafted for Project Owner review |
+| `01_gtc_std_001_project_delivery_and_ai_collaboration_task.md` | GTC-STD-001 - Project Delivery And AI Collaboration Standard Task | Task to create the first cross-project methodology package for domain setup, publication, development, documentation, verification, fixation and Project Owner / AI agent collaboration. | Baseline package created |
+| `02_project_initiation_and_domain_setup.md` | GTC-STD-002 - Project Initiation And Domain Setup Standard | Domain, DNS, SSL, nginx/public root, source root, ownership, backup and rollback startup rules. | Baseline standard |
+| `03_project_structure_and_publication_model.md` | GTC-STD-003 - Project Structure And Publication Model | Repository layout, public source/live root, public documents hub and one-public-document rule. | Baseline standard |
+| `04_business_process_first_development.md` | GTC-STD-004 - Business-Process-First Development Standard | Participant, business object, task, evidence and next-stage model for application work. | Baseline standard |
+| `05_task_definition_and_fixation_standard.md` | GTC-STD-005 - Task Definition And Fixation Standard | Task/report format, verification, artifact cleanup, git commit and final report rules. | Baseline standard |
+| `06_ai_agent_collaboration_standard.md` | GTC-STD-006 - AI Agent Collaboration Standard | Project Owner / AI agent responsibilities, context refresh, clarification boundary and memory rules. | Baseline standard |
+| `07_documentation_register_and_memory_standard.md` | GTC-STD-007 - Documentation Register And Memory Standard | Registers, numbering, task/report relation, revision history and handoff memory. | Baseline standard |
+| `08_frontend_navigation_and_page_publication_standard.md` | GTC-STD-008 - Frontend Navigation And Page Publication Standard | Action-first pages, shared header/navigation, document hub, translation and visual checks. | Baseline standard |
+| `09_testing_deploy_and_release_standard.md` | GTC-STD-009 - Testing, Deploy And Release Standard | Verification scale, public deploy script pattern, live smoke checks, rollback and artifacts. | Baseline standard |
+| `10_security_access_and_authority_standard.md` | GTC-STD-010 - Security, Access And Authority Standard | Personal account, role/permission, admin access, representative authority, notification and secret rules. | Baseline standard |
+| `11_lessons_from_crewportglobal.md` | GTC-STD-011 - Lessons From CrewPortGlobal | Reusable lessons and proven patterns from the CrewPortGlobal implementation. | Baseline knowledge transfer |
 
 ## 3. Source Experience
 
@@ -59,4 +69,5 @@ The GTC project-delivery standard should preserve these working principles:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.2 | 2026-07-08 | GTC IT / AI Assistant | Added baseline GTC-STD-002..011 standards transferring significant CrewPortGlobal project-delivery experience for future projects |
 | 0.1 | 2026-07-08 | GTC IT / AI Assistant | Initial register for cross-project delivery methodology |

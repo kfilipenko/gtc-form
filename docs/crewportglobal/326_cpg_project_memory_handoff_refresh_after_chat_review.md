@@ -239,6 +239,21 @@ Directory: docs/gtc_project_delivery_standard/
 
 This new section is intended to preserve reusable rules for future GTC projects: domain and publication setup, business-process-first development, documentation/register discipline, AI agent collaboration, verification, deployment and git fixation.
 
+The significant reusable data was then transferred into baseline cross-project standards:
+
+```text
+GTC-STD-002 - Project Initiation And Domain Setup Standard
+GTC-STD-003 - Project Structure And Publication Model
+GTC-STD-004 - Business-Process-First Development Standard
+GTC-STD-005 - Task Definition And Fixation Standard
+GTC-STD-006 - AI Agent Collaboration Standard
+GTC-STD-007 - Documentation Register And Memory Standard
+GTC-STD-008 - Frontend Navigation And Page Publication Standard
+GTC-STD-009 - Testing, Deploy And Release Standard
+GTC-STD-010 - Security, Access And Authority Standard
+GTC-STD-011 - Lessons From CrewPortGlobal
+```
+
 On 2026-06-10 the shared public/application header model was fixed as:
 
 ```text
