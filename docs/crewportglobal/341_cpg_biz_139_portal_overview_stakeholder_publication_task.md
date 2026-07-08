@@ -6,7 +6,7 @@
 - Source instruction: Project Owner request to consolidate portal purpose, realized functions, business-process logic and international-law alignment
 - Version: 1.0
 - Date: 2026-07-08
-- Status: Drafted for Project Owner review
+- Status: Implemented and published
 - Proposed canonical public URL: `/legal/platform-overview/`
 
 ## 1. Purpose
@@ -281,4 +281,5 @@ The following items are deliberately left for later implementation:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.1 | 2026-07-08 | GTC IT / AI Assistant | Marked as implemented and published through `/legal/platform-overview/`; implementation report recorded in document 342 |
 | 1.0 | 2026-07-08 | GTC IT / AI Assistant | Initial consolidated stakeholder overview task and public-page content source |

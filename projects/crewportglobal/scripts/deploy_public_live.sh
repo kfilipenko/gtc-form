@@ -158,7 +158,7 @@ if [[ "$CPG_DEPLOY_RUN_SMOKE_CHECKS" == "1" ]]; then
   curl -fsSI "$PUBLIC_BASE_URL/register/" >/dev/null
   curl -fsSI "$PUBLIC_BASE_URL/cabinet/" >/dev/null
   curl -fsSL "$PUBLIC_BASE_URL/assets/crewportglobal-navigation.js" | grep -F "Account / Login" >/dev/null
-  curl -fsSL "$PUBLIC_BASE_URL/register/" | grep -F "Create account and open cabinet" >/dev/null
+  curl -fsSL "$PUBLIC_BASE_URL/register/" | grep -F "Create account and continue" >/dev/null
 fi
 
 log "public live deploy completed"

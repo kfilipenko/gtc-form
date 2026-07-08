@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal — Portal Overview and Operating Standards | CrewPortGlobal</title>
+  <meta id="page-description" name="description" content="Consolidated CrewPortGlobal portal overview: purpose, implemented functions, business-process logic, participant roles and international maritime standards alignment.">
+  <link rel="canonical" href="https://crewportglobal.com/legal/platform-overview/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="../../assets/crewportglobal-docs.css?v=20260530-menu-audit">
+  <link rel="stylesheet" href="../../assets/crewportglobal-app.css">
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'site.pageTitle': 'CrewPortGlobal — Portal Overview and Operating Standards | CrewPortGlobal',
+        'site.metaDescription': 'Consolidated CrewPortGlobal portal overview: purpose, implemented functions, business-process logic, participant roles and international maritime standards alignment.',
+        'overview.eyebrow': 'Platform overview',
+        'overview.title': 'CrewPortGlobal portal overview and operating standards',
+        'overview.lead': 'CrewPortGlobal is an international maritime workflow platform for seafarers, shipowners, vessel operators, ship managers, agents and platform review teams.',
+        'overview.signalTitle': 'Action-first maritime workflow',
+        'overview.signalCopy': 'Participants create records, upload evidence, receive tasks, review terms, prepare contracts and move controlled work objects through a traceable process.',
+        'overview.version': 'Public overview v1.0',
+        'overview.updated': 'Published 2026-07-08',
+        'overview.status': 'Stage 1 technology and workflow service',
+        'overview.introTitle': 'What CrewPortGlobal is built to do',
+        'overview.introCopy': 'CrewPortGlobal organizes maritime crewing work around structured data, reviewed evidence, controlled tasks and clear participant authority. The portal is not intended to be a reading library; it is designed to support practical work and preserve an audit trail before the next stage of a workflow is allowed.',
+        'overview.scopeTitle': 'Current Stage 1 position',
+        'overview.scopeCopy': 'CrewPortGlobal is operated as a technology and workflow service. It does not present itself as a licensed manning agency or employment agency unless and until required approvals are confirmed. Recruitment or placement activity requiring licensing must be performed only after regulatory confirmation or through appropriately licensed partners.',
+        'overview.participantsTitle': 'Participants and roles',
+        'overview.participant.seafarer.title': 'Seafarer',
+        'overview.participant.seafarer.copy': 'Creates and maintains a professional maritime profile, uploads documents, reviews opportunities and must not be charged recruitment or placement fees for access to work opportunities.',
+        'overview.participant.shipowner.title': 'Shipowner / employer',
+        'overview.participant.shipowner.copy': 'Registers company, vessel and crew-request context, reviews controlled candidate presentations and may initiate contracts and agent appointment processes.',
+        'overview.participant.agent.title': 'Agent / agent company',
+        'overview.participant.agent.copy': 'Acts within verified authority, prepares work objects, assists with contract drafting and supports both sides within controlled platform boundaries.',
+        'overview.participant.team.title': 'Platform review team',
+        'overview.participant.team.copy': 'Reviews profiles, documents, companies, vessels, matching results, shortlists and presentation readiness.',
+        'overview.participant.control.title': 'Platform Administration / Control',
+        'overview.participant.control.copy': 'Reviews authority, access, conflicts, assignment exceptions, governance blockers and admin-level permission changes.',
+        'overview.participant.billing.title': 'Billing / commercial group',
+        'overview.participant.billing.copy': 'Handles future Service Orders, commercial addenda, price-basis records and billing evidence.',
+        'overview.functionsTitle': 'Implemented functional areas',
+        'overview.function.shell': 'Shared application shell, navigation and multilingual public pages.',
+        'overview.function.registration': 'User registration, authentication, email-code access and personal cabinet entry.',
+        'overview.function.seafarer': 'Seafarer profile workspace with structured forms, autosave, completeness navigation and document readiness controls.',
+        'overview.function.employer': 'Employer and shipowner intake for company, vessel and crew-request context.',
+        'overview.function.review': 'Operator and team review surfaces for profiles, companies, vessels, documents, vacancies, matching and shortlists.',
+        'overview.function.market': 'Vacancy and job-search flows with controlled review before candidate-facing or employer-facing use.',
+        'overview.function.agent': 'Agent organization scope, authority evidence, object assignments, agent tasks and managed object workspaces.',
+        'overview.function.appointment': 'Shipowner-to-agent framework offer, agent acceptance, platform authority evidence, one-active-manager assignment and participant notification ledger entries.',
+        'overview.function.contracts': 'Unified Contract Agreement Workspace foundation and agent-assisted drafting of direct seafarer-shipowner contracts.',
+        'overview.function.admin': 'Public legal documents hub, access administration and owner/admin executable menu links.',
+        'overview.processTitle': 'How work moves through the portal',
+        'overview.processCopy': 'The portal computes participant tasks from business records. A task is visible only when a participant, representative or team has a valid relationship to the current object and process stage.',
+        'overview.processFlow': 'information stream -> working object -> object state -> business-process stage -> responsible participant or group -> visible task -> exact working object link -> evidence and audit record -> next computed stage',
+        'overview.evidenceTitle': 'Evidence and audit principle',
+        'overview.evidenceCopy': 'Every important action should leave a record: registration, email confirmation, profile save, document upload, review result, candidate presentation, agreement offer, authority record, assignment, notification, draft update and contract review request.',
+        'overview.standardsTitle': 'International maritime standards alignment',
+        'overview.mlcTitle': 'MLC 2006 alignment',
+        'overview.mlcCopy': 'CrewPortGlobal is designed to support no-fee access for seafarers, seafarer review of contract conditions, wage and repatriation visibility, complaint routes, controlled recruitment and placement evidence, and human review before candidate presentation or contract-critical steps.',
+        'overview.stcwTitle': 'STCW alignment',
+        'overview.stcwCopy': 'CrewPortGlobal treats rank, certificates, training, endorsements, watchkeeping-related qualifications and document readiness as structured evidence rather than free marketing text.',
+        'overview.limitsTitle': 'What the portal does not certify',
+        'overview.limitsCopy': 'CrewPortGlobal does not automatically certify that a participant, vessel, document, contract or employment decision satisfies all applicable law. The portal provides workflow discipline, evidence structure, review controls and audit records that support lawful decision-making by responsible parties and competent professionals.',
+        'overview.contractTitle': 'Contracts, authority and agents',
+        'overview.contractCopy': 'CrewPortGlobal separates legal authority, operational workflow and commercial terms. A physical person should control personal account credentials. A representative may receive operational rights only through verified authority evidence and platform assignment. A shipowner sends an offer to an agent; the appointment becomes active only after the agent accepts the standard framework agreement inside the platform and authority records are created.',
+        'overview.agentDraftingTitle': 'Agent-assisted drafting',
+        'overview.agentDraftingCopy': 'Agent-assisted drafting is preparation, not automatic final signature by the agent. Direct seafarer-shipowner contract terms must remain visible to the real parties for review and approval.',
+        'overview.noFeeTitle': 'No-fee boundary',
+        'overview.noFeeCopy': 'CrewPortGlobal must not be used to charge seafarers recruitment, placement or employment-access fees. Optional services for seafarers must be voluntary, separated from job access and not a condition for matching.',
+        'overview.notTitle': 'CrewPortGlobal is not',
+        'overview.notFake': 'a source of fake vacancies, fake employers or decorative marketplace activity;',
+        'overview.notFees': 'a system that charges seafarers for recruitment or placement;',
+        'overview.notLegal': 'an automatic legal certification system or legal-advice substitute;',
+        'overview.notDecision': 'an automatic employment-decision engine;',
+        'overview.notExternal': 'a tool that turns an external private contract into platform authority without CrewPortGlobal controlled authority and assignment process.',
+        'overview.linksTitle': 'Public document links',
+        'overview.link.legal': 'Documents and standards hub',
+        'overview.link.terms': 'Terms of Service',
+        'overview.link.privacy': 'Privacy Policy',
+        'overview.link.noFees': 'No Recruitment Fees Policy',
+        'overview.link.candidate': 'Seafarer Candidate Agreement',
+        'overview.link.shipowner': 'Shipowner Service Terms',
+        'overview.link.agent': 'Shipowner-Agent Framework Agreement',
+        'overview.link.complaints': 'Complaint Handling Procedure',
+        'overview.externalTitle': 'International references',
+        'overview.externalCopy': 'The following public references are used as alignment points for the portal standards. This overview is informational and is not legal advice.',
+        'overview.sourceTitle': 'Source and governance',
+        'overview.sourceCopy': 'This public page is based on CPG-BIZ-139 and the current CrewPortGlobal business-process and implemented-code standards. Public documents are published in one canonical place under /legal/; other pages may link to this overview but should not duplicate the full text.'
+      },
+      ru: {
+        'site.pageTitle': 'CrewPortGlobal — описание портала и рабочих стандартов | CrewPortGlobal',
+        'site.metaDescription': 'Сводное описание портала CrewPortGlobal: назначение, реализованные функции, логика бизнес-процессов, роли участников и связь с международными морскими стандартами.',
+        'overview.eyebrow': 'Описание платформы',
+        'overview.title': 'Описание портала CrewPortGlobal и рабочих стандартов',
+        'overview.lead': 'CrewPortGlobal — международная морская workflow-платформа для моряков, судовладельцев, операторов судов, ship managers, агентов и команд проверки платформы.',
+        'overview.signalTitle': 'Практический морской рабочий процесс',
+        'overview.signalCopy': 'Участники создают записи, загружают доказательства, получают задачи, проверяют условия, готовят договоры и проводят контролируемые рабочие объекты через прослеживаемый процесс.',
+        'overview.version': 'Публичный обзор v1.0',
+        'overview.updated': 'Опубликовано 2026-07-08',
+        'overview.status': 'Stage 1: технологический и workflow-сервис',
+        'overview.introTitle': 'Для чего создан CrewPortGlobal',
+        'overview.introCopy': 'CrewPortGlobal организует работу по формированию экипажа вокруг структурированных данных, проверенных доказательств, контролируемых задач и ясных полномочий участников. Портал не должен быть библиотекой для чтения; он создан для выполнения практической работы и сохранения audit trail до перехода к следующему этапу.',
+        'overview.scopeTitle': 'Текущая позиция Stage 1',
+        'overview.scopeCopy': 'CrewPortGlobal работает как технологический и workflow-сервис. Платформа не позиционирует себя как лицензированное manning agency или employment agency, пока соответствующие разрешения не подтверждены. Деятельность, требующая лицензирования, должна выполняться только после регуляторного подтверждения либо через надлежащим образом лицензированных партнеров.',
+        'overview.participantsTitle': 'Участники и роли',
+        'overview.participant.seafarer.title': 'Моряк',
+        'overview.participant.seafarer.copy': 'Создает и поддерживает профессиональный морской профиль, загружает документы, рассматривает возможности и не должен платить recruitment или placement fees за доступ к работе.',
+        'overview.participant.shipowner.title': 'Судовладелец / работодатель',
+        'overview.participant.shipowner.copy': 'Регистрирует компанию, судно и контекст заявки на экипаж, рассматривает контролируемые представления кандидатов и может инициировать договоры и назначение агента.',
+        'overview.participant.agent.title': 'Агент / агентская компания',
+        'overview.participant.agent.copy': 'Действует в пределах подтвержденных полномочий, готовит рабочие объекты, помогает с подготовкой договоров и поддерживает обе стороны в контролируемых границах платформы.',
+        'overview.participant.team.title': 'Команда проверки платформы',
+        'overview.participant.team.copy': 'Проверяет профили, документы, компании, суда, результаты matching, shortlists и готовность candidate presentation.',
+        'overview.participant.control.title': 'Администрация / контроль платформы',
+        'overview.participant.control.copy': 'Проверяет полномочия, доступ, конфликты, исключения по assignment, governance blockers и изменения прав администратора.',
+        'overview.participant.billing.title': 'Биллинг / коммерческая группа',
+        'overview.participant.billing.copy': 'В дальнейшем ведет Service Orders, коммерческие приложения, price-basis records и доказательства для расчетов.',
+        'overview.functionsTitle': 'Реализованные функциональные области',
+        'overview.function.shell': 'Единая оболочка приложения, навигация и многоязычные публичные страницы.',
+        'overview.function.registration': 'Регистрация пользователей, аутентификация, email-code доступ и вход в личный кабинет.',
+        'overview.function.seafarer': 'Рабочее место моряка: структурированные формы, autosave, навигация по полноте заполнения и контроль готовности документов.',
+        'overview.function.employer': 'Интейк работодателя и судовладельца: компания, судно и заявка на экипаж.',
+        'overview.function.review': 'Рабочие поверхности оператора и команды для профилей, компаний, судов, документов, вакансий, matching и shortlists.',
+        'overview.function.market': 'Вакансии и поиск работы с контролируемой проверкой до показа кандидату или работодателю.',
+        'overview.function.agent': 'Agent organization scope, evidence полномочий, assignments объектов, задачи агента и рабочие места управляемых объектов.',
+        'overview.function.appointment': 'Предложение рамочного договора судовладельцем агенту, акцепт агента, evidence полномочий, назначение одного активного управляющего и записи participant notification ledger.',
+        'overview.function.contracts': 'Основа единого Contract Agreement Workspace и agent-assisted drafting прямых договоров моряк-судовладелец.',
+        'overview.function.admin': 'Публичный legal documents hub, управление доступом и полный набор исполняемых ссылок для owner/admin.',
+        'overview.processTitle': 'Как работа движется через портал',
+        'overview.processCopy': 'Портал вычисляет задачи участников из бизнес-записей. Задача видна только тогда, когда участник, представитель или команда имеют действительную связь с текущим объектом и этапом процесса.',
+        'overview.processFlow': 'information stream -> working object -> object state -> business-process stage -> responsible participant or group -> visible task -> exact working object link -> evidence and audit record -> next computed stage',
+        'overview.evidenceTitle': 'Принцип доказательств и аудита',
+        'overview.evidenceCopy': 'Каждое важное действие должно оставлять запись: регистрация, подтверждение email, сохранение профиля, загрузка документа, результат проверки, представление кандидата, предложение договора, запись полномочий, assignment, уведомление, изменение черновика и запрос review договора.',
+        'overview.standardsTitle': 'Связь с международными морскими стандартами',
+        'overview.mlcTitle': 'Связь с MLC 2006',
+        'overview.mlcCopy': 'CrewPortGlobal проектируется так, чтобы поддерживать отсутствие рекрутинговых сборов для моряков, проверку условий договора моряком, видимость зарплаты и репатриации, маршруты жалоб, контролируемые evidence найма/подбора и human review до представления кандидата или contract-critical этапов.',
+        'overview.stcwTitle': 'Связь со STCW',
+        'overview.stcwCopy': 'CrewPortGlobal рассматривает должность, сертификаты, обучение, endorsements, watchkeeping qualifications и готовность документов как структурированные evidence, а не как свободный рекламный текст.',
+        'overview.limitsTitle': 'Что портал не удостоверяет автоматически',
+        'overview.limitsCopy': 'CrewPortGlobal автоматически не удостоверяет, что участник, судно, документ, договор или решение о найме соответствуют всему применимому праву. Портал предоставляет дисциплину процесса, структуру evidence, review controls и audit records, которые помогают ответственным сторонам и компетентным специалистам принимать законные решения.',
+        'overview.contractTitle': 'Договоры, полномочия и агенты',
+        'overview.contractCopy': 'CrewPortGlobal разделяет юридические полномочия, операционный workflow и коммерческие условия. Физическое лицо должно контролировать личные учетные данные. Представитель получает операционные права только через подтвержденные полномочия и assignment платформы. Судовладелец направляет агенту предложение; назначение становится активным только после акцепта стандартного рамочного договора внутри платформы и создания записей полномочий.',
+        'overview.agentDraftingTitle': 'Agent-assisted drafting',
+        'overview.agentDraftingCopy': 'Подготовка договора агентом является подготовкой, а не автоматической финальной подписью агента. Условия прямого договора моряк-судовладелец должны оставаться видимыми реальным сторонам для review и approval.',
+        'overview.noFeeTitle': 'No-fee boundary',
+        'overview.noFeeCopy': 'CrewPortGlobal не должен использоваться для взимания с моряков recruitment, placement или employment-access fees. Optional services для моряков должны быть добровольными, отделенными от доступа к работе и не являться условием matching.',
+        'overview.notTitle': 'CrewPortGlobal не является',
+        'overview.notFake': 'источником фиктивных вакансий, фиктивных работодателей или декоративной marketplace activity;',
+        'overview.notFees': 'системой, которая взимает с моряков плату за подбор или трудоустройство;',
+        'overview.notLegal': 'автоматической системой юридической сертификации или заменой юридической консультации;',
+        'overview.notDecision': 'автоматическим движком принятия решений о найме;',
+        'overview.notExternal': 'инструментом, который превращает внешний частный договор в полномочия платформы без controlled authority and assignment process CrewPortGlobal.',
+        'overview.linksTitle': 'Публичные документы',
+        'overview.link.legal': 'Хаб документов и стандартов',
+        'overview.link.terms': 'Условия использования',
+        'overview.link.privacy': 'Политика конфиденциальности',
+        'overview.link.noFees': 'Политика отсутствия рекрутинговых сборов',
+        'overview.link.candidate': 'Соглашение кандидата-моряка',
+        'overview.link.shipowner': 'Условия сервиса для судовладельца',
+        'overview.link.agent': 'Рамочный договор судовладельца и агента',
+        'overview.link.complaints': 'Процедура рассмотрения жалоб',
+        'overview.externalTitle': 'Международные источники',
+        'overview.externalCopy': 'Следующие публичные источники используются как ориентиры для стандартов портала. Этот обзор носит информационный характер и не является юридической консультацией.',
+        'overview.sourceTitle': 'Источник и управление',
+        'overview.sourceCopy': 'Эта публичная страница основана на CPG-BIZ-139 и текущих бизнес-процессах и implemented-code standards CrewPortGlobal. Публичные документы публикуются в одном каноническом месте в разделе /legal/; другие страницы могут ссылаться на этот обзор, но не должны дублировать полный текст.'
+      }
+    };
+  </script>
+  <script src="/assets/crewportglobal-machine-translations.js?v=53345f0f8938ec76" defer></script>
+  <script src="../../assets/crewportglobal-public-i18n.js?v=20260530-menu-audit" defer></script>
+  <style>
+    .overview-page {
+      display: grid;
+      gap: 16px;
+    }
+
+    .overview-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+      gap: 18px;
+      align-items: end;
+      padding: 22px;
+    }
+
+    .overview-hero h1 {
+      max-width: 900px;
+      margin: 0;
+    }
+
+    .overview-signal,
+    .overview-note {
+      display: grid;
+      gap: 8px;
+      padding: 14px;
+      border: 1px solid rgba(82, 198, 220, 0.45);
+      border-radius: 8px;
+      background: rgba(82, 198, 220, 0.08);
+    }
+
+    .overview-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .overview-meta span,
+    .overview-link-list a,
+    .overview-reference-list a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 8px 10px;
+      border: 1px solid var(--app-line);
+      border-radius: 8px;
+      color: var(--app-ink);
+      background: var(--app-surface-2);
+      text-decoration: none;
+    }
+
+    .overview-link-list a:hover,
+    .overview-link-list a:focus-visible,
+    .overview-reference-list a:hover,
+    .overview-reference-list a:focus-visible {
+      color: #fff;
+      background: var(--app-ocean);
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .overview-card,
+    .overview-flow {
+      display: grid;
+      gap: 8px;
+      padding: 14px;
+      border: 1px solid var(--app-line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .overview-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .overview-list li,
+    .overview-card span,
+    .overview-note span,
+    .overview-flow span {
+      color: var(--app-muted);
+      line-height: 1.55;
+    }
+
+    .overview-flow code {
+      white-space: normal;
+      color: var(--app-ink);
+      font-weight: 800;
+    }
+
+    .overview-two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .overview-link-list,
+    .overview-reference-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .overview-hero,
+      .overview-grid,
+      .overview-two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="doc-body cpg-app-page" data-enable-public-translate="true">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark" translate="no">CPG</span>
+        <span class="brand-copy">
+          <strong translate="no">CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div data-cpg-theme-switcher></div>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+      <div data-cpg-account-area></div>
+    </header>
+
+    <div data-cpg-navigation="documents" data-cpg-nav-active="/legal/platform-overview/"></div>
+    <script src="../../assets/crewportglobal-navigation.js?v=20260530-menu-audit"></script>
+
+    <main class="doc-main overview-page">
+      <section class="card overview-hero">
+        <div>
+          <p class="eyebrow" data-i18n="overview.eyebrow">Platform overview</p>
+          <h1 data-i18n="overview.title">CrewPortGlobal portal overview and operating standards</h1>
+          <p class="lead-copy" data-i18n="overview.lead">CrewPortGlobal is an international maritime workflow platform for seafarers, shipowners, vessel operators, ship managers, agents and platform review teams.</p>
+          <div class="overview-meta">
+            <span data-i18n="overview.version">Public overview v1.0</span>
+            <span data-i18n="overview.updated">Published 2026-07-08</span>
+            <span data-i18n="overview.status">Stage 1 technology and workflow service</span>
+          </div>
+        </div>
+        <div class="overview-signal">
+          <strong data-i18n="overview.signalTitle">Action-first maritime workflow</strong>
+          <span data-i18n="overview.signalCopy">Participants create records, upload evidence, receive tasks, review terms, prepare contracts and move controlled work objects through a traceable process.</span>
+        </div>
+      </section>
+
+      <section class="card overview-two-col">
+        <div>
+          <p class="eyebrow">01</p>
+          <h2 data-i18n="overview.introTitle">What CrewPortGlobal is built to do</h2>
+          <p data-i18n="overview.introCopy">CrewPortGlobal organizes maritime crewing work around structured data, reviewed evidence, controlled tasks and clear participant authority. The portal is not intended to be a reading library; it is designed to support practical work and preserve an audit trail before the next stage of a workflow is allowed.</p>
+        </div>
+        <div class="overview-note">
+          <strong data-i18n="overview.scopeTitle">Current Stage 1 position</strong>
+          <span data-i18n="overview.scopeCopy">CrewPortGlobal is operated as a technology and workflow service. It does not present itself as a licensed manning agency or employment agency unless and until required approvals are confirmed. Recruitment or placement activity requiring licensing must be performed only after regulatory confirmation or through appropriately licensed partners.</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <p class="eyebrow">02</p>
+        <h2 data-i18n="overview.participantsTitle">Participants and roles</h2>
+        <div class="overview-grid">
+          <div class="overview-card"><strong data-i18n="overview.participant.seafarer.title">Seafarer</strong><span data-i18n="overview.participant.seafarer.copy">Creates and maintains a professional maritime profile, uploads documents, reviews opportunities and must not be charged recruitment or placement fees for access to work opportunities.</span></div>
+          <div class="overview-card"><strong data-i18n="overview.participant.shipowner.title">Shipowner / employer</strong><span data-i18n="overview.participant.shipowner.copy">Registers company, vessel and crew-request context, reviews controlled candidate presentations and may initiate contracts and agent appointment processes.</span></div>
+          <div class="overview-card"><strong data-i18n="overview.participant.agent.title">Agent / agent company</strong><span data-i18n="overview.participant.agent.copy">Acts within verified authority, prepares work objects, assists with contract drafting and supports both sides within controlled platform boundaries.</span></div>
+          <div class="overview-card"><strong data-i18n="overview.participant.team.title">Platform review team</strong><span data-i18n="overview.participant.team.copy">Reviews profiles, documents, companies, vessels, matching results, shortlists and presentation readiness.</span></div>
+          <div class="overview-card"><strong data-i18n="overview.participant.control.title">Platform Administration / Control</strong><span data-i18n="overview.participant.control.copy">Reviews authority, access, conflicts, assignment exceptions, governance blockers and admin-level permission changes.</span></div>
+          <div class="overview-card"><strong data-i18n="overview.participant.billing.title">Billing / commercial group</strong><span data-i18n="overview.participant.billing.copy">Handles future Service Orders, commercial addenda, price-basis records and billing evidence.</span></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <p class="eyebrow">03</p>
+        <h2 data-i18n="overview.functionsTitle">Implemented functional areas</h2>
+        <ul class="overview-list">
+          <li data-i18n="overview.function.shell">Shared application shell, navigation and multilingual public pages.</li>
+          <li data-i18n="overview.function.registration">User registration, authentication, email-code access and personal cabinet entry.</li>
+          <li data-i18n="overview.function.seafarer">Seafarer profile workspace with structured forms, autosave, completeness navigation and document readiness controls.</li>
+          <li data-i18n="overview.function.employer">Employer and shipowner intake for company, vessel and crew-request context.</li>
+          <li data-i18n="overview.function.review">Operator and team review surfaces for profiles, companies, vessels, documents, vacancies, matching and shortlists.</li>
+          <li data-i18n="overview.function.market">Vacancy and job-search flows with controlled review before candidate-facing or employer-facing use.</li>
+          <li data-i18n="overview.function.agent">Agent organization scope, authority evidence, object assignments, agent tasks and managed object workspaces.</li>
+          <li data-i18n="overview.function.appointment">Shipowner-to-agent framework offer, agent acceptance, platform authority evidence, one-active-manager assignment and participant notification ledger entries.</li>
+          <li data-i18n="overview.function.contracts">Unified Contract Agreement Workspace foundation and agent-assisted drafting of direct seafarer-shipowner contracts.</li>
+          <li data-i18n="overview.function.admin">Public legal documents hub, access administration and owner/admin executable menu links.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <p class="eyebrow">04</p>
+        <h2 data-i18n="overview.processTitle">How work moves through the portal</h2>
+        <p data-i18n="overview.processCopy">The portal computes participant tasks from business records. A task is visible only when a participant, representative or team has a valid relationship to the current object and process stage.</p>
+        <div class="overview-flow">
+          <code data-i18n="overview.processFlow">information stream -> working object -> object state -> business-process stage -> responsible participant or group -> visible task -> exact working object link -> evidence and audit record -> next computed stage</code>
+        </div>
+        <div class="overview-note">
+          <strong data-i18n="overview.evidenceTitle">Evidence and audit principle</strong>
+          <span data-i18n="overview.evidenceCopy">Every important action should leave a record: registration, email confirmation, profile save, document upload, review result, candidate presentation, agreement offer, authority record, assignment, notification, draft update and contract review request.</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <p class="eyebrow">05</p>
+        <h2 data-i18n="overview.standardsTitle">International maritime standards alignment</h2>
+        <div class="overview-two-col">
+          <div class="overview-card">
+            <strong data-i18n="overview.mlcTitle">MLC 2006 alignment</strong>
+            <span data-i18n="overview.mlcCopy">CrewPortGlobal is designed to support no-fee access for seafarers, seafarer review of contract conditions, wage and repatriation visibility, complaint routes, controlled recruitment and placement evidence, and human review before candidate presentation or contract-critical steps.</span>
+          </div>
+          <div class="overview-card">
+            <strong data-i18n="overview.stcwTitle">STCW alignment</strong>
+            <span data-i18n="overview.stcwCopy">CrewPortGlobal treats rank, certificates, training, endorsements, watchkeeping-related qualifications and document readiness as structured evidence rather than free marketing text.</span>
+          </div>
+        </div>
+        <div class="overview-note">
+          <strong data-i18n="overview.limitsTitle">What the portal does not certify</strong>
+          <span data-i18n="overview.limitsCopy">CrewPortGlobal does not automatically certify that a participant, vessel, document, contract or employment decision satisfies all applicable law. The portal provides workflow discipline, evidence structure, review controls and audit records that support lawful decision-making by responsible parties and competent professionals.</span>
+        </div>
+      </section>
+
+      <section class="card overview-two-col">
+        <div>
+          <p class="eyebrow">06</p>
+          <h2 data-i18n="overview.contractTitle">Contracts, authority and agents</h2>
+          <p data-i18n="overview.contractCopy">CrewPortGlobal separates legal authority, operational workflow and commercial terms. A physical person should control personal account credentials. A representative may receive operational rights only through verified authority evidence and platform assignment. A shipowner sends an offer to an agent; the appointment becomes active only after the agent accepts the standard framework agreement inside the platform and authority records are created.</p>
+        </div>
+        <div class="overview-note">
+          <strong data-i18n="overview.agentDraftingTitle">Agent-assisted drafting</strong>
+          <span data-i18n="overview.agentDraftingCopy">Agent-assisted drafting is preparation, not automatic final signature by the agent. Direct seafarer-shipowner contract terms must remain visible to the real parties for review and approval.</span>
+        </div>
+      </section>
+
+      <section class="card overview-two-col">
+        <div class="overview-note">
+          <strong data-i18n="overview.noFeeTitle">No-fee boundary</strong>
+          <span data-i18n="overview.noFeeCopy">CrewPortGlobal must not be used to charge seafarers recruitment, placement or employment-access fees. Optional services for seafarers must be voluntary, separated from job access and not a condition for matching.</span>
+        </div>
+        <div>
+          <h2 data-i18n="overview.notTitle">CrewPortGlobal is not</h2>
+          <ul class="overview-list">
+            <li data-i18n="overview.notFake">a source of fake vacancies, fake employers or decorative marketplace activity;</li>
+            <li data-i18n="overview.notFees">a system that charges seafarers for recruitment or placement;</li>
+            <li data-i18n="overview.notLegal">an automatic legal certification system or legal-advice substitute;</li>
+            <li data-i18n="overview.notDecision">an automatic employment-decision engine;</li>
+            <li data-i18n="overview.notExternal">a tool that turns an external private contract into platform authority without CrewPortGlobal controlled authority and assignment process.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <p class="eyebrow">07</p>
+        <h2 data-i18n="overview.linksTitle">Public document links</h2>
+        <div class="overview-link-list">
+          <a href="/legal/" data-i18n="overview.link.legal">Documents and standards hub</a>
+          <a href="/legal/terms/" data-i18n="overview.link.terms">Terms of Service</a>
+          <a href="/legal/privacy/" data-i18n="overview.link.privacy">Privacy Policy</a>
+          <a href="/legal/no-recruitment-fees/" data-i18n="overview.link.noFees">No Recruitment Fees Policy</a>
+          <a href="/legal/seafarer-candidate-agreement/" data-i18n="overview.link.candidate">Seafarer Candidate Agreement</a>
+          <a href="/legal/shipowner-service-terms/" data-i18n="overview.link.shipowner">Shipowner Service Terms</a>
+          <a href="/legal/agent-agreement/" data-i18n="overview.link.agent">Shipowner-Agent Framework Agreement</a>
+          <a href="/legal/complaints/" data-i18n="overview.link.complaints">Complaint Handling Procedure</a>
+        </div>
+      </section>
+
+      <section class="card overview-two-col">
+        <div>
+          <p class="eyebrow">08</p>
+          <h2 data-i18n="overview.externalTitle">International references</h2>
+          <p data-i18n="overview.externalCopy">The following public references are used as alignment points for the portal standards. This overview is informational and is not legal advice.</p>
+          <div class="overview-reference-list">
+            <a href="https://www.ilo.org/international-labour-standards/maritime-labour-convention-2006" rel="noopener">ILO MLC 2006</a>
+            <a href="https://www.ilo.org/sites/default/files/2024-10/NORMES_MLC%20Amendments-EN_2022_Web_1.pdf" rel="noopener">ILO MLC amended text</a>
+            <a href="https://www.imo.org/en/ourwork/humanelement/pages/stcw-conv-link.aspx" rel="noopener">IMO STCW</a>
+          </div>
+        </div>
+        <div class="overview-note">
+          <strong data-i18n="overview.sourceTitle">Source and governance</strong>
+          <span data-i18n="overview.sourceCopy">This public page is based on CPG-BIZ-139 and the current CrewPortGlobal business-process and implemented-code standards. Public documents are published in one canonical place under /legal/; other pages may link to this overview but should not duplicate the full text.</span>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

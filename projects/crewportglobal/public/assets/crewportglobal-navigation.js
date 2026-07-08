@@ -8,6 +8,7 @@
 
   const DOCUMENT_LINKS = [
     { href: '/legal/', key: 'nav.documents', label: 'Documents' },
+    { href: '/legal/platform-overview/', key: 'nav.platformOverview', label: 'Portal Overview' },
     { href: '/legal/terms/', key: 'nav.terms', label: 'Terms' },
     { href: '/legal/privacy/', key: 'nav.privacy', label: 'Privacy' },
     { href: '/legal/no-recruitment-fees/', key: 'nav.noRecruitmentFees', label: 'No Recruitment Fees' },
@@ -102,6 +103,7 @@
       hint: 'Open legal, trust and policy documents.',
       links: [
         { href: '/legal/', key: 'nav.documents', label: 'Documents', hint: 'Document hub.' },
+        { href: '/legal/platform-overview/', key: 'nav.platformOverview', label: 'Portal Overview', hintKey: 'nav.platformOverviewHint', hint: 'Consolidated overview of the portal, implemented functions, process logic and international maritime standards alignment.' },
         { href: '/legal/terms/', key: 'nav.terms', label: 'Terms', hint: 'Platform terms.' },
         { href: '/legal/privacy/', key: 'nav.privacy', label: 'Privacy', hint: 'Privacy policy.' },
         { href: '/legal/no-recruitment-fees/', key: 'nav.noRecruitmentFees', label: 'No Recruitment Fees', hint: 'No-fee rule for seafarers.' },
@@ -200,6 +202,8 @@
       'nav.documents': 'Документы',
       'nav.documentsMenu': 'Меню документов',
       'nav.documentsHint': 'Открыть юридические документы, trust-center и политики.',
+      'nav.platformOverview': 'Описание портала',
+      'nav.platformOverviewHint': 'Сводное описание портала, реализованных функций, логики процессов и связи с международными морскими стандартами.',
       'nav.terms': 'Условия',
       'nav.privacy': 'Конфиденциальность',
       'nav.noRecruitmentFees': 'Без рекрутинговых сборов',
