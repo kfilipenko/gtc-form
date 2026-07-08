@@ -5,7 +5,7 @@
 - Documentation block: Business processes and operating model
 - Document type: Dedicated business-process register
 - Format: Markdown
-- Version: 3.69
+- Version: 3.71
 - Status: For internal review
 
 ## 1. Purpose
@@ -182,6 +182,7 @@ This documentation block starts from the following approved business controls:
 100. Contract templates must carry a required appendix/evidence registry. Authority/POA, delegated scope, no-fee acknowledgement, commercial status, Service Order reference where applicable, notification ledger references and signature/acceptance evidence must be structured checklist/source records, not untracked free-text attachments.
 101. Agent-assisted direct contract drafting is the approved main working mode for ordinary crewing-agent involvement in a direct seafarer-shipowner contract: an authorized agent may open eligible direct SEA workspaces, prepare permitted contract-variable proposals from agreed terms and send the populated draft to the real parties, but verified source facts remain database-filled, fixed clauses remain immutable and final party approval/signature remains required by default.
 102. The first runtime slice of agent-assisted direct contract drafting is implemented as ICS-005: agent tasks must open the exact Contract Workspace, assignment/authority/source scope must be checked by backend guard, permitted embedded fields may be saved with preview-hash/audit evidence, and party-review requests must create approval-request rows plus participant notification ledger records without giving the agent party-signature authority.
+103. The agent contract workflow must be discoverable from the shared Agents menu and must expose preparation, terms agreement, draft editing and party-review transfer as subordinate accordion items under the `Contracts` menu item. Menu or page links may add UI anchors, but must preserve backend-computed task targets and must not open a blank unguarded contract generator.
 
 ## 5. Intended Use
 
@@ -201,6 +202,8 @@ Documents in this block are intended to become source material for:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.71 | 2026-07-08 | GTC IT / AI Assistant | Clarified CPG-BIZ-138 menu control: agent contract stages must be nested under the `Contracts` accordion item in the shared Agents menu |
+| 3.70 | 2026-07-08 | GTC IT / AI Assistant | Added CPG-BIZ-138 control for shared agent contract workflow menu and `/agents/contracts/` page: prepare contract, agree terms, edit draft and send to parties via computed task targets only |
 | 3.69 | 2026-07-08 | GTC IT / AI Assistant | Added implemented ICS-005 control for CPG-BIZ-137 first runtime slice: exact agent contract workspace task, guarded assignment/authority/source access, permitted embedded-field save, preview hash/audit and party-review notification request |
 | 3.68 | 2026-06-19 | GTC IT / AI Assistant | Added CPG-BIZ-137 control for agent-assisted direct contract drafting through the existing Contract Agreement Workspace with party review/signature preserved |
 | 3.67 | 2026-06-19 | GTC IT / AI Assistant | Added CPG-BIZ-135 controls for unified multi-template contract workspace/generation, agent agreements with both sides and required appendix/evidence registry |

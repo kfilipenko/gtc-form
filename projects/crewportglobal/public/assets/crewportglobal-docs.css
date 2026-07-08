@@ -867,6 +867,75 @@ html[data-cpg-theme="light"] .cpg-account__field input {
   text-align: left;
 }
 
+.nav-submenu {
+  width: 100%;
+}
+
+.nav-submenu__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  color: var(--text-on-dark);
+  border: 1px solid rgba(126, 201, 217, 0.22);
+  border-radius: 12px;
+  background: rgba(86, 210, 226, 0.1);
+  cursor: pointer;
+  list-style: none;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.nav-submenu__summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-submenu__home {
+  min-width: 0;
+  color: inherit;
+  font: inherit;
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.nav-submenu__home:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.nav-submenu[open] > .nav-submenu__summary .nav-menu__chevron {
+  transform: rotate(180deg);
+}
+
+.nav-submenu[open] > .nav-submenu__summary,
+.nav-submenu__summary.is-active,
+.nav-submenu__summary:hover,
+.nav-submenu__summary:focus-visible {
+  color: #06111b;
+  border-color: transparent;
+  background: var(--teal);
+  outline: none;
+}
+
+.nav-submenu__panel {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  padding-left: 12px;
+  border-left: 2px solid rgba(86, 210, 226, 0.35);
+}
+
+.nav-submenu__panel .nav-link {
+  min-height: 38px;
+  padding: 9px 10px;
+  border-color: rgba(126, 201, 217, 0.16);
+  border-radius: 10px;
+  background: rgba(3, 10, 18, 0.2);
+  font-size: 13px;
+}
+
 .nav-section-label {
   display: inline-flex;
   align-items: center;

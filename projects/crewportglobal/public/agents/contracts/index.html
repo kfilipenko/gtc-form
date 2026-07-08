@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CrewPortGlobal | Agent Contracts</title>
+  <meta name="description" content="Agent contract workflow for scoped direct contract drafting tasks.">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="canonical" href="https://crewportglobal.com/agents/contracts/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/assets/crewportglobal-docs.css?v=20260530-menu-audit">
+  <link rel="stylesheet" href="/assets/crewportglobal-app.css">
+  <script>
+    window.CREWPORTGLOBAL_PAGE_TRANSLATIONS = {
+      en: {
+        'agent.contracts.eyebrow': 'Agent contracts',
+        'agent.contracts.title': 'Contract workflow.',
+        'agent.contracts.copy': 'Prepare direct seafarer-shipowner contracts through scoped tasks, controlled terms and party review.',
+        'agent.contracts.statusTitle': 'Controlled workspace only.',
+        'agent.contracts.statusLoading': 'Loading contract drafting tasks.',
+        'agent.contracts.statusReady': 'Contract drafting tasks loaded.',
+        'agent.contracts.statusSession': 'Agent session required.',
+        'agent.contracts.statusError': 'Unable to load contract workflow.',
+        'agent.contracts.prepare.title': 'Prepare contract',
+        'agent.contracts.prepare.copy': 'Open eligible computed tasks that create or reuse a direct Contract Workspace.',
+        'agent.contracts.terms.title': 'Agree terms',
+        'agent.contracts.terms.copy': 'Work with controlled salary, duration, joining, travel and repatriation fields.',
+        'agent.contracts.edit.title': 'Edit draft',
+        'agent.contracts.edit.copy': 'Open the guarded workspace and update permitted embedded fields only.',
+        'agent.contracts.review.title': 'Send to parties',
+        'agent.contracts.review.copy': 'Send the populated draft to the seafarer and shipowner for direct review.',
+        'agent.contracts.openStage': 'Open stage',
+        'agent.contracts.noTask': 'No task available',
+        'agent.contracts.queue.eyebrow': 'Computed queue',
+        'agent.contracts.queue.title': 'Direct contract drafting tasks',
+        'agent.contracts.queue.empty': 'No contract drafting tasks are available for this agent account.',
+        'agent.contracts.queue.session': 'Sign in with an active agent account to see contract drafting tasks.',
+        'agent.contracts.openWorkspace': 'Open workspace',
+        'agent.contracts.openTerms': 'Terms',
+        'agent.contracts.openEdit': 'Edit',
+        'agent.contracts.openReview': 'Review request',
+        'agent.contracts.boundary.eyebrow': 'Control boundary',
+        'agent.contracts.boundary.title': 'What the agent can do',
+        'agent.contracts.boundary.copy': 'The agent prepares values. The parties review and sign directly.',
+        'agent.contracts.boundary.source': 'Verified source records stay read-only.',
+        'agent.contracts.boundary.fields': 'Only permitted embedded fields are editable.',
+        'agent.contracts.boundary.audit': 'Each save and review request is recorded.',
+        'agent.contracts.boundary.signature': 'No agent signature authority is granted here.',
+        'agent.contracts.backPortal': 'Back to agent portal'
+      },
+      ru: {
+        'agent.contracts.eyebrow': 'Договоры агента',
+        'agent.contracts.title': 'Процесс работы с договором.',
+        'agent.contracts.copy': 'Подготовка прямого договора моряка и судовладельца через задачи агента, контролируемые условия и утверждение сторонами.',
+        'agent.contracts.statusTitle': 'Только контролируемое рабочее пространство.',
+        'agent.contracts.statusLoading': 'Загружаем задачи подготовки договоров.',
+        'agent.contracts.statusReady': 'Задачи подготовки договоров загружены.',
+        'agent.contracts.statusSession': 'Требуется сессия агента.',
+        'agent.contracts.statusError': 'Не удалось загрузить процесс договоров.',
+        'agent.contracts.prepare.title': 'Подготовить договор',
+        'agent.contracts.prepare.copy': 'Открыть допустимые вычисляемые задачи, которые создают или переиспользуют прямой Contract Workspace.',
+        'agent.contracts.terms.title': 'Согласовать условия',
+        'agent.contracts.terms.copy': 'Работать с контролируемыми полями зарплаты, срока, посадки, дороги и репатриации.',
+        'agent.contracts.edit.title': 'Редактировать проект',
+        'agent.contracts.edit.copy': 'Открыть защищенное рабочее пространство и изменить только разрешенные embedded fields.',
+        'agent.contracts.review.title': 'Передать сторонам',
+        'agent.contracts.review.copy': 'Направить заполненный проект моряку и судовладельцу для прямой проверки.',
+        'agent.contracts.openStage': 'Открыть этап',
+        'agent.contracts.noTask': 'Нет доступной задачи',
+        'agent.contracts.queue.eyebrow': 'Вычисляемая очередь',
+        'agent.contracts.queue.title': 'Задачи подготовки прямого договора',
+        'agent.contracts.queue.empty': 'Для этого агентского аккаунта нет задач подготовки договора.',
+        'agent.contracts.queue.session': 'Войдите через активный аккаунт агента, чтобы увидеть задачи подготовки договора.',
+        'agent.contracts.openWorkspace': 'Открыть workspace',
+        'agent.contracts.openTerms': 'Условия',
+        'agent.contracts.openEdit': 'Редактировать',
+        'agent.contracts.openReview': 'Запрос утверждения',
+        'agent.contracts.boundary.eyebrow': 'Граница контроля',
+        'agent.contracts.boundary.title': 'Что может сделать агент',
+        'agent.contracts.boundary.copy': 'Агент готовит значения. Стороны проверяют и подписывают договор лично.',
+        'agent.contracts.boundary.source': 'Проверенные исходные записи остаются read-only.',
+        'agent.contracts.boundary.fields': 'Редактируются только разрешенные embedded fields.',
+        'agent.contracts.boundary.audit': 'Каждое сохранение и запрос проверки фиксируются.',
+        'agent.contracts.boundary.signature': 'Здесь не выдается право подписи за стороны.',
+        'agent.contracts.backPortal': 'Вернуться в кабинет агента'
+      },
+      pt: {
+        'agent.contracts.eyebrow': 'Contratos do agente',
+        'agent.contracts.title': 'Fluxo de contratos.',
+        'agent.contracts.copy': 'Preparar contratos diretos entre maritimo e armador por tarefas do agente, termos controlados e revisao das partes.',
+        'agent.contracts.statusTitle': 'Apenas workspace controlado.',
+        'agent.contracts.statusLoading': 'A carregar tarefas de preparacao de contratos.',
+        'agent.contracts.statusReady': 'Tarefas de preparacao carregadas.',
+        'agent.contracts.statusSession': 'Sessao de agente necessaria.',
+        'agent.contracts.statusError': 'Nao foi possivel carregar o fluxo de contratos.',
+        'agent.contracts.prepare.title': 'Preparar contrato',
+        'agent.contracts.prepare.copy': 'Abrir tarefas calculadas que criam ou reutilizam um Contract Workspace direto.',
+        'agent.contracts.terms.title': 'Acordar termos',
+        'agent.contracts.terms.copy': 'Trabalhar com salario, duracao, embarque, viagem e repatriacao controlados.',
+        'agent.contracts.edit.title': 'Editar minuta',
+        'agent.contracts.edit.copy': 'Abrir o workspace protegido e alterar apenas campos incorporados permitidos.',
+        'agent.contracts.review.title': 'Enviar as partes',
+        'agent.contracts.review.copy': 'Enviar a minuta preenchida ao maritimo e ao armador para revisao direta.',
+        'agent.contracts.openStage': 'Abrir etapa',
+        'agent.contracts.noTask': 'Nenhuma tarefa disponivel',
+        'agent.contracts.queue.eyebrow': 'Fila calculada',
+        'agent.contracts.queue.title': 'Tarefas de contrato direto',
+        'agent.contracts.queue.empty': 'Nao ha tarefas de preparacao de contrato para esta conta de agente.',
+        'agent.contracts.queue.session': 'Entre com uma conta de agente ativa para ver tarefas de contrato.',
+        'agent.contracts.openWorkspace': 'Abrir workspace',
+        'agent.contracts.openTerms': 'Termos',
+        'agent.contracts.openEdit': 'Editar',
+        'agent.contracts.openReview': 'Pedido de revisao',
+        'agent.contracts.boundary.eyebrow': 'Limite de controle',
+        'agent.contracts.boundary.title': 'O que o agente pode fazer',
+        'agent.contracts.boundary.copy': 'O agente prepara valores. As partes revisam e assinam diretamente.',
+        'agent.contracts.boundary.source': 'Registros verificados ficam somente leitura.',
+        'agent.contracts.boundary.fields': 'Apenas campos incorporados permitidos sao editaveis.',
+        'agent.contracts.boundary.audit': 'Cada salvamento e pedido de revisao sao registrados.',
+        'agent.contracts.boundary.signature': 'Nenhuma autoridade de assinatura do agente e concedida aqui.',
+        'agent.contracts.backPortal': 'Voltar ao portal do agente'
+      }
+    };
+  </script>
+  <script src="/assets/crewportglobal-public-i18n.js?v=20260530-menu-audit" defer></script>
+  <style>
+    .agent-contract-layout {
+      display: grid;
+      gap: 16px;
+    }
+
+    .agent-contract-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(220px, 340px);
+      gap: 16px;
+      align-items: stretch;
+      padding: 20px;
+    }
+
+    .agent-contract-status,
+    .agent-contract-stage,
+    .agent-contract-task,
+    .agent-contract-boundary li {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .agent-contract-status {
+      display: grid;
+      align-content: center;
+      gap: 8px;
+      padding: 14px;
+    }
+
+    .agent-contract-stage-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .agent-contract-stage {
+      display: grid;
+      gap: 10px;
+      align-content: space-between;
+      min-height: 190px;
+      padding: 14px;
+    }
+
+    .agent-contract-stage h2,
+    .agent-contract-task strong {
+      margin: 0;
+      color: var(--text-on-dark);
+      line-height: 1.25;
+    }
+
+    .agent-contract-stage p,
+    .agent-contract-copy,
+    .agent-contract-meta,
+    .agent-contract-status span {
+      color: var(--muted-on-dark);
+      line-height: 1.45;
+    }
+
+    .agent-contract-stage p,
+    .agent-contract-copy,
+    .agent-contract-meta {
+      font-size: 14px;
+    }
+
+    .agent-contract-link {
+      display: inline-flex;
+      width: fit-content;
+      max-width: 100%;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid rgba(82, 198, 220, 0.55);
+      border-radius: 8px;
+      color: var(--text-on-dark);
+      font-size: 13px;
+      font-weight: 900;
+      text-decoration: none;
+      background: rgba(82, 198, 220, 0.1);
+    }
+
+    .agent-contract-link:hover,
+    .agent-contract-link:focus-visible {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    .agent-contract-link[aria-disabled="true"] {
+      border-color: var(--line);
+      color: var(--muted-on-dark);
+      pointer-events: none;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .agent-contract-task-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .agent-contract-task {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px;
+    }
+
+    .agent-contract-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .agent-contract-pill {
+      display: inline-flex;
+      width: fit-content;
+      max-width: 100%;
+      align-items: center;
+      min-height: 26px;
+      padding: 4px 9px;
+      border: 1px solid rgba(82, 198, 220, 0.55);
+      border-radius: 999px;
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .agent-contract-boundary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .agent-contract-boundary li {
+      min-height: 74px;
+      padding: 12px;
+      color: var(--muted-on-dark);
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 980px) {
+      .agent-contract-hero,
+      .agent-contract-stage-grid,
+      .agent-contract-boundary {
+        grid-template-columns: 1fr;
+      }
+
+      .agent-contract-task {
+        grid-template-columns: 1fr;
+      }
+
+      .agent-contract-actions {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body class="doc-body cpg-app-page">
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="https://crewportglobal.com/">
+        <span class="brand-mark">CPG</span>
+        <span class="brand-copy">
+          <strong>CrewPortGlobal</strong>
+          <span data-i18n="site.tagline">Maritime documentation and matching platform</span>
+        </span>
+      </a>
+      <div data-cpg-theme-switcher></div>
+      <div id="language-selector" class="language-selector">
+        <button id="current-language-toggle" class="language-toggle" type="button" aria-expanded="false" aria-controls="header-language-menu" aria-label="Open language selector">
+          <span class="language-toggle__flag" id="current-language-flag" aria-hidden="true">🇬🇧</span>
+          <span class="language-toggle__copy">
+            <span class="language-toggle__hint" data-i18n="site.languageLabel">Language</span>
+            <span class="language-toggle__label" id="current-language-label">English</span>
+          </span>
+          <span class="language-toggle__chevron" aria-hidden="true">▾</span>
+        </button>
+        <div id="header-language-menu" class="language-menu" hidden>
+          <div id="header-language-options" class="language-menu__options" role="listbox" aria-label="Language options"></div>
+        </div>
+      </div>
+      <div data-cpg-account-area></div>
+    </header>
+
+    <div data-cpg-navigation="application" data-cpg-nav-active="/agents/contracts/"></div>
+    <script src="/assets/crewportglobal-navigation.js?v=20260530-menu-audit"></script>
+
+    <main class="doc-main agent-contract-layout">
+      <section class="card agent-contract-hero">
+        <div>
+          <p class="eyebrow" data-i18n="agent.contracts.eyebrow">Agent contracts</p>
+          <h1 data-i18n="agent.contracts.title">Contract workflow.</h1>
+          <p class="lead-copy" data-i18n="agent.contracts.copy">Prepare direct seafarer-shipowner contracts through scoped tasks, controlled terms and party review.</p>
+        </div>
+        <div class="agent-contract-status" aria-live="polite">
+          <strong id="agent-contract-status-title" data-i18n="agent.contracts.statusTitle">Controlled workspace only.</strong>
+          <span id="agent-contract-status-copy" data-i18n="agent.contracts.statusLoading">Loading contract drafting tasks.</span>
+        </div>
+      </section>
+
+      <section class="agent-contract-stage-grid" aria-label="Agent contract stages">
+        <article class="agent-contract-stage" id="prepare-contract">
+          <div>
+            <p class="eyebrow">01</p>
+            <h2 data-i18n="agent.contracts.prepare.title">Prepare contract</h2>
+            <p data-i18n="agent.contracts.prepare.copy">Open eligible computed tasks that create or reuse a direct Contract Workspace.</p>
+          </div>
+          <a class="agent-contract-link" data-stage-link="prepare" href="#contract-tasks" data-i18n="agent.contracts.openStage">Open stage</a>
+        </article>
+
+        <article class="agent-contract-stage" id="agree-terms">
+          <div>
+            <p class="eyebrow">02</p>
+            <h2 data-i18n="agent.contracts.terms.title">Agree terms</h2>
+            <p data-i18n="agent.contracts.terms.copy">Work with controlled salary, duration, joining, travel and repatriation fields.</p>
+          </div>
+          <a class="agent-contract-link" data-stage-link="terms" href="#contract-tasks" data-i18n="agent.contracts.openStage">Open stage</a>
+        </article>
+
+        <article class="agent-contract-stage" id="edit-draft">
+          <div>
+            <p class="eyebrow">03</p>
+            <h2 data-i18n="agent.contracts.edit.title">Edit draft</h2>
+            <p data-i18n="agent.contracts.edit.copy">Open the guarded workspace and update permitted embedded fields only.</p>
+          </div>
+          <a class="agent-contract-link" data-stage-link="edit" href="#contract-tasks" data-i18n="agent.contracts.openStage">Open stage</a>
+        </article>
+
+        <article class="agent-contract-stage" id="party-review">
+          <div>
+            <p class="eyebrow">04</p>
+            <h2 data-i18n="agent.contracts.review.title">Send to parties</h2>
+            <p data-i18n="agent.contracts.review.copy">Send the populated draft to the seafarer and shipowner for direct review.</p>
+          </div>
+          <a class="agent-contract-link" data-stage-link="review" href="#contract-tasks" data-i18n="agent.contracts.openStage">Open stage</a>
+        </article>
+      </section>
+
+      <section class="card" id="contract-tasks">
+        <p class="eyebrow" data-i18n="agent.contracts.queue.eyebrow">Computed queue</p>
+        <h2 data-i18n="agent.contracts.queue.title">Direct contract drafting tasks</h2>
+        <div id="agent-contract-task-list" class="agent-contract-task-list" aria-live="polite"></div>
+        <p id="agent-contract-empty" class="agent-contract-copy" data-i18n="agent.contracts.queue.empty">No contract drafting tasks are available for this agent account.</p>
+      </section>
+
+      <section class="card">
+        <p class="eyebrow" data-i18n="agent.contracts.boundary.eyebrow">Control boundary</p>
+        <h2 data-i18n="agent.contracts.boundary.title">What the agent can do</h2>
+        <p class="lead-copy" data-i18n="agent.contracts.boundary.copy">The agent prepares values. The parties review and sign directly.</p>
+        <ol class="agent-contract-boundary">
+          <li data-i18n="agent.contracts.boundary.source">Verified source records stay read-only.</li>
+          <li data-i18n="agent.contracts.boundary.fields">Only permitted embedded fields are editable.</li>
+          <li data-i18n="agent.contracts.boundary.audit">Each save and review request is recorded.</li>
+          <li data-i18n="agent.contracts.boundary.signature">No agent signature authority is granted here.</li>
+        </ol>
+      </section>
+
+      <p>
+        <a class="agent-contract-link" href="/agents/" data-i18n="agent.contracts.backPortal">Back to agent portal</a>
+      </p>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      const title = document.getElementById('agent-contract-status-title');
+      const status = document.getElementById('agent-contract-status-copy');
+      const list = document.getElementById('agent-contract-task-list');
+      const empty = document.getElementById('agent-contract-empty');
+      const stageLinks = Array.from(document.querySelectorAll('[data-stage-link]'));
+      const pageTranslations = window.CREWPORTGLOBAL_PAGE_TRANSLATIONS || {};
+      let currentTasks = [];
+
+      const label = (key) => {
+        const language = document.documentElement.lang || 'en';
+        return (pageTranslations[language] && pageTranslations[language][key])
+          || (pageTranslations.en && pageTranslations.en[key])
+          || key;
+      };
+
+      const setText = (node, value) => {
+        if (node) {
+          node.textContent = value;
+        }
+      };
+
+      const makeStageHref = (targetUrl, stage) => {
+        if (!targetUrl) {
+          return '#contract-tasks';
+        }
+        const hash = stage === 'terms' ? 'contract-fields'
+          : stage === 'review' ? 'agent-drafting-panel'
+            : '';
+        if (!hash) {
+          return targetUrl;
+        }
+        try {
+          const url = new URL(targetUrl, window.location.origin);
+          url.hash = hash;
+          return url.origin === window.location.origin
+            ? `${url.pathname}${url.search}${url.hash}`
+            : url.toString();
+        } catch (error) {
+          return `${targetUrl}#${hash}`;
+        }
+      };
+
+      const setStageLinks = (task) => {
+        const targetUrl = task && task.target_url ? task.target_url : '';
+        stageLinks.forEach((link) => {
+          const stage = link.dataset.stageLink || 'prepare';
+          if (!targetUrl) {
+            link.href = '#contract-tasks';
+            link.setAttribute('aria-disabled', 'true');
+            setText(link, label('agent.contracts.noTask'));
+            return;
+          }
+          link.href = makeStageHref(targetUrl, stage);
+          link.removeAttribute('aria-disabled');
+          setText(link, label('agent.contracts.openStage'));
+        });
+      };
+
+      const renderTask = (task) => {
+        const row = document.createElement('article');
+        row.className = 'agent-contract-task';
+        const copy = document.createElement('div');
+        const heading = document.createElement('strong');
+        heading.textContent = task.task_title || task.operation_code || 'Contract drafting task';
+        const meta = document.createElement('div');
+        meta.className = 'agent-contract-meta';
+        meta.textContent = [
+          task.process_stage ? `Stage: ${task.process_stage}` : '',
+          task.object && task.object.object_type ? `Object: ${task.object.object_type}` : '',
+          task.task_state || '',
+          task.visibility_condition || '',
+        ].filter(Boolean).join(' | ');
+        copy.append(heading, meta);
+
+        const actions = document.createElement('div');
+        actions.className = 'agent-contract-actions';
+        [
+          ['agent.contracts.openWorkspace', task.target_url || '#contract-tasks'],
+          ['agent.contracts.openTerms', makeStageHref(task.target_url, 'terms')],
+          ['agent.contracts.openEdit', makeStageHref(task.target_url, 'edit')],
+          ['agent.contracts.openReview', makeStageHref(task.target_url, 'review')],
+        ].forEach(([key, href]) => {
+          const link = document.createElement('a');
+          link.className = 'agent-contract-link';
+          link.href = href;
+          link.textContent = label(key);
+          actions.append(link);
+        });
+
+        const side = document.createElement('div');
+        side.className = 'agent-contract-actions';
+        const pill = document.createElement('span');
+        pill.className = 'agent-contract-pill';
+        pill.textContent = task.task_state || 'computed';
+        side.append(pill, actions);
+
+        row.append(copy, side);
+        return row;
+      };
+
+      const renderTaskList = (tasks) => {
+        if (list) {
+          list.innerHTML = '';
+          tasks.slice(0, 40).forEach((task) => list.append(renderTask(task)));
+        }
+        if (empty) {
+          empty.hidden = tasks.length > 0;
+          setText(empty, label('agent.contracts.queue.empty'));
+        }
+      };
+
+      const refreshDynamicLabels = () => {
+        setStageLinks(currentTasks[0] || null);
+        renderTaskList(currentTasks);
+      };
+
+      const loadTasks = async () => {
+        try {
+          const response = await fetch('/api/v1/agents/contract-drafting/tasks', {
+            credentials: 'include',
+            headers: { Accept: 'application/json' },
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || !payload.ok) {
+            setText(title, label('agent.contracts.statusSession'));
+            setText(status, response.status === 401 ? label('agent.contracts.queue.session') : (payload.message || label('agent.contracts.queue.session')));
+            if (empty) {
+              empty.hidden = false;
+              setText(empty, label('agent.contracts.queue.session'));
+            }
+            setStageLinks(null);
+            return;
+          }
+
+          const tasks = Array.isArray(payload.tasks) ? payload.tasks : [];
+          currentTasks = tasks;
+          setText(title, label('agent.contracts.statusReady'));
+          setText(status, `${tasks.length} task(s)`);
+          setStageLinks(tasks[0] || null);
+          renderTaskList(tasks);
+        } catch (error) {
+          setText(title, label('agent.contracts.statusError'));
+          setText(status, 'Network error');
+          setStageLinks(null);
+        }
+      };
+
+      setStageLinks(null);
+      window.addEventListener('crewportglobal:languagechange', refreshDynamicLabels);
+      loadTasks();
+    })();
+  </script>
+</body>
+</html>

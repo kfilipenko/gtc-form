@@ -51,6 +51,7 @@ handle_post_contract_workspace_submit_party_review()
 Canonical frontend adapters:
 
 ```text
+projects/crewportglobal/public/agents/contracts/index.html
 projects/crewportglobal/public/agents/index.html
 projects/crewportglobal/public/contracts/workspace/index.html
 ```
@@ -125,6 +126,7 @@ Pages and endpoints must not:
 | Surface | Adoption |
 |---|---|
 | `/agents/` | Shows computed contract drafting tasks and opens exact workspace links. |
+| `/agents/contracts/` | Shows the agent contract workflow page; the shared Agents menu exposes prepare contract, agree terms, edit draft and send to parties as subordinate items under the `Contracts` accordion, using computed task targets only. |
 | `/contracts/workspace/` | Supports party mode and guarded agent-assisted mode. |
 | `/api/v1/agents/tasks` | Includes direct contract drafting tasks. |
 | `/api/v1/agents/contract-drafting/tasks` | Dedicated direct contract drafting queue. |
@@ -139,7 +141,8 @@ Required verification:
 3. agent outside source-object scope receives a blocker;
 4. agent can save only permitted embedded fields;
 5. review request creates approval-request rows and notification ledger records;
-6. party mode with `draft_id` remains compatible.
+6. party mode with `draft_id` remains compatible;
+7. `/agents/contracts/` renders the shared `Contracts` accordion with subordinate stage links and does not expose a blank unguarded contract generator.
 
 ## 10. Exceptions
 

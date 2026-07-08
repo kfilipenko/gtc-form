@@ -218,6 +218,8 @@ On 2026-06-19, the Project Owner accepted `agent_assisted_drafting` as the main 
 
 On 2026-07-08, the first runtime slice was implemented and fixed in `docs/crewportglobal/339_cpg_biz_137_agent_assisted_direct_contract_drafting_implementation_report.md` and `docs/crewportglobal/implemented_code_standards/05_standard_agent_assisted_direct_contract_drafting.md`. The agent may open eligible direct SEA workspaces through an exact task link, assignment/authority/source scope is checked by backend guard, permitted embedded fields may be saved with `preview_hash` and audit evidence, and the populated draft may be sent to real parties through approval-request rows and participant notification ledger records. Verified source facts remain database-filled, fixed clauses stay immutable, and final party review/signature remains required by default.
 
+Also on 2026-07-08, `CPG-BIZ-138 - Agent Contract Workflow Menu and Workspace Task` was implemented in `docs/crewportglobal/340_cpg_biz_138_agent_contract_workflow_menu_and_workspace_task.md`. The shared `Agents` menu now exposes `/agents/contracts/` through a `Contracts` accordion, with subordinate stage links for prepare contract, agree terms, edit draft and send to parties for approval. This is a UI/workflow entry only: it preserves backend-computed task targets and must not become a blank contract generator.
+
 On 2026-06-10 the shared public/application header model was fixed as:
 
 ```text

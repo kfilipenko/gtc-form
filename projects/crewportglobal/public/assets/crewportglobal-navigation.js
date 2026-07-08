@@ -77,7 +77,19 @@
         { href: '/create-profile/?actor=agent', key: 'nav.agentSeafarer', label: 'Seafarer', hintKey: 'nav.agentSeafarerHint', hint: 'Create or maintain a seafarer profile for a represented client.' },
         { href: '/post-vacancy/?actor=agent', key: 'nav.agentDemand', label: 'Demand', hintKey: 'nav.agentDemandHint', hint: 'Create shipowner, vessel and vacancy data for a represented client.' },
         { href: '/shipowners/candidates/?actor=agent', key: 'nav.agentCandidates', label: 'Candidates', hintKey: 'nav.agentCandidatesHint', hint: 'Review scoped candidate-selection work.' },
-        { href: '/contracts/workspace/?actor=agent', key: 'nav.agentContracts', label: 'Contracts', hintKey: 'nav.agentContractsHint', hint: 'Open scoped contract workspaces.' },
+        {
+          href: '/agents/contracts/',
+          key: 'nav.agentContracts',
+          label: 'Contracts',
+          hintKey: 'nav.agentContractsHint',
+          hint: 'Open the agent contract workflow with scoped direct contract drafting tasks.',
+          children: [
+            { href: '/agents/contracts/#prepare-contract', key: 'nav.agentContractPrepare', label: 'Prepare Contract', hintKey: 'nav.agentContractPrepareHint', hint: 'Open computed tasks that create or reuse eligible direct Contract Workspaces.' },
+            { href: '/agents/contracts/#agree-terms', key: 'nav.agentContractTerms', label: 'Agree Terms', hintKey: 'nav.agentContractTermsHint', hint: 'Work with controlled salary, duration, joining, travel and repatriation terms.' },
+            { href: '/agents/contracts/#edit-draft', key: 'nav.agentContractEdit', label: 'Edit Draft', hintKey: 'nav.agentContractEditHint', hint: 'Open the guarded Contract Workspace and edit permitted embedded fields only.' },
+            { href: '/agents/contracts/#party-review', key: 'nav.agentContractReview', label: 'Send for Approval', hintKey: 'nav.agentContractReviewHint', hint: 'Send the populated draft to the seafarer and shipowner for direct party review.' },
+          ],
+        },
       ],
     },
     {
@@ -176,7 +188,15 @@
       'nav.agentCandidates': 'Кандидаты',
       'nav.agentCandidatesHint': 'Проверить подбор кандидатов в пределах agent scope.',
       'nav.agentContracts': 'Контракты',
-      'nav.agentContractsHint': 'Открыть contract workspace в пределах agent scope.',
+      'nav.agentContractsHint': 'Открыть агентский процесс договоров с задачами подготовки прямого договора в пределах agent scope.',
+      'nav.agentContractPrepare': 'Подготовить договор',
+      'nav.agentContractPrepareHint': 'Открыть вычисляемые задачи, которые создают или переиспользуют допустимые Contract Workspaces.',
+      'nav.agentContractTerms': 'Согласовать условия',
+      'nav.agentContractTermsHint': 'Работать с контролируемыми условиями зарплаты, срока, посадки, дороги и репатриации.',
+      'nav.agentContractEdit': 'Редактировать проект',
+      'nav.agentContractEditHint': 'Открыть защищенный Contract Workspace и изменить только разрешенные embedded fields.',
+      'nav.agentContractReview': 'Передать на утверждение',
+      'nav.agentContractReviewHint': 'Направить заполненный проект моряку и судовладельцу для прямого утверждения сторонами.',
       'nav.documents': 'Документы',
       'nav.documentsMenu': 'Меню документов',
       'nav.documentsHint': 'Открыть юридические документы, trust-center и политики.',
@@ -252,6 +272,43 @@
     return `<a class="nav-link${active}" href="${absoluteHref(href)}" data-i18n="${item.key}"${titleAttributes(item)}>${item.label}</a>`;
   }
 
+  function itemMatchesActiveHref(item, activeHref) {
+    if (!item || !activeHref) {
+      return false;
+    }
+
+    const href = resolvedHref(item);
+    return item.href === activeHref
+      || href === activeHref
+      || Boolean(item.children && item.children.some((child) => itemMatchesActiveHref(child, activeHref)));
+  }
+
+  function createPanelItem(item, activeHref) {
+    if (item.children && item.children.length) {
+      return createNestedMenu(item, activeHref);
+    }
+
+    return createLink(item, activeHref);
+  }
+
+  function createNestedMenu(item, activeHref) {
+    const href = resolvedHref(item);
+    const active = itemMatchesActiveHref(item, activeHref) ? ' is-active' : '';
+    const open = active ? ' open' : '';
+
+    return [
+      `<details class="nav-submenu"${open}>`,
+      `  <summary class="nav-submenu__summary${active}"${titleAttributes(item)} aria-label="${escapeAttribute(item.label)}" data-i18n-aria-label="${item.key}">`,
+      `    <a class="nav-submenu__home" href="${absoluteHref(href)}" data-i18n="${item.key}">${item.label}</a>`,
+      '    <span class="nav-menu__chevron" aria-hidden="true">▾</span>',
+      '  </summary>',
+      '  <div class="nav-submenu__panel">',
+      item.children.map((child) => createLink(child, activeHref)).join('\n').split('\n').map((line) => `    ${line}`).join('\n'),
+      '  </div>',
+      '</details>',
+    ].join('\n');
+  }
+
   function createApplicationLinks(activeHref) {
     return APPLICATION_LINKS.map((item) => createLink(item, activeHref)).join('\n');
   }
@@ -276,7 +333,7 @@
 
   function createSiteMenuGroup(group, activeHref) {
     const groupHref = group.href || (group.links[0] ? resolvedHref(group.links[0]) : '/');
-    const isActive = groupHref === activeHref || group.links.some((item) => item.href === activeHref || resolvedHref(item) === activeHref);
+    const isActive = groupHref === activeHref || group.links.some((item) => itemMatchesActiveHref(item, activeHref));
     const active = isActive ? ' is-active' : '';
     if (group.links.length === 1) {
       const item = group.links[0];
@@ -290,7 +347,7 @@
       '    <span class="nav-menu__chevron" aria-hidden="true">▾</span>',
       '  </summary>',
       `  <div class="nav-menu__panel" data-i18n-aria-label="${group.menuKey}">`,
-      group.links.map((item) => createLink(item, activeHref)).join('\n').split('\n').map((line) => `    ${line}`).join('\n'),
+      group.links.map((item) => createPanelItem(item, activeHref)).join('\n').split('\n').map((line) => `    ${line}`).join('\n'),
       '  </div>',
       '</details>',
     ].join('\n');
@@ -1041,7 +1098,7 @@
   }
 
   document.addEventListener('click', (event) => {
-    if (event.target.closest('.nav-menu__home')) {
+    if (event.target.closest('.nav-menu__home, .nav-submenu__home')) {
       event.stopPropagation();
     }
   });

@@ -82,6 +82,7 @@ Existing party access remains compatible:
 | Page | Change |
 |---|---|
 | `/agents/` | Contract preparation operation now points to computed tasks instead of a generic empty contract page. |
+| `/agents/contracts/` | Agent contract workflow entry page added by CPG-BIZ-138: prepare contract, agree terms, edit draft and send to parties for approval through computed task targets, exposed as subordinate items under the shared `Contracts` menu accordion. |
 | `/agents/tasks` payload | Contract drafting tasks open the exact workspace URL. |
 | `/contracts/workspace/` | Supports both party mode and agent mode. Agent mode shows assignment/capacity context, editable controls only for permitted fields and a party-review request button. |
 

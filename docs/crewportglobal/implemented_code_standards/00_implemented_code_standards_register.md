@@ -5,7 +5,7 @@
 - Documentation block: Implemented code standards
 - Document type: Dedicated implemented-standard register
 - Format: Markdown
-- Version: 1.13
+- Version: 1.14
 - Date: 2026-07-08
 - Status: Active implementation control
 
@@ -92,7 +92,7 @@ Each implemented standard should have a dedicated document with:
 | ICS-002 | Standard protected upload, including compact one-button row-level document checklist adapters for finite document catalogs and separate employer/vessel form-type adapters on the same page | `projects/crewportglobal/public/assets/crewportglobal-protected-upload.js` with `createController(config)` and `createDocumentChecklist(config)` | `/create-profile/`, `/post-vacancy/` | Active |
 | ICS-003 | Submit-to-operator review gate | `projects/crewportglobal/app/backend/api/public/index.php` / `handle_post_draft_submit_review()` plus `window.CPGDrafts.submitForOperatorReview()` | `/create-profile/`, `/post-vacancy/` | Active |
 | ICS-004 | Shipowner-agent framework offer acceptance standard using authoritative English `CPG-BIZ-132 v1.0` agreement package with Russian `CPG-BIZ-123` kept only as an internal working/reference version | `projects/crewportglobal/app/backend/api/public/index.php` offer/acceptance handlers plus migration `021_agent_framework_offer_notification_ledger.sql` | `/shipowners/candidates/#agent-assignment`, `/agents/` | Active |
-| ICS-005 | Agent-assisted direct contract drafting standard: agent-scoped workspace access, permitted embedded-field saves, preview-hash/audit updates and party-review notification request without agent signature authority | `projects/crewportglobal/app/backend/api/public/index.php` contract workspace and agent task helpers plus `/contracts/workspace/` adapter | `/agents/`, `/contracts/workspace/`, `/api/v1/agents/tasks`, `/api/v1/agents/contract-drafting/tasks` | Active |
+| ICS-005 | Agent-assisted direct contract drafting standard: agent-scoped workspace access, permitted embedded-field saves, preview-hash/audit updates and party-review notification request without agent signature authority | `projects/crewportglobal/app/backend/api/public/index.php` contract workspace and agent task helpers plus `/agents/contracts/` and `/contracts/workspace/` adapters | `/agents/`, `/agents/contracts/`, `/contracts/workspace/`, `/api/v1/agents/tasks`, `/api/v1/agents/contract-drafting/tasks` | Active |
 
 ## 6. Planned Implemented Standards
 
