@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 1.5
+- Version: 1.6
 - Date: 2026-07-09
-- Status: Site, CRM and business process mapping fixed
+- Status: Implementation readiness fixed
 
 ## 1. Purpose
 
@@ -50,6 +50,8 @@ The first stage is intentionally small:
 | `020_travelgtc_biz_001_funnel_crm_mvp_requirements_spec.md` | TRAVELGTC-BIZ-001 - Funnel And CRM MVP Requirements Specification | Fixes public funnel fields, database schema, API contracts, CRM screens, AI agent boundaries, consent text and acceptance tests. | Active MVP requirements |
 | `021_travelgtc_roadmap_001_site_crm_business_process_mapping_task.md` | TRAVELGTC-ROADMAP-001 - Site, CRM And Business Process Mapping | Defines the task for connecting public pages, business processes, CRM states, API events and AI agents. | Implemented |
 | `022_travelgtc_roadmap_001_site_crm_business_process_mapping_spec.md` | TRAVELGTC-ROADMAP-001 - Site, CRM And Business Process Mapping Specification | Fixes the operating roadmap and tables for page-to-process-to-CRM-to-agent implementation. | Active roadmap |
+| `023_travelgtc_prep_001_implementation_readiness_checklist_task.md` | TRAVELGTC-PREP-001 - Implementation Readiness Checklist | Defines the preparation task before sequential API, CRM, AI and integration implementation. | Implemented |
+| `024_travelgtc_prep_001_implementation_readiness_checklist_spec.md` | TRAVELGTC-PREP-001 - Implementation Readiness Checklist Specification | Fixes stack direction, source layout, parent-network/subnetwork rules, compliance guardrails, API/AI readiness and implementation gates. | Active readiness gate |
 
 ## 3. Project Source Locations
 
@@ -78,6 +80,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.6 | 2026-07-09 | GTC IT / AI Assistant | Added implementation readiness checklist before API build |
 | 1.5 | 2026-07-09 | GTC IT / AI Assistant | Added site, CRM and business process mapping roadmap |
 | 1.4 | 2026-07-09 | GTC IT / AI Assistant | Added funnel and CRM MVP requirements |
 | 1.3 | 2026-07-09 | GTC IT / AI Assistant | Added approved funnel, CRM and AI agent platform architecture |
