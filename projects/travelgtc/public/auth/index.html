@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вход и регистрация - Travel Network Lab</title>
+  <meta name="description" content="Регистрация и вход в аккаунт TravelGTC для отправки travel-идеи, заявки или вопроса.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="nav-wrap">
+      <a class="brand" href="/"><strong>Travel Network Lab</strong><span>Путешествия. Сообщества. Возможности.</span></a>
+      <nav class="nav-links" aria-label="Главное меню">
+        <a href="/">Главная</a>
+        <a href="/travel-lifestyle/">Путешествия</a>
+        <a href="/club/">Клуб</a>
+        <a href="/create-trip/">Создать маршрут</a>
+        <a href="/business-model/">Бизнес-модель</a>
+        <a href="/events/">События</a>
+        <a href="/contacts/">Контакты</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="button nav-contact" href="/contacts/">Связаться со мной</a>
+        <div class="account-actions" data-auth-state>
+          <a class="account-link" href="/auth/?mode=login" data-auth-anonymous>Войти</a>
+          <a class="button account-register" href="/auth/?mode=register" data-auth-anonymous>Регистрация</a>
+          <div class="account-user" data-auth-user hidden>
+            <span data-auth-user-name>Аккаунт</span>
+            <button class="account-logout" type="button" data-auth-logout>Выйти</button>
+          </div>
+        </div>
+        <button class="menu-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" data-menu-toggle><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="page-hero auth-hero">
+      <div class="section-inner">
+        <p class="eyebrow">Аккаунт TravelGTC</p>
+        <h1>Войдите или зарегистрируйтесь</h1>
+        <p>Аккаунт нужен, чтобы отделить чтение сайта от реального заявления о потребности: travel-идее, участии в клубе, событии или консультации.</p>
+      </div>
+    </section>
+    <section class="section white">
+      <div class="section-inner auth-layout">
+        <form class="form-card auth-form" data-auth-register-form>
+          <input type="hidden" name="consent_version" value="travelgtc-identity-consent-v1">
+          <div class="section-head">
+            <p class="eyebrow dark">Новый аккаунт</p>
+            <h2>Регистрация</h2>
+            <p>Создайте отдельный аккаунт TravelGTC. Данные не смешиваются с другими проектами GTC.</p>
+          </div>
+          <div class="form-grid">
+            <div class="field full"><label for="register-name">Имя</label><input id="register-name" name="display_name" autocomplete="name" required></div>
+            <div class="field full"><label for="register-email">Email</label><input id="register-email" name="email" type="email" autocomplete="email" required></div>
+            <div class="field"><label for="register-password">Пароль</label><input id="register-password" name="password" type="password" autocomplete="new-password" minlength="8" required></div>
+            <div class="field"><label for="register-channel">Основной канал</label><select id="register-channel" name="primary_channel" required><option value="whatsapp">WhatsApp</option><option value="max">MAX</option><option value="telegram">Telegram</option><option value="email">Email</option><option value="phone">Телефон</option></select></div>
+            <div class="field full"><label for="register-phone">Телефон или мессенджер</label><input id="register-phone" name="phone" autocomplete="tel"></div>
+          </div>
+          <div class="consent-list">
+            <label><input type="checkbox" name="account_terms_consent" required> Я понимаю, что аккаунт TravelGTC создаётся отдельно от других проектов GTC и используется для работы с моими заявками внутри TravelGTC.</label>
+            <label><input type="checkbox" name="privacy_consent" required> Я согласен(на) на обработку данных для регистрации, входа и дальнейшей коммуникации по моим travel-заявкам.</label>
+          </div>
+          <p class="form-status" data-form-status aria-live="polite"></p>
+          <button class="button" type="submit">Зарегистрироваться</button>
+        </form>
+        <form class="form-card auth-form" data-auth-login-form>
+          <div class="section-head">
+            <p class="eyebrow dark">Уже есть аккаунт</p>
+            <h2>Вход</h2>
+            <p>Войдите, чтобы отправить форму и привязать заявку к своему аккаунту TravelGTC.</p>
+          </div>
+          <div class="form-grid">
+            <div class="field full"><label for="login-email">Email</label><input id="login-email" name="email" type="email" autocomplete="email" required></div>
+            <div class="field full"><label for="login-password">Пароль</label><input id="login-password" name="password" type="password" autocomplete="current-password" required></div>
+          </div>
+          <p class="form-status" data-form-status aria-live="polite"></p>
+          <button class="button ghost" type="submit">Войти</button>
+        </form>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="brand"><strong>Travel Network Lab</strong><span>Путешествия. Сообщества. Возможности.</span></div>
+        <div class="footer-links"><a href="/about/">О проекте</a><a href="/contacts/">Контакты</a><a href="/create-trip/">Создать travel-идею</a></div>
+      </div>
+      <div class="disclaimers">
+        <p>Информация на сайте носит ознакомительный характер и не является публичной офертой. Условия участия, доступ к платформе, стоимость услуг, наличие предложений и правила бронирования требуют отдельного подтверждения.</p>
+        <p>Участие в партнёрской модели не гарантирует доход. Результат зависит от личной активности, навыков, качества рекомендаций, репутации, времени, усилий и соблюдения официальных правил проекта.</p>
+        <p>Сайт является персональной информационной страницей участника и не заменяет официальные материалы компании.</p>
+      </div>
+    </div>
+  </footer>
+  <script src="/assets/js/site.js"></script>
+</body>
+</html>

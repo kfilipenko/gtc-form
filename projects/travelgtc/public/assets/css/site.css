@@ -33,6 +33,10 @@ body.menu-open {
   overflow: hidden;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 img {
   display: block;
   max-width: 100%;
@@ -127,6 +131,49 @@ a {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.account-actions,
+.account-user {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.account-link,
+.account-logout {
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  padding: 9px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.1;
+  cursor: pointer;
+}
+
+.account-link:hover,
+.account-logout:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--white);
+}
+
+.account-register {
+  min-height: 36px;
+  padding: 9px 13px;
+  font-size: 0.84rem;
+}
+
+.account-user span {
+  max-width: 150px;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .menu-toggle {
@@ -732,6 +779,35 @@ h3 {
   box-shadow: var(--shadow);
 }
 
+.auth-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.85fr);
+  align-items: start;
+  gap: 24px;
+}
+
+.auth-form {
+  box-shadow: 0 16px 44px rgba(11, 29, 42, 0.1);
+}
+
+.auth-gate-note {
+  margin: 0 0 16px;
+  border: 1px solid rgba(0, 184, 148, 0.2);
+  border-radius: 8px;
+  padding: 11px 13px;
+  background: rgba(0, 184, 148, 0.08);
+  color: var(--ocean);
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.auth-gate-note[data-state="user"] {
+  border-color: rgba(163, 230, 53, 0.34);
+  background: rgba(163, 230, 53, 0.14);
+  color: #24460f;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -915,8 +991,13 @@ button:disabled {
     display: block;
   }
 
-  .nav-actions .button {
+  .nav-actions .nav-contact,
+  .nav-actions .account-register {
     display: none;
+  }
+
+  .account-user span {
+    max-width: 110px;
   }
 
   .hero-inner,
@@ -962,6 +1043,10 @@ button:disabled {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+
   .disclaimers {
     grid-template-columns: 1fr;
     gap: 8px;
@@ -981,6 +1066,20 @@ button:disabled {
   }
 
   .brand span {
+    display: none;
+  }
+
+  .nav-wrap {
+    gap: 10px;
+  }
+
+  .account-link,
+  .account-logout {
+    padding: 8px 10px;
+    font-size: 0.78rem;
+  }
+
+  .account-user span {
     display: none;
   }
 
@@ -1014,6 +1113,7 @@ button:disabled {
   .grid.four,
   .grid.three,
   .grid.two,
+  .auth-layout,
   .form-grid {
     grid-template-columns: 1fr;
   }

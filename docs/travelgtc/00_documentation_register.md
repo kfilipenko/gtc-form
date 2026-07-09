@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.2
+- Version: 2.3
 - Date: 2026-07-09
-- Status: Project-local TravelGTC registration isolation implemented
+- Status: Frontend registration gate and authenticated lead form implemented
 
 ## 1. Purpose
 
@@ -62,6 +62,8 @@ The first stage is intentionally small:
 | `032_travelgtc_auth_002_gtc_identity_database_auth_api_mvp_report.md` | TRAVELGTC-AUTH-002 - GTC Identity Database And Auth API MVP Report | Historical report for the auth API MVP before project-local isolation. | Superseded by AUTH-003 |
 | `033_travelgtc_auth_003_project_local_registration_isolation_task.md` | TRAVELGTC-AUTH-003 - Project-Local Registration Isolation | Defines the pivot from shared GTC identity to isolated TravelGTC user registration. | Implemented |
 | `034_travelgtc_auth_003_project_local_registration_isolation_report.md` | TRAVELGTC-AUTH-003 - Project-Local Registration Isolation Report | Fixes local `travelgtc_identity`, removal of CrewPortGlobal backfill and project-local auth data boundaries. | Implemented |
+| `035_travelgtc_auth_004_frontend_registration_gate_task.md` | TRAVELGTC-AUTH-004 - Frontend Registration Gate And Authenticated Lead Form | Defines public auth UI, header account controls and authenticated lead form submission. | Implemented |
+| `036_travelgtc_auth_004_frontend_registration_gate_report.md` | TRAVELGTC-AUTH-004 - Frontend Registration Gate And Authenticated Lead Form Report | Fixes `/auth/`, frontend session state, auth-required funnel submission, CORS credentials and browser verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -90,6 +92,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.3 | 2026-07-09 | GTC IT / AI Assistant | Added frontend registration gate and authenticated public funnel implementation |
 | 2.2 | 2026-07-09 | GTC IT / AI Assistant | Replaced shared GTC identity with isolated TravelGTC project-local registration |
 | 2.1 | 2026-07-09 | GTC IT / AI Assistant | Added GTC identity database and auth API MVP implementation task/report |
 | 2.0 | 2026-07-09 | GTC IT / AI Assistant | Clarified shared GTC account reuse and no duplicate TravelGTC registration for existing CrewPortGlobal/GTC users |

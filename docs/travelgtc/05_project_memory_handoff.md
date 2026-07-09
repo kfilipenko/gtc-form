@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.1
+- Version: 2.2
 - Date: 2026-07-09
-- Status: Active, project-local TravelGTC registration isolation implemented
+- Status: Active, frontend registration gate and authenticated lead form implemented
 
 ## 1. Current State
 
@@ -49,6 +49,7 @@ First public prototype routes:
 /events/
 /about/
 /contacts/
+/auth/
 ```
 
 Server-side publication is prepared:
@@ -107,6 +108,7 @@ TRAVELGTC-AUTH-001 fixed the initial registration direction. Its shared identity
 AUTH-001 v0.2 and AUTH-002 explored shared GTC identity reuse and optional CrewPortGlobal credential backfill. This direction is now superseded because the Project Owner decided that cross-project user merging creates avoidable privacy, migration and portability risks.
 TRAVELGTC-AUTH-002 implemented the backend auth MVP mechanics: registration/login/logout/current-user API, email verification test token path, secure session-cookie handling, bcrypt password handling and authenticated `POST /api/travelgtc/v1/account/leads`.
 TRAVELGTC-AUTH-003 replaced shared `gtc_identity` with project-local `travelgtc_identity`, removed CrewPortGlobal identity/credential backfill and fixed the rule that TravelGTC registration is independent from users registered in other projects even when emails match.
+TRAVELGTC-AUTH-004 implemented the frontend registration gate: `/auth/`, header account controls, cookie-authenticated browser API calls, anonymous form redirect to registration/login and public funnel submission through `POST /api/travelgtc/v1/account/leads`.
 ```
 
 API state:
@@ -122,18 +124,24 @@ Identity migration: projects/travelgtc/app/migrations/002_travelgtc_identity_aut
 Run API check: npm run check:travelgtc-api
 Default safety switch: TRAVELGTC_PUBLIC_LEAD_CAPTURE_ENABLED=false
 Default authenticated lead switch: TRAVELGTC_ACCOUNT_LEAD_CAPTURE_ENABLED=false
+Frontend public forms now use the authenticated account lead endpoint, not the public lead endpoint.
 Production database migration has not been applied yet.
 ```
 
 Public funnel state:
 
 ```text
+Auth page: projects/travelgtc/public/auth/index.html
 Home form: projects/travelgtc/public/index.html#lead-form
 Create-trip form: projects/travelgtc/public/create-trip/index.html#idea-form
 Contacts form: projects/travelgtc/public/contacts/index.html#contact-form
+Header includes login, registration, logged-in display name and logout controls.
+Anonymous form submit redirects to /auth/?mode=register&next=...
+After registration/login, user returns to the intended form and creates a CRM lead through account/leads.
 Funnel e2e command: npm run test:travelgtc-funnel
 Local test static port: 4174
 Local test API port: 4302
+Funnel test env enables TRAVELGTC_ACCOUNT_LEAD_CAPTURE_ENABLED=true and disables public lead capture.
 Live deployment is intentionally pending until API service and nginx /api proxy are configured.
 ```
 
@@ -181,18 +189,18 @@ Generated screenshots are written to projects/travelgtc/test-artifacts/screensho
 
 Recommended next steps:
 
-1. start `TRAVELGTC-AUTH-004 - Frontend Registration Gate And Authenticated Lead Form`;
-2. add public header account controls and auth UI;
-3. move public funnel submission to the authenticated `account/leads` endpoint;
-4. run `002_travelgtc_identity_auth.sql` first against a safe test database;
-5. keep `TRAVELGTC-RUNTIME-001 - Test Database, API Service And Nginx Proxy` as the required publication/runtime step before live API use;
-6. then continue to `TRAVELGTC-CRM-001 - Lead Board And Lead Detail MVP`;
-7. keep true production mode blocked until privacy/consent/disclosure pages are approved.
+1. start `TRAVELGTC-RUNTIME-001 - Test Database, API Service And Nginx Proxy`;
+2. run `001_travelgtc_lead_capture.sql` and `002_travelgtc_identity_auth.sql` first against a safe TravelGTC test database;
+3. configure API runtime environment, service process and nginx `/api/travelgtc/` proxy;
+4. verify HTTPS cookie behavior on `travelgtc.com`;
+5. keep true production mode blocked until privacy/consent/disclosure pages are approved;
+6. then continue to `TRAVELGTC-CRM-001 - Lead Board And Lead Detail MVP`.
 
 ## 4. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.2 | 2026-07-09 | GTC IT / AI Assistant | Recorded frontend registration gate, `/auth/`, authenticated form submission and runtime publication as next step |
 | 2.1 | 2026-07-09 | GTC IT / AI Assistant | Recorded project-local TravelGTC registration isolation and removal of shared GTC identity/CrewPortGlobal backfill |
 | 2.0 | 2026-07-09 | GTC IT / AI Assistant | Recorded AUTH-002 backend auth MVP, gtc_identity migration, optional CrewPortGlobal identity backfill and authenticated lead endpoint |
 | 1.9 | 2026-07-09 | GTC IT / AI Assistant | Clarified existing CrewPortGlobal/GTC account reuse on TravelGTC without duplicate registration and without automatic project-data transfer |

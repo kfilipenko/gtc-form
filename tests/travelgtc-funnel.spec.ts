@@ -1,12 +1,31 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('TravelGTC public funnel', () => {
-  test('home role form submits a test lead through the API', async ({ page }) => {
+test.describe('TravelGTC authenticated funnel', () => {
+  test('home role form requires registration before creating a lead', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 1000 });
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     const form = page.locator('form[data-travelgtc-lead-form]').first();
     await expect(form).toBeVisible();
+
+    await form.locator('button[type="submit"]').click();
+    await expect(page).toHaveURL(/\/auth\/\?mode=register/);
+    await expect(page.locator('form[data-auth-register-form]')).toBeVisible();
+
+    const uniqueEmail = `travelgtc-${Date.now()}@example.test`;
+    const registerForm = page.locator('form[data-auth-register-form]');
+    await registerForm.locator('[name="display_name"]').fill('Тестовый Пользователь');
+    await registerForm.locator('[name="email"]').fill(uniqueEmail);
+    await registerForm.locator('[name="password"]').fill('StrongPass123');
+    await registerForm.locator('[name="primary_channel"]').selectOption('whatsapp');
+    await registerForm.locator('[name="phone"]').fill('+70000000000');
+    await registerForm.locator('[name="account_terms_consent"]').check();
+    await registerForm.locator('[name="privacy_consent"]').check();
+    await registerForm.locator('button[type="submit"]').click();
+
+    await expect(page).toHaveURL(/\/#lead-form/);
+    await expect(form).toBeVisible();
+    await expect(form.locator('[data-lead-auth-note]')).toContainText('Вы вошли как Тестовый Пользователь');
 
     await form.locator('[data-role-option="trip_author"]').click();
     await form.locator('[name="name"]').fill('Тестовый Пользователь');

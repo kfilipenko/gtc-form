@@ -42,6 +42,7 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
 
   await app.register(cors, {
     origin: true,
+    credentials: true,
   });
 
   app.get('/api/travelgtc/v1/health', async () => ({

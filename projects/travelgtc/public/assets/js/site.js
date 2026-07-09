@@ -1,3 +1,14 @@
+const AUTH_DRAFT_KEY = "travelgtc.leadDraft.v1";
+const IDENTITY_CONSENT_VERSION = "travelgtc-identity-consent-v1";
+
+const authState = {
+  loaded: false,
+  authenticated: false,
+  user: null,
+};
+
+let authStatePromise = null;
+
 const menuButton = document.querySelector("[data-menu-toggle]");
 
 if (menuButton) {
@@ -17,90 +28,236 @@ document.querySelectorAll(".nav-links a").forEach((link) => {
   });
 });
 
-document.querySelectorAll("[data-fill-format]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const target = document.querySelector('[name="travel_format"], #trip-format');
-    if (target) {
-      const value = mapTravelFormat(button.textContent.trim());
-      target.value = value || target.value;
-      target.focus();
-    }
-  });
-});
+initAuthState();
+initAuthForms();
+initLeadForms();
+initPrototypeForms();
+initFormatButtons();
+initRoleButtons();
 
-document.querySelectorAll("[data-role-option]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const form = button.closest("form");
-    const scope = form || button.closest(".funnel-split") || document;
-    const input = scope.querySelector("[data-declared-role-input]");
-    scope.querySelectorAll("[data-role-option]").forEach((option) => {
-      option.classList.toggle("active", option === button);
+function initAuthState() {
+  decorateAuthLinks();
+  authStatePromise = refreshAuthState();
+
+  document.querySelectorAll("[data-auth-logout]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      button.disabled = true;
+      try {
+        await requestApi("/api/travelgtc/v1/auth/logout", { method: "POST" });
+        setAuthState({ authenticated: false, user: null });
+        if (window.location.pathname.startsWith("/auth/")) {
+          return;
+        }
+        window.location.reload();
+      } catch (error) {
+        button.disabled = false;
+      }
     });
-    if (input) {
-      input.value = button.dataset.roleOption || "unsure";
-    }
   });
-});
+}
 
-document.querySelectorAll("form[data-travelgtc-lead-form]").forEach((form) => {
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    submitLeadForm(form);
+function initAuthForms() {
+  document.querySelectorAll("form[data-auth-register-form]").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      submitRegisterForm(form);
+    });
   });
-});
 
-document.querySelectorAll("form[data-prototype-form]").forEach((form) => {
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const status = form.querySelector("[data-form-status]");
-    const message = form.getAttribute("data-success-message") || "Спасибо. Сообщение получено.";
-    if (status) {
-      status.textContent = message;
-    }
-    form.reset();
+  document.querySelectorAll("form[data-auth-login-form]").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      submitLoginForm(form);
+    });
   });
-});
+}
+
+function initLeadForms() {
+  document.querySelectorAll("form[data-travelgtc-lead-form]").forEach((form) => {
+    insertLeadAuthNote(form);
+    restoreLeadDraft(form);
+
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.addEventListener("click", async (event) => {
+        if (authState.loaded && authState.authenticated) {
+          return;
+        }
+        event.preventDefault();
+        const isAuthenticated = await ensureAuthenticatedForLeadForm(form);
+        if (isAuthenticated) {
+          form.requestSubmit();
+        }
+      });
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      submitLeadForm(form);
+    });
+  });
+}
+
+function initPrototypeForms() {
+  document.querySelectorAll("form[data-prototype-form]").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const status = form.querySelector("[data-form-status]");
+      const message = form.getAttribute("data-success-message") || "Спасибо. Сообщение получено.";
+      if (status) {
+        status.textContent = message;
+      }
+      form.reset();
+    });
+  });
+}
+
+function initFormatButtons() {
+  document.querySelectorAll("[data-fill-format]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = document.querySelector('[name="travel_format"], #trip-format');
+      if (target) {
+        const value = mapTravelFormat(button.textContent.trim());
+        target.value = value || target.value;
+        target.focus();
+      }
+    });
+  });
+}
+
+function initRoleButtons() {
+  document.querySelectorAll("[data-role-option]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const form = button.closest("form");
+      const scope = form || button.closest(".funnel-split") || document;
+      const input = scope.querySelector("[data-declared-role-input]");
+      scope.querySelectorAll("[data-role-option]").forEach((option) => {
+        option.classList.toggle("active", option === button);
+      });
+      if (input) {
+        input.value = button.dataset.roleOption || "unsure";
+      }
+    });
+  });
+}
+
+async function submitRegisterForm(form) {
+  const status = form.querySelector("[data-form-status]");
+  const submitButton = form.querySelector('button[type="submit"]');
+  setFormStatus(status, "Создаем аккаунт TravelGTC...", "pending");
+  setSubmitDisabled(submitButton, true);
+
+  try {
+    const formData = new FormData(form);
+    const payload = {
+      display_name: getFormValue(formData, "display_name"),
+      email: getFormValue(formData, "email"),
+      password: String(formData.get("password") || ""),
+      primary_channel: getFormValue(formData, "primary_channel") || "whatsapp",
+      phone: getFormValue(formData, "phone") || undefined,
+      consent_version: getFormValue(formData, "consent_version") || IDENTITY_CONSENT_VERSION,
+      account_terms_consent: formData.get("account_terms_consent") === "on",
+      privacy_consent: formData.get("privacy_consent") === "on",
+    };
+
+    const body = await requestApi("/api/travelgtc/v1/auth/register", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+
+    setAuthState({ authenticated: true, user: body.user || null });
+    setFormStatus(status, "Аккаунт создан. Возвращаемся к заявке...", "success");
+    redirectAfterAuth();
+  } catch (error) {
+    setFormStatus(status, error.message || "Не удалось создать аккаунт.", "error");
+  } finally {
+    setSubmitDisabled(submitButton, false);
+  }
+}
+
+async function submitLoginForm(form) {
+  const status = form.querySelector("[data-form-status]");
+  const submitButton = form.querySelector('button[type="submit"]');
+  setFormStatus(status, "Входим в аккаунт...", "pending");
+  setSubmitDisabled(submitButton, true);
+
+  try {
+    const formData = new FormData(form);
+    const body = await requestApi("/api/travelgtc/v1/auth/login", {
+      method: "POST",
+      body: JSON.stringify({
+        email: getFormValue(formData, "email"),
+        password: String(formData.get("password") || ""),
+      }),
+    });
+
+    setAuthState({ authenticated: true, user: body.user || null });
+    setFormStatus(status, "Вход выполнен. Возвращаемся к заявке...", "success");
+    redirectAfterAuth();
+  } catch (error) {
+    setFormStatus(status, error.message || "Не удалось войти.", "error");
+  } finally {
+    setSubmitDisabled(submitButton, false);
+  }
+}
 
 async function submitLeadForm(form) {
   const status = form.querySelector("[data-form-status]");
   const submitButton = form.querySelector('button[type="submit"]');
   const successMessage = form.getAttribute("data-success-message") || "Спасибо. Ваша заявка получена.";
 
-  setFormStatus(status, "Отправляем заявку...", "pending");
-  if (submitButton) {
-    submitButton.disabled = true;
+  const isAuthenticated = await ensureAuthenticatedForLeadForm(form);
+  if (!isAuthenticated) {
+    return;
   }
 
+  setFormStatus(status, "Отправляем заявку...", "pending");
+  setSubmitDisabled(submitButton, true);
+
   try {
+    prefillLeadContactFromUser(form);
     const payload = buildLeadPayload(form);
-    const response = await fetch(`${getApiBaseUrl()}/api/travelgtc/v1/public/leads`, {
+    const body = await requestApi("/api/travelgtc/v1/account/leads", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify(payload),
     });
-    const body = await response.json().catch(() => ({}));
-
-    if (!response.ok || !body.ok) {
-      throw new Error(resolveApiErrorMessage(body, response.status));
-    }
 
     setFormStatus(status, `${successMessage} Номер заявки: ${body.lead_id}.`, "success");
+    sessionStorage.removeItem(AUTH_DRAFT_KEY);
     form.reset();
     resetRoleSelector(form);
+    prefillLeadContactFromUser(form);
+    updateLeadAuthNotes();
   } catch (error) {
     setFormStatus(status, error.message || "Не удалось отправить заявку. Попробуйте позже.", "error");
   } finally {
-    if (submitButton) {
-      submitButton.disabled = false;
-    }
+    setSubmitDisabled(submitButton, false);
   }
+}
+
+async function ensureAuthenticatedForLeadForm(form) {
+  const status = form.querySelector("[data-form-status]");
+  const state = await loadCurrentAuthState();
+  if (state.authenticated) {
+    prefillLeadContactFromUser(form);
+    return true;
+  }
+
+  saveLeadDraft(form);
+  setFormStatus(
+    status,
+    "Чтобы отправить заявку, войдите или зарегистрируйтесь. Сейчас откроется форма аккаунта TravelGTC.",
+    "pending",
+  );
+  window.setTimeout(() => {
+    window.location.href = buildAuthUrlForForm(form);
+  }, 350);
+  return false;
 }
 
 function buildLeadPayload(form) {
   const formData = new FormData(form);
-  const get = (name) => String(formData.get(name) || "").trim();
+  const get = (name) => getFormValue(formData, name);
   const defaultRole = form.getAttribute("data-default-role") || "unsure";
   const defaultInterest = form.getAttribute("data-default-interest") || "not_sure";
   const primaryInterest = get("primary_interest") || defaultInterest;
@@ -134,7 +291,7 @@ function buildLeadPayload(form) {
 function buildMessageFromForm(formData) {
   const parts = [];
   ["destination_interest", "approx_dates", "estimated_group_size", "important_details"].forEach((name) => {
-    const value = String(formData.get(name) || "").trim();
+    const value = getFormValue(formData, name);
     if (value) {
       parts.push(value);
     }
@@ -166,6 +323,220 @@ function createClientEventId() {
   return `travelgtc-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+async function loadCurrentAuthState() {
+  if (authState.loaded) {
+    return authState;
+  }
+  if (!authStatePromise) {
+    authStatePromise = refreshAuthState();
+  }
+  await authStatePromise;
+  return authState;
+}
+
+async function refreshAuthState() {
+  try {
+    const body = await requestApi("/api/travelgtc/v1/auth/me", { method: "GET" });
+    setAuthState({
+      authenticated: Boolean(body.authenticated),
+      user: body.user || null,
+    });
+  } catch (error) {
+    setAuthState({ authenticated: false, user: null });
+  }
+  return authState;
+}
+
+function setAuthState(nextState) {
+  authState.loaded = true;
+  authState.authenticated = Boolean(nextState.authenticated);
+  authState.user = nextState.user || null;
+  updateAuthStateUi();
+  updateLeadAuthNotes();
+  document.querySelectorAll("form[data-travelgtc-lead-form]").forEach((form) => {
+    prefillLeadContactFromUser(form);
+  });
+}
+
+function updateAuthStateUi() {
+  document.querySelectorAll("[data-auth-anonymous]").forEach((element) => {
+    element.hidden = authState.authenticated;
+  });
+  document.querySelectorAll("[data-auth-user]").forEach((element) => {
+    element.hidden = !authState.authenticated;
+  });
+  document.querySelectorAll("[data-auth-user-name]").forEach((element) => {
+    element.textContent = authState.user ? authState.user.displayName || authState.user.email : "Аккаунт";
+  });
+  document.querySelectorAll("[data-auth-user-email]").forEach((element) => {
+    element.textContent = authState.user ? authState.user.email : "";
+  });
+}
+
+function decorateAuthLinks() {
+  document.querySelectorAll('a[href^="/auth/"]').forEach((link) => {
+    const href = new URL(link.getAttribute("href"), window.location.origin);
+    if (!href.searchParams.has("next")) {
+      href.searchParams.set("next", currentReturnPath());
+    }
+    link.setAttribute("href", `${href.pathname}${href.search}${href.hash}`);
+  });
+}
+
+function currentReturnPath() {
+  if (window.location.pathname.startsWith("/auth/")) {
+    return safeNextPath();
+  }
+  return `${window.location.pathname}${window.location.search}${window.location.hash}`;
+}
+
+function safeNextPath() {
+  const next = new URLSearchParams(window.location.search).get("next") || "/";
+  if (!next.startsWith("/") || next.startsWith("//") || next.startsWith("/auth/")) {
+    return "/";
+  }
+  return next;
+}
+
+function redirectAfterAuth() {
+  window.setTimeout(() => {
+    window.location.href = safeNextPath();
+  }, 450);
+}
+
+function buildAuthUrlForForm(form) {
+  const next = formReturnPath(form);
+  return `/auth/?mode=register&next=${encodeURIComponent(next)}`;
+}
+
+function formReturnPath(form) {
+  const anchor = form.id || (form.closest("[id]") && form.closest("[id]").id);
+  const hash = anchor ? `#${anchor}` : window.location.hash;
+  return `${window.location.pathname}${window.location.search}${hash || ""}`;
+}
+
+function insertLeadAuthNote(form) {
+  if (form.querySelector("[data-lead-auth-note]")) {
+    return;
+  }
+  const note = document.createElement("p");
+  note.className = "auth-gate-note";
+  note.setAttribute("data-lead-auth-note", "");
+  note.setAttribute("aria-live", "polite");
+  const status = form.querySelector("[data-form-status]");
+  form.insertBefore(note, status || form.firstElementChild);
+  updateLeadAuthNote(note);
+}
+
+function updateLeadAuthNotes() {
+  document.querySelectorAll("[data-lead-auth-note]").forEach(updateLeadAuthNote);
+}
+
+function updateLeadAuthNote(note) {
+  if (authState.authenticated && authState.user) {
+    note.textContent = `Вы вошли как ${authState.user.displayName || authState.user.email}. Заявка будет привязана к аккаунту TravelGTC.`;
+    note.dataset.state = "user";
+    return;
+  }
+  note.textContent = "Для отправки заявки потребуется вход или регистрация аккаунта TravelGTC.";
+  note.dataset.state = "anonymous";
+}
+
+function prefillLeadContactFromUser(form) {
+  if (!authState.authenticated || !authState.user) {
+    return;
+  }
+  const name = form.querySelector('[name="name"]');
+  const contact = form.querySelector('[name="contact_value"], [name="contact"]');
+  const channel = form.querySelector('[name="preferred_channel"]');
+
+  if (name && !name.value) {
+    name.value = authState.user.displayName || "";
+  }
+  if (contact && !contact.value) {
+    contact.value = authState.user.phone || authState.user.email || "";
+  }
+  if (channel && authState.user.primaryChannel && !channel.value) {
+    channel.value = authState.user.primaryChannel;
+  }
+}
+
+function saveLeadDraft(form) {
+  const formData = new FormData(form);
+  const safeFields = [
+    "declared_role",
+    "primary_interest",
+    "travel_format",
+    "destination_interest",
+    "audience_type",
+    "approx_dates",
+    "estimated_group_size",
+    "business_interest_level",
+    "consultation_preference",
+    "best_contact_time",
+    "important_details",
+    "message",
+  ];
+  const fields = {};
+  safeFields.forEach((name) => {
+    const value = getFormValue(formData, name);
+    if (value) {
+      fields[name] = value;
+    }
+  });
+  sessionStorage.setItem(
+    AUTH_DRAFT_KEY,
+    JSON.stringify({
+      path: window.location.pathname,
+      anchor: form.id || (form.closest("[id]") && form.closest("[id]").id) || "",
+      fields,
+    }),
+  );
+}
+
+function restoreLeadDraft(form) {
+  const raw = sessionStorage.getItem(AUTH_DRAFT_KEY);
+  if (!raw) {
+    return;
+  }
+
+  try {
+    const draft = JSON.parse(raw);
+    if (!draft || draft.path !== window.location.pathname || !draft.fields) {
+      return;
+    }
+    Object.entries(draft.fields).forEach(([name, value]) => {
+      const field = form.querySelector(`[name="${cssEscape(name)}"]`);
+      if (field && !field.value) {
+        field.value = value;
+      }
+    });
+    resetRoleSelector(form);
+  } catch (error) {
+    sessionStorage.removeItem(AUTH_DRAFT_KEY);
+  }
+}
+
+async function requestApi(path, options = {}) {
+  const headers = {
+    Accept: "application/json",
+    ...(options.body ? { "Content-Type": "application/json" } : {}),
+    ...(options.headers || {}),
+  };
+  const response = await fetch(`${getApiBaseUrl()}${path}`, {
+    ...options,
+    headers,
+    credentials: "include",
+  });
+  const body = await response.json().catch(() => ({}));
+
+  if (!response.ok || body.ok === false) {
+    throw new Error(resolveApiErrorMessage(body, response.status));
+  }
+
+  return body;
+}
+
 function getApiBaseUrl() {
   const explicit = document.body.getAttribute("data-travelgtc-api-base-url");
   if (explicit) {
@@ -189,7 +560,16 @@ function resolveApiErrorMessage(body, statusCode) {
   if (code === "lead_capture_disabled") {
     return "Приём заявок сейчас выключен. Напишите в WhatsApp, если хотите связаться сразу.";
   }
-  if (code === "validation_failed") {
+  if (code === "auth_required") {
+    return "Для отправки заявки войдите или зарегистрируйтесь.";
+  }
+  if (code === "account_already_exists") {
+    return "Аккаунт с таким email уже есть. Войдите с паролем.";
+  }
+  if (code === "invalid_credentials") {
+    return "Неверный email или пароль.";
+  }
+  if (code === "validation_failed" || code === "auth_validation_failed") {
     return "Проверьте обязательные поля и согласия.";
   }
   if (code === "duplicate_submission") {
@@ -198,7 +578,7 @@ function resolveApiErrorMessage(body, statusCode) {
   if (code === "rate_limited") {
     return "Слишком много отправок подряд. Попробуйте немного позже.";
   }
-  return `Не удалось отправить заявку. Код ответа: ${statusCode}.`;
+  return `Не удалось выполнить действие. Код ответа: ${statusCode}.`;
 }
 
 function setFormStatus(status, message, type) {
@@ -207,14 +587,21 @@ function setFormStatus(status, message, type) {
   status.dataset.state = type;
 }
 
+function setSubmitDisabled(button, disabled) {
+  if (button) {
+    button.disabled = disabled;
+  }
+}
+
 function resetRoleSelector(form) {
   const defaultRole = form.getAttribute("data-default-role") || "unsure";
   const roleInput = form.querySelector("[data-declared-role-input]");
-  if (roleInput) {
+  if (roleInput && !roleInput.value) {
     roleInput.value = defaultRole;
   }
+  const currentRole = roleInput ? roleInput.value : defaultRole;
   form.querySelectorAll("[data-role-option]").forEach((button) => {
-    button.classList.toggle("active", button.dataset.roleOption === defaultRole);
+    button.classList.toggle("active", button.dataset.roleOption === currentRole);
   });
 }
 
@@ -233,4 +620,15 @@ function mapTravelFormat(label) {
   if (normalized.includes("круиз")) return "cruise";
   if (normalized.includes("отдых")) return "rest";
   return "other";
+}
+
+function getFormValue(formData, name) {
+  return String(formData.get(name) || "").trim();
+}
+
+function cssEscape(value) {
+  if (window.CSS && typeof window.CSS.escape === "function") {
+    return window.CSS.escape(value);
+  }
+  return String(value).replace(/"/g, '\\"');
 }
