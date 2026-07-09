@@ -262,6 +262,7 @@ function buildLeadPayload(form) {
   const defaultInterest = form.getAttribute("data-default-interest") || "not_sure";
   const primaryInterest = get("primary_interest") || defaultInterest;
   const message = get("message") || buildMessageFromForm(formData);
+  const declaredRole = get("declared_role") || defaultRole;
   const travelFormat = get("travel_format");
   const audienceType = get("audience_type");
 
@@ -269,7 +270,7 @@ function buildLeadPayload(form) {
     name: get("name"),
     preferred_channel: get("preferred_channel") || "whatsapp",
     contact_value: get("contact_value") || get("contact"),
-    declared_role: get("declared_role") || defaultRole,
+    declared_role: declaredRole === "unsure" ? inferDeclaredRole(primaryInterest, defaultRole) : declaredRole,
     primary_interest: primaryInterest,
     message,
     personal_data_consent: formData.get("personal_data_consent") === "on",
@@ -438,7 +439,7 @@ function updateLeadAuthNote(note) {
     note.dataset.state = "user";
     return;
   }
-  note.textContent = "Для отправки заявки потребуется вход или регистрация аккаунта TravelGTC.";
+  note.textContent = "Вход или регистрация потребуется при отправке.";
   note.dataset.state = "anonymous";
 }
 
@@ -607,6 +608,15 @@ function resetRoleSelector(form) {
 
 function inferBusinessInterest(primaryInterest) {
   return primaryInterest === "business_model" ? "want_to_understand" : "none";
+}
+
+function inferDeclaredRole(primaryInterest, fallbackRole) {
+  if (primaryInterest === "create_trip") return "trip_author";
+  if (primaryInterest === "event") return "event_organizer";
+  if (primaryInterest === "club") return "community_leader";
+  if (primaryInterest === "business_model" || primaryInterest === "presentation") return "partner_candidate";
+  if (primaryInterest === "travel") return "traveler";
+  return fallbackRole || "unsure";
 }
 
 function mapTravelFormat(label) {

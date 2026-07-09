@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.0
+- Version: 3.1
 - Date: 2026-07-09
-- Status: Active, home page corrected as compact business-process entry point
+- Status: Active, home page uses compact first-contact request form
 
 ## 1. Current State
 
@@ -121,6 +121,7 @@ Use Manrope as the primary public-site font with Inter fallback.
 Public design must stay compact, image-led and funnel-oriented.
 Home funnel path: interest -> role -> application -> consultation -> membership -> participation -> recommendations.
 TRAVELGTC-WEB-013 rule: the home page must show this full process only once. It is the entry page for visitor -> interest -> role -> authenticated lead form -> CRM lead -> consultation, not a repeated text library.
+TRAVELGTC-WEB-014 rule: the home page form is a short first-contact request, not a full CRM questionnaire. Keep visible fields limited to name, contact, preferred channel, need and short message. Infer CRM role from the selected need instead of showing a separate role selector on the home page.
 ```
 
 Architecture state:
@@ -190,6 +191,8 @@ Contacts form: projects/travelgtc/public/contacts/index.html#contact-form
 Header includes login, registration, logged-in display name and logout controls.
 Anonymous form submit redirects to /auth/?mode=register&next=...
 After registration/login, user returns to the intended form and creates a CRM lead through account/leads.
+The home form is intentionally compact. It no longer asks for travel format, destination, audience, dates, group size or business interest on the first step. Those details belong to `/create-trip/`, consultation or later CRM handling.
+The frontend infers `declared_role` for the CRM from `primary_interest`: create trip -> trip author, event -> event organizer, club -> community leader, business/presentation -> partner candidate, travel -> traveler.
 Funnel e2e command: npm run test:travelgtc-funnel
 Local test static port: 4174
 Local test API port: 4302
@@ -222,6 +225,7 @@ The short home advantages now render as a compact dark band below the hero.
 TRAVELGTC-WEB-012 updated the base color tokens, Manrope font loading, radius system, button sizes, card shadows, hero overlay, section density and footer compactness against `049_travelgtc_design_system.md`.
 TRAVELGTC-WEB-013 then reduced the home hero height/H1 scale, removed the duplicated lower funnel section and removed obsolete `path-summary` chips.
 Follow-up correction: do not publish a visible "home page task" block. The home page must perform its task through CTA, page-to-process navigation and the authenticated lead form.
+TRAVELGTC-WEB-014 simplified the home lead form into a compact first-contact request and removed the split form layout, public role buttons and duplicated format/detail fields.
 ```
 
 Menu/footer/mobile state:
@@ -271,6 +275,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.1 | 2026-07-09 | GTC IT / AI Assistant | Recorded compact first-contact home form and inferred CRM role mapping |
 | 3.0 | 2026-07-09 | GTC IT / AI Assistant | Recorded the home page as a compact business-process entry point and removed duplicated funnel publication |
 | 2.9 | 2026-07-09 | GTC IT / AI Assistant | Saved the canonical design system and recorded baseline design alignment against it |
 | 2.8 | 2026-07-09 | GTC IT / AI Assistant | Recorded unique non-repeating page image assignment from the newer design/photo set |

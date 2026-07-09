@@ -176,59 +176,26 @@
         </div>
       </section>
 
-      <section class="section white" id="lead-form">
-        <div class="section-inner split funnel-split">
-          <div class="funnel-guide">
-            <div class="section-head">
-              <p class="eyebrow dark">Первый шаг</p>
-              <h2>Создайте свою travel-идею</h2>
-              <p>Выберите формат поездки, соберите группу и превратите идею в реальное путешествие.</p>
-            </div>
-            <div class="tag-cloud" aria-label="Варианты travel-идеи">
-              <button type="button" data-fill-format>Йога-тур</button>
-              <button type="button" data-fill-format>Фридайвинг</button>
-              <button type="button" data-fill-format>Ретрит</button>
-              <button type="button" data-fill-format>Бизнес-weekend</button>
-              <button type="button" data-fill-format>Спортивный выезд</button>
-              <button type="button" data-fill-format>Семейная поездка</button>
-              <button type="button" data-fill-format>Круиз</button>
-              <button type="button" data-fill-format>Своя идея</button>
-            </div>
-            <p>У каждого человека есть круг общения, интересы и опыт. На их основе можно создавать поездки, которые объединяют людей вокруг смысла: здоровья, спорта, отдыха, общения, бизнеса или личного развития.</p>
-            <p>Не нужно начинать с большого туроператора. Можно начать с идеи, небольшой группы и понятного маршрута.</p>
+      <section class="section white compact-request" id="lead-form">
+        <div class="section-inner request-shell">
+          <div class="section-head compact-form-head">
+            <p class="eyebrow dark">Короткий запрос</p>
+            <h2>Расскажите, что вам нужно</h2>
+            <p>Оставьте контакт и одну потребность. Детали поездки, клуба или партнёрского участия спокойно обсудим на консультации.</p>
           </div>
-          <form class="form-card funnel-form" data-travelgtc-lead-form data-default-role="trip_author" data-default-interest="create_trip" data-success-message="Спасибо. Ваша заявка получена. Я посмотрю вашу travel-идею и свяжусь с вами, чтобы спокойно обсудить подходящий формат.">
+          <form class="form-card funnel-form compact-lead-form" data-travelgtc-lead-form data-default-role="unsure" data-default-interest="not_sure" data-success-message="Спасибо. Ваша заявка получена. Я посмотрю запрос и свяжусь с вами, чтобы спокойно обсудить подходящий формат.">
             <input type="hidden" name="consent_version" value="travelgtc-consent-v1">
-            <input type="hidden" name="declared_role" value="trip_author" data-declared-role-input>
-            <div class="section-head">
-              <p class="eyebrow dark">Формат участия</p>
-              <h2>Выберите, как вам интересно участвовать в TravelGTC</h2>
-              <p>Это не регистрация и не обязательство. Это первый шаг, чтобы мы поняли ваш интерес и предложили подходящий формат участия.</p>
-            </div>
-            <div class="role-selector" aria-label="Выберите вашу роль">
-              <button type="button" data-role-option="traveler">Хочу путешествовать чаще</button>
-              <button class="active" type="button" data-role-option="trip_author">Хочу создать поездку</button>
-              <button type="button" data-role-option="community_leader">У меня есть круг людей</button>
-              <button type="button" data-role-option="event_organizer">Хочу провести событие</button>
-              <button type="button" data-role-option="partner_candidate">Хочу понять модель</button>
-              <button type="button" data-role-option="unsure">Пока разбираюсь</button>
-            </div>
-            <div class="form-grid">
+            <input type="hidden" name="declared_role" value="unsure" data-declared-role-input>
+            <div class="form-grid compact-form-grid">
               <div class="field"><label for="lead-name">Имя</label><input id="lead-name" name="name" autocomplete="name" required></div>
+              <div class="field"><label for="lead-contact">Контакт</label><input id="lead-contact" name="contact_value" autocomplete="email" required></div>
               <div class="field"><label for="lead-channel">Канал связи</label><select id="lead-channel" name="preferred_channel" required><option value="whatsapp">WhatsApp</option><option value="max">MAX</option><option value="telegram">Telegram</option><option value="email">Email</option><option value="phone">Телефон</option></select></div>
-              <div class="field full"><label for="lead-contact">Контакт</label><input id="lead-contact" name="contact_value" autocomplete="email" required></div>
-              <div class="field"><label for="lead-interest">Что вам интересно?</label><select id="lead-interest" name="primary_interest" required><option value="create_trip">Создать поездку</option><option value="travel">Путешествовать чаще</option><option value="club">Узнать о клубе</option><option value="event">Провести событие</option><option value="business_model">Понять партнёрскую модель</option><option value="presentation">Получить презентацию</option><option value="not_sure">Пока не знаю</option></select></div>
-              <div class="field"><label for="trip-format">Формат</label><select id="trip-format" name="travel_format"><option value="">Выберите формат</option><option value="rest">Отдых</option><option value="yoga">Йога-тур</option><option value="freediving">Фридайвинг</option><option value="retreat">Ретрит</option><option value="business_weekend">Бизнес-weekend</option><option value="sport">Спорт</option><option value="family">Семья</option><option value="cruise">Круиз</option><option value="other">Другое</option></select></div>
-              <div class="field"><label for="lead-destination">Куда хотите поехать?</label><input id="lead-destination" name="destination_interest"></div>
-              <div class="field"><label for="lead-audience">Для кого?</label><select id="lead-audience" name="audience_type"><option value="">Выберите аудиторию</option><option value="friends">Друзья</option><option value="family">Семья</option><option value="clients">Клиенты</option><option value="students">Ученики</option><option value="partners">Партнёры</option><option value="community">Сообщество</option><option value="subscribers">Подписчики</option><option value="other">Другое</option></select></div>
-              <div class="field"><label for="lead-dates">Примерные даты</label><input id="lead-dates" name="approx_dates"></div>
-              <div class="field"><label for="lead-people">Количество людей</label><input id="lead-people" name="estimated_group_size"></div>
-              <div class="field full"><label for="lead-business">Интерес к бизнес-модели</label><select id="lead-business" name="business_interest_level"><option value="none">Пока только поездка</option><option value="curious_later">Можно обсудить позже</option><option value="want_to_understand">Хочу понять модель</option><option value="ready_to_discuss">Готов обсудить участие</option></select></div>
-              <div class="field full"><label for="lead-message">Что важно в вашей идее?</label><textarea id="lead-message" name="message" required></textarea></div>
+              <div class="field"><label for="lead-interest">Потребность</label><select id="lead-interest" name="primary_interest" required><option value="create_trip">Создать поездку</option><option value="travel">Путешествовать чаще</option><option value="club">Узнать о клубе</option><option value="event">Провести событие</option><option value="business_model">Понять партнёрскую модель</option><option value="presentation">Получить презентацию</option><option value="not_sure">Пока разбираюсь</option></select></div>
+              <div class="field full"><label for="lead-message">Коротко опишите запрос</label><textarea id="lead-message" name="message" required placeholder="Например: хочу обсудить семейную поездку, клуб, событие или партнёрскую возможность."></textarea></div>
             </div>
             <div class="consent-list">
-              <label><input type="checkbox" name="personal_data_consent" required> Я согласен(на) на обработку указанных данных для связи со мной по вопросу travel-клуба, поездки, события, маршрута или участия в партнёрской модели согласно <a href="/legal/privacy/">Политике конфиденциальности</a>.</label>
-              <label><input type="checkbox" name="communication_consent" required> Я согласен(на), что со мной могут связаться по выбранному каналу связи для ответа на мой запрос. Подробности описаны в <a href="/legal/terms/">Условиях использования</a>.</label>
+              <label><input type="checkbox" name="personal_data_consent" required> Согласен(на) на обработку данных по <a href="/legal/privacy/">Политике конфиденциальности</a>.</label>
+              <label><input type="checkbox" name="communication_consent" required> Согласен(на) на связь по выбранному каналу согласно <a href="/legal/terms/">Условиям использования</a>.</label>
             </div>
             <p class="form-status" data-form-status aria-live="polite"></p>
             <button class="button" type="submit">Отправить заявку</button>

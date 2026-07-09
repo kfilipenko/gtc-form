@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.1
+- Version: 3.2
 - Date: 2026-07-09
-- Status: Home page funnel layout corrected against business-process role
+- Status: Home page compact request form aligned with first-step funnel
 
 ## 1. Purpose
 
@@ -81,6 +81,8 @@ The first stage is intentionally small:
 | `051_travelgtc_web_012_design_system_baseline_alignment_report.md` | TRAVELGTC-WEB-012 - Design System Baseline Alignment Report | Fixes the design-system save, CSS/page alignment, funnel-process update and verification. | Implemented |
 | `052_travelgtc_web_013_home_funnel_layout_correction_task.md` | TRAVELGTC-WEB-013 - Home Funnel Layout Correction Task | Defines correction of the home page as one business-process entry point instead of duplicated funnel content. | Implemented |
 | `053_travelgtc_web_013_home_funnel_layout_correction_report.md` | TRAVELGTC-WEB-013 - Home Funnel Layout Correction Report | Fixes the compact hero, single funnel process, page-to-process navigation and publication verification. | Implemented |
+| `054_travelgtc_web_014_compact_lead_request_form_task.md` | TRAVELGTC-WEB-014 - Compact Lead Request Form Task | Defines simplification of the home lead form into a short first-contact request. | Implemented |
+| `055_travelgtc_web_014_compact_lead_request_form_report.md` | TRAVELGTC-WEB-014 - Compact Lead Request Form Report | Fixes compact form layout, minimum fields, inferred CRM role and funnel verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -114,6 +116,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.2 | 2026-07-09 | GTC IT / AI Assistant | Simplified the home request form to minimum contact and need fields while preserving CRM role inference |
 | 3.1 | 2026-07-09 | GTC IT / AI Assistant | Corrected the home page as a single compact business-process entry point and removed duplicated funnel publication |
 | 3.0 | 2026-07-09 | GTC IT / AI Assistant | Saved the TravelGTC design system and aligned the public baseline design, header, typography, funnel process and compact footer |
 | 2.9 | 2026-07-09 | GTC IT / AI Assistant | Added newer design/photo set and unique non-repeating image assignments across main pages |
