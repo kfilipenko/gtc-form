@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.9
+- Version: 1.0
 - Date: 2026-07-09
-- Status: Reference visual scale alignment implemented
+- Status: Menu infographic and compact footer implemented
 
 ## 1. Purpose
 
@@ -38,6 +38,8 @@ The first stage is intentionally small:
 | `008_travelgtc_web_003_generated_visual_assets_report.md` | TRAVELGTC-WEB-003 - Generated Production Visual Assets Report | Fixes generated image files, route mapping, deployment and verification. | Implemented |
 | `009_travelgtc_web_004_reference_typography_alignment_task.md` | TRAVELGTC-WEB-004 - Reference Typography Alignment | Defines correction of heading scale, hero proportions, headline accent and benefits band against the original mockups. | Implemented |
 | `010_travelgtc_web_004_reference_typography_alignment_report.md` | TRAVELGTC-WEB-004 - Reference Typography Alignment Report | Fixes typography scale, hero background, headline accent, benefits band and deployment verification. | Implemented |
+| `011_travelgtc_web_005_menu_infographic_footer_mobile_task.md` | TRAVELGTC-WEB-005 - Menu Infographic, Compact Footer And Mobile Check | Defines menu infographic, footer compaction and responsive check. | Implemented |
+| `012_travelgtc_web_005_menu_infographic_footer_mobile_report.md` | TRAVELGTC-WEB-005 - Menu Infographic, Compact Footer And Mobile Check Report | Fixes menu infographic, compact footer, responsive CSS and deployment verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -66,6 +68,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.0 | 2026-07-09 | GTC IT / AI Assistant | Added menu infographic, compact footer and mobile check task/report |
 | 0.9 | 2026-07-09 | GTC IT / AI Assistant | Recorded second reference visual scale pass for hero accent and benefits band |
 | 0.8 | 2026-07-09 | GTC IT / AI Assistant | Added reference typography alignment task/report |
 | 0.7 | 2026-07-09 | GTC IT / AI Assistant | Added generated production visual asset task/report |

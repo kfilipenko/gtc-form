@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.8
+- Version: 0.9
 - Date: 2026-07-09
-- Status: Active, reference visual scale alignment implemented
+- Status: Active, menu infographic and compact footer implemented
 
 ## 1. Current State
 
@@ -92,6 +92,16 @@ The third hero headline line uses the lime reference accent.
 The short home advantages now render as a compact dark band below the hero.
 ```
 
+Menu/footer/mobile state:
+
+```text
+Home page includes a clickable infographic-style menu for all public routes.
+Infographic menu uses responsive columns: desktop 8, tablet 4, mobile 2.
+Footer is compacted with smaller padding, smaller links and desktop disclaimer columns.
+Mobile source audit passed through viewport/meta and CSS breakpoint checks.
+Browser screenshot verification still depends on browser tooling availability in the environment.
+```
+
 ## 2. Working Rules
 
 1. Start each new TravelGTC task by reading this memory document and `docs/travelgtc/00_documentation_register.md`.
@@ -116,6 +126,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.9 | 2026-07-09 | GTC IT / AI Assistant | Recorded menu infographic, compact footer and mobile adaptation check |
 | 0.8 | 2026-07-09 | GTC IT / AI Assistant | Recorded second reference visual scale pass for hero accent, compact typography and benefits band |
 | 0.7 | 2026-07-09 | GTC IT / AI Assistant | Recorded reference typography and hero proportion alignment |
 | 0.6 | 2026-07-09 | GTC IT / AI Assistant | Recorded generated production image set |
