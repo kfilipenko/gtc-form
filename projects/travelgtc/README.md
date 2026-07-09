@@ -3,7 +3,7 @@
 - Project: TravelGTC
 - Project code: travelgtc
 - Domain: travelgtc.com
-- Status: Server-side publication and SSL completed, DNS cache propagation pending
+- Status: Live test runtime active for authenticated registration and lead funnel
 
 ## Purpose
 
@@ -39,6 +39,7 @@ projects/travelgtc/
     legal/
   deploy/
     nginx/
+    systemd/
   scripts/
 ```
 
@@ -60,6 +61,7 @@ projects/travelgtc/
 /events/
 /about/
 /contacts/
+/auth/
 ```
 
 ## API Application
@@ -75,12 +77,18 @@ It provides:
 ```text
 GET  /api/travelgtc/v1/health
 POST /api/travelgtc/v1/public/leads
+POST /api/travelgtc/v1/auth/register
+POST /api/travelgtc/v1/auth/login
+POST /api/travelgtc/v1/auth/logout
+GET  /api/travelgtc/v1/auth/me
+POST /api/travelgtc/v1/account/leads
 ```
 
-By default public lead capture is disabled:
+By default anonymous public lead capture is disabled. Live test runtime enables authenticated account lead capture:
 
 ```text
 TRAVELGTC_PUBLIC_LEAD_CAPTURE_ENABLED=false
+TRAVELGTC_ACCOUNT_LEAD_CAPTURE_ENABLED=true
 ```
 
 Run local API checks:
@@ -97,6 +105,32 @@ npm run test:travelgtc-funnel
 
 Live API submissions require a running TravelGTC API service and nginx `/api` proxy.
 
+## Runtime
+
+Current server runtime:
+
+```text
+Database: travelgtc
+Database app role: travelgtc_user
+API service: travelgtc-api.service
+API bind: 127.0.0.1:4301
+Runtime env file: /etc/travelgtc/travelgtc-api.env
+HTTPS proxy: https://travelgtc.com/api/travelgtc/
+Systemd template: projects/travelgtc/deploy/systemd/travelgtc-api.service
+```
+
+Common checks:
+
+```bash
+sudo systemctl status travelgtc-api --no-pager -l
+curl -fsS http://127.0.0.1:4301/api/travelgtc/v1/health
+curl -fsS https://travelgtc.com/api/travelgtc/v1/health
+TRAVELGTC_FUNNEL_BASE_URL=https://travelgtc.com npm run test:travelgtc-funnel
+TRAVELGTC_BASE_URL=https://travelgtc.com npm run test:travelgtc
+```
+
+The current live database may contain disposable test records from verification. Clear or archive them before a public launch announcement.
+
 ## Publication
 
 Server-side publication uses:
@@ -106,6 +140,7 @@ Live root: /var/www/travelgtc.com
 Deploy script: projects/travelgtc/scripts/deploy_public_live.sh
 Nginx template: projects/travelgtc/deploy/nginx/travelgtc.com.conf
 Installed nginx config: /etc/nginx/sites-available/travelgtc.com.conf
+Installed API service: /etc/systemd/system/travelgtc-api.service
 ```
 
 Run publication sync:
@@ -116,7 +151,7 @@ projects/travelgtc/scripts/deploy_public_live.sh
 
 The deploy script excludes raw `public/assets/images/inbox/` files from the live root.
 
-Public domain visibility depends on recursive DNS cache propagation. Authoritative Timeweb DNS points `travelgtc.com` and `www.travelgtc.com` to `20.91.187.79`, and Let's Encrypt SSL is issued for both names.
+Authoritative Timeweb DNS points `travelgtc.com` and `www.travelgtc.com` to `20.91.187.79`, Let's Encrypt SSL is issued for both names, and nginx proxies `/api/travelgtc/` to the local TravelGTC API service.
 
 ## Related Documentation
 

@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.2
+- Version: 2.3
 - Date: 2026-07-09
-- Status: Active, frontend registration gate and authenticated lead form implemented
+- Status: Active, live test runtime for authenticated funnel implemented
 
 ## 1. Current State
 
@@ -59,6 +59,8 @@ Live root: /var/www/travelgtc.com
 Nginx source template: projects/travelgtc/deploy/nginx/travelgtc.com.conf
 Nginx installed config: /etc/nginx/sites-available/travelgtc.com.conf
 Deploy script: projects/travelgtc/scripts/deploy_public_live.sh
+API service: travelgtc-api.service
+API env file: /etc/travelgtc/travelgtc-api.env
 ```
 
 Current blocker for public domain:
@@ -67,6 +69,7 @@ Current blocker for public domain:
 Authoritative Timeweb DNS points to 20.91.187.79.
 Some public recursive DNS caches may temporarily keep old Timeweb A/AAAA records.
 SSL is issued for travelgtc.com and www.travelgtc.com.
+The live HTTPS API proxy is active at /api/travelgtc/.
 ```
 
 Generated production image asset state:
@@ -109,6 +112,7 @@ AUTH-001 v0.2 and AUTH-002 explored shared GTC identity reuse and optional CrewP
 TRAVELGTC-AUTH-002 implemented the backend auth MVP mechanics: registration/login/logout/current-user API, email verification test token path, secure session-cookie handling, bcrypt password handling and authenticated `POST /api/travelgtc/v1/account/leads`.
 TRAVELGTC-AUTH-003 replaced shared `gtc_identity` with project-local `travelgtc_identity`, removed CrewPortGlobal identity/credential backfill and fixed the rule that TravelGTC registration is independent from users registered in other projects even when emails match.
 TRAVELGTC-AUTH-004 implemented the frontend registration gate: `/auth/`, header account controls, cookie-authenticated browser API calls, anonymous form redirect to registration/login and public funnel submission through `POST /api/travelgtc/v1/account/leads`.
+TRAVELGTC-RUNTIME-001 implemented the first server runtime: PostgreSQL database `travelgtc`, app role `travelgtc_user`, migrations applied, `travelgtc-api.service` active on `127.0.0.1:4301`, nginx `/api/travelgtc/` HTTPS proxy active, current static site deployed and live HTTPS authenticated funnel verified.
 ```
 
 API state:
@@ -125,7 +129,13 @@ Run API check: npm run check:travelgtc-api
 Default safety switch: TRAVELGTC_PUBLIC_LEAD_CAPTURE_ENABLED=false
 Default authenticated lead switch: TRAVELGTC_ACCOUNT_LEAD_CAPTURE_ENABLED=false
 Frontend public forms now use the authenticated account lead endpoint, not the public lead endpoint.
-Production database migration has not been applied yet.
+Runtime database: travelgtc
+Runtime database role: travelgtc_user
+Runtime service: travelgtc-api.service
+Runtime API bind: 127.0.0.1:4301
+Runtime HTTPS proxy: https://travelgtc.com/api/travelgtc/
+Runtime env file: /etc/travelgtc/travelgtc-api.env
+Runtime switches: public lead capture false, account lead capture true, agent stub, parent network none, secure cookies true.
 ```
 
 Public funnel state:
@@ -142,7 +152,9 @@ Funnel e2e command: npm run test:travelgtc-funnel
 Local test static port: 4174
 Local test API port: 4302
 Funnel test env enables TRAVELGTC_ACCOUNT_LEAD_CAPTURE_ENABLED=true and disables public lead capture.
-Live deployment is intentionally pending until API service and nginx /api proxy are configured.
+Live HTTPS funnel command: TRAVELGTC_FUNNEL_BASE_URL=https://travelgtc.com npm run test:travelgtc-funnel
+Live responsive command: TRAVELGTC_BASE_URL=https://travelgtc.com npm run test:travelgtc
+Live test database currently contains disposable test records created by verification and may be cleared before production launch.
 ```
 
 Typography correction state:
@@ -189,17 +201,17 @@ Generated screenshots are written to projects/travelgtc/test-artifacts/screensho
 
 Recommended next steps:
 
-1. start `TRAVELGTC-RUNTIME-001 - Test Database, API Service And Nginx Proxy`;
-2. run `001_travelgtc_lead_capture.sql` and `002_travelgtc_identity_auth.sql` first against a safe TravelGTC test database;
-3. configure API runtime environment, service process and nginx `/api/travelgtc/` proxy;
-4. verify HTTPS cookie behavior on `travelgtc.com`;
-5. keep true production mode blocked until privacy/consent/disclosure pages are approved;
-6. then continue to `TRAVELGTC-CRM-001 - Lead Board And Lead Detail MVP`.
+1. start `TRAVELGTC-LEGAL-001 - Privacy, Consent And Public Disclosure Pages`;
+2. keep true production launch messaging blocked until privacy/consent/disclosure pages are approved;
+3. then continue to `TRAVELGTC-CRM-001 - Lead Board And Lead Detail MVP`;
+4. before public launch announcement, clear disposable test users/leads or document retained test data;
+5. add backup/restore expectations for the `travelgtc` database.
 
 ## 4. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.3 | 2026-07-09 | GTC IT / AI Assistant | Recorded live test runtime: PostgreSQL DB, systemd API service, nginx proxy and HTTPS funnel verification |
 | 2.2 | 2026-07-09 | GTC IT / AI Assistant | Recorded frontend registration gate, `/auth/`, authenticated form submission and runtime publication as next step |
 | 2.1 | 2026-07-09 | GTC IT / AI Assistant | Recorded project-local TravelGTC registration isolation and removal of shared GTC identity/CrewPortGlobal backfill |
 | 2.0 | 2026-07-09 | GTC IT / AI Assistant | Recorded AUTH-002 backend auth MVP, gtc_identity migration, optional CrewPortGlobal identity backfill and authenticated lead endpoint |

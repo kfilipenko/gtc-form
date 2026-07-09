@@ -1,0 +1,23 @@
+[Unit]
+Description=TravelGTC API
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=kfilipenko
+Group=gtc-dev
+WorkingDirectory=/var/www/gtc-form/projects/travelgtc/app
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/travelgtc/travelgtc-api.env
+ExecStart=/usr/bin/node dist/src/server/index.js
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/var/www/gtc-form/projects/travelgtc/app
+
+[Install]
+WantedBy=multi-user.target

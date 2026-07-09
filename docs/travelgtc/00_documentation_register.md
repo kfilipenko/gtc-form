@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.3
+- Version: 2.4
 - Date: 2026-07-09
-- Status: Frontend registration gate and authenticated lead form implemented
+- Status: Live test runtime for authenticated funnel implemented
 
 ## 1. Purpose
 
@@ -64,6 +64,8 @@ The first stage is intentionally small:
 | `034_travelgtc_auth_003_project_local_registration_isolation_report.md` | TRAVELGTC-AUTH-003 - Project-Local Registration Isolation Report | Fixes local `travelgtc_identity`, removal of CrewPortGlobal backfill and project-local auth data boundaries. | Implemented |
 | `035_travelgtc_auth_004_frontend_registration_gate_task.md` | TRAVELGTC-AUTH-004 - Frontend Registration Gate And Authenticated Lead Form | Defines public auth UI, header account controls and authenticated lead form submission. | Implemented |
 | `036_travelgtc_auth_004_frontend_registration_gate_report.md` | TRAVELGTC-AUTH-004 - Frontend Registration Gate And Authenticated Lead Form Report | Fixes `/auth/`, frontend session state, auth-required funnel submission, CORS credentials and browser verification. | Implemented |
+| `037_travelgtc_runtime_001_test_database_api_service_nginx_proxy_task.md` | TRAVELGTC-RUNTIME-001 - Test Database, API Service And Nginx Proxy | Defines the first controlled server runtime for DB, API service and nginx proxy. | Implemented |
+| `038_travelgtc_runtime_001_test_database_api_service_nginx_proxy_report.md` | TRAVELGTC-RUNTIME-001 - Test Database, API Service And Nginx Proxy Report | Fixes PostgreSQL runtime, systemd service, nginx `/api` proxy, live deploy and HTTPS funnel verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -71,8 +73,11 @@ The first stage is intentionally small:
 |---|---|---|
 | Project source | `projects/travelgtc/` | Website source, public assets, deploy scripts and future app code. |
 | Public source | `projects/travelgtc/public/` | Files intended for public website publication. |
+| API app source | `projects/travelgtc/app/` | TravelGTC TypeScript API application. |
 | Live root | `/var/www/travelgtc.com` | Server-side published static site root. |
 | Nginx config | `/etc/nginx/sites-available/travelgtc.com.conf` | Enabled server block for `travelgtc.com` and `www.travelgtc.com`. |
+| API service | `/etc/systemd/system/travelgtc-api.service` | Installed systemd service for the TravelGTC API. |
+| API env file | `/etc/travelgtc/travelgtc-api.env` | Server-side TravelGTC runtime variables and database URL; not stored in git. |
 | Public home prototype | `projects/travelgtc/public/index.html` | First Travel Network Lab public landing page. |
 | Image inbox | `projects/travelgtc/public/assets/images/inbox/` | Place raw source images here for review and later processing. |
 | Processed images | `projects/travelgtc/public/assets/images/processed/` | Place optimized and approved web images here. |
@@ -92,6 +97,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.4 | 2026-07-09 | GTC IT / AI Assistant | Added live test runtime with PostgreSQL database, API service and nginx proxy |
 | 2.3 | 2026-07-09 | GTC IT / AI Assistant | Added frontend registration gate and authenticated public funnel implementation |
 | 2.2 | 2026-07-09 | GTC IT / AI Assistant | Replaced shared GTC identity with isolated TravelGTC project-local registration |
 | 2.1 | 2026-07-09 | GTC IT / AI Assistant | Added GTC identity database and auth API MVP implementation task/report |
