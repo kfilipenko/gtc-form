@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.3
+- Version: 3.4
 - Date: 2026-07-09
-- Status: Active, home process declaration block removed
+- Status: Active, home opportunity gallery and route CTA published
 
 ## 1. Current State
 
@@ -124,6 +124,7 @@ TRAVELGTC-WEB-013 rule: the home page must show this full process only once. It 
 TRAVELGTC-WEB-014 rule updated by AUTH-005: the home page form is a short first-contact request, not a full CRM questionnaire. Keep visible fields limited to need and short message. Infer CRM role from the selected need instead of showing a separate role selector on the home page.
 TRAVELGTC-AUTH-005 rule: registration comes first and collects identity/contact data. Lead forms must not ask again for name, contact value or communication channel. Supported first-stage profile contact methods are email and phone. The frontend derives lead `name`, `preferred_channel` and `contact_value` from the authenticated user profile.
 TRAVELGTC-WEB-015 rule: do not publish a visible home page block that declares the page/process purpose, including `Страницы и процесс` or `Каждый раздел ведёт к следующему действию`. The home page must perform the funnel through content and CTA. Compact process hints may live in the top navigation only.
+TRAVELGTC-WEB-016 rule: the home page should contain an image-led opportunity block after the hero/benefits area. It must show travel scenarios and route creation desire through a compact photo gallery and `Создавайте свои маршруты` CTA, not through a repeated page-process explanation.
 ```
 
 Architecture state:
@@ -160,6 +161,7 @@ TRAVELGTC-RUNTIME-001 implemented the first server runtime: PostgreSQL database 
 TRAVELGTC-LEGAL-001 published `/legal/`, `/legal/privacy/`, `/legal/terms/` and `/legal/partner-disclosure/`, linked them from footers and consent texts, and verified local/live responsive and authenticated funnel tests.
 TRAVELGTC-AUTH-005 made phone required at registration, limited registration contact preference to email/phone, removed repeated contact fields from home, contacts and create-trip lead forms, and changed lead payload building to use the authenticated user profile for contact data.
 TRAVELGTC-WEB-015 removed the standalone home page `site-map-section` / `menu-infographic` process block and moved compact process labels into the top navigation.
+TRAVELGTC-WEB-016 added the home opportunity gallery with five visual calls to action and a compact `Создавайте свои маршруты` block that leads to the authenticated request form.
 ```
 
 API state:

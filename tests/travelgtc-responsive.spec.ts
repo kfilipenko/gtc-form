@@ -47,6 +47,9 @@ test.describe('TravelGTC responsive public site', () => {
 
       await expect(page.locator('h1')).toContainText('Создавайте путешествия');
       await expect(page.locator('.benefit-strip')).toBeVisible();
+      await expect(page.locator('.opportunity-gallery')).toBeVisible();
+      await expect(page.locator('.opportunity-card')).toHaveCount(5);
+      await expect(page.locator('.route-promo')).toBeVisible();
       await expect(page.locator('form[data-travelgtc-lead-form]').first()).toBeVisible();
       await expect(page.locator('.nav-links')).toHaveCount(1);
       await expect(page.locator('.menu-infographic')).toHaveCount(0);

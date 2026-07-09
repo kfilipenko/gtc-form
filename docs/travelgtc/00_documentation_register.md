@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.4
+- Version: 3.5
 - Date: 2026-07-09
-- Status: Home page process declaration block removed
+- Status: Home opportunity gallery and route CTA published
 
 ## 1. Purpose
 
@@ -87,6 +87,8 @@ The first stage is intentionally small:
 | `057_travelgtc_auth_005_profile_contact_source_for_lead_forms_report.md` | TRAVELGTC-AUTH-005 - Profile Contact Source For Lead Forms Report | Fixes required phone registration, email/phone contact preference and lead forms without repeated contact fields. | Implemented |
 | `058_travelgtc_web_015_remove_home_process_declaration_block_task.md` | TRAVELGTC-WEB-015 - Remove Home Process Declaration Block Task | Defines removal of the visible home page process-declaration block and repeated page menu. | Implemented |
 | `059_travelgtc_web_015_remove_home_process_declaration_block_report.md` | TRAVELGTC-WEB-015 - Remove Home Process Declaration Block Report | Fixes the home flow by removing the repeated infographic section and moving process cues into the header navigation. | Implemented |
+| `060_travelgtc_web_016_home_opportunity_gallery_route_cta_task.md` | TRAVELGTC-WEB-016 - Home Opportunity Gallery And Route CTA Task | Defines the new image-led home opportunity gallery and route CTA block. | Implemented |
+| `061_travelgtc_web_016_home_opportunity_gallery_route_cta_report.md` | TRAVELGTC-WEB-016 - Home Opportunity Gallery And Route CTA Report | Fixes the published home gallery, route CTA, responsive checks and live verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -120,6 +122,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.5 | 2026-07-09 | GTC IT / AI Assistant | Added the home opportunity photo gallery and compact route CTA block |
 | 3.4 | 2026-07-09 | GTC IT / AI Assistant | Removed the visible home page process-declaration block and moved compact process cues into the top navigation |
 | 3.3 | 2026-07-09 | GTC IT / AI Assistant | Moved lead forms to authenticated profile contact data and limited registration contact methods to email/phone |
 | 3.2 | 2026-07-09 | GTC IT / AI Assistant | Simplified the home request form to minimum contact and need fields while preserving CRM role inference |
