@@ -114,4 +114,5 @@ export interface LeadCreationResult {
 export interface StoredLeadBundle extends LeadCreationResult {
   submission: PublicLeadSubmission;
   intakeOutput: IntakeAgentStubOutput;
+  userId?: string;
 }

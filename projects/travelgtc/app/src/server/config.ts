@@ -8,11 +8,17 @@ export interface TravelGtcConfig {
   host: string;
   port: number;
   publicLeadCaptureEnabled: boolean;
+  accountLeadCaptureEnabled: boolean;
   databaseUrl?: string;
   crmAuthMode: TravelGtcCrmAuthMode;
   agentIntakeMode: TravelGtcAgentIntakeMode;
   parentNetworkMode: TravelGtcParentNetworkMode;
   consentVersion: string;
+  identityConsentVersion: string;
+  sessionCookieName: string;
+  sessionTtlDays: number;
+  authSecureCookies: boolean;
+  authEmailVerificationTestMode: boolean;
   rateLimitWindowSeconds: number;
   rateLimitMax: number;
 }
@@ -32,16 +38,27 @@ function parsePositiveInteger(value: string | undefined, fallback: number): numb
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): TravelGtcConfig {
+  const appEnv = pickEnum(env.TRAVELGTC_APP_ENV, ['local', 'staging', 'production', 'test'] as const, 'local');
+
   return {
-    appEnv: pickEnum(env.TRAVELGTC_APP_ENV, ['local', 'staging', 'production', 'test'] as const, 'local'),
+    appEnv,
     host: env.TRAVELGTC_API_HOST || '127.0.0.1',
     port: parsePositiveInteger(env.TRAVELGTC_API_PORT, 4301),
     publicLeadCaptureEnabled: parseBoolean(env.TRAVELGTC_PUBLIC_LEAD_CAPTURE_ENABLED, false),
+    accountLeadCaptureEnabled: parseBoolean(env.TRAVELGTC_ACCOUNT_LEAD_CAPTURE_ENABLED, false),
     databaseUrl: env.TRAVELGTC_DATABASE_URL || undefined,
     crmAuthMode: pickEnum(env.TRAVELGTC_CRM_AUTH_MODE, ['disabled', 'basic', 'session'] as const, 'disabled'),
     agentIntakeMode: pickEnum(env.TRAVELGTC_AGENT_INTAKE_MODE, ['stub', 'manual', 'live'] as const, 'stub'),
     parentNetworkMode: pickEnum(env.TRAVELGTC_PARENT_NETWORK_MODE, ['none', 'manual', 'linked', 'api'] as const, 'none'),
     consentVersion: env.TRAVELGTC_CONSENT_VERSION || 'travelgtc-consent-v1',
+    identityConsentVersion: env.TRAVELGTC_IDENTITY_CONSENT_VERSION || 'gtc-identity-consent-v1',
+    sessionCookieName: env.TRAVELGTC_SESSION_COOKIE_NAME || 'gtc_travelgtc_session',
+    sessionTtlDays: parsePositiveInteger(env.TRAVELGTC_SESSION_TTL_DAYS, 7),
+    authSecureCookies: parseBoolean(env.TRAVELGTC_AUTH_SECURE_COOKIES, appEnv === 'production'),
+    authEmailVerificationTestMode: parseBoolean(
+      env.TRAVELGTC_AUTH_EMAIL_VERIFICATION_TEST_MODE,
+      appEnv === 'test',
+    ),
     rateLimitWindowSeconds: parsePositiveInteger(env.TRAVELGTC_RATE_LIMIT_WINDOW_SECONDS, 60),
     rateLimitMax: parsePositiveInteger(env.TRAVELGTC_RATE_LIMIT_MAX, 10),
   };

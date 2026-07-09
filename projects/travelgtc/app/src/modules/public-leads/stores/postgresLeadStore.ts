@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import pg from 'pg';
 import { DuplicateSubmissionError } from '../errors.js';
 import { createIntakeAgentStubOutput } from '../intakeAgentStub.js';
-import type { LeadStore } from '../leadStore.js';
+import type { LeadCreationContext, LeadStore } from '../leadStore.js';
 import type { LeadCreationResult, PublicLeadSubmission } from '../types.js';
 
 const { Pool } = pg;
@@ -14,7 +14,7 @@ export class PostgresLeadStore implements LeadStore {
     this.pool = new Pool({ connectionString: databaseUrl });
   }
 
-  async createLeadSubmission(submission: PublicLeadSubmission): Promise<LeadCreationResult> {
+  async createLeadSubmission(submission: PublicLeadSubmission, context: LeadCreationContext = {}): Promise<LeadCreationResult> {
     const client = await this.pool.connect();
     const clientEventId = submission.tracking.client_event_id ?? null;
 
@@ -37,16 +37,18 @@ export class PostgresLeadStore implements LeadStore {
       const interactionId = randomUUID();
       const taskId = randomUUID();
       const agentRunId = randomUUID();
-      const nowActor = 'public_lead_api';
+      const nowActor = context.actor ?? 'public_lead_api';
+      const userId = context.userId ?? null;
       const intakeOutput = createIntakeAgentStubOutput(submission);
 
       await client.query(
         `insert into travelgtc_contacts (
-          id, display_name, primary_channel, primary_contact, email, phone, telegram, max_contact, whatsapp,
+          id, user_id, display_name, primary_channel, primary_contact, email, phone, telegram, max_contact, whatsapp,
           consent_personal_data, consent_communication, consent_version, created_by, updated_by
-        ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,true,true,$10,$11,$11)`,
+        ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,true,true,$11,$12,$12)`,
         [
           contactId,
+          userId,
           submission.name,
           submission.preferred_channel,
           submission.contact_value,
@@ -62,14 +64,15 @@ export class PostgresLeadStore implements LeadStore {
 
       await client.query(
         `insert into travelgtc_leads (
-          id, contact_id, stage, declared_role, inferred_role, primary_interest, business_interest_level,
+          id, contact_id, user_id, stage, declared_role, inferred_role, primary_interest, business_interest_level,
           source_channel, source_path, referrer, utm_source, utm_medium, utm_campaign, utm_content, utm_term,
           referral_code, locale, timezone, client_event_id, recommended_next_step, summary, compliance_risk,
           created_by, updated_by
-        ) values ($1,$2,'new_lead',$3,$3,$4,$5,'site',$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$20)`,
+        ) values ($1,$2,$3,'new_lead',$4,$4,$5,$6,'site',$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$21)`,
         [
           leadId,
           contactId,
+          userId,
           submission.declared_role,
           submission.primary_interest,
           submission.business_interest_level ?? 'none',
@@ -93,12 +96,13 @@ export class PostgresLeadStore implements LeadStore {
 
       await client.query(
         `insert into travelgtc_travel_ideas (
-          id, lead_id, format, destination, approx_dates, audience_type, estimated_group_size,
+          id, lead_id, created_by_user_id, format, destination, approx_dates, audience_type, estimated_group_size,
           description, important_details, status, created_by, updated_by
-        ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,'needs_review',$10,$10)`,
+        ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'needs_review',$11,$11)`,
         [
           travelIdeaId,
           leadId,
+          userId,
           submission.travel_format?.join(', ') ?? null,
           submission.destination_interest ?? null,
           submission.approx_dates ?? null,
@@ -112,13 +116,14 @@ export class PostgresLeadStore implements LeadStore {
 
       await client.query(
         `insert into travelgtc_interactions (
-          id, lead_id, contact_id, interaction_type, channel, direction, body, human_approved, metadata_json,
+          id, lead_id, contact_id, actor_user_id, interaction_type, channel, direction, body, human_approved, metadata_json,
           created_by, updated_by
-        ) values ($1,$2,$3,'form','site','inbound',$4,null,$5,$6,$6)`,
+        ) values ($1,$2,$3,$4,'form','site','inbound',$5,null,$6,$7,$7)`,
         [
           interactionId,
           leadId,
           contactId,
+          userId,
           submission.message,
           JSON.stringify({ source: 'public_lead_api', tracking: submission.tracking }),
           nowActor,
@@ -161,17 +166,17 @@ export class PostgresLeadStore implements LeadStore {
         ],
       );
 
-      await insertAudit(client, 'lead', leadId, 'created', {
+      await insertAudit(client, userId, 'lead', leadId, 'created', {
         stage: 'new_lead',
         declared_role: submission.declared_role,
         primary_interest: submission.primary_interest,
       });
-      await insertAudit(client, 'contact', contactId, 'consent_recorded', {
+      await insertAudit(client, userId, 'contact', contactId, 'consent_recorded', {
         consent_personal_data: true,
         consent_communication: true,
         consent_version: submission.consent_version,
       });
-      await insertAudit(client, 'agent_run', agentRunId, 'agent_run', intakeOutput);
+      await insertAudit(client, userId, 'agent_run', agentRunId, 'agent_run', intakeOutput);
 
       await client.query('commit');
 
@@ -199,6 +204,7 @@ export class PostgresLeadStore implements LeadStore {
 
 async function insertAudit(
   client: pg.PoolClient,
+  actorUserId: string | null,
   entityType: string,
   entityId: string,
   action: string,
@@ -206,8 +212,8 @@ async function insertAudit(
 ) {
   await client.query(
     `insert into travelgtc_audit_log (
-      id, entity_type, entity_id, action, actor_type, actor_id, after_json, created_by, updated_by
-    ) values ($1,$2,$3,$4,'system','public_lead_api',$5,'public_lead_api','public_lead_api')`,
-    [randomUUID(), entityType, entityId, action, JSON.stringify(after)],
+      id, entity_type, entity_id, action, actor_type, actor_id, actor_user_id, after_json, created_by, updated_by
+    ) values ($1,$2,$3,$4,'system','public_lead_api',$5,$6,'public_lead_api','public_lead_api')`,
+    [randomUUID(), entityType, entityId, action, actorUserId, JSON.stringify(after)],
   );
 }

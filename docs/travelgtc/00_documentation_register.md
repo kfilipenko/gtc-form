@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.0
+- Version: 2.1
 - Date: 2026-07-09
-- Status: Unified GTC identity reuse clarified
+- Status: GTC identity auth API MVP implemented
 
 ## 1. Purpose
 
@@ -58,6 +58,8 @@ The first stage is intentionally small:
 | `028_travelgtc_web_007_public_funnel_role_selector_form_report.md` | TRAVELGTC-WEB-007 - Public Funnel Role Selector And Form Report | Fixes the public funnel form, route forms, API submit JS and local/test funnel e2e verification. | Implemented, not live-deployed |
 | `029_travelgtc_auth_001_gtc_identity_registration_gate_task.md` | TRAVELGTC-AUTH-001 - GTC Identity Registration Gate | Defines separated registration/login, shared GTC identity and authenticated TravelGTC form submission. | Implemented |
 | `030_travelgtc_auth_001_gtc_identity_registration_gate_spec.md` | TRAVELGTC-AUTH-001 - GTC Identity Registration Gate Specification | Fixes the registration model, existing GTC account reuse, shared identity tables, auth UX, API endpoints, CRM linkage and seafarer opt-in boundary. | Active implementation specification |
+| `031_travelgtc_auth_002_gtc_identity_database_auth_api_mvp_task.md` | TRAVELGTC-AUTH-002 - GTC Identity Database And Auth API MVP | Defines first shared identity database/auth API implementation for TravelGTC. | Implemented |
+| `032_travelgtc_auth_002_gtc_identity_database_auth_api_mvp_report.md` | TRAVELGTC-AUTH-002 - GTC Identity Database And Auth API MVP Report | Fixes the auth API MVP, `gtc_identity` migration, optional CrewPortGlobal identity backfill, authenticated lead endpoint and tests. | Implemented, not live-deployed |
 
 ## 3. Project Source Locations
 
@@ -86,6 +88,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.1 | 2026-07-09 | GTC IT / AI Assistant | Added GTC identity database and auth API MVP implementation task/report |
 | 2.0 | 2026-07-09 | GTC IT / AI Assistant | Clarified shared GTC account reuse and no duplicate TravelGTC registration for existing CrewPortGlobal/GTC users |
 | 1.9 | 2026-07-09 | GTC IT / AI Assistant | Added GTC identity registration gate task and specification |
 | 1.8 | 2026-07-09 | GTC IT / AI Assistant | Added public funnel role selector and API-connected form |

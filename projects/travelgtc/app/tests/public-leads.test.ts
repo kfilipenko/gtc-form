@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { createTravelGtcApp } from '../src/server/createApp.js';
 import type { TravelGtcConfig } from '../src/server/config.js';
+import { MemoryAuthStore } from '../src/modules/auth/stores/memoryAuthStore.js';
 import { MemoryLeadStore } from '../src/modules/public-leads/stores/memoryLeadStore.js';
 
 const baseConfig: TravelGtcConfig = {
@@ -8,10 +9,16 @@ const baseConfig: TravelGtcConfig = {
   host: '127.0.0.1',
   port: 0,
   publicLeadCaptureEnabled: true,
+  accountLeadCaptureEnabled: true,
   crmAuthMode: 'disabled',
   agentIntakeMode: 'stub',
   parentNetworkMode: 'none',
   consentVersion: 'travelgtc-consent-v1',
+  identityConsentVersion: 'gtc-identity-consent-v1',
+  sessionCookieName: 'gtc_travelgtc_session',
+  sessionTtlDays: 7,
+  authSecureCookies: false,
+  authEmailVerificationTestMode: true,
   rateLimitWindowSeconds: 60,
   rateLimitMax: 10,
 };
@@ -45,7 +52,8 @@ function validPayload(overrides: Record<string, unknown> = {}) {
 
 async function makeApp(configOverrides: Partial<TravelGtcConfig> = {}) {
   const store = new MemoryLeadStore();
-  const app = await createTravelGtcApp({ config: { ...baseConfig, ...configOverrides }, store });
+  const authStore = new MemoryAuthStore();
+  const app = await createTravelGtcApp({ config: { ...baseConfig, ...configOverrides }, store, authStore });
   return { app, store };
 }
 
