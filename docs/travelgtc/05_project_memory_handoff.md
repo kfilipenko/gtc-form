@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.3
+- Version: 2.4
 - Date: 2026-07-09
-- Status: Active, live test runtime for authenticated funnel implemented
+- Status: Active, legal/privacy/disclosure pages published
 
 ## 1. Current State
 
@@ -50,6 +50,10 @@ First public prototype routes:
 /about/
 /contacts/
 /auth/
+/legal/
+/legal/privacy/
+/legal/terms/
+/legal/partner-disclosure/
 ```
 
 Server-side publication is prepared:
@@ -113,6 +117,7 @@ TRAVELGTC-AUTH-002 implemented the backend auth MVP mechanics: registration/logi
 TRAVELGTC-AUTH-003 replaced shared `gtc_identity` with project-local `travelgtc_identity`, removed CrewPortGlobal identity/credential backfill and fixed the rule that TravelGTC registration is independent from users registered in other projects even when emails match.
 TRAVELGTC-AUTH-004 implemented the frontend registration gate: `/auth/`, header account controls, cookie-authenticated browser API calls, anonymous form redirect to registration/login and public funnel submission through `POST /api/travelgtc/v1/account/leads`.
 TRAVELGTC-RUNTIME-001 implemented the first server runtime: PostgreSQL database `travelgtc`, app role `travelgtc_user`, migrations applied, `travelgtc-api.service` active on `127.0.0.1:4301`, nginx `/api/travelgtc/` HTTPS proxy active, current static site deployed and live HTTPS authenticated funnel verified.
+TRAVELGTC-LEGAL-001 published `/legal/`, `/legal/privacy/`, `/legal/terms/` and `/legal/partner-disclosure/`, linked them from footers and consent texts, and verified local/live responsive and authenticated funnel tests.
 ```
 
 API state:
@@ -155,6 +160,17 @@ Funnel test env enables TRAVELGTC_ACCOUNT_LEAD_CAPTURE_ENABLED=true and disables
 Live HTTPS funnel command: TRAVELGTC_FUNNEL_BASE_URL=https://travelgtc.com npm run test:travelgtc-funnel
 Live responsive command: TRAVELGTC_BASE_URL=https://travelgtc.com npm run test:travelgtc
 Live test database currently contains disposable test records created by verification and may be cleared before production launch.
+```
+
+Legal/disclosure state:
+
+```text
+Privacy page: projects/travelgtc/public/legal/privacy/index.html
+Terms page: projects/travelgtc/public/legal/terms/index.html
+Partner disclosure page: projects/travelgtc/public/legal/partner-disclosure/index.html
+Footer links expose the legal pages on all public routes.
+Registration and lead consent text links to privacy/terms pages.
+The legal pages are working informational pages and still require Project Owner / legal review before a broad public launch.
 ```
 
 Typography correction state:
@@ -201,16 +217,17 @@ Generated screenshots are written to projects/travelgtc/test-artifacts/screensho
 
 Recommended next steps:
 
-1. start `TRAVELGTC-LEGAL-001 - Privacy, Consent And Public Disclosure Pages`;
-2. keep true production launch messaging blocked until privacy/consent/disclosure pages are approved;
-3. then continue to `TRAVELGTC-CRM-001 - Lead Board And Lead Detail MVP`;
-4. before public launch announcement, clear disposable test users/leads or document retained test data;
-5. add backup/restore expectations for the `travelgtc` database.
+1. start `TRAVELGTC-CRM-001 - Lead Board And Lead Detail MVP`;
+2. before public launch announcement, clear disposable test users/leads or document retained test data;
+3. add `TRAVELGTC-DATA-001 - Test Data Cleanup And Database Backup Policy`;
+4. decide official privacy contact email and retention period;
+5. obtain current official parent-network policies/income disclosures before any detailed compensation discussion.
 
 ## 4. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.4 | 2026-07-09 | GTC IT / AI Assistant | Recorded legal/privacy/disclosure pages, footer links, consent links and next CRM step |
 | 2.3 | 2026-07-09 | GTC IT / AI Assistant | Recorded live test runtime: PostgreSQL DB, systemd API service, nginx proxy and HTTPS funnel verification |
 | 2.2 | 2026-07-09 | GTC IT / AI Assistant | Recorded frontend registration gate, `/auth/`, authenticated form submission and runtime publication as next step |
 | 2.1 | 2026-07-09 | GTC IT / AI Assistant | Recorded project-local TravelGTC registration isolation and removal of shared GTC identity/CrewPortGlobal backfill |

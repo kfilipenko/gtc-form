@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.4
+- Version: 2.5
 - Date: 2026-07-09
-- Status: Live test runtime for authenticated funnel implemented
+- Status: Legal/privacy/disclosure pages published
 
 ## 1. Purpose
 
@@ -66,6 +66,8 @@ The first stage is intentionally small:
 | `036_travelgtc_auth_004_frontend_registration_gate_report.md` | TRAVELGTC-AUTH-004 - Frontend Registration Gate And Authenticated Lead Form Report | Fixes `/auth/`, frontend session state, auth-required funnel submission, CORS credentials and browser verification. | Implemented |
 | `037_travelgtc_runtime_001_test_database_api_service_nginx_proxy_task.md` | TRAVELGTC-RUNTIME-001 - Test Database, API Service And Nginx Proxy | Defines the first controlled server runtime for DB, API service and nginx proxy. | Implemented |
 | `038_travelgtc_runtime_001_test_database_api_service_nginx_proxy_report.md` | TRAVELGTC-RUNTIME-001 - Test Database, API Service And Nginx Proxy Report | Fixes PostgreSQL runtime, systemd service, nginx `/api` proxy, live deploy and HTTPS funnel verification. | Implemented |
+| `039_travelgtc_legal_001_privacy_consent_disclosure_pages_task.md` | TRAVELGTC-LEGAL-001 - Privacy, Consent And Public Disclosure Pages | Defines public privacy, terms and partner-disclosure pages for the authenticated funnel. | Implemented |
+| `040_travelgtc_legal_001_privacy_consent_disclosure_pages_report.md` | TRAVELGTC-LEGAL-001 - Privacy, Consent And Public Disclosure Pages Report | Fixes legal routes, consent links, footer links, live deployment and verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -79,6 +81,7 @@ The first stage is intentionally small:
 | API service | `/etc/systemd/system/travelgtc-api.service` | Installed systemd service for the TravelGTC API. |
 | API env file | `/etc/travelgtc/travelgtc-api.env` | Server-side TravelGTC runtime variables and database URL; not stored in git. |
 | Public home prototype | `projects/travelgtc/public/index.html` | First Travel Network Lab public landing page. |
+| Public legal pages | `projects/travelgtc/public/legal/` | Privacy, terms and partner-model disclosure pages. |
 | Image inbox | `projects/travelgtc/public/assets/images/inbox/` | Place raw source images here for review and later processing. |
 | Processed images | `projects/travelgtc/public/assets/images/processed/` | Place optimized and approved web images here. |
 | Public documents | `projects/travelgtc/public/legal/` | Future public policies, conditions or documents for the site. |
@@ -97,6 +100,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.5 | 2026-07-09 | GTC IT / AI Assistant | Added privacy, terms and partner-disclosure pages with consent/footer links |
 | 2.4 | 2026-07-09 | GTC IT / AI Assistant | Added live test runtime with PostgreSQL database, API service and nginx proxy |
 | 2.3 | 2026-07-09 | GTC IT / AI Assistant | Added frontend registration gate and authenticated public funnel implementation |
 | 2.2 | 2026-07-09 | GTC IT / AI Assistant | Replaced shared GTC identity with isolated TravelGTC project-local registration |

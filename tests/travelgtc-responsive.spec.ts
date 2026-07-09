@@ -21,6 +21,10 @@ const publicRoutes = [
   '/about/',
   '/contacts/',
   '/auth/',
+  '/legal/',
+  '/legal/privacy/',
+  '/legal/terms/',
+  '/legal/partner-disclosure/',
 ];
 
 async function assertNoHorizontalOverflow(pageWidth: number, scrollWidth: number) {

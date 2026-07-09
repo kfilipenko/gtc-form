@@ -3,7 +3,7 @@
 - Project: TravelGTC
 - Project code: travelgtc
 - Domain: travelgtc.com
-- Status: Live test runtime active for authenticated registration and lead funnel
+- Status: Live test runtime active with legal/privacy/disclosure pages
 
 ## Purpose
 
@@ -62,6 +62,10 @@ projects/travelgtc/
 /about/
 /contacts/
 /auth/
+/legal/
+/legal/privacy/
+/legal/terms/
+/legal/partner-disclosure/
 ```
 
 ## API Application
@@ -131,6 +135,19 @@ TRAVELGTC_BASE_URL=https://travelgtc.com npm run test:travelgtc
 
 The current live database may contain disposable test records from verification. Clear or archive them before a public launch announcement.
 
+## Legal And Disclosure Pages
+
+Public legal routes:
+
+```text
+/legal/
+/legal/privacy/
+/legal/terms/
+/legal/partner-disclosure/
+```
+
+These pages are published as working informational pages for the TravelGTC test runtime. They explain privacy, consent, account use, no public offer, no income guarantee and the official-materials boundary. They still require Project Owner / legal review before broad public launch messaging.
+
 ## Publication
 
 Server-side publication uses:
@@ -161,4 +178,6 @@ docs/travelgtc/01_project_scope_and_positioning.md
 docs/travelgtc/02_domain_dns_ssl_publication_checklist.md
 docs/travelgtc/03_visual_reference_and_product_direction.md
 docs/travelgtc/05_project_memory_handoff.md
+docs/travelgtc/039_travelgtc_legal_001_privacy_consent_disclosure_pages_task.md
+docs/travelgtc/040_travelgtc_legal_001_privacy_consent_disclosure_pages_report.md
 ```

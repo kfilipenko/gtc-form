@@ -446,6 +446,11 @@ h3 {
   font-size: 0.95rem;
 }
 
+.card-actions {
+  display: flex;
+  margin-top: 16px;
+}
+
 .navy .card p {
   color: rgba(255, 255, 255, 0.72);
 }
@@ -883,6 +888,54 @@ textarea {
   width: 16px;
   min-height: 16px;
   margin-top: 2px;
+}
+
+.consent-list a {
+  color: var(--ocean);
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.legal-document {
+  max-width: 860px;
+}
+
+.legal-document h2 {
+  margin-top: 34px;
+  font-size: clamp(1.2rem, 1.7vw, 1.55rem);
+}
+
+.legal-document h2:first-child {
+  margin-top: 0;
+}
+
+.legal-document p,
+.legal-document li {
+  color: var(--muted);
+}
+
+.legal-document ul {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding-left: 22px;
+}
+
+.notice-panel {
+  border: 1px solid rgba(0, 184, 148, 0.2);
+  border-radius: 8px;
+  margin-bottom: 26px;
+  padding: 14px 16px;
+  background: rgba(0, 184, 148, 0.08);
+  color: var(--ocean);
+  font-size: 0.94rem;
+  line-height: 1.45;
+}
+
+.notice-panel strong {
+  color: var(--navy);
 }
 
 button:disabled {
