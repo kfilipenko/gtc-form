@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.6
+- Version: 2.7
 - Date: 2026-07-09
-- Status: Upper infographic navigation design implemented
+- Status: Reference image hero alignment implemented
 
 ## 1. Purpose
 
@@ -70,6 +70,8 @@ The first stage is intentionally small:
 | `040_travelgtc_legal_001_privacy_consent_disclosure_pages_report.md` | TRAVELGTC-LEGAL-001 - Privacy, Consent And Public Disclosure Pages Report | Fixes legal routes, consent links, footer links, live deployment and verification. | Implemented |
 | `041_travelgtc_web_008_upper_infographic_navigation_design_task.md` | TRAVELGTC-WEB-008 - Upper Infographic Navigation Design Task | Defines the upper-page infographic navigation redesign against the approved mockup reference. | Implemented |
 | `042_travelgtc_web_008_upper_infographic_navigation_design_report.md` | TRAVELGTC-WEB-008 - Upper Infographic Navigation Design Report | Fixes the moved upper infographic navigation, responsive checks and publication verification. | Implemented |
+| `043_travelgtc_web_009_reference_image_hero_alignment_task.md` | TRAVELGTC-WEB-009 - Reference Image Hero Alignment Task | Defines restoration of reference-like imagery and hero composition on the home page. | Implemented |
+| `044_travelgtc_web_009_reference_image_hero_alignment_report.md` | TRAVELGTC-WEB-009 - Reference Image Hero Alignment Report | Fixes production image assets, hero photo background and responsive visual verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -102,6 +104,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.7 | 2026-07-09 | GTC IT / AI Assistant | Added processed travel imagery and reference-like hero composition |
 | 2.6 | 2026-07-09 | GTC IT / AI Assistant | Moved and restyled the home-page infographic navigation near the upper page area |
 | 2.5 | 2026-07-09 | GTC IT / AI Assistant | Added privacy, terms and partner-disclosure pages with consent/footer links |
 | 2.4 | 2026-07-09 | GTC IT / AI Assistant | Added live test runtime with PostgreSQL database, API service and nginx proxy |

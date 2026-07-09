@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.5
+- Version: 2.6
 - Date: 2026-07-09
-- Status: Active, upper infographic navigation design implemented
+- Status: Active, reference image hero alignment implemented
 
 ## 1. Current State
 
@@ -80,8 +80,10 @@ Generated production image asset state:
 
 ```text
 The previously generated WebP set was rejected and removed.
-There are currently no approved production bitmap images in processed/.
-Public pages use CSS visual panels until a new approved image set is generated.
+TRAVELGTC-WEB-009 added two new processed assets prepared from Project Owner reference materials:
+projects/travelgtc/public/assets/images/processed/travelgtc-hero-group-sunset.webp
+projects/travelgtc/public/assets/images/processed/travelgtc-bay-view.webp
+The home page now uses the hero sunset group image and a travel photo in the first content section.
 ```
 
 The original mockups in `inbox/foto/` are design references only.
@@ -176,10 +178,11 @@ The legal pages are working informational pages and still require Project Owner 
 Typography correction state:
 
 ```text
-Home hero uses CSS visual background because rejected generated images were removed.
+Home hero uses a processed photo background with dark overlay and no rejected generated WebP files.
 Desktop H1/H2/H3 scales were reduced further to match the original mockup hierarchy.
 Hero and page-hero heights were reduced for denser landing-page proportions.
 The third hero headline line uses the lime reference accent.
+The second hero headline line uses a turquoise italic accent to approximate the reference handwritten emphasis.
 The short home advantages now render as a compact dark band below the hero.
 ```
 
@@ -229,6 +232,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.6 | 2026-07-09 | GTC IT / AI Assistant | Recorded processed reference images and photographic home hero alignment |
 | 2.5 | 2026-07-09 | GTC IT / AI Assistant | Recorded upper-page infographic navigation redesign and responsive verification |
 | 2.4 | 2026-07-09 | GTC IT / AI Assistant | Recorded legal/privacy/disclosure pages, footer links, consent links and next CRM step |
 | 2.3 | 2026-07-09 | GTC IT / AI Assistant | Recorded live test runtime: PostgreSQL DB, systemd API service, nginx proxy and HTTPS funnel verification |
