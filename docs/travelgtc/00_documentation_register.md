@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.9
+- Version: 3.0
 - Date: 2026-07-09
-- Status: Unique page images from new design set implemented
+- Status: TravelGTC design system fixed and baseline public alignment implemented
 
 ## 1. Purpose
 
@@ -76,6 +76,9 @@ The first stage is intentionally small:
 | `046_travelgtc_web_010_production_image_set_page_binding_report.md` | TRAVELGTC-WEB-010 - Production Image Set Page Binding Report | Fixes the new processed image set, page-specific visual bindings and responsive verification. | Implemented |
 | `047_travelgtc_web_011_unique_page_images_from_new_design_set_task.md` | TRAVELGTC-WEB-011 - Unique Page Images From New Design Set Task | Defines unique page image assignment from the newer design/photo set. | Implemented |
 | `048_travelgtc_web_011_unique_page_images_from_new_design_set_report.md` | TRAVELGTC-WEB-011 - Unique Page Images From New Design Set Report | Fixes non-repeating page images, additional processed assets and responsive verification. | Implemented |
+| `049_travelgtc_design_system.md` | TravelGTC - Website Design System | Fixes the visual standard for colors, typography, spacing, hero composition, cards, funnel process and page design direction. | Active design standard |
+| `050_travelgtc_web_012_design_system_baseline_alignment_task.md` | TRAVELGTC-WEB-012 - Design System Baseline Alignment Task | Defines the first public-site alignment against the fixed TravelGTC design system. | Implemented |
+| `051_travelgtc_web_012_design_system_baseline_alignment_report.md` | TRAVELGTC-WEB-012 - Design System Baseline Alignment Report | Fixes the design-system save, CSS/page alignment, funnel-process update and verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -93,6 +96,7 @@ The first stage is intentionally small:
 | Image inbox | `projects/travelgtc/public/assets/images/inbox/` | Place raw source images here for review and later processing. |
 | Processed images | `projects/travelgtc/public/assets/images/processed/` | Place optimized and approved web images here. |
 | Public documents | `projects/travelgtc/public/legal/` | Future public policies, conditions or documents for the site. |
+| Project-local design draft | `projects/travelgtc/docs/travelgtc/` | Project Owner design drafts before canonical fixation in `docs/travelgtc/`. |
 
 ## 4. Standards Applied
 
@@ -108,6 +112,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.0 | 2026-07-09 | GTC IT / AI Assistant | Saved the TravelGTC design system and aligned the public baseline design, header, typography, funnel process and compact footer |
 | 2.9 | 2026-07-09 | GTC IT / AI Assistant | Added newer design/photo set and unique non-repeating image assignments across main pages |
 | 2.8 | 2026-07-09 | GTC IT / AI Assistant | Optimized and connected the new production image set to public pages |
 | 2.7 | 2026-07-09 | GTC IT / AI Assistant | Added processed travel imagery and reference-like hero composition |

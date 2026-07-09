@@ -7,7 +7,7 @@
   <meta name="description" content="Современный travel-клуб для путешествий, создания маршрутов, объединения людей и развития партнерской сети.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/site.css">
 </head>
 <body>
@@ -15,8 +15,8 @@
     <header class="site-header">
       <div class="nav-wrap">
         <a class="brand" href="/">
-          <strong>Travel Network Lab</strong>
-          <span>Путешествия. Сообщества. Возможности.</span>
+          <strong>TravelGTC</strong>
+          <span>Travel Network Lab</span>
         </a>
         <nav class="nav-links" aria-label="Главное меню">
           <a class="active" href="/">Главная</a>
@@ -25,6 +25,7 @@
           <a href="/create-trip/">Создать маршрут</a>
           <a href="/business-model/">Бизнес-модель</a>
           <a href="/events/">События</a>
+          <a href="/about/">О проекте</a>
           <a href="/contacts/">Контакты</a>
         </nav>
         <div class="nav-actions"><a class="button nav-contact" href="/contacts/">Связаться со мной</a><div class="account-actions" data-auth-state><a class="account-link" href="/auth/?mode=login" data-auth-anonymous>Войти</a><a class="button account-register" href="/auth/?mode=register" data-auth-anonymous>Регистрация</a><div class="account-user" data-auth-user hidden><span data-auth-user-name>Аккаунт</span><button class="account-logout" type="button" data-auth-logout>Выйти</button></div></div><button class="menu-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" data-menu-toggle>
@@ -145,6 +146,9 @@
             <span>Роль</span>
             <span>Заявка</span>
             <span>Консультация</span>
+            <span>Членство</span>
+            <span>Участие</span>
+            <span>Рекомендации</span>
           </div>
         </div>
       </section>
@@ -206,8 +210,9 @@
             <input type="hidden" name="consent_version" value="travelgtc-consent-v1">
             <input type="hidden" name="declared_role" value="trip_author" data-declared-role-input>
             <div class="section-head">
-              <p class="eyebrow dark">Роль и заявка</p>
-              <h2>Опишите, что вам интересно</h2>
+              <p class="eyebrow dark">Формат участия</p>
+              <h2>Выберите, как вам интересно участвовать в TravelGTC</h2>
+              <p>Это не регистрация и не обязательство. Это первый шаг, чтобы мы поняли ваш интерес и предложили подходящий формат участия.</p>
             </div>
             <div class="role-selector" aria-label="Выберите вашу роль">
               <button type="button" data-role-option="traveler">Хочу путешествовать чаще</button>
@@ -243,29 +248,37 @@
       <section class="section">
         <div class="section-inner">
           <div class="section-head center">
-            <p class="eyebrow dark">Процесс</p>
-            <h2>Как это работает</h2>
+            <p class="eyebrow dark">Воронка участия</p>
+            <h2>Как вы становитесь частью сообщества</h2>
           </div>
           <div class="steps">
             <div class="step">
-              <strong>1. Выберите идею</strong>
-              <p>Определите формат: отдых, спорт, ретрит, деловая поездка, семейный тур или событие для сообщества.</p>
+              <strong>1. Интерес</strong>
+              <p>Человек видит путешествие, событие или клубный формат, который отвечает его реальной потребности.</p>
             </div>
             <div class="step">
-              <strong>2. Соберите людей</strong>
-              <p>Пригласите тех, кому близка ваша тема: друзей, клиентов, учеников, партнёров или единомышленников.</p>
+              <strong>2. Роль</strong>
+              <p>Он выбирает, что ему ближе: путешествовать, создать маршрут, собрать людей или понять партнёрскую модель.</p>
             </div>
             <div class="step">
-              <strong>3. Используйте платформу</strong>
-              <p>Получите доступ к travel-возможностям, инструментам, предложениям и поддержке.</p>
+              <strong>3. Заявка</strong>
+              <p>После регистрации пользователь описывает интерес, маршрут, группу или вопрос через форму TravelGTC.</p>
             </div>
             <div class="step">
-              <strong>4. Создайте опыт</strong>
-              <p>Путешествуйте, проводите встречи, делитесь впечатлениями и формируйте доверие.</p>
+              <strong>4. Консультация</strong>
+              <p>Заявка попадает в CRM, где уточняется потребность и подбирается спокойный следующий шаг.</p>
             </div>
             <div class="step">
-              <strong>5. Развивайте сеть</strong>
-              <p>Рекомендуйте проект тем, кому он действительно интересен, и развивайте партнёрское направление.</p>
+              <strong>5. Членство</strong>
+              <p>Если формат подходит, человек получает объяснение условий участия и официальных процедур проекта.</p>
+            </div>
+            <div class="step">
+              <strong>6. Участие</strong>
+              <p>Пользователь присоединяется к поездкам, событиям, клубным форматам или создаёт собственную travel-идею.</p>
+            </div>
+            <div class="step">
+              <strong>7. Рекомендации</strong>
+              <p>После личного опыта он может делиться возможностью с теми, кому она действительно полезна.</p>
             </div>
           </div>
         </div>
@@ -302,8 +315,8 @@
       <div class="footer-inner">
         <div class="footer-top">
           <div class="brand">
-            <strong>Travel Network Lab</strong>
-            <span>Путешествия. Сообщества. Возможности.</span>
+            <strong>TravelGTC</strong>
+            <span>Travel Network Lab</span>
           </div>
           <div class="footer-links">
             <a href="/about/">О проекте</a>
