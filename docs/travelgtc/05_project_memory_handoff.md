@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.9
+- Version: 3.0
 - Date: 2026-07-09
-- Status: Active, design system fixed and baseline public alignment implemented
+- Status: Active, home page corrected as compact business-process entry point
 
 ## 1. Current State
 
@@ -120,6 +120,7 @@ Core colors: #061A28, #0B2A3A, #0E5A73, #00C7D9, #9BEA2E, #F5F8FA.
 Use Manrope as the primary public-site font with Inter fallback.
 Public design must stay compact, image-led and funnel-oriented.
 Home funnel path: interest -> role -> application -> consultation -> membership -> participation -> recommendations.
+TRAVELGTC-WEB-013 rule: the home page must show this full process only once. It is the entry page for visitor -> interest -> role -> authenticated lead form -> CRM lead -> consultation, not a repeated text library.
 ```
 
 Architecture state:
@@ -219,6 +220,7 @@ The third hero headline line uses the lime reference accent.
 The second hero headline line uses a turquoise accent.
 The short home advantages now render as a compact dark band below the hero.
 TRAVELGTC-WEB-012 updated the base color tokens, Manrope font loading, radius system, button sizes, card shadows, hero overlay, section density and footer compactness against `049_travelgtc_design_system.md`.
+TRAVELGTC-WEB-013 then reduced the home hero height/H1 scale, added the compact hero process card, removed the duplicated lower funnel section and removed obsolete `path-summary` chips.
 ```
 
 Menu/footer/mobile state:
@@ -226,7 +228,7 @@ Menu/footer/mobile state:
 ```text
 Home page includes a clickable infographic-style menu for all public routes.
 TRAVELGTC-WEB-008 moved this infographic menu from the lower home page to the upper page area directly after the hero and short benefits band.
-The block is now titled as the site structure and visually supports the funnel path: interest -> role -> application -> consultation -> membership -> participation -> recommendations.
+The block is now titled as page-to-process navigation. It maps each section to a business-process role instead of repeating the full funnel.
 Infographic menu uses responsive columns: desktop 8, tablet 4, mobile 2.
 Footer is compacted with smaller padding, smaller links and desktop disclaimer columns.
 The header brand is `TravelGTC` with `Travel Network Lab` subtitle, and all main public/auth/legal headers include `О проекте`.
@@ -268,6 +270,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.0 | 2026-07-09 | GTC IT / AI Assistant | Recorded the home page as a compact business-process entry point and removed duplicated funnel publication |
 | 2.9 | 2026-07-09 | GTC IT / AI Assistant | Saved the canonical design system and recorded baseline design alignment against it |
 | 2.8 | 2026-07-09 | GTC IT / AI Assistant | Recorded unique non-repeating page image assignment from the newer design/photo set |
 | 2.7 | 2026-07-09 | GTC IT / AI Assistant | Recorded new production image set optimization and page bindings |

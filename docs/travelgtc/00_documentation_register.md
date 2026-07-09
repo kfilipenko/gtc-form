@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.0
+- Version: 3.1
 - Date: 2026-07-09
-- Status: TravelGTC design system fixed and baseline public alignment implemented
+- Status: Home page funnel layout corrected against business-process role
 
 ## 1. Purpose
 
@@ -79,6 +79,8 @@ The first stage is intentionally small:
 | `049_travelgtc_design_system.md` | TravelGTC - Website Design System | Fixes the visual standard for colors, typography, spacing, hero composition, cards, funnel process and page design direction. | Active design standard |
 | `050_travelgtc_web_012_design_system_baseline_alignment_task.md` | TRAVELGTC-WEB-012 - Design System Baseline Alignment Task | Defines the first public-site alignment against the fixed TravelGTC design system. | Implemented |
 | `051_travelgtc_web_012_design_system_baseline_alignment_report.md` | TRAVELGTC-WEB-012 - Design System Baseline Alignment Report | Fixes the design-system save, CSS/page alignment, funnel-process update and verification. | Implemented |
+| `052_travelgtc_web_013_home_funnel_layout_correction_task.md` | TRAVELGTC-WEB-013 - Home Funnel Layout Correction Task | Defines correction of the home page as one business-process entry point instead of duplicated funnel content. | Implemented |
+| `053_travelgtc_web_013_home_funnel_layout_correction_report.md` | TRAVELGTC-WEB-013 - Home Funnel Layout Correction Report | Fixes the compact hero, single funnel process, page-to-process navigation and publication verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -112,6 +114,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.1 | 2026-07-09 | GTC IT / AI Assistant | Corrected the home page as a single compact business-process entry point and removed duplicated funnel publication |
 | 3.0 | 2026-07-09 | GTC IT / AI Assistant | Saved the TravelGTC design system and aligned the public baseline design, header, typography, funnel process and compact footer |
 | 2.9 | 2026-07-09 | GTC IT / AI Assistant | Added newer design/photo set and unique non-repeating image assignments across main pages |
 | 2.8 | 2026-07-09 | GTC IT / AI Assistant | Optimized and connected the new production image set to public pages |
