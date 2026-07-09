@@ -31,15 +31,16 @@ export class PostgresAuthStore implements AuthStore {
     try {
       await client.query('begin');
 
-      const existing = await client.query('select user_id from gtc_identity.users where lower(email) = lower($1) limit 1', [
-        email,
-      ]);
+      const existing = await client.query(
+        'select user_id from travelgtc_identity.users where lower(email) = lower($1) limit 1',
+        [email],
+      );
       if (existing.rowCount) {
         throw new AccountAlreadyExistsError();
       }
 
       const userResult = await client.query<UserRow>(
-        `insert into gtc_identity.users (email, phone, display_name, primary_channel, account_status)
+        `insert into travelgtc_identity.users (email, phone, display_name, primary_channel, account_status)
          values ($1,$2,$3,$4,'pending_verification')
          returning user_id::text, email, phone, display_name, primary_channel, account_status,
                    email_verified_at::text, created_at::text`,
@@ -48,13 +49,13 @@ export class PostgresAuthStore implements AuthStore {
       const row = userResult.rows[0];
 
       await client.query(
-        `insert into gtc_identity.user_credentials (user_id, login_email, password_hash)
+        `insert into travelgtc_identity.user_credentials (user_id, login_email, password_hash)
          values ($1::uuid,$2,$3)`,
         [row.user_id, email, await hashPassword(input.password)],
       );
 
       await client.query(
-        `insert into gtc_identity.user_consents
+        `insert into travelgtc_identity.user_consents
            (user_id, project_code, consent_type, consent_version, granted, source, ip_address, user_agent)
          values
            ($1::uuid,null,'identity_terms',$2,true,'travelgtc_auth_register',$3::inet,$4),
@@ -83,8 +84,8 @@ export class PostgresAuthStore implements AuthStore {
       `select u.user_id::text, u.email, u.phone, u.display_name, u.primary_channel, u.account_status,
               u.email_verified_at::text, u.created_at::text,
               c.password_hash, c.is_active
-       from gtc_identity.user_credentials c
-       join gtc_identity.users u on u.user_id = c.user_id
+       from travelgtc_identity.user_credentials c
+       join travelgtc_identity.users u on u.user_id = c.user_id
        where lower(c.login_email) = lower($1)
        limit 1`,
       [email],
@@ -101,7 +102,7 @@ export class PostgresAuthStore implements AuthStore {
     if (!valid) {
       if (row) {
         await this.pool.query(
-          `update gtc_identity.user_credentials
+          `update travelgtc_identity.user_credentials
            set failed_login_attempts = failed_login_attempts + 1,
                last_failed_login_at = now(),
                updated_at = now()
@@ -113,7 +114,7 @@ export class PostgresAuthStore implements AuthStore {
     }
 
     await this.pool.query(
-      `update gtc_identity.user_credentials
+      `update travelgtc_identity.user_credentials
        set failed_login_attempts = 0,
            last_login_at = now(),
            updated_at = now()
@@ -130,7 +131,7 @@ export class PostgresAuthStore implements AuthStore {
     const expiresAt = new Date(Date.now() + ttlSeconds * 1000);
 
     const result = await this.pool.query<{ session_id: string; expires_at: string }>(
-      `insert into gtc_identity.user_sessions
+      `insert into travelgtc_identity.user_sessions
          (user_id, session_token_hash, expires_at, ip_address, user_agent)
        values ($1::uuid,$2,$3::timestamptz,$4::inet,$5)
        returning session_id::text, expires_at::text`,
@@ -157,8 +158,8 @@ export class PostgresAuthStore implements AuthStore {
       `select s.session_id::text, s.expires_at::text,
               u.user_id::text, u.email, u.phone, u.display_name, u.primary_channel, u.account_status,
               u.email_verified_at::text, u.created_at::text
-       from gtc_identity.user_sessions s
-       join gtc_identity.users u on u.user_id = s.user_id
+       from travelgtc_identity.user_sessions s
+       join travelgtc_identity.users u on u.user_id = s.user_id
        where s.session_token_hash = $1
          and s.revoked_at is null
          and s.expires_at > now()
@@ -171,7 +172,7 @@ export class PostgresAuthStore implements AuthStore {
       return null;
     }
 
-    await this.pool.query('update gtc_identity.user_sessions set last_used_at = now() where session_id = $1::uuid', [
+    await this.pool.query('update travelgtc_identity.user_sessions set last_used_at = now() where session_id = $1::uuid', [
       row.session_id,
     ]);
 
@@ -184,7 +185,7 @@ export class PostgresAuthStore implements AuthStore {
 
   async revokeSession(rawToken: string): Promise<void> {
     await this.pool.query(
-      `update gtc_identity.user_sessions
+      `update travelgtc_identity.user_sessions
        set revoked_at = coalesce(revoked_at, now())
        where session_token_hash = $1`,
       [hashToken(rawToken)],
@@ -204,7 +205,7 @@ export class PostgresAuthStore implements AuthStore {
     try {
       await client.query('begin');
       await client.query(
-        `update gtc_identity.email_verification_tokens
+        `update travelgtc_identity.email_verification_tokens
          set token_state = 'revoked',
              updated_at = now()
          where user_id = $1::uuid
@@ -215,7 +216,7 @@ export class PostgresAuthStore implements AuthStore {
       );
 
       await client.query(
-        `insert into gtc_identity.email_verification_tokens
+        `insert into travelgtc_identity.email_verification_tokens
            (user_id, email, verification_token_hash, purpose, token_state, expires_at, delivery_status)
          values ($1::uuid,$2,$3,'account_email_verification','pending',$4::timestamptz,$5)`,
         [
@@ -252,7 +253,7 @@ export class PostgresAuthStore implements AuthStore {
       await client.query('begin');
       const result = await client.query<{ token_id: string; user_id: string; email: string; expires_at: string }>(
         `select email_verification_token_id::text as token_id, user_id::text, email, expires_at::text
-         from gtc_identity.email_verification_tokens
+         from travelgtc_identity.email_verification_tokens
          where verification_token_hash = $1
            and purpose = 'account_email_verification'
            and token_state = 'pending'
@@ -270,7 +271,7 @@ export class PostgresAuthStore implements AuthStore {
       }
 
       await client.query(
-        `update gtc_identity.email_verification_tokens
+        `update travelgtc_identity.email_verification_tokens
          set token_state = 'used',
              used_at = now(),
              updated_at = now()
@@ -279,7 +280,7 @@ export class PostgresAuthStore implements AuthStore {
       );
 
       await client.query(
-        `update gtc_identity.users
+        `update travelgtc_identity.users
          set email_verified_at = coalesce(email_verified_at, now()),
              account_status = case when account_status = 'pending_verification' then 'active' else account_status end,
              updated_at = now()
@@ -309,7 +310,7 @@ export class PostgresAuthStore implements AuthStore {
     membershipStatus: string,
   ): Promise<ProjectMembership> {
     const result = await this.pool.query<{ project_code: string; membership_status: string }>(
-      `insert into gtc_identity.user_project_memberships (user_id, project_code, membership_status)
+      `insert into travelgtc_identity.user_project_memberships (user_id, project_code, membership_status)
        values ($1::uuid,$2,$3)
        on conflict (user_id, project_code)
        do update set membership_status = excluded.membership_status,
@@ -325,7 +326,7 @@ export class PostgresAuthStore implements AuthStore {
 
   async ensureProjectRole(userId: string, projectCode: string, roleCode: string, source: string): Promise<void> {
     await this.pool.query(
-      `insert into gtc_identity.user_project_roles (user_id, project_code, role_code, source)
+      `insert into travelgtc_identity.user_project_roles (user_id, project_code, role_code, source)
        values ($1::uuid,$2,$3,$4)
        on conflict (user_id, project_code, role_code)
        do update set source = excluded.source,
@@ -343,7 +344,7 @@ export class PostgresAuthStore implements AuthStore {
     const result = await this.pool.query<UserRow>(
       `select user_id::text, email, phone, display_name, primary_channel, account_status,
               email_verified_at::text, created_at::text
-       from gtc_identity.users
+       from travelgtc_identity.users
        where user_id = $1::uuid
        limit 1`,
       [userId],
@@ -356,7 +357,7 @@ export class PostgresAuthStore implements AuthStore {
   private async membershipsForUser(userId: string): Promise<ProjectMembership[]> {
     const result = await this.pool.query<{ project_code: string; membership_status: string }>(
       `select project_code, membership_status
-       from gtc_identity.user_project_memberships
+       from travelgtc_identity.user_project_memberships
        where user_id = $1::uuid
        order by project_code`,
       [userId],
@@ -417,7 +418,7 @@ async function insertAudit(
   after: unknown,
 ): Promise<void> {
   await client.query(
-    `insert into gtc_identity.audit_events
+    `insert into travelgtc_identity.audit_events
        (actor_user_id, entity_type, entity_id, action, after_json, source)
      values ($1::uuid,$2,$3::uuid,$4,$5,$6)`,
     [actorUserId, entityType, entityId, action, JSON.stringify(after), 'travelgtc_auth_api'],

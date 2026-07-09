@@ -6,7 +6,18 @@
 - Document type: Implementation report
 - Version: 0.1
 - Date: 2026-07-09
-- Status: Implemented, local/test API verified
+- Status: Superseded by `TRAVELGTC-AUTH-003 - Project-Local Registration Isolation`
+
+## Supersession Notice
+
+This report is historical. The shared `gtc_identity` schema and optional CrewPortGlobal identity/credential backfill described below were removed in `TRAVELGTC-AUTH-003`.
+
+Active implementation:
+
+```text
+travelgtc_identity
+projects/travelgtc/app/migrations/002_travelgtc_identity_auth.sql
+```
 
 ## 1. Purpose
 
@@ -239,7 +250,7 @@ Remaining work:
 Recommended next implementation task:
 
 ```text
-TRAVELGTC-AUTH-003 - Frontend Registration Gate And Authenticated Lead Form
+TRAVELGTC-AUTH-004 - Frontend Registration Gate And Authenticated Lead Form
 ```
 
 Runtime task still required before public/live API use:

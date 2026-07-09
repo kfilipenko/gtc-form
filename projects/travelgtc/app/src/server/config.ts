@@ -51,7 +51,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): TravelGtcConfi
     agentIntakeMode: pickEnum(env.TRAVELGTC_AGENT_INTAKE_MODE, ['stub', 'manual', 'live'] as const, 'stub'),
     parentNetworkMode: pickEnum(env.TRAVELGTC_PARENT_NETWORK_MODE, ['none', 'manual', 'linked', 'api'] as const, 'none'),
     consentVersion: env.TRAVELGTC_CONSENT_VERSION || 'travelgtc-consent-v1',
-    identityConsentVersion: env.TRAVELGTC_IDENTITY_CONSENT_VERSION || 'gtc-identity-consent-v1',
+    identityConsentVersion: env.TRAVELGTC_IDENTITY_CONSENT_VERSION || 'travelgtc-identity-consent-v1',
     sessionCookieName: env.TRAVELGTC_SESSION_COOKIE_NAME || 'gtc_travelgtc_session',
     sessionTtlDays: parsePositiveInteger(env.TRAVELGTC_SESSION_TTL_DAYS, 7),
     authSecureCookies: parseBoolean(env.TRAVELGTC_AUTH_SECURE_COOKIES, appEnv === 'production'),

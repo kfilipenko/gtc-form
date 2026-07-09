@@ -7,7 +7,24 @@
 - Document type: Authentication and registration specification
 - Version: 0.2
 - Date: 2026-07-09
-- Status: Approved direction for implementation, unified GTC identity reuse clarified
+- Status: Superseded by `TRAVELGTC-AUTH-003 - Project-Local Registration Isolation`
+
+## Supersession Notice
+
+This shared GTC identity direction is no longer active.
+
+On 2026-07-09 the Project Owner decided to isolate TravelGTC user registration in a project-local database to avoid cross-project data leakage, migration complexity and future server separation risks.
+
+Active direction:
+
+```text
+travelgtc_identity
+```
+
+Superseding documents:
+
+1. `docs/travelgtc/033_travelgtc_auth_003_project_local_registration_isolation_task.md`
+2. `docs/travelgtc/034_travelgtc_auth_003_project_local_registration_isolation_report.md`
 
 ## 1. Executive Decision
 
@@ -402,7 +419,7 @@ Scope:
 ### 12.2 Following Stage
 
 ```text
-TRAVELGTC-AUTH-003 - Frontend Registration Gate And Authenticated Lead Form
+TRAVELGTC-AUTH-004 - Frontend Registration Gate And Authenticated Lead Form
 ```
 
 Scope:
@@ -417,7 +434,7 @@ Scope:
 ### 12.3 Later Stage
 
 ```text
-TRAVELGTC-AUTH-004 - CrewPortGlobal Seafarer Travel Interest Opt-In
+Historical note: the CrewPortGlobal seafarer travel-interest opt-in stage is no longer active under this shared-account model.
 ```
 
 Scope:

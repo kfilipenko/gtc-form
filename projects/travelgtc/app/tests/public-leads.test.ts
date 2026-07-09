@@ -14,7 +14,7 @@ const baseConfig: TravelGtcConfig = {
   agentIntakeMode: 'stub',
   parentNetworkMode: 'none',
   consentVersion: 'travelgtc-consent-v1',
-  identityConsentVersion: 'gtc-identity-consent-v1',
+  identityConsentVersion: 'travelgtc-identity-consent-v1',
   sessionCookieName: 'gtc_travelgtc_session',
   sessionTtlDays: 7,
   authSecureCookies: false,

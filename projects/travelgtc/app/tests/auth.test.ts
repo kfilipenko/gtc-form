@@ -15,7 +15,7 @@ const baseConfig: TravelGtcConfig = {
   agentIntakeMode: 'stub',
   parentNetworkMode: 'none',
   consentVersion: 'travelgtc-consent-v1',
-  identityConsentVersion: 'gtc-identity-consent-v1',
+    identityConsentVersion: 'travelgtc-identity-consent-v1',
   sessionCookieName: 'gtc_travelgtc_session',
   sessionTtlDays: 7,
   authSecureCookies: false,
@@ -31,7 +31,7 @@ function registerPayload(overrides: Record<string, unknown> = {}) {
     password: 'StrongPass123',
     primary_channel: 'email',
     phone: '+79180000000',
-    consent_version: 'gtc-identity-consent-v1',
+    consent_version: 'travelgtc-identity-consent-v1',
     account_terms_consent: true,
     privacy_consent: true,
     ...overrides,
@@ -106,7 +106,7 @@ describe('TravelGTC auth API', () => {
     });
   });
 
-  test('registers a shared GTC account, sets session cookie and blocks duplicate registration', async () => {
+  test('registers a local TravelGTC account, sets session cookie and blocks duplicate registration in TravelGTC', async () => {
     const { app, authStore } = await makeApp();
     const first = await app.inject({
       method: 'POST',
@@ -129,7 +129,7 @@ describe('TravelGTC auth API', () => {
     expect(authStore.listUsers()).toHaveLength(1);
   });
 
-  test('logs in an existing shared account without creating another user', async () => {
+  test('logs in an existing TravelGTC account without creating another user', async () => {
     const { app, authStore } = await makeApp();
     await app.inject({
       method: 'POST',

@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.0
+- Version: 2.1
 - Date: 2026-07-09
-- Status: Active, GTC identity auth API MVP implemented
+- Status: Active, project-local TravelGTC registration isolation implemented
 
 ## 1. Current State
 
@@ -103,9 +103,10 @@ TRAVELGTC-ROADMAP-001 fixed the page-to-business-process-to-CRM-to-agent mapping
 TRAVELGTC-PREP-001 fixed implementation readiness: Node.js/TypeScript + PostgreSQL stack direction, proposed app source layout, environment/secret handling, parent-network/subnetwork boundaries, compliance references, CRM transitions, API contract readiness, Intake Agent protocol readiness and production blockers.
 TRAVELGTC-API-001 implemented the first backend app in `projects/travelgtc/app/`, PostgreSQL migration, health endpoint, public lead endpoint, validation, consent enforcement, idempotency, rate limiting, in-memory test store, PostgreSQL runtime store and Intake Agent stub.
 TRAVELGTC-WEB-007 implemented the public role selector and unified lead form, converted `/create-trip/` and `/contacts/` forms to the API contract, added API submit JS and added local/test funnel e2e verification.
-TRAVELGTC-AUTH-001 fixed the registration direction: registration/login must be separated from the TravelGTC need form; authenticated users submit TravelGTC forms; shared `gtc_identity` is the target user model; TravelGTC roles and CRM data stay project-specific; CrewPortGlobal seafarers can become TravelGTC prospects only through explicit TravelGTC travel-interest opt-in and consent.
-AUTH-001 v0.2 clarified that an existing CrewPortGlobal/GTC user must be able to authenticate on TravelGTC without additional registration. The shared user identity may be reused, but TravelGTC role, consent, CRM lead, travel idea and follow-up data are created only from TravelGTC-specific action. Personal data and documents from other projects must not be transferred automatically.
-TRAVELGTC-AUTH-002 implemented the backend auth MVP: `gtc_identity` migration, registration/login/logout/current-user API, email verification test token path, secure session-cookie handling, bcrypt compatibility with PHP-style hashes, optional CrewPortGlobal identity/credential backfill and authenticated `POST /api/travelgtc/v1/account/leads`.
+TRAVELGTC-AUTH-001 fixed the initial registration direction. Its shared identity/account-reuse parts are now superseded by AUTH-003.
+AUTH-001 v0.2 and AUTH-002 explored shared GTC identity reuse and optional CrewPortGlobal credential backfill. This direction is now superseded because the Project Owner decided that cross-project user merging creates avoidable privacy, migration and portability risks.
+TRAVELGTC-AUTH-002 implemented the backend auth MVP mechanics: registration/login/logout/current-user API, email verification test token path, secure session-cookie handling, bcrypt password handling and authenticated `POST /api/travelgtc/v1/account/leads`.
+TRAVELGTC-AUTH-003 replaced shared `gtc_identity` with project-local `travelgtc_identity`, removed CrewPortGlobal identity/credential backfill and fixed the rule that TravelGTC registration is independent from users registered in other projects even when emails match.
 ```
 
 API state:
@@ -117,7 +118,7 @@ Lead endpoint: POST /api/travelgtc/v1/public/leads
 Authenticated lead endpoint: POST /api/travelgtc/v1/account/leads
 Auth endpoints: /api/travelgtc/v1/auth/register, /auth/login, /auth/logout, /auth/me, /auth/email/send-verification, /auth/email/verify
 Migration: projects/travelgtc/app/migrations/001_travelgtc_lead_capture.sql
-Identity migration: projects/travelgtc/app/migrations/002_gtc_identity_auth.sql
+Identity migration: projects/travelgtc/app/migrations/002_travelgtc_identity_auth.sql
 Run API check: npm run check:travelgtc-api
 Default safety switch: TRAVELGTC_PUBLIC_LEAD_CAPTURE_ENABLED=false
 Default authenticated lead switch: TRAVELGTC_ACCOUNT_LEAD_CAPTURE_ENABLED=false
@@ -180,10 +181,10 @@ Generated screenshots are written to projects/travelgtc/test-artifacts/screensho
 
 Recommended next steps:
 
-1. start `TRAVELGTC-AUTH-003 - Frontend Registration Gate And Authenticated Lead Form`;
+1. start `TRAVELGTC-AUTH-004 - Frontend Registration Gate And Authenticated Lead Form`;
 2. add public header account controls and auth UI;
 3. move public funnel submission to the authenticated `account/leads` endpoint;
-4. run `002_gtc_identity_auth.sql` first against a safe test database and verify optional CrewPortGlobal identity backfill;
+4. run `002_travelgtc_identity_auth.sql` first against a safe test database;
 5. keep `TRAVELGTC-RUNTIME-001 - Test Database, API Service And Nginx Proxy` as the required publication/runtime step before live API use;
 6. then continue to `TRAVELGTC-CRM-001 - Lead Board And Lead Detail MVP`;
 7. keep true production mode blocked until privacy/consent/disclosure pages are approved.
@@ -192,6 +193,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.1 | 2026-07-09 | GTC IT / AI Assistant | Recorded project-local TravelGTC registration isolation and removal of shared GTC identity/CrewPortGlobal backfill |
 | 2.0 | 2026-07-09 | GTC IT / AI Assistant | Recorded AUTH-002 backend auth MVP, gtc_identity migration, optional CrewPortGlobal identity backfill and authenticated lead endpoint |
 | 1.9 | 2026-07-09 | GTC IT / AI Assistant | Clarified existing CrewPortGlobal/GTC account reuse on TravelGTC without duplicate registration and without automatic project-data transfer |
 | 1.8 | 2026-07-09 | GTC IT / AI Assistant | Recorded GTC identity registration gate, auth-required TravelGTC form direction and CrewPortGlobal seafarer opt-in boundary |

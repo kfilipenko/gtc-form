@@ -6,7 +6,18 @@
 - Document type: Task
 - Version: 0.1
 - Date: 2026-07-09
-- Status: Implemented
+- Status: Superseded by `TRAVELGTC-AUTH-003 - Project-Local Registration Isolation`
+
+## Supersession Notice
+
+This task is historical. Its shared `gtc_identity` and CrewPortGlobal backfill direction is superseded by project-local TravelGTC registration.
+
+Active implementation:
+
+```text
+travelgtc_identity
+projects/travelgtc/app/migrations/002_travelgtc_identity_auth.sql
+```
 
 ## 1. Purpose
 
