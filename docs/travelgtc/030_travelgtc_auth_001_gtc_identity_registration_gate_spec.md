@@ -5,15 +5,17 @@
 - Related architecture: `docs/travelgtc/018_travelgtc_arch_001_funnel_crm_agent_platform_spec.md`
 - Related MVP requirements: `docs/travelgtc/020_travelgtc_biz_001_funnel_crm_mvp_requirements_spec.md`
 - Document type: Authentication and registration specification
-- Version: 0.1
+- Version: 0.2
 - Date: 2026-07-09
-- Status: Approved direction for implementation
+- Status: Approved direction for implementation, unified GTC identity reuse clarified
 
 ## 1. Executive Decision
 
 TravelGTC must use a separated registration and login flow before a user can submit the TravelGTC need/application form.
 
 The form is not registration.
+
+If a person already has a GTC account created through another GTC project, including CrewPortGlobal, they must be able to use that account to authenticate on TravelGTC without creating a second account.
 
 The target architecture is:
 
@@ -26,6 +28,8 @@ GTC Identity account
 ```
 
 This allows one GTC user base with different project roles while keeping each project's data, consents and business processes separate.
+
+TravelGTC receives a project role only when the authenticated user explicitly fills the TravelGTC role/need form or otherwise opts into a TravelGTC flow.
 
 ## 2. Why Registration And Lead Form Must Be Separate
 
@@ -55,7 +59,39 @@ gtc_identity
 
 TravelGTC and CrewPortGlobal should be treated as project contexts attached to the shared user, not as independent unrelated person databases.
 
-### 3.2 Core Tables
+### 3.2 Existing GTC User Reuse
+
+The target user experience:
+
+```text
+Existing CrewPortGlobal/GTC user
+  -> opens TravelGTC
+  -> clicks Login
+  -> authenticates with existing GTC credentials/session
+  -> fills TravelGTC role/need form
+  -> receives TravelGTC project role/context
+```
+
+The user must not be asked to register again when a valid shared GTC account already exists.
+
+The system must not automatically transfer project-specific data from CrewPortGlobal to TravelGTC. This includes:
+
+1. maritime documents;
+2. seafarer profile details;
+3. employer, vessel, crewing, contract or medical records;
+4. project-specific verification statuses;
+5. CrewPortGlobal consent records that were not granted for TravelGTC.
+
+Allowed shared data for authentication:
+
+1. canonical `user_id`;
+2. login email or authentication identity;
+3. session/account status;
+4. minimal display name if needed for account UI.
+
+TravelGTC contact preferences, role, CRM lead, travel idea, consent and follow-up history must be stored as TravelGTC project data.
+
+### 3.3 Core Tables
 
 Recommended first shared tables:
 
@@ -71,7 +107,7 @@ Recommended first shared tables:
 | `gtc_identity.user_consents` | Versioned, purpose-specific consent events. |
 | `gtc_identity.audit_events` | Security, consent and important account events. |
 
-### 3.3 User Fields
+### 3.4 User Fields
 
 Minimum first version of `gtc_identity.users`:
 
@@ -89,7 +125,9 @@ Minimum first version of `gtc_identity.users`:
 
 ## 4. Project Membership And Roles
 
-Registration creates only a GTC account.
+Registration creates only a GTC account when no shared GTC account exists.
+
+Login reuses an existing GTC account when the person already registered through another GTC project.
 
 When the user first interacts with TravelGTC, the system creates:
 
@@ -99,6 +137,8 @@ membership_status = interested
 ```
 
 TravelGTC roles are stored separately from global identity.
+
+The TravelGTC role is created only from a TravelGTC action, for example role selection, form submission, explicit TravelGTC interest opt-in or human-confirmed CRM action. A CrewPortGlobal role must not automatically become a TravelGTC role.
 
 Initial TravelGTC role codes:
 
@@ -159,9 +199,21 @@ The system must not create a CRM lead until:
 2. required consents are accepted;
 3. the form is explicitly submitted.
 
-## 6. Registration Flow
+## 6. Registration And Existing Account Flow
 
-### 6.1 Required Fields
+### 6.1 Existing Account Path
+
+If the user already has a shared GTC account:
+
+1. the user chooses `Войти`;
+2. the system authenticates against the shared GTC identity layer;
+3. TravelGTC does not create a duplicate user account;
+4. TravelGTC may create a project membership/context only after a TravelGTC action;
+5. TravelGTC role and CRM data are created only from TravelGTC-specific input and consent.
+
+This is the preferred path for existing CrewPortGlobal users.
+
+### 6.2 New Account Required Fields
 
 First version:
 
@@ -175,7 +227,7 @@ First version:
 | `account_terms_consent` | yes | Versioned account consent. |
 | `privacy_consent` | yes | Versioned privacy/data processing consent. |
 
-### 6.2 Email Verification
+### 6.3 Email Verification
 
 The first implementation should follow the CrewPortGlobal pattern:
 
@@ -188,7 +240,7 @@ The first implementation should follow the CrewPortGlobal pattern:
 
 In local/test mode, the API may expose a test verification token only when an explicit test environment flag is enabled.
 
-### 6.3 Login And Sessions
+### 6.4 Login And Sessions
 
 Session requirements:
 
@@ -206,13 +258,13 @@ Recommended endpoints for the next implementation stage:
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| `POST` | `/api/travelgtc/v1/auth/register` | Create GTC account and TravelGTC membership context. |
-| `POST` | `/api/travelgtc/v1/auth/login` | Create authenticated session. |
+| `POST` | `/api/travelgtc/v1/auth/register` | Create a new GTC account only if the shared identity does not already exist. |
+| `POST` | `/api/travelgtc/v1/auth/login` | Authenticate an existing shared GTC account and create session. |
 | `POST` | `/api/travelgtc/v1/auth/logout` | Revoke current session. |
 | `GET` | `/api/travelgtc/v1/auth/me` | Return current safe user context. |
 | `POST` | `/api/travelgtc/v1/auth/email/send-verification` | Send or capture verification link. |
 | `POST` | `/api/travelgtc/v1/auth/email/verify` | Verify email token. |
-| `POST` | `/api/travelgtc/v1/account/leads` | Authenticated TravelGTC lead/travel-idea submission. |
+| `POST` | `/api/travelgtc/v1/account/leads` | Authenticated TravelGTC lead/travel-idea submission; creates TravelGTC role/context when needed. |
 | `GET` | `/api/travelgtc/v1/account/leads` | User's own TravelGTC requests. |
 
 The existing `POST /api/travelgtc/v1/public/leads` should not be the primary production form endpoint after the auth gate is implemented. It may remain disabled, test-only or compatibility-only.
@@ -268,7 +320,8 @@ CrewPortGlobal users must not become TravelGTC leads automatically.
 Allowed path:
 
 ```text
-CrewPortGlobal user
+Existing CrewPortGlobal/GTC user
+  -> logs into TravelGTC with the same shared GTC account
   -> sees optional TravelGTC travel-interest prompt
   -> explicitly opts in
   -> grants TravelGTC-specific consent
@@ -278,11 +331,12 @@ CrewPortGlobal user
 
 Not allowed:
 
-1. copying maritime documents into TravelGTC;
-2. copying employer, vessel, medical or contract data into TravelGTC;
-3. sending TravelGTC marketing based only on CrewPortGlobal registration;
-4. implying that maritime registration requires TravelGTC participation;
-5. turning a seafarer into a partner candidate without a separate declared interest.
+1. creating a duplicate TravelGTC user account for an existing shared GTC user;
+2. copying maritime documents into TravelGTC;
+3. copying employer, vessel, medical or contract data into TravelGTC;
+4. sending TravelGTC marketing based only on CrewPortGlobal registration;
+5. implying that maritime registration requires TravelGTC participation;
+6. turning a seafarer into a partner candidate without a separate declared interest.
 
 ## 10. AI Agent And CRM Implications
 
@@ -338,11 +392,12 @@ TRAVELGTC-AUTH-002 - GTC Identity Database And Auth API MVP
 Scope:
 
 1. create `gtc_identity` migration;
-2. add registration, login, logout and current-user API endpoints;
+2. add registration, existing-account login, logout and current-user API endpoints;
 3. add session cookie handling;
 4. add email verification test-mode support;
-5. link TravelGTC account membership on registration or first TravelGTC action;
-6. add tests for account creation, login, session lookup and logout.
+5. prevent duplicate user creation when an existing shared account is found;
+6. link TravelGTC account membership only on first TravelGTC action;
+7. add tests for account creation, existing-account login, session lookup and logout.
 
 ### 12.2 Following Stage
 
@@ -380,16 +435,19 @@ The registration implementation will be complete when:
 1. an anonymous user can browse public pages;
 2. an anonymous user cannot submit a TravelGTC need/application form;
 3. the header shows login/registration links for anonymous visitors;
-4. registration creates a GTC user and TravelGTC membership context;
-5. login creates a secure session cookie;
-6. logout revokes the session;
-7. authenticated lead submission stores `user_id`;
-8. `/auth/me` returns safe current-user data;
-9. tests cover happy paths and blocked anonymous submission;
-10. documentation and memory are updated after code implementation.
+4. registration creates a GTC user only when no shared account exists;
+5. an existing CrewPortGlobal/GTC user can authenticate on TravelGTC without additional registration;
+6. login creates a secure session cookie;
+7. logout revokes the session;
+8. authenticated lead submission stores `user_id`;
+9. TravelGTC role/context is created from TravelGTC action, not from CrewPortGlobal status;
+10. `/auth/me` returns safe current-user data;
+11. tests cover happy paths, existing-account login and blocked anonymous submission;
+12. documentation and memory are updated after code implementation.
 
 ## 14. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.2 | 2026-07-09 | GTC IT / AI Assistant | Clarified shared GTC account reuse, no duplicate registration for CrewPortGlobal users and no automatic project-data transfer |
 | 0.1 | 2026-07-09 | GTC IT / AI Assistant | Initial registration gate specification |
