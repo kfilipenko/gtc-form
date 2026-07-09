@@ -220,7 +220,8 @@ The third hero headline line uses the lime reference accent.
 The second hero headline line uses a turquoise accent.
 The short home advantages now render as a compact dark band below the hero.
 TRAVELGTC-WEB-012 updated the base color tokens, Manrope font loading, radius system, button sizes, card shadows, hero overlay, section density and footer compactness against `049_travelgtc_design_system.md`.
-TRAVELGTC-WEB-013 then reduced the home hero height/H1 scale, added the compact hero process card, removed the duplicated lower funnel section and removed obsolete `path-summary` chips.
+TRAVELGTC-WEB-013 then reduced the home hero height/H1 scale, removed the duplicated lower funnel section and removed obsolete `path-summary` chips.
+Follow-up correction: do not publish a visible "home page task" block. The home page must perform its task through CTA, page-to-process navigation and the authenticated lead form.
 ```
 
 Menu/footer/mobile state:

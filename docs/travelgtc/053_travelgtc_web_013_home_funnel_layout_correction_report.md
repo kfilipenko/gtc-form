@@ -19,13 +19,11 @@ What is the visitor interested in, which role fits them, and should this become 
 
 Updated `projects/travelgtc/public/index.html`:
 
-1. added a compact hero process card titled `Задача главной`;
-2. placed the full process only once in that card:
-   `Интерес -> Роль -> Заявка -> Консультация -> Членство -> Участие -> Рекомендации`;
-3. removed the duplicated lower `Воронка участия` section;
-4. removed the repeated `path-summary` funnel chips under the infographic;
-5. changed the infographic title to `Каждый раздел ведёт к следующему действию`;
-6. relabeled infographic nodes by process role:
+1. removed the duplicated lower `Воронка участия` section;
+2. removed the visible service-style `Задача главной` / `Вход в бизнес-процесс TravelGTC` hero block after Project Owner review;
+3. removed the repeated `path-summary` funnel chips under the infographic;
+4. changed the infographic title to `Каждый раздел ведёт к следующему действию`;
+5. relabeled infographic nodes by process role:
    interest/role, need, community, application, membership, participation, trust and consultation.
 
 Updated `projects/travelgtc/public/assets/css/site.css`:
@@ -33,10 +31,9 @@ Updated `projects/travelgtc/public/assets/css/site.css`:
 1. reduced header height and button height;
 2. reduced hero height and hero vertical padding;
 3. reduced desktop H1 scale and widened its text area so it no longer breaks into too many lines;
-4. added styling for the compact hero process card;
+4. removed obsolete hero-process-card and `path-summary` styles;
 5. reduced section density and upper infographic spacing;
-6. removed obsolete `path-summary` styles;
-7. adjusted tablet and mobile hero layout.
+6. adjusted tablet and mobile hero layout.
 
 ## 3. Verification
 
@@ -63,7 +60,7 @@ projects/travelgtc/test-artifacts/screenshots/travelgtc-home-mobile.png
 Reviewed focus:
 
 1. the hero headline no longer occupies the whole viewport;
-2. the hero contains the single business-process representation;
+2. the hero performs the task through CTA only, without a visible service-description block;
 3. the lower duplicated funnel section is gone;
 4. the infographic is now page-to-process navigation;
 5. the authenticated lead form remains the main conversion point;
