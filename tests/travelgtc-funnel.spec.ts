@@ -17,7 +17,7 @@ test.describe('TravelGTC authenticated funnel', () => {
     await registerForm.locator('[name="display_name"]').fill('Тестовый Пользователь');
     await registerForm.locator('[name="email"]').fill(uniqueEmail);
     await registerForm.locator('[name="password"]').fill('StrongPass123');
-    await registerForm.locator('[name="primary_channel"]').selectOption('whatsapp');
+    await registerForm.locator('[name="primary_channel"]').selectOption('phone');
     await registerForm.locator('[name="phone"]').fill('+70000000000');
     await registerForm.locator('[name="account_terms_consent"]').check();
     await registerForm.locator('[name="privacy_consent"]').check();
@@ -27,9 +27,6 @@ test.describe('TravelGTC authenticated funnel', () => {
     await expect(form).toBeVisible();
     await expect(form.locator('[data-lead-auth-note]')).toContainText('Вы вошли как Тестовый Пользователь');
 
-    await form.locator('[name="name"]').fill('Тестовый Пользователь');
-    await form.locator('[name="contact_value"]').fill('+70000000000');
-    await form.locator('[name="preferred_channel"]').selectOption('whatsapp');
     await form.locator('[name="primary_interest"]').selectOption('create_trip');
     await form.locator('[name="message"]').fill('Хочу обсудить тестовую travel-идею и понять следующий шаг.');
     await form.locator('[name="personal_data_consent"]').check();

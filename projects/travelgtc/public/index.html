@@ -187,15 +187,12 @@
             <input type="hidden" name="consent_version" value="travelgtc-consent-v1">
             <input type="hidden" name="declared_role" value="unsure" data-declared-role-input>
             <div class="form-grid compact-form-grid">
-              <div class="field"><label for="lead-name">Имя</label><input id="lead-name" name="name" autocomplete="name" required></div>
-              <div class="field"><label for="lead-contact">Контакт</label><input id="lead-contact" name="contact_value" autocomplete="email" required></div>
-              <div class="field"><label for="lead-channel">Канал связи</label><select id="lead-channel" name="preferred_channel" required><option value="whatsapp">WhatsApp</option><option value="max">MAX</option><option value="telegram">Telegram</option><option value="email">Email</option><option value="phone">Телефон</option></select></div>
-              <div class="field"><label for="lead-interest">Потребность</label><select id="lead-interest" name="primary_interest" required><option value="create_trip">Создать поездку</option><option value="travel">Путешествовать чаще</option><option value="club">Узнать о клубе</option><option value="event">Провести событие</option><option value="business_model">Понять партнёрскую модель</option><option value="presentation">Получить презентацию</option><option value="not_sure">Пока разбираюсь</option></select></div>
+              <div class="field full"><label for="lead-interest">Потребность</label><select id="lead-interest" name="primary_interest" required><option value="create_trip">Создать поездку</option><option value="travel">Путешествовать чаще</option><option value="club">Узнать о клубе</option><option value="event">Провести событие</option><option value="business_model">Понять партнёрскую модель</option><option value="presentation">Получить презентацию</option><option value="not_sure">Пока разбираюсь</option></select></div>
               <div class="field full"><label for="lead-message">Коротко опишите запрос</label><textarea id="lead-message" name="message" required placeholder="Например: хочу обсудить семейную поездку, клуб, событие или партнёрскую возможность."></textarea></div>
             </div>
             <div class="consent-list">
               <label><input type="checkbox" name="personal_data_consent" required> Согласен(на) на обработку данных по <a href="/legal/privacy/">Политике конфиденциальности</a>.</label>
-              <label><input type="checkbox" name="communication_consent" required> Согласен(на) на связь по выбранному каналу согласно <a href="/legal/terms/">Условиям использования</a>.</label>
+              <label><input type="checkbox" name="communication_consent" required> Согласен(на) на связь по контактам из профиля согласно <a href="/legal/terms/">Условиям использования</a>.</label>
             </div>
             <p class="form-status" data-form-status aria-live="polite"></p>
             <button class="button" type="submit">Отправить заявку</button>
@@ -222,8 +219,8 @@
             <p>Напишите мне, и я покажу, как можно использовать travel-платформу для себя, друзей, мероприятий, сообщества и партнёрского бизнеса.</p>
             <p>Без давления. Без громких обещаний. С понятным разбором возможностей.</p>
             <div class="cta-actions">
-              <a class="button" href="https://wa.me/79184883434">Написать в WhatsApp</a>
-              <a class="button secondary" href="/contacts/">Написать в MAX</a>
+              <a class="button" href="tel:+79184883434">Позвонить</a>
+              <a class="button secondary" href="/contacts/">Задать вопрос</a>
             </div>
           </div>
         </div>

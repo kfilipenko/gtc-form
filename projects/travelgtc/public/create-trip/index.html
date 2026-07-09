@@ -22,9 +22,6 @@
             <h2>Опишите вашу travel-идею</h2>
           </div>
           <div class="form-grid">
-            <div class="field"><label for="name">Имя</label><input id="name" name="name" autocomplete="name" required></div>
-            <div class="field"><label for="channel">Канал связи</label><select id="channel" name="preferred_channel" required><option value="whatsapp">WhatsApp</option><option value="max">MAX</option><option value="telegram">Telegram</option><option value="email">Email</option><option value="phone">Телефон</option></select></div>
-            <div class="field full"><label for="contact">Контакт: WhatsApp / MAX / Telegram / Email</label><input id="contact" name="contact_value" autocomplete="email" required></div>
             <div class="field"><label for="trip-format">Какой формат вы хотите создать?</label><select id="trip-format" name="travel_format" required><option value="">Выберите формат</option><option value="rest">Отдых</option><option value="yoga">Йога-тур</option><option value="freediving">Фридайвинг</option><option value="retreat">Ретрит</option><option value="business_weekend">Бизнес-встреча</option><option value="sport">Спорт</option><option value="family">Семья</option><option value="other">Другое</option></select></div>
             <div class="field"><label for="destination">Куда хотите поехать?</label><input id="destination" name="destination_interest"></div>
             <div class="field"><label for="audience">Для кого эта поездка?</label><select id="audience" name="audience_type"><option value="">Выберите аудиторию</option><option value="friends">Друзья</option><option value="family">Семья</option><option value="clients">Клиенты</option><option value="students">Ученики</option><option value="partners">Партнёры</option><option value="community">Сообщество</option><option value="other">Другое</option></select></div>
@@ -34,7 +31,7 @@
             <input type="hidden" name="primary_interest" value="create_trip">
             <div class="field full"><label for="important">Что важно в поездке?</label><textarea id="important" name="message" required></textarea></div>
           </div>
-          <div class="consent-list"><label><input type="checkbox" name="personal_data_consent" required> Я согласен(на) на обработку указанных данных для связи со мной по вопросу travel-клуба, поездки, события, маршрута или участия в партнёрской модели согласно <a href="/legal/privacy/">Политике конфиденциальности</a>.</label><label><input type="checkbox" name="communication_consent" required> Я согласен(на), что со мной могут связаться по выбранному каналу связи для ответа на мой запрос. Подробности описаны в <a href="/legal/terms/">Условиях использования</a>.</label></div>
+          <div class="consent-list"><label><input type="checkbox" name="personal_data_consent" required> Согласен(на) на обработку данных по <a href="/legal/privacy/">Политике конфиденциальности</a>.</label><label><input type="checkbox" name="communication_consent" required> Согласен(на) на связь по контактам из профиля согласно <a href="/legal/terms/">Условиям использования</a>.</label></div>
           <p class="form-status" data-form-status aria-live="polite"></p>
           <button class="button" type="submit">Отправить идею</button>
         </form>

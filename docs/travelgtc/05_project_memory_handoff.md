@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.1
+- Version: 3.2
 - Date: 2026-07-09
-- Status: Active, home page uses compact first-contact request form
+- Status: Active, lead forms use authenticated profile contacts
 
 ## 1. Current State
 
@@ -121,7 +121,8 @@ Use Manrope as the primary public-site font with Inter fallback.
 Public design must stay compact, image-led and funnel-oriented.
 Home funnel path: interest -> role -> application -> consultation -> membership -> participation -> recommendations.
 TRAVELGTC-WEB-013 rule: the home page must show this full process only once. It is the entry page for visitor -> interest -> role -> authenticated lead form -> CRM lead -> consultation, not a repeated text library.
-TRAVELGTC-WEB-014 rule: the home page form is a short first-contact request, not a full CRM questionnaire. Keep visible fields limited to name, contact, preferred channel, need and short message. Infer CRM role from the selected need instead of showing a separate role selector on the home page.
+TRAVELGTC-WEB-014 rule updated by AUTH-005: the home page form is a short first-contact request, not a full CRM questionnaire. Keep visible fields limited to need and short message. Infer CRM role from the selected need instead of showing a separate role selector on the home page.
+TRAVELGTC-AUTH-005 rule: registration comes first and collects identity/contact data. Lead forms must not ask again for name, contact value or communication channel. Supported first-stage profile contact methods are email and phone. The frontend derives lead `name`, `preferred_channel` and `contact_value` from the authenticated user profile.
 ```
 
 Architecture state:
@@ -156,6 +157,7 @@ TRAVELGTC-AUTH-003 replaced shared `gtc_identity` with project-local `travelgtc_
 TRAVELGTC-AUTH-004 implemented the frontend registration gate: `/auth/`, header account controls, cookie-authenticated browser API calls, anonymous form redirect to registration/login and public funnel submission through `POST /api/travelgtc/v1/account/leads`.
 TRAVELGTC-RUNTIME-001 implemented the first server runtime: PostgreSQL database `travelgtc`, app role `travelgtc_user`, migrations applied, `travelgtc-api.service` active on `127.0.0.1:4301`, nginx `/api/travelgtc/` HTTPS proxy active, current static site deployed and live HTTPS authenticated funnel verified.
 TRAVELGTC-LEGAL-001 published `/legal/`, `/legal/privacy/`, `/legal/terms/` and `/legal/partner-disclosure/`, linked them from footers and consent texts, and verified local/live responsive and authenticated funnel tests.
+TRAVELGTC-AUTH-005 made phone required at registration, limited registration contact preference to email/phone, removed repeated contact fields from home, contacts and create-trip lead forms, and changed lead payload building to use the authenticated user profile for contact data.
 ```
 
 API state:
@@ -191,7 +193,8 @@ Contacts form: projects/travelgtc/public/contacts/index.html#contact-form
 Header includes login, registration, logged-in display name and logout controls.
 Anonymous form submit redirects to /auth/?mode=register&next=...
 After registration/login, user returns to the intended form and creates a CRM lead through account/leads.
-The home form is intentionally compact. It no longer asks for travel format, destination, audience, dates, group size or business interest on the first step. Those details belong to `/create-trip/`, consultation or later CRM handling.
+All public lead forms now depend on registration/profile contacts. They do not ask for name, contact value or channel. Registration requires email and phone, and contact preference is only email or phone.
+The home form is intentionally compact. It no longer asks for contact data, travel format, destination, audience, dates, group size or business interest on the first step. Those details belong to `/create-trip/`, consultation or later CRM handling.
 The frontend infers `declared_role` for the CRM from `primary_interest`: create trip -> trip author, event -> event organizer, club -> community leader, business/presentation -> partner candidate, travel -> traveler.
 Funnel e2e command: npm run test:travelgtc-funnel
 Local test static port: 4174
@@ -275,6 +278,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.2 | 2026-07-09 | GTC IT / AI Assistant | Recorded registration-first contact handling and profile-derived lead contact payloads |
 | 3.1 | 2026-07-09 | GTC IT / AI Assistant | Recorded compact first-contact home form and inferred CRM role mapping |
 | 3.0 | 2026-07-09 | GTC IT / AI Assistant | Recorded the home page as a compact business-process entry point and removed duplicated funnel publication |
 | 2.9 | 2026-07-09 | GTC IT / AI Assistant | Saved the canonical design system and recorded baseline design alignment against it |

@@ -129,6 +129,27 @@ describe('TravelGTC auth API', () => {
     expect(authStore.listUsers()).toHaveLength(1);
   });
 
+  test('requires phone and email-or-phone contact preference during registration', async () => {
+    const { app, authStore } = await makeApp();
+    const missingPhone = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/auth/register',
+      payload: registerPayload({ phone: undefined }),
+    });
+    const messengerChannel = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/auth/register',
+      payload: registerPayload({ email: 'second.user@example.com', primary_channel: 'telegram' }),
+    });
+    await app.close();
+
+    expect(missingPhone.statusCode).toBe(400);
+    expect(missingPhone.json().error.fields.phone).toBeTruthy();
+    expect(messengerChannel.statusCode).toBe(400);
+    expect(messengerChannel.json().error.fields.primary_channel).toBeTruthy();
+    expect(authStore.listUsers()).toHaveLength(0);
+  });
+
   test('logs in an existing TravelGTC account without creating another user', async () => {
     const { app, authStore } = await makeApp();
     await app.inject({

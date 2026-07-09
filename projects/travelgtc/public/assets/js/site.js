@@ -153,7 +153,7 @@ async function submitRegisterForm(form) {
       display_name: getFormValue(formData, "display_name"),
       email: getFormValue(formData, "email"),
       password: String(formData.get("password") || ""),
-      primary_channel: getFormValue(formData, "primary_channel") || "whatsapp",
+      primary_channel: getFormValue(formData, "primary_channel") || "email",
       phone: getFormValue(formData, "phone") || undefined,
       consent_version: getFormValue(formData, "consent_version") || IDENTITY_CONSENT_VERSION,
       account_terms_consent: formData.get("account_terms_consent") === "on",
@@ -258,6 +258,7 @@ async function ensureAuthenticatedForLeadForm(form) {
 function buildLeadPayload(form) {
   const formData = new FormData(form);
   const get = (name) => getFormValue(formData, name);
+  const user = authState.authenticated ? authState.user : null;
   const defaultRole = form.getAttribute("data-default-role") || "unsure";
   const defaultInterest = form.getAttribute("data-default-interest") || "not_sure";
   const primaryInterest = get("primary_interest") || defaultInterest;
@@ -265,11 +266,12 @@ function buildLeadPayload(form) {
   const declaredRole = get("declared_role") || defaultRole;
   const travelFormat = get("travel_format");
   const audienceType = get("audience_type");
+  const preferredChannel = get("preferred_channel") || resolveUserPreferredChannel(user);
 
   return {
-    name: get("name"),
-    preferred_channel: get("preferred_channel") || "whatsapp",
-    contact_value: get("contact_value") || get("contact"),
+    name: get("name") || (user && (user.displayName || user.email)),
+    preferred_channel: preferredChannel,
+    contact_value: get("contact_value") || get("contact") || resolveUserContactValue(user, preferredChannel),
     declared_role: declaredRole === "unsure" ? inferDeclaredRole(primaryInterest, defaultRole) : declaredRole,
     primary_interest: primaryInterest,
     message,
@@ -435,11 +437,11 @@ function updateLeadAuthNotes() {
 
 function updateLeadAuthNote(note) {
   if (authState.authenticated && authState.user) {
-    note.textContent = `Вы вошли как ${authState.user.displayName || authState.user.email}. Заявка будет привязана к аккаунту TravelGTC.`;
+    note.textContent = `Вы вошли как ${authState.user.displayName || authState.user.email}. Контакты для связи берём из профиля: ${leadProfileContactSummary(authState.user)}.`;
     note.dataset.state = "user";
     return;
   }
-  note.textContent = "Вход или регистрация потребуется при отправке.";
+  note.textContent = "Сначала войдите или зарегистрируйтесь. Контакты берём из профиля аккаунта.";
   note.dataset.state = "anonymous";
 }
 
@@ -559,7 +561,7 @@ function getApiBaseUrl() {
 function resolveApiErrorMessage(body, statusCode) {
   const code = body && body.error && body.error.code;
   if (code === "lead_capture_disabled") {
-    return "Приём заявок сейчас выключен. Напишите в WhatsApp, если хотите связаться сразу.";
+    return "Приём заявок сейчас выключен. Откройте страницу контактов, если хотите связаться сразу.";
   }
   if (code === "auth_required") {
     return "Для отправки заявки войдите или зарегистрируйтесь.";
@@ -617,6 +619,27 @@ function inferDeclaredRole(primaryInterest, fallbackRole) {
   if (primaryInterest === "business_model" || primaryInterest === "presentation") return "partner_candidate";
   if (primaryInterest === "travel") return "traveler";
   return fallbackRole || "unsure";
+}
+
+function resolveUserPreferredChannel(user) {
+  if (user && user.primaryChannel === "phone" && user.phone) return "phone";
+  if (user && user.primaryChannel === "email") return "email";
+  if (user && user.phone) return "phone";
+  return "email";
+}
+
+function resolveUserContactValue(user, preferredChannel) {
+  if (!user) return "";
+  if (preferredChannel === "phone" && user.phone) return user.phone;
+  if (preferredChannel === "email" && user.email) return user.email;
+  return user.phone || user.email || "";
+}
+
+function leadProfileContactSummary(user) {
+  const contacts = [];
+  if (user.email) contacts.push(user.email);
+  if (user.phone) contacts.push(user.phone);
+  return contacts.join(", ") || "аккаунт TravelGTC";
 }
 
 function mapTravelFormat(label) {

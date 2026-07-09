@@ -1,20 +1,18 @@
 import { z } from 'zod';
 import type { TravelGtcConfig } from '../../server/config.js';
-import { preferredChannels } from '../public-leads/types.js';
 import { AuthValidationError } from './errors.js';
 import type { LoginInput, RegisterInput } from './types.js';
 
 const text = (max = 500) => z.string().trim().min(1, 'required').max(max, `max_${max}`);
-const optionalText = (max = 500) =>
-  z.preprocess((value) => (value === '' ? undefined : value), z.string().trim().max(max).optional());
+const contactChannels = ['email', 'phone'] as const;
 
 const registerSchema = z
   .object({
     display_name: text(160),
     email: z.string().trim().email('invalid_email').max(240).transform((value) => value.toLowerCase()),
     password: z.string().min(8, 'min_8').max(200, 'max_200'),
-    primary_channel: z.enum(preferredChannels),
-    phone: optionalText(80),
+    primary_channel: z.enum(contactChannels),
+    phone: text(80),
     consent_version: text(120),
     account_terms_consent: z.literal(true),
     privacy_consent: z.literal(true),
