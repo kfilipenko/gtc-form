@@ -19,6 +19,10 @@ Travel Network Lab
 
 ```text
 projects/travelgtc/
+  app/
+    src/
+    migrations/
+    tests/
   public/
     index.html
     travel-lifestyle/
@@ -56,6 +60,33 @@ projects/travelgtc/
 /events/
 /about/
 /contacts/
+```
+
+## API Application
+
+The first backend application lives in:
+
+```text
+projects/travelgtc/app/
+```
+
+It provides:
+
+```text
+GET  /api/travelgtc/v1/health
+POST /api/travelgtc/v1/public/leads
+```
+
+By default public lead capture is disabled:
+
+```text
+TRAVELGTC_PUBLIC_LEAD_CAPTURE_ENABLED=false
+```
+
+Run local API checks:
+
+```bash
+npm run check:travelgtc-api
 ```
 
 ## Publication

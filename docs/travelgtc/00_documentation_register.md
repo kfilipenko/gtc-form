@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 1.6
+- Version: 1.7
 - Date: 2026-07-09
-- Status: Implementation readiness fixed
+- Status: Lead capture API and database schema implemented
 
 ## 1. Purpose
 
@@ -52,6 +52,8 @@ The first stage is intentionally small:
 | `022_travelgtc_roadmap_001_site_crm_business_process_mapping_spec.md` | TRAVELGTC-ROADMAP-001 - Site, CRM And Business Process Mapping Specification | Fixes the operating roadmap and tables for page-to-process-to-CRM-to-agent implementation. | Active roadmap |
 | `023_travelgtc_prep_001_implementation_readiness_checklist_task.md` | TRAVELGTC-PREP-001 - Implementation Readiness Checklist | Defines the preparation task before sequential API, CRM, AI and integration implementation. | Implemented |
 | `024_travelgtc_prep_001_implementation_readiness_checklist_spec.md` | TRAVELGTC-PREP-001 - Implementation Readiness Checklist Specification | Fixes stack direction, source layout, parent-network/subnetwork rules, compliance guardrails, API/AI readiness and implementation gates. | Active readiness gate |
+| `025_travelgtc_api_001_lead_capture_api_database_schema_task.md` | TRAVELGTC-API-001 - Lead Capture API And Database Schema | Defines first backend implementation for public lead capture, validation, database schema and Intake Agent stub. | Implemented |
+| `026_travelgtc_api_001_lead_capture_api_database_schema_report.md` | TRAVELGTC-API-001 - Lead Capture API And Database Schema Report | Fixes the backend app, SQL migration, public lead endpoint, safety switch, tests and remaining database/production gaps. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -80,6 +82,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.7 | 2026-07-09 | GTC IT / AI Assistant | Added lead capture API and database schema implementation |
 | 1.6 | 2026-07-09 | GTC IT / AI Assistant | Added implementation readiness checklist before API build |
 | 1.5 | 2026-07-09 | GTC IT / AI Assistant | Added site, CRM and business process mapping roadmap |
 | 1.4 | 2026-07-09 | GTC IT / AI Assistant | Added funnel and CRM MVP requirements |
