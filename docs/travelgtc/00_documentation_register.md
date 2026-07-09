@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.5
+- Version: 2.6
 - Date: 2026-07-09
-- Status: Legal/privacy/disclosure pages published
+- Status: Upper infographic navigation design implemented
 
 ## 1. Purpose
 
@@ -68,6 +68,8 @@ The first stage is intentionally small:
 | `038_travelgtc_runtime_001_test_database_api_service_nginx_proxy_report.md` | TRAVELGTC-RUNTIME-001 - Test Database, API Service And Nginx Proxy Report | Fixes PostgreSQL runtime, systemd service, nginx `/api` proxy, live deploy and HTTPS funnel verification. | Implemented |
 | `039_travelgtc_legal_001_privacy_consent_disclosure_pages_task.md` | TRAVELGTC-LEGAL-001 - Privacy, Consent And Public Disclosure Pages | Defines public privacy, terms and partner-disclosure pages for the authenticated funnel. | Implemented |
 | `040_travelgtc_legal_001_privacy_consent_disclosure_pages_report.md` | TRAVELGTC-LEGAL-001 - Privacy, Consent And Public Disclosure Pages Report | Fixes legal routes, consent links, footer links, live deployment and verification. | Implemented |
+| `041_travelgtc_web_008_upper_infographic_navigation_design_task.md` | TRAVELGTC-WEB-008 - Upper Infographic Navigation Design Task | Defines the upper-page infographic navigation redesign against the approved mockup reference. | Implemented |
+| `042_travelgtc_web_008_upper_infographic_navigation_design_report.md` | TRAVELGTC-WEB-008 - Upper Infographic Navigation Design Report | Fixes the moved upper infographic navigation, responsive checks and publication verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -100,6 +102,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.6 | 2026-07-09 | GTC IT / AI Assistant | Moved and restyled the home-page infographic navigation near the upper page area |
 | 2.5 | 2026-07-09 | GTC IT / AI Assistant | Added privacy, terms and partner-disclosure pages with consent/footer links |
 | 2.4 | 2026-07-09 | GTC IT / AI Assistant | Added live test runtime with PostgreSQL database, API service and nginx proxy |
 | 2.3 | 2026-07-09 | GTC IT / AI Assistant | Added frontend registration gate and authenticated public funnel implementation |

@@ -654,7 +654,37 @@ h3 {
 }
 
 .site-map-section {
+  position: relative;
   overflow: hidden;
+  border-top: 1px solid rgba(11, 29, 42, 0.04);
+  border-bottom: 1px solid rgba(11, 29, 42, 0.08);
+  padding: 42px 0 48px;
+}
+
+.site-map-section.upper-map {
+  margin-top: -22px;
+  background: linear-gradient(180deg, var(--white) 0%, #f9fcff 100%);
+}
+
+.site-map-section .section-head {
+  max-width: 700px;
+  margin-bottom: 18px;
+}
+
+.site-map-section .section-head h2 {
+  font-size: clamp(1.5rem, 2.15vw, 2rem);
+}
+
+.site-map-section .section-head::after {
+  display: block;
+  width: min(380px, 76%);
+  height: 8px;
+  margin: 0 auto;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, transparent, rgba(0, 184, 148, 0.96), transparent),
+    repeating-linear-gradient(90deg, rgba(0, 184, 148, 0.16) 0 18px, transparent 18px 36px);
+  content: "";
 }
 
 .menu-infographic {
@@ -662,16 +692,17 @@ h3 {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
   gap: 10px;
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
 .menu-infographic::before {
   position: absolute;
-  top: 34px;
-  right: 62px;
-  left: 62px;
+  top: 33px;
+  right: 64px;
+  left: 64px;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(0, 184, 148, 0.5), transparent);
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgba(0, 184, 148, 0.72), transparent);
   content: "";
 }
 
@@ -679,38 +710,48 @@ h3 {
   position: relative;
   z-index: 1;
   display: grid;
-  min-height: 126px;
+  min-height: 122px;
   align-content: start;
   justify-items: center;
   gap: 8px;
+  border: 1px solid transparent;
   border-radius: 8px;
-  padding: 8px 6px 10px;
+  padding: 7px 6px 10px;
+  background: rgba(255, 255, 255, 0.74);
   text-align: center;
-  transition: background 160ms ease, transform 160ms ease;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
 }
 
 .menu-node:hover,
 .menu-node.active {
-  background: rgba(0, 184, 148, 0.08);
+  border-color: rgba(0, 184, 148, 0.18);
+  background: var(--white);
+  box-shadow: 0 12px 26px rgba(11, 29, 42, 0.06);
   transform: translateY(-1px);
 }
 
 .menu-icon {
   display: inline-flex;
-  width: 58px;
-  height: 58px;
+  width: 60px;
+  height: 60px;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(0, 184, 148, 0.28);
+  border: 1px solid rgba(0, 184, 148, 0.34);
   border-radius: 50%;
-  background: var(--white);
+  background: linear-gradient(180deg, var(--white), #eefbf8);
   color: var(--teal);
-  box-shadow: 0 10px 24px rgba(11, 29, 42, 0.08);
+  box-shadow: 0 10px 22px rgba(11, 29, 42, 0.08);
+}
+
+.menu-node.active .menu-icon {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--teal), #10c8b4);
+  color: var(--white);
 }
 
 .menu-icon svg {
-  width: 28px;
-  height: 28px;
+  width: 29px;
+  height: 29px;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -721,33 +762,41 @@ h3 {
 .menu-node strong {
   color: var(--navy);
   font-family: Manrope, Inter, sans-serif;
-  font-size: 0.86rem;
+  font-size: 0.84rem;
   line-height: 1.16;
 }
 
 .menu-node small {
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.71rem;
   line-height: 1.25;
 }
 
 .path-summary {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 22px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 720px;
+  margin: 18px auto 0;
   border-radius: 8px;
-  padding: 10px;
-  background: rgba(11, 29, 42, 0.04);
+  padding: 9px;
+  border: 1px solid rgba(0, 184, 148, 0.12);
+  background: rgba(0, 184, 148, 0.06);
 }
 
 .path-summary span {
+  position: relative;
+  min-width: 126px;
   border-left: 3px solid var(--teal);
-  padding: 8px 10px;
+  border-radius: 6px;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.74);
   color: var(--navy);
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   font-weight: 800;
   line-height: 1.25;
+  text-align: center;
 }
 
 .page-hero {

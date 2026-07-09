@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.4
+- Version: 2.5
 - Date: 2026-07-09
-- Status: Active, legal/privacy/disclosure pages published
+- Status: Active, upper infographic navigation design implemented
 
 ## 1. Current State
 
@@ -187,6 +187,8 @@ Menu/footer/mobile state:
 
 ```text
 Home page includes a clickable infographic-style menu for all public routes.
+TRAVELGTC-WEB-008 moved this infographic menu from the lower home page to the upper page area directly after the hero and short benefits band.
+The block is now titled as the site structure and visually supports the funnel path: interest -> role -> application -> consultation.
 Infographic menu uses responsive columns: desktop 8, tablet 4, mobile 2.
 Footer is compacted with smaller padding, smaller links and desktop disclaimer columns.
 Mobile source audit passed through viewport/meta, CSS breakpoint checks and Playwright browser tests.
@@ -227,6 +229,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.5 | 2026-07-09 | GTC IT / AI Assistant | Recorded upper-page infographic navigation redesign and responsive verification |
 | 2.4 | 2026-07-09 | GTC IT / AI Assistant | Recorded legal/privacy/disclosure pages, footer links, consent links and next CRM step |
 | 2.3 | 2026-07-09 | GTC IT / AI Assistant | Recorded live test runtime: PostgreSQL DB, systemd API service, nginx proxy and HTTPS funnel verification |
 | 2.2 | 2026-07-09 | GTC IT / AI Assistant | Recorded frontend registration gate, `/auth/`, authenticated form submission and runtime publication as next step |
