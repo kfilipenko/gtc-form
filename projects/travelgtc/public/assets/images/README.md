@@ -20,12 +20,19 @@ processed/
 
 ## Processed Public Assets
 
-The first public prototype uses optimized WebP versions of the approved visual mockups:
+The current public site uses generated and optimized WebP production images:
 
 ```text
-processed/travel-network-lab-landing-reference.webp
-processed/travel-network-lab-structure-reference.webp
+processed/hero-travel-network-lab.webp
+processed/travel-lifestyle-route.webp
+processed/club-community-evening.webp
+processed/create-trip-planning.webp
+processed/events-wellness-retreat.webp
+processed/business-model-trust-meeting.webp
+processed/contacts-travel-message.webp
 ```
+
+The mockups in `inbox/foto/` are design references only and should not be used as visible public page content.
 
 ## Current Reference Notes
 

@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.6
+- Version: 0.7
 - Date: 2026-07-08
-- Status: Server-side publication and SSL completed, DNS cache propagation pending
+- Status: Generated production visual assets published
 
 ## 1. Purpose
 
@@ -34,6 +34,8 @@ The first stage is intentionally small:
 | `004_travelgtc_web_001_first_travel_network_lab_public_prototype_report.md` | TRAVELGTC-WEB-001 - First Travel Network Lab Public Prototype Report | Fixes the implementation of the first public landing page and requested routes. | Implemented |
 | `005_travelgtc_deploy_001_public_nginx_publication_task.md` | TRAVELGTC-DEPLOY-001 - Public Nginx Publication | Defines server-side nginx publication for `travelgtc.com`. | Implemented, DNS pending |
 | `006_travelgtc_deploy_001_public_nginx_publication_report.md` | TRAVELGTC-DEPLOY-001 - Public Nginx Publication Report | Fixes live-root sync, nginx enablement, smoke checks and Timeweb DNS gap. | Implemented, DNS pending |
+| `007_travelgtc_web_003_generated_visual_assets_task.md` | TRAVELGTC-WEB-003 - Generated Production Visual Assets | Defines generation and publication of the first production image set. | Implemented |
+| `008_travelgtc_web_003_generated_visual_assets_report.md` | TRAVELGTC-WEB-003 - Generated Production Visual Assets Report | Fixes generated image files, route mapping, deployment and verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -62,6 +64,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.7 | 2026-07-09 | GTC IT / AI Assistant | Added generated production visual asset task/report |
 | 0.6 | 2026-07-08 | GTC IT / AI Assistant | Recorded SSL completion and DNS cache propagation status |
 | 0.5 | 2026-07-08 | GTC IT / AI Assistant | Added server-side publication task/report, live root and DNS pending status |
 | 0.4 | 2026-07-08 | GTC IT / AI Assistant | Added first Travel Network Lab public prototype task/report and route status |

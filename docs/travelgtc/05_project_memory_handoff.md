@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.5
-- Date: 2026-07-08
-- Status: Active, server-side publication and SSL completed, DNS cache propagation pending
+- Version: 0.6
+- Date: 2026-07-09
+- Status: Active, generated production visual assets published
 
 ## 1. Current State
 
@@ -68,6 +68,20 @@ Some public recursive DNS caches may temporarily keep old Timeweb A/AAAA records
 SSL is issued for travelgtc.com and www.travelgtc.com.
 ```
 
+Generated production image assets:
+
+```text
+projects/travelgtc/public/assets/images/processed/hero-travel-network-lab.webp
+projects/travelgtc/public/assets/images/processed/travel-lifestyle-route.webp
+projects/travelgtc/public/assets/images/processed/club-community-evening.webp
+projects/travelgtc/public/assets/images/processed/create-trip-planning.webp
+projects/travelgtc/public/assets/images/processed/events-wellness-retreat.webp
+projects/travelgtc/public/assets/images/processed/business-model-trust-meeting.webp
+projects/travelgtc/public/assets/images/processed/contacts-travel-message.webp
+```
+
+The original mockups in `inbox/foto/` are design references only.
+
 ## 2. Working Rules
 
 1. Start each new TravelGTC task by reading this memory document and `docs/travelgtc/00_documentation_register.md`.
@@ -84,13 +98,15 @@ Recommended next steps:
 
 1. wait for recursive DNS caches to stop returning old Timeweb A/AAAA values;
 2. run live HTTPS smoke checks without forced DNS;
-3. confirm production contact links for MAX, Telegram and email;
-4. define privacy/consent and backend/CRM handling for forms.
+3. Project Owner should visually approve or reject the generated production image set;
+4. confirm production contact links for MAX, Telegram and email;
+5. define privacy/consent and backend/CRM handling for forms.
 
 ## 4. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.6 | 2026-07-09 | GTC IT / AI Assistant | Recorded generated production image set |
 | 0.5 | 2026-07-08 | GTC IT / AI Assistant | Recorded authoritative DNS switch and Let's Encrypt SSL completion |
 | 0.4 | 2026-07-08 | GTC IT / AI Assistant | Recorded server-side publication, live root, nginx config and Timeweb DNS blocker |
 | 0.3 | 2026-07-08 | GTC IT / AI Assistant | Recorded final Travel Network Lab concept and first public prototype routes |

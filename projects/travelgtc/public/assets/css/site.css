@@ -38,6 +38,21 @@ img {
   max-width: 100%;
 }
 
+.section-image {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: var(--shadow);
+}
+
+.section-image.wide {
+  aspect-ratio: 16 / 9;
+}
+
+.section-image.vertical {
+  aspect-ratio: 4 / 5;
+}
+
 a {
   color: inherit;
   text-decoration: none;
