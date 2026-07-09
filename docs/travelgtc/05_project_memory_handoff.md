@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 1.0
+- Version: 1.1
 - Date: 2026-07-09
-- Status: Active, Playwright responsive testing enabled
+- Status: Active, rejected generated images removed
 
 ## 1. Current State
 
@@ -68,16 +68,12 @@ Some public recursive DNS caches may temporarily keep old Timeweb A/AAAA records
 SSL is issued for travelgtc.com and www.travelgtc.com.
 ```
 
-Generated production image assets:
+Generated production image asset state:
 
 ```text
-projects/travelgtc/public/assets/images/processed/hero-travel-network-lab.webp
-projects/travelgtc/public/assets/images/processed/travel-lifestyle-route.webp
-projects/travelgtc/public/assets/images/processed/club-community-evening.webp
-projects/travelgtc/public/assets/images/processed/create-trip-planning.webp
-projects/travelgtc/public/assets/images/processed/events-wellness-retreat.webp
-projects/travelgtc/public/assets/images/processed/business-model-trust-meeting.webp
-projects/travelgtc/public/assets/images/processed/contacts-travel-message.webp
+The previously generated WebP set was rejected and removed.
+There are currently no approved production bitmap images in processed/.
+Public pages use CSS visual panels until a new approved image set is generated.
 ```
 
 The original mockups in `inbox/foto/` are design references only.
@@ -136,6 +132,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.1 | 2026-07-09 | GTC IT / AI Assistant | Recorded removal of rejected generated WebP images and temporary CSS visual panels |
 | 1.0 | 2026-07-09 | GTC IT / AI Assistant | Recorded Playwright responsive testing setup and screenshot artifact path |
 | 0.9 | 2026-07-09 | GTC IT / AI Assistant | Recorded menu infographic, compact footer and mobile adaptation check |
 | 0.8 | 2026-07-09 | GTC IT / AI Assistant | Recorded second reference visual scale pass for hero accent, compact typography and benefits band |

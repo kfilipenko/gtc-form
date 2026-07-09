@@ -20,19 +20,11 @@ processed/
 
 ## Processed Public Assets
 
-The current public site uses generated and optimized WebP production images:
+There are currently no approved production bitmap images for the public site.
 
-```text
-processed/hero-travel-network-lab.webp
-processed/travel-lifestyle-route.webp
-processed/club-community-evening.webp
-processed/create-trip-planning.webp
-processed/events-wellness-retreat.webp
-processed/business-model-trust-meeting.webp
-processed/contacts-travel-message.webp
-```
+The previously generated WebP set was rejected and removed from source/publication. Until a new approved image set is generated, public pages must not reference removed `processed/*.webp` files.
 
-The mockups in `inbox/foto/` are design references only and should not be used as visible public page content.
+The mockups in `inbox/foto/` are design references only and must not be used as visible public page content.
 
 ## Current Reference Notes
 

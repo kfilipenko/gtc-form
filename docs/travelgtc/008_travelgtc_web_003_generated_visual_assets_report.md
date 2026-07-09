@@ -3,13 +3,19 @@
 - Project: TravelGTC
 - Source task: `docs/travelgtc/007_travelgtc_web_003_generated_visual_assets_task.md`
 - Document type: Implementation report
-- Version: 0.1
+- Version: 0.2
 - Date: 2026-07-09
-- Status: Implemented
+- Status: Superseded, generated image set rejected and removed
 
 ## 1. Purpose
 
 This report fixes the generation, optimization, publication and verification of the first production image set for Travel Network Lab.
+
+Supersession note:
+
+```text
+The generated WebP image set documented here was later rejected by the Project Owner and removed in TRAVELGTC-WEB-006.
+```
 
 ## 2. Implementation Summary
 
@@ -107,5 +113,6 @@ Included in repository commit reported in the final response.
 ## 10. Revision History
 
 | Version | Date | Author | Changes |
-|---|---|---|
+|---|---|---|---|
+| 0.2 | 2026-07-09 | GTC IT / AI Assistant | Marked generated WebP set as rejected and removed by WEB-006 |
 | 0.1 | 2026-07-09 | GTC IT / AI Assistant | Initial implementation report |

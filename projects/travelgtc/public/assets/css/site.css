@@ -186,8 +186,9 @@ a {
   position: relative;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(11, 29, 42, 0.86) 0%, rgba(11, 29, 42, 0.68) 38%, rgba(11, 29, 42, 0.24) 100%),
-    url("/assets/images/processed/hero-travel-network-lab.webp") center / cover no-repeat;
+    radial-gradient(circle at 78% 28%, rgba(0, 184, 148, 0.28), transparent 28%),
+    radial-gradient(circle at 86% 72%, rgba(163, 230, 53, 0.18), transparent 24%),
+    linear-gradient(120deg, rgba(11, 29, 42, 0.98) 0%, rgba(30, 77, 107, 0.92) 48%, rgba(11, 29, 42, 0.96) 100%);
   color: var(--white);
 }
 
@@ -413,6 +414,53 @@ h3 {
   background: rgba(0, 184, 148, 0.12);
   color: var(--teal);
   font-weight: 900;
+}
+
+.section-visual {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  min-height: 280px;
+  overflow: hidden;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 24% 26%, rgba(163, 230, 53, 0.34), transparent 18%),
+    radial-gradient(circle at 78% 34%, rgba(0, 184, 148, 0.28), transparent 20%),
+    linear-gradient(135deg, rgba(11, 29, 42, 0.98), rgba(30, 77, 107, 0.9));
+  box-shadow: var(--shadow);
+}
+
+.section-visual.wide {
+  aspect-ratio: 16 / 9;
+}
+
+.section-visual.vertical {
+  aspect-ratio: 4 / 5;
+}
+
+.section-visual::before {
+  position: absolute;
+  inset: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, transparent 0 47%, rgba(255, 255, 255, 0.12) 47% 48%, transparent 48% 100%),
+    linear-gradient(0deg, transparent 0 47%, rgba(255, 255, 255, 0.12) 47% 48%, transparent 48% 100%);
+  content: "";
+}
+
+.section-visual::after {
+  position: absolute;
+  right: 24px;
+  bottom: 22px;
+  max-width: min(72%, 360px);
+  color: rgba(255, 255, 255, 0.9);
+  content: attr(data-label);
+  font-family: Manrope, Inter, sans-serif;
+  font-size: clamp(1.2rem, 2.4vw, 2rem);
+  font-weight: 800;
+  line-height: 1.08;
+  text-align: right;
 }
 
 .split {
@@ -908,6 +956,14 @@ textarea {
   .path-summary {
     grid-template-columns: 1fr;
     margin-top: 16px;
+  }
+
+  .section-visual {
+    min-height: 220px;
+  }
+
+  .section-visual.wide {
+    aspect-ratio: auto;
   }
 
   .footer-inner {

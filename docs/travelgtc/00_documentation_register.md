@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-07-09
-- Status: Playwright responsive testing enabled
+- Status: Rejected generated images removed
 
 ## 1. Purpose
 
@@ -35,13 +35,15 @@ The first stage is intentionally small:
 | `005_travelgtc_deploy_001_public_nginx_publication_task.md` | TRAVELGTC-DEPLOY-001 - Public Nginx Publication | Defines server-side nginx publication for `travelgtc.com`. | Implemented, DNS pending |
 | `006_travelgtc_deploy_001_public_nginx_publication_report.md` | TRAVELGTC-DEPLOY-001 - Public Nginx Publication Report | Fixes live-root sync, nginx enablement, smoke checks and Timeweb DNS gap. | Implemented, DNS pending |
 | `007_travelgtc_web_003_generated_visual_assets_task.md` | TRAVELGTC-WEB-003 - Generated Production Visual Assets | Defines generation and publication of the first production image set. | Implemented |
-| `008_travelgtc_web_003_generated_visual_assets_report.md` | TRAVELGTC-WEB-003 - Generated Production Visual Assets Report | Fixes generated image files, route mapping, deployment and verification. | Implemented |
+| `008_travelgtc_web_003_generated_visual_assets_report.md` | TRAVELGTC-WEB-003 - Generated Production Visual Assets Report | Historical report for the generated image files later rejected and removed. | Superseded by WEB-006 |
 | `009_travelgtc_web_004_reference_typography_alignment_task.md` | TRAVELGTC-WEB-004 - Reference Typography Alignment | Defines correction of heading scale, hero proportions, headline accent and benefits band against the original mockups. | Implemented |
 | `010_travelgtc_web_004_reference_typography_alignment_report.md` | TRAVELGTC-WEB-004 - Reference Typography Alignment Report | Fixes typography scale, hero background, headline accent, benefits band and deployment verification. | Implemented |
 | `011_travelgtc_web_005_menu_infographic_footer_mobile_task.md` | TRAVELGTC-WEB-005 - Menu Infographic, Compact Footer And Mobile Check | Defines menu infographic, footer compaction and responsive check. | Implemented |
 | `012_travelgtc_web_005_menu_infographic_footer_mobile_report.md` | TRAVELGTC-WEB-005 - Menu Infographic, Compact Footer And Mobile Check Report | Fixes menu infographic, compact footer, responsive CSS and deployment verification. | Implemented |
 | `013_travelgtc_qa_001_playwright_responsive_testing_task.md` | TRAVELGTC-QA-001 - Playwright Responsive Testing Setup | Defines browser-based responsive test setup and screenshot generation. | Implemented |
 | `014_travelgtc_qa_001_playwright_responsive_testing_report.md` | TRAVELGTC-QA-001 - Playwright Responsive Testing Setup Report | Fixes Playwright config, responsive tests, screenshots and run command. | Implemented |
+| `015_travelgtc_web_006_rejected_image_asset_cleanup_task.md` | TRAVELGTC-WEB-006 - Rejected Image Asset Cleanup | Defines removal of rejected generated WebP images and public references. | Implemented |
+| `016_travelgtc_web_006_rejected_image_asset_cleanup_report.md` | TRAVELGTC-WEB-006 - Rejected Image Asset Cleanup Report | Fixes rejected image cleanup, temporary CSS visuals, deployment and verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -70,6 +72,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.2 | 2026-07-09 | GTC IT / AI Assistant | Recorded rejected generated image asset cleanup |
 | 1.1 | 2026-07-09 | GTC IT / AI Assistant | Added Playwright responsive testing task/report |
 | 1.0 | 2026-07-09 | GTC IT / AI Assistant | Added menu infographic, compact footer and mobile check task/report |
 | 0.9 | 2026-07-09 | GTC IT / AI Assistant | Recorded second reference visual scale pass for hero accent and benefits band |
