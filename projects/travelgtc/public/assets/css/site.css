@@ -235,7 +235,7 @@ a {
   background:
     linear-gradient(90deg, rgba(7, 22, 34, 0.96) 0%, rgba(7, 22, 34, 0.82) 34%, rgba(7, 22, 34, 0.28) 66%, rgba(7, 22, 34, 0.2) 100%),
     linear-gradient(180deg, rgba(11, 29, 42, 0.28), rgba(11, 29, 42, 0.48)),
-    url("/assets/images/processed/travelgtc-club-evening-gathering.webp") center right / cover no-repeat;
+    url("/assets/images/processed/travelgtc-home-hero-deck-sunset.webp") center right / cover no-repeat;
   color: var(--white);
 }
 
@@ -591,24 +591,31 @@ h3 {
 }
 
 .image-traveler {
-  background-image: url("/assets/images/processed/travelgtc-traveler-cliff-view.webp");
+  background-image: url("/assets/images/processed/travelgtc-lifestyle-mountain-community.webp");
 }
 
-.image-club,
-.image-events {
-  background-image: url("/assets/images/processed/travelgtc-club-evening-gathering.webp");
+.image-club {
+  background-image: url("/assets/images/processed/travelgtc-club-seaside-reception.webp");
 }
 
 .image-trip-planning {
-  background-image: url("/assets/images/processed/travelgtc-trip-planning-terrace.webp");
+  background-image: url("/assets/images/processed/travelgtc-create-trip-coast-table.webp");
 }
 
 .image-business {
-  background-image: url("/assets/images/processed/travelgtc-business-handshake-terrace.webp");
+  background-image: url("/assets/images/processed/travelgtc-business-dubai-planning.webp");
+}
+
+.image-events {
+  background-image: url("/assets/images/processed/travelgtc-events-night-dinner.webp");
 }
 
 .image-contact {
-  background-image: url("/assets/images/processed/travelgtc-coast-lounge-sunset.webp");
+  background-image: url("/assets/images/processed/travelgtc-contact-sunset-lounge.webp");
+}
+
+.image-about {
+  background-image: url("/assets/images/processed/travelgtc-about-network-sunset.webp");
 }
 
 .split {
@@ -1212,7 +1219,7 @@ button:disabled {
     background:
       linear-gradient(90deg, rgba(7, 22, 34, 0.97) 0%, rgba(7, 22, 34, 0.88) 46%, rgba(7, 22, 34, 0.38) 100%),
       linear-gradient(180deg, rgba(11, 29, 42, 0.34), rgba(11, 29, 42, 0.56)),
-      url("/assets/images/processed/travelgtc-club-evening-gathering.webp") center right / cover no-repeat;
+      url("/assets/images/processed/travelgtc-home-hero-deck-sunset.webp") center right / cover no-repeat;
   }
 
   .benefit-strip .card + .card {

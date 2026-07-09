@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.8
+- Version: 2.9
 - Date: 2026-07-09
-- Status: Production image set bound to public pages
+- Status: Unique page images from new design set implemented
 
 ## 1. Purpose
 
@@ -74,6 +74,8 @@ The first stage is intentionally small:
 | `044_travelgtc_web_009_reference_image_hero_alignment_report.md` | TRAVELGTC-WEB-009 - Reference Image Hero Alignment Report | Fixes production image assets, hero photo background and responsive visual verification. | Implemented |
 | `045_travelgtc_web_010_production_image_set_page_binding_task.md` | TRAVELGTC-WEB-010 - Production Image Set Page Binding Task | Defines optimization and page binding for the new Project Owner image set. | Implemented |
 | `046_travelgtc_web_010_production_image_set_page_binding_report.md` | TRAVELGTC-WEB-010 - Production Image Set Page Binding Report | Fixes the new processed image set, page-specific visual bindings and responsive verification. | Implemented |
+| `047_travelgtc_web_011_unique_page_images_from_new_design_set_task.md` | TRAVELGTC-WEB-011 - Unique Page Images From New Design Set Task | Defines unique page image assignment from the newer design/photo set. | Implemented |
+| `048_travelgtc_web_011_unique_page_images_from_new_design_set_report.md` | TRAVELGTC-WEB-011 - Unique Page Images From New Design Set Report | Fixes non-repeating page images, additional processed assets and responsive verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -106,6 +108,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.9 | 2026-07-09 | GTC IT / AI Assistant | Added newer design/photo set and unique non-repeating image assignments across main pages |
 | 2.8 | 2026-07-09 | GTC IT / AI Assistant | Optimized and connected the new production image set to public pages |
 | 2.7 | 2026-07-09 | GTC IT / AI Assistant | Added processed travel imagery and reference-like hero composition |
 | 2.6 | 2026-07-09 | GTC IT / AI Assistant | Moved and restyled the home-page infographic navigation near the upper page area |

@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.7
+- Version: 2.8
 - Date: 2026-07-09
-- Status: Active, production image set bound to public pages
+- Status: Active, unique page images from new design set implemented
 
 ## 1. Current State
 
@@ -91,6 +91,16 @@ projects/travelgtc/public/assets/images/processed/travelgtc-traveler-cliff-view.
 projects/travelgtc/public/assets/images/processed/travelgtc-trip-planning-terrace.webp
 The home page now uses `travelgtc-club-evening-gathering.webp` as the hero background.
 The travel lifestyle, club, create-trip, business-model, events and contacts pages now use real page-specific images instead of generic CSS visual placeholders.
+TRAVELGTC-WEB-011 then added a newer set of design/photo references from `inbox/foto/` and remapped the main pages so they do not reuse the same primary image:
+home hero -> travelgtc-home-hero-deck-sunset.webp
+home content -> travelgtc-home-lounge-sea-view.webp
+travel lifestyle -> travelgtc-lifestyle-mountain-community.webp
+club -> travelgtc-club-seaside-reception.webp
+create trip -> travelgtc-create-trip-coast-table.webp
+business model -> travelgtc-business-dubai-planning.webp
+events -> travelgtc-events-night-dinner.webp
+contacts -> travelgtc-contact-sunset-lounge.webp
+about -> travelgtc-about-network-sunset.webp
 ```
 
 The original mockups in `inbox/foto/` are design references only.
@@ -239,6 +249,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.8 | 2026-07-09 | GTC IT / AI Assistant | Recorded unique non-repeating page image assignment from the newer design/photo set |
 | 2.7 | 2026-07-09 | GTC IT / AI Assistant | Recorded new production image set optimization and page bindings |
 | 2.6 | 2026-07-09 | GTC IT / AI Assistant | Recorded processed reference images and photographic home hero alignment |
 | 2.5 | 2026-07-09 | GTC IT / AI Assistant | Recorded upper-page infographic navigation redesign and responsive verification |
