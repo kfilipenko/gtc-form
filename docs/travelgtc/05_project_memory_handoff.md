@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 1.6
+- Version: 1.7
 - Date: 2026-07-09
-- Status: Active, lead capture API and database schema implemented
+- Status: Active, public funnel API form implemented in local/test mode
 
 ## 1. Current State
 
@@ -102,6 +102,7 @@ TRAVELGTC-BIZ-001 fixed the first public funnel fields, database schema, API con
 TRAVELGTC-ROADMAP-001 fixed the page-to-business-process-to-CRM-to-agent mapping, including implementation phases, API event names, CRM screens and success metrics.
 TRAVELGTC-PREP-001 fixed implementation readiness: Node.js/TypeScript + PostgreSQL stack direction, proposed app source layout, environment/secret handling, parent-network/subnetwork boundaries, compliance references, CRM transitions, API contract readiness, Intake Agent protocol readiness and production blockers.
 TRAVELGTC-API-001 implemented the first backend app in `projects/travelgtc/app/`, PostgreSQL migration, health endpoint, public lead endpoint, validation, consent enforcement, idempotency, rate limiting, in-memory test store, PostgreSQL runtime store and Intake Agent stub.
+TRAVELGTC-WEB-007 implemented the public role selector and unified lead form, converted `/create-trip/` and `/contacts/` forms to the API contract, added API submit JS and added local/test funnel e2e verification.
 ```
 
 API state:
@@ -114,6 +115,18 @@ Migration: projects/travelgtc/app/migrations/001_travelgtc_lead_capture.sql
 Run API check: npm run check:travelgtc-api
 Default safety switch: TRAVELGTC_PUBLIC_LEAD_CAPTURE_ENABLED=false
 Production database migration has not been applied yet.
+```
+
+Public funnel state:
+
+```text
+Home form: projects/travelgtc/public/index.html#lead-form
+Create-trip form: projects/travelgtc/public/create-trip/index.html#idea-form
+Contacts form: projects/travelgtc/public/contacts/index.html#contact-form
+Funnel e2e command: npm run test:travelgtc-funnel
+Local test static port: 4174
+Local test API port: 4302
+Live deployment is intentionally pending until API service and nginx /api proxy are configured.
 ```
 
 Typography correction state:
@@ -160,17 +173,20 @@ Generated screenshots are written to projects/travelgtc/test-artifacts/screensho
 
 Recommended next steps:
 
-1. start `TRAVELGTC-WEB-007 - Public Funnel Role Selector And Form`;
-2. connect the public role selector/form to `POST /api/travelgtc/v1/public/leads` in local/test mode;
-3. keep `TRAVELGTC_PUBLIC_LEAD_CAPTURE_ENABLED=false` for production until privacy/consent/disclosure pages are approved;
-4. configure a dedicated TravelGTC PostgreSQL database before applying `001_travelgtc_lead_capture.sql`;
-5. then start `TRAVELGTC-CRM-001 - Lead Board And Lead Detail MVP`;
-6. then start `TRAVELGTC-AI-001 - Intake Agent Summary And Routing`.
+1. start `TRAVELGTC-RUNTIME-001 - Test Database, API Service And Nginx Proxy`;
+2. create/configure a dedicated TravelGTC test database;
+3. apply `001_travelgtc_lead_capture.sql` to the safe database;
+4. run TravelGTC API as a managed service with `TRAVELGTC_PUBLIC_LEAD_CAPTURE_ENABLED=true` only for test mode;
+5. add nginx proxy for `/api/` to the API service;
+6. deploy the public form after runtime path is ready;
+7. then start `TRAVELGTC-CRM-001 - Lead Board And Lead Detail MVP`;
+8. keep true production mode blocked until privacy/consent/disclosure pages are approved.
 
 ## 4. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.7 | 2026-07-09 | GTC IT / AI Assistant | Recorded public funnel form, API submit JS and local/test funnel e2e path |
 | 1.6 | 2026-07-09 | GTC IT / AI Assistant | Recorded lead capture API, database schema migration and API check command |
 | 1.5 | 2026-07-09 | GTC IT / AI Assistant | Recorded implementation readiness checklist and parent-network/subnetwork preparation rules |
 | 1.4 | 2026-07-09 | GTC IT / AI Assistant | Recorded site, CRM and business process mapping roadmap |

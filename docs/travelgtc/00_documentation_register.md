@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 1.7
+- Version: 1.8
 - Date: 2026-07-09
-- Status: Lead capture API and database schema implemented
+- Status: Public funnel role selector and API form implemented
 
 ## 1. Purpose
 
@@ -54,6 +54,8 @@ The first stage is intentionally small:
 | `024_travelgtc_prep_001_implementation_readiness_checklist_spec.md` | TRAVELGTC-PREP-001 - Implementation Readiness Checklist Specification | Fixes stack direction, source layout, parent-network/subnetwork rules, compliance guardrails, API/AI readiness and implementation gates. | Active readiness gate |
 | `025_travelgtc_api_001_lead_capture_api_database_schema_task.md` | TRAVELGTC-API-001 - Lead Capture API And Database Schema | Defines first backend implementation for public lead capture, validation, database schema and Intake Agent stub. | Implemented |
 | `026_travelgtc_api_001_lead_capture_api_database_schema_report.md` | TRAVELGTC-API-001 - Lead Capture API And Database Schema Report | Fixes the backend app, SQL migration, public lead endpoint, safety switch, tests and remaining database/production gaps. | Implemented |
+| `027_travelgtc_web_007_public_funnel_role_selector_form_task.md` | TRAVELGTC-WEB-007 - Public Funnel Role Selector And Form | Defines the public role selector and unified lead form connection to the TravelGTC API. | Implemented |
+| `028_travelgtc_web_007_public_funnel_role_selector_form_report.md` | TRAVELGTC-WEB-007 - Public Funnel Role Selector And Form Report | Fixes the public funnel form, route forms, API submit JS and local/test funnel e2e verification. | Implemented, not live-deployed |
 
 ## 3. Project Source Locations
 
@@ -82,6 +84,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.8 | 2026-07-09 | GTC IT / AI Assistant | Added public funnel role selector and API-connected form |
 | 1.7 | 2026-07-09 | GTC IT / AI Assistant | Added lead capture API and database schema implementation |
 | 1.6 | 2026-07-09 | GTC IT / AI Assistant | Added implementation readiness checklist before API build |
 | 1.5 | 2026-07-09 | GTC IT / AI Assistant | Added site, CRM and business process mapping roadmap |

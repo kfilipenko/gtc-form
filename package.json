@@ -2,6 +2,7 @@
   "scripts": {
     "test:chat": "playwright test",
     "test:travelgtc": "playwright test -c playwright.travelgtc.config.ts",
+    "test:travelgtc-funnel": "playwright test -c playwright.travelgtc.funnel.config.ts",
     "check:travelgtc-api": "npm --prefix projects/travelgtc/app run check",
     "test:travelgtc-api": "npm --prefix projects/travelgtc/app run test",
     "build:travelgtc-api": "npm --prefix projects/travelgtc/app run build",

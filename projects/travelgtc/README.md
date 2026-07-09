@@ -89,6 +89,14 @@ Run local API checks:
 npm run check:travelgtc-api
 ```
 
+Run public funnel e2e with a local static server and local in-memory API:
+
+```bash
+npm run test:travelgtc-funnel
+```
+
+Live API submissions require a running TravelGTC API service and nginx `/api` proxy.
+
 ## Publication
 
 Server-side publication uses:
