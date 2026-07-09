@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.6
+- Version: 2.7
 - Date: 2026-07-09
-- Status: Active, reference image hero alignment implemented
+- Status: Active, production image set bound to public pages
 
 ## 1. Current State
 
@@ -83,7 +83,14 @@ The previously generated WebP set was rejected and removed.
 TRAVELGTC-WEB-009 added two new processed assets prepared from Project Owner reference materials:
 projects/travelgtc/public/assets/images/processed/travelgtc-hero-group-sunset.webp
 projects/travelgtc/public/assets/images/processed/travelgtc-bay-view.webp
-The home page now uses the hero sunset group image and a travel photo in the first content section.
+TRAVELGTC-WEB-010 added five more processed assets from the new Project Owner image set:
+projects/travelgtc/public/assets/images/processed/travelgtc-business-handshake-terrace.webp
+projects/travelgtc/public/assets/images/processed/travelgtc-club-evening-gathering.webp
+projects/travelgtc/public/assets/images/processed/travelgtc-coast-lounge-sunset.webp
+projects/travelgtc/public/assets/images/processed/travelgtc-traveler-cliff-view.webp
+projects/travelgtc/public/assets/images/processed/travelgtc-trip-planning-terrace.webp
+The home page now uses `travelgtc-club-evening-gathering.webp` as the hero background.
+The travel lifestyle, club, create-trip, business-model, events and contacts pages now use real page-specific images instead of generic CSS visual placeholders.
 ```
 
 The original mockups in `inbox/foto/` are design references only.
@@ -232,6 +239,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.7 | 2026-07-09 | GTC IT / AI Assistant | Recorded new production image set optimization and page bindings |
 | 2.6 | 2026-07-09 | GTC IT / AI Assistant | Recorded processed reference images and photographic home hero alignment |
 | 2.5 | 2026-07-09 | GTC IT / AI Assistant | Recorded upper-page infographic navigation redesign and responsive verification |
 | 2.4 | 2026-07-09 | GTC IT / AI Assistant | Recorded legal/privacy/disclosure pages, footer links, consent links and next CRM step |

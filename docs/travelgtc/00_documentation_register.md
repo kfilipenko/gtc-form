@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 2.7
+- Version: 2.8
 - Date: 2026-07-09
-- Status: Reference image hero alignment implemented
+- Status: Production image set bound to public pages
 
 ## 1. Purpose
 
@@ -72,6 +72,8 @@ The first stage is intentionally small:
 | `042_travelgtc_web_008_upper_infographic_navigation_design_report.md` | TRAVELGTC-WEB-008 - Upper Infographic Navigation Design Report | Fixes the moved upper infographic navigation, responsive checks and publication verification. | Implemented |
 | `043_travelgtc_web_009_reference_image_hero_alignment_task.md` | TRAVELGTC-WEB-009 - Reference Image Hero Alignment Task | Defines restoration of reference-like imagery and hero composition on the home page. | Implemented |
 | `044_travelgtc_web_009_reference_image_hero_alignment_report.md` | TRAVELGTC-WEB-009 - Reference Image Hero Alignment Report | Fixes production image assets, hero photo background and responsive visual verification. | Implemented |
+| `045_travelgtc_web_010_production_image_set_page_binding_task.md` | TRAVELGTC-WEB-010 - Production Image Set Page Binding Task | Defines optimization and page binding for the new Project Owner image set. | Implemented |
+| `046_travelgtc_web_010_production_image_set_page_binding_report.md` | TRAVELGTC-WEB-010 - Production Image Set Page Binding Report | Fixes the new processed image set, page-specific visual bindings and responsive verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -104,6 +106,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 2.8 | 2026-07-09 | GTC IT / AI Assistant | Optimized and connected the new production image set to public pages |
 | 2.7 | 2026-07-09 | GTC IT / AI Assistant | Added processed travel imagery and reference-like hero composition |
 | 2.6 | 2026-07-09 | GTC IT / AI Assistant | Moved and restyled the home-page infographic navigation near the upper page area |
 | 2.5 | 2026-07-09 | GTC IT / AI Assistant | Added privacy, terms and partner-disclosure pages with consent/footer links |
