@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 1.4
+- Version: 1.5
 - Date: 2026-07-09
-- Status: Funnel and CRM MVP requirements fixed
+- Status: Site, CRM and business process mapping fixed
 
 ## 1. Purpose
 
@@ -48,6 +48,8 @@ The first stage is intentionally small:
 | `018_travelgtc_arch_001_funnel_crm_agent_platform_spec.md` | TRAVELGTC-ARCH-001 - Funnel, CRM And AI Agent Platform Specification | Fixes approved product architecture: funnel, CRM model, API direction, agents, compliance and MVP sequence. | Active architecture |
 | `019_travelgtc_biz_001_funnel_crm_mvp_requirements_task.md` | TRAVELGTC-BIZ-001 - Funnel And CRM MVP Requirements | Defines the requirements task for the first funnel and CRM MVP. | Implemented |
 | `020_travelgtc_biz_001_funnel_crm_mvp_requirements_spec.md` | TRAVELGTC-BIZ-001 - Funnel And CRM MVP Requirements Specification | Fixes public funnel fields, database schema, API contracts, CRM screens, AI agent boundaries, consent text and acceptance tests. | Active MVP requirements |
+| `021_travelgtc_roadmap_001_site_crm_business_process_mapping_task.md` | TRAVELGTC-ROADMAP-001 - Site, CRM And Business Process Mapping | Defines the task for connecting public pages, business processes, CRM states, API events and AI agents. | Implemented |
+| `022_travelgtc_roadmap_001_site_crm_business_process_mapping_spec.md` | TRAVELGTC-ROADMAP-001 - Site, CRM And Business Process Mapping Specification | Fixes the operating roadmap and tables for page-to-process-to-CRM-to-agent implementation. | Active roadmap |
 
 ## 3. Project Source Locations
 
@@ -76,6 +78,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.5 | 2026-07-09 | GTC IT / AI Assistant | Added site, CRM and business process mapping roadmap |
 | 1.4 | 2026-07-09 | GTC IT / AI Assistant | Added funnel and CRM MVP requirements |
 | 1.3 | 2026-07-09 | GTC IT / AI Assistant | Added approved funnel, CRM and AI agent platform architecture |
 | 1.2 | 2026-07-09 | GTC IT / AI Assistant | Recorded rejected generated image asset cleanup |
