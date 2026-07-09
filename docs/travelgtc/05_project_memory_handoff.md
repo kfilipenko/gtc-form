@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.2
+- Version: 3.3
 - Date: 2026-07-09
-- Status: Active, lead forms use authenticated profile contacts
+- Status: Active, home process declaration block removed
 
 ## 1. Current State
 
@@ -123,6 +123,7 @@ Home funnel path: interest -> role -> application -> consultation -> membership 
 TRAVELGTC-WEB-013 rule: the home page must show this full process only once. It is the entry page for visitor -> interest -> role -> authenticated lead form -> CRM lead -> consultation, not a repeated text library.
 TRAVELGTC-WEB-014 rule updated by AUTH-005: the home page form is a short first-contact request, not a full CRM questionnaire. Keep visible fields limited to need and short message. Infer CRM role from the selected need instead of showing a separate role selector on the home page.
 TRAVELGTC-AUTH-005 rule: registration comes first and collects identity/contact data. Lead forms must not ask again for name, contact value or communication channel. Supported first-stage profile contact methods are email and phone. The frontend derives lead `name`, `preferred_channel` and `contact_value` from the authenticated user profile.
+TRAVELGTC-WEB-015 rule: do not publish a visible home page block that declares the page/process purpose, including `Страницы и процесс` or `Каждый раздел ведёт к следующему действию`. The home page must perform the funnel through content and CTA. Compact process hints may live in the top navigation only.
 ```
 
 Architecture state:
@@ -158,6 +159,7 @@ TRAVELGTC-AUTH-004 implemented the frontend registration gate: `/auth/`, header 
 TRAVELGTC-RUNTIME-001 implemented the first server runtime: PostgreSQL database `travelgtc`, app role `travelgtc_user`, migrations applied, `travelgtc-api.service` active on `127.0.0.1:4301`, nginx `/api/travelgtc/` HTTPS proxy active, current static site deployed and live HTTPS authenticated funnel verified.
 TRAVELGTC-LEGAL-001 published `/legal/`, `/legal/privacy/`, `/legal/terms/` and `/legal/partner-disclosure/`, linked them from footers and consent texts, and verified local/live responsive and authenticated funnel tests.
 TRAVELGTC-AUTH-005 made phone required at registration, limited registration contact preference to email/phone, removed repeated contact fields from home, contacts and create-trip lead forms, and changed lead payload building to use the authenticated user profile for contact data.
+TRAVELGTC-WEB-015 removed the standalone home page `site-map-section` / `menu-infographic` process block and moved compact process labels into the top navigation.
 ```
 
 API state:
@@ -236,8 +238,8 @@ Menu/footer/mobile state:
 ```text
 Home page includes a clickable infographic-style menu for all public routes.
 TRAVELGTC-WEB-008 moved this infographic menu from the lower home page to the upper page area directly after the hero and short benefits band.
-The block is now titled as page-to-process navigation. It maps each section to a business-process role instead of repeating the full funnel.
-Infographic menu uses responsive columns: desktop 8, tablet 4, mobile 2.
+The former body-level infographic menu was removed by TRAVELGTC-WEB-015. Do not reintroduce `.menu-infographic` on the home page.
+Top navigation now carries compact process labels for route orientation without a duplicated body section.
 Footer is compacted with smaller padding, smaller links and desktop disclaimer columns.
 The header brand is `TravelGTC` with `Travel Network Lab` subtitle, and all main public/auth/legal headers include `О проекте`.
 Mobile source audit passed through viewport/meta, CSS breakpoint checks and Playwright browser tests.
@@ -278,6 +280,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.3 | 2026-07-09 | GTC IT / AI Assistant | Recorded removal of the visible home page process-declaration block and body-level menu infographic |
 | 3.2 | 2026-07-09 | GTC IT / AI Assistant | Recorded registration-first contact handling and profile-derived lead contact payloads |
 | 3.1 | 2026-07-09 | GTC IT / AI Assistant | Recorded compact first-contact home form and inferred CRM role mapping |
 | 3.0 | 2026-07-09 | GTC IT / AI Assistant | Recorded the home page as a compact business-process entry point and removed duplicated funnel publication |
