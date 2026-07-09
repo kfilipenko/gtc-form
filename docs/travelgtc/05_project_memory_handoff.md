@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 1.2
+- Version: 1.3
 - Date: 2026-07-09
-- Status: Active, funnel CRM and AI agent architecture fixed
+- Status: Active, funnel and CRM MVP requirements fixed
 
 ## 1. Current State
 
@@ -84,12 +84,15 @@ Architecture state:
 Approved architecture document:
 docs/travelgtc/018_travelgtc_arch_001_funnel_crm_agent_platform_spec.md
 
+Approved MVP requirements document:
+docs/travelgtc/020_travelgtc_biz_001_funnel_crm_mvp_requirements_spec.md
+
 TravelGTC is now defined as a standalone funnel + CRM + AI-assisted operating system.
 n8n is not the core workflow layer for this project.
 The product must use own API, own lead database, future CRM logic and specialized AI agents.
 Primary process: visitor -> interest -> role -> form -> lead -> consultation -> membership -> participation -> recommendations.
 The business model must be introduced through user travel/community needs, not as the first product.
-Recommended next implementation stage: TRAVELGTC-BIZ-001 - Funnel And CRM MVP Requirements.
+TRAVELGTC-BIZ-001 fixed the first public funnel fields, database schema, API contracts, CRM screens, agent boundaries, consent text and MVP acceptance tests.
 ```
 
 Typography correction state:
@@ -136,17 +139,18 @@ Generated screenshots are written to projects/travelgtc/test-artifacts/screensho
 
 Recommended next steps:
 
-1. define `TRAVELGTC-BIZ-001 - Funnel And CRM MVP Requirements`;
-2. specify exact public funnel form fields and role-selection logic;
-3. define first database schema and API endpoint contracts;
-4. define first CRM screens: lead board, lead detail, travel idea detail and consultation queue;
-5. define AI agent instructions for intake, follow-up, content and compliance;
-6. define privacy/consent text before collecting real personal data.
+1. start `TRAVELGTC-API-001 - Lead Capture API And Database Schema`;
+2. implement the first PostgreSQL tables from `020_travelgtc_biz_001_funnel_crm_mvp_requirements_spec.md`;
+3. implement `POST /api/travelgtc/v1/public/leads`;
+4. add validation, consent recording, idempotency and audit logging;
+5. then implement `TRAVELGTC-WEB-007 - Public Funnel Role Selector And Form`;
+6. keep production personal-data collection disabled until privacy/consent pages are approved.
 
 ## 4. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.3 | 2026-07-09 | GTC IT / AI Assistant | Recorded funnel and CRM MVP requirements and API-001 as next implementation stage |
 | 1.2 | 2026-07-09 | GTC IT / AI Assistant | Recorded approved funnel, CRM and AI agent platform architecture |
 | 1.1 | 2026-07-09 | GTC IT / AI Assistant | Recorded removal of rejected generated WebP images and temporary CSS visual panels |
 | 1.0 | 2026-07-09 | GTC IT / AI Assistant | Recorded Playwright responsive testing setup and screenshot artifact path |

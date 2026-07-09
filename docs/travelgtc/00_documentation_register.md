@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 1.3
+- Version: 1.4
 - Date: 2026-07-09
-- Status: Funnel, CRM and AI agent architecture fixed
+- Status: Funnel and CRM MVP requirements fixed
 
 ## 1. Purpose
 
@@ -46,6 +46,8 @@ The first stage is intentionally small:
 | `016_travelgtc_web_006_rejected_image_asset_cleanup_report.md` | TRAVELGTC-WEB-006 - Rejected Image Asset Cleanup Report | Fixes rejected image cleanup, temporary CSS visuals, deployment and verification. | Implemented |
 | `017_travelgtc_arch_001_funnel_crm_agent_platform_task.md` | TRAVELGTC-ARCH-001 - Funnel, CRM And AI Agent Platform Architecture | Defines the architecture task for one funnel, own CRM/API and AI agent platform. | Implemented |
 | `018_travelgtc_arch_001_funnel_crm_agent_platform_spec.md` | TRAVELGTC-ARCH-001 - Funnel, CRM And AI Agent Platform Specification | Fixes approved product architecture: funnel, CRM model, API direction, agents, compliance and MVP sequence. | Active architecture |
+| `019_travelgtc_biz_001_funnel_crm_mvp_requirements_task.md` | TRAVELGTC-BIZ-001 - Funnel And CRM MVP Requirements | Defines the requirements task for the first funnel and CRM MVP. | Implemented |
+| `020_travelgtc_biz_001_funnel_crm_mvp_requirements_spec.md` | TRAVELGTC-BIZ-001 - Funnel And CRM MVP Requirements Specification | Fixes public funnel fields, database schema, API contracts, CRM screens, AI agent boundaries, consent text and acceptance tests. | Active MVP requirements |
 
 ## 3. Project Source Locations
 
@@ -74,6 +76,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.4 | 2026-07-09 | GTC IT / AI Assistant | Added funnel and CRM MVP requirements |
 | 1.3 | 2026-07-09 | GTC IT / AI Assistant | Added approved funnel, CRM and AI agent platform architecture |
 | 1.2 | 2026-07-09 | GTC IT / AI Assistant | Recorded rejected generated image asset cleanup |
 | 1.1 | 2026-07-09 | GTC IT / AI Assistant | Added Playwright responsive testing task/report |
