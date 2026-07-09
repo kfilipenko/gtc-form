@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 1.8
+- Version: 1.9
 - Date: 2026-07-09
-- Status: Public funnel role selector and API form implemented
+- Status: Registration gate architecture fixed
 
 ## 1. Purpose
 
@@ -56,6 +56,8 @@ The first stage is intentionally small:
 | `026_travelgtc_api_001_lead_capture_api_database_schema_report.md` | TRAVELGTC-API-001 - Lead Capture API And Database Schema Report | Fixes the backend app, SQL migration, public lead endpoint, safety switch, tests and remaining database/production gaps. | Implemented |
 | `027_travelgtc_web_007_public_funnel_role_selector_form_task.md` | TRAVELGTC-WEB-007 - Public Funnel Role Selector And Form | Defines the public role selector and unified lead form connection to the TravelGTC API. | Implemented |
 | `028_travelgtc_web_007_public_funnel_role_selector_form_report.md` | TRAVELGTC-WEB-007 - Public Funnel Role Selector And Form Report | Fixes the public funnel form, route forms, API submit JS and local/test funnel e2e verification. | Implemented, not live-deployed |
+| `029_travelgtc_auth_001_gtc_identity_registration_gate_task.md` | TRAVELGTC-AUTH-001 - GTC Identity Registration Gate | Defines separated registration/login, shared GTC identity and authenticated TravelGTC form submission. | Implemented |
+| `030_travelgtc_auth_001_gtc_identity_registration_gate_spec.md` | TRAVELGTC-AUTH-001 - GTC Identity Registration Gate Specification | Fixes the registration model, shared identity tables, auth UX, API endpoints, CRM linkage and seafarer opt-in boundary. | Active implementation specification |
 
 ## 3. Project Source Locations
 
@@ -84,6 +86,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.9 | 2026-07-09 | GTC IT / AI Assistant | Added GTC identity registration gate task and specification |
 | 1.8 | 2026-07-09 | GTC IT / AI Assistant | Added public funnel role selector and API-connected form |
 | 1.7 | 2026-07-09 | GTC IT / AI Assistant | Added lead capture API and database schema implementation |
 | 1.6 | 2026-07-09 | GTC IT / AI Assistant | Added implementation readiness checklist before API build |

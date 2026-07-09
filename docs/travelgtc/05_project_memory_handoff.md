@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 1.7
+- Version: 1.8
 - Date: 2026-07-09
-- Status: Active, public funnel API form implemented in local/test mode
+- Status: Active, registration gate architecture fixed
 
 ## 1. Current State
 
@@ -103,6 +103,7 @@ TRAVELGTC-ROADMAP-001 fixed the page-to-business-process-to-CRM-to-agent mapping
 TRAVELGTC-PREP-001 fixed implementation readiness: Node.js/TypeScript + PostgreSQL stack direction, proposed app source layout, environment/secret handling, parent-network/subnetwork boundaries, compliance references, CRM transitions, API contract readiness, Intake Agent protocol readiness and production blockers.
 TRAVELGTC-API-001 implemented the first backend app in `projects/travelgtc/app/`, PostgreSQL migration, health endpoint, public lead endpoint, validation, consent enforcement, idempotency, rate limiting, in-memory test store, PostgreSQL runtime store and Intake Agent stub.
 TRAVELGTC-WEB-007 implemented the public role selector and unified lead form, converted `/create-trip/` and `/contacts/` forms to the API contract, added API submit JS and added local/test funnel e2e verification.
+TRAVELGTC-AUTH-001 fixed the registration direction: registration/login must be separated from the TravelGTC need form; authenticated users submit TravelGTC forms; shared `gtc_identity` is the target user model; TravelGTC roles and CRM data stay project-specific; CrewPortGlobal seafarers can become TravelGTC prospects only through explicit TravelGTC travel-interest opt-in and consent.
 ```
 
 API state:
@@ -173,19 +174,20 @@ Generated screenshots are written to projects/travelgtc/test-artifacts/screensho
 
 Recommended next steps:
 
-1. start `TRAVELGTC-RUNTIME-001 - Test Database, API Service And Nginx Proxy`;
-2. create/configure a dedicated TravelGTC test database;
-3. apply `001_travelgtc_lead_capture.sql` to the safe database;
-4. run TravelGTC API as a managed service with `TRAVELGTC_PUBLIC_LEAD_CAPTURE_ENABLED=true` only for test mode;
-5. add nginx proxy for `/api/` to the API service;
-6. deploy the public form after runtime path is ready;
-7. then start `TRAVELGTC-CRM-001 - Lead Board And Lead Detail MVP`;
+1. start `TRAVELGTC-AUTH-002 - GTC Identity Database And Auth API MVP`;
+2. create the shared `gtc_identity` migration and secure session-cookie flow;
+3. add registration, login, logout, `/auth/me` and email verification test-mode support;
+4. link TravelGTC membership/context to the shared user;
+5. then start `TRAVELGTC-AUTH-003 - Frontend Registration Gate And Authenticated Lead Form`;
+6. keep `TRAVELGTC-RUNTIME-001 - Test Database, API Service And Nginx Proxy` as the required publication/runtime step before live API use;
+7. then continue to `TRAVELGTC-CRM-001 - Lead Board And Lead Detail MVP`;
 8. keep true production mode blocked until privacy/consent/disclosure pages are approved.
 
 ## 4. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.8 | 2026-07-09 | GTC IT / AI Assistant | Recorded GTC identity registration gate, auth-required TravelGTC form direction and CrewPortGlobal seafarer opt-in boundary |
 | 1.7 | 2026-07-09 | GTC IT / AI Assistant | Recorded public funnel form, API submit JS and local/test funnel e2e path |
 | 1.6 | 2026-07-09 | GTC IT / AI Assistant | Recorded lead capture API, database schema migration and API check command |
 | 1.5 | 2026-07-09 | GTC IT / AI Assistant | Recorded implementation readiness checklist and parent-network/subnetwork preparation rules |
