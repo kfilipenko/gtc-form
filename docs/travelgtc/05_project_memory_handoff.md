@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 1.1
+- Version: 1.2
 - Date: 2026-07-09
-- Status: Active, rejected generated images removed
+- Status: Active, funnel CRM and AI agent architecture fixed
 
 ## 1. Current State
 
@@ -78,10 +78,24 @@ Public pages use CSS visual panels until a new approved image set is generated.
 
 The original mockups in `inbox/foto/` are design references only.
 
+Architecture state:
+
+```text
+Approved architecture document:
+docs/travelgtc/018_travelgtc_arch_001_funnel_crm_agent_platform_spec.md
+
+TravelGTC is now defined as a standalone funnel + CRM + AI-assisted operating system.
+n8n is not the core workflow layer for this project.
+The product must use own API, own lead database, future CRM logic and specialized AI agents.
+Primary process: visitor -> interest -> role -> form -> lead -> consultation -> membership -> participation -> recommendations.
+The business model must be introduced through user travel/community needs, not as the first product.
+Recommended next implementation stage: TRAVELGTC-BIZ-001 - Funnel And CRM MVP Requirements.
+```
+
 Typography correction state:
 
 ```text
-Home hero uses generated image as full-width background.
+Home hero uses CSS visual background because rejected generated images were removed.
 Desktop H1/H2/H3 scales were reduced further to match the original mockup hierarchy.
 Hero and page-hero heights were reduced for denser landing-page proportions.
 The third hero headline line uses the lime reference accent.
@@ -122,16 +136,18 @@ Generated screenshots are written to projects/travelgtc/test-artifacts/screensho
 
 Recommended next steps:
 
-1. wait for recursive DNS caches to stop returning old Timeweb A/AAAA values;
-2. run live HTTPS smoke checks without forced DNS;
-3. Project Owner should visually approve or reject the generated production image set;
-4. confirm production contact links for MAX, Telegram and email;
-5. define privacy/consent and backend/CRM handling for forms.
+1. define `TRAVELGTC-BIZ-001 - Funnel And CRM MVP Requirements`;
+2. specify exact public funnel form fields and role-selection logic;
+3. define first database schema and API endpoint contracts;
+4. define first CRM screens: lead board, lead detail, travel idea detail and consultation queue;
+5. define AI agent instructions for intake, follow-up, content and compliance;
+6. define privacy/consent text before collecting real personal data.
 
 ## 4. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.2 | 2026-07-09 | GTC IT / AI Assistant | Recorded approved funnel, CRM and AI agent platform architecture |
 | 1.1 | 2026-07-09 | GTC IT / AI Assistant | Recorded removal of rejected generated WebP images and temporary CSS visual panels |
 | 1.0 | 2026-07-09 | GTC IT / AI Assistant | Recorded Playwright responsive testing setup and screenshot artifact path |
 | 0.9 | 2026-07-09 | GTC IT / AI Assistant | Recorded menu infographic, compact footer and mobile adaptation check |

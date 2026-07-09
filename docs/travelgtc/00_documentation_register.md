@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 1.2
+- Version: 1.3
 - Date: 2026-07-09
-- Status: Rejected generated images removed
+- Status: Funnel, CRM and AI agent architecture fixed
 
 ## 1. Purpose
 
@@ -44,6 +44,8 @@ The first stage is intentionally small:
 | `014_travelgtc_qa_001_playwright_responsive_testing_report.md` | TRAVELGTC-QA-001 - Playwright Responsive Testing Setup Report | Fixes Playwright config, responsive tests, screenshots and run command. | Implemented |
 | `015_travelgtc_web_006_rejected_image_asset_cleanup_task.md` | TRAVELGTC-WEB-006 - Rejected Image Asset Cleanup | Defines removal of rejected generated WebP images and public references. | Implemented |
 | `016_travelgtc_web_006_rejected_image_asset_cleanup_report.md` | TRAVELGTC-WEB-006 - Rejected Image Asset Cleanup Report | Fixes rejected image cleanup, temporary CSS visuals, deployment and verification. | Implemented |
+| `017_travelgtc_arch_001_funnel_crm_agent_platform_task.md` | TRAVELGTC-ARCH-001 - Funnel, CRM And AI Agent Platform Architecture | Defines the architecture task for one funnel, own CRM/API and AI agent platform. | Implemented |
+| `018_travelgtc_arch_001_funnel_crm_agent_platform_spec.md` | TRAVELGTC-ARCH-001 - Funnel, CRM And AI Agent Platform Specification | Fixes approved product architecture: funnel, CRM model, API direction, agents, compliance and MVP sequence. | Active architecture |
 
 ## 3. Project Source Locations
 
@@ -72,6 +74,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.3 | 2026-07-09 | GTC IT / AI Assistant | Added approved funnel, CRM and AI agent platform architecture |
 | 1.2 | 2026-07-09 | GTC IT / AI Assistant | Recorded rejected generated image asset cleanup |
 | 1.1 | 2026-07-09 | GTC IT / AI Assistant | Added Playwright responsive testing task/report |
 | 1.0 | 2026-07-09 | GTC IT / AI Assistant | Added menu infographic, compact footer and mobile check task/report |
