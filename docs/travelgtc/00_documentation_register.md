@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.5
+- Version: 3.6
 - Date: 2026-07-09
-- Status: Home opportunity gallery and route CTA published
+- Status: Home and header duplicate blocks removed
 
 ## 1. Purpose
 
@@ -89,6 +89,8 @@ The first stage is intentionally small:
 | `059_travelgtc_web_015_remove_home_process_declaration_block_report.md` | TRAVELGTC-WEB-015 - Remove Home Process Declaration Block Report | Fixes the home flow by removing the repeated infographic section and moving process cues into the header navigation. | Implemented |
 | `060_travelgtc_web_016_home_opportunity_gallery_route_cta_task.md` | TRAVELGTC-WEB-016 - Home Opportunity Gallery And Route CTA Task | Defines the new image-led home opportunity gallery and route CTA block. | Implemented |
 | `061_travelgtc_web_016_home_opportunity_gallery_route_cta_report.md` | TRAVELGTC-WEB-016 - Home Opportunity Gallery And Route CTA Report | Fixes the published home gallery, route CTA, responsive checks and live verification. | Implemented |
+| `062_travelgtc_web_017_home_header_deduplication_task.md` | TRAVELGTC-WEB-017 - Home And Header Deduplication Task | Defines removal of the duplicate contact header button and repeated home benefits band. | Implemented |
+| `063_travelgtc_web_017_home_header_deduplication_report.md` | TRAVELGTC-WEB-017 - Home And Header Deduplication Report | Fixes header/contact deduplication, home benefits-band removal, verification and publication. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -122,6 +124,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.6 | 2026-07-09 | GTC IT / AI Assistant | Removed the duplicate header contact button and the repeated home benefits band |
 | 3.5 | 2026-07-09 | GTC IT / AI Assistant | Added the home opportunity photo gallery and compact route CTA block |
 | 3.4 | 2026-07-09 | GTC IT / AI Assistant | Removed the visible home page process-declaration block and moved compact process cues into the top navigation |
 | 3.3 | 2026-07-09 | GTC IT / AI Assistant | Moved lead forms to authenticated profile contact data and limited registration contact methods to email/phone |
