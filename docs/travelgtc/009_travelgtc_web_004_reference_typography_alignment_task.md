@@ -4,7 +4,7 @@
 - Owner: Project Owner
 - Source instruction: Project Owner requested design comparison with the original `inbox/foto` mockups and correction of heading proportions
 - Document type: Task
-- Version: 0.1
+- Version: 0.2
 - Date: 2026-07-09
 - Status: Implemented
 
@@ -39,7 +39,9 @@ This task includes:
 3. reduce section spacing and page-hero height;
 4. convert the home hero image from a right-side card into a full-width hero background;
 5. remove the now-redundant hero visual-card markup;
-6. deploy the updated public site and run smoke checks.
+6. add the reference-style lime accent to the third hero headline line;
+7. move the short home advantages into a compact dark benefits band below the hero;
+8. deploy the updated public site and run smoke checks.
 
 ## 4. Out Of Scope
 
@@ -64,7 +66,9 @@ Relevant standards:
 2. Section H2 headings must not dominate compact content blocks.
 3. Page hero blocks must be shorter and closer to the reference section density.
 4. The home hero must use the generated image as a background, matching the reference direction.
-5. Verification and deployment must be recorded.
+5. The hero headline must preserve the visual accent from the original mockup.
+6. The home advantages must read as a compact post-hero strip rather than separated large cards.
+7. Verification and deployment must be recorded.
 
 ## 7. Acceptance Criteria
 
@@ -73,10 +77,11 @@ The task is complete when:
 1. CSS heading/spacing values are adjusted;
 2. home hero no longer renders a separate right-side image card;
 3. generated hero image is used as the full hero background;
-4. source checks pass;
-5. deploy script passes;
-6. HTTPS smoke checks pass;
-7. repository changes are committed.
+4. hero accent and benefits-band layout follow the original mockup direction;
+5. source checks pass;
+6. deploy script passes;
+7. HTTPS smoke checks pass;
+8. repository changes are committed.
 
 ## 8. Verification Plan
 
@@ -92,4 +97,5 @@ git diff --check
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.2 | 2026-07-09 | GTC IT / AI Assistant | Added second reference pass for hero accent, compact heading scale and benefits band |
 | 0.1 | 2026-07-09 | GTC IT / AI Assistant | Initial task |

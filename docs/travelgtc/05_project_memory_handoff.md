@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.7
+- Version: 0.8
 - Date: 2026-07-09
-- Status: Active, reference typography alignment implemented
+- Status: Active, reference visual scale alignment implemented
 
 ## 1. Current State
 
@@ -86,8 +86,10 @@ Typography correction state:
 
 ```text
 Home hero uses generated image as full-width background.
-Desktop H1/H2/H3 scales were reduced to better match the original mockups.
+Desktop H1/H2/H3 scales were reduced further to match the original mockup hierarchy.
 Hero and page-hero heights were reduced for denser landing-page proportions.
+The third hero headline line uses the lime reference accent.
+The short home advantages now render as a compact dark band below the hero.
 ```
 
 ## 2. Working Rules
@@ -114,6 +116,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.8 | 2026-07-09 | GTC IT / AI Assistant | Recorded second reference visual scale pass for hero accent, compact typography and benefits band |
 | 0.7 | 2026-07-09 | GTC IT / AI Assistant | Recorded reference typography and hero proportion alignment |
 | 0.6 | 2026-07-09 | GTC IT / AI Assistant | Recorded generated production image set |
 | 0.5 | 2026-07-08 | GTC IT / AI Assistant | Recorded authoritative DNS switch and Let's Encrypt SSL completion |
