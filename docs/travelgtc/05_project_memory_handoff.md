@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.6
+- Version: 0.5
 - Date: 2026-07-08
-- Status: Active, typography aligned and mockup images removed from public content
+- Status: Active, server-side publication and SSL completed, DNS cache propagation pending
 
 ## 1. Current State
 
@@ -68,15 +68,6 @@ Some public recursive DNS caches may temporarily keep old Timeweb A/AAAA records
 SSL is issued for travelgtc.com and www.travelgtc.com.
 ```
 
-Current visual asset rule:
-
-```text
-Mockups in projects/travelgtc/public/assets/images/inbox/foto/ are design references only.
-They must not be displayed as real public website images.
-Production images should be generated/selected, approved, optimized and placed in processed/.
-Prompts: docs/travelgtc/009_travelgtc_visual_asset_generation_prompts.md
-```
-
 ## 2. Working Rules
 
 1. Start each new TravelGTC task by reading this memory document and `docs/travelgtc/00_documentation_register.md`.
@@ -93,16 +84,13 @@ Recommended next steps:
 
 1. wait for recursive DNS caches to stop returning old Timeweb A/AAAA values;
 2. run live HTTPS smoke checks without forced DNS;
-3. generate and provide production images using the prompt document;
-4. publish approved images into `projects/travelgtc/public/assets/images/processed/`;
-5. confirm production contact links for MAX, Telegram and email;
-6. define privacy/consent and backend/CRM handling for forms.
+3. confirm production contact links for MAX, Telegram and email;
+4. define privacy/consent and backend/CRM handling for forms.
 
 ## 4. Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
-| 0.6 | 2026-07-08 | GTC IT / AI Assistant | Recorded typography alignment, mockup-image rule and prompt document |
 | 0.5 | 2026-07-08 | GTC IT / AI Assistant | Recorded authoritative DNS switch and Let's Encrypt SSL completion |
 | 0.4 | 2026-07-08 | GTC IT / AI Assistant | Recorded server-side publication, live root, nginx config and Timeweb DNS blocker |
 | 0.3 | 2026-07-08 | GTC IT / AI Assistant | Recorded final Travel Network Lab concept and first public prototype routes |

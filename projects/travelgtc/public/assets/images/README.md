@@ -18,11 +18,14 @@ processed/
 4. Public pages should use files from `processed/`.
 5. Do not delete originals from `inbox/` unless the Project Owner asks for cleanup.
 
-## Public Asset Rule
+## Processed Public Assets
 
-The mockups in `inbox/foto/` are design references only. They must not be used as real website content.
+The first public prototype uses optimized WebP versions of the approved visual mockups:
 
-Generated or selected production images should be optimized and placed in `processed/` only after approval.
+```text
+processed/travel-network-lab-landing-reference.webp
+processed/travel-network-lab-structure-reference.webp
+```
 
 ## Current Reference Notes
 
