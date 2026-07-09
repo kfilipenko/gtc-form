@@ -54,6 +54,11 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('.nav-links')).toHaveCount(1);
       await expect(page.locator('.nav-contact')).toHaveCount(0);
       await expect(page.locator('.menu-infographic')).toHaveCount(0);
+      await expect(page.locator('main > section.navy')).toHaveCount(0);
+      await expect(page.getByText('Новые возможности')).toHaveCount(0);
+      await expect(page.getByText('Короткий запрос')).toHaveCount(0);
+      await expect(page.getByText('Выберите потребность и коротко опишите запрос')).toHaveCount(0);
+      await expect(page.getByText('Сеть - это не давление. Сеть - это доверие.')).toHaveCount(0);
       await expect(page.locator('.site-footer')).toBeVisible();
 
       const overflow = await measureHorizontalOverflow(page);

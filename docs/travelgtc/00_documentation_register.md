@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.6
+- Version: 3.7
 - Date: 2026-07-09
-- Status: Home and header duplicate blocks removed
+- Status: Home network copy and service labels removed
 
 ## 1. Purpose
 
@@ -91,6 +91,8 @@ The first stage is intentionally small:
 | `061_travelgtc_web_016_home_opportunity_gallery_route_cta_report.md` | TRAVELGTC-WEB-016 - Home Opportunity Gallery And Route CTA Report | Fixes the published home gallery, route CTA, responsive checks and live verification. | Implemented |
 | `062_travelgtc_web_017_home_header_deduplication_task.md` | TRAVELGTC-WEB-017 - Home And Header Deduplication Task | Defines removal of the duplicate contact header button and repeated home benefits band. | Implemented |
 | `063_travelgtc_web_017_home_header_deduplication_report.md` | TRAVELGTC-WEB-017 - Home And Header Deduplication Report | Fixes header/contact deduplication, home benefits-band removal, verification and publication. | Implemented |
+| `064_travelgtc_web_018_home_network_copy_cleanup_task.md` | TRAVELGTC-WEB-018 - Home Network Copy Cleanup Task | Defines removal of service labels and standalone network explanation from the home page. | Implemented |
+| `065_travelgtc_web_018_home_network_copy_cleanup_report.md` | TRAVELGTC-WEB-018 - Home Network Copy Cleanup Report | Fixes the streamlined home flow, tests, publication and verification after network copy cleanup. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -124,6 +126,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.7 | 2026-07-09 | GTC IT / AI Assistant | Removed home service labels and standalone network-model copy from the main page |
 | 3.6 | 2026-07-09 | GTC IT / AI Assistant | Removed the duplicate header contact button and the repeated home benefits band |
 | 3.5 | 2026-07-09 | GTC IT / AI Assistant | Added the home opportunity photo gallery and compact route CTA block |
 | 3.4 | 2026-07-09 | GTC IT / AI Assistant | Removed the visible home page process-declaration block and moved compact process cues into the top navigation |

@@ -446,12 +446,8 @@ h3 {
 }
 
 .opportunities-head {
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 18px;
-}
-
-.opportunities-head .eyebrow {
-  margin-bottom: 2px;
 }
 
 .section-cue {
@@ -917,15 +913,11 @@ h3 {
 
 .compact-form-head {
   max-width: 760px;
-  margin: 0 auto 18px;
+  margin: 0 auto 14px;
   text-align: center;
 }
 
 .compact-form-head h2 {
-  margin-bottom: 8px;
-}
-
-.compact-form-head p:last-child {
   margin: 0 auto;
 }
 

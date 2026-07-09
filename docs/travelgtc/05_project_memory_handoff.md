@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.5
+- Version: 3.6
 - Date: 2026-07-09
-- Status: Active, duplicate header contact button and home benefits band removed
+- Status: Active, home network copy and service labels removed
 
 ## 1. Current State
 
@@ -126,6 +126,7 @@ TRAVELGTC-AUTH-005 rule: registration comes first and collects identity/contact 
 TRAVELGTC-WEB-015 rule: do not publish a visible home page block that declares the page/process purpose, including `Страницы и процесс` or `Каждый раздел ведёт к следующему действию`. The home page must perform the funnel through content and CTA. Compact process hints may live in the top navigation only.
 TRAVELGTC-WEB-016 rule: the home page should contain an image-led opportunity block immediately after the hero area. It must show travel scenarios and route creation desire through a compact photo gallery and `Создавайте свои маршруты` CTA, not through a repeated page-process explanation.
 TRAVELGTC-WEB-017 rule: do not duplicate the `Контакты` route with a separate `Связаться со мной` header button. Do not reintroduce the four-card home `benefits-band` / `benefit-strip` block; the visual opportunity gallery is the primary post-hero interest block.
+TRAVELGTC-WEB-018 rule: do not place standalone network-model explanation on the home page. The home page should focus on travel desire, route creation and the short request form. Network/trust/business model explanation belongs to later pages/sections. Also avoid service labels such as `Новые возможности` and `Короткий запрос` above already clear blocks.
 ```
 
 Architecture state:
@@ -164,6 +165,7 @@ TRAVELGTC-AUTH-005 made phone required at registration, limited registration con
 TRAVELGTC-WEB-015 removed the standalone home page `site-map-section` / `menu-infographic` process block and moved compact process labels into the top navigation.
 TRAVELGTC-WEB-016 added the home opportunity gallery with five visual calls to action and a compact `Создавайте свои маршруты` block that leads to the authenticated request form.
 TRAVELGTC-WEB-017 removed the duplicate `Связаться со мной` header button from public pages, changed the contacts page H1 to `Контакты`, and removed the repeated four-card home benefits band.
+TRAVELGTC-WEB-018 removed the `Новые возможности` and `Короткий запрос` service labels, removed the home form helper copy about profile contacts, and removed the standalone `Современная сеть` / `Сеть - это не давление...` home section.
 ```
 
 API state:
