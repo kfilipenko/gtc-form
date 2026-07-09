@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.9
+- Version: 1.0
 - Date: 2026-07-09
-- Status: Active, menu infographic and compact footer implemented
+- Status: Active, Playwright responsive testing enabled
 
 ## 1. Current State
 
@@ -98,8 +98,18 @@ Menu/footer/mobile state:
 Home page includes a clickable infographic-style menu for all public routes.
 Infographic menu uses responsive columns: desktop 8, tablet 4, mobile 2.
 Footer is compacted with smaller padding, smaller links and desktop disclaimer columns.
-Mobile source audit passed through viewport/meta and CSS breakpoint checks.
-Browser screenshot verification still depends on browser tooling availability in the environment.
+Mobile source audit passed through viewport/meta, CSS breakpoint checks and Playwright browser tests.
+```
+
+Responsive QA state:
+
+```text
+Local Playwright is available through npx.
+Chromium binaries are present in ~/.cache/ms-playwright.
+TravelGTC responsive test command: npm run test:travelgtc
+TravelGTC Playwright config: playwright.travelgtc.config.ts
+TravelGTC responsive tests: tests/travelgtc-responsive.spec.ts
+Generated screenshots are written to projects/travelgtc/test-artifacts/screenshots/ and ignored by git.
 ```
 
 ## 2. Working Rules
@@ -126,6 +136,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 1.0 | 2026-07-09 | GTC IT / AI Assistant | Recorded Playwright responsive testing setup and screenshot artifact path |
 | 0.9 | 2026-07-09 | GTC IT / AI Assistant | Recorded menu infographic, compact footer and mobile adaptation check |
 | 0.8 | 2026-07-09 | GTC IT / AI Assistant | Recorded second reference visual scale pass for hero accent, compact typography and benefits band |
 | 0.7 | 2026-07-09 | GTC IT / AI Assistant | Recorded reference typography and hero proportion alignment |
