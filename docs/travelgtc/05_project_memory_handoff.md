@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 0.6
+- Version: 0.7
 - Date: 2026-07-09
-- Status: Active, generated production visual assets published
+- Status: Active, reference typography alignment implemented
 
 ## 1. Current State
 
@@ -82,6 +82,14 @@ projects/travelgtc/public/assets/images/processed/contacts-travel-message.webp
 
 The original mockups in `inbox/foto/` are design references only.
 
+Typography correction state:
+
+```text
+Home hero uses generated image as full-width background.
+Desktop H1/H2/H3 scales were reduced to better match the original mockups.
+Hero and page-hero heights were reduced for denser landing-page proportions.
+```
+
 ## 2. Working Rules
 
 1. Start each new TravelGTC task by reading this memory document and `docs/travelgtc/00_documentation_register.md`.
@@ -106,6 +114,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.7 | 2026-07-09 | GTC IT / AI Assistant | Recorded reference typography and hero proportion alignment |
 | 0.6 | 2026-07-09 | GTC IT / AI Assistant | Recorded generated production image set |
 | 0.5 | 2026-07-08 | GTC IT / AI Assistant | Recorded authoritative DNS switch and Let's Encrypt SSL completion |
 | 0.4 | 2026-07-08 | GTC IT / AI Assistant | Recorded server-side publication, live root, nginx config and Timeweb DNS blocker |
