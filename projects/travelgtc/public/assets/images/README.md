@@ -28,6 +28,24 @@ processed/
 
 Public pages should reference optimized WebP files from this folder.
 
+The current public favicon source is:
+
+```text
+inbox/foto/Favicon TravelGTC.png
+```
+
+The browser/device favicon package generated from this source is published at the public root:
+
+```text
+favicon.ico
+favicon-16x16.png
+favicon-32x32.png
+apple-touch-icon.png
+android-chrome-192x192.png
+android-chrome-512x512.png
+site.webmanifest
+```
+
 The current public header logo uses:
 
 ```text

@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 4.0
+- Version: 4.1
 - Date: 2026-07-10
-- Status: Active, post-submit home return button implemented
+- Status: Active, favicon package published
 
 ## 1. Current State
 
@@ -109,6 +109,16 @@ TRAVELGTC-WEB-021 added the approved header logo:
 projects/travelgtc/public/assets/images/processed/travelgtc-logo-header.webp
 Source:
 projects/travelgtc/public/assets/images/inbox/foto/Logo TravelGTC.png
+TRAVELGTC-WEB-023 added the favicon package:
+projects/travelgtc/public/favicon.ico
+projects/travelgtc/public/favicon-16x16.png
+projects/travelgtc/public/favicon-32x32.png
+projects/travelgtc/public/apple-touch-icon.png
+projects/travelgtc/public/android-chrome-192x192.png
+projects/travelgtc/public/android-chrome-512x512.png
+projects/travelgtc/public/site.webmanifest
+Source:
+projects/travelgtc/public/assets/images/inbox/foto/Favicon TravelGTC.png
 ```
 
 The original mockups in `inbox/foto/` are design references only.
@@ -139,6 +149,7 @@ TRAVELGTC-WEB-019 rule: the home opportunity gallery heading `Путешеств
 TRAVELGTC-WEB-020 rule: the home `Создавайте свои маршруты` block uses handwritten `Caveat` typography, five SVG route-format icons and `travelgtc-route-map-planning-coast.webp`. Do not reintroduce numeric route badges in this block.
 TRAVELGTC-WEB-021 rule: public headers use `travelgtc-logo-header.webp` as the brand. Do not reintroduce the separate header text line `Travel Network Lab`; the subtitle is part of the logo image.
 TRAVELGTC-WEB-022 rule: after a successful authenticated lead submission, the visible form button must change to `Вернуться на главную` and navigate to `/` instead of submitting another lead.
+TRAVELGTC-WEB-023 rule: keep the favicon package in the public root and keep all public HTML pages linked to `/favicon.ico`, 16x16/32x32 PNG icons, `/apple-touch-icon.png`, `/site.webmanifest` and `theme-color` `#061A28`. Nginx must serve `/site.webmanifest` as `application/manifest+json` because `nosniff` is enabled.
 ```
 
 Architecture state:
@@ -182,6 +193,7 @@ TRAVELGTC-WEB-019 adjusted the home opportunity heading CSS so `Путешест
 TRAVELGTC-WEB-020 updated the home route CTA with Caveat handwritten title styling, five inline SVG infographic icons instead of numeric badges and the Project Owner route-map planning photo.
 TRAVELGTC-WEB-021 replaced the public header text brand with the approved TravelGTC logo, removed the separate header subtitle and kept footer text branding unchanged.
 TRAVELGTC-WEB-022 changed the shared lead-form success behavior so the submit button becomes a `Вернуться на главную` home-return button after the CRM lead is created.
+TRAVELGTC-WEB-023 published the favicon package from the Project Owner source, linked it from all public pages, added Playwright asset/manifest checks and updated nginx manifest MIME handling.
 ```
 
 API state:
@@ -302,6 +314,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 4.1 | 2026-07-10 | GTC IT / AI Assistant | Recorded favicon package publication and HTML head links |
 | 4.0 | 2026-07-10 | GTC IT / AI Assistant | Recorded post-submit lead-form button change to a return-home action |
 | 3.9 | 2026-07-10 | GTC IT / AI Assistant | Recorded approved TravelGTC logo usage in public headers and removal of the separate header subtitle |
 | 3.8 | 2026-07-10 | GTC IT / AI Assistant | Recorded handwritten route CTA typography, route-format icons and route-map planning photo publication |

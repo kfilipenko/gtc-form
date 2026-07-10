@@ -46,6 +46,11 @@ test.describe('TravelGTC responsive public site', () => {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
 
       await expect(page.locator('h1')).toContainText('Создавайте путешествия');
+      await expect(page.locator('head link[rel="icon"][href="/favicon.ico"]')).toHaveCount(1);
+      await expect(page.locator('head link[rel="icon"][sizes="32x32"]')).toHaveAttribute('href', '/favicon-32x32.png');
+      await expect(page.locator('head link[rel="apple-touch-icon"]')).toHaveAttribute('href', '/apple-touch-icon.png');
+      await expect(page.locator('head link[rel="manifest"]')).toHaveAttribute('href', '/site.webmanifest');
+      await expect(page.locator('head meta[name="theme-color"]')).toHaveAttribute('content', '#061A28');
       await expect(page.locator('.site-header .brand-logo img')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
       await expect(page.locator('.site-header .brand > span')).toHaveCount(0);
       await expect(page.locator('.benefit-strip')).toHaveCount(0);
@@ -117,4 +122,32 @@ test.describe('TravelGTC responsive public site', () => {
       await assertNoHorizontalOverflow(overflow.viewportWidth, Math.max(overflow.documentScrollWidth, overflow.bodyScrollWidth));
     });
   }
+
+  test('favicon assets are published for browsers and devices', async ({ request }) => {
+    const assets = [
+      '/favicon.ico',
+      '/favicon-16x16.png',
+      '/favicon-32x32.png',
+      '/apple-touch-icon.png',
+      '/android-chrome-192x192.png',
+      '/android-chrome-512x512.png',
+      '/site.webmanifest',
+    ];
+
+    for (const asset of assets) {
+      const response = await request.get(asset);
+      expect(response.ok(), `${asset} should be available`).toBeTruthy();
+    }
+
+    const manifestResponse = await request.get('/site.webmanifest');
+    expect(manifestResponse.headers()['content-type']).toContain('application/manifest+json');
+
+    const manifest = await manifestResponse.json();
+    expect(manifest.icons).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ src: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' }),
+        expect.objectContaining({ src: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' }),
+      ]),
+    );
+  });
 });
