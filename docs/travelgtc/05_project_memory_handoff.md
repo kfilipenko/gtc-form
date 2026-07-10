@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.7
+- Version: 3.8
 - Date: 2026-07-10
-- Status: Active, opportunity heading single-line alignment published
+- Status: Active, route promo handwritten design and map image published
 
 ## 1. Current State
 
@@ -101,6 +101,10 @@ business model -> travelgtc-business-dubai-planning.webp
 events -> travelgtc-events-night-dinner.webp
 contacts -> travelgtc-contact-sunset-lounge.webp
 about -> travelgtc-about-network-sunset.webp
+TRAVELGTC-WEB-020 added the approved route planning photo for the home route CTA:
+projects/travelgtc/public/assets/images/processed/travelgtc-route-map-planning-coast.webp
+Source:
+projects/travelgtc/public/assets/images/inbox/foto/ChatGPT Image 9 июл. 2026 г., 15_56_48 (4).png
 ```
 
 The original mockups in `inbox/foto/` are design references only.
@@ -128,6 +132,7 @@ TRAVELGTC-WEB-016 rule: the home page should contain an image-led opportunity bl
 TRAVELGTC-WEB-017 rule: do not duplicate the `Контакты` route with a separate `Связаться со мной` header button. Do not reintroduce the four-card home `benefits-band` / `benefit-strip` block; the visual opportunity gallery is the primary post-hero interest block.
 TRAVELGTC-WEB-018 rule: do not place standalone network-model explanation on the home page. The home page should focus on travel desire, route creation and the short request form. Network/trust/business model explanation belongs to later pages/sections. Also avoid service labels such as `Новые возможности` and `Короткий запрос` above already clear blocks.
 TRAVELGTC-WEB-019 rule: the home opportunity gallery heading `Путешествия - это больше, чем отдых` must stay on one line on desktop and tablet. Narrow mobile may wrap normally to avoid horizontal overflow.
+TRAVELGTC-WEB-020 rule: the home `Создавайте свои маршруты` block uses handwritten `Caveat` typography, five SVG route-format icons and `travelgtc-route-map-planning-coast.webp`. Do not reintroduce numeric route badges in this block.
 ```
 
 Architecture state:
@@ -168,6 +173,7 @@ TRAVELGTC-WEB-016 added the home opportunity gallery with five visual calls to a
 TRAVELGTC-WEB-017 removed the duplicate `Связаться со мной` header button from public pages, changed the contacts page H1 to `Контакты`, and removed the repeated four-card home benefits band.
 TRAVELGTC-WEB-018 removed the `Новые возможности` and `Короткий запрос` service labels, removed the home form helper copy about profile contacts, and removed the standalone `Современная сеть` / `Сеть - это не давление...` home section.
 TRAVELGTC-WEB-019 adjusted the home opportunity heading CSS so `Путешествия - это больше, чем отдых` renders as a single line on desktop/tablet while mobile remains responsive.
+TRAVELGTC-WEB-020 updated the home route CTA with Caveat handwritten title styling, five inline SVG infographic icons instead of numeric badges and the Project Owner route-map planning photo.
 ```
 
 API state:
@@ -288,6 +294,11 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.8 | 2026-07-10 | GTC IT / AI Assistant | Recorded handwritten route CTA typography, route-format icons and route-map planning photo publication |
+| 3.7 | 2026-07-10 | GTC IT / AI Assistant | Recorded one-line home opportunity gallery heading alignment |
+| 3.6 | 2026-07-10 | GTC IT / AI Assistant | Recorded removal of home service labels, profile helper copy and standalone network-model section |
+| 3.5 | 2026-07-10 | GTC IT / AI Assistant | Recorded duplicate contact CTA removal and repeated benefits band removal |
+| 3.4 | 2026-07-10 | GTC IT / AI Assistant | Recorded the home opportunity gallery and compact route-creation CTA |
 | 3.3 | 2026-07-09 | GTC IT / AI Assistant | Recorded removal of the visible home page process-declaration block and body-level menu infographic |
 | 3.2 | 2026-07-09 | GTC IT / AI Assistant | Recorded registration-first contact handling and profile-derived lead contact payloads |
 | 3.1 | 2026-07-09 | GTC IT / AI Assistant | Recorded compact first-contact home form and inferred CRM role mapping |

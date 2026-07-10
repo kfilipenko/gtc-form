@@ -20,11 +20,27 @@ processed/
 
 ## Processed Public Assets
 
-There are currently no approved production bitmap images for the public site.
+Approved page imagery is stored in:
 
-The previously generated WebP set was rejected and removed from source/publication. Until a new approved image set is generated, public pages must not reference removed `processed/*.webp` files.
+```text
+processed/
+```
 
-The mockups in `inbox/foto/` are design references only and must not be used as visible public page content.
+Public pages should reference optimized WebP files from this folder.
+
+The current home route CTA block uses:
+
+```text
+processed/travelgtc-route-map-planning-coast.webp
+```
+
+This file was prepared from Project Owner source:
+
+```text
+inbox/foto/ChatGPT Image 9 июл. 2026 г., 15_56_48 (4).png
+```
+
+The mockups in `inbox/foto/` remain design references unless an approved source image is explicitly processed into `processed/`.
 
 ## Current Reference Notes
 

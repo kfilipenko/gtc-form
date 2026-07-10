@@ -50,6 +50,10 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('.opportunity-gallery')).toBeVisible();
       await expect(page.locator('.opportunity-card')).toHaveCount(5);
       await expect(page.locator('.route-promo')).toBeVisible();
+      await expect(page.locator('.route-options svg')).toHaveCount(5);
+      await expect(page.locator('.route-options [data-code]')).toHaveCount(0);
+      await expect(page.locator('.route-visual img')).toHaveAttribute('src', /travelgtc-route-map-planning-coast\.webp$/);
+      await expect(page.locator('.route-script')).toHaveCSS('font-family', /Caveat/);
       if (viewport.width > 680) {
         const opportunityTitle = await page.locator('#opportunities-title').evaluate((element) => {
           const styles = window.getComputedStyle(element);

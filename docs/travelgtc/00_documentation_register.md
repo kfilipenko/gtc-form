@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.8
+- Version: 3.9
 - Date: 2026-07-10
-- Status: Opportunity heading single-line alignment published
+- Status: Route promo handwritten design and map image published
 
 ## 1. Purpose
 
@@ -95,6 +95,8 @@ The first stage is intentionally small:
 | `065_travelgtc_web_018_home_network_copy_cleanup_report.md` | TRAVELGTC-WEB-018 - Home Network Copy Cleanup Report | Fixes the streamlined home flow, tests, publication and verification after network copy cleanup. | Implemented |
 | `066_travelgtc_web_019_opportunity_heading_single_line_task.md` | TRAVELGTC-WEB-019 - Opportunity Heading Single-Line Alignment Task | Defines one-line desktop/tablet rendering for the home opportunity gallery heading. | Implemented |
 | `067_travelgtc_web_019_opportunity_heading_single_line_report.md` | TRAVELGTC-WEB-019 - Opportunity Heading Single-Line Alignment Report | Fixes the heading width, responsive typography, tests, publication and verification. | Implemented |
+| `068_travelgtc_web_020_route_promo_design_map_image_task.md` | TRAVELGTC-WEB-020 - Route Promo Design And Map Image Task | Defines the handwritten route CTA title, icon-based route formats and map-planning image replacement. | Implemented |
+| `069_travelgtc_web_020_route_promo_design_map_image_report.md` | TRAVELGTC-WEB-020 - Route Promo Design And Map Image Report | Fixes the route promo visual update, processed image, tests, publication and verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -128,6 +130,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.9 | 2026-07-10 | GTC IT / AI Assistant | Updated the home route CTA with handwritten typography, icon formats and route-map planning photo |
 | 3.8 | 2026-07-10 | GTC IT / AI Assistant | Kept the home opportunity gallery heading on one line for desktop and tablet |
 | 3.7 | 2026-07-09 | GTC IT / AI Assistant | Removed home service labels and standalone network-model copy from the main page |
 | 3.6 | 2026-07-09 | GTC IT / AI Assistant | Removed the duplicate header contact button and the repeated home benefits band |
