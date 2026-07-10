@@ -28,6 +28,18 @@ processed/
 
 Public pages should reference optimized WebP files from this folder.
 
+The current public header logo uses:
+
+```text
+processed/travelgtc-logo-header.webp
+```
+
+This file was prepared from Project Owner source:
+
+```text
+inbox/foto/Logo TravelGTC.png
+```
+
 The current home route CTA block uses:
 
 ```text

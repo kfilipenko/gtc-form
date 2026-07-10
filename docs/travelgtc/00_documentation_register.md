@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.9
+- Version: 4.0
 - Date: 2026-07-10
-- Status: Route promo handwritten design and map image published
+- Status: Header logo branding implemented
 
 ## 1. Purpose
 
@@ -97,6 +97,8 @@ The first stage is intentionally small:
 | `067_travelgtc_web_019_opportunity_heading_single_line_report.md` | TRAVELGTC-WEB-019 - Opportunity Heading Single-Line Alignment Report | Fixes the heading width, responsive typography, tests, publication and verification. | Implemented |
 | `068_travelgtc_web_020_route_promo_design_map_image_task.md` | TRAVELGTC-WEB-020 - Route Promo Design And Map Image Task | Defines the handwritten route CTA title, icon-based route formats and map-planning image replacement. | Implemented |
 | `069_travelgtc_web_020_route_promo_design_map_image_report.md` | TRAVELGTC-WEB-020 - Route Promo Design And Map Image Report | Fixes the route promo visual update, processed image, tests, publication and verification. | Implemented |
+| `070_travelgtc_web_021_header_logo_branding_task.md` | TRAVELGTC-WEB-021 - Header Logo Branding Task | Defines replacement of the text header brand with the approved TravelGTC logo. | Implemented |
+| `071_travelgtc_web_021_header_logo_branding_report.md` | TRAVELGTC-WEB-021 - Header Logo Branding Report | Fixes the processed header logo, header markup, tests, publication and verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -130,6 +132,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 4.0 | 2026-07-10 | GTC IT / AI Assistant | Replaced the public header text brand with the approved TravelGTC logo |
 | 3.9 | 2026-07-10 | GTC IT / AI Assistant | Updated the home route CTA with handwritten typography, icon formats and route-map planning photo |
 | 3.8 | 2026-07-10 | GTC IT / AI Assistant | Kept the home opportunity gallery heading on one line for desktop and tablet |
 | 3.7 | 2026-07-09 | GTC IT / AI Assistant | Removed home service labels and standalone network-model copy from the main page |

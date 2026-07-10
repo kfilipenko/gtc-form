@@ -46,6 +46,8 @@ test.describe('TravelGTC responsive public site', () => {
       await page.goto('/', { waitUntil: 'domcontentloaded' });
 
       await expect(page.locator('h1')).toContainText('Создавайте путешествия');
+      await expect(page.locator('.site-header .brand-logo img')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
+      await expect(page.locator('.site-header .brand > span')).toHaveCount(0);
       await expect(page.locator('.benefit-strip')).toHaveCount(0);
       await expect(page.locator('.opportunity-gallery')).toBeVisible();
       await expect(page.locator('.opportunity-card')).toHaveCount(5);
@@ -107,6 +109,8 @@ test.describe('TravelGTC responsive public site', () => {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto(route, { waitUntil: 'domcontentloaded' });
       await expect(page.locator('main')).toBeVisible();
+      await expect(page.locator('.site-header .brand-logo img')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
+      await expect(page.locator('.site-header .brand > span')).toHaveCount(0);
       await expect(page.locator('.site-footer')).toBeVisible();
 
       const overflow = await measureHorizontalOverflow(page);

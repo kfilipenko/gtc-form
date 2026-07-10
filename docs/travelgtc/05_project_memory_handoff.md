@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.8
+- Version: 3.9
 - Date: 2026-07-10
-- Status: Active, route promo handwritten design and map image published
+- Status: Active, header logo branding implemented
 
 ## 1. Current State
 
@@ -105,6 +105,10 @@ TRAVELGTC-WEB-020 added the approved route planning photo for the home route CTA
 projects/travelgtc/public/assets/images/processed/travelgtc-route-map-planning-coast.webp
 Source:
 projects/travelgtc/public/assets/images/inbox/foto/ChatGPT Image 9 июл. 2026 г., 15_56_48 (4).png
+TRAVELGTC-WEB-021 added the approved header logo:
+projects/travelgtc/public/assets/images/processed/travelgtc-logo-header.webp
+Source:
+projects/travelgtc/public/assets/images/inbox/foto/Logo TravelGTC.png
 ```
 
 The original mockups in `inbox/foto/` are design references only.
@@ -133,6 +137,7 @@ TRAVELGTC-WEB-017 rule: do not duplicate the `Контакты` route with a sep
 TRAVELGTC-WEB-018 rule: do not place standalone network-model explanation on the home page. The home page should focus on travel desire, route creation and the short request form. Network/trust/business model explanation belongs to later pages/sections. Also avoid service labels such as `Новые возможности` and `Короткий запрос` above already clear blocks.
 TRAVELGTC-WEB-019 rule: the home opportunity gallery heading `Путешествия - это больше, чем отдых` must stay on one line on desktop and tablet. Narrow mobile may wrap normally to avoid horizontal overflow.
 TRAVELGTC-WEB-020 rule: the home `Создавайте свои маршруты` block uses handwritten `Caveat` typography, five SVG route-format icons and `travelgtc-route-map-planning-coast.webp`. Do not reintroduce numeric route badges in this block.
+TRAVELGTC-WEB-021 rule: public headers use `travelgtc-logo-header.webp` as the brand. Do not reintroduce the separate header text line `Travel Network Lab`; the subtitle is part of the logo image.
 ```
 
 Architecture state:
@@ -174,6 +179,7 @@ TRAVELGTC-WEB-017 removed the duplicate `Связаться со мной` heade
 TRAVELGTC-WEB-018 removed the `Новые возможности` and `Короткий запрос` service labels, removed the home form helper copy about profile contacts, and removed the standalone `Современная сеть` / `Сеть - это не давление...` home section.
 TRAVELGTC-WEB-019 adjusted the home opportunity heading CSS so `Путешествия - это больше, чем отдых` renders as a single line on desktop/tablet while mobile remains responsive.
 TRAVELGTC-WEB-020 updated the home route CTA with Caveat handwritten title styling, five inline SVG infographic icons instead of numeric badges and the Project Owner route-map planning photo.
+TRAVELGTC-WEB-021 replaced the public header text brand with the approved TravelGTC logo, removed the separate header subtitle and kept footer text branding unchanged.
 ```
 
 API state:
@@ -294,6 +300,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.9 | 2026-07-10 | GTC IT / AI Assistant | Recorded approved TravelGTC logo usage in public headers and removal of the separate header subtitle |
 | 3.8 | 2026-07-10 | GTC IT / AI Assistant | Recorded handwritten route CTA typography, route-format icons and route-map planning photo publication |
 | 3.7 | 2026-07-10 | GTC IT / AI Assistant | Recorded one-line home opportunity gallery heading alignment |
 | 3.6 | 2026-07-10 | GTC IT / AI Assistant | Recorded removal of home service labels, profile helper copy and standalone network-model section |
