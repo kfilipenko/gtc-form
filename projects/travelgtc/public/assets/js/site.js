@@ -80,6 +80,11 @@ function initLeadForms() {
     const submitButton = form.querySelector('button[type="submit"]');
     if (submitButton) {
       submitButton.addEventListener("click", async (event) => {
+        if (submitButton.dataset.successAction === "home") {
+          event.preventDefault();
+          window.location.href = "/";
+          return;
+        }
         if (authState.loaded && authState.authenticated) {
           return;
         }
@@ -228,6 +233,7 @@ async function submitLeadForm(form) {
     resetRoleSelector(form);
     prefillLeadContactFromUser(form);
     updateLeadAuthNotes();
+    setLeadFormSubmitted(submitButton);
   } catch (error) {
     setFormStatus(status, error.message || "Не удалось отправить заявку. Попробуйте позже.", "error");
   } finally {
@@ -594,6 +600,15 @@ function setSubmitDisabled(button, disabled) {
   if (button) {
     button.disabled = disabled;
   }
+}
+
+function setLeadFormSubmitted(button) {
+  if (!button) {
+    return;
+  }
+  button.textContent = "Вернуться на главную";
+  button.type = "button";
+  button.dataset.successAction = "home";
 }
 
 function resetRoleSelector(form) {

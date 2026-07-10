@@ -32,7 +32,11 @@ test.describe('TravelGTC authenticated funnel', () => {
     await form.locator('[name="personal_data_consent"]').check();
     await form.locator('[name="communication_consent"]').check();
 
-    await form.locator('button[type="submit"]').click();
+    const submitButton = form.locator('button').first();
+    await submitButton.click();
     await expect(form.locator('[data-form-status]')).toContainText('Номер заявки:');
+    await expect(submitButton).toHaveText('Вернуться на главную');
+    await submitButton.click();
+    await expect(page).toHaveURL(/\/$/);
   });
 });

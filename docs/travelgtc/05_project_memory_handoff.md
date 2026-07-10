@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.9
+- Version: 4.0
 - Date: 2026-07-10
-- Status: Active, header logo branding implemented
+- Status: Active, post-submit home return button implemented
 
 ## 1. Current State
 
@@ -138,6 +138,7 @@ TRAVELGTC-WEB-018 rule: do not place standalone network-model explanation on the
 TRAVELGTC-WEB-019 rule: the home opportunity gallery heading `Путешествия - это больше, чем отдых` must stay on one line on desktop and tablet. Narrow mobile may wrap normally to avoid horizontal overflow.
 TRAVELGTC-WEB-020 rule: the home `Создавайте свои маршруты` block uses handwritten `Caveat` typography, five SVG route-format icons and `travelgtc-route-map-planning-coast.webp`. Do not reintroduce numeric route badges in this block.
 TRAVELGTC-WEB-021 rule: public headers use `travelgtc-logo-header.webp` as the brand. Do not reintroduce the separate header text line `Travel Network Lab`; the subtitle is part of the logo image.
+TRAVELGTC-WEB-022 rule: after a successful authenticated lead submission, the visible form button must change to `Вернуться на главную` and navigate to `/` instead of submitting another lead.
 ```
 
 Architecture state:
@@ -180,6 +181,7 @@ TRAVELGTC-WEB-018 removed the `Новые возможности` and `Коро�
 TRAVELGTC-WEB-019 adjusted the home opportunity heading CSS so `Путешествия - это больше, чем отдых` renders as a single line on desktop/tablet while mobile remains responsive.
 TRAVELGTC-WEB-020 updated the home route CTA with Caveat handwritten title styling, five inline SVG infographic icons instead of numeric badges and the Project Owner route-map planning photo.
 TRAVELGTC-WEB-021 replaced the public header text brand with the approved TravelGTC logo, removed the separate header subtitle and kept footer text branding unchanged.
+TRAVELGTC-WEB-022 changed the shared lead-form success behavior so the submit button becomes a `Вернуться на главную` home-return button after the CRM lead is created.
 ```
 
 API state:
@@ -300,6 +302,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 4.0 | 2026-07-10 | GTC IT / AI Assistant | Recorded post-submit lead-form button change to a return-home action |
 | 3.9 | 2026-07-10 | GTC IT / AI Assistant | Recorded approved TravelGTC logo usage in public headers and removal of the separate header subtitle |
 | 3.8 | 2026-07-10 | GTC IT / AI Assistant | Recorded handwritten route CTA typography, route-format icons and route-map planning photo publication |
 | 3.7 | 2026-07-10 | GTC IT / AI Assistant | Recorded one-line home opportunity gallery heading alignment |

@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 4.0
+- Version: 4.1
 - Date: 2026-07-10
-- Status: Header logo branding implemented
+- Status: Post-submit home return button implemented
 
 ## 1. Purpose
 
@@ -99,6 +99,8 @@ The first stage is intentionally small:
 | `069_travelgtc_web_020_route_promo_design_map_image_report.md` | TRAVELGTC-WEB-020 - Route Promo Design And Map Image Report | Fixes the route promo visual update, processed image, tests, publication and verification. | Implemented |
 | `070_travelgtc_web_021_header_logo_branding_task.md` | TRAVELGTC-WEB-021 - Header Logo Branding Task | Defines replacement of the text header brand with the approved TravelGTC logo. | Implemented |
 | `071_travelgtc_web_021_header_logo_branding_report.md` | TRAVELGTC-WEB-021 - Header Logo Branding Report | Fixes the processed header logo, header markup, tests, publication and verification. | Implemented |
+| `072_travelgtc_web_022_post_submit_home_return_button_task.md` | TRAVELGTC-WEB-022 - Post Submit Home Return Button Task | Defines replacing the submit button with a home-return action after successful lead submission. | Implemented |
+| `073_travelgtc_web_022_post_submit_home_return_button_report.md` | TRAVELGTC-WEB-022 - Post Submit Home Return Button Report | Fixes the post-submit button behavior, tests, publication and verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -132,6 +134,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 4.1 | 2026-07-10 | GTC IT / AI Assistant | Changed successful lead-form submit buttons into a return-home action |
 | 4.0 | 2026-07-10 | GTC IT / AI Assistant | Replaced the public header text brand with the approved TravelGTC logo |
 | 3.9 | 2026-07-10 | GTC IT / AI Assistant | Updated the home route CTA with handwritten typography, icon formats and route-map planning photo |
 | 3.8 | 2026-07-10 | GTC IT / AI Assistant | Kept the home opportunity gallery heading on one line for desktop and tablet |
