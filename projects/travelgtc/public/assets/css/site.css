@@ -447,6 +447,7 @@ h3 {
 
 .opportunities-head {
   gap: 10px;
+  max-width: 100%;
   margin-bottom: 18px;
 }
 
@@ -477,6 +478,7 @@ h3 {
   display: inline-block;
   margin: 0 auto;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .opportunities-head h2::after {
@@ -1381,6 +1383,10 @@ button:disabled {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .opportunities-head h2 {
+    font-size: clamp(1.45rem, 3vw, 1.85rem);
+  }
+
   .opportunity-card {
     min-height: 190px;
   }
@@ -1477,6 +1483,7 @@ button:disabled {
 
   .opportunities-head h2 {
     font-size: clamp(1.32rem, 6.2vw, 1.72rem);
+    white-space: normal;
   }
 
   .opportunity-gallery {

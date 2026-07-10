@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 3.7
-- Date: 2026-07-09
-- Status: Home network copy and service labels removed
+- Version: 3.8
+- Date: 2026-07-10
+- Status: Opportunity heading single-line alignment published
 
 ## 1. Purpose
 
@@ -93,6 +93,8 @@ The first stage is intentionally small:
 | `063_travelgtc_web_017_home_header_deduplication_report.md` | TRAVELGTC-WEB-017 - Home And Header Deduplication Report | Fixes header/contact deduplication, home benefits-band removal, verification and publication. | Implemented |
 | `064_travelgtc_web_018_home_network_copy_cleanup_task.md` | TRAVELGTC-WEB-018 - Home Network Copy Cleanup Task | Defines removal of service labels and standalone network explanation from the home page. | Implemented |
 | `065_travelgtc_web_018_home_network_copy_cleanup_report.md` | TRAVELGTC-WEB-018 - Home Network Copy Cleanup Report | Fixes the streamlined home flow, tests, publication and verification after network copy cleanup. | Implemented |
+| `066_travelgtc_web_019_opportunity_heading_single_line_task.md` | TRAVELGTC-WEB-019 - Opportunity Heading Single-Line Alignment Task | Defines one-line desktop/tablet rendering for the home opportunity gallery heading. | Implemented |
+| `067_travelgtc_web_019_opportunity_heading_single_line_report.md` | TRAVELGTC-WEB-019 - Opportunity Heading Single-Line Alignment Report | Fixes the heading width, responsive typography, tests, publication and verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -126,6 +128,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 3.8 | 2026-07-10 | GTC IT / AI Assistant | Kept the home opportunity gallery heading on one line for desktop and tablet |
 | 3.7 | 2026-07-09 | GTC IT / AI Assistant | Removed home service labels and standalone network-model copy from the main page |
 | 3.6 | 2026-07-09 | GTC IT / AI Assistant | Removed the duplicate header contact button and the repeated home benefits band |
 | 3.5 | 2026-07-09 | GTC IT / AI Assistant | Added the home opportunity photo gallery and compact route CTA block |
