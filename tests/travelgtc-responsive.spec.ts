@@ -53,7 +53,8 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('head meta[name="theme-color"]')).toHaveAttribute('content', '#061A28');
       await expect(page.locator('.site-header .brand-logo img')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
       await expect(page.locator('.site-header .brand > span')).toHaveCount(0);
-      await expect(page.getByText('Мы не создаём отдельную travel-компанию')).toBeVisible();
+      await expect(page.getByText('Партнёрское позиционирование')).toHaveCount(0);
+      await expect(page.getByText('Мы не создаём отдельную travel-компанию')).toHaveCount(0);
       await expect(page.locator('.relationship-grid .role-card')).toHaveCount(3);
       await expect(page.getByRole('link', { name: 'Страница официального сайта: https://www.mwrlife.com/home/membership' })).toHaveAttribute('href', 'https://www.mwrlife.com/home/membership');
       await expect(page.getByRole('link', { name: 'Официальный сайт: https://www.traveladvantage.com/home' })).toHaveAttribute('href', 'https://www.traveladvantage.com/home');
