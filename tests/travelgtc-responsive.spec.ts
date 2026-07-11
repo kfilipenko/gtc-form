@@ -45,7 +45,7 @@ test.describe('TravelGTC responsive public site', () => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-      await expect(page.locator('h1')).toContainText('Создавайте путешествия');
+      await expect(page.locator('h1')).toContainText('Ваш вход в Travel Advantage');
       await expect(page.locator('head link[rel="icon"][href="/favicon.ico"]')).toHaveCount(1);
       await expect(page.locator('head link[rel="icon"][sizes="32x32"]')).toHaveAttribute('href', '/favicon-32x32.png');
       await expect(page.locator('head link[rel="apple-touch-icon"]')).toHaveAttribute('href', '/apple-touch-icon.png');
@@ -53,38 +53,19 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('head meta[name="theme-color"]')).toHaveAttribute('content', '#061A28');
       await expect(page.locator('.site-header .brand-logo img')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
       await expect(page.locator('.site-header .brand > span')).toHaveCount(0);
-      await expect(page.locator('.benefit-strip')).toHaveCount(0);
-      await expect(page.locator('.opportunity-gallery')).toBeVisible();
-      await expect(page.locator('.opportunity-card')).toHaveCount(5);
-      await expect(page.locator('.route-promo')).toBeVisible();
-      await expect(page.locator('.route-options svg')).toHaveCount(5);
-      await expect(page.locator('.route-options [data-code]')).toHaveCount(0);
-      await expect(page.locator('.route-visual img')).toHaveAttribute('src', /travelgtc-route-map-planning-coast\.webp$/);
-      await expect(page.locator('.route-script')).toHaveCSS('font-family', /Caveat/);
-      if (viewport.width > 680) {
-        const opportunityTitle = await page.locator('#opportunities-title').evaluate((element) => {
-          const styles = window.getComputedStyle(element);
-          const lineHeight = Number.parseFloat(styles.lineHeight);
-          const height = element.getBoundingClientRect().height;
-
-          return {
-            height,
-            lineHeight,
-            whiteSpace: styles.whiteSpace,
-          };
-        });
-
-        expect(opportunityTitle.whiteSpace).toBe('nowrap');
-        expect(opportunityTitle.height).toBeLessThanOrEqual(opportunityTitle.lineHeight * 1.25);
-      }
+      await expect(page.getByText('Мы не создаём отдельную travel-компанию')).toBeVisible();
+      await expect(page.locator('.relationship-grid .role-card')).toHaveCount(3);
+      await expect(page.locator('.service-grid span')).toHaveCount(10);
+      await expect(page.locator('.membership-steps article')).toHaveCount(6);
+      await expect(page.locator('.ai-section')).toBeVisible();
+      await expect(page.locator('[data-ai-widget]')).toBeVisible();
+      await expect(page.getByText('TravelGTC является партнёрской информационной страницей')).toBeVisible();
       await expect(page.locator('form[data-travelgtc-lead-form]').first()).toBeVisible();
       await expect(page.locator('.nav-links')).toHaveCount(1);
       await expect(page.locator('.nav-contact')).toHaveCount(0);
       await expect(page.locator('.menu-infographic')).toHaveCount(0);
-      await expect(page.locator('main > section.navy')).toHaveCount(0);
-      await expect(page.getByText('Новые возможности')).toHaveCount(0);
-      await expect(page.getByText('Короткий запрос')).toHaveCount(0);
-      await expect(page.getByText('Выберите потребность и коротко опишите запрос')).toHaveCount(0);
+      await expect(page.getByText('Создавайте путешествия')).toHaveCount(0);
+      await expect(page.getByText('Развивайте сеть')).toHaveCount(0);
       await expect(page.getByText('Сеть - это не давление. Сеть - это доверие.')).toHaveCount(0);
       await expect(page.locator('.site-footer')).toBeVisible();
 
@@ -107,6 +88,18 @@ test.describe('TravelGTC responsive public site', () => {
 
     const overflow = await measureHorizontalOverflow(page);
     await assertNoHorizontalOverflow(overflow.viewportWidth, Math.max(overflow.documentScrollWidth, overflow.bodyScrollWidth));
+  });
+
+  test('AI consultant opens and routes next-step questions to the lead form', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+    await page.locator('[data-ai-open]').first().click();
+    await expect(page.locator('[data-ai-panel]')).toBeVisible();
+    await page.locator('[data-ai-form] input[name="question"]').fill('Сколько стоит участие и как зарегистрироваться?');
+    await page.locator('[data-ai-form]').locator('button[type="submit"]').click();
+    await expect(page.locator('[data-ai-messages]')).toContainText('Похоже, вы готовы к следующему шагу');
+    await expect(page.locator('[data-ai-lead-link]')).toHaveAttribute('href', '#lead-form');
   });
 
   for (const route of publicRoutes) {

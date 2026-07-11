@@ -86,7 +86,7 @@ for route in "${routes[@]}"; do
   fi
 done
 
-grep -F "Travel Network Lab" /tmp/travelgtc-live-smoke.out >/dev/null || {
+grep -F "Travel Advantage" /tmp/travelgtc-live-smoke.out >/dev/null || {
   echo "Smoke marker not found in last checked route output." >&2
   exit 1
 }

@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 4.2
-- Date: 2026-07-10
-- Status: Favicon package published
+- Version: 4.3
+- Date: 2026-07-11
+- Status: Travel Advantage ambassador-positioned home page published
 
 ## 1. Purpose
 
@@ -103,6 +103,8 @@ The first stage is intentionally small:
 | `073_travelgtc_web_022_post_submit_home_return_button_report.md` | TRAVELGTC-WEB-022 - Post Submit Home Return Button Report | Fixes the post-submit button behavior, tests, publication and verification. | Implemented |
 | `074_travelgtc_web_023_favicon_publication_task.md` | TRAVELGTC-WEB-023 - Favicon Publication Task | Defines publication of browser, Apple and Android favicon assets from the provided TravelGTC favicon source. | Implemented |
 | `075_travelgtc_web_023_favicon_publication_report.md` | TRAVELGTC-WEB-023 - Favicon Publication Report | Fixes favicon asset generation, HTML head links, manifest, tests, publication and verification. | Implemented |
+| `076_travelgtc_web_024_home_travel_advantage_ambassador_repositioning_task.md` | TRAVELGTC-WEB-024 - Home Travel Advantage And Ambassador Repositioning Task | Defines the home-page pivot from a generic travel-network page to a Travel Advantage membership funnel with independent Lifestyle Ambassador disclosure. | Implemented |
+| `077_travelgtc_web_024_home_travel_advantage_ambassador_repositioning_report.md` | TRAVELGTC-WEB-024 - Home Travel Advantage And Ambassador Repositioning Report | Fixes the published home-page repositioning, safe AI-consultant stub, new lead interest options, footer/legal disclosure and live verification. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -115,7 +117,7 @@ The first stage is intentionally small:
 | Nginx config | `/etc/nginx/sites-available/travelgtc.com.conf` | Enabled server block for `travelgtc.com` and `www.travelgtc.com`. |
 | API service | `/etc/systemd/system/travelgtc-api.service` | Installed systemd service for the TravelGTC API. |
 | API env file | `/etc/travelgtc/travelgtc-api.env` | Server-side TravelGTC runtime variables and database URL; not stored in git. |
-| Public home prototype | `projects/travelgtc/public/index.html` | First Travel Network Lab public landing page. |
+| Public home page | `projects/travelgtc/public/index.html` | Published Travel Advantage / Lifestyle Ambassador information funnel. |
 | Public legal pages | `projects/travelgtc/public/legal/` | Privacy, terms and partner-model disclosure pages. |
 | Image inbox | `projects/travelgtc/public/assets/images/inbox/` | Place raw source images here for review and later processing. |
 | Processed images | `projects/travelgtc/public/assets/images/processed/` | Place optimized and approved web images here. |
@@ -136,6 +138,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 4.3 | 2026-07-11 | GTC IT / AI Assistant | Repositioned the home page as a Travel Advantage membership funnel with independent Lifestyle Ambassador disclosure and safe AI-consultant stub |
 | 4.2 | 2026-07-10 | GTC IT / AI Assistant | Published favicon package for browsers, Apple touch icon and Android manifest icons |
 | 4.1 | 2026-07-10 | GTC IT / AI Assistant | Changed successful lead-form submit buttons into a return-home action |
 | 4.0 | 2026-07-10 | GTC IT / AI Assistant | Replaced the public header text brand with the approved TravelGTC logo |

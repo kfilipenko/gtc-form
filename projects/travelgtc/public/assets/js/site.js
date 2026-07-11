@@ -34,6 +34,7 @@ initLeadForms();
 initPrototypeForms();
 initFormatButtons();
 initRoleButtons();
+initAiConsultant();
 
 function initAuthState() {
   decorateAuthLinks();
@@ -624,16 +625,93 @@ function resetRoleSelector(form) {
 }
 
 function inferBusinessInterest(primaryInterest) {
-  return primaryInterest === "business_model" ? "want_to_understand" : "none";
+  return ["business_model", "partner_model", "learn_lifestyle_ambassador"].includes(primaryInterest)
+    ? "want_to_understand"
+    : "none";
 }
 
 function inferDeclaredRole(primaryInterest, fallbackRole) {
   if (primaryInterest === "create_trip") return "trip_author";
   if (primaryInterest === "event") return "event_organizer";
+  if (primaryInterest === "events") return "event_organizer";
   if (primaryInterest === "club") return "community_leader";
   if (primaryInterest === "business_model" || primaryInterest === "presentation") return "partner_candidate";
+  if (primaryInterest === "partner_model" || primaryInterest === "learn_lifestyle_ambassador") return "partner_candidate";
+  if (primaryInterest === "presentation_request") return "partner_candidate";
+  if (primaryInterest === "learn_travel_advantage" || primaryInterest === "become_travel_advantage_member") return "traveler";
+  if (primaryInterest === "learn_mwr_life" || primaryInterest === "question") return "unsure";
   if (primaryInterest === "travel") return "traveler";
   return fallbackRole || "unsure";
+}
+
+function initAiConsultant() {
+  const panel = document.querySelector("[data-ai-panel]");
+  const form = document.querySelector("[data-ai-form]");
+  const messages = document.querySelector("[data-ai-messages]");
+  if (!panel || !messages) {
+    return;
+  }
+
+  document.querySelectorAll("[data-ai-open]").forEach((trigger) => {
+    trigger.addEventListener("click", (event) => {
+      event.preventDefault();
+      openAiPanel(panel);
+    });
+  });
+
+  document.querySelectorAll("[data-ai-close]").forEach((trigger) => {
+    trigger.addEventListener("click", () => {
+      panel.hidden = true;
+    });
+  });
+
+  if (form) {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const input = form.querySelector('input[name="question"]');
+      const question = input ? input.value.trim() : "";
+      if (!question) {
+        return;
+      }
+      appendAiMessage(messages, question, "user");
+      appendAiMessage(messages, buildAiStubAnswer(question), "bot");
+      form.reset();
+      messages.scrollTop = messages.scrollHeight;
+    });
+  }
+}
+
+function openAiPanel(panel) {
+  panel.hidden = false;
+  const input = panel.querySelector('input[name="question"]');
+  if (input) {
+    window.setTimeout(() => input.focus(), 80);
+  }
+}
+
+function appendAiMessage(messages, text, type) {
+  const message = document.createElement("p");
+  message.className = `ai-message ${type}`;
+  message.textContent = text;
+  messages.appendChild(message);
+}
+
+function buildAiStubAnswer(question) {
+  const normalized = question.toLowerCase();
+  const nextStepPattern = /(зарегистр|регистрац|стоим|цена|сколько|участник|ambassador|амбассад|страна|доступ|ссылка|связ|контакт|whatsapp|telegram|телефон|email)/i;
+  if (nextStepPattern.test(normalized)) {
+    return "Похоже, вы готовы к следующему шагу. Оставьте короткую заявку ниже: партнёр TravelGTC лично объяснит условия, проверит доступность для вашей страны и поможет перейти к официальной процедуре MWR Life / Travel Advantage.";
+  }
+  if (normalized.includes("travel advantage") || normalized.includes("членств")) {
+    return "Travel Advantage — это travel membership, связанный с категориями сервисов для путешествий. Конкретные цены, условия, доступность и правила бронирования нужно подтверждать на официальных ресурсах компании.";
+  }
+  if (normalized.includes("mwr") || normalized.includes("компан")) {
+    return "MWR Life — деловая сторона проекта: компания, Lifestyle Ambassador, события, обучение и партнёрская модель. TravelGTC не является официальным сайтом MWR Life, а помогает разобраться и подготовиться к следующему шагу.";
+  }
+  if (normalized.includes("доход") || normalized.includes("заработ")) {
+    return "Доход в партнёрской модели не гарантирован. Любые результаты зависят от личной активности, навыков, времени, репутации и соблюдения официальных правил. Перед решением нужно изучить официальные раскрытия и документы.";
+  }
+  return "Я могу объяснить общую разницу между MWR Life, Travel Advantage, членством и ролью Lifestyle Ambassador. Для цен, регистрации, доступности страны и официального следующего шага оставьте заявку, чтобы партнёр TravelGTC связался с вами лично.";
 }
 
 function resolveUserPreferredChannel(user) {

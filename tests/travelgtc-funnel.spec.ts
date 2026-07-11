@@ -27,8 +27,8 @@ test.describe('TravelGTC authenticated funnel', () => {
     await expect(form).toBeVisible();
     await expect(form.locator('[data-lead-auth-note]')).toContainText('Вы вошли как Тестовый Пользователь');
 
-    await form.locator('[name="primary_interest"]').selectOption('create_trip');
-    await form.locator('[name="message"]').fill('Хочу обсудить тестовую travel-идею и понять следующий шаг.');
+    await form.locator('[name="primary_interest"]').selectOption('become_travel_advantage_member');
+    await form.locator('[name="message"]').fill('Хочу обсудить тестовое членство Travel Advantage и понять официальный следующий шаг.');
     await form.locator('[name="personal_data_consent"]').check();
     await form.locator('[name="communication_consent"]').check();
 

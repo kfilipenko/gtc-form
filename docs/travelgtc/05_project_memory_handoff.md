@@ -4,15 +4,15 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 4.1
-- Date: 2026-07-10
-- Status: Active, favicon package published
+- Version: 4.2
+- Date: 2026-07-11
+- Status: Active, Travel Advantage ambassador-positioned home page published
 
 ## 1. Current State
 
 TravelGTC was initialized as a new GTC website project.
 
-The final accepted concept is:
+Historical initial public concept:
 
 ```text
 Travel Network Lab
@@ -20,13 +20,21 @@ Travel Network Lab
 
 Meaning: a modern travel club / travel network where a person can travel, create routes, gather people and develop a partner network.
 
+Current public home-page positioning after TRAVELGTC-WEB-024:
+
+```text
+TravelGTC is a partner information page of an independent Lifestyle Ambassador.
+It explains MWR Life, Travel Advantage membership and the Ambassador path.
+It does not present itself as the official MWR Life / Travel Advantage site or as an independent travel company.
+```
+
 Project Owner added first visual references to:
 
 ```text
 projects/travelgtc/public/assets/images/inbox/foto/
 ```
 
-Current implemented direction: travel network / club / community platform where people create travel ideas, gather others, join trips/events, use partner opportunities and develop a network-based travel business without aggressive MLM language.
+Current implemented direction: TravelGTC is a standalone lead/CRM/AI-assisted subnetwork funnel that starts from Travel Advantage membership interest and calm explanation, captures authenticated leads in its own database, and routes interested users to human consultation and official MWR Life / Travel Advantage next steps.
 
 Created project areas:
 
@@ -67,13 +75,13 @@ API service: travelgtc-api.service
 API env file: /etc/travelgtc/travelgtc-api.env
 ```
 
-Current blocker for public domain:
+Current public domain state:
 
 ```text
-Authoritative Timeweb DNS points to 20.91.187.79.
-Some public recursive DNS caches may temporarily keep old Timeweb A/AAAA records.
+travelgtc.com is publicly served from /var/www/travelgtc.com.
 SSL is issued for travelgtc.com and www.travelgtc.com.
 The live HTTPS API proxy is active at /api/travelgtc/.
+The live API service is travelgtc-api.service on 127.0.0.1:4301.
 ```
 
 Generated production image asset state:
@@ -150,6 +158,7 @@ TRAVELGTC-WEB-020 rule: the home `Создавайте свои маршруты
 TRAVELGTC-WEB-021 rule: public headers use `travelgtc-logo-header.webp` as the brand. Do not reintroduce the separate header text line `Travel Network Lab`; the subtitle is part of the logo image.
 TRAVELGTC-WEB-022 rule: after a successful authenticated lead submission, the visible form button must change to `Вернуться на главную` and navigate to `/` instead of submitting another lead.
 TRAVELGTC-WEB-023 rule: keep the favicon package in the public root and keep all public HTML pages linked to `/favicon.ico`, 16x16/32x32 PNG icons, `/apple-touch-icon.png`, `/site.webmanifest` and `theme-color` `#061A28`. Nginx must serve `/site.webmanifest` as `application/manifest+json` because `nosniff` is enabled.
+TRAVELGTC-WEB-024 rule: the home page is now Travel Advantage membership-first with clear independent Lifestyle Ambassador disclosure. It must not imply that TravelGTC is the official MWR Life / Travel Advantage site, an independent travel agency, a booking provider or a payment/enrollment channel. Do not reintroduce the old home hero `Создавайте путешествия. Собирайте людей. Развивайте сеть.` as the primary message.
 ```
 
 Architecture state:
@@ -194,6 +203,7 @@ TRAVELGTC-WEB-020 updated the home route CTA with Caveat handwritten title styli
 TRAVELGTC-WEB-021 replaced the public header text brand with the approved TravelGTC logo, removed the separate header subtitle and kept footer text branding unchanged.
 TRAVELGTC-WEB-022 changed the shared lead-form success behavior so the submit button becomes a `Вернуться на главную` home-return button after the CRM lead is created.
 TRAVELGTC-WEB-023 published the favicon package from the Project Owner source, linked it from all public pages, added Playwright asset/manifest checks and updated nginx manifest MIME handling.
+TRAVELGTC-WEB-024 repositioned the home page as a Travel Advantage membership funnel with MWR Life / Travel Advantage / TravelGTC relationship cards, safe trust/disclosure blocks, next-step process, safe AI-consultant frontend stub, new lead interest options, official-source footer links and updated public disclosure wording. The static site was deployed live and `travelgtc-api.service` was rebuilt/restarted so the new interest enum values are accepted.
 ```
 
 API state:
@@ -210,6 +220,7 @@ Run API check: npm run check:travelgtc-api
 Default safety switch: TRAVELGTC_PUBLIC_LEAD_CAPTURE_ENABLED=false
 Default authenticated lead switch: TRAVELGTC_ACCOUNT_LEAD_CAPTURE_ENABLED=false
 Frontend public forms now use the authenticated account lead endpoint, not the public lead endpoint.
+Accepted `primary_interest` values include both old funnel values and WEB-024 values: `learn_travel_advantage`, `become_travel_advantage_member`, `learn_mwr_life`, `learn_lifestyle_ambassador`, `partner_model`, `events`, `create_travel_group`, `presentation_request`, `question`.
 Runtime database: travelgtc
 Runtime database role: travelgtc_user
 Runtime service: travelgtc-api.service
@@ -232,6 +243,7 @@ After registration/login, user returns to the intended form and creates a CRM le
 All public lead forms now depend on registration/profile contacts. They do not ask for name, contact value or channel. Registration requires email and phone, and contact preference is only email or phone.
 The home form is intentionally compact. It no longer asks for contact data, travel format, destination, audience, dates, group size or business interest on the first step. Those details belong to `/create-trip/`, consultation or later CRM handling.
 The frontend infers `declared_role` for the CRM from `primary_interest`: create trip -> trip author, event -> event organizer, club -> community leader, business/presentation -> partner candidate, travel -> traveler.
+After WEB-024, the home form is membership/ambassador-oriented: Travel Advantage membership, MWR Life, Lifestyle Ambassador, partner model, events, presentation or question. It still uses the authenticated account profile for name/contact data and sends to `POST /api/travelgtc/v1/account/leads`.
 Funnel e2e command: npm run test:travelgtc-funnel
 Local test static port: 4174
 Local test API port: 4302
@@ -248,6 +260,7 @@ Privacy page: projects/travelgtc/public/legal/privacy/index.html
 Terms page: projects/travelgtc/public/legal/terms/index.html
 Partner disclosure page: projects/travelgtc/public/legal/partner-disclosure/index.html
 Footer links expose the legal pages on all public routes.
+Footer links also expose official MWR Life, official Travel Advantage and official MWR Life Income Disclosure PDF.
 Registration and lead consent text links to privacy/terms pages.
 The legal pages are working informational pages and still require Project Owner / legal review before a broad public launch.
 ```
@@ -258,9 +271,8 @@ Typography correction state:
 Home hero uses a processed photo background with dark overlay and no rejected generated WebP files.
 Desktop H1/H2/H3 scales are controlled by the fixed design system: large hero headline, clear section headings and compact card headings.
 Hero and page-hero heights are kept dense for a premium landing-page proportion.
-The third hero headline line uses the lime reference accent.
-The second hero headline line uses a turquoise accent.
-The short home advantages now render as a compact dark band below the hero.
+After WEB-024, the home hero is Travel Advantage membership-first and uses the turquoise accent for partner accompaniment.
+The old short home advantages / benefits band must not be reintroduced on the home page.
 TRAVELGTC-WEB-012 updated the base color tokens, Manrope font loading, radius system, button sizes, card shadows, hero overlay, section density and footer compactness against `049_travelgtc_design_system.md`.
 TRAVELGTC-WEB-013 then reduced the home hero height/H1 scale, removed the duplicated lower funnel section and removed obsolete `path-summary` chips.
 Follow-up correction: do not publish a visible "home page task" block. The home page must perform its task through CTA, page-to-process navigation and the authenticated lead form.
@@ -273,9 +285,9 @@ Menu/footer/mobile state:
 Home page includes a clickable infographic-style menu for all public routes.
 TRAVELGTC-WEB-008 moved this infographic menu from the lower home page to the upper page area directly after the hero and short benefits band.
 The former body-level infographic menu was removed by TRAVELGTC-WEB-015. Do not reintroduce `.menu-infographic` on the home page.
-Top navigation now carries compact process labels for route orientation without a duplicated body section.
+Top navigation now carries compact labels for route orientation without a duplicated body section. On the WEB-024 home page these labels are product/company/membership/Ambassador/AI oriented.
 Footer is compacted with smaller padding, smaller links and desktop disclaimer columns.
-The header brand is `TravelGTC` with `Travel Network Lab` subtitle, and all main public/auth/legal headers include `О проекте`.
+The public header brand uses `travelgtc-logo-header.webp`; do not reintroduce a separate text subtitle next to the logo.
 Mobile source audit passed through viewport/meta, CSS breakpoint checks and Playwright browser tests.
 ```
 

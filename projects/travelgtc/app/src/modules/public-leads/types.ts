@@ -15,6 +15,15 @@ export const primaryInterests = [
   'business_model',
   'presentation',
   'not_sure',
+  'learn_travel_advantage',
+  'become_travel_advantage_member',
+  'learn_mwr_life',
+  'learn_lifestyle_ambassador',
+  'partner_model',
+  'events',
+  'create_travel_group',
+  'presentation_request',
+  'question',
 ] as const;
 export const businessInterestLevels = ['none', 'curious_later', 'want_to_understand', 'ready_to_discuss'] as const;
 export const consultationPreferences = ['message_first', 'call', 'presentation', 'not_sure'] as const;
