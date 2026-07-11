@@ -80,6 +80,8 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.getByText('Создавайте путешествия')).toHaveCount(0);
       await expect(page.getByText('Развивайте сеть')).toHaveCount(0);
       await expect(page.getByText('Сеть - это не давление. Сеть - это доверие.')).toHaveCount(0);
+      await expect(page.getByText('Хотите спокойно разобраться в Travel Advantage?')).toHaveCount(0);
+      await expect(page.locator('.cta-panel')).toHaveCount(0);
       await expect(page.locator('.site-footer')).toBeVisible();
 
       const serviceBadges = (await page.locator('.service-grid b').allTextContents()).join('');
