@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 4.8
+- Version: 4.9
 - Date: 2026-07-11
-- Status: Lead email notifications enabled through existing server SMTP settings
+- Status: CRM next-step prompts localized to Russian
 
 ## 1. Purpose
 
@@ -143,6 +143,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 4.9 | 2026-07-11 | GTC IT / AI Assistant | Localized CRM intake next-step prompts, task titles, operator questions and existing stored records to Russian |
 | 4.8 | 2026-07-11 | GTC IT / AI Assistant | Enabled TravelGTC production lead email notifications through existing server SMTP settings and verified delivery mode |
 | 4.7 | 2026-07-11 | GTC IT / AI Assistant | Added SMTP-based lead email notification implementation and runtime configuration for `kfilipenko@kmf.ru` |
 | 4.6 | 2026-07-11 | GTC IT / AI Assistant | Added TravelGTC CRM team access, protected lead workspace, team role for `kfilipenko@kmf.ru` and CRM route documentation |

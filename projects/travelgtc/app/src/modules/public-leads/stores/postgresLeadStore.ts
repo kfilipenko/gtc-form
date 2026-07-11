@@ -133,7 +133,7 @@ export class PostgresLeadStore implements LeadStore {
       await client.query(
         `insert into travelgtc_tasks (
           id, lead_id, task_type, title, description, status, priority, created_by, updated_by
-        ) values ($1,$2,'review','Review new TravelGTC lead',$3,'open','normal',$4,$4)`,
+        ) values ($1,$2,'review','Проверить новую заявку TravelGTC',$3,'open','normal',$4,$4)`,
         [taskId, leadId, intakeOutput.recommended_next_step, nowActor],
       );
 
