@@ -15,6 +15,7 @@ const baseConfig: TravelGtcConfig = {
   parentNetworkMode: 'none',
   aiChatMode: 'stub',
   azureAiAgentName: 'AI-TravelGTC',
+  azureAiAgentVersion: '5',
   consentVersion: 'travelgtc-consent-v1',
   identityConsentVersion: 'travelgtc-identity-consent-v1',
   sessionCookieName: 'gtc_travelgtc_session',

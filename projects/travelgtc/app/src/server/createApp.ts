@@ -46,6 +46,7 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
       ? new AzureFoundryAgentClient({
           endpoint: config.azureAiProjectEndpoint,
           agentName: config.azureAiAgentName,
+          agentVersion: config.azureAiAgentVersion,
         })
       : null;
 
@@ -64,6 +65,8 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
     parent_network_mode: config.parentNetworkMode,
     ai_chat_mode: config.aiChatMode,
     azure_ai_agent_configured: Boolean(config.azureAiProjectEndpoint),
+    azure_ai_agent_name: config.azureAiAgentName,
+    azure_ai_agent_version: config.azureAiAgentVersion,
   }));
 
   app.post('/api/travelgtc/v1/ai/chat', async (request, reply) => {
