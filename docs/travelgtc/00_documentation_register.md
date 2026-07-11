@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 4.7
+- Version: 4.8
 - Date: 2026-07-11
-- Status: Lead email notifications added pending SMTP credentials
+- Status: Lead email notifications enabled through existing server SMTP settings
 
 ## 1. Purpose
 
@@ -109,7 +109,7 @@ The first stage is intentionally small:
 | `079_travelgtc_web_025_company_facts_service_pictograms_report.md` | TRAVELGTC-WEB-025 - Company Facts And Service Pictograms Report | Fixes the official company facts block, service/trust/process pictograms, responsive styling and verification scope. | Implemented |
 | `080_travelgtc_ai_001_mira_consultant_instruction.md` | TRAVELGTC-AI-001 - Mira TravelGTC Consultant Instruction | Defines the public AI consultant name, personality, official sources, published facts, safety rules and lead-routing behavior. | Active instruction |
 | `081_travelgtc_crm_001_team_access_and_lead_workspace_report.md` | TRAVELGTC-CRM-001 - Team Access And Lead Workspace Report | Fixes project-local CRM team access, `/crm/` workspace, team role assignment and current lead-processing API routes. | Implemented |
-| `082_travelgtc_crm_002_email_notifications_task.md` | TRAVELGTC-CRM-002 - Lead Email Notifications | Fixes SMTP-based lead notification behavior and runtime configuration for sending new lead emails to `kfilipenko@kmf.ru`. | Implemented in code, SMTP credentials required |
+| `082_travelgtc_crm_002_email_notifications_task.md` | TRAVELGTC-CRM-002 - Lead Email Notifications | Fixes SMTP-based lead notification behavior and runtime configuration for sending new lead emails to `kfilipenko@kmf.ru`. | Implemented and production-enabled |
 
 ## 3. Project Source Locations
 
@@ -143,6 +143,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 4.8 | 2026-07-11 | GTC IT / AI Assistant | Enabled TravelGTC production lead email notifications through existing server SMTP settings and verified delivery mode |
 | 4.7 | 2026-07-11 | GTC IT / AI Assistant | Added SMTP-based lead email notification implementation and runtime configuration for `kfilipenko@kmf.ru` |
 | 4.6 | 2026-07-11 | GTC IT / AI Assistant | Added TravelGTC CRM team access, protected lead workspace, team role for `kfilipenko@kmf.ru` and CRM route documentation |
 | 4.5 | 2026-07-11 | GTC IT / AI Assistant | Added Mira TravelGTC public AI consultant instruction with official sources, published company facts, personality and compliance rules |

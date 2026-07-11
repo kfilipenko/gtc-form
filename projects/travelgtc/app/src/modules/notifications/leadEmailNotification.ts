@@ -43,6 +43,11 @@ class SmtpLeadEmailNotificationSender implements LeadEmailNotificationSender {
   async sendLeadCreated(submission: PublicLeadSubmission, result: LeadCreationResult): Promise<void> {
     await this.transporter.sendMail({
       from: this.config.leadNotificationFrom,
+      envelope: {
+        from: this.config.smtpUser,
+        to: this.config.leadNotificationTo,
+      },
+      sender: this.config.smtpUser,
       to: this.config.leadNotificationTo,
       subject: `TravelGTC: новая заявка ${shortId(result.leadId)}`,
       text: buildLeadText(submission, result),
