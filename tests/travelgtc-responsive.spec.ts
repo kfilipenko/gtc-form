@@ -55,6 +55,9 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('.site-header .brand > span')).toHaveCount(0);
       await expect(page.getByText('Мы не создаём отдельную travel-компанию')).toBeVisible();
       await expect(page.locator('.relationship-grid .role-card')).toHaveCount(3);
+      await expect(page.getByRole('link', { name: 'Страница официального сайта: https://www.mwrlife.com/home/membership' })).toHaveAttribute('href', 'https://www.mwrlife.com/home/membership');
+      await expect(page.getByRole('link', { name: 'Официальный сайт: https://www.traveladvantage.com/home' })).toHaveAttribute('href', 'https://www.traveladvantage.com/home');
+      await expect(page.getByRole('link', { name: 'Официальный сайт: https://travelgtc.com/' })).toHaveAttribute('href', 'https://travelgtc.com/');
       await expect(page.getByText('MWR Life в цифрах и официальных адресах')).toBeVisible();
       await expect(page.locator('.company-stats article')).toHaveCount(4);
       await expect(page.getByText('300K+')).toBeVisible();

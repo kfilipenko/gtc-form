@@ -593,6 +593,23 @@ h3 {
     radial-gradient(circle at 88% 18%, rgba(155, 234, 46, 0.24), transparent 32%);
 }
 
+.official-link {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 14px;
+  border-bottom: 1px solid rgba(0, 199, 217, 0.45);
+  color: var(--ocean);
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1.28;
+  overflow-wrap: anywhere;
+}
+
+.official-link:hover {
+  color: var(--teal);
+}
+
 .company-section {
   background:
     linear-gradient(180deg, var(--white) 0%, var(--mist) 100%);
