@@ -63,6 +63,8 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.getByText('300 SE 2nd Street')).toBeVisible();
       await expect(page.getByText('36 Prime Tower')).toBeVisible();
       await expect(page.locator('.service-grid span')).toHaveCount(10);
+      await expect(page.getByText('Сравнение уровней Membership')).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Открыть официальный PDF' })).toHaveAttribute('href', 'https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf');
       await expect(page.locator('.membership-steps article')).toHaveCount(6);
       await expect(page.locator('.ai-section')).toBeVisible();
       await expect(page.locator('[data-ai-widget]')).toBeVisible();
