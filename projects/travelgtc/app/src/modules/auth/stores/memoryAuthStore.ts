@@ -207,6 +207,10 @@ export class MemoryAuthStore implements AuthStore {
     this.roles.add(`${userId}:${projectCode}:${roleCode}`);
   }
 
+  async hasProjectRole(userId: string, projectCode: string, roleCode: string): Promise<boolean> {
+    return this.roles.has(`${userId}:${projectCode}:${roleCode}`);
+  }
+
   listUsers(): GtcIdentityUser[] {
     return [...this.users.values()].map((user) => publicUser(user, this.membershipsForUser(user.userId)));
   }

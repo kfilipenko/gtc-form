@@ -336,6 +336,20 @@ export class PostgresAuthStore implements AuthStore {
     );
   }
 
+  async hasProjectRole(userId: string, projectCode: string, roleCode: string): Promise<boolean> {
+    const result = await this.pool.query(
+      `select 1
+       from travelgtc_identity.user_project_roles
+       where user_id = $1::uuid
+         and project_code = $2
+         and role_code = $3
+         and is_active = true
+       limit 1`,
+      [userId, projectCode, roleCode],
+    );
+    return Boolean(result.rowCount);
+  }
+
   async close(): Promise<void> {
     await this.pool.end();
   }

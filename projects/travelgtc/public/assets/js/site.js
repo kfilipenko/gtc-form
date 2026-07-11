@@ -38,6 +38,7 @@ initPrototypeForms();
 initFormatButtons();
 initRoleButtons();
 initAiConsultant();
+initCrmPage();
 
 function initAuthState() {
   decorateAuthLinks();
@@ -773,6 +774,226 @@ function mapTravelFormat(label) {
   if (normalized.includes("круиз")) return "cruise";
   if (normalized.includes("отдых")) return "rest";
   return "other";
+}
+
+function initCrmPage() {
+  const page = document.querySelector("[data-crm-page]");
+  if (!page) {
+    return;
+  }
+
+  const status = page.querySelector("[data-crm-status]");
+  const workspace = page.querySelector("[data-crm-workspace]");
+  const list = page.querySelector("[data-crm-leads]");
+  const detail = page.querySelector("[data-crm-detail]");
+  const empty = page.querySelector("[data-crm-detail-empty]");
+  const refreshButton = page.querySelector("[data-crm-refresh]");
+  let selectedLeadId = null;
+
+  refreshButton?.addEventListener("click", () => loadCrmLeads());
+  loadCrmLeads();
+
+  async function loadCrmLeads() {
+    setCrmStatus(status, "Загружаем заявки...", "pending");
+    try {
+      const body = await requestApi("/api/travelgtc/v1/crm/leads", { method: "GET" });
+      if (workspace) workspace.hidden = false;
+      renderCrmLeadList(list, body.leads || [], selectedLeadId, openLead);
+      setCrmStatus(status, `Загружено заявок: ${(body.leads || []).length}`, "success");
+    } catch (error) {
+      if (workspace) workspace.hidden = true;
+      const message =
+        error.message && error.message.includes("crm_access_denied")
+          ? "Доступ к CRM требует роли team. Войдите под командным аккаунтом TravelGTC."
+          : error.message || "Не удалось загрузить CRM.";
+      setCrmStatus(status, message, "error");
+    }
+  }
+
+  async function openLead(leadId) {
+    selectedLeadId = leadId;
+    setCrmStatus(status, "Открываем заявку...", "pending");
+    try {
+      const body = await requestApi(`/api/travelgtc/v1/crm/leads/${encodeURIComponent(leadId)}`, { method: "GET" });
+      if (empty) empty.hidden = true;
+      if (detail) {
+        detail.hidden = false;
+        renderCrmLeadDetail(detail, body.lead, body.interactions || [], {
+          onStageChange: updateLeadStage,
+          onNoteSubmit: addLeadNote,
+        });
+      }
+      list?.querySelectorAll("[data-crm-lead]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.crmLead === leadId);
+      });
+      setCrmStatus(status, "Заявка открыта.", "success");
+    } catch (error) {
+      setCrmStatus(status, error.message || "Не удалось открыть заявку.", "error");
+    }
+  }
+
+  async function updateLeadStage(leadId, stage) {
+    await requestApi(`/api/travelgtc/v1/crm/leads/${encodeURIComponent(leadId)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ stage }),
+    });
+    await openLead(leadId);
+    await loadCrmLeads();
+  }
+
+  async function addLeadNote(leadId, note) {
+    await requestApi(`/api/travelgtc/v1/crm/leads/${encodeURIComponent(leadId)}/interactions`, {
+      method: "POST",
+      body: JSON.stringify({ note }),
+    });
+    await openLead(leadId);
+  }
+}
+
+function renderCrmLeadList(container, leads, selectedLeadId, onOpen) {
+  if (!container) return;
+  container.innerHTML = "";
+  if (!leads.length) {
+    const empty = document.createElement("p");
+    empty.className = "crm-empty";
+    empty.textContent = "Заявок пока нет.";
+    container.appendChild(empty);
+    return;
+  }
+
+  leads.forEach((lead) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "crm-lead-row";
+    button.dataset.crmLead = lead.lead_id;
+    button.classList.toggle("active", lead.lead_id === selectedLeadId);
+    button.innerHTML = `
+      <span><strong>${escapeHtml(lead.display_name || "Без имени")}</strong><small>${escapeHtml(formatCrmDate(lead.created_at))}</small></span>
+      <span>${escapeHtml(crmInterestLabel(lead.primary_interest))}</span>
+      <span class="crm-stage">${escapeHtml(crmStageLabel(lead.stage))}</span>
+    `;
+    button.addEventListener("click", () => onOpen(lead.lead_id));
+    container.appendChild(button);
+  });
+}
+
+function renderCrmLeadDetail(container, lead, interactions, actions) {
+  container.innerHTML = `
+    <div class="crm-detail-head">
+      <div>
+        <p class="eyebrow dark">Заявка</p>
+        <h2>${escapeHtml(lead.display_name || "Без имени")}</h2>
+      </div>
+      <select data-crm-stage-select>
+        ${crmStageOptions(lead.stage)}
+      </select>
+    </div>
+    <div class="crm-detail-grid">
+      <article><strong>Контакт</strong><span>${escapeHtml(lead.primary_contact || "")}</span></article>
+      <article><strong>Канал</strong><span>${escapeHtml(lead.primary_channel || "")}</span></article>
+      <article><strong>Интерес</strong><span>${escapeHtml(crmInterestLabel(lead.primary_interest))}</span></article>
+      <article><strong>Роль</strong><span>${escapeHtml(lead.declared_role || "")}</span></article>
+    </div>
+    <div class="crm-request">
+      <h3>Запрос</h3>
+      <p>${escapeHtml(lead.travel_description || lead.summary || "Нет текста запроса.")}</p>
+      ${lead.recommended_next_step ? `<p><strong>Следующий шаг:</strong> ${escapeHtml(lead.recommended_next_step)}</p>` : ""}
+    </div>
+    <form class="crm-note-form" data-crm-note-form>
+      <label for="crm-note">Внутренняя заметка</label>
+      <textarea id="crm-note" name="note" rows="3" required></textarea>
+      <button class="button small" type="submit">Добавить заметку</button>
+    </form>
+    <div class="crm-history">
+      <h3>История</h3>
+      ${interactions
+        .map(
+          (item) => `
+            <article>
+              <strong>${escapeHtml(formatCrmDate(item.created_at))} · ${escapeHtml(item.interaction_type || "")}</strong>
+              <p>${escapeHtml(item.body || "")}</p>
+            </article>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+
+  const stage = container.querySelector("[data-crm-stage-select]");
+  stage?.addEventListener("change", async () => {
+    stage.disabled = true;
+    try {
+      await actions.onStageChange(lead.lead_id, stage.value);
+    } finally {
+      stage.disabled = false;
+    }
+  });
+
+  const noteForm = container.querySelector("[data-crm-note-form]");
+  noteForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const field = noteForm.querySelector('[name="note"]');
+    const note = field ? field.value.trim() : "";
+    if (!note) return;
+    await actions.onNoteSubmit(lead.lead_id, note);
+  });
+}
+
+function crmStageOptions(current) {
+  return [
+    ["new_lead", "Новая"],
+    ["in_consultation", "Консультация"],
+    ["membership_interest", "Интерес к членству"],
+    ["closed_won", "Успешно"],
+    ["closed_lost", "Не актуально"],
+    ["archived", "Архив"],
+  ]
+    .map(([value, label]) => `<option value="${value}"${value === current ? " selected" : ""}>${label}</option>`)
+    .join("");
+}
+
+function crmStageLabel(stage) {
+  const labels = {
+    new_lead: "Новая",
+    in_consultation: "Консультация",
+    membership_interest: "Интерес к членству",
+    closed_won: "Успешно",
+    closed_lost: "Не актуально",
+    archived: "Архив",
+  };
+  return labels[stage] || stage || "";
+}
+
+function crmInterestLabel(interest) {
+  const labels = {
+    become_travel_advantage_member: "Членство Travel Advantage",
+    learn_travel_advantage: "Travel Advantage",
+    learn_mwr_life: "MWR Life",
+    learn_lifestyle_ambassador: "Lifestyle Ambassador",
+    create_trip: "Создать поездку",
+    question: "Вопрос",
+  };
+  return labels[interest] || interest || "";
+}
+
+function formatCrmDate(value) {
+  if (!value) return "";
+  return new Date(value).toLocaleString("ru-RU", { dateStyle: "short", timeStyle: "short" });
+}
+
+function setCrmStatus(status, message, type) {
+  if (!status) return;
+  status.textContent = message;
+  status.dataset.state = type;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function getFormValue(formData, name) {

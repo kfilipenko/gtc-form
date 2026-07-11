@@ -1,6 +1,7 @@
 import cors from '@fastify/cors';
 import Fastify from 'fastify';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import pg from 'pg';
 import type { TravelGtcConfig } from './config.js';
 import { clearCookie, parseCookieValue, serializeCookie } from '../modules/auth/cookies.js';
 import {
@@ -29,6 +30,8 @@ import type { LeadStore } from '../modules/public-leads/leadStore.js';
 import { InMemoryRateLimiter } from '../modules/public-leads/rateLimiter.js';
 import { validateNotObviousSpam, validatePublicLeadSubmission } from '../modules/public-leads/validation.js';
 
+const { Pool } = pg;
+
 export interface CreateTravelGtcAppOptions {
   config: TravelGtcConfig;
   store: LeadStore;
@@ -49,6 +52,7 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
           agentVersion: config.azureAiAgentVersion,
         })
       : null;
+  const crmPool = config.databaseUrl ? new Pool({ connectionString: config.databaseUrl }) : null;
 
   await app.register(cors, {
     origin: true,
@@ -192,6 +196,144 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
     });
   });
 
+  app.get('/api/travelgtc/v1/crm/leads', async (request, reply) => {
+    try {
+      await requireCrmTeamMember(request, config, authStore);
+      if (!crmPool) {
+        return reply.send({ ok: true, leads: [] });
+      }
+
+      const result = await crmPool.query(
+        `select l.id::text as lead_id, l.created_at::text, l.stage, l.primary_interest, l.declared_role,
+                l.business_interest_level, l.recommended_next_step, l.summary,
+                c.display_name, c.primary_channel, c.primary_contact, c.email, c.phone,
+                i.body as last_message
+         from travelgtc_leads l
+         join travelgtc_contacts c on c.id = l.contact_id
+         left join lateral (
+           select body
+           from travelgtc_interactions
+           where lead_id = l.id
+           order by created_at desc
+           limit 1
+         ) i on true
+         order by l.created_at desc
+         limit 100`,
+      );
+
+      return reply.send({ ok: true, leads: result.rows });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
+  });
+
+  app.get('/api/travelgtc/v1/crm/leads/:leadId', async (request, reply) => {
+    try {
+      await requireCrmTeamMember(request, config, authStore);
+      if (!crmPool) {
+        return reply.code(404).send({ ok: false, error: { code: 'not_found', message: 'Lead not found.' } });
+      }
+
+      const leadId = crmLeadIdParam(request.params);
+      const leadResult = await crmPool.query(
+        `select l.id::text as lead_id, l.created_at::text, l.updated_at::text, l.stage, l.primary_interest,
+                l.declared_role, l.business_interest_level, l.source_path, l.recommended_next_step, l.summary,
+                c.id::text as contact_id, c.display_name, c.primary_channel, c.primary_contact, c.email, c.phone,
+                t.format, t.destination, t.approx_dates, t.audience_type, t.estimated_group_size,
+                t.description as travel_description, t.important_details
+         from travelgtc_leads l
+         join travelgtc_contacts c on c.id = l.contact_id
+         left join travelgtc_travel_ideas t on t.lead_id = l.id
+         where l.id = $1::uuid
+         limit 1`,
+        [leadId],
+      );
+      const lead = leadResult.rows[0];
+      if (!lead) {
+        return reply.code(404).send({ ok: false, error: { code: 'not_found', message: 'Lead not found.' } });
+      }
+
+      const interactions = await crmPool.query(
+        `select created_at::text, interaction_type, channel, direction, body
+         from travelgtc_interactions
+         where lead_id = $1::uuid
+         order by created_at desc
+         limit 50`,
+        [leadId],
+      );
+
+      return reply.send({ ok: true, lead, interactions: interactions.rows });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
+  });
+
+  app.patch('/api/travelgtc/v1/crm/leads/:leadId', async (request, reply) => {
+    try {
+      const session = await requireCrmTeamMember(request, config, authStore);
+      if (!crmPool) {
+        return reply.code(404).send({ ok: false, error: { code: 'not_found', message: 'Lead not found.' } });
+      }
+
+      const leadId = crmLeadIdParam(request.params);
+      const stage = crmStageFromBody(request.body);
+      const result = await crmPool.query(
+        `update travelgtc_leads
+         set stage = $2,
+             updated_at = now(),
+             updated_by = $3
+         where id = $1::uuid
+         returning id::text as lead_id, stage`,
+        [leadId, stage, `team:${session.user.userId}`],
+      );
+      if (!result.rowCount) {
+        return reply.code(404).send({ ok: false, error: { code: 'not_found', message: 'Lead not found.' } });
+      }
+
+      return reply.send({ ok: true, lead: result.rows[0] });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
+  });
+
+  app.post('/api/travelgtc/v1/crm/leads/:leadId/interactions', async (request, reply) => {
+    try {
+      const session = await requireCrmTeamMember(request, config, authStore);
+      if (!crmPool) {
+        return reply.code(404).send({ ok: false, error: { code: 'not_found', message: 'Lead not found.' } });
+      }
+
+      const leadId = crmLeadIdParam(request.params);
+      const note = crmNoteFromBody(request.body);
+      const lead = await crmPool.query<{ contact_id: string }>(
+        'select contact_id::text from travelgtc_leads where id = $1::uuid limit 1',
+        [leadId],
+      );
+      if (!lead.rowCount) {
+        return reply.code(404).send({ ok: false, error: { code: 'not_found', message: 'Lead not found.' } });
+      }
+
+      await crmPool.query(
+        `insert into travelgtc_interactions (
+           lead_id, contact_id, actor_user_id, interaction_type, channel, direction, body,
+           human_approved, metadata_json, created_by, updated_by
+         ) values ($1::uuid,$2::uuid,$3::uuid,'note','crm','internal',$4,true,$5,$6,$6)`,
+        [
+          leadId,
+          lead.rows[0].contact_id,
+          session.user.userId,
+          note,
+          JSON.stringify({ source: 'travelgtc_crm' }),
+          `team:${session.user.userId}`,
+        ],
+      );
+
+      return reply.code(201).send({ ok: true, message: 'note_created' });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
+  });
+
   app.post('/api/travelgtc/v1/auth/email/send-verification', async (request, reply) => {
     try {
       const session = await requireSession(request, config, authStore);
@@ -332,6 +474,9 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
   });
 
   app.addHook('onClose', async () => {
+    if (crmPool) {
+      await crmPool.end();
+    }
     if (store.close) {
       await store.close();
     }
@@ -402,6 +547,81 @@ async function requireSession(
     throw new AuthRequiredError();
   }
   return session;
+}
+
+async function requireCrmTeamMember(
+  request: FastifyRequest,
+  config: TravelGtcConfig,
+  authStore: AuthStore,
+): Promise<SessionLookupResult> {
+  const session = await requireSession(request, config, authStore);
+  const isTeamMember =
+    (await authStore.hasProjectRole(session.user.userId, 'travelgtc', 'team')) ||
+    (await authStore.hasProjectRole(session.user.userId, 'travelgtc', 'admin'));
+  if (!isTeamMember) {
+    throw new AuthRequiredError();
+  }
+  return session;
+}
+
+function crmLeadIdParam(params: unknown): string {
+  const raw = params && typeof params === 'object' ? (params as Record<string, unknown>).leadId : undefined;
+  const leadId = typeof raw === 'string' ? raw.trim() : '';
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(leadId)) {
+    throw new AuthValidationError({ lead_id: 'Invalid lead id.' });
+  }
+  return leadId;
+}
+
+function crmStageFromBody(body: unknown): string {
+  const input = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
+  const stage = typeof input.stage === 'string' ? input.stage.trim() : '';
+  const allowed = ['new_lead', 'in_consultation', 'membership_interest', 'closed_won', 'closed_lost', 'archived'];
+  if (!allowed.includes(stage)) {
+    throw new AuthValidationError({ stage: 'Invalid CRM stage.' });
+  }
+  return stage;
+}
+
+function crmNoteFromBody(body: unknown): string {
+  const input = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
+  const note = typeof input.note === 'string' ? input.note.trim() : '';
+  if (note.length < 2 || note.length > 2000) {
+    throw new AuthValidationError({ note: 'Note must be between 2 and 2000 characters.' });
+  }
+  return note;
+}
+
+function sendCrmError(error: unknown, request: FastifyRequest, reply: FastifyReply) {
+  if (error instanceof AuthRequiredError) {
+    return reply.code(403).send({
+      ok: false,
+      error: {
+        code: 'crm_access_denied',
+        message: 'CRM access requires TravelGTC team membership.',
+      },
+    });
+  }
+
+  if (error instanceof AuthValidationError) {
+    return reply.code(400).send({
+      ok: false,
+      error: {
+        code: error.code,
+        message: 'Проверьте данные CRM-запроса.',
+        fields: error.fields,
+      },
+    });
+  }
+
+  request.log.error(error);
+  return reply.code(500).send({
+    ok: false,
+    error: {
+      code: 'crm_internal_error',
+      message: 'Internal CRM error.',
+    },
+  });
 }
 
 function sendKnownError(error: unknown, request: FastifyRequest, reply: FastifyReply) {

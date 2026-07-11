@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TravelGTC CRM - заявки</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Manrope:wght@400;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <div class="nav-wrap">
+        <a class="brand brand-logo" href="/" aria-label="TravelGTC"><img src="/assets/images/processed/travelgtc-logo-header.webp" alt="TravelGTC"></a>
+        <nav class="nav-links nav-links-membership" aria-label="CRM меню">
+          <a href="/">Сайт</a>
+          <a class="active" href="/crm/">CRM</a>
+          <a href="/contacts/">Контакты</a>
+        </nav>
+        <div class="nav-actions"><div class="account-actions" data-auth-state><a class="account-link" href="/auth/?mode=login" data-auth-anonymous>Войти</a><div class="account-user" data-auth-user hidden><span data-auth-user-name>Аккаунт</span><button class="account-logout" type="button" data-auth-logout>Выйти</button></div></div><button class="menu-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" data-menu-toggle><span></span><span></span><span></span></button></div>
+      </div>
+    </header>
+
+    <main class="crm-page" data-crm-page>
+      <section class="crm-shell">
+        <div class="section-head">
+          <p class="eyebrow dark">TravelGTC CRM</p>
+          <h1>Заявки и консультации</h1>
+          <p>Внутренний раздел команды TravelGTC. Доступ открыт только пользователям с ролью team.</p>
+        </div>
+
+        <div class="crm-status" data-crm-status>Загружаем заявки...</div>
+
+        <div class="crm-layout" hidden data-crm-workspace>
+          <section class="crm-list" aria-label="Список заявок">
+            <div class="crm-list-head">
+              <strong>Последние заявки</strong>
+              <button class="button ghost small" type="button" data-crm-refresh>Обновить</button>
+            </div>
+            <div class="crm-leads" data-crm-leads></div>
+          </section>
+
+          <section class="crm-detail" aria-label="Карточка заявки">
+            <div data-crm-detail-empty>
+              <h2>Выберите заявку</h2>
+              <p>Откройте запись слева, чтобы увидеть контакт, запрос, историю и следующий шаг.</p>
+            </div>
+            <div hidden data-crm-detail></div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/assets/js/site.js"></script>
+</body>
+</html>

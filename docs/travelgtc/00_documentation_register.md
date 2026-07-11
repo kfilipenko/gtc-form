@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 4.5
+- Version: 4.6
 - Date: 2026-07-11
-- Status: Mira TravelGTC AI consultant instruction added
+- Status: TravelGTC CRM team access and lead workspace added
 
 ## 1. Purpose
 
@@ -108,6 +108,7 @@ The first stage is intentionally small:
 | `078_travelgtc_web_025_company_facts_service_pictograms_task.md` | TRAVELGTC-WEB-025 - Company Facts And Service Pictograms Task | Defines replacement of numeric service/process badges with pictograms and addition of official MWR Life company facts to the home page. | Implemented |
 | `079_travelgtc_web_025_company_facts_service_pictograms_report.md` | TRAVELGTC-WEB-025 - Company Facts And Service Pictograms Report | Fixes the official company facts block, service/trust/process pictograms, responsive styling and verification scope. | Implemented |
 | `080_travelgtc_ai_001_mira_consultant_instruction.md` | TRAVELGTC-AI-001 - Mira TravelGTC Consultant Instruction | Defines the public AI consultant name, personality, official sources, published facts, safety rules and lead-routing behavior. | Active instruction |
+| `081_travelgtc_crm_001_team_access_and_lead_workspace_report.md` | TRAVELGTC-CRM-001 - Team Access And Lead Workspace Report | Fixes project-local CRM team access, `/crm/` workspace, team role assignment and current lead-processing API routes. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -141,6 +142,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 4.6 | 2026-07-11 | GTC IT / AI Assistant | Added TravelGTC CRM team access, protected lead workspace, team role for `kfilipenko@kmf.ru` and CRM route documentation |
 | 4.5 | 2026-07-11 | GTC IT / AI Assistant | Added Mira TravelGTC public AI consultant instruction with official sources, published company facts, personality and compliance rules |
 | 4.4 | 2026-07-11 | GTC IT / AI Assistant | Added official MWR Life company facts and address block to the home page and replaced numeric service/process badges with pictograms |
 | 4.3 | 2026-07-11 | GTC IT / AI Assistant | Repositioned the home page as a Travel Advantage membership funnel with independent Lifestyle Ambassador disclosure and safe AI-consultant stub |

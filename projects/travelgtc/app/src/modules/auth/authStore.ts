@@ -24,5 +24,6 @@ export interface AuthStore {
   verifyEmailToken(rawToken: string): Promise<GtcIdentityUser>;
   ensureProjectMembership(userId: string, projectCode: string, membershipStatus: string): Promise<ProjectMembership>;
   ensureProjectRole(userId: string, projectCode: string, roleCode: string, source: string): Promise<void>;
+  hasProjectRole(userId: string, projectCode: string, roleCode: string): Promise<boolean>;
   close?(): Promise<void>;
 }
