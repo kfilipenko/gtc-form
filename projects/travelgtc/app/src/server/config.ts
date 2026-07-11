@@ -67,7 +67,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): TravelGtcConfi
     aiChatMode: pickEnum(env.TRAVELGTC_AI_CHAT_MODE, ['stub', 'azure'] as const, 'stub'),
     azureAiProjectEndpoint: env.TRAVELGTC_AZURE_AI_PROJECT_ENDPOINT || undefined,
     azureAiAgentName: env.TRAVELGTC_AZURE_AI_AGENT_NAME || 'AI-TravelGTC',
-    azureAiAgentVersion: env.TRAVELGTC_AZURE_AI_AGENT_VERSION || '5',
+    azureAiAgentVersion: env.TRAVELGTC_AZURE_AI_AGENT_VERSION || '8',
     emailNotificationMode: pickEnum(env.TRAVELGTC_EMAIL_NOTIFICATION_MODE, ['disabled', 'smtp'] as const, 'disabled'),
     leadNotificationTo: env.TRAVELGTC_LEAD_NOTIFICATION_TO || 'kfilipenko@kmf.ru',
     leadNotificationFrom: env.TRAVELGTC_LEAD_NOTIFICATION_FROM || 'TravelGTC <no-reply@travelgtc.com>',

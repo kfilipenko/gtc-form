@@ -652,6 +652,7 @@ function initAiConsultant() {
   const panel = document.querySelector("[data-ai-panel]");
   const form = document.querySelector("[data-ai-form]");
   const messages = document.querySelector("[data-ai-messages]");
+  const starters = document.querySelector("[data-ai-starters]");
   if (!panel || !messages) {
     return;
   }
@@ -669,7 +670,20 @@ function initAiConsultant() {
     });
   });
 
+  if (starters && form) {
+    starters.querySelectorAll("[data-ai-starter]").forEach((starter) => {
+      starter.addEventListener("click", () => {
+        const input = form.querySelector('input[name="question"]');
+        if (input) {
+          input.value = starter.dataset.aiStarter || starter.textContent.trim();
+        }
+        form.requestSubmit();
+      });
+    });
+  }
+
   if (form) {
+    initAiVoiceInput(form);
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const input = form.querySelector('input[name="question"]');
@@ -678,23 +692,7 @@ function initAiConsultant() {
       if (!question) {
         return;
       }
-      appendAiMessage(messages, question, "user");
-      form.reset();
-      setSubmitDisabled(submitButton, true);
-      const pending = appendAiMessage(messages, "Мира думает над ответом...", "bot");
-      messages.scrollTop = messages.scrollHeight;
-      try {
-        const body = await requestApi("/api/travelgtc/v1/ai/chat", {
-          method: "POST",
-          body: JSON.stringify({ question }),
-        });
-        pending.textContent = body.answer || buildAiStubAnswer(question);
-      } catch (error) {
-        pending.textContent = buildAiStubAnswer(question);
-      } finally {
-        setSubmitDisabled(submitButton, false);
-      }
-      messages.scrollTop = messages.scrollHeight;
+      await askAiQuestion(form, messages, question, submitButton);
     });
   }
 }
@@ -715,20 +713,95 @@ function appendAiMessage(messages, text, type) {
   return message;
 }
 
+async function askAiQuestion(form, messages, question, submitButton) {
+  appendAiMessage(messages, question, "user");
+  form.reset();
+  setSubmitDisabled(submitButton, true);
+  const pending = appendAiMessage(messages, "Мира подбирает полезный ответ...", "bot");
+  messages.scrollTop = messages.scrollHeight;
+  try {
+    const body = await requestApi("/api/travelgtc/v1/ai/chat", {
+      method: "POST",
+      body: JSON.stringify({ question }),
+    });
+    pending.textContent = body.answer || buildAiStubAnswer(question);
+  } catch (error) {
+    pending.textContent = buildAiStubAnswer(question);
+  } finally {
+    setSubmitDisabled(submitButton, false);
+  }
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function initAiVoiceInput(form) {
+  const button = form.querySelector("[data-ai-voice]");
+  const input = form.querySelector('input[name="question"]');
+  if (!button || !input) return;
+
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!Recognition) {
+    button.disabled = true;
+    button.title = "Голосовой ввод не поддерживается этим браузером";
+    return;
+  }
+
+  const recognition = new Recognition();
+  recognition.lang = "ru-RU";
+  recognition.interimResults = true;
+  recognition.continuous = false;
+
+  recognition.addEventListener("start", () => {
+    button.classList.add("is-recording");
+    button.title = "Слушаю вопрос...";
+  });
+
+  recognition.addEventListener("end", () => {
+    button.classList.remove("is-recording");
+    button.title = "Задать вопрос голосом";
+  });
+
+  recognition.addEventListener("result", (event) => {
+    const transcript = Array.from(event.results)
+      .map((result) => result[0] && result[0].transcript ? result[0].transcript : "")
+      .join(" ")
+      .trim();
+    if (transcript) {
+      input.value = transcript;
+    }
+  });
+
+  recognition.addEventListener("error", () => {
+    button.classList.remove("is-recording");
+    button.title = "Голосовой ввод недоступен";
+  });
+
+  button.addEventListener("click", () => {
+    try {
+      recognition.start();
+    } catch (error) {
+      recognition.stop();
+    }
+  });
+}
+
 function buildAiStubAnswer(question) {
   const normalized = question.toLowerCase();
   const nextStepPattern = /(зарегистр|регистрац|стоим|цена|сколько|участник|ambassador|амбассад|страна|доступ|ссылка|связ|контакт|whatsapp|telegram|телефон|email)/i;
+  const tariffPattern = /(тариф|membership|уровн|покуп|подключ|семь|семьи|premium|elite|basic|пакет)/i;
   const sourcePattern = /(официальн|источник|сайт|документ|pdf|benefits|правил|услов)/i;
   const storyPattern = /(истори|знаком|встреч|событ|пара|друг|партн[её]р|впечатл|путешеств)/i;
 
+  if (tariffPattern.test(normalized)) {
+    return "Хороший вопрос. Я бы начала не с названия тарифа, а с вашего сценария: семья, частые поездки, weekend-перезагрузки, события или поездки с друзьями. Travel Advantage Membership имеет смысл смотреть через официальное сравнение уровней: https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf. Какой сценарий для вас главный: семейные поездки, личные путешествия или возможность собирать людей вокруг маршрутов?";
+  }
   if (nextStepPattern.test(normalized)) {
-    return "Похоже, вы готовы к следующему шагу. Я Мира, поэтому мягко подскажу маршрут: оставьте короткую заявку ниже, а партнёр TravelGTC лично объяснит условия, проверит доступность для вашей страны и поможет перейти к официальной процедуре MWR Life / Travel Advantage.";
+    return "Похоже, вы уже близко к практическому шагу. Сначала стоит сравнить уровни Membership по официальному PDF, а затем оставить короткую заявку ниже: партнёр TravelGTC проверит актуальные условия, доступность для вашей страны и официальный путь подключения. Я не придумываю цены или реферальные ссылки, но помогу понять, какой тариф стоит обсуждать.";
   }
   if (sourcePattern.test(normalized)) {
     return `${OFFICIAL_SOURCE_TEXT} TravelGTC — партнёрская информационная страница независимого Lifestyle Ambassador, поэтому финальные цены, условия, правила членства, документы и региональную доступность нужно сверять именно там.`;
   }
   if (normalized.includes("travel advantage") || normalized.includes("членств")) {
-    return "Travel Advantage — это онлайн/мобильное приложение, доступное членам клуба путешественников, с категориями сервисов для поездок и отдыха: отели, перелёты, курорты, аренда авто, круизы, экскурсии, активности, трансферы, Travel Credits и Member Support. Конкретные цены, условия, доступность и правила бронирования нужно подтверждать на официальных ресурсах компании.";
+    return "Travel Advantage — это онлайн/мобильное приложение для членов клуба путешественников. Его ценность лучше оценивать через ваши реальные планы: где вы хотите отдыхать, как часто ездите, с кем путешествуете и хотите ли использовать клубные события. Категории включают отели, перелёты, курорты, аренду авто, круизы, экскурсии, активности, трансферы, Travel Credits и Member Support. Какой формат вам ближе: семья, друзья, короткие поездки или клубные события?";
   }
   if (normalized.includes("mwr") || normalized.includes("компан")) {
     return "MWR Life — деловая сторона проекта: компания, Lifestyle Ambassador, события, обучение и партнёрская модель. На официальной странице компании указаны ориентиры масштаба: 10 лет работы, 300K+ участников, 150+ стран и 10 языков. TravelGTC не является официальным сайтом MWR Life, а помогает разобраться и подготовиться к следующему шагу.";
@@ -739,7 +812,7 @@ function buildAiStubAnswer(question) {
   if (storyPattern.test(normalized)) {
     return "В travel-сообществах часто самое ценное начинается не с бронирования, а со встречи: кто-то находит компанию для поездки, кто-то — делового партнёра, кто-то — друга по интересам, а иногда и пару. Звучит как хороший маршрут: сначала люди, потом впечатления, потом новые возможности. Это пример атмосферы, не как обещание результата. При этом любые условия участия всё равно проверяются только по официальным материалам MWR Life / Travel Advantage.";
   }
-  return "Я Мира TravelGTC. Могу по-доброму и без давления объяснить разницу между MWR Life, Travel Advantage, членством, событиями и ролью Lifestyle Ambassador. Для цен, регистрации, доступности страны и официального следующего шага оставьте заявку, чтобы партнёр TravelGTC связался с вами лично.";
+  return "Я Мира TravelGTC. Помогаю не просто перейти к форме, а понять, есть ли для вас смысл в Travel Advantage Membership. Давайте начнём с практики: какая поездка сейчас важнее всего — семейная, личная, с друзьями, клубное событие или идея маршрута для вашего круга людей?";
 }
 
 function resolveUserPreferredChannel(user) {

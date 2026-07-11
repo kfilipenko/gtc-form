@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 4.9
+- Version: 5.0
 - Date: 2026-07-11
-- Status: CRM next-step prompts localized to Russian
+- Status: Sales-oriented AI consultant and public chat widget published
 
 ## 1. Purpose
 
@@ -110,6 +110,7 @@ The first stage is intentionally small:
 | `080_travelgtc_ai_001_mira_consultant_instruction.md` | TRAVELGTC-AI-001 - Mira TravelGTC Consultant Instruction | Defines the public AI consultant name, personality, official sources, published facts, safety rules and lead-routing behavior. | Active instruction |
 | `081_travelgtc_crm_001_team_access_and_lead_workspace_report.md` | TRAVELGTC-CRM-001 - Team Access And Lead Workspace Report | Fixes project-local CRM team access, `/crm/` workspace, team role assignment and current lead-processing API routes. | Implemented |
 | `082_travelgtc_crm_002_email_notifications_task.md` | TRAVELGTC-CRM-002 - Lead Email Notifications | Fixes SMTP-based lead notification behavior and runtime configuration for sending new lead emails to `kfilipenko@kmf.ru`. | Implemented and production-enabled |
+| `083_travelgtc_ai_002_sales_agent_chat_widget_report.md` | TRAVELGTC-AI-002 - Sales Agent And Public Chat Widget Report | Fixes Azure agent version 8, sales-oriented Mira behavior, chat starter questions, branded avatar, voice input and backend safety guard. | Implemented and published |
 
 ## 3. Project Source Locations
 
@@ -143,6 +144,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 5.0 | 2026-07-11 | GTC IT / AI Assistant | Published sales-oriented Mira TravelGTC agent version 8 with public chat starter questions, branded avatar, voice input and backend safety guard |
 | 4.9 | 2026-07-11 | GTC IT / AI Assistant | Localized CRM intake next-step prompts, task titles, operator questions and existing stored records to Russian |
 | 4.8 | 2026-07-11 | GTC IT / AI Assistant | Enabled TravelGTC production lead email notifications through existing server SMTP settings and verified delivery mode |
 | 4.7 | 2026-07-11 | GTC IT / AI Assistant | Added SMTP-based lead email notification implementation and runtime configuration for `kfilipenko@kmf.ru` |

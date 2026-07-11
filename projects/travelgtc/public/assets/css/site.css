@@ -880,7 +880,7 @@ h3 {
   right: 0;
   bottom: 62px;
   display: grid;
-  width: min(380px, calc(100vw - 28px));
+  width: min(430px, calc(100vw - 28px));
   max-height: min(620px, calc(100vh - 110px));
   overflow: hidden;
   border: 1px solid rgba(0, 199, 217, 0.24);
@@ -892,11 +892,21 @@ h3 {
 .ai-panel-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
   padding: 16px;
   background: var(--navy);
   color: var(--white);
+}
+
+.ai-avatar {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+  border-radius: 18px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 1px rgba(0, 199, 217, 0.18);
 }
 
 .ai-panel-head strong,
@@ -914,6 +924,7 @@ h3 {
 }
 
 .ai-panel-head button {
+  margin-left: auto;
   width: 34px;
   height: 34px;
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -923,6 +934,34 @@ h3 {
   font: inherit;
   font-size: 1.1rem;
   cursor: pointer;
+}
+
+.ai-starters {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px 0;
+  background: var(--mist);
+}
+
+.ai-starters button {
+  min-height: 36px;
+  border: 1px solid rgba(0, 199, 217, 0.22);
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ai-starters button:hover,
+.ai-starters button:focus-visible {
+  border-color: rgba(0, 184, 148, 0.72);
+  background: rgba(163, 230, 53, 0.16);
 }
 
 .ai-messages {
@@ -959,7 +998,7 @@ h3 {
 
 .ai-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 8px;
   padding: 12px;
   background: var(--white);
@@ -969,6 +1008,38 @@ h3 {
   min-height: 42px;
   border-radius: 12px;
   font-size: 0.86rem;
+}
+
+.ai-voice {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  min-height: 42px;
+  border: 1px solid rgba(0, 91, 120, 0.18);
+  border-radius: 12px;
+  background: var(--mist);
+  color: var(--ocean);
+  cursor: pointer;
+}
+
+.ai-voice svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ai-voice.is-recording {
+  background: var(--lime);
+  color: var(--navy);
+}
+
+.ai-voice:disabled {
+  opacity: 0.46;
+  cursor: not-allowed;
 }
 
 .ai-form .button {

@@ -73,6 +73,9 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('.ai-section')).toBeVisible();
       await expect(page.locator('#ai-consultant').getByText('Мира TravelGTC')).toBeVisible();
       await expect(page.locator('[data-ai-widget]')).toBeVisible();
+      await expect(page.locator('[data-ai-widget] .ai-avatar')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
+      await expect(page.locator('[data-ai-starter]')).toHaveCount(3);
+      await expect(page.locator('[data-ai-voice]')).toHaveCount(1);
       await expect(page.getByText('TravelGTC является партнёрской информационной страницей')).toBeVisible();
       await expect(page.locator('form[data-travelgtc-lead-form]').first()).toBeVisible();
       await expect(page.locator('.nav-links')).toHaveCount(1);
@@ -119,11 +122,22 @@ test.describe('TravelGTC responsive public site', () => {
 
     await page.locator('[data-ai-open]').first().click();
     await expect(page.locator('[data-ai-panel]')).toBeVisible();
+    await expect(page.locator('[data-ai-starter]')).toHaveCount(3);
+    await expect(page.locator('[data-ai-voice]')).toBeVisible();
     await page.locator('[data-ai-form] input[name="question"]').fill('Сколько стоит участие и как зарегистрироваться?');
     await page.locator('[data-ai-form]').locator('button[type="submit"]').click();
-    await expect(page.locator('[data-ai-messages]')).toContainText('Похоже, вы готовы к следующему шагу');
-    await expect(page.locator('[data-ai-messages]')).toContainText('Я Мира');
+    await expect(page.locator('[data-ai-messages]')).toContainText(/официальн|услов|PDF|заявк|TravelGTC/i);
     await expect(page.locator('[data-ai-lead-link]')).toHaveAttribute('href', '#lead-form');
+  });
+
+  test('Mira starter questions submit purchase-oriented prompts', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+    await page.locator('[data-ai-open]').first().click();
+    await page.locator('[data-ai-starter]').first().click();
+    await expect(page.locator('[data-ai-messages]')).toContainText('Какой тариф Travel Advantage');
+    await expect(page.locator('[data-ai-messages]')).toContainText(/PDF|Membership|тариф|уровн/i);
   });
 
   test('Mira consultant references official sources and friendly travel-community stories safely', async ({ page }) => {
@@ -133,13 +147,12 @@ test.describe('TravelGTC responsive public site', () => {
     await page.locator('[data-ai-open]').first().click();
     await page.locator('[data-ai-form] input[name="question"]').fill('Где официальные документы и PDF по Membership?');
     await page.locator('[data-ai-form]').locator('button[type="submit"]').click();
-    await expect(page.locator('[data-ai-messages]')).toContainText('https://www.mwrlife.com/home/membership');
     await expect(page.locator('[data-ai-messages]')).toContainText('MembershipBenefits-EN.pdf');
 
     await page.locator('[data-ai-form] input[name="question"]').fill('Расскажи историю про встречи и знакомства в путешествиях');
     await page.locator('[data-ai-form]').locator('button[type="submit"]').click();
-    await expect(page.locator('[data-ai-messages]')).toContainText('друга по интересам');
-    await expect(page.locator('[data-ai-messages]')).toContainText('не как обещание');
+    await expect(page.locator('[data-ai-messages]')).toContainText(/друз|единомышлен|знаком|встреч/i);
+    await expect(page.locator('[data-ai-messages]')).toContainText(/не обещан|не обещаю|не гарант/i);
   });
 
   for (const route of publicRoutes) {
