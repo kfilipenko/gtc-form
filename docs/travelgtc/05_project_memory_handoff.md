@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 4.3
+- Version: 4.4
 - Date: 2026-07-11
-- Status: Active, Travel Advantage home page includes official company facts and pictogram badges
+- Status: Active, Mira TravelGTC AI consultant instruction added
 
 ## 1. Current State
 
@@ -160,6 +160,7 @@ TRAVELGTC-WEB-022 rule: after a successful authenticated lead submission, the vi
 TRAVELGTC-WEB-023 rule: keep the favicon package in the public root and keep all public HTML pages linked to `/favicon.ico`, 16x16/32x32 PNG icons, `/apple-touch-icon.png`, `/site.webmanifest` and `theme-color` `#061A28`. Nginx must serve `/site.webmanifest` as `application/manifest+json` because `nosniff` is enabled.
 TRAVELGTC-WEB-024 rule: the home page is now Travel Advantage membership-first with clear independent Lifestyle Ambassador disclosure. It must not imply that TravelGTC is the official MWR Life / Travel Advantage site, an independent travel agency, a booking provider or a payment/enrollment channel. Do not reintroduce the old home hero `Создавайте путешествия. Собирайте людей. Развивайте сеть.` as the primary message.
 TRAVELGTC-WEB-025 rule: the home page includes an official MWR Life company facts block based on `https://www.mwrlife.com/home/company`. Do not publish company metrics, office addresses, legal data, countries, language counts or regional claims without checking the official source. Keep service, trust and next-step process badges as pictograms/emoji, not `01` / `02` numeric labels.
+TRAVELGTC-AI-001 rule: the public AI consultant is named `Мира TravelGTC`. Use `docs/travelgtc/080_travelgtc_ai_001_mira_consultant_instruction.md` as the canonical instruction for personality, official sources, published facts, compliance limits and lead-routing behavior. Мира may be cheerful and tell short illustrative travel-community stories, but must not promise income, savings, availability, membership approval or business results.
 ```
 
 Architecture state:
@@ -206,6 +207,7 @@ TRAVELGTC-WEB-022 changed the shared lead-form success behavior so the submit bu
 TRAVELGTC-WEB-023 published the favicon package from the Project Owner source, linked it from all public pages, added Playwright asset/manifest checks and updated nginx manifest MIME handling.
 TRAVELGTC-WEB-024 repositioned the home page as a Travel Advantage membership funnel with MWR Life / Travel Advantage / TravelGTC relationship cards, safe trust/disclosure blocks, next-step process, safe AI-consultant frontend stub, new lead interest options, official-source footer links and updated public disclosure wording. The static site was deployed live and `travelgtc-api.service` was rebuilt/restarted so the new interest enum values are accepted.
 TRAVELGTC-WEB-025 added the official MWR Life company facts/address block to the home page, replaced numeric service/trust/process badges with pictograms and extended responsive tests to verify the company block and absence of numeric badges.
+TRAVELGTC-AI-001 named the public AI consultant `Мира TravelGTC`, added a canonical instruction document with official source links and published facts, and aligned the frontend AI stub greeting/answers with the new friendly-but-compliant personality.
 ```
 
 API state:

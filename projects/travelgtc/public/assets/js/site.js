@@ -1,5 +1,8 @@
 const AUTH_DRAFT_KEY = "travelgtc.leadDraft.v1";
 const IDENTITY_CONSENT_VERSION = "travelgtc-identity-consent-v1";
+const AI_CONSULTANT_NAME = "Мира TravelGTC";
+const OFFICIAL_SOURCE_TEXT =
+  "Официальные источники для проверки: MWR Life https://www.mwrlife.com/, Membership https://www.mwrlife.com/home/membership, Company https://www.mwrlife.com/home/company, Travel Advantage https://www.traveladvantage.com/home, Membership Benefits PDF https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf.";
 
 const authState = {
   loaded: false,
@@ -699,19 +702,28 @@ function appendAiMessage(messages, text, type) {
 function buildAiStubAnswer(question) {
   const normalized = question.toLowerCase();
   const nextStepPattern = /(зарегистр|регистрац|стоим|цена|сколько|участник|ambassador|амбассад|страна|доступ|ссылка|связ|контакт|whatsapp|telegram|телефон|email)/i;
+  const sourcePattern = /(официальн|источник|сайт|документ|pdf|benefits|правил|услов)/i;
+  const storyPattern = /(истори|знаком|встреч|событ|пара|друг|партн[её]р|впечатл|путешеств)/i;
+
   if (nextStepPattern.test(normalized)) {
-    return "Похоже, вы готовы к следующему шагу. Оставьте короткую заявку ниже: партнёр TravelGTC лично объяснит условия, проверит доступность для вашей страны и поможет перейти к официальной процедуре MWR Life / Travel Advantage.";
+    return "Похоже, вы готовы к следующему шагу. Я Мира, поэтому мягко подскажу маршрут: оставьте короткую заявку ниже, а партнёр TravelGTC лично объяснит условия, проверит доступность для вашей страны и поможет перейти к официальной процедуре MWR Life / Travel Advantage.";
+  }
+  if (sourcePattern.test(normalized)) {
+    return `${OFFICIAL_SOURCE_TEXT} TravelGTC — партнёрская информационная страница независимого Lifestyle Ambassador, поэтому финальные цены, условия, правила членства, документы и региональную доступность нужно сверять именно там.`;
   }
   if (normalized.includes("travel advantage") || normalized.includes("членств")) {
-    return "Travel Advantage — это travel membership, связанный с категориями сервисов для путешествий. Конкретные цены, условия, доступность и правила бронирования нужно подтверждать на официальных ресурсах компании.";
+    return "Travel Advantage — это онлайн/мобильное приложение, доступное членам клуба путешественников, с категориями сервисов для поездок и отдыха: отели, перелёты, курорты, аренда авто, круизы, экскурсии, активности, трансферы, Travel Credits и Member Support. Конкретные цены, условия, доступность и правила бронирования нужно подтверждать на официальных ресурсах компании.";
   }
   if (normalized.includes("mwr") || normalized.includes("компан")) {
-    return "MWR Life — деловая сторона проекта: компания, Lifestyle Ambassador, события, обучение и партнёрская модель. TravelGTC не является официальным сайтом MWR Life, а помогает разобраться и подготовиться к следующему шагу.";
+    return "MWR Life — деловая сторона проекта: компания, Lifestyle Ambassador, события, обучение и партнёрская модель. На официальной странице компании указаны ориентиры масштаба: 10 лет работы, 300K+ участников, 150+ стран и 10 языков. TravelGTC не является официальным сайтом MWR Life, а помогает разобраться и подготовиться к следующему шагу.";
   }
   if (normalized.includes("доход") || normalized.includes("заработ")) {
     return "Доход в партнёрской модели не гарантирован. Любые результаты зависят от личной активности, навыков, времени, репутации и соблюдения официальных правил. Перед решением нужно изучить официальные раскрытия и документы.";
   }
-  return "Я могу объяснить общую разницу между MWR Life, Travel Advantage, членством и ролью Lifestyle Ambassador. Для цен, регистрации, доступности страны и официального следующего шага оставьте заявку, чтобы партнёр TravelGTC связался с вами лично.";
+  if (storyPattern.test(normalized)) {
+    return "В travel-сообществах часто самое ценное начинается не с бронирования, а со встречи: кто-то находит компанию для поездки, кто-то — делового партнёра, кто-то — друга по интересам, а иногда и пару. Звучит как хороший маршрут: сначала люди, потом впечатления, потом новые возможности. Это пример атмосферы, не как обещание результата. При этом любые условия участия всё равно проверяются только по официальным материалам MWR Life / Travel Advantage.";
+  }
+  return "Я Мира TravelGTC. Могу по-доброму и без давления объяснить разницу между MWR Life, Travel Advantage, членством, событиями и ролью Lifestyle Ambassador. Для цен, регистрации, доступности страны и официального следующего шага оставьте заявку, чтобы партнёр TravelGTC связался с вами лично.";
 }
 
 function resolveUserPreferredChannel(user) {
