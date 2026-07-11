@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 4.3
+- Version: 4.4
 - Date: 2026-07-11
-- Status: Travel Advantage ambassador-positioned home page published
+- Status: Company facts and service pictograms published on Travel Advantage home funnel
 
 ## 1. Purpose
 
@@ -105,6 +105,8 @@ The first stage is intentionally small:
 | `075_travelgtc_web_023_favicon_publication_report.md` | TRAVELGTC-WEB-023 - Favicon Publication Report | Fixes favicon asset generation, HTML head links, manifest, tests, publication and verification. | Implemented |
 | `076_travelgtc_web_024_home_travel_advantage_ambassador_repositioning_task.md` | TRAVELGTC-WEB-024 - Home Travel Advantage And Ambassador Repositioning Task | Defines the home-page pivot from a generic travel-network page to a Travel Advantage membership funnel with independent Lifestyle Ambassador disclosure. | Implemented |
 | `077_travelgtc_web_024_home_travel_advantage_ambassador_repositioning_report.md` | TRAVELGTC-WEB-024 - Home Travel Advantage And Ambassador Repositioning Report | Fixes the published home-page repositioning, safe AI-consultant stub, new lead interest options, footer/legal disclosure and live verification. | Implemented |
+| `078_travelgtc_web_025_company_facts_service_pictograms_task.md` | TRAVELGTC-WEB-025 - Company Facts And Service Pictograms Task | Defines replacement of numeric service/process badges with pictograms and addition of official MWR Life company facts to the home page. | Implemented |
+| `079_travelgtc_web_025_company_facts_service_pictograms_report.md` | TRAVELGTC-WEB-025 - Company Facts And Service Pictograms Report | Fixes the official company facts block, service/trust/process pictograms, responsive styling and verification scope. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -138,6 +140,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 4.4 | 2026-07-11 | GTC IT / AI Assistant | Added official MWR Life company facts and address block to the home page and replaced numeric service/process badges with pictograms |
 | 4.3 | 2026-07-11 | GTC IT / AI Assistant | Repositioned the home page as a Travel Advantage membership funnel with independent Lifestyle Ambassador disclosure and safe AI-consultant stub |
 | 4.2 | 2026-07-10 | GTC IT / AI Assistant | Published favicon package for browsers, Apple touch icon and Android manifest icons |
 | 4.1 | 2026-07-10 | GTC IT / AI Assistant | Changed successful lead-form submit buttons into a return-home action |

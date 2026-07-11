@@ -55,6 +55,13 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('.site-header .brand > span')).toHaveCount(0);
       await expect(page.getByText('Мы не создаём отдельную travel-компанию')).toBeVisible();
       await expect(page.locator('.relationship-grid .role-card')).toHaveCount(3);
+      await expect(page.getByText('MWR Life в цифрах и официальных адресах')).toBeVisible();
+      await expect(page.locator('.company-stats article')).toHaveCount(4);
+      await expect(page.getByText('300K+')).toBeVisible();
+      await expect(page.getByText('150+')).toBeVisible();
+      await expect(page.getByText('World Trust Tower')).toBeVisible();
+      await expect(page.getByText('300 SE 2nd Street')).toBeVisible();
+      await expect(page.getByText('36 Prime Tower')).toBeVisible();
       await expect(page.locator('.service-grid span')).toHaveCount(10);
       await expect(page.locator('.membership-steps article')).toHaveCount(6);
       await expect(page.locator('.ai-section')).toBeVisible();
@@ -68,6 +75,13 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.getByText('Развивайте сеть')).toHaveCount(0);
       await expect(page.getByText('Сеть - это не давление. Сеть - это доверие.')).toHaveCount(0);
       await expect(page.locator('.site-footer')).toBeVisible();
+
+      const serviceBadges = (await page.locator('.service-grid b').allTextContents()).join('');
+      const trustBadges = (await page.locator('.trust-card .icon').allTextContents()).join('');
+      const processBadges = (await page.locator('.membership-steps b').allTextContents()).join('');
+      expect(serviceBadges).not.toMatch(/\b\d{2}\b/);
+      expect(trustBadges).not.toMatch(/\b\d{2}\b/);
+      expect(processBadges).not.toMatch(/\b\d{2}\b/);
 
       const overflow = await measureHorizontalOverflow(page);
       await assertNoHorizontalOverflow(overflow.viewportWidth, Math.max(overflow.documentScrollWidth, overflow.bodyScrollWidth));

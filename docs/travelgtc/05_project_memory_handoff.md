@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 4.2
+- Version: 4.3
 - Date: 2026-07-11
-- Status: Active, Travel Advantage ambassador-positioned home page published
+- Status: Active, Travel Advantage home page includes official company facts and pictogram badges
 
 ## 1. Current State
 
@@ -159,6 +159,7 @@ TRAVELGTC-WEB-021 rule: public headers use `travelgtc-logo-header.webp` as the b
 TRAVELGTC-WEB-022 rule: after a successful authenticated lead submission, the visible form button must change to `Вернуться на главную` and navigate to `/` instead of submitting another lead.
 TRAVELGTC-WEB-023 rule: keep the favicon package in the public root and keep all public HTML pages linked to `/favicon.ico`, 16x16/32x32 PNG icons, `/apple-touch-icon.png`, `/site.webmanifest` and `theme-color` `#061A28`. Nginx must serve `/site.webmanifest` as `application/manifest+json` because `nosniff` is enabled.
 TRAVELGTC-WEB-024 rule: the home page is now Travel Advantage membership-first with clear independent Lifestyle Ambassador disclosure. It must not imply that TravelGTC is the official MWR Life / Travel Advantage site, an independent travel agency, a booking provider or a payment/enrollment channel. Do not reintroduce the old home hero `Создавайте путешествия. Собирайте людей. Развивайте сеть.` as the primary message.
+TRAVELGTC-WEB-025 rule: the home page includes an official MWR Life company facts block based on `https://www.mwrlife.com/home/company`. Do not publish company metrics, office addresses, legal data, countries, language counts or regional claims without checking the official source. Keep service, trust and next-step process badges as pictograms/emoji, not `01` / `02` numeric labels.
 ```
 
 Architecture state:
@@ -204,6 +205,7 @@ TRAVELGTC-WEB-021 replaced the public header text brand with the approved Travel
 TRAVELGTC-WEB-022 changed the shared lead-form success behavior so the submit button becomes a `Вернуться на главную` home-return button after the CRM lead is created.
 TRAVELGTC-WEB-023 published the favicon package from the Project Owner source, linked it from all public pages, added Playwright asset/manifest checks and updated nginx manifest MIME handling.
 TRAVELGTC-WEB-024 repositioned the home page as a Travel Advantage membership funnel with MWR Life / Travel Advantage / TravelGTC relationship cards, safe trust/disclosure blocks, next-step process, safe AI-consultant frontend stub, new lead interest options, official-source footer links and updated public disclosure wording. The static site was deployed live and `travelgtc-api.service` was rebuilt/restarted so the new interest enum values are accepted.
+TRAVELGTC-WEB-025 added the official MWR Life company facts/address block to the home page, replaced numeric service/trust/process badges with pictograms and extended responsive tests to verify the company block and absence of numeric badges.
 ```
 
 API state:
