@@ -669,16 +669,30 @@ function initAiConsultant() {
   });
 
   if (form) {
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const input = form.querySelector('input[name="question"]');
+      const submitButton = form.querySelector('button[type="submit"]');
       const question = input ? input.value.trim() : "";
       if (!question) {
         return;
       }
       appendAiMessage(messages, question, "user");
-      appendAiMessage(messages, buildAiStubAnswer(question), "bot");
       form.reset();
+      setSubmitDisabled(submitButton, true);
+      const pending = appendAiMessage(messages, "Мира думает над ответом...", "bot");
+      messages.scrollTop = messages.scrollHeight;
+      try {
+        const body = await requestApi("/api/travelgtc/v1/ai/chat", {
+          method: "POST",
+          body: JSON.stringify({ question }),
+        });
+        pending.textContent = body.answer || buildAiStubAnswer(question);
+      } catch (error) {
+        pending.textContent = buildAiStubAnswer(question);
+      } finally {
+        setSubmitDisabled(submitButton, false);
+      }
       messages.scrollTop = messages.scrollHeight;
     });
   }
@@ -697,6 +711,7 @@ function appendAiMessage(messages, text, type) {
   message.className = `ai-message ${type}`;
   message.textContent = text;
   messages.appendChild(message);
+  return message;
 }
 
 function buildAiStubAnswer(question) {

@@ -13,6 +13,8 @@ const baseConfig: TravelGtcConfig = {
   crmAuthMode: 'disabled',
   agentIntakeMode: 'stub',
   parentNetworkMode: 'none',
+  aiChatMode: 'stub',
+  azureAiAgentName: 'AI-TravelGTC',
   consentVersion: 'travelgtc-consent-v1',
   identityConsentVersion: 'travelgtc-identity-consent-v1',
   sessionCookieName: 'gtc_travelgtc_session',
@@ -175,5 +177,23 @@ describe('TravelGTC public lead API', () => {
     expect(first.statusCode).toBe(201);
     expect(second.statusCode).toBe(429);
     expect(second.json().error.code).toBe('rate_limited');
+  });
+
+  test('answers AI chat requests in fallback mode', async () => {
+    const { app } = await makeApp();
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/ai/chat',
+      payload: { question: 'Какой тариф Travel Advantage выбрать для семьи?' },
+    });
+    await app.close();
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({
+      ok: true,
+      mode: 'stub',
+      agent: 'AI-TravelGTC',
+    });
+    expect(response.json().answer).toContain('TravelGTC');
   });
 });

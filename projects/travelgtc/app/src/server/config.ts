@@ -2,6 +2,7 @@ export type TravelGtcAppEnv = 'local' | 'staging' | 'production' | 'test';
 export type TravelGtcCrmAuthMode = 'disabled' | 'basic' | 'session';
 export type TravelGtcAgentIntakeMode = 'stub' | 'manual' | 'live';
 export type TravelGtcParentNetworkMode = 'none' | 'manual' | 'linked' | 'api';
+export type TravelGtcAiChatMode = 'stub' | 'azure';
 
 export interface TravelGtcConfig {
   appEnv: TravelGtcAppEnv;
@@ -13,6 +14,9 @@ export interface TravelGtcConfig {
   crmAuthMode: TravelGtcCrmAuthMode;
   agentIntakeMode: TravelGtcAgentIntakeMode;
   parentNetworkMode: TravelGtcParentNetworkMode;
+  aiChatMode: TravelGtcAiChatMode;
+  azureAiProjectEndpoint?: string;
+  azureAiAgentName: string;
   consentVersion: string;
   identityConsentVersion: string;
   sessionCookieName: string;
@@ -50,6 +54,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): TravelGtcConfi
     crmAuthMode: pickEnum(env.TRAVELGTC_CRM_AUTH_MODE, ['disabled', 'basic', 'session'] as const, 'disabled'),
     agentIntakeMode: pickEnum(env.TRAVELGTC_AGENT_INTAKE_MODE, ['stub', 'manual', 'live'] as const, 'stub'),
     parentNetworkMode: pickEnum(env.TRAVELGTC_PARENT_NETWORK_MODE, ['none', 'manual', 'linked', 'api'] as const, 'none'),
+    aiChatMode: pickEnum(env.TRAVELGTC_AI_CHAT_MODE, ['stub', 'azure'] as const, 'stub'),
+    azureAiProjectEndpoint: env.TRAVELGTC_AZURE_AI_PROJECT_ENDPOINT || undefined,
+    azureAiAgentName: env.TRAVELGTC_AZURE_AI_AGENT_NAME || 'AI-TravelGTC',
     consentVersion: env.TRAVELGTC_CONSENT_VERSION || 'travelgtc-consent-v1',
     identityConsentVersion: env.TRAVELGTC_IDENTITY_CONSENT_VERSION || 'travelgtc-identity-consent-v1',
     sessionCookieName: env.TRAVELGTC_SESSION_COOKIE_NAME || 'gtc_travelgtc_session',

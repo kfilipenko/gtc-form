@@ -17,6 +17,8 @@ import {
   validateRegisterInput,
   validateVerificationTokenInput,
 } from '../modules/auth/validation.js';
+import { AzureFoundryAgentClient } from '../modules/ai/azureFoundryAgent.js';
+import { buildMiraFallbackAnswer } from '../modules/ai/miraFallback.js';
 import {
   DuplicateSubmissionError,
   LeadCaptureDisabledError,
@@ -39,6 +41,13 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
   });
 
   const limiter = new InMemoryRateLimiter(config.rateLimitWindowSeconds * 1000, config.rateLimitMax);
+  const azureAgent =
+    config.aiChatMode === 'azure' && config.azureAiProjectEndpoint
+      ? new AzureFoundryAgentClient({
+          endpoint: config.azureAiProjectEndpoint,
+          agentName: config.azureAiAgentName,
+        })
+      : null;
 
   await app.register(cors, {
     origin: true,
@@ -53,7 +62,63 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
     account_lead_capture_enabled: config.accountLeadCaptureEnabled,
     agent_intake_mode: config.agentIntakeMode,
     parent_network_mode: config.parentNetworkMode,
+    ai_chat_mode: config.aiChatMode,
+    azure_ai_agent_configured: Boolean(config.azureAiProjectEndpoint),
   }));
+
+  app.post('/api/travelgtc/v1/ai/chat', async (request, reply) => {
+    try {
+      limiter.check(`${request.ip || 'unknown'}:ai-chat`);
+      const question = validateAiQuestion(request.body);
+
+      if (!azureAgent) {
+        return reply.send({
+          ok: true,
+          mode: 'stub',
+          agent: config.azureAiAgentName,
+          answer: buildMiraFallbackAnswer(question),
+        });
+      }
+
+      const answer = await azureAgent.ask(question);
+      return reply.send({
+        ok: true,
+        mode: 'azure',
+        agent: config.azureAiAgentName,
+        answer,
+      });
+    } catch (error) {
+      if (error instanceof RateLimitedError) {
+        return reply.code(429).send({
+          ok: false,
+          error: {
+            code: error.code,
+            message: 'Too many AI chat requests.',
+          },
+        });
+      }
+
+      if (error instanceof AuthValidationError) {
+        return reply.code(400).send({
+          ok: false,
+          error: {
+            code: error.code,
+            message: 'Проверьте текст вопроса.',
+            fields: error.fields,
+          },
+        });
+      }
+
+      request.log.error(error);
+      return reply.code(502).send({
+        ok: false,
+        error: {
+          code: 'ai_agent_unavailable',
+          message: 'AI consultant is temporarily unavailable.',
+        },
+      });
+    }
+  });
 
   app.post('/api/travelgtc/v1/auth/register', async (request, reply) => {
     try {
@@ -280,6 +345,18 @@ function requestMetadata(request: FastifyRequest): RequestMetadata {
     ipAddress: request.ip || undefined,
     userAgent: request.headers['user-agent'],
   };
+}
+
+function validateAiQuestion(body: unknown): string {
+  const input = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
+  const question = typeof input.question === 'string' ? input.question.trim() : '';
+  if (question.length < 2) {
+    throw new AuthValidationError({ question: 'Question is required.' });
+  }
+  if (question.length > 1000) {
+    throw new AuthValidationError({ question: 'Question is too long.' });
+  }
+  return question;
 }
 
 function sessionTtlSeconds(config: TravelGtcConfig): number {
