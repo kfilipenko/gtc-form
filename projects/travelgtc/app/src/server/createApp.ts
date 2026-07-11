@@ -21,6 +21,10 @@ import {
 import { AzureFoundryAgentClient } from '../modules/ai/azureFoundryAgent.js';
 import { buildMiraFallbackAnswer } from '../modules/ai/miraFallback.js';
 import {
+  createLeadEmailNotificationSender,
+  type LeadEmailNotificationSender,
+} from '../modules/notifications/leadEmailNotification.js';
+import {
   DuplicateSubmissionError,
   LeadCaptureDisabledError,
   RateLimitedError,
@@ -28,6 +32,7 @@ import {
 } from '../modules/public-leads/errors.js';
 import type { LeadStore } from '../modules/public-leads/leadStore.js';
 import { InMemoryRateLimiter } from '../modules/public-leads/rateLimiter.js';
+import type { LeadCreationResult, PublicLeadSubmission } from '../modules/public-leads/types.js';
 import { validateNotObviousSpam, validatePublicLeadSubmission } from '../modules/public-leads/validation.js';
 
 const { Pool } = pg;
@@ -44,6 +49,7 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
   });
 
   const limiter = new InMemoryRateLimiter(config.rateLimitWindowSeconds * 1000, config.rateLimitMax);
+  const leadEmailNotifications = createLeadEmailNotificationSender(config);
   const azureAgent =
     config.aiChatMode === 'azure' && config.azureAiProjectEndpoint
       ? new AzureFoundryAgentClient({
@@ -71,6 +77,7 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
     azure_ai_agent_configured: Boolean(config.azureAiProjectEndpoint),
     azure_ai_agent_name: config.azureAiAgentName,
     azure_ai_agent_version: config.azureAiAgentVersion,
+    email_notification_mode: config.emailNotificationMode,
   }));
 
   app.post('/api/travelgtc/v1/ai/chat', async (request, reply) => {
@@ -380,6 +387,7 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
       const submission = validatePublicLeadSubmission(request.body, config);
       validateNotObviousSpam(submission);
       const result = await store.createLeadSubmission(submission);
+      await sendLeadNotification(leadEmailNotifications, submission, result, request);
 
       return reply.code(201).send({
         ok: true,
@@ -460,6 +468,7 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
         userId: session.user.userId,
         actor: 'account_lead_api',
       });
+      await sendLeadNotification(leadEmailNotifications, submission, result, request);
 
       return reply.code(201).send({
         ok: true,
@@ -505,6 +514,19 @@ function validateAiQuestion(body: unknown): string {
     throw new AuthValidationError({ question: 'Question is too long.' });
   }
   return question;
+}
+
+async function sendLeadNotification(
+  sender: LeadEmailNotificationSender,
+  submission: PublicLeadSubmission,
+  result: LeadCreationResult,
+  request: FastifyRequest,
+): Promise<void> {
+  try {
+    await sender.sendLeadCreated(submission, result);
+  } catch (error) {
+    request.log.error({ err: error, lead_id: result.leadId }, 'TravelGTC lead email notification failed');
+  }
 }
 
 function sessionTtlSeconds(config: TravelGtcConfig): number {

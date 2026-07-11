@@ -3,6 +3,7 @@ export type TravelGtcCrmAuthMode = 'disabled' | 'basic' | 'session';
 export type TravelGtcAgentIntakeMode = 'stub' | 'manual' | 'live';
 export type TravelGtcParentNetworkMode = 'none' | 'manual' | 'linked' | 'api';
 export type TravelGtcAiChatMode = 'stub' | 'azure';
+export type TravelGtcEmailNotificationMode = 'disabled' | 'smtp';
 
 export interface TravelGtcConfig {
   appEnv: TravelGtcAppEnv;
@@ -18,6 +19,14 @@ export interface TravelGtcConfig {
   azureAiProjectEndpoint?: string;
   azureAiAgentName: string;
   azureAiAgentVersion: string;
+  emailNotificationMode: TravelGtcEmailNotificationMode;
+  leadNotificationTo: string;
+  leadNotificationFrom: string;
+  smtpHost?: string;
+  smtpPort: number;
+  smtpSecure: boolean;
+  smtpUser?: string;
+  smtpPassword?: string;
   consentVersion: string;
   identityConsentVersion: string;
   sessionCookieName: string;
@@ -59,6 +68,14 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): TravelGtcConfi
     azureAiProjectEndpoint: env.TRAVELGTC_AZURE_AI_PROJECT_ENDPOINT || undefined,
     azureAiAgentName: env.TRAVELGTC_AZURE_AI_AGENT_NAME || 'AI-TravelGTC',
     azureAiAgentVersion: env.TRAVELGTC_AZURE_AI_AGENT_VERSION || '5',
+    emailNotificationMode: pickEnum(env.TRAVELGTC_EMAIL_NOTIFICATION_MODE, ['disabled', 'smtp'] as const, 'disabled'),
+    leadNotificationTo: env.TRAVELGTC_LEAD_NOTIFICATION_TO || 'kfilipenko@kmf.ru',
+    leadNotificationFrom: env.TRAVELGTC_LEAD_NOTIFICATION_FROM || 'TravelGTC <no-reply@travelgtc.com>',
+    smtpHost: env.TRAVELGTC_SMTP_HOST || undefined,
+    smtpPort: parsePositiveInteger(env.TRAVELGTC_SMTP_PORT, 587),
+    smtpSecure: parseBoolean(env.TRAVELGTC_SMTP_SECURE, false),
+    smtpUser: env.TRAVELGTC_SMTP_USER || undefined,
+    smtpPassword: env.TRAVELGTC_SMTP_PASSWORD || undefined,
     consentVersion: env.TRAVELGTC_CONSENT_VERSION || 'travelgtc-consent-v1',
     identityConsentVersion: env.TRAVELGTC_IDENTITY_CONSENT_VERSION || 'travelgtc-identity-consent-v1',
     sessionCookieName: env.TRAVELGTC_SESSION_COOKIE_NAME || 'gtc_travelgtc_session',
