@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 5.2
+- Version: 5.3
 - Date: 2026-07-12
-- Status: Mira Azure version 10 and membership knowledge base published
+- Status: Authorized movable AI chat connected to CRM
 
 ## 1. Purpose
 
@@ -112,8 +112,9 @@ The first stage is intentionally small:
 | `082_travelgtc_crm_002_email_notifications_task.md` | TRAVELGTC-CRM-002 - Lead Email Notifications | Fixes SMTP-based lead notification behavior and runtime configuration for sending new lead emails to `kfilipenko@kmf.ru`. | Implemented and production-enabled |
 | `083_travelgtc_ai_002_sales_agent_chat_widget_report.md` | TRAVELGTC-AI-002 - Sales Agent And Public Chat Widget Report | Fixes Azure agent version 8, sales-oriented Mira behavior, chat starter questions, branded avatar, voice input and backend safety guard. | Implemented and published |
 | `084_travelgtc_ai_003_premium_membership_sales_instruction_task.md` | TRAVELGTC-AI-003 - Premium Membership Sales Instruction Task | Defines the approved ELITE-first needs-discovery Mira sales instruction, official-source boundaries, tariff qualification questions and approval gate. | Approved and published |
-| `085_travelgtc_web_026_authorized_ai_chat_crm_channel_task.md` | TRAVELGTC-WEB-026 - Authorized AI Chat And CRM Channel Task | Defines the proposed authorized AI chat, movable/minimizable widget, structured messages, chat history and CRM timeline integration. | Draft for Project Owner approval |
+| `085_travelgtc_web_026_authorized_ai_chat_crm_channel_task.md` | TRAVELGTC-WEB-026 - Authorized AI Chat And CRM Channel Task | Defines the approved authorized AI chat, movable/minimizable widget, structured messages, chat history and CRM timeline integration. | Implemented by WEB-027 |
 | `086_travelgtc_ai_004_membership_knowledge_and_azure_v10_report.md` | TRAVELGTC-AI-004 - Membership Knowledge And Azure Version 10 Report | Fixes Azure agent version 10 publication, membership knowledge enrichment, public RU Membership Benefits document and cleanup of duplicate draft files. | Implemented and published |
+| `087_travelgtc_web_027_authorized_movable_ai_chat_report.md` | TRAVELGTC-WEB-027 - Authorized Movable AI Chat Report | Fixes the authorized movable AI chat widget, structured message rendering, protected account AI endpoint and CRM interaction persistence. | Implemented and published |
 
 ## 3. Project Source Locations
 
@@ -147,6 +148,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 5.3 | 2026-07-12 | GTC IT / AI Assistant | Implemented authorized movable Mira chat, structured message rendering, protected account AI endpoint and CRM history persistence |
 | 5.2 | 2026-07-12 | GTC IT / AI Assistant | Published Mira Azure version 10, added membership knowledge enrichment, public RU Membership Benefits document and canonical AI-004 report |
 | 5.1 | 2026-07-12 | GTC IT / AI Assistant | Drafted and revised premium membership needs-discovery sales instruction task and authorized AI chat CRM-channel task for approval |
 | 5.0 | 2026-07-11 | GTC IT / AI Assistant | Published sales-oriented Mira TravelGTC agent version 8 with public chat starter questions, branded avatar, voice input and backend safety guard |

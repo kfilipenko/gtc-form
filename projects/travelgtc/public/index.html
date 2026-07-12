@@ -264,21 +264,22 @@
     <div class="ai-widget" data-ai-widget>
       <button class="ai-float" type="button" data-ai-open aria-label="Открыть Миру TravelGTC">Спросить Миру</button>
       <section class="ai-panel" data-ai-panel hidden aria-label="Мира TravelGTC AI-консультант">
-        <div class="ai-panel-head">
+        <div class="ai-panel-head" data-ai-drag-handle>
           <img class="ai-avatar" src="/assets/images/processed/travelgtc-logo-header.webp" alt="" aria-hidden="true">
           <div>
             <strong>Мира TravelGTC</strong>
             <span>AI-консультант по Travel Advantage</span>
           </div>
+          <button type="button" data-ai-minimize aria-label="Свернуть Миру TravelGTC">−</button>
           <button type="button" data-ai-close aria-label="Закрыть Миру TravelGTC">×</button>
         </div>
         <div class="ai-starters" data-ai-starters aria-label="Начальные вопросы">
-          <button type="button" data-ai-starter="Какой тариф Travel Advantage подойдёт мне для путешествий и семьи?">Какой тариф подойдёт для семьи?</button>
-          <button type="button" data-ai-starter="Чем членство Travel Advantage отличается от обычного бронирования?">Чем членство отличается от бронирования?</button>
-          <button type="button" data-ai-starter="Как через TravelGTC узнать условия и перейти к покупке тарифа?">Как перейти к покупке тарифа?</button>
+          <button type="button" data-ai-starter="Я путешествую с семьёй. Какой уровень Travel Advantage стоит сравнить первым?">Путешествую с семьёй</button>
+          <button type="button" data-ai-starter="Хочу понять, какой тариф Travel Advantage подойдёт под мои поездки. С чего начать?">Подобрать тариф</button>
+          <button type="button" data-ai-starter="У меня есть группа или клиенты. Как использовать Travel Advantage для поездок и событий?">Есть группа или клиенты</button>
         </div>
         <div class="ai-messages" data-ai-messages>
-          <p class="ai-message bot">Здравствуйте, я Мира. Помогу выбрать понятный следующий шаг: разобраться в Travel Advantage, сравнить уровни Membership, понять роль MWR Life и спокойно перейти к официальному подключению через партнёра TravelGTC. Без давления и без обещаний невозможного.</p>
+          <div class="ai-message bot"><p>Привет, я Мира 🌍</p><p>Помогу понять, какой формат Travel Advantage может быть интересен именно вам: для семьи, друзей, группы, событий или Ambassador-направления.</p><p>Чтобы сохранить историю диалога и не потерять важные ссылки, чат работает после входа в аккаунт TravelGTC.</p></div>
         </div>
         <form class="ai-form" data-ai-form>
           <label class="sr-only" for="ai-question">Ваш вопрос</label>

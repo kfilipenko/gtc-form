@@ -318,6 +318,9 @@ Public working RU document: https://travelgtc.com/assets/docs/MembershipBenefits
 Official EN source: https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf.
 Mira should actively identify needs for Elite / Turbo / Ambassador scenarios, especially family, friends, groups, clients, retreats, yoga, qigong, wellness and community leaders.
 Loyalty Points must be described as travel-value inside the program, not cash. 1 Loyalty Point may correspond to $1 travel-value only where the official booking flow allows redemption; do not invent universal redemption categories.
+Home-page Mira chat now uses /api/travelgtc/v1/account/ai/chat and requires TravelGTC login before sending the first question.
+The widget supports structured Markdown-like rendering, minimize/restore and desktop dragging.
+Production AI chat questions and answers are stored in travelgtc_interactions under an automatically created/reused source_path=ai_chat lead for the authenticated user.
 ```
 
 ## 2. Working Rules
@@ -344,6 +347,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 4.3 | 2026-07-12 | GTC IT / AI Assistant | Recorded authorized movable Mira chat, account AI endpoint and CRM interaction persistence |
 | 4.2 | 2026-07-12 | GTC IT / AI Assistant | Recorded Mira Azure version 10, membership knowledge enrichment, public RU Membership Benefits document and Loyalty Points wording rule |
 | 4.1 | 2026-07-10 | GTC IT / AI Assistant | Recorded favicon package publication and HTML head links |
 | 4.0 | 2026-07-10 | GTC IT / AI Assistant | Recorded post-submit lead-form button change to a return-home action |

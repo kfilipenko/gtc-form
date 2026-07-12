@@ -116,7 +116,7 @@ test.describe('TravelGTC responsive public site', () => {
     await assertNoHorizontalOverflow(overflow.viewportWidth, Math.max(overflow.documentScrollWidth, overflow.bodyScrollWidth));
   });
 
-  test('AI consultant opens and routes next-step questions to the lead form', async ({ page }) => {
+  test('AI consultant opens, minimizes and requires login before saving chat', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
@@ -124,35 +124,38 @@ test.describe('TravelGTC responsive public site', () => {
     await expect(page.locator('[data-ai-panel]')).toBeVisible();
     await expect(page.locator('[data-ai-starter]')).toHaveCount(3);
     await expect(page.locator('[data-ai-voice]')).toBeVisible();
+    await page.locator('[data-ai-minimize]').click();
+    await expect(page.locator('[data-ai-panel]')).not.toBeVisible();
+
+    await page.locator('[data-ai-open]').first().click();
     await page.locator('[data-ai-form] input[name="question"]').fill('Сколько стоит участие и как зарегистрироваться?');
     await page.locator('[data-ai-form]').locator('button[type="submit"]').click();
-    await expect(page.locator('[data-ai-messages]')).toContainText(/официальн|услов|PDF|заявк|TravelGTC/i);
-    await expect(page.locator('[data-ai-lead-link]')).toHaveAttribute('href', '#lead-form');
+    await expect(page.locator('[data-ai-messages]')).toContainText(/сначала войдите или зарегистрируйтесь/i);
+    await expect(page).toHaveURL(/\/auth\/\?mode=register&next=%2F%23ai-consultant/);
   });
 
-  test('Mira starter questions submit purchase-oriented prompts', async ({ page }) => {
+  test('Mira starter questions are needs-discovery prompts and preserve the pending question', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     await page.locator('[data-ai-open]').first().click();
+    await expect(page.locator('[data-ai-starter]').first()).toContainText('Путешествую с семьёй');
     await page.locator('[data-ai-starter]').first().click();
-    await expect(page.locator('[data-ai-messages]')).toContainText('Какой тариф Travel Advantage');
-    await expect(page.locator('[data-ai-messages]')).toContainText(/PDF|Membership|тариф|уровн/i);
+    await expect(page.locator('[data-ai-messages]')).toContainText(/сохранить историю диалога/i);
+    await expect(page).toHaveURL(/\/auth\/\?mode=register&next=%2F%23ai-consultant/);
+    await expect
+      .poll(() => page.evaluate(() => sessionStorage.getItem('travelgtc_ai_pending_question') || ''))
+      .toContain('семьёй');
   });
 
-  test('Mira consultant references official sources and friendly travel-community stories safely', async ({ page }) => {
+  test('Mira welcome copy is friendly and explains authorized chat history', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     await page.locator('[data-ai-open]').first().click();
-    await page.locator('[data-ai-form] input[name="question"]').fill('Где официальные документы и PDF по Membership?');
-    await page.locator('[data-ai-form]').locator('button[type="submit"]').click();
-    await expect(page.locator('[data-ai-messages]')).toContainText('MembershipBenefits-EN.pdf');
-
-    await page.locator('[data-ai-form] input[name="question"]').fill('Расскажи историю про встречи и знакомства в путешествиях');
-    await page.locator('[data-ai-form]').locator('button[type="submit"]').click();
-    await expect(page.locator('[data-ai-messages]')).toContainText(/друз|единомышлен|знаком|встреч/i);
-    await expect(page.locator('[data-ai-messages]')).toContainText(/не обещан|не обещаю|не гарант/i);
+    await expect(page.locator('[data-ai-messages]')).toContainText(/Привет, я Мира/i);
+    await expect(page.locator('[data-ai-messages]')).toContainText(/историю диалога/i);
+    await expect(page.locator('[data-ai-form]')).toBeVisible();
   });
 
   for (const route of publicRoutes) {

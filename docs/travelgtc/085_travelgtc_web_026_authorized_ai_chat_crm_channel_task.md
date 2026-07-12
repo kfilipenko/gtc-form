@@ -3,7 +3,7 @@
 - Project: TravelGTC
 - Code: TRAVELGTC-WEB-026
 - Date: 2026-07-12
-- Status: Draft for Project Owner approval
+- Status: Approved by Project Owner and implemented through WEB-027
 - Depends on: `TRAVELGTC-AI-003`
 
 ## 1. Objective
@@ -184,13 +184,12 @@ The task is complete when:
 
 ## 9. Approval Requirement
 
-This task is not implemented yet.
+This task has been approved by the Project Owner and implemented through `087_travelgtc_web_027_authorized_movable_ai_chat_report.md`.
 
-Before implementation, the Project Owner must approve:
+Approved implementation choices:
 
 1. authorization-before-chat model;
-2. chat history retention scope;
-3. CRM visibility level;
-4. whether anonymous preview questions are allowed before login;
-5. final Mira instruction from `TRAVELGTC-AI-003`.
-
+2. chat history is stored in the TravelGTC user profile and CRM interactions;
+3. CRM visibility uses the existing lead timeline and an automatically created `ai_chat` lead;
+4. anonymous users may open the widget and choose a question, but sending the question requires login/registration;
+5. final Mira instruction is the published Azure version 10 from `TRAVELGTC-AI-004`.

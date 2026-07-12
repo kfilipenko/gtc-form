@@ -134,6 +134,73 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
     }
   });
 
+  app.get('/api/travelgtc/v1/account/ai/chat/history', async (request, reply) => {
+    try {
+      const session = await requireSession(request, config, authStore);
+      if (!crmPool) {
+        return reply.send({ ok: true, messages: [] });
+      }
+
+      const result = await crmPool.query(
+        `select i.created_at::text, i.direction, i.body, i.metadata_json
+         from travelgtc_interactions i
+         join travelgtc_leads l on l.id = i.lead_id
+         where l.user_id = $1::uuid
+           and l.source_path = 'ai_chat'
+           and i.interaction_type = 'ai_chat'
+         order by i.created_at asc
+         limit 80`,
+        [session.user.userId],
+      );
+
+      return reply.send({ ok: true, messages: result.rows });
+    } catch (error) {
+      return sendKnownError(error, request, reply);
+    }
+  });
+
+  app.post('/api/travelgtc/v1/account/ai/chat', async (request, reply) => {
+    try {
+      const session = await requireSession(request, config, authStore);
+      limiter.check(`${request.ip || 'unknown'}:${session.user.userId}:ai-chat`);
+      const question = validateAiQuestion(request.body);
+
+      await authStore.ensureProjectMembership(session.user.userId, 'travelgtc', 'interested');
+      await authStore.ensureProjectRole(session.user.userId, 'travelgtc', 'unsure', 'ai_chat');
+
+      const mode = azureAgent ? 'azure' : 'stub';
+      const answer = azureAgent ? await azureAgent.ask(question) : buildMiraFallbackAnswer(question);
+      let leadId: string | null = null;
+      let historyPersisted = false;
+
+      if (crmPool) {
+        const lead = await ensureAccountAiLead(crmPool, session.user, question);
+        leadId = lead.leadId;
+        await storeAccountAiChatTurn(crmPool, {
+          userId: session.user.userId,
+          leadId: lead.leadId,
+          contactId: lead.contactId,
+          question,
+          answer,
+          mode,
+          agent: config.azureAiAgentName,
+        });
+        historyPersisted = true;
+      }
+
+      return reply.send({
+        ok: true,
+        mode,
+        agent: config.azureAiAgentName,
+        answer,
+        lead_id: leadId,
+        history_persisted: historyPersisted,
+      });
+    } catch (error) {
+      return sendKnownError(error, request, reply);
+    }
+  });
+
   app.post('/api/travelgtc/v1/auth/register', async (request, reply) => {
     try {
       const input = validateRegisterInput(request.body, config);
@@ -514,6 +581,175 @@ function validateAiQuestion(body: unknown): string {
     throw new AuthValidationError({ question: 'Question is too long.' });
   }
   return question;
+}
+
+interface AccountAiLeadRef {
+  leadId: string;
+  contactId: string;
+}
+
+async function ensureAccountAiLead(pool: pg.Pool, user: SessionLookupResult['user'], firstQuestion: string): Promise<AccountAiLeadRef> {
+  const client = await pool.connect();
+  const actor = `ai_chat:${user.userId}`;
+  const primaryChannel = user.primaryChannel === 'phone' && user.phone ? 'phone' : 'email';
+  const primaryContact = primaryChannel === 'phone' ? user.phone || user.email : user.email;
+
+  try {
+    await client.query('begin');
+
+    const existing = await client.query<{ lead_id: string; contact_id: string }>(
+      `select l.id::text as lead_id, l.contact_id::text as contact_id
+       from travelgtc_leads l
+       where l.user_id = $1::uuid
+         and l.source_path = 'ai_chat'
+         and l.primary_interest = 'question'
+       order by l.created_at desc
+       limit 1`,
+      [user.userId],
+    );
+    if (existing.rowCount) {
+      await client.query(
+        `update travelgtc_leads
+         set updated_at = now(),
+             summary = $2,
+             updated_by = $3
+         where id = $1::uuid`,
+        [existing.rows[0].lead_id, aiLeadSummary(firstQuestion), actor],
+      );
+      await client.query('commit');
+      return { leadId: existing.rows[0].lead_id, contactId: existing.rows[0].contact_id };
+    }
+
+    const contact = await client.query<{ contact_id: string }>(
+      `insert into travelgtc_contacts (
+         user_id, display_name, primary_channel, primary_contact, email, phone,
+         consent_personal_data, consent_communication, consent_version, created_by, updated_by
+       ) values ($1::uuid,$2,$3,$4,$5,$6,true,true,'travelgtc-identity-consent-v1',$7,$7)
+       returning id::text as contact_id`,
+      [user.userId, user.displayName || user.email, primaryChannel, primaryContact, user.email, user.phone ?? null, actor],
+    );
+    const contactId = contact.rows[0].contact_id;
+
+    const lead = await client.query<{ lead_id: string }>(
+      `insert into travelgtc_leads (
+         contact_id, user_id, stage, declared_role, inferred_role, primary_interest, business_interest_level,
+         source_channel, source_path, recommended_next_step, summary, compliance_risk, created_by, updated_by
+       ) values ($1::uuid,$2::uuid,$3,'unsure','unsure','question',$4,'site','ai_chat',$5,$6,'none',$7,$7)
+       returning id::text as lead_id`,
+      [
+        contactId,
+        user.userId,
+        aiLeadStage(firstQuestion),
+        aiBusinessInterest(firstQuestion),
+        'Просмотреть историю AI-чата, уточнить потребность и предложить подходящий следующий шаг по Membership / Ambassador.',
+        aiLeadSummary(firstQuestion),
+        actor,
+      ],
+    );
+    const leadId = lead.rows[0].lead_id;
+
+    await client.query(
+      `insert into travelgtc_tasks (
+         lead_id, task_type, title, description, status, priority, created_by, updated_by
+       ) values ($1::uuid,'ai_chat_review','Проверить диалог Миры TravelGTC',$2,'open','normal',$3,$3)`,
+      [leadId, 'Пользователь начал авторизованный AI-чат. Проверьте историю, интерес к Membership и готовность к консультации.', actor],
+    );
+
+    await client.query(
+      `insert into travelgtc_audit_log (
+         entity_type, entity_id, action, actor_type, actor_id, actor_user_id, after_json, created_by, updated_by
+       ) values ('lead',$1::uuid,'ai_chat_lead_created','user',$2::text,$2::uuid,$3,$4,$4)`,
+      [leadId, user.userId, JSON.stringify({ first_question: firstQuestion }), actor],
+    );
+
+    await client.query('commit');
+    return { leadId, contactId };
+  } catch (error) {
+    await client.query('rollback');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+async function storeAccountAiChatTurn(
+  pool: pg.Pool,
+  input: {
+    userId: string;
+    leadId: string;
+    contactId: string;
+    question: string;
+    answer: string;
+    mode: string;
+    agent: string;
+  },
+): Promise<void> {
+  const actor = `ai_chat:${input.userId}`;
+  const stage = aiLeadStage(`${input.question}\n${input.answer}`);
+  const summary = aiLeadSummary(input.question);
+  const client = await pool.connect();
+
+  try {
+    await client.query('begin');
+    await client.query(
+      `insert into travelgtc_interactions (
+         lead_id, contact_id, actor_user_id, interaction_type, channel, direction, body, human_approved, metadata_json,
+         created_by, updated_by
+       ) values ($1::uuid,$2::uuid,$3::uuid,'ai_chat','ai','inbound',$4,null,$5,$6,$6)`,
+      [input.leadId, input.contactId, input.userId, input.question, JSON.stringify({ source: 'account_ai_chat', role: 'user' }), actor],
+    );
+
+    await client.query(
+      `insert into travelgtc_interactions (
+         lead_id, contact_id, actor_user_id, interaction_type, channel, direction, body, human_approved, metadata_json,
+         created_by, updated_by
+       ) values ($1::uuid,$2::uuid,$3::uuid,'ai_chat','ai','outbound',$4,false,$5,$6,$6)`,
+      [
+        input.leadId,
+        input.contactId,
+        input.userId,
+        input.answer,
+        JSON.stringify({ source: 'account_ai_chat', role: 'assistant', mode: input.mode, agent: input.agent }),
+        actor,
+      ],
+    );
+
+    await client.query(
+      `update travelgtc_leads
+       set stage = case when stage in ('closed_won','closed_lost','archived') then stage else $2 end,
+           business_interest_level = case when $2 = 'membership_interest' then 'want_to_understand' else business_interest_level end,
+           summary = $3,
+           updated_at = now(),
+           updated_by = $4
+       where id = $1::uuid`,
+      [input.leadId, stage, summary, actor],
+    );
+    await client.query('commit');
+  } catch (error) {
+    await client.query('rollback');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+function aiLeadStage(text: string): string {
+  return /(membership|тариф|elite|turbo|vip|членств|балл|loyalty|ambassador|амбассад|покуп|подключ|стоим|цена|заработ|доход|групп|клиент|ретрит|йог|цигун)/i.test(
+    text,
+  )
+    ? 'membership_interest'
+    : 'new_lead';
+}
+
+function aiBusinessInterest(text: string): string {
+  return /(ambassador|амбассад|бизнес|заработ|доход|групп|клиент|ретрит|йог|цигун|wellness|сеть|партн)/i.test(text)
+    ? 'want_to_understand'
+    : 'curious_later';
+}
+
+function aiLeadSummary(question: string): string {
+  const compact = question.replace(/\s+/g, ' ').trim();
+  return `AI-чат с Мирой TravelGTC. Последний вопрос: ${compact.slice(0, 220)}`;
 }
 
 async function sendLeadNotification(

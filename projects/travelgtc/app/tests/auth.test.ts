@@ -230,6 +230,45 @@ describe('TravelGTC auth API', () => {
     expect(store.listBundles()).toHaveLength(0);
   });
 
+  test('requires authentication for account AI chat', async () => {
+    const { app } = await makeApp();
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/account/ai/chat',
+      payload: { question: 'Какой тариф подойдёт для семьи?' },
+    });
+    await app.close();
+
+    expect(response.statusCode).toBe(401);
+    expect(response.json().error.code).toBe('auth_required');
+  });
+
+  test('answers account AI chat for authenticated user', async () => {
+    const { app } = await makeApp();
+    const registration = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/auth/register',
+      payload: registerPayload(),
+    });
+    const cookie = setCookieHeader(registration);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/account/ai/chat',
+      headers: { cookie },
+      payload: { question: 'Какой тариф Travel Advantage выбрать для семьи?' },
+    });
+    await app.close();
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({
+      ok: true,
+      mode: 'stub',
+      agent: 'AI-TravelGTC',
+      history_persisted: false,
+    });
+    expect(response.json().answer).toContain('TravelGTC');
+  });
+
   test('creates authenticated TravelGTC lead and project membership from TravelGTC action', async () => {
     const { app, store } = await makeApp();
     const registration = await app.inject({
