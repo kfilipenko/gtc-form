@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 5.3
+- Version: 5.4
 - Date: 2026-07-12
-- Status: Authorized movable AI chat connected to CRM
+- Status: Mira chat layout, CRM history restore and context continuation fixed
 
 ## 1. Purpose
 
@@ -115,6 +115,7 @@ The first stage is intentionally small:
 | `085_travelgtc_web_026_authorized_ai_chat_crm_channel_task.md` | TRAVELGTC-WEB-026 - Authorized AI Chat And CRM Channel Task | Defines the approved authorized AI chat, movable/minimizable widget, structured messages, chat history and CRM timeline integration. | Implemented by WEB-027 |
 | `086_travelgtc_ai_004_membership_knowledge_and_azure_v10_report.md` | TRAVELGTC-AI-004 - Membership Knowledge And Azure Version 10 Report | Fixes Azure agent version 10 publication, membership knowledge enrichment, public RU Membership Benefits document and cleanup of duplicate draft files. | Implemented and published |
 | `087_travelgtc_web_027_authorized_movable_ai_chat_report.md` | TRAVELGTC-WEB-027 - Authorized Movable AI Chat Report | Fixes the authorized movable AI chat widget, structured message rendering, protected account AI endpoint and CRM interaction persistence. | Implemented and published |
+| `088_travelgtc_web_028_mira_chat_layout_history_context_report.md` | TRAVELGTC-WEB-028 - Mira Chat Layout History Context Report | Fixes Mira chat viewport layout, branded header, CRM history restore and context continuation for Azure answers. | Implemented and published |
 
 ## 3. Project Source Locations
 
@@ -148,6 +149,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 5.4 | 2026-07-12 | GTC IT / AI Assistant | Fixed Mira chat viewport layout, branded logo header, CRM history restoration and Azure context continuation |
 | 5.3 | 2026-07-12 | GTC IT / AI Assistant | Implemented authorized movable Mira chat, structured message rendering, protected account AI endpoint and CRM history persistence |
 | 5.2 | 2026-07-12 | GTC IT / AI Assistant | Published Mira Azure version 10, added membership knowledge enrichment, public RU Membership Benefits document and canonical AI-004 report |
 | 5.1 | 2026-07-12 | GTC IT / AI Assistant | Drafted and revised premium membership needs-discovery sales instruction task and authorized AI chat CRM-channel task for approval |

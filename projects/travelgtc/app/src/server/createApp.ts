@@ -18,7 +18,7 @@ import {
   validateRegisterInput,
   validateVerificationTokenInput,
 } from '../modules/auth/validation.js';
-import { AzureFoundryAgentClient } from '../modules/ai/azureFoundryAgent.js';
+import { AzureFoundryAgentClient, type AzureFoundryAgentHistoryTurn } from '../modules/ai/azureFoundryAgent.js';
 import { buildMiraFallbackAnswer } from '../modules/ai/miraFallback.js';
 import {
   createLeadEmailNotificationSender,
@@ -168,18 +168,26 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
       await authStore.ensureProjectMembership(session.user.userId, 'travelgtc', 'interested');
       await authStore.ensureProjectRole(session.user.userId, 'travelgtc', 'unsure', 'ai_chat');
 
-      const mode = azureAgent ? 'azure' : 'stub';
-      const answer = azureAgent ? await azureAgent.ask(question) : buildMiraFallbackAnswer(question);
       let leadId: string | null = null;
+      let contactId: string | null = null;
+      let history: AzureFoundryAgentHistoryTurn[] = [];
       let historyPersisted = false;
 
       if (crmPool) {
         const lead = await ensureAccountAiLead(crmPool, session.user, question);
         leadId = lead.leadId;
+        contactId = lead.contactId;
+        history = await loadAccountAiHistoryForLead(crmPool, lead.leadId);
+      }
+
+      const mode = azureAgent ? 'azure' : 'stub';
+      const answer = azureAgent ? await azureAgent.ask(question, history) : buildMiraFallbackAnswer(question);
+
+      if (crmPool && leadId && contactId) {
         await storeAccountAiChatTurn(crmPool, {
           userId: session.user.userId,
-          leadId: lead.leadId,
-          contactId: lead.contactId,
+          leadId,
+          contactId,
           question,
           answer,
           mode,
@@ -670,6 +678,27 @@ async function ensureAccountAiLead(pool: pg.Pool, user: SessionLookupResult['use
   } finally {
     client.release();
   }
+}
+
+async function loadAccountAiHistoryForLead(pool: pg.Pool, leadId: string): Promise<AzureFoundryAgentHistoryTurn[]> {
+  const result = await pool.query<{ direction: string; body: string }>(
+    `select direction, body
+     from travelgtc_interactions
+     where lead_id = $1::uuid
+       and interaction_type = 'ai_chat'
+       and body is not null
+     order by created_at desc
+     limit 12`,
+    [leadId],
+  );
+
+  return result.rows
+    .reverse()
+    .map((row) => ({
+      role: (row.direction === 'inbound' ? 'user' : 'assistant') as AzureFoundryAgentHistoryTurn['role'],
+      content: row.body,
+    }))
+    .filter((turn) => turn.content && turn.content.trim());
 }
 
 async function storeAccountAiChatTurn(

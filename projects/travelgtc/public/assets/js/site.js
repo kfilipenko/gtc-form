@@ -663,21 +663,28 @@ function initAiConsultant() {
   initAiPendingQuestion(panel, form, messages);
 
   document.querySelectorAll("[data-ai-open]").forEach((trigger) => {
-    trigger.addEventListener("click", (event) => {
+    trigger.addEventListener("click", async (event) => {
       event.preventDefault();
-      openAiPanel(panel, { showAuthGate: true });
+      openAiPanel(panel);
+      await syncAiPanelState(panel);
     });
   });
 
   document.querySelectorAll("[data-ai-close]").forEach((trigger) => {
     trigger.addEventListener("click", () => {
       panel.hidden = true;
+      if (widget) {
+        widget.classList.remove("is-open");
+      }
     });
   });
 
   document.querySelectorAll("[data-ai-minimize]").forEach((trigger) => {
     trigger.addEventListener("click", () => {
       panel.hidden = true;
+      if (widget) {
+        widget.classList.remove("is-open");
+      }
     });
   });
 
@@ -725,6 +732,7 @@ async function initAiPendingQuestion(panel, form, messages) {
 
   window.sessionStorage.removeItem("travelgtc_ai_pending_question");
   openAiPanel(panel);
+  await syncAiPanelState(panel, { forceReload: true });
   const input = form.querySelector('input[name="question"]');
   if (input) {
     input.value = pendingQuestion;
@@ -732,15 +740,31 @@ async function initAiPendingQuestion(panel, form, messages) {
   window.setTimeout(() => form.requestSubmit(), 350);
 }
 
-function openAiPanel(panel, options = {}) {
+function openAiPanel(panel) {
   panel.hidden = false;
-  if (options.showAuthGate) {
-    showAiAuthGateIfNeeded(panel);
+  const widget = panel.closest("[data-ai-widget]");
+  if (widget) {
+    widget.classList.add("is-open");
+    window.setTimeout(() => constrainAiWidgetInViewport(widget), 30);
   }
   const input = panel.querySelector('input[name="question"]');
   if (input) {
     window.setTimeout(() => input.focus(), 80);
   }
+}
+
+async function syncAiPanelState(panel, options = {}) {
+  const messages = panel.querySelector("[data-ai-messages]");
+  if (!messages) {
+    return;
+  }
+  const state = await loadCurrentAuthState();
+  if (!state.authenticated) {
+    showAiAuthGate(panel, messages);
+    return;
+  }
+  removeAiAuthGate(messages);
+  await loadAiChatHistory(panel, state.user, { forceReload: Boolean(options.forceReload) });
 }
 
 function appendAiMessage(messages, text, type, options = {}) {
@@ -773,17 +797,6 @@ async function ensureAuthenticatedForAiChat(question, panel, messages) {
   return false;
 }
 
-async function showAiAuthGateIfNeeded(panel) {
-  const state = await loadCurrentAuthState();
-  if (state.authenticated) {
-    return;
-  }
-  const messages = panel.querySelector("[data-ai-messages]");
-  if (messages) {
-    showAiAuthGate(panel, messages);
-  }
-}
-
 function showAiAuthGate(panel, messages) {
   if (messages.querySelector("[data-ai-auth-gate]")) {
     return;
@@ -810,6 +823,43 @@ function buildAiAuthUrl() {
   return `/auth/?mode=register&next=${encodeURIComponent(next)}`;
 }
 
+async function loadAiChatHistory(panel, user, options = {}) {
+  const messages = panel.querySelector("[data-ai-messages]");
+  if (!messages || (panel.dataset.aiHistoryLoaded === "true" && !options.forceReload)) {
+    return;
+  }
+
+  try {
+    const body = await requestApi("/api/travelgtc/v1/account/ai/chat/history", { method: "GET" });
+    const history = Array.isArray(body.messages) ? body.messages : [];
+    panel.dataset.aiHistoryLoaded = "true";
+    if (!history.length) {
+      return;
+    }
+
+    messages.innerHTML = "";
+    appendAiMessage(
+      messages,
+      buildAiReturnGreeting(user, history.length),
+      "bot",
+    );
+    history.forEach((item) => {
+      appendAiMessage(messages, item.body || "", item.direction === "inbound" ? "user" : "bot", {
+        markdown: item.direction !== "inbound",
+      });
+    });
+    messages.scrollTop = messages.scrollHeight;
+  } catch (error) {
+    panel.dataset.aiHistoryLoaded = "false";
+  }
+}
+
+function buildAiReturnGreeting(user, turnCount) {
+  const name = user && user.displayName ? user.displayName.split(/\s+/)[0] : "";
+  const greetingName = name ? `, ${name}` : "";
+  return `С возвращением${greetingName} 🌍\n\nПродолжаем наш разговор с Мирой TravelGTC: я подняла историю из CRM, чтобы не начинать заново. В диалоге уже ${turnCount} сохранённых реплик, поэтому следующий ответ будет учитывать ваш предыдущий интерес.`;
+}
+
 async function askAiQuestion(form, messages, question, submitButton) {
   appendAiMessage(messages, question, "user", { markdown: false });
   form.reset();
@@ -822,6 +872,10 @@ async function askAiQuestion(form, messages, question, submitButton) {
       body: JSON.stringify({ question }),
     });
     renderAiMarkdown(pending, body.answer || buildAiStubAnswer(question));
+    const panel = form.closest("[data-ai-panel]");
+    if (panel) {
+      panel.dataset.aiHistoryLoaded = "true";
+    }
   } catch (error) {
     if (error.message && error.message.includes("auth_required")) {
       window.sessionStorage.setItem("travelgtc_ai_pending_question", question);
@@ -993,6 +1047,40 @@ function initAiPanelDrag(widget, panel) {
     );
     handle.releasePointerCapture(event.pointerId);
   });
+}
+
+function constrainAiWidgetInViewport(widget) {
+  if (!widget || window.matchMedia("(max-width: 760px)").matches) {
+    return;
+  }
+  const rect = widget.getBoundingClientRect();
+  const margin = 12;
+  let nextLeft = rect.left;
+  let nextTop = rect.top;
+
+  if (rect.right > window.innerWidth - margin) {
+    nextLeft = Math.max(margin, window.innerWidth - rect.width - margin);
+  }
+  if (rect.left < margin) {
+    nextLeft = margin;
+  }
+  if (rect.bottom > window.innerHeight - margin) {
+    nextTop = Math.max(margin, window.innerHeight - rect.height - margin);
+  }
+  if (rect.top < margin) {
+    nextTop = margin;
+  }
+
+  if (Math.round(nextLeft) !== Math.round(rect.left) || Math.round(nextTop) !== Math.round(rect.top)) {
+    widget.style.left = `${nextLeft}px`;
+    widget.style.top = `${nextTop}px`;
+    widget.style.right = "auto";
+    widget.style.bottom = "auto";
+    window.localStorage.setItem(
+      "travelgtc_ai_widget_position",
+      JSON.stringify({ left: Math.round(nextLeft), top: Math.round(nextTop) }),
+    );
+  }
 }
 
 function initAiVoiceInput(form) {

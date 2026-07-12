@@ -8,6 +8,11 @@ export interface AzureFoundryAgentOptions {
   agentVersion: string;
 }
 
+export interface AzureFoundryAgentHistoryTurn {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export class AzureFoundryAgentClient {
   private readonly project: AIProjectClient;
   private readonly agentName: string;
@@ -19,8 +24,8 @@ export class AzureFoundryAgentClient {
     this.agentVersion = options.agentVersion;
   }
 
-  async ask(question: string): Promise<string> {
-    const enrichedQuestion = buildMembershipKnowledgeContext(question);
+  async ask(question: string, history: AzureFoundryAgentHistoryTurn[] = []): Promise<string> {
+    const enrichedQuestion = buildMembershipKnowledgeContext(buildContextualQuestion(question, history));
     const openAIClient = this.project.getOpenAIClient();
     const response = await openAIClient.responses.create(
       {
@@ -43,6 +48,32 @@ export class AzureFoundryAgentClient {
     }
     return applyMiraAnswerGuard(question, attachMembershipDocumentLink(question, text));
   }
+}
+
+function buildContextualQuestion(question: string, history: AzureFoundryAgentHistoryTurn[]): string {
+  const cleanHistory = history
+    .map((turn) => ({
+      role: turn.role,
+      content: turn.content.replace(/\s+/g, ' ').trim(),
+    }))
+    .filter((turn) => turn.content)
+    .slice(-12);
+
+  if (!cleanHistory.length) {
+    return question;
+  }
+
+  const transcript = cleanHistory.map((turn) => `${turn.role === 'user' ? 'Пользователь' : 'Мира'}: ${turn.content}`).join('\n');
+  return [
+    'Контекст CRM TravelGTC: это продолжение уже начатого авторизованного диалога с пользователем.',
+    'Учитывай историю ниже, приветствуй пользователя как вернувшегося собеседника и не начинай разговор с нуля.',
+    'Продолжай мягкую продажу через выявление потребностей: семья, друзья, группы, клиенты, события, Elite, Turbo add-on, Ambassador.',
+    '',
+    'История диалога:',
+    transcript,
+    '',
+    `Новый вопрос пользователя: ${question}`,
+  ].join('\n');
 }
 
 function applyMiraAnswerGuard(question: string, answer: string): string {

@@ -5,8 +5,8 @@
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Version: 4.4
-- Date: 2026-07-11
-- Status: Active, Mira TravelGTC AI consultant instruction added
+- Date: 2026-07-12
+- Status: Active, Mira chat restores CRM history and continues the authorized funnel dialogue
 
 ## 1. Current State
 
@@ -321,6 +321,8 @@ Loyalty Points must be described as travel-value inside the program, not cash. 1
 Home-page Mira chat now uses /api/travelgtc/v1/account/ai/chat and requires TravelGTC login before sending the first question.
 The widget supports structured Markdown-like rendering, minimize/restore and desktop dragging.
 Production AI chat questions and answers are stored in travelgtc_interactions under an automatically created/reused source_path=ai_chat lead for the authenticated user.
+When an authenticated user reopens the widget, the frontend loads saved CRM chat history from /api/travelgtc/v1/account/ai/chat/history.
+Before Azure answers a new account chat question, the backend passes the latest saved CRM turns as continuation context so Mira does not start a new dialogue.
 ```
 
 ## 2. Working Rules
@@ -347,6 +349,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 4.4 | 2026-07-12 | GTC IT / AI Assistant | Recorded Mira chat branded header, viewport correction, CRM history restore and Azure context continuation |
 | 4.3 | 2026-07-12 | GTC IT / AI Assistant | Recorded authorized movable Mira chat, account AI endpoint and CRM interaction persistence |
 | 4.2 | 2026-07-12 | GTC IT / AI Assistant | Recorded Mira Azure version 10, membership knowledge enrichment, public RU Membership Benefits document and Loyalty Points wording rule |
 | 4.1 | 2026-07-10 | GTC IT / AI Assistant | Recorded favicon package publication and HTML head links |

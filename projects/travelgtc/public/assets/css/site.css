@@ -880,12 +880,17 @@ h3 {
   pointer-events: auto;
 }
 
+.ai-widget.is-open .ai-float {
+  display: none;
+}
+
 .ai-panel {
   position: relative;
   display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
   width: 100%;
   margin-bottom: 12px;
-  max-height: min(620px, calc(100vh - 110px));
+  max-height: min(680px, calc(100dvh - 48px));
   overflow: hidden;
   border: 1px solid rgba(0, 199, 217, 0.24);
   border-radius: 20px;
@@ -895,11 +900,11 @@ h3 {
 }
 
 .ai-panel-head {
-  display: flex;
+  display: grid;
   align-items: center;
   grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 12px;
-  padding: 16px;
+  padding: 14px 16px;
   background: var(--navy);
   color: var(--white);
   cursor: grab;
@@ -910,28 +915,40 @@ h3 {
   cursor: grabbing;
 }
 
-.ai-avatar {
-  width: 54px;
-  height: 54px;
+.ai-logo {
+  width: 118px;
+  height: 52px;
   flex: 0 0 auto;
-  border-radius: 18px;
-  object-fit: cover;
+  border-radius: 14px;
+  object-fit: contain;
   background: rgba(255, 255, 255, 0.08);
   box-shadow: 0 0 0 1px rgba(0, 199, 217, 0.18);
 }
 
-.ai-panel-head strong,
-.ai-panel-head span {
+.ai-panel-title {
+  min-width: 0;
+}
+
+.ai-panel-title strong,
+.ai-panel-title span {
   display: block;
 }
 
-.ai-panel-head strong {
+.ai-panel-title strong {
   font-size: 0.98rem;
+  line-height: 1.14;
 }
 
-.ai-panel-head span {
+.ai-panel-title span {
   color: rgba(255, 255, 255, 0.66);
   font-size: 0.72rem;
+  line-height: 1.25;
+}
+
+.ai-panel-actions {
+  display: flex;
+  gap: 8px;
+  justify-self: end;
 }
 
 .ai-panel-head button {
@@ -944,10 +961,6 @@ h3 {
   font: inherit;
   font-size: 1.1rem;
   cursor: pointer;
-}
-
-.ai-panel-head div + button {
-  margin-left: auto;
 }
 
 .ai-starters {
@@ -981,10 +994,11 @@ h3 {
 .ai-messages {
   display: grid;
   gap: 10px;
-  max-height: 340px;
+  min-height: 128px;
   overflow: auto;
   padding: 16px;
   background: var(--mist);
+  align-content: start;
 }
 
 .ai-message {
@@ -1050,6 +1064,7 @@ h3 {
   gap: 8px;
   padding: 12px;
   background: var(--white);
+  border-top: 1px solid rgba(6, 26, 40, 0.06);
 }
 
 .ai-form input {
@@ -2524,7 +2539,7 @@ button:disabled {
   }
 
   .ai-panel {
-    max-height: calc(100vh - 104px);
+    max-height: calc(100dvh - 28px);
   }
 
   .ai-messages {

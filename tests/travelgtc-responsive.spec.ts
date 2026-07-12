@@ -73,7 +73,7 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('.ai-section')).toBeVisible();
       await expect(page.locator('#ai-consultant').getByText('Мира TravelGTC')).toBeVisible();
       await expect(page.locator('[data-ai-widget]')).toBeVisible();
-      await expect(page.locator('[data-ai-widget] .ai-avatar')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
+      await expect(page.locator('[data-ai-widget] .ai-logo')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
       await expect(page.locator('[data-ai-starter]')).toHaveCount(3);
       await expect(page.locator('[data-ai-voice]')).toHaveCount(1);
       await expect(page.getByText('TravelGTC является партнёрской информационной страницей')).toBeVisible();
@@ -124,6 +124,9 @@ test.describe('TravelGTC responsive public site', () => {
     await expect(page.locator('[data-ai-panel]')).toBeVisible();
     await expect(page.locator('[data-ai-starter]')).toHaveCount(3);
     await expect(page.locator('[data-ai-voice]')).toBeVisible();
+    const formBox = await page.locator('[data-ai-form]').boundingBox();
+    expect(formBox).toBeTruthy();
+    expect(formBox ? formBox.y + formBox.height : 0).toBeLessThanOrEqual(900);
     await page.locator('[data-ai-minimize]').click();
     await expect(page.locator('[data-ai-panel]')).not.toBeVisible();
 
