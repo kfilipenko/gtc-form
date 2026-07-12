@@ -306,6 +306,20 @@ TravelGTC responsive tests: tests/travelgtc-responsive.spec.ts
 Generated screenshots are written to projects/travelgtc/test-artifacts/screenshots/ and ignored by git.
 ```
 
+AI consultant state:
+
+```text
+Mira TravelGTC is published in Azure Foundry as AI-TravelGTC version 10.
+Runtime variable TRAVELGTC_AZURE_AI_AGENT_VERSION must remain 10 unless a newer approved version is published.
+Canonical instruction: docs/travelgtc/080_travelgtc_ai_001_mira_consultant_instruction.md.
+AI-004 report: docs/travelgtc/086_travelgtc_ai_004_membership_knowledge_and_azure_v10_report.md.
+Membership knowledge enrichment lives in projects/travelgtc/app/src/modules/ai/membershipKnowledge.ts.
+Public working RU document: https://travelgtc.com/assets/docs/MembershipBenefits-RU.pdf.
+Official EN source: https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf.
+Mira should actively identify needs for Elite / Turbo / Ambassador scenarios, especially family, friends, groups, clients, retreats, yoga, qigong, wellness and community leaders.
+Loyalty Points must be described as travel-value inside the program, not cash. 1 Loyalty Point may correspond to $1 travel-value only where the official booking flow allows redemption; do not invent universal redemption categories.
+```
+
 ## 2. Working Rules
 
 1. Start each new TravelGTC task by reading this memory document and `docs/travelgtc/00_documentation_register.md`.
@@ -330,6 +344,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 4.2 | 2026-07-12 | GTC IT / AI Assistant | Recorded Mira Azure version 10, membership knowledge enrichment, public RU Membership Benefits document and Loyalty Points wording rule |
 | 4.1 | 2026-07-10 | GTC IT / AI Assistant | Recorded favicon package publication and HTML head links |
 | 4.0 | 2026-07-10 | GTC IT / AI Assistant | Recorded post-submit lead-form button change to a return-home action |
 | 3.9 | 2026-07-10 | GTC IT / AI Assistant | Recorded approved TravelGTC logo usage in public headers and removal of the separate header subtitle |

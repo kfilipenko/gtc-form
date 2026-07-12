@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 5.1
+- Version: 5.2
 - Date: 2026-07-12
-- Status: Premium membership needs-discovery sales task revised
+- Status: Mira Azure version 10 and membership knowledge base published
 
 ## 1. Purpose
 
@@ -111,8 +111,9 @@ The first stage is intentionally small:
 | `081_travelgtc_crm_001_team_access_and_lead_workspace_report.md` | TRAVELGTC-CRM-001 - Team Access And Lead Workspace Report | Fixes project-local CRM team access, `/crm/` workspace, team role assignment and current lead-processing API routes. | Implemented |
 | `082_travelgtc_crm_002_email_notifications_task.md` | TRAVELGTC-CRM-002 - Lead Email Notifications | Fixes SMTP-based lead notification behavior and runtime configuration for sending new lead emails to `kfilipenko@kmf.ru`. | Implemented and production-enabled |
 | `083_travelgtc_ai_002_sales_agent_chat_widget_report.md` | TRAVELGTC-AI-002 - Sales Agent And Public Chat Widget Report | Fixes Azure agent version 8, sales-oriented Mira behavior, chat starter questions, branded avatar, voice input and backend safety guard. | Implemented and published |
-| `084_travelgtc_ai_003_premium_membership_sales_instruction_task.md` | TRAVELGTC-AI-003 - Premium Membership Sales Instruction Task | Defines the proposed ELITE-first needs-discovery Mira sales instruction, official-source boundaries, tariff qualification questions and approval gate. | Draft for Project Owner approval |
+| `084_travelgtc_ai_003_premium_membership_sales_instruction_task.md` | TRAVELGTC-AI-003 - Premium Membership Sales Instruction Task | Defines the approved ELITE-first needs-discovery Mira sales instruction, official-source boundaries, tariff qualification questions and approval gate. | Approved and published |
 | `085_travelgtc_web_026_authorized_ai_chat_crm_channel_task.md` | TRAVELGTC-WEB-026 - Authorized AI Chat And CRM Channel Task | Defines the proposed authorized AI chat, movable/minimizable widget, structured messages, chat history and CRM timeline integration. | Draft for Project Owner approval |
+| `086_travelgtc_ai_004_membership_knowledge_and_azure_v10_report.md` | TRAVELGTC-AI-004 - Membership Knowledge And Azure Version 10 Report | Fixes Azure agent version 10 publication, membership knowledge enrichment, public RU Membership Benefits document and cleanup of duplicate draft files. | Implemented and published |
 
 ## 3. Project Source Locations
 
@@ -129,7 +130,7 @@ The first stage is intentionally small:
 | Public legal pages | `projects/travelgtc/public/legal/` | Privacy, terms and partner-model disclosure pages. |
 | Image inbox | `projects/travelgtc/public/assets/images/inbox/` | Place raw source images here for review and later processing. |
 | Processed images | `projects/travelgtc/public/assets/images/processed/` | Place optimized and approved web images here. |
-| Public documents | `projects/travelgtc/public/legal/` | Future public policies, conditions or documents for the site. |
+| Public documents | `projects/travelgtc/public/assets/docs/` | Public PDFs and working documents referenced by the site and AI consultant. |
 | Project-local design draft | `projects/travelgtc/docs/travelgtc/` | Project Owner design drafts before canonical fixation in `docs/travelgtc/`. |
 
 ## 4. Standards Applied
@@ -146,6 +147,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 5.2 | 2026-07-12 | GTC IT / AI Assistant | Published Mira Azure version 10, added membership knowledge enrichment, public RU Membership Benefits document and canonical AI-004 report |
 | 5.1 | 2026-07-12 | GTC IT / AI Assistant | Drafted and revised premium membership needs-discovery sales instruction task and authorized AI chat CRM-channel task for approval |
 | 5.0 | 2026-07-11 | GTC IT / AI Assistant | Published sales-oriented Mira TravelGTC agent version 8 with public chat starter questions, branded avatar, voice input and backend safety guard |
 | 4.9 | 2026-07-11 | GTC IT / AI Assistant | Localized CRM intake next-step prompts, task titles, operator questions and existing stored records to Russian |

@@ -3,7 +3,7 @@
 - Project: TravelGTC
 - Code: TRAVELGTC-AI-003
 - Date: 2026-07-12
-- Status: Draft for Project Owner approval, revised after Project Owner sales-method clarification
+- Status: Approved by Project Owner and published through Azure version 10
 - Applies to: `AI-TravelGTC` / Mira TravelGTC
 
 ## 1. Objective
