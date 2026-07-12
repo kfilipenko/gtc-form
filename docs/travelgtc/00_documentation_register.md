@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 5.0
-- Date: 2026-07-11
-- Status: Sales-oriented AI consultant and public chat widget published
+- Version: 5.1
+- Date: 2026-07-12
+- Status: Authorized AI chat and premium membership sales tasks drafted
 
 ## 1. Purpose
 
@@ -111,6 +111,8 @@ The first stage is intentionally small:
 | `081_travelgtc_crm_001_team_access_and_lead_workspace_report.md` | TRAVELGTC-CRM-001 - Team Access And Lead Workspace Report | Fixes project-local CRM team access, `/crm/` workspace, team role assignment and current lead-processing API routes. | Implemented |
 | `082_travelgtc_crm_002_email_notifications_task.md` | TRAVELGTC-CRM-002 - Lead Email Notifications | Fixes SMTP-based lead notification behavior and runtime configuration for sending new lead emails to `kfilipenko@kmf.ru`. | Implemented and production-enabled |
 | `083_travelgtc_ai_002_sales_agent_chat_widget_report.md` | TRAVELGTC-AI-002 - Sales Agent And Public Chat Widget Report | Fixes Azure agent version 8, sales-oriented Mira behavior, chat starter questions, branded avatar, voice input and backend safety guard. | Implemented and published |
+| `084_travelgtc_ai_003_premium_membership_sales_instruction_task.md` | TRAVELGTC-AI-003 - Premium Membership Sales Instruction Task | Defines the proposed premium-first Mira sales instruction, official-source boundaries, tariff qualification questions and approval gate. | Draft for Project Owner approval |
+| `085_travelgtc_web_026_authorized_ai_chat_crm_channel_task.md` | TRAVELGTC-WEB-026 - Authorized AI Chat And CRM Channel Task | Defines the proposed authorized AI chat, movable/minimizable widget, structured messages, chat history and CRM timeline integration. | Draft for Project Owner approval |
 
 ## 3. Project Source Locations
 
@@ -144,6 +146,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 5.1 | 2026-07-12 | GTC IT / AI Assistant | Drafted premium membership sales instruction task and authorized AI chat CRM-channel task for approval |
 | 5.0 | 2026-07-11 | GTC IT / AI Assistant | Published sales-oriented Mira TravelGTC agent version 8 with public chat starter questions, branded avatar, voice input and backend safety guard |
 | 4.9 | 2026-07-11 | GTC IT / AI Assistant | Localized CRM intake next-step prompts, task titles, operator questions and existing stored records to Russian |
 | 4.8 | 2026-07-11 | GTC IT / AI Assistant | Enabled TravelGTC production lead email notifications through existing server SMTP settings and verified delivery mode |
