@@ -17,6 +17,7 @@ const baseConfig: TravelGtcConfig = {
   aiChatMode: 'stub',
   azureAiAgentName: 'AI-TravelGTC',
   azureAiAgentVersion: '5',
+  referralRegistrationUrl: 'https://www.mwrlife.com/KFilip909',
   emailNotificationMode: 'disabled',
   leadNotificationTo: 'kfilipenko@kmf.ru',
   leadNotificationFrom: 'TravelGTC <no-reply@travelgtc.com>',
@@ -265,8 +266,34 @@ describe('TravelGTC auth API', () => {
       mode: 'stub',
       agent: 'AI-TravelGTC',
       history_persisted: false,
+      purchase_intent: false,
     });
     expect(response.json().answer).toContain('TravelGTC');
+  });
+
+  test('returns referral registration link for account AI purchase intent', async () => {
+    const { app } = await makeApp();
+    const registration = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/auth/register',
+      payload: registerPayload(),
+    });
+    const cookie = setCookieHeader(registration);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/account/ai/chat',
+      headers: { cookie },
+      payload: { question: 'Хочу подписаться и получить ссылку для регистрации.' },
+    });
+    await app.close();
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({
+      ok: true,
+      purchase_intent: true,
+      referral_registration_url: 'https://www.mwrlife.com/KFilip909',
+    });
+    expect(response.json().answer).toContain('https://www.mwrlife.com/KFilip909');
   });
 
   test('creates authenticated TravelGTC lead and project membership from TravelGTC action', async () => {

@@ -16,6 +16,7 @@ const baseConfig: TravelGtcConfig = {
   aiChatMode: 'stub',
   azureAiAgentName: 'AI-TravelGTC',
   azureAiAgentVersion: '5',
+  referralRegistrationUrl: 'https://www.mwrlife.com/KFilip909',
   emailNotificationMode: 'disabled',
   leadNotificationTo: 'kfilipenko@kmf.ru',
   leadNotificationFrom: 'TravelGTC <no-reply@travelgtc.com>',

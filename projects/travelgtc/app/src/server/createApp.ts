@@ -180,8 +180,10 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
         history = await loadAccountAiHistoryForLead(crmPool, lead.leadId);
       }
 
+      const purchaseIntent = isPurchaseIntent(question);
       const mode = azureAgent ? 'azure' : 'stub';
-      const answer = azureAgent ? await azureAgent.ask(question, history) : buildMiraFallbackAnswer(question);
+      const rawAnswer = azureAgent ? await azureAgent.ask(question, history) : buildMiraFallbackAnswer(question);
+      const answer = applyPurchaseIntentAnswerSuffix(rawAnswer, purchaseIntent, config.referralRegistrationUrl);
 
       if (crmPool && leadId && contactId) {
         await storeAccountAiChatTurn(crmPool, {
@@ -193,6 +195,29 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
           mode,
           agent: config.azureAiAgentName,
         });
+        if (purchaseIntent) {
+          await markAiPurchaseIntent(crmPool, {
+            userId: session.user.userId,
+            leadId,
+            contactId,
+            question,
+            answer,
+            referralRegistrationUrl: config.referralRegistrationUrl,
+          });
+          await sendAiPurchaseIntentNotification(
+            leadEmailNotifications,
+            {
+              leadId,
+              displayName: session.user.displayName || session.user.email,
+              email: session.user.email,
+              phone: session.user.phone,
+              question,
+              answer,
+              referralRegistrationUrl: config.referralRegistrationUrl,
+            },
+            request,
+          );
+        }
         historyPersisted = true;
       }
 
@@ -203,6 +228,8 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
         answer,
         lead_id: leadId,
         history_persisted: historyPersisted,
+        purchase_intent: purchaseIntent,
+        referral_registration_url: purchaseIntent ? config.referralRegistrationUrl : null,
       });
     } catch (error) {
       return sendKnownError(error, request, reply);
@@ -763,6 +790,9 @@ async function storeAccountAiChatTurn(
 }
 
 function aiLeadStage(text: string): string {
+  if (isPurchaseIntent(text)) {
+    return 'ready_to_subscribe';
+  }
   return /(membership|тариф|elite|turbo|vip|членств|балл|loyalty|ambassador|амбассад|покуп|подключ|стоим|цена|заработ|доход|групп|клиент|ретрит|йог|цигун)/i.test(
     text,
   )
@@ -781,6 +811,107 @@ function aiLeadSummary(question: string): string {
   return `AI-чат с Мирой TravelGTC. Последний вопрос: ${compact.slice(0, 220)}`;
 }
 
+interface AiPurchaseIntentInput {
+  userId: string;
+  leadId: string;
+  contactId: string;
+  question: string;
+  answer: string;
+  referralRegistrationUrl: string;
+}
+
+async function markAiPurchaseIntent(pool: pg.Pool, input: AiPurchaseIntentInput): Promise<void> {
+  const actor = `ai_chat:${input.userId}`;
+  const nextStep = [
+    'Горячий лид хочет подписаться.',
+    'Проверить страну пользователя, актуальность условий, роль Member/Ambassador и при необходимости направить официальную referral-ссылку.',
+    `Referral link: ${input.referralRegistrationUrl}`,
+  ].join(' ');
+  const client = await pool.connect();
+
+  try {
+    await client.query('begin');
+    await client.query(
+      `update travelgtc_leads
+       set stage = case when stage in ('closed_won','closed_lost','archived') then stage else 'ready_to_subscribe' end,
+           business_interest_level = case when business_interest_level = 'none' then 'ready_to_discuss' else business_interest_level end,
+           recommended_next_step = $2,
+           summary = $3,
+           updated_at = now(),
+           updated_by = $4
+       where id = $1::uuid`,
+      [
+        input.leadId,
+        nextStep,
+        `AI-чат: пользователь выразил готовность подписаться. Последний запрос: ${input.question.replace(/\s+/g, ' ').trim().slice(0, 180)}`,
+        actor,
+      ],
+    );
+
+    await client.query(
+      `insert into travelgtc_tasks (
+         lead_id, task_type, title, description, status, priority, created_by, updated_by
+       )
+       select $1::uuid,'purchase_intent','Горячий лид хочет подписаться',$2,'open','high',$3,$3
+       where not exists (
+         select 1 from travelgtc_tasks
+         where lead_id = $1::uuid
+           and task_type = 'purchase_intent'
+           and status in ('open','in_progress')
+       )`,
+      [input.leadId, nextStep, actor],
+    );
+
+    await client.query(
+      `insert into travelgtc_interactions (
+         lead_id, contact_id, actor_user_id, interaction_type, channel, direction, body,
+         human_approved, metadata_json, created_by, updated_by
+       ) values ($1::uuid,$2::uuid,$3::uuid,'purchase_intent','ai','internal',$4,false,$5,$6,$6)`,
+      [
+        input.leadId,
+        input.contactId,
+        input.userId,
+        `Пользователь выразил готовность подписаться. Referral link: ${input.referralRegistrationUrl}`,
+        JSON.stringify({ source: 'account_ai_chat', referral_registration_url: input.referralRegistrationUrl }),
+        actor,
+      ],
+    );
+
+    await client.query('commit');
+  } catch (error) {
+    await client.query('rollback');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+function isPurchaseIntent(text: string): boolean {
+  const compact = text.replace(/\s+/g, ' ').trim();
+  return (
+    /(хочу|готов|готова|готовы|давайте|могу|можно|нужно|пора)[^.!?\n]{0,80}(подпис\w*|оформ\w*|оплат\w*|куп\w*|зарегистр\w*|регистрац\w*|вступ\w*|присоедин\w*|стать участ\w*|получить ссыл\w*|ссылк\w*)/i.test(compact) ||
+    /(дайте|пришлите|отправьте|покажите|нужна|нужен)[^.!?\n]{0,80}(ссылк\w*|регистрац\w*|оплат\w*|подпис\w*|оформ\w*)/i.test(compact) ||
+    /(как|где)[^.!?\n]{0,80}(оплатить|оформить|зарегистрироваться|подписаться|купить|вступить|присоединиться)/i.test(compact) ||
+    /\b(sign\s*up|subscribe|join|registration|buy|pay|payment|send.*link|referral\s*link)\b/i.test(compact)
+  );
+}
+
+function applyPurchaseIntentAnswerSuffix(answer: string, purchaseIntent: boolean, referralRegistrationUrl: string): string {
+  if (!purchaseIntent || answer.includes(referralRegistrationUrl)) {
+    return answer;
+  }
+  return [
+    answer.trim(),
+    '',
+    '### Готовность к регистрации',
+    'Отлично, я вижу готовность перейти к следующему шагу. Перед оплатой всё равно проверьте страну, актуальный уровень Membership и официальные условия регистрации.',
+    '',
+    `Официальная партнёрская ссылка TravelGTC для самостоятельной регистрации: [${referralRegistrationUrl}](${referralRegistrationUrl})`,
+    '',
+    'Я также зафиксировала этот запрос в CRM как горячий интерес к подписке, чтобы партнёр TravelGTC мог помочь с проверкой условий.',
+  ].join('\n');
+}
+
 async function sendLeadNotification(
   sender: LeadEmailNotificationSender,
   submission: PublicLeadSubmission,
@@ -791,6 +922,18 @@ async function sendLeadNotification(
     await sender.sendLeadCreated(submission, result);
   } catch (error) {
     request.log.error({ err: error, lead_id: result.leadId }, 'TravelGTC lead email notification failed');
+  }
+}
+
+async function sendAiPurchaseIntentNotification(
+  sender: LeadEmailNotificationSender,
+  input: Parameters<LeadEmailNotificationSender['sendAiPurchaseIntent']>[0],
+  request: FastifyRequest,
+): Promise<void> {
+  try {
+    await sender.sendAiPurchaseIntent(input);
+  } catch (error) {
+    request.log.error({ err: error, lead_id: input.leadId }, 'TravelGTC AI purchase intent email notification failed');
   }
 }
 
@@ -863,7 +1006,15 @@ function crmLeadIdParam(params: unknown): string {
 function crmStageFromBody(body: unknown): string {
   const input = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
   const stage = typeof input.stage === 'string' ? input.stage.trim() : '';
-  const allowed = ['new_lead', 'in_consultation', 'membership_interest', 'closed_won', 'closed_lost', 'archived'];
+  const allowed = [
+    'new_lead',
+    'in_consultation',
+    'membership_interest',
+    'ready_to_subscribe',
+    'closed_won',
+    'closed_lost',
+    'archived',
+  ];
   if (!allowed.includes(stage)) {
     throw new AuthValidationError({ stage: 'Invalid CRM stage.' });
   }

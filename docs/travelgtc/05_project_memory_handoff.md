@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 4.4
+- Version: 4.5
 - Date: 2026-07-12
-- Status: Active, Mira chat restores CRM history and continues the authorized funnel dialogue
+- Status: Active, Mira purchase-intent referral flow is enabled
 
 ## 1. Current State
 
@@ -323,6 +323,8 @@ The widget supports structured Markdown-like rendering, minimize/restore and des
 Production AI chat questions and answers are stored in travelgtc_interactions under an automatically created/reused source_path=ai_chat lead for the authenticated user.
 When an authenticated user reopens the widget, the frontend loads saved CRM chat history from /api/travelgtc/v1/account/ai/chat/history.
 Before Azure answers a new account chat question, the backend passes the latest saved CRM turns as continuation context so Mira does not start a new dialogue.
+Official TravelGTC referral registration link currently configured by default: https://www.mwrlife.com/KFilip909.
+If a user writes that they want to subscribe/register/pay/join/get the link, the account AI chat marks purchase_intent=true, appends the referral link, raises the CRM lead to ready_to_subscribe, creates a high-priority purchase_intent task and sends an email notification.
 ```
 
 ## 2. Working Rules
@@ -349,6 +351,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 4.5 | 2026-07-12 | GTC IT / AI Assistant | Recorded official referral URL and Mira purchase-intent flow with ready_to_subscribe CRM stage |
 | 4.4 | 2026-07-12 | GTC IT / AI Assistant | Recorded Mira chat branded header, viewport correction, CRM history restore and Azure context continuation |
 | 4.3 | 2026-07-12 | GTC IT / AI Assistant | Recorded authorized movable Mira chat, account AI endpoint and CRM interaction persistence |
 | 4.2 | 2026-07-12 | GTC IT / AI Assistant | Recorded Mira Azure version 10, membership knowledge enrichment, public RU Membership Benefits document and Loyalty Points wording rule |

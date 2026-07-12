@@ -19,6 +19,7 @@ export interface TravelGtcConfig {
   azureAiProjectEndpoint?: string;
   azureAiAgentName: string;
   azureAiAgentVersion: string;
+  referralRegistrationUrl: string;
   emailNotificationMode: TravelGtcEmailNotificationMode;
   leadNotificationTo: string;
   leadNotificationFrom: string;
@@ -68,6 +69,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): TravelGtcConfi
     azureAiProjectEndpoint: env.TRAVELGTC_AZURE_AI_PROJECT_ENDPOINT || undefined,
     azureAiAgentName: env.TRAVELGTC_AZURE_AI_AGENT_NAME || 'AI-TravelGTC',
     azureAiAgentVersion: env.TRAVELGTC_AZURE_AI_AGENT_VERSION || '10',
+    referralRegistrationUrl: env.TRAVELGTC_REFERRAL_REGISTRATION_URL || 'https://www.mwrlife.com/KFilip909',
     emailNotificationMode: pickEnum(env.TRAVELGTC_EMAIL_NOTIFICATION_MODE, ['disabled', 'smtp'] as const, 'disabled'),
     leadNotificationTo: env.TRAVELGTC_LEAD_NOTIFICATION_TO || 'kfilipenko@kmf.ru',
     leadNotificationFrom: env.TRAVELGTC_LEAD_NOTIFICATION_FROM || 'TravelGTC <no-reply@travelgtc.com>',
