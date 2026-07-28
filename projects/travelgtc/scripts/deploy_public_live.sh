@@ -75,7 +75,6 @@ routes=(
   /business-model/
   /events/
   /about/
-  /contacts/
   /mira/
 )
 

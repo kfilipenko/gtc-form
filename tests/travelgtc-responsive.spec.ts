@@ -19,7 +19,6 @@ const publicRoutes = [
   '/business-model/',
   '/events/',
   '/about/',
-  '/contacts/',
   '/mira/',
   '/auth/',
   '/legal/',
@@ -80,6 +79,8 @@ test.describe('TravelGTC responsive public site', () => {
       expect(accessHeadingBox?.width || 0).toBeGreaterThan(240);
       expect(accessHeadingBox?.height || 0).toBeLessThan(80);
       await expect(page.locator('.site-header a[href="/mira/"]')).toHaveCount(1);
+      await expect(page.locator('.site-header a[href="/contacts/"]')).toHaveCount(0);
+      await expect(page.locator('.site-footer a[href="/contacts/"]')).toHaveCount(0);
       await expect(page.locator('.site-header a[href="#travel-advantage"]')).toHaveCount(0);
       await expect(page.locator('.site-header .nav-primary')).toHaveCount(0);
       await expect(page.locator('.site-header a[href="/mira/"]')).toHaveText('Мира');
@@ -100,6 +101,10 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.getByText('Хотите спокойно разобраться в Travel Advantage?')).toHaveCount(0);
       await expect(page.locator('.cta-panel')).toHaveCount(0);
       await expect(page.locator('.site-footer')).toBeVisible();
+      await expect(page.locator('.site-footer .footer-contact-title')).toHaveText('Основные каналы:');
+      await expect(page.locator('.site-footer [data-protected-email]')).toHaveAttribute('href', 'mailto:kfilipenko@kmf.ru');
+      await expect(page.locator('.site-footer [data-protected-phone]')).toHaveText('+7 918 488-34-34');
+      await expect(page.locator('.site-footer [data-protected-phone]')).toHaveAttribute('href', 'tel:+79184883434');
 
       const serviceBadges = (await page.locator('.service-grid b').allTextContents()).join('');
       const trustBadges = (await page.locator('.trust-card .icon').allTextContents()).join('');
@@ -237,5 +242,20 @@ test.describe('TravelGTC responsive public site', () => {
         expect.objectContaining({ src: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' }),
       ]),
     );
+  });
+
+  test('direct contacts are rendered from protected footer data pieces', async ({ page, request }) => {
+    const response = await request.get('/');
+    const html = await response.text();
+    expect(html).not.toContain('kfilipenko@kmf.ru');
+    expect(html).not.toContain('+7 918 488-34-34');
+    expect(html).not.toContain('tel:+79184883434');
+    expect(html).not.toContain('/contacts/');
+
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('.site-footer [data-protected-email]')).toHaveText('kfilipenko@kmf.ru');
+    await expect(page.locator('.site-footer [data-protected-email]')).toHaveAttribute('href', 'mailto:kfilipenko@kmf.ru');
+    await expect(page.locator('.site-footer [data-protected-phone]')).toHaveText('+7 918 488-34-34');
+    await expect(page.locator('.site-footer [data-protected-phone]')).toHaveAttribute('href', 'tel:+79184883434');
   });
 });

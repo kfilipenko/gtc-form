@@ -2381,9 +2381,30 @@ button:disabled {
 .footer-links {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 12px;
   font-size: 0.78rem;
   font-weight: 700;
+}
+
+.footer-contact-title {
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.footer-links span:not(.footer-contact-title) {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.footer-links [data-protected-email],
+.footer-links [data-protected-phone] {
+  border-bottom: 1px solid rgba(155, 234, 46, 0.46);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.footer-links [data-protected-email]:hover,
+.footer-links [data-protected-phone]:hover {
+  border-color: var(--lime);
+  color: var(--white);
 }
 
 .disclaimers {

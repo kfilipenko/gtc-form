@@ -56,7 +56,7 @@ First public prototype routes:
 /business-model/
 /events/
 /about/
-/contacts/
+/mira/
 /auth/
 /legal/
 /legal/privacy/
@@ -166,6 +166,7 @@ TRAVELGTC-WEB-034 rule: the home `Официальные входы Travel Advan
 TRAVELGTC-WEB-035 rule: the membership-first top navigation must not include a separate `Travel Advantage` hash link or duplicate `Узнать о членстве` CTA. The AI entry in the top menu is a single `Мира` link to `/mira/`; the home page must not include the old embedded floating AI widget.
 TRAVELGTC-WEB-036 rule: `/mira/` is a chat-only working page. Do not duplicate the home `#relationship` Guest Pass / VIP Membership explanatory block, official access buttons or promo copy there. Keep guest-access explanation on the home relationship block and let Mira handle questions in the chat.
 TRAVELGTC-WEB-037 rule: `/mira/` uses the approved avatar source `projects/travelgtc/public/assets/images/inbox/Mira Avatar.png`, optimized and published as `/assets/images/processed/mira-avatar.webp`. Do not replace it with generated alternatives unless the Project Owner explicitly provides a new approved source. The chat panel header must not duplicate the site logo or repeated `Мира TravelGTC / AI-чат` text because the brand and page entry are already present in the top menu. Use the compact banner wording `Спросите / Вашего Агента / Мира:` with the avatar on the right.
+TRAVELGTC-WEB-039 rule: `/contacts/` is removed as a separate public page and must not be reintroduced as a duplicate request form. Primary consultation flow is `/mira/`. Direct project contacts belong in the global footer and are assembled client-side from protected data pieces to reduce basic source-code scraping; this is not absolute protection against JavaScript-capable bots.
 ```
 
 Architecture state:
@@ -252,7 +253,8 @@ Auth page: projects/travelgtc/public/auth/index.html
 Home short request form: removed by TRAVELGTC-WEB-038
 Primary conversion entry: projects/travelgtc/public/mira/index.html
 Create-trip form: projects/travelgtc/public/create-trip/index.html#idea-form
-Contacts form: projects/travelgtc/public/contacts/index.html#contact-form
+Contacts page/form: removed by TRAVELGTC-WEB-039
+Direct footer contacts: email and project phone are rendered from protected data pieces by `projects/travelgtc/public/assets/js/site.js`
 Header includes login, registration, logged-in display name and logout controls.
 Anonymous form submit redirects to /auth/?mode=register&next=...
 After registration/login, user returns to the intended form and creates a CRM lead through account/leads.
@@ -375,6 +377,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 5.9 | 2026-07-28 | GTC IT / AI Assistant | Recorded removal of `/contacts/` and protected footer email/phone rendering |
 | 5.8 | 2026-07-28 | GTC IT / AI Assistant | Recorded `/mira/` first-question selector as a scrollable chat-flow prompt that hides after the first question |
 | 5.7 | 2026-07-28 | GTC IT / AI Assistant | Recorded Mira-first funnel: home short request form removed, first-question selection moved into `/mira/` |
 | 5.6 | 2026-07-28 | GTC IT / AI Assistant | Refined Mira banner wording to `Ваш / Агент / Мира` and adjusted compact typography |
