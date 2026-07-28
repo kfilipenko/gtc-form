@@ -135,6 +135,7 @@ test.describe('TravelGTC responsive public site', () => {
 
     await expect(page.locator('[data-ai-page] [data-ai-panel]')).toBeVisible();
     await expect(page.locator('[data-ai-question-select] option')).toHaveCount(8);
+    await expect(page.locator('[data-ai-question-prompt]')).toBeVisible();
     await expect(page.locator('[data-ai-voice]')).toBeVisible();
     const formBox = await page.locator('[data-ai-form]').boundingBox();
     expect(formBox).toBeTruthy();
@@ -153,6 +154,7 @@ test.describe('TravelGTC responsive public site', () => {
     await page.locator('[data-ai-question-select]').selectOption({ label: 'Стать участником Travel Advantage' });
     await page.locator('[data-ai-form]').locator('button[type="submit"]').click();
     await expect(page.locator('[data-ai-messages]')).toContainText(/сохранить историю диалога/i);
+    await expect(page.locator('[data-ai-question-prompt]')).toBeHidden();
     await expect(page).toHaveURL(/\/auth\/\?mode=register&next=%2Fmira%2F%23ai-consultant/);
     await expect
       .poll(() => page.evaluate(() => sessionStorage.getItem('travelgtc_ai_pending_question') || ''))
@@ -181,6 +183,7 @@ test.describe('TravelGTC responsive public site', () => {
     await expect(page.locator('.mira-banner-image')).toHaveAttribute('src', '/assets/images/processed/mira-avatar.webp');
     await expect(page.locator('[data-ai-page] [data-ai-panel]')).toBeVisible();
     await expect(page.locator('[data-ai-page] [data-ai-question-select] option')).toHaveCount(8);
+    await expect(page.locator('[data-ai-page] [data-ai-question-prompt]')).toBeVisible();
     await expect(page.locator('[data-ai-page] [data-ai-voice]')).toBeVisible();
     await expect(page.locator('[data-ai-lead-link]')).toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Открыть VIP Membership' })).toHaveCount(0);

@@ -31,9 +31,10 @@ Mira page:
 
 1. changed the banner wording to `Спросите / Вашего Агента / Мира:`;
 2. removed the old `Перейти к заявке` link;
-3. replaced the three starter buttons with a first-question select inside the chat form;
+3. replaced the three starter buttons with a first-question select inside the scrollable chat message flow;
 4. moved the old short-form interest options into full first-question prompts;
-5. kept auth-gated chat behavior: selected question is saved before registration/login and resumed after return.
+5. hid the first-question selector after the first question so the dialogue continues without a fixed duplicate selector;
+6. kept auth-gated chat behavior: selected question is saved before registration/login and resumed after return.
 
 ## 3. First Questions
 
@@ -56,4 +57,4 @@ npm run test:travelgtc
 git diff --check
 ```
 
-The Playwright suite now verifies that the home page no longer publishes `#lead-form`, that `/mira/` has the first-question selector, and that selected questions pass through the auth gate as pending chat questions.
+The Playwright suite now verifies that the home page no longer publishes `#lead-form`, that `/mira/` has the first-question selector in the message flow, that the selector hides after the first question, and that selected questions pass through the auth gate as pending chat questions.

@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 5.7
+- Version: 5.8
 - Date: 2026-07-28
-- Status: Active, Mira-first funnel replaces home lead form
+- Status: Active, Mira first-question prompt moved into chat flow
 
 ## 1. Current State
 
@@ -161,7 +161,7 @@ TRAVELGTC-WEB-023 rule: keep the favicon package in the public root and keep all
 TRAVELGTC-WEB-024 rule: the home page is now Travel Advantage membership-first with clear independent Lifestyle Ambassador disclosure. It must not imply that TravelGTC is the official MWR Life / Travel Advantage site, an independent travel agency, a booking provider or a payment/enrollment channel. Do not reintroduce the old home hero `Создавайте путешествия. Собирайте людей. Развивайте сеть.` as the primary message.
 TRAVELGTC-WEB-025 rule: the home page includes an official MWR Life company facts block based on `https://www.mwrlife.com/home/company`. Do not publish company metrics, office addresses, legal data, countries, language counts or regional claims without checking the official source. Keep service, trust and next-step process badges as pictograms/emoji, not `01` / `02` numeric labels.
 TRAVELGTC-AI-001 rule: the public AI consultant is named `Мира TravelGTC`. Use `docs/travelgtc/080_travelgtc_ai_001_mira_consultant_instruction.md` as the canonical instruction for personality, official sources, published facts, compliance limits and lead-routing behavior. Мира may be cheerful and tell short illustrative travel-community stories, but must not promise income, savings, availability, membership approval or business results.
-TRAVELGTC-WEB-038 rule: the old home `#lead-form` short request form is removed. Do not reintroduce a separate short request form on the home page as the primary conversion path. First interest selection now belongs inside `/mira/` as a first-question selector. The selected item becomes the first chat question, is preserved through the auth gate and is stored in AI/CRM history after login.
+TRAVELGTC-WEB-038 rule: the old home `#lead-form` short request form is removed. Do not reintroduce a separate short request form on the home page as the primary conversion path. First interest selection now belongs inside `/mira/` as a first-question selector. The selector must live inside the scrollable chat message flow, not in the fixed bottom input bar. The selected item becomes the first chat question, the selector hides after the first question, the question is preserved through the auth gate and is stored in AI/CRM history after login.
 TRAVELGTC-WEB-034 rule: the home `Официальные входы Travel Advantage` card must use a single-column layout. Long CTA labels must not create an `auto` grid column that collapses the explanatory text into vertical letters.
 TRAVELGTC-WEB-035 rule: the membership-first top navigation must not include a separate `Travel Advantage` hash link or duplicate `Узнать о членстве` CTA. The AI entry in the top menu is a single `Мира` link to `/mira/`; the home page must not include the old embedded floating AI widget.
 TRAVELGTC-WEB-036 rule: `/mira/` is a chat-only working page. Do not duplicate the home `#relationship` Guest Pass / VIP Membership explanatory block, official access buttons or promo copy there. Keep guest-access explanation on the home relationship block and let Mira handle questions in the chat.
@@ -375,6 +375,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 5.8 | 2026-07-28 | GTC IT / AI Assistant | Recorded `/mira/` first-question selector as a scrollable chat-flow prompt that hides after the first question |
 | 5.7 | 2026-07-28 | GTC IT / AI Assistant | Recorded Mira-first funnel: home short request form removed, first-question selection moved into `/mira/` |
 | 5.6 | 2026-07-28 | GTC IT / AI Assistant | Refined Mira banner wording to `Ваш / Агент / Мира` and adjusted compact typography |
 | 5.5 | 2026-07-28 | GTC IT / AI Assistant | Recorded compact Mira chat banner rule: no duplicated logo/text in chat header, avatar stays right-side in banner |

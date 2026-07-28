@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 6.7
+- Version: 6.8
 - Date: 2026-07-28
-- Status: Mira-first funnel replaces home lead form
+- Status: Mira first-question prompt moved into chat flow
 
 ## 1. Purpose
 
@@ -164,6 +164,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 6.8 | 2026-07-28 | GTC IT / AI Assistant | Moved the `/mira/` first-question selector from the fixed input bar into the chat message flow and hid it after the first question |
 | 6.7 | 2026-07-28 | GTC IT / AI Assistant | Replaced the home short request form with Mira-first chat routing and moved first-question selection into `/mira/` |
 | 6.6 | 2026-07-28 | GTC IT / AI Assistant | Refined `/mira/` chat banner wording to `Ваш / Агент / Мира` and adjusted compact typography |
 | 6.5 | 2026-07-28 | GTC IT / AI Assistant | Compacted `/mira/` chat banner, removed duplicate logo/text from the chat panel header and kept the approved avatar as the right-side banner visual |

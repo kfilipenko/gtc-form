@@ -1213,18 +1213,26 @@ h3 {
   font-size: 0.95rem;
 }
 
-.ai-form {
+.ai-question-prompt {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  gap: 8px;
+  gap: 7px;
+  width: min(100%, 560px);
+  border: 1px solid rgba(0, 199, 217, 0.24);
+  border-radius: 15px;
   padding: 12px;
-  background: var(--white);
-  border-top: 1px solid rgba(6, 26, 40, 0.06);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14px 32px rgba(6, 26, 40, 0.08);
 }
 
-.ai-form select {
-  grid-column: 1 / -1;
+.ai-question-prompt label {
+  color: var(--ink);
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.ai-question-prompt select {
   min-height: 42px;
+  width: 100%;
   border-radius: 12px;
   border: 1px solid rgba(0, 91, 120, 0.16);
   padding: 0 12px;
@@ -1233,6 +1241,15 @@ h3 {
   font: inherit;
   font-size: 0.86rem;
   font-weight: 800;
+}
+
+.ai-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  padding: 12px;
+  background: var(--white);
+  border-top: 1px solid rgba(6, 26, 40, 0.06);
 }
 
 .ai-form input {

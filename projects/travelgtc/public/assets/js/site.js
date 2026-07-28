@@ -726,19 +726,29 @@ function initAiConsultant() {
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
         const input = form.querySelector('input[name="question"]');
-        const select = form.querySelector("[data-ai-question-select]");
+        const panel = form.closest("[data-ai-panel]");
+        const select = panel ? panel.querySelector("[data-ai-question-select]") : document.querySelector("[data-ai-question-select]");
         const submitButton = form.querySelector('button[type="submit"]');
         const selectedQuestion = select && select.value ? select.value.trim() : "";
         const question = input && input.value.trim() ? input.value.trim() : selectedQuestion;
         if (!question) {
           return;
         }
+        dismissAiQuestionPrompt(form);
         const authenticated = await ensureAuthenticatedForAiChat(question, panel, messages);
         if (!authenticated) {
           return;
         }
         await askAiQuestion(form, messages, question, submitButton);
       });
+  }
+}
+
+function dismissAiQuestionPrompt(form) {
+  const panel = form.closest("[data-ai-panel]");
+  const prompt = panel ? panel.querySelector("[data-ai-question-prompt]") : document.querySelector("[data-ai-question-prompt]");
+  if (prompt) {
+    prompt.hidden = true;
   }
 }
 
