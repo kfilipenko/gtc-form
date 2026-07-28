@@ -1149,7 +1149,14 @@ function buildAiStubAnswer(question) {
   const storyPattern = /(истори|знаком|встреч|событ|пара|друг|партн[её]р|впечатл|путешеств)/i;
 
   if (demoPattern.test(normalized)) {
-    return `Можно начать мягко: сначала посмотреть demo-доступ Travel Advantage, а уже потом обсуждать Membership и официальный шаг.\n\n🌟 VIP demo: ${TRAVEL_ADVANTAGE_VIP_DEMO_URL}\n🆓 Free demo: ${TRAVEL_ADVANTAGE_FREE_DEMO_URL}\n\nDemo помогает увидеть интерфейс до регистрации и оплаты. Условия, состав предложений и доступность сервисов всё равно проверяются на официальных страницах Travel Advantage. После demo я бы задала простой вопрос: вы смотрите платформу для личных поездок, семьи, друзей или группы/клиентов?`;
+    const vipFit = /(vip|elite|элит|membership|тариф|семь|друз|групп|клиент|балл|loyalty|событ|ambassador|амбассад|куп|оплат|сравн)/i.test(normalized);
+    const primaryLine = vipFit
+      ? `🌟 VIP demo: ${TRAVEL_ADVANTAGE_VIP_DEMO_URL}`
+      : `🆓 Free demo: ${TRAVEL_ADVANTAGE_FREE_DEMO_URL}`;
+    const secondaryLine = vipFit
+      ? `🆓 Free demo, если хотите начать совсем мягко: ${TRAVEL_ADVANTAGE_FREE_DEMO_URL}`
+      : `🌟 VIP demo, если хотите посмотреть более полный сценарий перед Membership: ${TRAVEL_ADVANTAGE_VIP_DEMO_URL}`;
+    return `Можно начать мягко: сначала посмотреть demo-доступ Travel Advantage, а уже потом обсуждать Membership и официальный шаг.\n\n${primaryLine}\n${secondaryLine}\n\nFree demo подходит для первого знакомства. VIP demo лучше, когда вы уже сравниваете тариф, смотрите вариант для семьи, друзей, группы, клиентов или хотите понять расширенный сценарий.\n\nDemo помогает увидеть интерфейс до регистрации и оплаты. Условия, состав предложений и доступность сервисов всё равно проверяются на официальных страницах Travel Advantage. После demo я бы задала простой вопрос: вы смотрите платформу для личных поездок, семьи, друзей или группы/клиентов?`;
   }
 
   if (tariffPattern.test(normalized)) {

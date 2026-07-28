@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 5.7
+- Version: 5.8
 - Date: 2026-07-28
-- Status: Dedicated Mira page and Travel Advantage demo links implemented
+- Status: Guest demo access routing implemented in homepage relationship block
 
 ## 1. Purpose
 
@@ -123,6 +123,7 @@ The first stage is intentionally small:
 | `093_travelgtc_web_029_dedicated_mira_chat_page_report.md` | TRAVELGTC-WEB-029 - Dedicated Mira Chat Page Report | Fixes the dedicated `/mira/` AI chat page with auth gate, CRM history continuity, Markdown and voice support. | Implemented |
 | `094_travelgtc_web_030_demo_access_links_report.md` | TRAVELGTC-WEB-030 - Travel Advantage Demo Access Links Report | Fixes the approved VIP/free demo links on the public site and dedicated Mira page. | Implemented |
 | `095_travelgtc_ai_005_official_documents_and_demo_knowledge_report.md` | TRAVELGTC-AI-005 - Official Documents And Demo Knowledge Report | Fixes Mira context/fallback knowledge for demo links, official documents and purchase-intent separation. | Implemented |
+| `096_travelgtc_web_031_guest_demo_access_routing_report.md` | TRAVELGTC-WEB-031 - Guest Demo Access Routing Report | Fixes guest demo access in the homepage relationship block and clarifies Mira routing for free/VIP demo links. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -156,6 +157,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 5.8 | 2026-07-28 | GTC IT / AI Assistant | Implemented guest demo access in the homepage relationship block and clarified Mira free/VIP demo routing |
 | 5.7 | 2026-07-28 | GTC IT / AI Assistant | Implemented dedicated `/mira/` page, Travel Advantage demo links and Mira demo/purchase intent separation |
 | 5.6 | 2026-07-28 | GTC IT / AI Assistant | Drafted approval tasks for dedicated Mira page, Travel Advantage demo links and official-document knowledge split |
 | 5.5 | 2026-07-12 | GTC IT / AI Assistant | Implemented Mira purchase-intent referral flow with `ready_to_subscribe`, high-priority CRM task and referral URL |

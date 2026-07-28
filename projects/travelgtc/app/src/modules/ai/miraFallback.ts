@@ -15,7 +15,16 @@ export function buildMiraFallbackAnswer(question: string): string {
   const demoPattern = /(demo|демо|trial|free|посмотреть|интерфейс)/i;
 
   if (demoPattern.test(normalized)) {
-    return `Можно начать с demo-доступа Travel Advantage и спокойно посмотреть интерфейс до оплаты.\n\n🌟 VIP demo: ${VIP_DEMO_LINK}\n🆓 Free demo: ${FREE_DEMO_LINK}\n\nDemo — это discovery step, не обещание финальной цены, наличия предложений или paid inventory. Если после просмотра вам понравится логика платформы, следующий шаг — сравнить Membership и перейти к официальной регистрации через партнёра TravelGTC.`;
+    const vipFit = /(vip|elite|элит|membership|тариф|семь|друз|групп|клиент|балл|loyalty|событ|ambassador|амбассад|куп|оплат|сравн)/i.test(
+      normalized,
+    );
+    const primaryLine = vipFit
+      ? `🌟 VIP demo: ${VIP_DEMO_LINK}`
+      : `🆓 Free demo: ${FREE_DEMO_LINK}`;
+    const secondaryLine = vipFit
+      ? `🆓 Free demo, если хотите начать совсем мягко: ${FREE_DEMO_LINK}`
+      : `🌟 VIP demo, если хотите посмотреть более полный сценарий перед выбором Membership: ${VIP_DEMO_LINK}`;
+    return `Можно начать с demo-доступа Travel Advantage и спокойно посмотреть интерфейс до оплаты.\n\n${primaryLine}\n${secondaryLine}\n\nFree demo подходит для первого знакомства. VIP demo лучше давать, когда уже есть интерес к Membership, семье, группе, клиентам, баллам или сравнению тарифа перед покупкой.\n\nDemo — это discovery step, не обещание финальной цены, наличия предложений или paid inventory. Если после просмотра вам понравится логика платформы, следующий шаг — сравнить Membership и перейти к официальной регистрации через партнёра TravelGTC.`;
   }
 
   if (nextStepPattern.test(normalized)) {

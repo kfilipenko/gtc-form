@@ -101,7 +101,17 @@ function applyMiraAnswerGuard(question: string, answer: string): string {
   }
 
   if (demoPattern.test(normalizedQuestion) && !guarded.includes(TRAVEL_ADVANTAGE_VIP_DEMO_URL)) {
-    guarded += `\n\n🌟 VIP demo Travel Advantage: ${TRAVEL_ADVANTAGE_VIP_DEMO_URL}\n🆓 Free demo Travel Advantage: ${TRAVEL_ADVANTAGE_FREE_DEMO_URL}\n\nDemo помогает посмотреть интерфейс до оплаты. Финальные условия и доступность нужно проверять на официальных страницах Travel Advantage.`;
+    const vipFit =
+      /(vip|elite|элит|membership|тариф|семь|друз|групп|клиент|балл|loyalty|событ|ambassador|амбассад|куп|оплат|сравн)/i.test(
+        normalizedQuestion,
+      );
+    const primaryDemo = vipFit
+      ? `🌟 VIP demo Travel Advantage: ${TRAVEL_ADVANTAGE_VIP_DEMO_URL}`
+      : `🆓 Free demo Travel Advantage: ${TRAVEL_ADVANTAGE_FREE_DEMO_URL}`;
+    const secondaryDemo = vipFit
+      ? `🆓 Free demo Travel Advantage: ${TRAVEL_ADVANTAGE_FREE_DEMO_URL}`
+      : `🌟 VIP demo Travel Advantage: ${TRAVEL_ADVANTAGE_VIP_DEMO_URL}`;
+    guarded += `\n\n${primaryDemo}\n${secondaryDemo}\n\nFree demo подходит для первого знакомства. VIP demo лучше использовать, когда человек уже сравнивает Membership, семью, группу, клиентов, баллы или покупку. Demo помогает посмотреть интерфейс до оплаты. Финальные условия и доступность нужно проверять на официальных страницах Travel Advantage.`;
   }
 
   if (

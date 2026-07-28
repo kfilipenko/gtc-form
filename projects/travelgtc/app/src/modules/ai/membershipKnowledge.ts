@@ -27,6 +27,7 @@ const MEMBERSHIP_KNOWLEDGE_SUMMARY = [
   '- Loyalty Points не переводятся между участниками и не обмениваются на наличные.',
   '- Travel Credits earned from bookings and stored in account to be used at checkout if applicable; official PDF states Value $.01.',
   '- Demo access: VIP demo and free demo are approved TravelGTC links for showing the Travel Advantage interface before paid registration. Demo is a discovery step, not a promise of final price, availability or paid inventory.',
+  '- Demo access routing: free demo is the soft first look for cautious users, first product discovery and "бесплатно посмотреть"; VIP demo is the preferred sales demo for users asking about Membership, VIP/Elite, family, groups, clients, points, events, Ambassador or purchase comparison. If unclear, give both links and explain the difference briefly.',
   '- Групповые и бизнес-сценарии: йога, цигун, wellness, ретриты, тренеры, эксперты с аудиторией, организаторы событий, подарочные поездки близким, Ambassador-направление.',
   '- При группе, клиентах, семье, друзьях, регулярных поездках, Life Experiences, points или business interest Мира сначала сравнивает Elite и при необходимости Turbo add-on.',
   '- При просрочке оплаты баллы блокируются, 180+ дней просрочки: отмена членства.',
@@ -52,7 +53,7 @@ export function buildMembershipKnowledgeContext(question: string): string {
     'Не придумывай категории списания Loyalty Points. Не говори "авиабилеты/круизы/отели" как универсальные примеры применения баллов. Говори "допустимый заказ", "Life Experiences where applicable" и "покажет официальный booking flow".',
     'Если вопрос про бизнес/группы: выявляй аудиторию, учеников, клиентов, ретриты, мероприятия и Ambassador-сценарий.',
     'Если используешь цифры, добавляй ссылку на рабочий RU-документ и официальный EN PDF.',
-    'Если пользователь хочет сначала посмотреть платформу, до оплаты или до регистрации: предложи VIP demo и free demo, объясни, что demo - discovery step, а платная регистрация идет отдельно через официальный referral URL после готовности.',
+    'Если пользователь хочет сначала посмотреть платформу, до оплаты или до регистрации: предложи demo-доступ. Free demo - для первого осторожного знакомства и просьб "бесплатно посмотреть"; VIP demo - для вопросов про тарифы, Membership, семью, группу, клиентов, баллы, события, Ambassador или сравнение перед покупкой. Если неясно - дай обе ссылки и объясни разницу.',
     '',
     MEMBERSHIP_KNOWLEDGE_SUMMARY,
   ].join('\n');
