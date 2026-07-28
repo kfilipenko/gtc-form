@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 5.3
+- Version: 5.4
 - Date: 2026-07-28
-- Status: Active, dedicated Mira page simplified to chat-only flow
+- Status: Active, Mira chat page avatar added
 
 ## 1. Current State
 
@@ -165,6 +165,7 @@ TRAVELGTC-WEB-033 rule: the home `#lead-form` is interest-only. Do not reintrodu
 TRAVELGTC-WEB-034 rule: the home `Официальные входы Travel Advantage` card must use a single-column layout. Long CTA labels must not create an `auto` grid column that collapses the explanatory text into vertical letters.
 TRAVELGTC-WEB-035 rule: the membership-first top navigation must not include a separate `Travel Advantage` hash link or duplicate `Узнать о членстве` CTA. The AI entry in the top menu is a single `Мира` link to `/mira/`; the home page must not include the old embedded floating AI widget.
 TRAVELGTC-WEB-036 rule: `/mira/` is a chat-only working page. Do not duplicate the home `#relationship` Guest Pass / VIP Membership explanatory block, official access buttons or promo copy there. Keep guest-access explanation on the home relationship block and let Mira handle questions in the chat.
+TRAVELGTC-WEB-037 rule: `/mira/` uses the approved avatar source `projects/travelgtc/public/assets/images/inbox/Mira Avatar.png`, optimized and published as `/assets/images/processed/mira-avatar.webp`. Do not replace it with generated alternatives unless the Project Owner explicitly provides a new approved source.
 ```
 
 Architecture state:
@@ -216,6 +217,7 @@ TRAVELGTC-WEB-033 removed the unprocessed free-form request textarea from the ho
 TRAVELGTC-WEB-034 fixed the home Membership access card by making the access-card layout single-column and adding a Playwright guard against vertical heading collapse.
 TRAVELGTC-WEB-035 simplified the membership-first top navigation, removed duplicate top CTAs and moved home AI access to the dedicated `/mira/` page.
 TRAVELGTC-WEB-036 removed the left promo/copy column and Guest Pass / VIP buttons from `/mira/`, leaving the page focused on the authenticated AI chat.
+TRAVELGTC-WEB-037 added the approved Mira avatar visual to `/mira/` and updated responsive tests to verify the image asset.
 ```
 
 API state:
@@ -371,6 +373,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 5.4 | 2026-07-28 | GTC IT / AI Assistant | Recorded approved Mira avatar asset and `/mira/` layout use |
 | 5.3 | 2026-07-28 | GTC IT / AI Assistant | Recorded chat-only `/mira/` page and home-only Guest Pass / VIP explanation |
 | 5.2 | 2026-07-28 | GTC IT / AI Assistant | Recorded simplified top navigation and single Mira route to the dedicated chat page |
 | 5.1 | 2026-07-28 | GTC IT / AI Assistant | Recorded Membership access card layout fix and Playwright guard against vertical text collapse |

@@ -174,6 +174,7 @@ test.describe('TravelGTC responsive public site', () => {
     await page.goto('/mira/', { waitUntil: 'domcontentloaded' });
 
     await expect(page.locator('.site-header .brand-logo img')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
+    await expect(page.locator('.mira-avatar-card img')).toHaveAttribute('src', '/assets/images/processed/mira-avatar.webp');
     await expect(page.locator('[data-ai-page] [data-ai-panel]')).toBeVisible();
     await expect(page.locator('[data-ai-page] [data-ai-starter]')).toHaveCount(3);
     await expect(page.locator('[data-ai-page] [data-ai-voice]')).toBeVisible();

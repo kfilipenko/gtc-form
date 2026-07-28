@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 6.3
+- Version: 6.4
 - Date: 2026-07-28
-- Status: Dedicated Mira page simplified to chat-only flow
+- Status: Mira chat page avatar added
 
 ## 1. Purpose
 
@@ -129,6 +129,7 @@ The first stage is intentionally small:
 | `099_travelgtc_web_034_membership_access_card_layout_report.md` | TRAVELGTC-WEB-034 - Membership Access Card Layout Report | Fixes the home membership access card so long CTA labels do not collapse the explanatory text column. | Implemented |
 | `100_travelgtc_web_035_main_navigation_mira_routing_report.md` | TRAVELGTC-WEB-035 - Main Navigation Mira Routing Report | Removes duplicate top navigation entries and routes the single Mira menu link to the dedicated AI chat page. | Implemented |
 | `101_travelgtc_web_036_mira_page_chat_only_report.md` | TRAVELGTC-WEB-036 - Mira Page Chat-Only Report | Removes duplicated Guest Pass / VIP explanatory copy from `/mira/` and keeps that context on the home relationship block only. | Implemented |
+| `102_travelgtc_web_037_mira_avatar_page_visual_report.md` | TRAVELGTC-WEB-037 - Mira Avatar Page Visual Report | Adds the approved Mira avatar image to the dedicated chat page and publishes an optimized WebP asset. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -162,6 +163,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 6.4 | 2026-07-28 | GTC IT / AI Assistant | Added approved Mira avatar image to `/mira/` and published optimized WebP asset |
 | 6.3 | 2026-07-28 | GTC IT / AI Assistant | Simplified `/mira/` into a chat-only page and removed duplicated Guest Pass / VIP explanatory copy |
 | 6.2 | 2026-07-28 | GTC IT / AI Assistant | Simplified main navigation by removing Travel Advantage and duplicate membership/AI CTAs, leaving one Mira link to `/mira/` |
 | 6.1 | 2026-07-28 | GTC IT / AI Assistant | Fixed home Membership access card layout so long CTA buttons do not collapse the text column |
