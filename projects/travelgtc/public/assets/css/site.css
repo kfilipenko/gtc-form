@@ -1935,6 +1935,7 @@ h3 {
 
 .compact-request {
   padding: 46px 0;
+  scroll-margin-top: 132px;
 }
 
 .request-shell {

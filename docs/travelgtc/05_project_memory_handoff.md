@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 4.9
+- Version: 5.0
 - Date: 2026-07-28
-- Status: Active, Free Guest Pass and VIP Membership terminology implemented
+- Status: Active, home lead form simplified to selected interest
 
 ## 1. Current State
 
@@ -161,6 +161,7 @@ TRAVELGTC-WEB-023 rule: keep the favicon package in the public root and keep all
 TRAVELGTC-WEB-024 rule: the home page is now Travel Advantage membership-first with clear independent Lifestyle Ambassador disclosure. It must not imply that TravelGTC is the official MWR Life / Travel Advantage site, an independent travel agency, a booking provider or a payment/enrollment channel. Do not reintroduce the old home hero `Создавайте путешествия. Собирайте людей. Развивайте сеть.` as the primary message.
 TRAVELGTC-WEB-025 rule: the home page includes an official MWR Life company facts block based on `https://www.mwrlife.com/home/company`. Do not publish company metrics, office addresses, legal data, countries, language counts or regional claims without checking the official source. Keep service, trust and next-step process badges as pictograms/emoji, not `01` / `02` numeric labels.
 TRAVELGTC-AI-001 rule: the public AI consultant is named `Мира TravelGTC`. Use `docs/travelgtc/080_travelgtc_ai_001_mira_consultant_instruction.md` as the canonical instruction for personality, official sources, published facts, compliance limits and lead-routing behavior. Мира may be cheerful and tell short illustrative travel-community stories, but must not promise income, savings, availability, membership approval or business results.
+TRAVELGTC-WEB-033 rule: the home `#lead-form` is interest-only. Do not reintroduce a free-form textarea or `Задать вопрос` option there. User questions belong in Mira AI chat, where the text is processed, stored in CRM history and used as dialogue context. The frontend may generate the required API `message` from the selected interest to keep the backend contract stable.
 ```
 
 Architecture state:
@@ -208,6 +209,7 @@ TRAVELGTC-WEB-023 published the favicon package from the Project Owner source, l
 TRAVELGTC-WEB-024 repositioned the home page as a Travel Advantage membership funnel with MWR Life / Travel Advantage / TravelGTC relationship cards, safe trust/disclosure blocks, next-step process, safe AI-consultant frontend stub, new lead interest options, official-source footer links and updated public disclosure wording. The static site was deployed live and `travelgtc-api.service` was rebuilt/restarted so the new interest enum values are accepted.
 TRAVELGTC-WEB-025 added the official MWR Life company facts/address block to the home page, replaced numeric service/trust/process badges with pictograms and extended responsive tests to verify the company block and absence of numeric badges.
 TRAVELGTC-AI-001 named the public AI consultant `Мира TravelGTC`, added a canonical instruction document with official source links and published facts, and aligned the frontend AI stub greeting/answers with the new friendly-but-compliant personality.
+TRAVELGTC-WEB-033 removed the unprocessed free-form request textarea from the home lead form, removed the `Задать вопрос` option from the home lead select and added `scroll-margin-top` so `#lead-form` is not hidden under the fixed header.
 ```
 
 API state:
@@ -363,6 +365,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 5.0 | 2026-07-28 | GTC IT / AI Assistant | Recorded interest-only home lead form and fixed `#lead-form` anchor offset |
 | 4.9 | 2026-07-28 | GTC IT / AI Assistant | Recorded Free Guest Pass / VIP Membership terminology correction and Membership-comparison-first routing |
 | 4.8 | 2026-07-28 | GTC IT / AI Assistant | Recorded guest access in the homepage relationship block and Mira Free Guest Pass / VIP Membership routing |
 | 4.7 | 2026-07-28 | GTC IT / AI Assistant | Recorded implementation of `/mira/`, Travel Advantage access links and Mira first-look/purchase intent separation |

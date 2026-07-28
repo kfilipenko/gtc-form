@@ -275,7 +275,7 @@ function buildLeadPayload(form) {
   const defaultRole = form.getAttribute("data-default-role") || "unsure";
   const defaultInterest = form.getAttribute("data-default-interest") || "not_sure";
   const primaryInterest = get("primary_interest") || defaultInterest;
-  const message = get("message") || buildMessageFromForm(formData);
+  const message = get("message") || buildMessageFromForm(form, formData);
   const declaredRole = get("declared_role") || defaultRole;
   const travelFormat = get("travel_format");
   const audienceType = get("audience_type");
@@ -304,15 +304,19 @@ function buildLeadPayload(form) {
   };
 }
 
-function buildMessageFromForm(formData) {
+function buildMessageFromForm(form, formData) {
   const parts = [];
+  const selectedInterest = form.querySelector('select[name="primary_interest"] option:checked');
+  if (selectedInterest && selectedInterest.textContent) {
+    parts.push(`Интерес: ${selectedInterest.textContent.trim()}.`);
+  }
   ["destination_interest", "approx_dates", "estimated_group_size", "important_details"].forEach((name) => {
     const value = getFormValue(formData, name);
     if (value) {
       parts.push(value);
     }
   });
-  return parts.join("\n") || "Хочу обсудить travel-направление.";
+  return parts.join("\n") || "Хочу получить консультацию TravelGTC.";
 }
 
 function buildTrackingPayload() {

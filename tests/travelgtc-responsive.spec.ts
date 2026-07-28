@@ -84,6 +84,9 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('[data-ai-widget] .ai-logo')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
       await expect(page.locator('[data-ai-starter]')).toHaveCount(3);
       await expect(page.locator('[data-ai-voice]')).toHaveCount(1);
+      await expect(page.locator('#lead-form [name="message"]')).toHaveCount(0);
+      await expect(page.locator('#lead-form option[value="question"]')).toHaveCount(0);
+      await expect(page.locator('#lead-form')).toHaveCSS('scroll-margin-top', '132px');
       await expect(page.getByText('TravelGTC является партнёрской информационной страницей')).toBeVisible();
       await expect(page.locator('form[data-travelgtc-lead-form]').first()).toBeVisible();
       await expect(page.locator('.nav-links')).toHaveCount(1);
