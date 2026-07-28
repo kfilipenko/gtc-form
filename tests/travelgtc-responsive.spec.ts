@@ -20,6 +20,7 @@ const publicRoutes = [
   '/events/',
   '/about/',
   '/contacts/',
+  '/mira/',
   '/auth/',
   '/legal/',
   '/legal/privacy/',
@@ -69,6 +70,10 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('.service-grid span')).toHaveCount(10);
       await expect(page.getByText('Сравнение уровней Membership')).toBeVisible();
       await expect(page.getByRole('link', { name: 'Открыть официальный PDF' })).toHaveAttribute('href', 'https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf');
+      await expect(page.locator('.demo-access-card')).toContainText('Demo-доступ Travel Advantage');
+      await expect(page.getByRole('link', { name: 'Открыть VIP demo Travel Advantage' })).toHaveAttribute('href', 'https://vip.traveladvantage.com/KFilip909');
+      await expect(page.getByRole('link', { name: 'Открыть free demo Travel Advantage' })).toHaveAttribute('href', 'https://free.traveladvantage.com/KFilip909');
+      await expect(page.locator('.site-header a[href="/mira/"]')).toHaveCount(1);
       await expect(page.locator('.membership-steps article')).toHaveCount(6);
       await expect(page.locator('.ai-section')).toBeVisible();
       await expect(page.locator('#ai-consultant').getByText('Мира TravelGTC')).toBeVisible();
@@ -159,6 +164,25 @@ test.describe('TravelGTC responsive public site', () => {
     await expect(page.locator('[data-ai-messages]')).toContainText(/Привет, я Мира/i);
     await expect(page.locator('[data-ai-messages]')).toContainText(/историю диалога/i);
     await expect(page.locator('[data-ai-form]')).toBeVisible();
+  });
+
+  test('dedicated Mira page exposes demo links and auth-gated page chat', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 920 });
+    await page.goto('/mira/', { waitUntil: 'domcontentloaded' });
+
+    await expect(page.locator('h1')).toContainText('AI-чат для спокойного выбора Travel Advantage');
+    await expect(page.locator('.site-header .brand-logo img')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
+    await expect(page.locator('[data-ai-page] [data-ai-panel]')).toBeVisible();
+    await expect(page.locator('[data-ai-page] [data-ai-starter]')).toHaveCount(3);
+    await expect(page.locator('[data-ai-page] [data-ai-voice]')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Открыть VIP demo' })).toHaveAttribute('href', 'https://vip.traveladvantage.com/KFilip909');
+    await expect(page.getByRole('link', { name: 'Открыть free demo' })).toHaveAttribute('href', 'https://free.traveladvantage.com/KFilip909');
+    await expect(page.locator('[data-ai-messages]')).toContainText(/сохранить историю диалога/i);
+
+    await page.locator('[data-ai-form] input[name="question"]').fill('Хочу посмотреть demo перед регистрацией');
+    await page.locator('[data-ai-form]').locator('button[type="submit"]').click();
+    await expect(page.locator('[data-ai-messages]')).toContainText(/сначала войдите или зарегистрируйтесь/i);
+    await expect(page).toHaveURL(/\/auth\/\?mode=register&next=%2Fmira%2F%23ai-consultant/);
   });
 
   for (const route of publicRoutes) {

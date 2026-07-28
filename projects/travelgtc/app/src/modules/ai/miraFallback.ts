@@ -1,7 +1,9 @@
 const OFFICIAL_SOURCE_TEXT =
-  'Официальные источники для проверки: MWR Life https://www.mwrlife.com/, Membership https://www.mwrlife.com/home/membership, Company https://www.mwrlife.com/home/company, Travel Advantage https://www.traveladvantage.com/home, Membership Benefits PDF https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf.';
+  'Официальные источники для проверки: MWR Life https://www.mwrlife.com/, Membership https://www.mwrlife.com/home/membership, Company https://www.mwrlife.com/home/company, Travel Advantage https://www.traveladvantage.com/home, Membership Benefits PDF https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf, VIP demo https://vip.traveladvantage.com/KFilip909, free demo https://free.traveladvantage.com/KFilip909.';
 const MEMBERSHIP_DOC_LINK =
   'https://travelgtc.com/assets/docs/MembershipBenefits-RU.pdf';
+const VIP_DEMO_LINK = 'https://vip.traveladvantage.com/KFilip909';
+const FREE_DEMO_LINK = 'https://free.traveladvantage.com/KFilip909';
 
 export function buildMiraFallbackAnswer(question: string): string {
   const normalized = question.toLowerCase();
@@ -10,6 +12,11 @@ export function buildMiraFallbackAnswer(question: string): string {
   const sourcePattern = /(официальн|источник|сайт|документ|pdf|benefits|правил|услов)/i;
   const storyPattern = /(истори|знаком|встреч|событ|пара|друг|партн[её]р|впечатл)/i;
   const comparePattern = /(сравн|расчет|расч[её]т|калькул|выгод|разниц|таблиц|elite|vip|турбо|turbo|балл|loyalty|групп|клиент|ретрит|йог|цигун)/i;
+  const demoPattern = /(demo|демо|trial|free|посмотреть|интерфейс)/i;
+
+  if (demoPattern.test(normalized)) {
+    return `Можно начать с demo-доступа Travel Advantage и спокойно посмотреть интерфейс до оплаты.\n\n🌟 VIP demo: ${VIP_DEMO_LINK}\n🆓 Free demo: ${FREE_DEMO_LINK}\n\nDemo — это discovery step, не обещание финальной цены, наличия предложений или paid inventory. Если после просмотра вам понравится логика платформы, следующий шаг — сравнить Membership и перейти к официальной регистрации через партнёра TravelGTC.`;
+  }
 
   if (nextStepPattern.test(normalized)) {
     return 'Похоже, вы уже близко к следующему шагу. Я Мира, поэтому подскажу спокойно: оставьте короткую заявку на TravelGTC, а партнёр объяснит тарифы, проверит доступность для вашей страны и поможет перейти к официальной процедуре MWR Life / Travel Advantage.';

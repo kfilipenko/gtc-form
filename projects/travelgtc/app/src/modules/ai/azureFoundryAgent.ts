@@ -1,6 +1,11 @@
 import { AIProjectClient } from '@azure/ai-projects';
 import { DefaultAzureCredential } from '@azure/identity';
-import { attachMembershipDocumentLink, buildMembershipKnowledgeContext } from './membershipKnowledge.js';
+import {
+  TRAVEL_ADVANTAGE_FREE_DEMO_URL,
+  TRAVEL_ADVANTAGE_VIP_DEMO_URL,
+  attachMembershipDocumentLink,
+  buildMembershipKnowledgeContext,
+} from './membershipKnowledge.js';
 
 export interface AzureFoundryAgentOptions {
   endpoint: string;
@@ -80,6 +85,7 @@ function applyMiraAnswerGuard(question: string, answer: string): string {
   const normalizedQuestion = question.toLowerCase();
   const storyPattern = /(истори|знаком|встреч|событ|пара|друг|партн[её]р|впечатл)/i;
   const tariffPattern = /(тариф|membership|уровн|покуп|подключ|стоим|цена|скидк|бонус|travel credits|loyalty|балл|elite|turbo|vip)/i;
+  const demoPattern = /(demo|демо|trial|free|посмотреть|интерфейс)/i;
 
   let guarded = answer;
 
@@ -92,6 +98,10 @@ function applyMiraAnswerGuard(question: string, answer: string): string {
       /например,\s*(?:отел(?:ей|и|ях|ь)?|авиабилет(?:ов|ы|ах)?|круиз(?:ов|ы|ах)?)[^.\n]{0,140}/giu,
       'например, допустимых заказов, где официальный booking flow разрешает списание',
     );
+  }
+
+  if (demoPattern.test(normalizedQuestion) && !guarded.includes(TRAVEL_ADVANTAGE_VIP_DEMO_URL)) {
+    guarded += `\n\n🌟 VIP demo Travel Advantage: ${TRAVEL_ADVANTAGE_VIP_DEMO_URL}\n🆓 Free demo Travel Advantage: ${TRAVEL_ADVANTAGE_FREE_DEMO_URL}\n\nDemo помогает посмотреть интерфейс до оплаты. Финальные условия и доступность нужно проверять на официальных страницах Travel Advantage.`;
   }
 
   if (

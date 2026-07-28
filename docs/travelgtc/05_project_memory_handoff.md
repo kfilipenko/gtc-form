@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 4.6
+- Version: 4.7
 - Date: 2026-07-28
-- Status: Active, approval tasks drafted for Mira page and demo links
+- Status: Active, dedicated Mira page and demo links implemented
 
 ## 1. Current State
 
@@ -326,13 +326,13 @@ Before Azure answers a new account chat question, the backend passes the latest 
 Official TravelGTC referral registration link currently configured by default: https://www.mwrlife.com/KFilip909.
 If a user writes that they want to subscribe/register/pay/join/get the link, the account AI chat marks purchase_intent=true, appends the referral link, raises the CRM lead to ready_to_subscribe, creates a high-priority purchase_intent task and sends an email notification.
 
-Pending approval tasks as of 2026-07-28:
+Implemented after approval on 2026-07-28:
 
-1. TRAVELGTC-WEB-029 dedicated Mira page, proposed route `/mira/`.
-2. TRAVELGTC-WEB-030 demo access links:
+1. TRAVELGTC-WEB-029 dedicated Mira page is published in source as `/mira/`.
+2. TRAVELGTC-WEB-030 demo access links are published in source:
    - VIP: https://vip.traveladvantage.com/KFilip909
    - Free: https://free.traveladvantage.com/KFilip909
-3. TRAVELGTC-AI-005 official documents and demo knowledge split.
+3. TRAVELGTC-AI-005 updated Mira context/fallback logic so demo intent is discovery and purchase intent remains separate.
 ```
 
 ## 2. Working Rules
@@ -359,6 +359,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 4.7 | 2026-07-28 | GTC IT / AI Assistant | Recorded implementation of `/mira/`, Travel Advantage demo links and Mira demo/purchase intent separation |
 | 4.6 | 2026-07-28 | GTC IT / AI Assistant | Recorded draft approval tasks for dedicated Mira page, demo access links and official-document knowledge split |
 | 4.5 | 2026-07-12 | GTC IT / AI Assistant | Recorded official referral URL and Mira purchase-intent flow with ready_to_subscribe CRM stage |
 | 4.4 | 2026-07-12 | GTC IT / AI Assistant | Recorded Mira chat branded header, viewport correction, CRM history restore and Azure context continuation |

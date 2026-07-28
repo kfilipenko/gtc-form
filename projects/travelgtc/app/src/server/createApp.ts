@@ -888,6 +888,13 @@ async function markAiPurchaseIntent(pool: pg.Pool, input: AiPurchaseIntentInput)
 
 function isPurchaseIntent(text: string): boolean {
   const compact = text.replace(/\s+/g, ' ').trim();
+  const demoDiscovery =
+    /(demo|демо|trial|free|посмотреть|интерфейс)/i.test(compact) &&
+    /(до|перед)[^.!?\n]{0,30}(оплат|регистрац|покуп|подпис)/i.test(compact) &&
+    !/(готов|готова|готовы|давайте|оформ|купить|оплатить|подписаться|получить ссыл|дайте ссыл|пришлите ссыл)/i.test(compact);
+  if (demoDiscovery) {
+    return false;
+  }
   return (
     /(хочу|готов|готова|готовы|давайте|могу|можно|нужно|пора)[^.!?\n]{0,80}(подпис\w*|оформ\w*|оплат\w*|куп\w*|зарегистр\w*|регистрац\w*|вступ\w*|присоедин\w*|стать участ\w*|получить ссыл\w*|ссылк\w*)/i.test(compact) ||
     /(дайте|пришлите|отправьте|покажите|нужна|нужен)[^.!?\n]{0,80}(ссылк\w*|регистрац\w*|оплат\w*|подпис\w*|оформ\w*)/i.test(compact) ||

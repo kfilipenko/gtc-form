@@ -1,8 +1,10 @@
 const AUTH_DRAFT_KEY = "travelgtc.leadDraft.v1";
 const IDENTITY_CONSENT_VERSION = "travelgtc-identity-consent-v1";
 const AI_CONSULTANT_NAME = "Мира TravelGTC";
+const TRAVEL_ADVANTAGE_VIP_DEMO_URL = "https://vip.traveladvantage.com/KFilip909";
+const TRAVEL_ADVANTAGE_FREE_DEMO_URL = "https://free.traveladvantage.com/KFilip909";
 const OFFICIAL_SOURCE_TEXT =
-  "Официальные источники для проверки: MWR Life https://www.mwrlife.com/, Membership https://www.mwrlife.com/home/membership, Company https://www.mwrlife.com/home/company, Travel Advantage https://www.traveladvantage.com/home, Membership Benefits PDF https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf.";
+  "Официальные источники для проверки: MWR Life https://www.mwrlife.com/, Membership https://www.mwrlife.com/home/membership, Company https://www.mwrlife.com/home/company, Travel Advantage https://www.traveladvantage.com/home, Membership Benefits PDF https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf, VIP demo https://vip.traveladvantage.com/KFilip909, free demo https://free.traveladvantage.com/KFilip909.";
 
 const authState = {
   loaded: false,
@@ -662,6 +664,10 @@ function initAiConsultant() {
   initAiPanelDrag(widget, panel);
   initAiPendingQuestion(panel, form, messages);
 
+  if (panel.closest("[data-ai-page]")) {
+    window.setTimeout(() => syncAiPanelState(panel), 80);
+  }
+
   document.querySelectorAll("[data-ai-open]").forEach((trigger) => {
     trigger.addEventListener("click", async (event) => {
       event.preventDefault();
@@ -1139,7 +1145,12 @@ function buildAiStubAnswer(question) {
   const nextStepPattern = /(зарегистр|регистрац|стоим|цена|сколько|участник|ambassador|амбассад|страна|доступ|ссылка|связ|контакт|whatsapp|telegram|телефон|email)/i;
   const tariffPattern = /(тариф|membership|уровн|покуп|подключ|семь|семьи|premium|elite|basic|пакет)/i;
   const sourcePattern = /(официальн|источник|сайт|документ|pdf|benefits|правил|услов)/i;
+  const demoPattern = /(demo|демо|trial|тест|посмотреть|доступ|free|vip)/i;
   const storyPattern = /(истори|знаком|встреч|событ|пара|друг|партн[её]р|впечатл|путешеств)/i;
+
+  if (demoPattern.test(normalized)) {
+    return `Можно начать мягко: сначала посмотреть demo-доступ Travel Advantage, а уже потом обсуждать Membership и официальный шаг.\n\n🌟 VIP demo: ${TRAVEL_ADVANTAGE_VIP_DEMO_URL}\n🆓 Free demo: ${TRAVEL_ADVANTAGE_FREE_DEMO_URL}\n\nDemo помогает увидеть интерфейс до регистрации и оплаты. Условия, состав предложений и доступность сервисов всё равно проверяются на официальных страницах Travel Advantage. После demo я бы задала простой вопрос: вы смотрите платформу для личных поездок, семьи, друзей или группы/клиентов?`;
+  }
 
   if (tariffPattern.test(normalized)) {
     return "Хороший вопрос. Я бы начала не с названия тарифа, а с вашего сценария: семья, частые поездки, weekend-перезагрузки, события или поездки с друзьями. Travel Advantage Membership имеет смысл смотреть через официальное сравнение уровней: https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf. Какой сценарий для вас главный: семейные поездки, личные путешествия или возможность собирать людей вокруг маршрутов?";
