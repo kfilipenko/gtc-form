@@ -90,8 +90,10 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('.membership-steps')).toContainText('Сопровождение TravelGTC');
       await expect(page.locator('.membership-steps')).not.toContainText('Выбор интереса');
       await expect(page.locator('.membership-steps')).not.toContainText('Вход или регистрация');
-      await expect(page.locator('.ai-section')).toBeVisible();
-      await expect(page.locator('#ai-consultant').getByText('Мира TravelGTC')).toBeVisible();
+      await expect(page.locator('.ai-section')).toHaveCount(0);
+      await expect(page.getByText('Задайте первый вопрос до консультации')).toHaveCount(0);
+      await expect(page.getByRole('link', { name: 'Спросить Миру' })).toHaveCount(0);
+      await expect(page.getByRole('link', { name: 'Выбрать первый вопрос' })).toHaveCount(0);
       await expect(page.locator('[data-ai-widget]')).toHaveCount(0);
       await expect(page.locator('#lead-form')).toHaveCount(0);
       await expect(page.getByRole('link', { name: 'Оставить заявку' })).toHaveCount(0);

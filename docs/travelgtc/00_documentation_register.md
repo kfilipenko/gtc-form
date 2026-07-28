@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 7.0
+- Version: 7.1
 - Date: 2026-07-28
-- Status: Membership process simplified to three service steps
+- Status: Duplicate Mira home promo removed
 
 ## 1. Purpose
 
@@ -133,6 +133,7 @@ The first stage is intentionally small:
 | `103_travelgtc_web_038_mira_first_funnel_report.md` | TRAVELGTC-WEB-038 - Mira-First Funnel Report | Removes the old home short request form and moves first-question selection into the dedicated Mira chat page. | Implemented |
 | `104_travelgtc_web_039_contact_route_removal_footer_contacts_report.md` | TRAVELGTC-WEB-039 - Contact Route Removal And Protected Footer Contacts Report | Removes the separate contacts page and publishes protected direct contact channels in the footer. | Implemented |
 | `105_travelgtc_web_040_membership_process_three_step_report.md` | TRAVELGTC-WEB-040 - Membership Process Three-Step Report | Simplifies the home Membership/Ambassador process section to three service-oriented steps. | Implemented |
+| `106_travelgtc_web_041_remove_duplicate_mira_home_promo_report.md` | TRAVELGTC-WEB-041 - Remove Duplicate Mira Home Promo Report | Removes the duplicate home Mira promo/preview block now that `/mira/` is the dedicated chat route. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -166,6 +167,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 7.1 | 2026-07-28 | GTC IT / AI Assistant | Removed the duplicate Mira home promo/preview block and kept Mira entry through navigation, process and `/mira/` |
 | 7.0 | 2026-07-28 | GTC IT / AI Assistant | Simplified the Membership/Ambassador process section to three service-oriented steps without emphasizing human-vs-AI separation |
 | 6.9 | 2026-07-28 | GTC IT / AI Assistant | Removed the separate `/contacts/` page and replaced footer Contact navigation with protected direct email/phone channels |
 | 6.8 | 2026-07-28 | GTC IT / AI Assistant | Moved the `/mira/` first-question selector from the fixed input bar into the chat message flow and hid it after the first question |
