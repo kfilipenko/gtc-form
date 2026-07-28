@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 6.4
+- Version: 6.5
 - Date: 2026-07-28
-- Status: Mira chat page avatar added
+- Status: Mira chat banner compacted
 
 ## 1. Purpose
 
@@ -163,6 +163,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 6.5 | 2026-07-28 | GTC IT / AI Assistant | Compacted `/mira/` chat banner, removed duplicate logo/text from the chat panel header and kept the approved avatar as the right-side banner visual |
 | 6.4 | 2026-07-28 | GTC IT / AI Assistant | Added approved Mira avatar image to `/mira/` and published optimized WebP asset |
 | 6.3 | 2026-07-28 | GTC IT / AI Assistant | Simplified `/mira/` into a chat-only page and removed duplicated Guest Pass / VIP explanatory copy |
 | 6.2 | 2026-07-28 | GTC IT / AI Assistant | Simplified main navigation by removing Travel Advantage and duplicate membership/AI CTAs, leaving one Mira link to `/mira/` |

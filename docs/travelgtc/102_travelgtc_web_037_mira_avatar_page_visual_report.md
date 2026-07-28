@@ -3,8 +3,8 @@
 - Project: TravelGTC
 - Code: TRAVELGTC-WEB-037
 - Date: 2026-07-28
-- Status: Implemented and published
-- Scope: `/mira/`, Mira avatar image, responsive layout, Playwright guard
+- Status: Implemented, refined and published
+- Scope: `/mira/`, Mira avatar image, compact chat banner, responsive layout, Playwright guard
 
 ## 1. Source
 
@@ -22,9 +22,18 @@ projects/travelgtc/public/assets/images/processed/mira-avatar.webp
 
 ## 2. Implementation
 
-The dedicated `/mira/` page now shows the approved Mira avatar beside the chat on desktop. On smaller screens the image becomes a compact visual banner above the chat.
+The dedicated `/mira/` page now uses the approved Mira avatar inside a compact chat banner. The banner text is:
 
-The page remains chat-focused: the avatar supports the conversation visually but does not reintroduce the removed Guest Pass / VIP explanatory copy.
+```text
+Ваш
+Персональный
+Агент
+Мира
+```
+
+The avatar is placed on the right side of the banner with rounded/oval edges. This keeps the page chat-focused and prevents the image from taking over the first screen.
+
+The chat panel header must not duplicate the site logo, `Мира TravelGTC` title or `AI-чат` subtitle because the top menu already carries the brand and page context. The page also must not reintroduce the removed Guest Pass / VIP explanatory copy.
 
 ## 3. Verification
 
@@ -35,4 +44,4 @@ npm run test:travelgtc
 git diff --check
 ```
 
-The Playwright suite verifies that `/mira/` loads `/assets/images/processed/mira-avatar.webp`.
+The Playwright suite verifies that `/mira/` loads `/assets/images/processed/mira-avatar.webp`, keeps the chat header free from a duplicate logo and renders the compact banner wording.
