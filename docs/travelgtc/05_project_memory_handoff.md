@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 5.5
+- Version: 5.6
 - Date: 2026-07-28
-- Status: Active, Mira chat banner compacted
+- Status: Active, Mira chat banner wording refined
 
 ## 1. Current State
 
@@ -165,7 +165,7 @@ TRAVELGTC-WEB-033 rule: the home `#lead-form` is interest-only. Do not reintrodu
 TRAVELGTC-WEB-034 rule: the home `Официальные входы Travel Advantage` card must use a single-column layout. Long CTA labels must not create an `auto` grid column that collapses the explanatory text into vertical letters.
 TRAVELGTC-WEB-035 rule: the membership-first top navigation must not include a separate `Travel Advantage` hash link or duplicate `Узнать о членстве` CTA. The AI entry in the top menu is a single `Мира` link to `/mira/`; the home page must not include the old embedded floating AI widget.
 TRAVELGTC-WEB-036 rule: `/mira/` is a chat-only working page. Do not duplicate the home `#relationship` Guest Pass / VIP Membership explanatory block, official access buttons or promo copy there. Keep guest-access explanation on the home relationship block and let Mira handle questions in the chat.
-TRAVELGTC-WEB-037 rule: `/mira/` uses the approved avatar source `projects/travelgtc/public/assets/images/inbox/Mira Avatar.png`, optimized and published as `/assets/images/processed/mira-avatar.webp`. Do not replace it with generated alternatives unless the Project Owner explicitly provides a new approved source. The chat panel header must not duplicate the site logo or repeated `Мира TravelGTC / AI-чат` text because the brand and page entry are already present in the top menu. Use the compact banner wording `Ваш / Персональный / Агент / Мира` with the avatar on the right.
+TRAVELGTC-WEB-037 rule: `/mira/` uses the approved avatar source `projects/travelgtc/public/assets/images/inbox/Mira Avatar.png`, optimized and published as `/assets/images/processed/mira-avatar.webp`. Do not replace it with generated alternatives unless the Project Owner explicitly provides a new approved source. The chat panel header must not duplicate the site logo or repeated `Мира TravelGTC / AI-чат` text because the brand and page entry are already present in the top menu. Use the compact banner wording `Ваш / Агент / Мира` with the avatar on the right.
 ```
 
 Architecture state:
@@ -373,6 +373,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 5.6 | 2026-07-28 | GTC IT / AI Assistant | Refined Mira banner wording to `Ваш / Агент / Мира` and adjusted compact typography |
 | 5.5 | 2026-07-28 | GTC IT / AI Assistant | Recorded compact Mira chat banner rule: no duplicated logo/text in chat header, avatar stays right-side in banner |
 | 5.4 | 2026-07-28 | GTC IT / AI Assistant | Recorded approved Mira avatar asset and `/mira/` layout use |
 | 5.3 | 2026-07-28 | GTC IT / AI Assistant | Recorded chat-only `/mira/` page and home-only Guest Pass / VIP explanation |

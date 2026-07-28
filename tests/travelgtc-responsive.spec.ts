@@ -176,9 +176,9 @@ test.describe('TravelGTC responsive public site', () => {
     await expect(page.locator('.site-header .brand-logo img')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
     await expect(page.locator('[data-ai-page] .ai-panel-head .ai-logo')).toHaveCount(0);
     await expect(page.locator('.mira-banner-title')).toContainText('Ваш');
-    await expect(page.locator('.mira-banner-title')).toContainText('Персональный');
     await expect(page.locator('.mira-banner-title')).toContainText('Агент');
     await expect(page.locator('.mira-banner-title')).toContainText('Мира');
+    await expect(page.locator('.mira-banner-title')).not.toContainText('Персональный');
     await expect(page.locator('.mira-banner-image')).toHaveAttribute('src', '/assets/images/processed/mira-avatar.webp');
     await expect(page.locator('[data-ai-page] [data-ai-panel]')).toBeVisible();
     await expect(page.locator('[data-ai-page] [data-ai-starter]')).toHaveCount(3);

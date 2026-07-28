@@ -1154,9 +1154,9 @@ h3 {
 .mira-chat-banner {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(180px, 34%);
+  grid-template-columns: minmax(0, 1fr) minmax(176px, 30%);
   align-items: stretch;
-  min-height: 132px;
+  min-height: 122px;
   padding: 16px 18px 16px 24px;
   overflow: hidden;
   background:
@@ -1171,9 +1171,9 @@ h3 {
   align-content: center;
   gap: 1px;
   color: var(--white);
-  font-size: clamp(1.6rem, 3vw, 2.55rem);
+  font-size: clamp(2rem, 3.4vw, 3.05rem);
   font-weight: 900;
-  line-height: 0.88;
+  line-height: 0.9;
 }
 
 .mira-banner-title strong {
@@ -1184,7 +1184,7 @@ h3 {
   position: absolute;
   top: 50%;
   right: 18px;
-  width: min(32%, 188px);
+  width: min(29%, 178px);
   aspect-ratio: 1;
   transform: translateY(-50%);
   object-fit: cover;
@@ -2524,18 +2524,18 @@ button:disabled {
   }
 
   .mira-chat-banner {
-    grid-template-columns: minmax(0, 1fr) 124px;
-    min-height: 108px;
+    grid-template-columns: minmax(0, 1fr) 116px;
+    min-height: 100px;
     padding: 14px 14px 14px 18px;
   }
 
   .mira-banner-title {
-    font-size: clamp(1.45rem, 7vw, 2rem);
+    font-size: clamp(1.75rem, 8vw, 2.35rem);
   }
 
   .mira-banner-image {
     right: 12px;
-    width: 122px;
+    width: 116px;
     border-radius: 999px 999px 999px 28%;
   }
 
