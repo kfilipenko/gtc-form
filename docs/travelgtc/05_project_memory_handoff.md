@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 5.8
+- Version: 6.2
 - Date: 2026-07-28
-- Status: Active, duplicate Mira home promo removed
+- Status: Active, needs-based opportunities page implemented
 
 ## 1. Current State
 
@@ -169,6 +169,7 @@ TRAVELGTC-WEB-037 rule: `/mira/` uses the approved avatar source `projects/trave
 TRAVELGTC-WEB-039 rule: `/contacts/` is removed as a separate public page and must not be reintroduced as a duplicate request form. Primary consultation flow is `/mira/`. Direct project contacts belong in the global footer and are assembled client-side from protected data pieces to reduce basic source-code scraping; this is not absolute protection against JavaScript-capable bots.
 TRAVELGTC-WEB-040 rule: the home block `Как вы становитесь участником или изучаете роль Ambassador` must stay as three service-oriented steps: `Диалог с Мирой`, `Официальная ссылка`, `Сопровождение TravelGTC`. Do not restore the removed process cards `Мира`, `Выбор интереса`, `Вход или регистрация`, `Консультация`, `Официальный шаг`. Public working pages should use natural service wording and should not emphasize a human-vs-AI distinction; legal/privacy pages may still disclose AI/automated processing.
 TRAVELGTC-WEB-041 rule: do not reintroduce a separate home page `Мира TravelGTC` promo/preview block with duplicate buttons or sample Q&A. Mira entry belongs in the top navigation, the process card and the dedicated `/mira/` route.
+TRAVELGTC-WEB-042 rule: the old `События` navigation/page concept is now `Возможности`. Keep `/events/` as the stable route, but present it as a needs-based scenario map using accordion sections: personal travel, family/close people, active travel, groups/students/clients, events/club environment, Ambassador/business. Mira must use this page as a scenario classifier for sales conversations and should especially recognize experts, teachers, trainers, wellness/retreat leaders, group organizers, client communities and partner-business candidates.
 ```
 
 Architecture state:
@@ -224,6 +225,7 @@ TRAVELGTC-WEB-037 added the approved Mira avatar visual to `/mira/`, then refine
 TRAVELGTC-WEB-038 removed the old home `#lead-form` short request form, replaced home request CTAs with `/mira/`, added a first-question selector to the Mira chat form and extended tests for the Mira-first funnel.
 TRAVELGTC-WEB-040 simplified the home Membership/Ambassador process block from six cards to three service steps: dialogue with Mira, official link, and TravelGTC support when needed.
 TRAVELGTC-WEB-041 removed the duplicate home `Мира TravelGTC / Задайте первый вопрос до консультации` promo/preview block.
+TRAVELGTC-WEB-042 reworked `/events/` into `Возможности`: a six-scenario accordion that connects user needs to Travel Advantage, MWR Life, club participation and Ambassador/business paths. Mira membership knowledge and fallback logic now route unclear or needs-based questions to this opportunity map.
 ```
 
 API state:
@@ -381,6 +383,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 6.2 | 2026-07-28 | GTC IT / AI Assistant | Recorded `/events/` as the `Возможности` needs-based accordion and Mira scenario-routing source |
 | 6.1 | 2026-07-28 | GTC IT / AI Assistant | Recorded removal of the duplicate home Mira promo/preview block |
 | 6.0 | 2026-07-28 | GTC IT / AI Assistant | Recorded the three-step Membership/Ambassador process section and public wording rule around Mira/support |
 | 5.9 | 2026-07-28 | GTC IT / AI Assistant | Recorded removal of `/contacts/` and protected footer email/phone rendering |

@@ -4,6 +4,7 @@ export const OFFICIAL_MEMBERSHIP_BENEFITS_URL =
   'https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf';
 export const TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL = 'https://vip.traveladvantage.com/KFilip909';
 export const TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL = 'https://free.traveladvantage.com/KFilip909';
+export const TRAVELGTC_OPPORTUNITIES_URL = 'https://travelgtc.com/events/';
 
 const MEMBERSHIP_KNOWLEDGE_SUMMARY = [
   'База знаний Travel Advantage Membership для ответов Миры.',
@@ -12,6 +13,7 @@ const MEMBERSHIP_KNOWLEDGE_SUMMARY = [
   `Официальный EN PDF: ${OFFICIAL_MEMBERSHIP_BENEFITS_URL}`,
   `VIP Membership Travel Advantage: ${TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL}`,
   `Free Guest Pass Travel Advantage: ${TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL}`,
+  `Сценарии возможностей TravelGTC: ${TRAVELGTC_OPPORTUNITIES_URL}`,
   '',
   'Уровни: Guest, VIP, VIP180, Elite, а также Turbo add-on.',
   'Ключевые условия для сравнений, расчетов и продажного объяснения:',
@@ -31,11 +33,15 @@ const MEMBERSHIP_KNOWLEDGE_SUMMARY = [
   '- Link routing: Free Guest Pass is the soft first look for cautious users, first product discovery and "бесплатно посмотреть"; VIP Membership is for users ready to consider the paid VIP level. For family, groups, clients, points, Elite, Turbo or Ambassador interest, first compare Membership levels before sending only the VIP Membership link.',
   '- Групповые и бизнес-сценарии: йога, цигун, wellness, ретриты, тренеры, эксперты с аудиторией, организаторы событий, подарочные поездки близким, Ambassador-направление.',
   '- При группе, клиентах, семье, друзьях, регулярных поездках, Life Experiences, points или business interest Мира сначала сравнивает Elite и при необходимости Turbo add-on.',
+  '- Страница возможностей TravelGTC структурирует потребности пользователя: путешествовать чаще, семья и близкие, активные путешествия, группы/ученики/клиенты, события/клубная среда, Ambassador и бизнес.',
+  '- Если пользователь не понимает, что ему ближе, Мира сначала задает один классифицирующий вопрос: личные поездки, семья, активный формат, группа/клиенты, клубные события или Ambassador/бизнес.',
+  '- Если пользователь является тренером, мастером йоги/цигуна/wellness, организатором ретритов, преподавателем, консультантом или лидером сообщества, Мира должна показать сценарий "группы, ученики и клиенты" и затем аккуратно раскрыть Ambassador-возможность.',
+  '- Если пользователь интересуется бизнесом, Мира объясняет современную партнерскую модель через полезный travel-продукт, доверие, рекомендации, готовую инфраструктуру, цифровой доступ и развитие собственной группы. Не использовать агрессивные анти-скептические формулировки.',
   '- При просрочке оплаты баллы блокируются, 180+ дней просрочки: отмена членства.',
 ].join('\n');
 
 export function isMembershipKnowledgeQuestion(question: string): boolean {
-  return /(membership|тариф|уровн|vip|vip180|elite|элит|turbo|турбо|балл|loyalty|point|travel credits|кредит|сравн|расчет|расч[её]т|калькул|выгод|выгодн|окуп|таблиц|разниц|сценар|семь|друз|групп|клиент|ученик|ретрит|йог|цигун|wellness|ambassador|амбассад|бизнес|заработ|доход|life experience|guest pass|гостев|demo|демо|free|trial|посмотреть|интерфейс)/i.test(
+  return /(membership|тариф|уровн|vip|vip180|elite|элит|turbo|турбо|балл|loyalty|point|travel credits|кредит|сравн|расчет|расч[её]т|калькул|выгод|выгодн|окуп|таблиц|разниц|сценар|возможност|потребност|семь|близк|подар|свадеб|друз|групп|клиент|ученик|ретрит|йог|цигун|wellness|спорт|фридайв|активн|тренер|мастер|аудитор|сообществ|ambassador|амбассад|бизнес|заработ|доход|прям.*продаж|сетев|рекомендац|life experience|guest pass|гостев|demo|демо|free|trial|посмотреть|интерфейс)/i.test(
     question,
   );
 }
@@ -53,6 +59,7 @@ export function buildMembershipKnowledgeContext(question: string): string {
     'Если говоришь про баллы: объясняй travel-value, не называй это cash. Укажи, что применимость и пропорция зависят от конкретного заказа.',
     'Не придумывай категории списания Loyalty Points. Не говори "авиабилеты/круизы/отели" как универсальные примеры применения баллов. Говори "допустимый заказ", "Life Experiences where applicable" и "покажет официальный booking flow".',
     'Если вопрос про бизнес/группы: выявляй аудиторию, учеников, клиентов, ретриты, мероприятия и Ambassador-сценарий.',
+    `Если вопрос про сценарии потребностей или пользователь не знает, с чего начать: используй карту возможностей TravelGTC ${TRAVELGTC_OPPORTUNITIES_URL} и классифицируй сценарий: личные путешествия, семья, активный отдых, группы/клиенты, события/клубная среда, Ambassador/бизнес.`,
     'Если используешь цифры, добавляй ссылку на рабочий RU-документ и официальный EN PDF.',
     'Если пользователь хочет сначала посмотреть платформу, до оплаты или без кредитной карты: предложи Free Guest Pass. Объясни ограничение: 1 hotel booking максимум на 2 ночи. Если пользователь готов рассматривать платный VIP-уровень - дай VIP Membership. Если есть семья, группа, клиенты, баллы, Elite, Turbo или Ambassador interest - сначала сравни уровни Membership, чтобы не отправить человека на слишком слабый VIP checkout.',
     '',

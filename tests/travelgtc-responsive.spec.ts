@@ -84,6 +84,8 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('.site-header a[href="#travel-advantage"]')).toHaveCount(0);
       await expect(page.locator('.site-header .nav-primary')).toHaveCount(0);
       await expect(page.locator('.site-header a[href="/mira/"]')).toHaveText('Мира');
+      await expect(page.locator('.site-header a[href="/events/"]')).toHaveText('Возможности');
+      await expect(page.locator('.site-header a[href="/events/"]')).not.toHaveText('События');
       await expect(page.locator('.membership-steps article')).toHaveCount(3);
       await expect(page.locator('.membership-steps')).toContainText('Диалог с Мирой');
       await expect(page.locator('.membership-steps')).toContainText('Официальная ссылка');
@@ -136,6 +138,35 @@ test.describe('TravelGTC responsive public site', () => {
     await expect(page.locator('.nav-links')).not.toBeVisible();
     await page.locator('[data-menu-toggle]').click();
     await expect(page.locator('.nav-links')).toBeVisible();
+
+    const overflow = await measureHorizontalOverflow(page);
+    await assertNoHorizontalOverflow(overflow.viewportWidth, Math.max(overflow.documentScrollWidth, overflow.bodyScrollWidth));
+  });
+
+  test('opportunities page presents needs scenarios as an accordion', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/events/', { waitUntil: 'domcontentloaded' });
+
+    await expect(page.locator('h1')).toContainText('Найдите свой сценарий');
+    await expect(page.locator('.site-header a[href="/events/"]')).toHaveText('Возможности');
+    await expect(page.locator('.opportunity-accordion details')).toHaveCount(6);
+    await expect(page.locator('.opportunity-accordion')).toContainText('Путешествовать чаще');
+    await expect(page.locator('.opportunity-accordion')).toContainText('Семья и близкие');
+    await expect(page.locator('.opportunity-accordion')).toContainText('Активные путешествия');
+    await expect(page.locator('.opportunity-accordion')).toContainText('Группы, ученики и клиенты');
+    await expect(page.locator('.opportunity-accordion')).toContainText('События и клубная среда');
+    await expect(page.locator('.opportunity-accordion')).toContainText('Ambassador и бизнес');
+    await expect(page.locator('.opportunity-accordion')).toContainText('Как Мира ведёт разговор');
+    await expect(page.locator('.opportunity-next')).toContainText('Начните с вопроса, а не с покупки');
+    await expect(page.getByRole('link', { name: 'Спросить Миру' })).toHaveAttribute('href', '/mira/');
+  });
+
+  test('opportunities accordion fits mobile viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/events/', { waitUntil: 'domcontentloaded' });
+
+    await expect(page.locator('.opportunity-accordion details')).toHaveCount(6);
+    await expect(page.locator('.opportunity-accordion summary').first()).toBeVisible();
 
     const overflow = await measureHorizontalOverflow(page);
     await assertNoHorizontalOverflow(overflow.viewportWidth, Math.max(overflow.documentScrollWidth, overflow.bodyScrollWidth));

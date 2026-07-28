@@ -4,6 +4,7 @@ const MEMBERSHIP_DOC_LINK =
   'https://travelgtc.com/assets/docs/MembershipBenefits-RU.pdf';
 const VIP_MEMBERSHIP_LINK = 'https://vip.traveladvantage.com/KFilip909';
 const FREE_GUEST_PASS_LINK = 'https://free.traveladvantage.com/KFilip909';
+const OPPORTUNITIES_LINK = 'https://travelgtc.com/events/';
 
 export function buildMiraFallbackAnswer(question: string): string {
   const normalized = question.toLowerCase();
@@ -13,6 +14,8 @@ export function buildMiraFallbackAnswer(question: string): string {
   const storyPattern = /(истори|знаком|встреч|событ|пара|друг|партн[её]р|впечатл)/i;
   const comparePattern = /(сравн|расчет|расч[её]т|калькул|выгод|разниц|таблиц|elite|vip|турбо|turbo|балл|loyalty|групп|клиент|ретрит|йог|цигун)/i;
   const guestAccessPattern = /(guest pass|гостев|demo|демо|trial|free|посмотреть|интерфейс)/i;
+  const opportunitiesPattern =
+    /(возможност|сценар|потребност|семь|близк|подар|спорт|активн|фридайв|йог|цигун|wellness|ретрит|групп|клиент|ученик|тренер|аудитор|сообществ|сетев|рекомендац)/i;
 
   if (guestAccessPattern.test(normalized)) {
     const vipFit = /(vip|elite|элит|membership|тариф|семь|друз|групп|клиент|балл|loyalty|событ|ambassador|амбассад|куп|оплат|сравн)/i.test(
@@ -25,6 +28,10 @@ export function buildMiraFallbackAnswer(question: string): string {
       ? `🆓 Free Guest Pass, если хотите начать совсем мягко: ${FREE_GUEST_PASS_LINK}`
       : `🌟 VIP Membership, если уже хотите перейти к платному VIP-членству: ${VIP_MEMBERSHIP_LINK}`;
     return `Можно начать с правильного входа Travel Advantage.\n\n${primaryLine}\n${secondaryLine}\n\nFree Guest Pass подходит для первого знакомства без кредитной карты. По странице Travel Advantage он даёт гостевой доступ к booking platform с ограничением: 1 hotel booking максимум на 2 ночи.\n\nVIP Membership — это уже продающая страница платного VIP-членства с переходом к official checkout. Если у вас семья, группа, клиенты, интерес к баллам, Elite, Turbo или Ambassador, я бы сначала сравнила уровни Membership, чтобы не выбрать слишком слабый тариф.`;
+  }
+
+  if (opportunitiesPattern.test(normalized)) {
+    return `Давайте начнём не с тарифа, а с вашего сценария 🌍\n\nВ TravelGTC я смотрю на 6 основных потребностей:\n\n- путешествовать чаще для себя;\n- семья, близкие и подарочные поездки;\n- активные путешествия: спорт, wellness, ретриты;\n- группы, ученики и клиенты;\n- события и клубная среда;\n- Ambassador и бизнес вокруг travel-продукта.\n\nЕсли у вас уже есть ученики, клиенты, подписчики или группа, это особенно интересный сценарий: Travel Advantage может быть не просто членством, а travel-направлением вокруг доверия и рекомендаций.\n\nКарта возможностей: ${OPPORTUNITIES_LINK}\n\nСкажите, что ближе сейчас: личные поездки, семья, активный формат, группа/клиенты или бизнес-сценарий?`;
   }
 
   if (nextStepPattern.test(normalized)) {
