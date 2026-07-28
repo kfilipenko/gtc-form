@@ -149,6 +149,11 @@ test.describe('TravelGTC responsive public site', () => {
 
     await expect(page.locator('h1')).toContainText('Найдите свой сценарий');
     await expect(page.locator('.site-header a[href="/events/"]')).toHaveText('Возможности');
+    await expect(page.locator('.site-header a[href="/travel-lifestyle/"]')).toHaveCount(0);
+    await expect(page.locator('.site-header a[href="/club/"]')).toHaveCount(0);
+    await expect(page.locator('.site-header a[href="/create-trip/"]')).toHaveCount(0);
+    await expect(page.locator('.site-header a[href="/business-model/"]')).toHaveCount(0);
+    await expect(page.locator('.site-header a[href="/about/"]')).toHaveCount(0);
     await expect(page.locator('.opportunity-accordion details')).toHaveCount(6);
     await expect(page.locator('.opportunity-accordion')).toContainText('Путешествовать чаще');
     await expect(page.locator('.opportunity-accordion')).toContainText('Семья и близкие');
@@ -156,7 +161,7 @@ test.describe('TravelGTC responsive public site', () => {
     await expect(page.locator('.opportunity-accordion')).toContainText('Группы, ученики и клиенты');
     await expect(page.locator('.opportunity-accordion')).toContainText('События и клубная среда');
     await expect(page.locator('.opportunity-accordion')).toContainText('Ambassador и бизнес');
-    await expect(page.locator('.opportunity-accordion')).toContainText('Как Мира ведёт разговор');
+    await expect(page.locator('.opportunity-accordion')).not.toContainText('Как Мира ведёт разговор');
     await expect(page.locator('.opportunity-next')).toContainText('Начните с вопроса, а не с покупки');
     await expect(page.getByRole('link', { name: 'Спросить Миру' })).toHaveAttribute('href', '/mira/');
   });

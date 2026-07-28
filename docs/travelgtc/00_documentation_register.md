@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 7.2
+- Version: 7.3
 - Date: 2026-07-28
-- Status: Needs-based opportunities accordion implemented
+- Status: Public opportunities copy and global menu corrected
 
 ## 1. Purpose
 
@@ -135,6 +135,7 @@ The first stage is intentionally small:
 | `105_travelgtc_web_040_membership_process_three_step_report.md` | TRAVELGTC-WEB-040 - Membership Process Three-Step Report | Simplifies the home Membership/Ambassador process section to three service-oriented steps. | Implemented |
 | `106_travelgtc_web_041_remove_duplicate_mira_home_promo_report.md` | TRAVELGTC-WEB-041 - Remove Duplicate Mira Home Promo Report | Removes the duplicate home Mira promo/preview block now that `/mira/` is the dedicated chat route. | Implemented |
 | `107_travelgtc_web_042_needs_based_opportunities_report.md` | TRAVELGTC-WEB-042 - Needs-Based Opportunities Page Report | Reworks `/events/` into the `Возможности` scenario accordion and extends Mira needs-based routing. | Implemented |
+| `108_travelgtc_web_043_public_opportunities_copy_and_global_menu_report.md` | TRAVELGTC-WEB-043 - Public Opportunities Copy And Global Menu Report | Removes internal Mira conversation copy from `/events/` and aligns public headers to the membership-first menu. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -168,6 +169,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 7.3 | 2026-07-28 | GTC IT / AI Assistant | Removed internal Mira conversation mechanics from the public opportunities accordion and aligned public headers to the membership-first menu |
 | 7.2 | 2026-07-28 | GTC IT / AI Assistant | Reworked `/events/` as `Возможности`, a needs-based accordion for travel, family, active, group, event and Ambassador scenarios |
 | 7.1 | 2026-07-28 | GTC IT / AI Assistant | Removed the duplicate Mira home promo/preview block and kept Mira entry through navigation, process and `/mira/` |
 | 7.0 | 2026-07-28 | GTC IT / AI Assistant | Simplified the Membership/Ambassador process section to three service-oriented steps without emphasizing human-vs-AI separation |
