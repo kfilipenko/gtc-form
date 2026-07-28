@@ -80,13 +80,13 @@ test.describe('TravelGTC responsive public site', () => {
       expect(accessHeadingBox?.width || 0).toBeGreaterThan(240);
       expect(accessHeadingBox?.height || 0).toBeLessThan(80);
       await expect(page.locator('.site-header a[href="/mira/"]')).toHaveCount(1);
+      await expect(page.locator('.site-header a[href="#travel-advantage"]')).toHaveCount(0);
+      await expect(page.locator('.site-header .nav-primary')).toHaveCount(0);
+      await expect(page.locator('.site-header a[href="/mira/"]')).toHaveText('Мира');
       await expect(page.locator('.membership-steps article')).toHaveCount(6);
       await expect(page.locator('.ai-section')).toBeVisible();
       await expect(page.locator('#ai-consultant').getByText('Мира TravelGTC')).toBeVisible();
-      await expect(page.locator('[data-ai-widget]')).toBeVisible();
-      await expect(page.locator('[data-ai-widget] .ai-logo')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
-      await expect(page.locator('[data-ai-starter]')).toHaveCount(3);
-      await expect(page.locator('[data-ai-voice]')).toHaveCount(1);
+      await expect(page.locator('[data-ai-widget]')).toHaveCount(0);
       await expect(page.locator('#lead-form [name="message"]')).toHaveCount(0);
       await expect(page.locator('#lead-form option[value="question"]')).toHaveCount(0);
       await expect(page.locator('#lead-form')).toHaveCSS('scroll-margin-top', '132px');
@@ -130,46 +130,40 @@ test.describe('TravelGTC responsive public site', () => {
     await assertNoHorizontalOverflow(overflow.viewportWidth, Math.max(overflow.documentScrollWidth, overflow.bodyScrollWidth));
   });
 
-  test('AI consultant opens, minimizes and requires login before saving chat', async ({ page }) => {
+  test('dedicated Mira chat requires login before saving chat', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/mira/', { waitUntil: 'domcontentloaded' });
 
-    await page.locator('[data-ai-open]').first().click();
-    await expect(page.locator('[data-ai-panel]')).toBeVisible();
+    await expect(page.locator('[data-ai-page] [data-ai-panel]')).toBeVisible();
     await expect(page.locator('[data-ai-starter]')).toHaveCount(3);
     await expect(page.locator('[data-ai-voice]')).toBeVisible();
     const formBox = await page.locator('[data-ai-form]').boundingBox();
     expect(formBox).toBeTruthy();
     expect(formBox ? formBox.y + formBox.height : 0).toBeLessThanOrEqual(900);
-    await page.locator('[data-ai-minimize]').click();
-    await expect(page.locator('[data-ai-panel]')).not.toBeVisible();
 
-    await page.locator('[data-ai-open]').first().click();
     await page.locator('[data-ai-form] input[name="question"]').fill('Сколько стоит участие и как зарегистрироваться?');
     await page.locator('[data-ai-form]').locator('button[type="submit"]').click();
     await expect(page.locator('[data-ai-messages]')).toContainText(/сначала войдите или зарегистрируйтесь/i);
-    await expect(page).toHaveURL(/\/auth\/\?mode=register&next=%2F%23ai-consultant/);
+    await expect(page).toHaveURL(/\/auth\/\?mode=register&next=%2Fmira%2F%23ai-consultant/);
   });
 
   test('Mira starter questions are needs-discovery prompts and preserve the pending question', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/mira/', { waitUntil: 'domcontentloaded' });
 
-    await page.locator('[data-ai-open]').first().click();
-    await expect(page.locator('[data-ai-starter]').first()).toContainText('Путешествую с семьёй');
+    await expect(page.locator('[data-ai-starter]').first()).toContainText('Free Guest Pass');
     await page.locator('[data-ai-starter]').first().click();
     await expect(page.locator('[data-ai-messages]')).toContainText(/сохранить историю диалога/i);
-    await expect(page).toHaveURL(/\/auth\/\?mode=register&next=%2F%23ai-consultant/);
+    await expect(page).toHaveURL(/\/auth\/\?mode=register&next=%2Fmira%2F%23ai-consultant/);
     await expect
       .poll(() => page.evaluate(() => sessionStorage.getItem('travelgtc_ai_pending_question') || ''))
-      .toContain('семьёй');
+      .toContain('Free Guest Pass');
   });
 
   test('Mira welcome copy is friendly and explains authorized chat history', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/mira/', { waitUntil: 'domcontentloaded' });
 
-    await page.locator('[data-ai-open]').first().click();
     await expect(page.locator('[data-ai-messages]')).toContainText(/Привет, я Мира/i);
     await expect(page.locator('[data-ai-messages]')).toContainText(/историю диалога/i);
     await expect(page.locator('[data-ai-form]')).toBeVisible();

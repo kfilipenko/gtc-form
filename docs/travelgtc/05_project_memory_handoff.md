@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 5.1
+- Version: 5.2
 - Date: 2026-07-28
-- Status: Active, home membership access card layout fixed
+- Status: Active, main navigation simplified and Mira routed to dedicated page
 
 ## 1. Current State
 
@@ -163,6 +163,7 @@ TRAVELGTC-WEB-025 rule: the home page includes an official MWR Life company fact
 TRAVELGTC-AI-001 rule: the public AI consultant is named `Мира TravelGTC`. Use `docs/travelgtc/080_travelgtc_ai_001_mira_consultant_instruction.md` as the canonical instruction for personality, official sources, published facts, compliance limits and lead-routing behavior. Мира may be cheerful and tell short illustrative travel-community stories, but must not promise income, savings, availability, membership approval or business results.
 TRAVELGTC-WEB-033 rule: the home `#lead-form` is interest-only. Do not reintroduce a free-form textarea or `Задать вопрос` option there. User questions belong in Mira AI chat, where the text is processed, stored in CRM history and used as dialogue context. The frontend may generate the required API `message` from the selected interest to keep the backend contract stable.
 TRAVELGTC-WEB-034 rule: the home `Официальные входы Travel Advantage` card must use a single-column layout. Long CTA labels must not create an `auto` grid column that collapses the explanatory text into vertical letters.
+TRAVELGTC-WEB-035 rule: the membership-first top navigation must not include a separate `Travel Advantage` hash link or duplicate `Узнать о членстве` CTA. The AI entry in the top menu is a single `Мира` link to `/mira/`; the home page must not include the old embedded floating AI widget.
 ```
 
 Architecture state:
@@ -212,6 +213,7 @@ TRAVELGTC-WEB-025 added the official MWR Life company facts/address block to the
 TRAVELGTC-AI-001 named the public AI consultant `Мира TravelGTC`, added a canonical instruction document with official source links and published facts, and aligned the frontend AI stub greeting/answers with the new friendly-but-compliant personality.
 TRAVELGTC-WEB-033 removed the unprocessed free-form request textarea from the home lead form, removed the `Задать вопрос` option from the home lead select and added `scroll-margin-top` so `#lead-form` is not hidden under the fixed header.
 TRAVELGTC-WEB-034 fixed the home Membership access card by making the access-card layout single-column and adding a Playwright guard against vertical heading collapse.
+TRAVELGTC-WEB-035 simplified the membership-first top navigation, removed duplicate top CTAs and moved home AI access to the dedicated `/mira/` page.
 ```
 
 API state:
@@ -367,6 +369,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 5.2 | 2026-07-28 | GTC IT / AI Assistant | Recorded simplified top navigation and single Mira route to the dedicated chat page |
 | 5.1 | 2026-07-28 | GTC IT / AI Assistant | Recorded Membership access card layout fix and Playwright guard against vertical text collapse |
 | 5.0 | 2026-07-28 | GTC IT / AI Assistant | Recorded interest-only home lead form and fixed `#lead-form` anchor offset |
 | 4.9 | 2026-07-28 | GTC IT / AI Assistant | Recorded Free Guest Pass / VIP Membership terminology correction and Membership-comparison-first routing |

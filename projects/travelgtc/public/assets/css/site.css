@@ -173,13 +173,12 @@ a {
 .nav-links a:nth-child(8)::after { content: "консультация"; }
 
 .nav-links-membership a:nth-child(1)::after { content: "старт"; }
-.nav-links-membership a:nth-child(2)::after { content: "продукт"; }
-.nav-links-membership a:nth-child(3)::after { content: "компания"; }
-.nav-links-membership a:nth-child(4)::after { content: "membership"; }
-.nav-links-membership a:nth-child(5)::after { content: "роль"; }
-.nav-links-membership a:nth-child(6)::after { content: "события"; }
-.nav-links-membership a:nth-child(7)::after { content: "AI"; }
-.nav-links-membership a:nth-child(8)::after { content: "контакт"; }
+.nav-links-membership a:nth-child(2)::after { content: "компания"; }
+.nav-links-membership a:nth-child(3)::after { content: "membership"; }
+.nav-links-membership a:nth-child(4)::after { content: "роль"; }
+.nav-links-membership a:nth-child(5)::after { content: "события"; }
+.nav-links-membership a:nth-child(6)::after { content: "чат"; }
+.nav-links-membership a:nth-child(7)::after { content: "контакт"; }
 
 .nav-links a:hover,
 .nav-links a.active {

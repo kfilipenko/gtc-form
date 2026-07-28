@@ -23,15 +23,14 @@
         <a class="brand brand-logo" href="/" aria-label="TravelGTC"><img src="/assets/images/processed/travelgtc-logo-header.webp" alt="TravelGTC"></a>
         <nav class="nav-links nav-links-membership" aria-label="Главное меню">
           <a class="active" href="/">Главная</a>
-          <a href="#travel-advantage">Travel Advantage</a>
           <a href="#relationship">MWR Life</a>
           <a href="#membership">Членство</a>
           <a href="#ambassador">Ambassador</a>
           <a href="/events/">События</a>
-          <a href="/mira/">Вопрос AI</a>
+          <a href="/mira/">Мира</a>
           <a href="/contacts/">Контакты</a>
         </nav>
-        <div class="nav-actions"><a class="button nav-primary" href="#lead-form">Узнать о членстве</a><div class="account-actions" data-auth-state><a class="account-link" href="/auth/?mode=login" data-auth-anonymous>Войти</a><a class="button account-register" href="/auth/?mode=register" data-auth-anonymous>Регистрация</a><div class="account-user" data-auth-user hidden><span data-auth-user-name>Аккаунт</span><button class="account-logout" type="button" data-auth-logout>Выйти</button></div></div><button class="menu-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" data-menu-toggle>
+        <div class="nav-actions"><div class="account-actions" data-auth-state><a class="account-link" href="/auth/?mode=login" data-auth-anonymous>Войти</a><a class="button account-register" href="/auth/?mode=register" data-auth-anonymous>Регистрация</a><div class="account-user" data-auth-user hidden><span data-auth-user-name>Аккаунт</span><button class="account-logout" type="button" data-auth-logout>Выйти</button></div></div><button class="menu-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" data-menu-toggle>
             <span></span><span></span><span></span>
           </button></div>
       </div>
@@ -201,7 +200,7 @@
             <h2>Как вы становитесь участником или изучаете роль Ambassador</h2>
           </div>
           <div class="membership-steps" aria-label="Процесс TravelGTC">
-            <article><b aria-hidden="true">💬</b><strong>Вопрос AI</strong><span>Быстро разбираетесь в MWR Life, Travel Advantage и роли Ambassador.</span></article>
+            <article><b aria-hidden="true">💬</b><strong>Мира</strong><span>Быстро разбираетесь в MWR Life, Travel Advantage и роли Ambassador.</span></article>
             <article><b aria-hidden="true">🎯</b><strong>Выбор интереса</strong><span>Отмечаете, что вам ближе: членство, презентация, события или партнёрская модель.</span></article>
             <article><b aria-hidden="true">🔐</b><strong>Вход или регистрация</strong><span>TravelGTC фиксирует контактные данные в вашем профиле, не дублируя их в форме.</span></article>
             <article><b aria-hidden="true">📝</b><strong>Заявка</strong><span>Коротко описываете вопрос, страну или ситуацию, которую нужно проверить.</span></article>
@@ -280,39 +279,6 @@
         </div>
       </div>
     </footer>
-    <div class="ai-widget" data-ai-widget>
-      <button class="ai-float" type="button" data-ai-open aria-label="Открыть Миру TravelGTC">Спросить Миру</button>
-      <section class="ai-panel" data-ai-panel hidden aria-label="Мира TravelGTC AI-консультант">
-        <div class="ai-panel-head" data-ai-drag-handle>
-          <img class="ai-logo" src="/assets/images/processed/travelgtc-logo-header.webp" alt="TravelGTC">
-          <div class="ai-panel-title">
-            <strong>Мира TravelGTC</strong>
-            <span>AI-чат по Travel Advantage</span>
-          </div>
-          <div class="ai-panel-actions">
-            <button type="button" data-ai-minimize aria-label="Свернуть Миру TravelGTC">−</button>
-            <button type="button" data-ai-close aria-label="Закрыть Миру TravelGTC">×</button>
-          </div>
-        </div>
-        <div class="ai-starters" data-ai-starters aria-label="Начальные вопросы">
-          <button type="button" data-ai-starter="Я путешествую с семьёй. Какой уровень Travel Advantage стоит сравнить первым?">Путешествую с семьёй</button>
-          <button type="button" data-ai-starter="Хочу понять, какой тариф Travel Advantage подойдёт под мои поездки. С чего начать?">Подобрать тариф</button>
-          <button type="button" data-ai-starter="У меня есть группа или клиенты. Как использовать Travel Advantage для поездок и событий?">Есть группа или клиенты</button>
-        </div>
-        <div class="ai-messages" data-ai-messages>
-          <div class="ai-message bot"><p>Привет, я Мира 🌍</p><p>Помогу понять, какой формат Travel Advantage может быть интересен именно вам: для семьи, друзей, группы, событий или Ambassador-направления.</p><p>Чтобы сохранить историю диалога и не потерять важные ссылки, чат работает после входа в аккаунт TravelGTC.</p></div>
-        </div>
-        <form class="ai-form" data-ai-form>
-          <label class="sr-only" for="ai-question">Ваш вопрос</label>
-          <input id="ai-question" name="question" type="text" autocomplete="off" placeholder="Например: как стать участником?">
-          <button class="ai-voice" type="button" data-ai-voice aria-label="Задать вопрос голосом" title="Задать вопрос голосом">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3Z"/><path d="M19 11a7 7 0 0 1-14 0"/><path d="M12 18v3"/><path d="M8 21h8"/></svg>
-          </button>
-          <button class="button" type="submit">Спросить</button>
-        </form>
-        <a class="ai-lead-link" href="#lead-form" data-ai-lead-link>Перейти к заявке</a>
-      </section>
-    </div>
   </div>
   <script src="/assets/js/site.js"></script>
 </body>
