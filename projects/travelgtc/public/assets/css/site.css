@@ -797,6 +797,8 @@ h3 {
 }
 
 .access-card {
+  grid-template-columns: 1fr;
+  align-items: start;
   margin-top: 14px;
   border-color: rgba(155, 234, 46, 0.5);
   background:
@@ -807,8 +809,13 @@ h3 {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  justify-content: flex-end;
-  min-width: min(360px, 100%);
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.access-actions .button {
+  flex: 1 1 280px;
+  max-width: 100%;
 }
 
 .trust-card .icon {

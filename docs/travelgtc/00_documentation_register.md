@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 6.0
+- Version: 6.1
 - Date: 2026-07-28
-- Status: Home lead form simplified to interest-only request
+- Status: Home membership access card layout fixed
 
 ## 1. Purpose
 
@@ -126,6 +126,7 @@ The first stage is intentionally small:
 | `096_travelgtc_web_031_guest_demo_access_routing_report.md` | TRAVELGTC-WEB-031 - Guest Access Routing Report | Fixes guest access in the homepage relationship block and clarifies Mira routing for Free Guest Pass / VIP Membership links. | Implemented, refined by WEB-032 |
 | `097_travelgtc_web_032_guest_pass_vip_membership_terminology_report.md` | TRAVELGTC-WEB-032 - Free Guest Pass And VIP Membership Terminology Report | Fixes approved naming after live link checks: Free Guest Pass is the no-card guest path, VIP Membership is the paid VIP path. | Implemented |
 | `098_travelgtc_web_033_home_lead_form_interest_only_report.md` | TRAVELGTC-WEB-033 - Home Lead Form Interest-Only Report | Removes the unprocessed free-form request field from the home lead form and keeps questions in Mira AI chat. | Implemented |
+| `099_travelgtc_web_034_membership_access_card_layout_report.md` | TRAVELGTC-WEB-034 - Membership Access Card Layout Report | Fixes the home membership access card so long CTA labels do not collapse the explanatory text column. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -159,6 +160,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 6.1 | 2026-07-28 | GTC IT / AI Assistant | Fixed home Membership access card layout so long CTA buttons do not collapse the text column |
 | 6.0 | 2026-07-28 | GTC IT / AI Assistant | Simplified the home lead form to selected interest only and fixed lead-form anchor offset under the fixed header |
 | 5.9 | 2026-07-28 | GTC IT / AI Assistant | Replaced broad access terminology with Free Guest Pass and VIP Membership after checking the live Travel Advantage pages |
 | 5.8 | 2026-07-28 | GTC IT / AI Assistant | Implemented guest access in the homepage relationship block and clarified Mira Free Guest Pass / VIP Membership routing |

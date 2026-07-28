@@ -76,6 +76,9 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('.access-card')).toContainText('Официальные входы Travel Advantage');
       await expect(page.getByRole('link', { name: 'Открыть VIP Membership Travel Advantage' })).toHaveAttribute('href', 'https://vip.traveladvantage.com/KFilip909');
       await expect(page.getByRole('link', { name: 'Открыть Free Guest Pass Travel Advantage' })).toHaveAttribute('href', 'https://free.traveladvantage.com/KFilip909');
+      const accessHeadingBox = await page.locator('.access-card h3').boundingBox();
+      expect(accessHeadingBox?.width || 0).toBeGreaterThan(240);
+      expect(accessHeadingBox?.height || 0).toBeLessThan(80);
       await expect(page.locator('.site-header a[href="/mira/"]')).toHaveCount(1);
       await expect(page.locator('.membership-steps article')).toHaveCount(6);
       await expect(page.locator('.ai-section')).toBeVisible();
