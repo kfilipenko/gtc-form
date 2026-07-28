@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 5.5
-- Date: 2026-07-12
-- Status: AI purchase intent referral flow implemented
+- Version: 5.6
+- Date: 2026-07-28
+- Status: Draft approval tasks for Mira page and demo links
 
 ## 1. Purpose
 
@@ -117,6 +117,9 @@ The first stage is intentionally small:
 | `087_travelgtc_web_027_authorized_movable_ai_chat_report.md` | TRAVELGTC-WEB-027 - Authorized Movable AI Chat Report | Fixes the authorized movable AI chat widget, structured message rendering, protected account AI endpoint and CRM interaction persistence. | Implemented and published |
 | `088_travelgtc_web_028_mira_chat_layout_history_context_report.md` | TRAVELGTC-WEB-028 - Mira Chat Layout History Context Report | Fixes Mira chat viewport layout, branded header, CRM history restore and context continuation for Azure answers. | Implemented and published |
 | `089_travelgtc_crm_003_ai_purchase_intent_referral_flow_report.md` | TRAVELGTC-CRM-003 - AI Purchase Intent Referral Flow Report | Fixes purchase-intent detection in Mira chat, ready-to-subscribe CRM stage, urgent task, email alert and official referral link return. | Implemented and published |
+| `090_travelgtc_web_029_dedicated_mira_chat_page_task.md` | TRAVELGTC-WEB-029 - Dedicated Mira Chat Page Task | Defines a direct `/mira/` AI chat page with auth gate, CRM history restore and purchase-intent continuity. | Draft for Project Owner approval |
+| `091_travelgtc_web_030_demo_access_links_task.md` | TRAVELGTC-WEB-030 - Travel Advantage Demo Access Links Task | Defines publication and Mira usage of VIP/free Travel Advantage demo links. | Draft for Project Owner approval |
+| `092_travelgtc_ai_005_official_documents_and_demo_knowledge_task.md` | TRAVELGTC-AI-005 - Official Documents And Demo Knowledge Task | Defines public/document/agent-knowledge split for official docs, demo links, referral link and caution-only support resources. | Draft for Project Owner approval |
 
 ## 3. Project Source Locations
 
@@ -150,6 +153,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 5.6 | 2026-07-28 | GTC IT / AI Assistant | Drafted approval tasks for dedicated Mira page, Travel Advantage demo links and official-document knowledge split |
 | 5.5 | 2026-07-12 | GTC IT / AI Assistant | Implemented Mira purchase-intent referral flow with `ready_to_subscribe`, high-priority CRM task and referral URL |
 | 5.4 | 2026-07-12 | GTC IT / AI Assistant | Fixed Mira chat viewport layout, branded logo header, CRM history restoration and Azure context continuation |
 | 5.3 | 2026-07-12 | GTC IT / AI Assistant | Implemented authorized movable Mira chat, structured message rendering, protected account AI endpoint and CRM history persistence |
