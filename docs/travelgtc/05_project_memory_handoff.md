@@ -167,6 +167,7 @@ TRAVELGTC-WEB-035 rule: the membership-first top navigation must not include a s
 TRAVELGTC-WEB-036 rule: `/mira/` is a chat-only working page. Do not duplicate the home `#relationship` Guest Pass / VIP Membership explanatory block, official access buttons or promo copy there. Keep guest-access explanation on the home relationship block and let Mira handle questions in the chat.
 TRAVELGTC-WEB-037 rule: `/mira/` uses the approved avatar source `projects/travelgtc/public/assets/images/inbox/Mira Avatar.png`, optimized and published as `/assets/images/processed/mira-avatar.webp`. Do not replace it with generated alternatives unless the Project Owner explicitly provides a new approved source. The chat panel header must not duplicate the site logo or repeated `Мира TravelGTC / AI-чат` text because the brand and page entry are already present in the top menu. Use the compact banner wording `Спросите / Вашего Агента / Мира:` with the avatar on the right.
 TRAVELGTC-WEB-039 rule: `/contacts/` is removed as a separate public page and must not be reintroduced as a duplicate request form. Primary consultation flow is `/mira/`. Direct project contacts belong in the global footer and are assembled client-side from protected data pieces to reduce basic source-code scraping; this is not absolute protection against JavaScript-capable bots.
+TRAVELGTC-WEB-040 rule: the home block `Как вы становитесь участником или изучаете роль Ambassador` must stay as three service-oriented steps: `Диалог с Мирой`, `Официальная ссылка`, `Сопровождение TravelGTC`. Do not restore the removed process cards `Мира`, `Выбор интереса`, `Вход или регистрация`, `Консультация`, `Официальный шаг`. Public working pages should use natural service wording and should not emphasize a human-vs-AI distinction; legal/privacy pages may still disclose AI/automated processing.
 ```
 
 Architecture state:
@@ -220,6 +221,7 @@ TRAVELGTC-WEB-035 simplified the membership-first top navigation, removed duplic
 TRAVELGTC-WEB-036 removed the left promo/copy column and Guest Pass / VIP buttons from `/mira/`, leaving the page focused on the authenticated AI chat.
 TRAVELGTC-WEB-037 added the approved Mira avatar visual to `/mira/`, then refined it into a compact chat banner with no duplicated logo/header text and updated responsive tests to verify the image asset.
 TRAVELGTC-WEB-038 removed the old home `#lead-form` short request form, replaced home request CTAs with `/mira/`, added a first-question selector to the Mira chat form and extended tests for the Mira-first funnel.
+TRAVELGTC-WEB-040 simplified the home Membership/Ambassador process block from six cards to three service steps: dialogue with Mira, official link, and TravelGTC support when needed.
 ```
 
 API state:
@@ -377,6 +379,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 6.0 | 2026-07-28 | GTC IT / AI Assistant | Recorded the three-step Membership/Ambassador process section and public wording rule around Mira/support |
 | 5.9 | 2026-07-28 | GTC IT / AI Assistant | Recorded removal of `/contacts/` and protected footer email/phone rendering |
 | 5.8 | 2026-07-28 | GTC IT / AI Assistant | Recorded `/mira/` first-question selector as a scrollable chat-flow prompt that hides after the first question |
 | 5.7 | 2026-07-28 | GTC IT / AI Assistant | Recorded Mira-first funnel: home short request form removed, first-question selection moved into `/mira/` |

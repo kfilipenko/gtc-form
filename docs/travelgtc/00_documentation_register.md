@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 6.9
+- Version: 7.0
 - Date: 2026-07-28
-- Status: Contact route removed and protected footer contacts published
+- Status: Membership process simplified to three service steps
 
 ## 1. Purpose
 
@@ -132,6 +132,7 @@ The first stage is intentionally small:
 | `102_travelgtc_web_037_mira_avatar_page_visual_report.md` | TRAVELGTC-WEB-037 - Mira Avatar Page Visual Report | Adds the approved Mira avatar image to the dedicated chat page and publishes an optimized WebP asset. | Implemented |
 | `103_travelgtc_web_038_mira_first_funnel_report.md` | TRAVELGTC-WEB-038 - Mira-First Funnel Report | Removes the old home short request form and moves first-question selection into the dedicated Mira chat page. | Implemented |
 | `104_travelgtc_web_039_contact_route_removal_footer_contacts_report.md` | TRAVELGTC-WEB-039 - Contact Route Removal And Protected Footer Contacts Report | Removes the separate contacts page and publishes protected direct contact channels in the footer. | Implemented |
+| `105_travelgtc_web_040_membership_process_three_step_report.md` | TRAVELGTC-WEB-040 - Membership Process Three-Step Report | Simplifies the home Membership/Ambassador process section to three service-oriented steps. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -165,6 +166,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 7.0 | 2026-07-28 | GTC IT / AI Assistant | Simplified the Membership/Ambassador process section to three service-oriented steps without emphasizing human-vs-AI separation |
 | 6.9 | 2026-07-28 | GTC IT / AI Assistant | Removed the separate `/contacts/` page and replaced footer Contact navigation with protected direct email/phone channels |
 | 6.8 | 2026-07-28 | GTC IT / AI Assistant | Moved the `/mira/` first-question selector from the fixed input bar into the chat message flow and hid it after the first question |
 | 6.7 | 2026-07-28 | GTC IT / AI Assistant | Replaced the home short request form with Mira-first chat routing and moved first-question selection into `/mira/` |

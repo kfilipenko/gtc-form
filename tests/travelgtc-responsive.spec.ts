@@ -84,7 +84,12 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('.site-header a[href="#travel-advantage"]')).toHaveCount(0);
       await expect(page.locator('.site-header .nav-primary')).toHaveCount(0);
       await expect(page.locator('.site-header a[href="/mira/"]')).toHaveText('Мира');
-      await expect(page.locator('.membership-steps article')).toHaveCount(6);
+      await expect(page.locator('.membership-steps article')).toHaveCount(3);
+      await expect(page.locator('.membership-steps')).toContainText('Диалог с Мирой');
+      await expect(page.locator('.membership-steps')).toContainText('Официальная ссылка');
+      await expect(page.locator('.membership-steps')).toContainText('Сопровождение TravelGTC');
+      await expect(page.locator('.membership-steps')).not.toContainText('Выбор интереса');
+      await expect(page.locator('.membership-steps')).not.toContainText('Вход или регистрация');
       await expect(page.locator('.ai-section')).toBeVisible();
       await expect(page.locator('#ai-consultant').getByText('Мира TravelGTC')).toBeVisible();
       await expect(page.locator('[data-ai-widget]')).toHaveCount(0);
