@@ -29,7 +29,7 @@ The current floating chat is useful on the main site, but it is not ideal for di
 The dedicated page should become a clean entry point for users who are already interested and need a focused conversation with Mira:
 
 1. questions about Travel Advantage Membership;
-2. demo access and guest discovery;
+2. Free Guest Pass / guest discovery;
 3. comparison of Membership levels;
 4. family / group / client / event travel scenarios;
 5. readiness to subscribe through the official referral process.

@@ -1,16 +1,16 @@
-# TRAVELGTC-AI-005 - Official Documents And Demo Knowledge Report
+# TRAVELGTC-AI-005 - Official Documents And Access Knowledge Report
 
 - Project: TravelGTC
 - Code: TRAVELGTC-AI-005
 - Date: 2026-07-28
-- Status: Implemented in TravelGTC context and fallback logic
+- Status: Implemented in TravelGTC context and fallback logic; terminology refined by TRAVELGTC-WEB-032
 - Approved task: `092_travelgtc_ai_005_official_documents_and_demo_knowledge_task.md`
 
 ## 1. Summary
 
 Updated Mira TravelGTC knowledge boundaries so the AI flow distinguishes:
 
-1. demo / discovery links;
+1. Free Guest Pass / VIP Membership access links;
 2. official Membership documents;
 3. official referral registration after purchase intent.
 
@@ -26,34 +26,34 @@ projects/travelgtc/app/src/modules/ai/azureFoundryAgent.ts
 projects/travelgtc/public/assets/js/site.js
 ```
 
-## 3. Demo Link Behavior
+## 3. Access Link Behavior
 
 Mira may now provide:
 
 ```text
-VIP demo:
+VIP Membership:
 https://vip.traveladvantage.com/KFilip909
 
-Free demo:
+Free Guest Pass:
 https://free.traveladvantage.com/KFilip909
 ```
 
 when the user asks to:
 
 1. see the platform;
-2. use demo access;
-3. compare free/VIP demo;
+2. use Free Guest Pass access;
+3. compare Free Guest Pass / VIP Membership;
 4. look before paying or registering;
 5. understand the interface before Membership selection.
 
 ## 4. Purchase Intent Separation
 
-The API now treats demo-before-payment questions as discovery, not as immediate purchase intent.
+The API now treats Free Guest Pass / first-look questions as discovery, not as immediate purchase intent.
 
 Example:
 
 ```text
-Хочу посмотреть demo Travel Advantage перед оплатой.
+Хочу посмотреть Free Guest Pass Travel Advantage перед оплатой.
 ```
 
 does not create `purchase_intent=true`.
@@ -75,7 +75,6 @@ npm run check:travelgtc-api
 
 Vitest coverage confirms:
 
-1. demo intent returns both demo links;
-2. demo intent does not mark purchase intent;
+1. first-look intent returns both access links;
+2. first-look intent does not mark purchase intent;
 3. purchase intent still returns the referral registration URL.
-

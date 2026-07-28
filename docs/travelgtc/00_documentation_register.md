@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 5.8
+- Version: 5.9
 - Date: 2026-07-28
-- Status: Guest demo access routing implemented in homepage relationship block
+- Status: Free Guest Pass and VIP Membership terminology implemented
 
 ## 1. Purpose
 
@@ -118,12 +118,13 @@ The first stage is intentionally small:
 | `088_travelgtc_web_028_mira_chat_layout_history_context_report.md` | TRAVELGTC-WEB-028 - Mira Chat Layout History Context Report | Fixes Mira chat viewport layout, branded header, CRM history restore and context continuation for Azure answers. | Implemented and published |
 | `089_travelgtc_crm_003_ai_purchase_intent_referral_flow_report.md` | TRAVELGTC-CRM-003 - AI Purchase Intent Referral Flow Report | Fixes purchase-intent detection in Mira chat, ready-to-subscribe CRM stage, urgent task, email alert and official referral link return. | Implemented and published |
 | `090_travelgtc_web_029_dedicated_mira_chat_page_task.md` | TRAVELGTC-WEB-029 - Dedicated Mira Chat Page Task | Defines a direct `/mira/` AI chat page with auth gate, CRM history restore and purchase-intent continuity. | Draft for Project Owner approval |
-| `091_travelgtc_web_030_demo_access_links_task.md` | TRAVELGTC-WEB-030 - Travel Advantage Demo Access Links Task | Defines publication and Mira usage of VIP/free Travel Advantage demo links. | Draft for Project Owner approval |
-| `092_travelgtc_ai_005_official_documents_and_demo_knowledge_task.md` | TRAVELGTC-AI-005 - Official Documents And Demo Knowledge Task | Defines public/document/agent-knowledge split for official docs, demo links, referral link and caution-only support resources. | Draft for Project Owner approval |
+| `091_travelgtc_web_030_demo_access_links_task.md` | TRAVELGTC-WEB-030 - Travel Advantage Access Links Task | Defines publication and Mira usage of VIP Membership / Free Guest Pass Travel Advantage links. | Superseded by WEB-032 terminology refinement |
+| `092_travelgtc_ai_005_official_documents_and_demo_knowledge_task.md` | TRAVELGTC-AI-005 - Official Documents And Access Knowledge Task | Defines public/document/agent-knowledge split for official docs, access links, referral link and caution-only support resources. | Superseded by WEB-032 terminology refinement |
 | `093_travelgtc_web_029_dedicated_mira_chat_page_report.md` | TRAVELGTC-WEB-029 - Dedicated Mira Chat Page Report | Fixes the dedicated `/mira/` AI chat page with auth gate, CRM history continuity, Markdown and voice support. | Implemented |
-| `094_travelgtc_web_030_demo_access_links_report.md` | TRAVELGTC-WEB-030 - Travel Advantage Demo Access Links Report | Fixes the approved VIP/free demo links on the public site and dedicated Mira page. | Implemented |
-| `095_travelgtc_ai_005_official_documents_and_demo_knowledge_report.md` | TRAVELGTC-AI-005 - Official Documents And Demo Knowledge Report | Fixes Mira context/fallback knowledge for demo links, official documents and purchase-intent separation. | Implemented |
-| `096_travelgtc_web_031_guest_demo_access_routing_report.md` | TRAVELGTC-WEB-031 - Guest Demo Access Routing Report | Fixes guest demo access in the homepage relationship block and clarifies Mira routing for free/VIP demo links. | Implemented |
+| `094_travelgtc_web_030_demo_access_links_report.md` | TRAVELGTC-WEB-030 - Travel Advantage Access Links Report | Fixes the approved VIP Membership / Free Guest Pass links on the public site and dedicated Mira page. | Implemented, refined by WEB-032 |
+| `095_travelgtc_ai_005_official_documents_and_demo_knowledge_report.md` | TRAVELGTC-AI-005 - Official Documents And Access Knowledge Report | Fixes Mira context/fallback knowledge for access links, official documents and purchase-intent separation. | Implemented, refined by WEB-032 |
+| `096_travelgtc_web_031_guest_demo_access_routing_report.md` | TRAVELGTC-WEB-031 - Guest Access Routing Report | Fixes guest access in the homepage relationship block and clarifies Mira routing for Free Guest Pass / VIP Membership links. | Implemented, refined by WEB-032 |
+| `097_travelgtc_web_032_guest_pass_vip_membership_terminology_report.md` | TRAVELGTC-WEB-032 - Free Guest Pass And VIP Membership Terminology Report | Fixes approved naming after live link checks: Free Guest Pass is the no-card guest path, VIP Membership is the paid VIP path. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -157,9 +158,10 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
-| 5.8 | 2026-07-28 | GTC IT / AI Assistant | Implemented guest demo access in the homepage relationship block and clarified Mira free/VIP demo routing |
-| 5.7 | 2026-07-28 | GTC IT / AI Assistant | Implemented dedicated `/mira/` page, Travel Advantage demo links and Mira demo/purchase intent separation |
-| 5.6 | 2026-07-28 | GTC IT / AI Assistant | Drafted approval tasks for dedicated Mira page, Travel Advantage demo links and official-document knowledge split |
+| 5.9 | 2026-07-28 | GTC IT / AI Assistant | Replaced broad access terminology with Free Guest Pass and VIP Membership after checking the live Travel Advantage pages |
+| 5.8 | 2026-07-28 | GTC IT / AI Assistant | Implemented guest access in the homepage relationship block and clarified Mira Free Guest Pass / VIP Membership routing |
+| 5.7 | 2026-07-28 | GTC IT / AI Assistant | Implemented dedicated `/mira/` page, Travel Advantage access links and Mira first-look/purchase intent separation |
+| 5.6 | 2026-07-28 | GTC IT / AI Assistant | Drafted approval tasks for dedicated Mira page, Travel Advantage access links and official-document knowledge split |
 | 5.5 | 2026-07-12 | GTC IT / AI Assistant | Implemented Mira purchase-intent referral flow with `ready_to_subscribe`, high-priority CRM task and referral URL |
 | 5.4 | 2026-07-12 | GTC IT / AI Assistant | Fixed Mira chat viewport layout, branded logo header, CRM history restoration and Azure context continuation |
 | 5.3 | 2026-07-12 | GTC IT / AI Assistant | Implemented authorized movable Mira chat, structured message rendering, protected account AI endpoint and CRM history persistence |

@@ -1,10 +1,10 @@
 const AUTH_DRAFT_KEY = "travelgtc.leadDraft.v1";
 const IDENTITY_CONSENT_VERSION = "travelgtc-identity-consent-v1";
 const AI_CONSULTANT_NAME = "Мира TravelGTC";
-const TRAVEL_ADVANTAGE_VIP_DEMO_URL = "https://vip.traveladvantage.com/KFilip909";
-const TRAVEL_ADVANTAGE_FREE_DEMO_URL = "https://free.traveladvantage.com/KFilip909";
+const TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL = "https://vip.traveladvantage.com/KFilip909";
+const TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL = "https://free.traveladvantage.com/KFilip909";
 const OFFICIAL_SOURCE_TEXT =
-  "Официальные источники для проверки: MWR Life https://www.mwrlife.com/, Membership https://www.mwrlife.com/home/membership, Company https://www.mwrlife.com/home/company, Travel Advantage https://www.traveladvantage.com/home, Membership Benefits PDF https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf, VIP demo https://vip.traveladvantage.com/KFilip909, free demo https://free.traveladvantage.com/KFilip909.";
+  "Официальные источники для проверки: MWR Life https://www.mwrlife.com/, Membership https://www.mwrlife.com/home/membership, Company https://www.mwrlife.com/home/company, Travel Advantage https://www.traveladvantage.com/home, Membership Benefits PDF https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf, VIP Membership https://vip.traveladvantage.com/KFilip909, Free Guest Pass https://free.traveladvantage.com/KFilip909.";
 
 const authState = {
   loaded: false,
@@ -1145,18 +1145,18 @@ function buildAiStubAnswer(question) {
   const nextStepPattern = /(зарегистр|регистрац|стоим|цена|сколько|участник|ambassador|амбассад|страна|доступ|ссылка|связ|контакт|whatsapp|telegram|телефон|email)/i;
   const tariffPattern = /(тариф|membership|уровн|покуп|подключ|семь|семьи|premium|elite|basic|пакет)/i;
   const sourcePattern = /(официальн|источник|сайт|документ|pdf|benefits|правил|услов)/i;
-  const demoPattern = /(demo|демо|trial|тест|посмотреть|доступ|free|vip)/i;
+  const guestAccessPattern = /(guest pass|гостев|demo|демо|trial|тест|посмотреть|доступ|free|vip)/i;
   const storyPattern = /(истори|знаком|встреч|событ|пара|друг|партн[её]р|впечатл|путешеств)/i;
 
-  if (demoPattern.test(normalized)) {
+  if (guestAccessPattern.test(normalized)) {
     const vipFit = /(vip|elite|элит|membership|тариф|семь|друз|групп|клиент|балл|loyalty|событ|ambassador|амбассад|куп|оплат|сравн)/i.test(normalized);
     const primaryLine = vipFit
-      ? `🌟 VIP demo: ${TRAVEL_ADVANTAGE_VIP_DEMO_URL}`
-      : `🆓 Free demo: ${TRAVEL_ADVANTAGE_FREE_DEMO_URL}`;
+      ? `🌟 VIP Membership: ${TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL}`
+      : `🆓 Free Guest Pass: ${TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL}`;
     const secondaryLine = vipFit
-      ? `🆓 Free demo, если хотите начать совсем мягко: ${TRAVEL_ADVANTAGE_FREE_DEMO_URL}`
-      : `🌟 VIP demo, если хотите посмотреть более полный сценарий перед Membership: ${TRAVEL_ADVANTAGE_VIP_DEMO_URL}`;
-    return `Можно начать мягко: сначала посмотреть demo-доступ Travel Advantage, а уже потом обсуждать Membership и официальный шаг.\n\n${primaryLine}\n${secondaryLine}\n\nFree demo подходит для первого знакомства. VIP demo лучше, когда вы уже сравниваете тариф, смотрите вариант для семьи, друзей, группы, клиентов или хотите понять расширенный сценарий.\n\nDemo помогает увидеть интерфейс до регистрации и оплаты. Условия, состав предложений и доступность сервисов всё равно проверяются на официальных страницах Travel Advantage. После demo я бы задала простой вопрос: вы смотрите платформу для личных поездок, семьи, друзей или группы/клиентов?`;
+      ? `🆓 Free Guest Pass, если хотите начать совсем мягко: ${TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL}`
+      : `🌟 VIP Membership, если уже хотите перейти к платному VIP-членству: ${TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL}`;
+    return `Можно начать мягко: сначала выбрать правильный вход Travel Advantage, а уже потом обсуждать Membership и официальный шаг.\n\n${primaryLine}\n${secondaryLine}\n\nFree Guest Pass подходит для первого знакомства без кредитной карты и даёт гостевой доступ с ограничением: 1 hotel booking максимум на 2 ночи. VIP Membership — это продающая страница платного VIP-членства с переходом к official checkout.\n\nЕсли у вас семья, группа, клиенты, интерес к баллам, Elite, Turbo или Ambassador, я бы сначала сравнила уровни Membership, чтобы не выбрать слишком слабый тариф.`;
   }
 
   if (tariffPattern.test(normalized)) {

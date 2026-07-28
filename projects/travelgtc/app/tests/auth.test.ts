@@ -296,7 +296,7 @@ describe('TravelGTC auth API', () => {
     expect(response.json().answer).toContain('https://www.mwrlife.com/KFilip909');
   });
 
-  test('returns demo links for account AI demo intent without marking purchase intent', async () => {
+  test('returns access links for account AI first-look intent without marking purchase intent', async () => {
     const { app } = await makeApp();
     const registration = await app.inject({
       method: 'POST',
@@ -308,7 +308,7 @@ describe('TravelGTC auth API', () => {
       method: 'POST',
       url: '/api/travelgtc/v1/account/ai/chat',
       headers: { cookie },
-      payload: { question: 'Хочу посмотреть demo Travel Advantage перед оплатой.' },
+      payload: { question: 'Хочу посмотреть Free Guest Pass Travel Advantage перед оплатой.' },
     });
     await app.close();
 

@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 4.8
+- Version: 4.9
 - Date: 2026-07-28
-- Status: Active, guest demo access routing implemented
+- Status: Active, Free Guest Pass and VIP Membership terminology implemented
 
 ## 1. Current State
 
@@ -329,13 +329,15 @@ If a user writes that they want to subscribe/register/pay/join/get the link, the
 Implemented after approval on 2026-07-28:
 
 1. TRAVELGTC-WEB-029 dedicated Mira page is published in source as `/mira/`.
-2. TRAVELGTC-WEB-030 demo access links are published in source:
-   - VIP: https://vip.traveladvantage.com/KFilip909
-   - Free: https://free.traveladvantage.com/KFilip909
-3. TRAVELGTC-AI-005 updated Mira context/fallback logic so demo intent is discovery and purchase intent remains separate.
-4. TRAVELGTC-WEB-031 added guest demo access to the homepage `MWR Life, Travel Advantage и TravelGTC` block:
-   - Free demo is the soft first-discovery link.
-   - VIP demo is the preferred link for users comparing Membership, family/group/client scenarios, points, events, Ambassador or purchase options.
+2. TRAVELGTC-WEB-030 added Travel Advantage access links in source:
+   - VIP Membership: https://vip.traveladvantage.com/KFilip909
+   - Free Guest Pass: https://free.traveladvantage.com/KFilip909
+3. TRAVELGTC-AI-005 updated Mira context/fallback logic so Free Guest Pass / first-look intent is discovery and purchase intent remains separate.
+4. TRAVELGTC-WEB-031 added guest access to the homepage `MWR Life, Travel Advantage и TravelGTC` block.
+5. TRAVELGTC-WEB-032 corrected the naming after live link checks:
+   - Free Guest Pass is the soft first-discovery link without credit card.
+   - VIP Membership is the paid VIP membership path and must not be called a trial page.
+   - Family/group/client/points/Elite/Turbo/Ambassador scenarios should trigger Membership comparison before sending only the VIP Membership link.
 
 ## 2. Working Rules
 
@@ -361,9 +363,10 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
-| 4.8 | 2026-07-28 | GTC IT / AI Assistant | Recorded guest demo access in the homepage relationship block and Mira free/VIP demo routing |
-| 4.7 | 2026-07-28 | GTC IT / AI Assistant | Recorded implementation of `/mira/`, Travel Advantage demo links and Mira demo/purchase intent separation |
-| 4.6 | 2026-07-28 | GTC IT / AI Assistant | Recorded draft approval tasks for dedicated Mira page, demo access links and official-document knowledge split |
+| 4.9 | 2026-07-28 | GTC IT / AI Assistant | Recorded Free Guest Pass / VIP Membership terminology correction and Membership-comparison-first routing |
+| 4.8 | 2026-07-28 | GTC IT / AI Assistant | Recorded guest access in the homepage relationship block and Mira Free Guest Pass / VIP Membership routing |
+| 4.7 | 2026-07-28 | GTC IT / AI Assistant | Recorded implementation of `/mira/`, Travel Advantage access links and Mira first-look/purchase intent separation |
+| 4.6 | 2026-07-28 | GTC IT / AI Assistant | Recorded draft approval tasks for dedicated Mira page, access links and official-document knowledge split |
 | 4.5 | 2026-07-12 | GTC IT / AI Assistant | Recorded official referral URL and Mira purchase-intent flow with ready_to_subscribe CRM stage |
 | 4.4 | 2026-07-12 | GTC IT / AI Assistant | Recorded Mira chat branded header, viewport correction, CRM history restore and Azure context continuation |
 | 4.3 | 2026-07-12 | GTC IT / AI Assistant | Recorded authorized movable Mira chat, account AI endpoint and CRM interaction persistence |

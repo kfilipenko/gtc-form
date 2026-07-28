@@ -1,9 +1,9 @@
-# TRAVELGTC-AI-005 - Official Documents And Demo Knowledge Task
+# TRAVELGTC-AI-005 - Official Documents And Access Knowledge Task
 
 - Project: TravelGTC
 - Code: TRAVELGTC-AI-005
 - Date: 2026-07-28
-- Status: Draft for Project Owner approval
+- Status: Implemented; terminology refined by TRAVELGTC-WEB-032
 - Depends on: TRAVELGTC-AI-004, TRAVELGTC-WEB-030
 
 ## 1. Objective
@@ -54,7 +54,7 @@ Use:
 2. CRM `ready_to_subscribe`;
 3. official registration handoff.
 
-### Travel Advantage Demo Links
+### Travel Advantage Access Links
 
 ```text
 https://vip.traveladvantage.com/KFilip909
@@ -63,7 +63,7 @@ https://free.traveladvantage.com/KFilip909
 
 Use:
 
-1. demo / trial / first-look answers;
+1. Free Guest Pass / trial / first-look answers;
 2. site block after approval;
 3. dedicated Mira page after approval.
 
@@ -109,8 +109,8 @@ Use:
 
 Mira must:
 
-1. distinguish demo access from paid Membership registration;
-2. offer demo links when the user asks to see the platform before buying;
+1. distinguish Free Guest Pass access from paid Membership registration;
+2. offer Free Guest Pass when the user asks to see the platform before buying;
 3. offer the referral registration link only when purchase intent is present;
 4. explain that registration and payment happen on official MWR Life / Travel Advantage pages;
 5. avoid presenting support documents as TravelGTC-owned terms;
@@ -131,10 +131,10 @@ Implementation should update:
 The task is complete when:
 
 1. approved public links are published on the site;
-2. demo links are available to Mira and, if approved, to users;
+2. Free Guest Pass / VIP Membership links are available to Mira and, if approved, to users;
 3. caution-only documents are not exposed publicly without confirmation;
 4. Mira answers use the correct link for the correct user intent;
-5. tests confirm purchase-intent and demo-intent behavior remain separate;
+5. tests confirm purchase-intent and first-look behavior remain separate;
 6. documentation records the support-confirmation status of each document.
 
 ## 7. Approval Question
@@ -142,5 +142,5 @@ The task is complete when:
 Approve this document split:
 
 1. public now: Membership Benefits, Policies and Procedures, referral registration link;
-2. public after approval: VIP demo and free demo links;
+2. public after approval: VIP Membership and Free Guest Pass links;
 3. Mira knowledge with caution: FAQ, Life Experiences FAQ, Compensation Plan Overview.

@@ -2,16 +2,16 @@ export const MEMBERSHIP_KNOWLEDGE_DOCUMENT_PATH = '/assets/docs/MembershipBenefi
 export const MEMBERSHIP_KNOWLEDGE_DOCUMENT_URL = `https://travelgtc.com${MEMBERSHIP_KNOWLEDGE_DOCUMENT_PATH}`;
 export const OFFICIAL_MEMBERSHIP_BENEFITS_URL =
   'https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf';
-export const TRAVEL_ADVANTAGE_VIP_DEMO_URL = 'https://vip.traveladvantage.com/KFilip909';
-export const TRAVEL_ADVANTAGE_FREE_DEMO_URL = 'https://free.traveladvantage.com/KFilip909';
+export const TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL = 'https://vip.traveladvantage.com/KFilip909';
+export const TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL = 'https://free.traveladvantage.com/KFilip909';
 
 const MEMBERSHIP_KNOWLEDGE_SUMMARY = [
   'База знаний Travel Advantage Membership для ответов Миры.',
   'Источник цифр: официальный Membership Benefits PDF v25.05.01 и рабочий RU-документ TravelGTC.',
   `Рабочий RU-документ: ${MEMBERSHIP_KNOWLEDGE_DOCUMENT_URL}`,
   `Официальный EN PDF: ${OFFICIAL_MEMBERSHIP_BENEFITS_URL}`,
-  `VIP demo Travel Advantage: ${TRAVEL_ADVANTAGE_VIP_DEMO_URL}`,
-  `Free demo Travel Advantage: ${TRAVEL_ADVANTAGE_FREE_DEMO_URL}`,
+  `VIP Membership Travel Advantage: ${TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL}`,
+  `Free Guest Pass Travel Advantage: ${TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL}`,
   '',
   'Уровни: Guest, VIP, VIP180, Elite, а также Turbo add-on.',
   'Ключевые условия для сравнений, расчетов и продажного объяснения:',
@@ -26,15 +26,16 @@ const MEMBERSHIP_KNOWLEDGE_SUMMARY = [
   '- Loyalty Points usage: do not claim that points can be applied to flights, cruises, hotels or any category unless the concrete booking flow allows it. Use wording "допустимый заказ", "booking flow" and "Life Experiences where applicable".',
   '- Loyalty Points не переводятся между участниками и не обмениваются на наличные.',
   '- Travel Credits earned from bookings and stored in account to be used at checkout if applicable; official PDF states Value $.01.',
-  '- Demo access: VIP demo and free demo are approved TravelGTC links for showing the Travel Advantage interface before paid registration. Demo is a discovery step, not a promise of final price, availability or paid inventory.',
-  '- Demo access routing: free demo is the soft first look for cautious users, first product discovery and "бесплатно посмотреть"; VIP demo is the preferred sales demo for users asking about Membership, VIP/Elite, family, groups, clients, points, events, Ambassador or purchase comparison. If unclear, give both links and explain the difference briefly.',
+  '- Free Guest Pass: approved TravelGTC link for first product discovery without a credit card; page states Guest Pass provides full access to the Travel Advantage booking platform, limited to 1 hotel booking for a maximum of 2 nights.',
+  '- VIP Membership: approved TravelGTC link to the VIP Membership sales page and official VIP checkout route. It is not a trial page.',
+  '- Link routing: Free Guest Pass is the soft first look for cautious users, first product discovery and "бесплатно посмотреть"; VIP Membership is for users ready to consider the paid VIP level. For family, groups, clients, points, Elite, Turbo or Ambassador interest, first compare Membership levels before sending only the VIP Membership link.',
   '- Групповые и бизнес-сценарии: йога, цигун, wellness, ретриты, тренеры, эксперты с аудиторией, организаторы событий, подарочные поездки близким, Ambassador-направление.',
   '- При группе, клиентах, семье, друзьях, регулярных поездках, Life Experiences, points или business interest Мира сначала сравнивает Elite и при необходимости Turbo add-on.',
   '- При просрочке оплаты баллы блокируются, 180+ дней просрочки: отмена членства.',
 ].join('\n');
 
 export function isMembershipKnowledgeQuestion(question: string): boolean {
-  return /(membership|тариф|уровн|vip|vip180|elite|элит|turbo|турбо|балл|loyalty|point|travel credits|кредит|сравн|расчет|расч[её]т|калькул|выгод|выгодн|окуп|таблиц|разниц|сценар|семь|друз|групп|клиент|ученик|ретрит|йог|цигун|wellness|ambassador|амбассад|бизнес|заработ|доход|life experience|demo|демо|free|trial|посмотреть|интерфейс)/i.test(
+  return /(membership|тариф|уровн|vip|vip180|elite|элит|turbo|турбо|балл|loyalty|point|travel credits|кредит|сравн|расчет|расч[её]т|калькул|выгод|выгодн|окуп|таблиц|разниц|сценар|семь|друз|групп|клиент|ученик|ретрит|йог|цигун|wellness|ambassador|амбассад|бизнес|заработ|доход|life experience|guest pass|гостев|demo|демо|free|trial|посмотреть|интерфейс)/i.test(
     question,
   );
 }
@@ -53,7 +54,7 @@ export function buildMembershipKnowledgeContext(question: string): string {
     'Не придумывай категории списания Loyalty Points. Не говори "авиабилеты/круизы/отели" как универсальные примеры применения баллов. Говори "допустимый заказ", "Life Experiences where applicable" и "покажет официальный booking flow".',
     'Если вопрос про бизнес/группы: выявляй аудиторию, учеников, клиентов, ретриты, мероприятия и Ambassador-сценарий.',
     'Если используешь цифры, добавляй ссылку на рабочий RU-документ и официальный EN PDF.',
-    'Если пользователь хочет сначала посмотреть платформу, до оплаты или до регистрации: предложи demo-доступ. Free demo - для первого осторожного знакомства и просьб "бесплатно посмотреть"; VIP demo - для вопросов про тарифы, Membership, семью, группу, клиентов, баллы, события, Ambassador или сравнение перед покупкой. Если неясно - дай обе ссылки и объясни разницу.',
+    'Если пользователь хочет сначала посмотреть платформу, до оплаты или без кредитной карты: предложи Free Guest Pass. Объясни ограничение: 1 hotel booking максимум на 2 ночи. Если пользователь готов рассматривать платный VIP-уровень - дай VIP Membership. Если есть семья, группа, клиенты, баллы, Elite, Turbo или Ambassador interest - сначала сравни уровни Membership, чтобы не отправить человека на слишком слабый VIP checkout.',
     '',
     MEMBERSHIP_KNOWLEDGE_SUMMARY,
   ].join('\n');
@@ -67,9 +68,9 @@ export function attachMembershipDocumentLink(question: string, answer: string): 
     return answer;
   }
 
-  const demoLine = /(demo|демо|free|trial|посмотреть|интерфейс)/i.test(question)
-    ? `\n\n🌟 VIP demo: ${TRAVEL_ADVANTAGE_VIP_DEMO_URL}\n🆓 Free demo: ${TRAVEL_ADVANTAGE_FREE_DEMO_URL}`
+  const accessLine = /(guest pass|гостев|demo|демо|free|trial|посмотреть|интерфейс)/i.test(question)
+    ? `\n\n🌟 VIP Membership: ${TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL}\n🆓 Free Guest Pass: ${TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL}`
     : '';
 
-  return `${answer}\n\n📄 Документ для проверки и сравнения: ${MEMBERSHIP_KNOWLEDGE_DOCUMENT_URL}\nОфициальный PDF: ${OFFICIAL_MEMBERSHIP_BENEFITS_URL}${demoLine}`;
+  return `${answer}\n\n📄 Документ для проверки и сравнения: ${MEMBERSHIP_KNOWLEDGE_DOCUMENT_URL}\nОфициальный PDF: ${OFFICIAL_MEMBERSHIP_BENEFITS_URL}${accessLine}`;
 }

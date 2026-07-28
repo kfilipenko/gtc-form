@@ -632,7 +632,7 @@ h3 {
   line-height: 1.38;
 }
 
-.demo-actions.compact {
+.access-actions.compact {
   justify-content: flex-start;
   min-width: 0;
   margin-top: 10px;
@@ -796,14 +796,14 @@ h3 {
   line-height: 1.4;
 }
 
-.demo-access-card {
+.access-card {
   margin-top: 14px;
   border-color: rgba(155, 234, 46, 0.5);
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(227, 252, 210, 0.42));
 }
 
-.demo-actions {
+.access-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -1142,7 +1142,7 @@ h3 {
   line-height: 1.55;
 }
 
-.demo-inline-links {
+.access-inline-links {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
@@ -2376,7 +2376,7 @@ button:disabled {
     margin: 0;
   }
 
-  .demo-actions {
+  .access-actions {
     justify-content: flex-start;
   }
 
@@ -2518,14 +2518,14 @@ button:disabled {
     min-height: 300px;
   }
 
-  .demo-actions,
-  .demo-inline-links {
+  .access-actions,
+  .access-inline-links {
     display: grid;
     grid-template-columns: 1fr;
   }
 
-  .demo-actions .button,
-  .demo-inline-links .button {
+  .access-actions .button,
+  .access-inline-links .button {
     width: 100%;
   }
 

@@ -1,9 +1,9 @@
 const OFFICIAL_SOURCE_TEXT =
-  'Официальные источники для проверки: MWR Life https://www.mwrlife.com/, Membership https://www.mwrlife.com/home/membership, Company https://www.mwrlife.com/home/company, Travel Advantage https://www.traveladvantage.com/home, Membership Benefits PDF https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf, VIP demo https://vip.traveladvantage.com/KFilip909, free demo https://free.traveladvantage.com/KFilip909.';
+  'Официальные источники для проверки: MWR Life https://www.mwrlife.com/, Membership https://www.mwrlife.com/home/membership, Company https://www.mwrlife.com/home/company, Travel Advantage https://www.traveladvantage.com/home, Membership Benefits PDF https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf, VIP Membership https://vip.traveladvantage.com/KFilip909, Free Guest Pass https://free.traveladvantage.com/KFilip909.';
 const MEMBERSHIP_DOC_LINK =
   'https://travelgtc.com/assets/docs/MembershipBenefits-RU.pdf';
-const VIP_DEMO_LINK = 'https://vip.traveladvantage.com/KFilip909';
-const FREE_DEMO_LINK = 'https://free.traveladvantage.com/KFilip909';
+const VIP_MEMBERSHIP_LINK = 'https://vip.traveladvantage.com/KFilip909';
+const FREE_GUEST_PASS_LINK = 'https://free.traveladvantage.com/KFilip909';
 
 export function buildMiraFallbackAnswer(question: string): string {
   const normalized = question.toLowerCase();
@@ -12,19 +12,19 @@ export function buildMiraFallbackAnswer(question: string): string {
   const sourcePattern = /(официальн|источник|сайт|документ|pdf|benefits|правил|услов)/i;
   const storyPattern = /(истори|знаком|встреч|событ|пара|друг|партн[её]р|впечатл)/i;
   const comparePattern = /(сравн|расчет|расч[её]т|калькул|выгод|разниц|таблиц|elite|vip|турбо|turbo|балл|loyalty|групп|клиент|ретрит|йог|цигун)/i;
-  const demoPattern = /(demo|демо|trial|free|посмотреть|интерфейс)/i;
+  const guestAccessPattern = /(guest pass|гостев|demo|демо|trial|free|посмотреть|интерфейс)/i;
 
-  if (demoPattern.test(normalized)) {
+  if (guestAccessPattern.test(normalized)) {
     const vipFit = /(vip|elite|элит|membership|тариф|семь|друз|групп|клиент|балл|loyalty|событ|ambassador|амбассад|куп|оплат|сравн)/i.test(
       normalized,
     );
     const primaryLine = vipFit
-      ? `🌟 VIP demo: ${VIP_DEMO_LINK}`
-      : `🆓 Free demo: ${FREE_DEMO_LINK}`;
+      ? `🌟 VIP Membership: ${VIP_MEMBERSHIP_LINK}`
+      : `🆓 Free Guest Pass: ${FREE_GUEST_PASS_LINK}`;
     const secondaryLine = vipFit
-      ? `🆓 Free demo, если хотите начать совсем мягко: ${FREE_DEMO_LINK}`
-      : `🌟 VIP demo, если хотите посмотреть более полный сценарий перед выбором Membership: ${VIP_DEMO_LINK}`;
-    return `Можно начать с demo-доступа Travel Advantage и спокойно посмотреть интерфейс до оплаты.\n\n${primaryLine}\n${secondaryLine}\n\nFree demo подходит для первого знакомства. VIP demo лучше давать, когда уже есть интерес к Membership, семье, группе, клиентам, баллам или сравнению тарифа перед покупкой.\n\nDemo — это discovery step, не обещание финальной цены, наличия предложений или paid inventory. Если после просмотра вам понравится логика платформы, следующий шаг — сравнить Membership и перейти к официальной регистрации через партнёра TravelGTC.`;
+      ? `🆓 Free Guest Pass, если хотите начать совсем мягко: ${FREE_GUEST_PASS_LINK}`
+      : `🌟 VIP Membership, если уже хотите перейти к платному VIP-членству: ${VIP_MEMBERSHIP_LINK}`;
+    return `Можно начать с правильного входа Travel Advantage.\n\n${primaryLine}\n${secondaryLine}\n\nFree Guest Pass подходит для первого знакомства без кредитной карты. По странице Travel Advantage он даёт гостевой доступ к booking platform с ограничением: 1 hotel booking максимум на 2 ночи.\n\nVIP Membership — это уже продающая страница платного VIP-членства с переходом к official checkout. Если у вас семья, группа, клиенты, интерес к баллам, Elite, Turbo или Ambassador, я бы сначала сравнила уровни Membership, чтобы не выбрать слишком слабый тариф.`;
   }
 
   if (nextStepPattern.test(normalized)) {

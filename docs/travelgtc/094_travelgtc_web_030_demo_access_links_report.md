@@ -1,22 +1,22 @@
-# TRAVELGTC-WEB-030 - Travel Advantage Demo Access Links Report
+# TRAVELGTC-WEB-030 - Travel Advantage Access Links Report
 
 - Project: TravelGTC
 - Code: TRAVELGTC-WEB-030
 - Date: 2026-07-28
-- Status: Implemented and ready for live publication
+- Status: Implemented, terminology refined by TRAVELGTC-WEB-032
 - Approved task: `091_travelgtc_web_030_demo_access_links_task.md`
 
 ## 1. Summary
 
-Added approved Travel Advantage demo access links to the public site.
+Added approved Travel Advantage access links to the public site.
 
-Approved demo links:
+Approved access links:
 
 ```text
-VIP demo:
+VIP Membership:
 https://vip.traveladvantage.com/KFilip909
 
-Free demo:
+Free Guest Pass:
 https://free.traveladvantage.com/KFilip909
 ```
 
@@ -37,19 +37,19 @@ Demo links were added to:
 The home page now includes:
 
 ```text
-Demo-доступ Travel Advantage
-Открыть VIP demo Travel Advantage
-Открыть free demo Travel Advantage
+Официальные входы Travel Advantage
+Открыть VIP Membership Travel Advantage
+Открыть Free Guest Pass Travel Advantage
 ```
 
 The `/mira/` page includes compact direct buttons:
 
 ```text
-Открыть VIP demo
-Открыть free demo
+Открыть VIP Membership
+Открыть Free Guest Pass
 ```
 
-All external demo links open in a new tab with:
+All external access links open in a new tab with:
 
 ```text
 target="_blank"
@@ -58,13 +58,13 @@ rel="noopener"
 
 ## 3. Funnel Position
 
-Demo access is now treated as a softer pre-registration step:
+Free Guest Pass access is treated as a softer pre-registration step:
 
 ```text
-Interest -> Demo -> Questions -> Membership fit -> Purchase intent -> Official referral registration
+Interest -> Free Guest Pass -> Questions -> Membership fit -> Purchase intent -> Official referral registration
 ```
 
-The implementation keeps demo access separate from purchase intent.
+The implementation keeps Free Guest Pass discovery separate from paid VIP Membership and purchase intent.
 
 ## 4. Verification
 
@@ -75,5 +75,4 @@ npm run test:travelgtc
 npm run test:travelgtc-funnel
 ```
 
-Playwright verifies that the public demo links are present on the home page and on `/mira/`.
-
+Playwright verifies that the public Free Guest Pass and VIP Membership links are present on the home page and on `/mira/`.
