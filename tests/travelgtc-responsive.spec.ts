@@ -169,17 +169,17 @@ test.describe('TravelGTC responsive public site', () => {
     await expect(page.locator('[data-ai-form]')).toBeVisible();
   });
 
-  test('dedicated Mira page exposes Guest Pass and VIP Membership links with auth-gated page chat', async ({ page }) => {
+  test('dedicated Mira page focuses on auth-gated page chat', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 920 });
     await page.goto('/mira/', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.locator('h1')).toContainText('AI-чат для спокойного выбора Travel Advantage');
     await expect(page.locator('.site-header .brand-logo img')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
     await expect(page.locator('[data-ai-page] [data-ai-panel]')).toBeVisible();
     await expect(page.locator('[data-ai-page] [data-ai-starter]')).toHaveCount(3);
     await expect(page.locator('[data-ai-page] [data-ai-voice]')).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Открыть VIP Membership' })).toHaveAttribute('href', 'https://vip.traveladvantage.com/KFilip909');
-    await expect(page.getByRole('link', { name: 'Открыть Free Guest Pass' })).toHaveAttribute('href', 'https://free.traveladvantage.com/KFilip909');
+    await expect(page.getByRole('link', { name: 'Открыть VIP Membership' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Открыть Free Guest Pass' })).toHaveCount(0);
+    await expect(page.getByText('Free Guest Pass даёт мягкий гостевой старт')).toHaveCount(0);
     await expect(page.locator('[data-ai-messages]')).toContainText(/сохранить историю диалога/i);
 
     await page.locator('[data-ai-form] input[name="question"]').fill('Хочу понять Free Guest Pass перед регистрацией');

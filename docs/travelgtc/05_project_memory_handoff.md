@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 5.2
+- Version: 5.3
 - Date: 2026-07-28
-- Status: Active, main navigation simplified and Mira routed to dedicated page
+- Status: Active, dedicated Mira page simplified to chat-only flow
 
 ## 1. Current State
 
@@ -164,6 +164,7 @@ TRAVELGTC-AI-001 rule: the public AI consultant is named `Мира TravelGTC`. U
 TRAVELGTC-WEB-033 rule: the home `#lead-form` is interest-only. Do not reintroduce a free-form textarea or `Задать вопрос` option there. User questions belong in Mira AI chat, where the text is processed, stored in CRM history and used as dialogue context. The frontend may generate the required API `message` from the selected interest to keep the backend contract stable.
 TRAVELGTC-WEB-034 rule: the home `Официальные входы Travel Advantage` card must use a single-column layout. Long CTA labels must not create an `auto` grid column that collapses the explanatory text into vertical letters.
 TRAVELGTC-WEB-035 rule: the membership-first top navigation must not include a separate `Travel Advantage` hash link or duplicate `Узнать о членстве` CTA. The AI entry in the top menu is a single `Мира` link to `/mira/`; the home page must not include the old embedded floating AI widget.
+TRAVELGTC-WEB-036 rule: `/mira/` is a chat-only working page. Do not duplicate the home `#relationship` Guest Pass / VIP Membership explanatory block, official access buttons or promo copy there. Keep guest-access explanation on the home relationship block and let Mira handle questions in the chat.
 ```
 
 Architecture state:
@@ -214,6 +215,7 @@ TRAVELGTC-AI-001 named the public AI consultant `Мира TravelGTC`, added a ca
 TRAVELGTC-WEB-033 removed the unprocessed free-form request textarea from the home lead form, removed the `Задать вопрос` option from the home lead select and added `scroll-margin-top` so `#lead-form` is not hidden under the fixed header.
 TRAVELGTC-WEB-034 fixed the home Membership access card by making the access-card layout single-column and adding a Playwright guard against vertical heading collapse.
 TRAVELGTC-WEB-035 simplified the membership-first top navigation, removed duplicate top CTAs and moved home AI access to the dedicated `/mira/` page.
+TRAVELGTC-WEB-036 removed the left promo/copy column and Guest Pass / VIP buttons from `/mira/`, leaving the page focused on the authenticated AI chat.
 ```
 
 API state:
@@ -369,6 +371,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 5.3 | 2026-07-28 | GTC IT / AI Assistant | Recorded chat-only `/mira/` page and home-only Guest Pass / VIP explanation |
 | 5.2 | 2026-07-28 | GTC IT / AI Assistant | Recorded simplified top navigation and single Mira route to the dedicated chat page |
 | 5.1 | 2026-07-28 | GTC IT / AI Assistant | Recorded Membership access card layout fix and Playwright guard against vertical text collapse |
 | 5.0 | 2026-07-28 | GTC IT / AI Assistant | Recorded interest-only home lead form and fixed `#lead-form` anchor offset |
