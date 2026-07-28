@@ -42,22 +42,28 @@
           <div class="ai-page" data-ai-page>
             <section class="ai-panel ai-page-panel" data-ai-panel aria-label="Мира TravelGTC AI-консультант">
               <div class="ai-panel-head mira-chat-banner">
-                <div class="mira-banner-title" aria-label="Ваш агент Мира">
-                  <span>Ваш</span>
-                  <span>Агент</span>
-                  <strong>Мира</strong>
+                <div class="mira-banner-title" aria-label="Спросите Вашего Агента Мира">
+                  <span>Спросите</span>
+                  <span>Вашего Агента</span>
+                  <strong>Мира:</strong>
                 </div>
                 <img class="mira-banner-image" src="/assets/images/processed/mira-avatar.webp" alt="Мира TravelGTC AI-консультант">
-              </div>
-              <div class="ai-starters" data-ai-starters aria-label="Начальные вопросы">
-                <button type="button" data-ai-starter="Хочу сначала понять Free Guest Pass. Чем он отличается от VIP Membership?">Free Guest Pass</button>
-                <button type="button" data-ai-starter="Я чаще путешествую с семьёй или друзьями. Какой уровень Travel Advantage стоит сравнить первым?">Семья и друзья</button>
-                <button type="button" data-ai-starter="У меня есть группа, клиенты или ученики. Как Travel Advantage может помочь с поездками и событиями?">Группа или клиенты</button>
               </div>
               <div class="ai-messages" data-ai-messages>
                 <div class="ai-message bot"><p>Привет, я Мира 🌍</p><p>Помогу разобраться в Travel Advantage без суеты: можно начать с Free Guest Pass, затем сравнить Membership и только после этого перейти к официальному платному шагу.</p><p>Чтобы сохранить историю диалога, ссылки и следующий шаг в CRM TravelGTC, чат работает после входа в аккаунт.</p></div>
               </div>
               <form class="ai-form" data-ai-form>
+                <label class="sr-only" for="ai-question-topic">Выберите первый вопрос</label>
+                <select id="ai-question-topic" name="question_topic" data-ai-question-select aria-label="Выберите первый вопрос">
+                  <option value="">Выберите первый вопрос</option>
+                  <option value="Хочу стать участником Travel Advantage. С чего начать и какой следующий шаг?">Стать участником Travel Advantage</option>
+                  <option value="Хочу узнать о членстве Travel Advantage. Какие уровни Membership стоит сравнить?">Узнать о членстве Travel Advantage</option>
+                  <option value="Хочу понять MWR Life. Чем компания связана с Travel Advantage и TravelGTC?">Понять MWR Life</option>
+                  <option value="Хочу понять роль Lifestyle Ambassador. Что делает Ambassador и кому это подходит?">Роль Lifestyle Ambassador</option>
+                  <option value="Хочу разобраться в партнёрской модели. Как она связана с путешествиями, группами и рекомендациями?">Партнёрская модель</option>
+                  <option value="Хочу узнать про события и презентации TravelGTC / MWR Life. Как к ним присоединиться?">События и презентации</option>
+                  <option value="Хочу получить презентацию и официальные материалы по Travel Advantage / MWR Life. Что лучше посмотреть первым?">Получить презентацию</option>
+                </select>
                 <label class="sr-only" for="ai-question-page">Ваш вопрос</label>
                 <input id="ai-question-page" name="question" type="text" autocomplete="off" placeholder="Например: хочу Free Guest Pass и понять тариф">
                 <button class="ai-voice" type="button" data-ai-voice aria-label="Задать вопрос голосом" title="Задать вопрос голосом">
@@ -65,7 +71,6 @@
                 </button>
                 <button class="button" type="submit">Спросить</button>
               </form>
-              <a class="ai-lead-link" href="/#lead-form" data-ai-lead-link>Перейти к заявке</a>
             </section>
           </div>
         </div>

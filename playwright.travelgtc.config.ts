@@ -4,7 +4,7 @@ const baseURL = process.env.TRAVELGTC_BASE_URL || 'http://127.0.0.1:4173';
 
 export default defineConfig({
   testDir: './tests',
-  testMatch: /travelgtc-responsive\.spec\.ts/,
+  testMatch: /travelgtc-(responsive|mira-funnel)\.spec\.ts/,
   timeout: 60_000,
   expect: {
     timeout: 10_000,

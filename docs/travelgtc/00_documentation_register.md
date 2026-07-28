@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 6.6
+- Version: 6.7
 - Date: 2026-07-28
-- Status: Mira chat banner wording refined
+- Status: Mira-first funnel replaces home lead form
 
 ## 1. Purpose
 
@@ -130,6 +130,7 @@ The first stage is intentionally small:
 | `100_travelgtc_web_035_main_navigation_mira_routing_report.md` | TRAVELGTC-WEB-035 - Main Navigation Mira Routing Report | Removes duplicate top navigation entries and routes the single Mira menu link to the dedicated AI chat page. | Implemented |
 | `101_travelgtc_web_036_mira_page_chat_only_report.md` | TRAVELGTC-WEB-036 - Mira Page Chat-Only Report | Removes duplicated Guest Pass / VIP explanatory copy from `/mira/` and keeps that context on the home relationship block only. | Implemented |
 | `102_travelgtc_web_037_mira_avatar_page_visual_report.md` | TRAVELGTC-WEB-037 - Mira Avatar Page Visual Report | Adds the approved Mira avatar image to the dedicated chat page and publishes an optimized WebP asset. | Implemented |
+| `103_travelgtc_web_038_mira_first_funnel_report.md` | TRAVELGTC-WEB-038 - Mira-First Funnel Report | Removes the old home short request form and moves first-question selection into the dedicated Mira chat page. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -163,6 +164,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 6.7 | 2026-07-28 | GTC IT / AI Assistant | Replaced the home short request form with Mira-first chat routing and moved first-question selection into `/mira/` |
 | 6.6 | 2026-07-28 | GTC IT / AI Assistant | Refined `/mira/` chat banner wording to `Ваш / Агент / Мира` and adjusted compact typography |
 | 6.5 | 2026-07-28 | GTC IT / AI Assistant | Compacted `/mira/` chat banner, removed duplicate logo/text from the chat panel header and kept the approved avatar as the right-side banner visual |
 | 6.4 | 2026-07-28 | GTC IT / AI Assistant | Added approved Mira avatar image to `/mira/` and published optimized WebP asset |

@@ -25,12 +25,12 @@ projects/travelgtc/public/assets/images/processed/mira-avatar.webp
 The dedicated `/mira/` page now uses the approved Mira avatar inside a compact chat banner. The banner text is:
 
 ```text
-Ваш
-Агент
-Мира
+Спросите
+Вашего Агента
+Мира:
 ```
 
-The word `Персональный` was removed after visual review so the heading can be aligned as a compact three-line column. The avatar is placed on the right side of the banner with rounded/oval edges. This keeps the page chat-focused and prevents the image from taking over the first screen.
+The word `Персональный` was removed after visual review. WEB-038 later changed the banner from the shorter `Ваш / Агент / Мира` variant to a direct chat prompt: `Спросите / Вашего Агента / Мира:`. The avatar is placed on the right side of the banner with rounded/oval edges. This keeps the page chat-focused and prevents the image from taking over the first screen.
 
 The chat panel header must not duplicate the site logo, `Мира TravelGTC` title or `AI-чат` subtitle because the top menu already carries the brand and page context. The page also must not reintroduce the removed Guest Pass / VIP explanatory copy.
 

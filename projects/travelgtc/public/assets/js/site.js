@@ -660,6 +660,7 @@ function initAiConsultant() {
   const form = document.querySelector("[data-ai-form]");
   const messages = document.querySelector("[data-ai-messages]");
   const starters = document.querySelector("[data-ai-starters]");
+  const questionSelect = document.querySelector("[data-ai-question-select]");
   if (!panel || !messages) {
     return;
   }
@@ -710,13 +711,25 @@ function initAiConsultant() {
     });
   }
 
+  if (questionSelect && form) {
+    questionSelect.addEventListener("change", () => {
+      const input = form.querySelector('input[name="question"]');
+      if (input && questionSelect.value) {
+        input.value = questionSelect.value;
+        input.focus();
+      }
+    });
+  }
+
   if (form) {
     initAiVoiceInput(form);
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
         const input = form.querySelector('input[name="question"]');
+        const select = form.querySelector("[data-ai-question-select]");
         const submitButton = form.querySelector('button[type="submit"]');
-        const question = input ? input.value.trim() : "";
+        const selectedQuestion = select && select.value ? select.value.trim() : "";
+        const question = input && input.value.trim() ? input.value.trim() : selectedQuestion;
         if (!question) {
           return;
         }

@@ -87,11 +87,10 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('.ai-section')).toBeVisible();
       await expect(page.locator('#ai-consultant').getByText('Мира TravelGTC')).toBeVisible();
       await expect(page.locator('[data-ai-widget]')).toHaveCount(0);
-      await expect(page.locator('#lead-form [name="message"]')).toHaveCount(0);
-      await expect(page.locator('#lead-form option[value="question"]')).toHaveCount(0);
-      await expect(page.locator('#lead-form')).toHaveCSS('scroll-margin-top', '132px');
+      await expect(page.locator('#lead-form')).toHaveCount(0);
+      await expect(page.getByRole('link', { name: 'Оставить заявку' })).toHaveCount(0);
       await expect(page.getByText('TravelGTC является партнёрской информационной страницей')).toBeVisible();
-      await expect(page.locator('form[data-travelgtc-lead-form]').first()).toBeVisible();
+      await expect(page.locator('form[data-travelgtc-lead-form]')).toHaveCount(0);
       await expect(page.locator('.nav-links')).toHaveCount(1);
       await expect(page.locator('.nav-contact')).toHaveCount(0);
       await expect(page.locator('.menu-infographic')).toHaveCount(0);
@@ -135,7 +134,7 @@ test.describe('TravelGTC responsive public site', () => {
     await page.goto('/mira/', { waitUntil: 'domcontentloaded' });
 
     await expect(page.locator('[data-ai-page] [data-ai-panel]')).toBeVisible();
-    await expect(page.locator('[data-ai-starter]')).toHaveCount(3);
+    await expect(page.locator('[data-ai-question-select] option')).toHaveCount(8);
     await expect(page.locator('[data-ai-voice]')).toBeVisible();
     const formBox = await page.locator('[data-ai-form]').boundingBox();
     expect(formBox).toBeTruthy();
@@ -147,17 +146,17 @@ test.describe('TravelGTC responsive public site', () => {
     await expect(page).toHaveURL(/\/auth\/\?mode=register&next=%2Fmira%2F%23ai-consultant/);
   });
 
-  test('Mira starter questions are needs-discovery prompts and preserve the pending question', async ({ page }) => {
+  test('Mira first-question selector starts dialogue and preserves the pending question', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/mira/', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.locator('[data-ai-starter]').first()).toContainText('Free Guest Pass');
-    await page.locator('[data-ai-starter]').first().click();
+    await page.locator('[data-ai-question-select]').selectOption({ label: 'Стать участником Travel Advantage' });
+    await page.locator('[data-ai-form]').locator('button[type="submit"]').click();
     await expect(page.locator('[data-ai-messages]')).toContainText(/сохранить историю диалога/i);
     await expect(page).toHaveURL(/\/auth\/\?mode=register&next=%2Fmira%2F%23ai-consultant/);
     await expect
       .poll(() => page.evaluate(() => sessionStorage.getItem('travelgtc_ai_pending_question') || ''))
-      .toContain('Free Guest Pass');
+      .toContain('стать участником Travel Advantage');
   });
 
   test('Mira welcome copy is friendly and explains authorized chat history', async ({ page }) => {
@@ -175,14 +174,15 @@ test.describe('TravelGTC responsive public site', () => {
 
     await expect(page.locator('.site-header .brand-logo img')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
     await expect(page.locator('[data-ai-page] .ai-panel-head .ai-logo')).toHaveCount(0);
-    await expect(page.locator('.mira-banner-title')).toContainText('Ваш');
-    await expect(page.locator('.mira-banner-title')).toContainText('Агент');
+    await expect(page.locator('.mira-banner-title')).toContainText('Спросите');
+    await expect(page.locator('.mira-banner-title')).toContainText('Вашего Агента');
     await expect(page.locator('.mira-banner-title')).toContainText('Мира');
     await expect(page.locator('.mira-banner-title')).not.toContainText('Персональный');
     await expect(page.locator('.mira-banner-image')).toHaveAttribute('src', '/assets/images/processed/mira-avatar.webp');
     await expect(page.locator('[data-ai-page] [data-ai-panel]')).toBeVisible();
-    await expect(page.locator('[data-ai-page] [data-ai-starter]')).toHaveCount(3);
+    await expect(page.locator('[data-ai-page] [data-ai-question-select] option')).toHaveCount(8);
     await expect(page.locator('[data-ai-page] [data-ai-voice]')).toBeVisible();
+    await expect(page.locator('[data-ai-lead-link]')).toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Открыть VIP Membership' })).toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Открыть Free Guest Pass' })).toHaveCount(0);
     await expect(page.getByText('Free Guest Pass даёт мягкий гостевой старт')).toHaveCount(0);

@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 5.6
+- Version: 5.7
 - Date: 2026-07-28
-- Status: Active, Mira chat banner wording refined
+- Status: Active, Mira-first funnel replaces home lead form
 
 ## 1. Current State
 
@@ -161,11 +161,11 @@ TRAVELGTC-WEB-023 rule: keep the favicon package in the public root and keep all
 TRAVELGTC-WEB-024 rule: the home page is now Travel Advantage membership-first with clear independent Lifestyle Ambassador disclosure. It must not imply that TravelGTC is the official MWR Life / Travel Advantage site, an independent travel agency, a booking provider or a payment/enrollment channel. Do not reintroduce the old home hero `Создавайте путешествия. Собирайте людей. Развивайте сеть.` as the primary message.
 TRAVELGTC-WEB-025 rule: the home page includes an official MWR Life company facts block based on `https://www.mwrlife.com/home/company`. Do not publish company metrics, office addresses, legal data, countries, language counts or regional claims without checking the official source. Keep service, trust and next-step process badges as pictograms/emoji, not `01` / `02` numeric labels.
 TRAVELGTC-AI-001 rule: the public AI consultant is named `Мира TravelGTC`. Use `docs/travelgtc/080_travelgtc_ai_001_mira_consultant_instruction.md` as the canonical instruction for personality, official sources, published facts, compliance limits and lead-routing behavior. Мира may be cheerful and tell short illustrative travel-community stories, but must not promise income, savings, availability, membership approval or business results.
-TRAVELGTC-WEB-033 rule: the home `#lead-form` is interest-only. Do not reintroduce a free-form textarea or `Задать вопрос` option there. User questions belong in Mira AI chat, where the text is processed, stored in CRM history and used as dialogue context. The frontend may generate the required API `message` from the selected interest to keep the backend contract stable.
+TRAVELGTC-WEB-038 rule: the old home `#lead-form` short request form is removed. Do not reintroduce a separate short request form on the home page as the primary conversion path. First interest selection now belongs inside `/mira/` as a first-question selector. The selected item becomes the first chat question, is preserved through the auth gate and is stored in AI/CRM history after login.
 TRAVELGTC-WEB-034 rule: the home `Официальные входы Travel Advantage` card must use a single-column layout. Long CTA labels must not create an `auto` grid column that collapses the explanatory text into vertical letters.
 TRAVELGTC-WEB-035 rule: the membership-first top navigation must not include a separate `Travel Advantage` hash link or duplicate `Узнать о членстве` CTA. The AI entry in the top menu is a single `Мира` link to `/mira/`; the home page must not include the old embedded floating AI widget.
 TRAVELGTC-WEB-036 rule: `/mira/` is a chat-only working page. Do not duplicate the home `#relationship` Guest Pass / VIP Membership explanatory block, official access buttons or promo copy there. Keep guest-access explanation on the home relationship block and let Mira handle questions in the chat.
-TRAVELGTC-WEB-037 rule: `/mira/` uses the approved avatar source `projects/travelgtc/public/assets/images/inbox/Mira Avatar.png`, optimized and published as `/assets/images/processed/mira-avatar.webp`. Do not replace it with generated alternatives unless the Project Owner explicitly provides a new approved source. The chat panel header must not duplicate the site logo or repeated `Мира TravelGTC / AI-чат` text because the brand and page entry are already present in the top menu. Use the compact banner wording `Ваш / Агент / Мира` with the avatar on the right.
+TRAVELGTC-WEB-037 rule: `/mira/` uses the approved avatar source `projects/travelgtc/public/assets/images/inbox/Mira Avatar.png`, optimized and published as `/assets/images/processed/mira-avatar.webp`. Do not replace it with generated alternatives unless the Project Owner explicitly provides a new approved source. The chat panel header must not duplicate the site logo or repeated `Мира TravelGTC / AI-чат` text because the brand and page entry are already present in the top menu. Use the compact banner wording `Спросите / Вашего Агента / Мира:` with the avatar on the right.
 ```
 
 Architecture state:
@@ -218,6 +218,7 @@ TRAVELGTC-WEB-034 fixed the home Membership access card by making the access-car
 TRAVELGTC-WEB-035 simplified the membership-first top navigation, removed duplicate top CTAs and moved home AI access to the dedicated `/mira/` page.
 TRAVELGTC-WEB-036 removed the left promo/copy column and Guest Pass / VIP buttons from `/mira/`, leaving the page focused on the authenticated AI chat.
 TRAVELGTC-WEB-037 added the approved Mira avatar visual to `/mira/`, then refined it into a compact chat banner with no duplicated logo/header text and updated responsive tests to verify the image asset.
+TRAVELGTC-WEB-038 removed the old home `#lead-form` short request form, replaced home request CTAs with `/mira/`, added a first-question selector to the Mira chat form and extended tests for the Mira-first funnel.
 ```
 
 API state:
@@ -248,7 +249,8 @@ Public funnel state:
 
 ```text
 Auth page: projects/travelgtc/public/auth/index.html
-Home form: projects/travelgtc/public/index.html#lead-form
+Home short request form: removed by TRAVELGTC-WEB-038
+Primary conversion entry: projects/travelgtc/public/mira/index.html
 Create-trip form: projects/travelgtc/public/create-trip/index.html#idea-form
 Contacts form: projects/travelgtc/public/contacts/index.html#contact-form
 Header includes login, registration, logged-in display name and logout controls.
@@ -257,7 +259,7 @@ After registration/login, user returns to the intended form and creates a CRM le
 All public lead forms now depend on registration/profile contacts. They do not ask for name, contact value or channel. Registration requires email and phone, and contact preference is only email or phone.
 The home form is intentionally compact. It no longer asks for contact data, travel format, destination, audience, dates, group size or business interest on the first step. Those details belong to `/create-trip/`, consultation or later CRM handling.
 The frontend infers `declared_role` for the CRM from `primary_interest`: create trip -> trip author, event -> event organizer, club -> community leader, business/presentation -> partner candidate, travel -> traveler.
-After WEB-024, the home form is membership/ambassador-oriented: Travel Advantage membership, MWR Life, Lifestyle Ambassador, partner model, events, presentation or question. It still uses the authenticated account profile for name/contact data and sends to `POST /api/travelgtc/v1/account/leads`.
+After WEB-038, the old home membership/ambassador short form is removed. The same first-interest options now live in `/mira/` as first chat questions: Travel Advantage membership, MWR Life, Lifestyle Ambassador, partner model, events and presentation. The chat uses the auth gate, saves the pending question and then persists the conversation in CRM/AI history.
 Funnel e2e command: npm run test:travelgtc-funnel
 Local test static port: 4174
 Local test API port: 4302
@@ -373,6 +375,7 @@ Recommended next steps:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 5.7 | 2026-07-28 | GTC IT / AI Assistant | Recorded Mira-first funnel: home short request form removed, first-question selection moved into `/mira/` |
 | 5.6 | 2026-07-28 | GTC IT / AI Assistant | Refined Mira banner wording to `Ваш / Агент / Мира` and adjusted compact typography |
 | 5.5 | 2026-07-28 | GTC IT / AI Assistant | Recorded compact Mira chat banner rule: no duplicated logo/text in chat header, avatar stays right-side in banner |
 | 5.4 | 2026-07-28 | GTC IT / AI Assistant | Recorded approved Mira avatar asset and `/mira/` layout use |
