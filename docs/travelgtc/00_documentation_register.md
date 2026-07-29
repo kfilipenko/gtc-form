@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 7.5
+- Version: 7.6
 - Date: 2026-07-29
-- Status: Mira-driven opportunities funnel task and drafts prepared
+- Status: Mira-driven opportunities funnel implemented
 
 ## 1. Purpose
 
@@ -107,7 +107,7 @@ The first stage is intentionally small:
 | `077_travelgtc_web_024_home_travel_advantage_ambassador_repositioning_report.md` | TRAVELGTC-WEB-024 - Home Travel Advantage And Ambassador Repositioning Report | Fixes the published home-page repositioning, safe AI-consultant stub, new lead interest options, footer/legal disclosure and live verification. | Implemented |
 | `078_travelgtc_web_025_company_facts_service_pictograms_task.md` | TRAVELGTC-WEB-025 - Company Facts And Service Pictograms Task | Defines replacement of numeric service/process badges with pictograms and addition of official MWR Life company facts to the home page. | Implemented |
 | `079_travelgtc_web_025_company_facts_service_pictograms_report.md` | TRAVELGTC-WEB-025 - Company Facts And Service Pictograms Report | Fixes the official company facts block, service/trust/process pictograms, responsive styling and verification scope. | Implemented |
-| `080_travelgtc_ai_001_mira_consultant_instruction.md` | TRAVELGTC-AI-001 - Mira TravelGTC Consultant Instruction | Defines the public AI consultant name, personality, official sources, published facts, safety rules and lead-routing behavior. | Active instruction |
+| `080_travelgtc_ai_001_mira_consultant_instruction.md` | TRAVELGTC-AI-001 - Mira TravelGTC Consultant Instruction | Defines the public AI consultant name, personality, official sources, published facts, safety rules and Mira-driven opportunity routing behavior. | Active instruction |
 | `081_travelgtc_crm_001_team_access_and_lead_workspace_report.md` | TRAVELGTC-CRM-001 - Team Access And Lead Workspace Report | Fixes project-local CRM team access, `/crm/` workspace, team role assignment and current lead-processing API routes. | Implemented |
 | `082_travelgtc_crm_002_email_notifications_task.md` | TRAVELGTC-CRM-002 - Lead Email Notifications | Fixes SMTP-based lead notification behavior and runtime configuration for sending new lead emails to `kfilipenko@kmf.ru`. | Implemented and production-enabled |
 | `083_travelgtc_ai_002_sales_agent_chat_widget_report.md` | TRAVELGTC-AI-002 - Sales Agent And Public Chat Widget Report | Fixes Azure agent version 8, sales-oriented Mira behavior, chat starter questions, branded avatar, voice input and backend safety guard. | Implemented and published |
@@ -137,9 +137,10 @@ The first stage is intentionally small:
 | `107_travelgtc_web_042_needs_based_opportunities_report.md` | TRAVELGTC-WEB-042 - Needs-Based Opportunities Page Report | Reworks `/events/` into the `Возможности` scenario accordion and extends Mira needs-based routing. | Implemented |
 | `108_travelgtc_web_043_public_opportunities_copy_and_global_menu_report.md` | TRAVELGTC-WEB-043 - Public Opportunities Copy And Global Menu Report | Removes internal Mira conversation copy from `/events/` and aligns public headers to the membership-first menu. | Implemented |
 | `109_travelgtc_web_044_opportunities_sales_copy_draft.md` | TRAVELGTC-WEB-044 - Opportunities Page Sales Copy Draft | Working Markdown draft for rewriting `/events/` into a stronger sales-oriented opportunities page before implementation. | Draft for Project Owner editing |
-| `110_travelgtc_web_045_mira_driven_opportunities_funnel_task.md` | TRAVELGTC-WEB-045 - Mira-Driven Opportunities Funnel Task | Defines the split between short public motive-selector page and detailed Mira scenario conversation script. | Draft for Project Owner approval |
-| `111_travelgtc_web_045_opportunities_public_page_copy_draft.md` | TRAVELGTC-WEB-045 - Opportunities Public Page Copy Draft | Short public copy draft for the motive-selector version of `/events/`. | Draft for Project Owner editing |
-| `112_travelgtc_ai_006_mira_opportunities_conversation_script_draft.md` | TRAVELGTC-AI-006 - Mira Opportunities Conversation Script Draft | Detailed scenario conversation script for Mira based on the opportunities motives. | Draft for Project Owner editing |
+| `110_travelgtc_web_045_mira_driven_opportunities_funnel_task.md` | TRAVELGTC-WEB-045 - Mira-Driven Opportunities Funnel Task | Defines the split between short public motive-selector page and detailed Mira scenario conversation script. | Approved and implemented |
+| `111_travelgtc_web_045_opportunities_public_page_copy_draft.md` | TRAVELGTC-WEB-045 - Opportunities Public Page Copy Draft | Short public copy draft for the motive-selector version of `/events/`. | Approved and implemented |
+| `112_travelgtc_ai_006_mira_opportunities_conversation_script_draft.md` | TRAVELGTC-AI-006 - Mira Opportunities Conversation Script Draft | Detailed scenario conversation script for Mira based on the opportunities motives. | Approved for Mira instruction update |
+| `113_travelgtc_web_045_mira_driven_opportunities_funnel_report.md` | TRAVELGTC-WEB-045 - Mira-Driven Opportunities Funnel Report | Fixes `/events/` as a motive selector and routes approved scenario keys into `/mira/`. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -173,6 +174,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 7.6 | 2026-07-29 | GTC IT / AI Assistant | Implemented the Mira-driven opportunities funnel on `/events/`, added scenario routing into `/mira/` and updated tests |
 | 7.5 | 2026-07-29 | GTC IT / AI Assistant | Added WEB-045 task, short public page copy draft and Mira opportunities conversation script draft |
 | 7.4 | 2026-07-29 | GTC IT / AI Assistant | Added a working Markdown copy draft for the sales-oriented `Возможности` page rewrite |
 | 7.3 | 2026-07-28 | GTC IT / AI Assistant | Removed internal Mira conversation mechanics from the public opportunities accordion and aligned public headers to the membership-first menu |

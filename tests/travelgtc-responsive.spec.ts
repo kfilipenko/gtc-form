@@ -143,35 +143,39 @@ test.describe('TravelGTC responsive public site', () => {
     await assertNoHorizontalOverflow(overflow.viewportWidth, Math.max(overflow.documentScrollWidth, overflow.bodyScrollWidth));
   });
 
-  test('opportunities page presents needs scenarios as an accordion', async ({ page }) => {
+  test('opportunities page presents motive links into Mira scenarios', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/events/', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.locator('h1')).toContainText('Найдите свой сценарий');
+    await expect(page.locator('h1')).toContainText('Выберите, зачем вам путешествия сейчас');
     await expect(page.locator('.site-header a[href="/events/"]')).toHaveText('Возможности');
     await expect(page.locator('.site-header a[href="/travel-lifestyle/"]')).toHaveCount(0);
     await expect(page.locator('.site-header a[href="/club/"]')).toHaveCount(0);
     await expect(page.locator('.site-header a[href="/create-trip/"]')).toHaveCount(0);
     await expect(page.locator('.site-header a[href="/business-model/"]')).toHaveCount(0);
     await expect(page.locator('.site-header a[href="/about/"]')).toHaveCount(0);
-    await expect(page.locator('.opportunity-accordion details')).toHaveCount(6);
-    await expect(page.locator('.opportunity-accordion')).toContainText('Путешествовать чаще');
-    await expect(page.locator('.opportunity-accordion')).toContainText('Семья и близкие');
-    await expect(page.locator('.opportunity-accordion')).toContainText('Активные путешествия');
-    await expect(page.locator('.opportunity-accordion')).toContainText('Группы, ученики и клиенты');
-    await expect(page.locator('.opportunity-accordion')).toContainText('События и клубная среда');
-    await expect(page.locator('.opportunity-accordion')).toContainText('Ambassador и бизнес');
-    await expect(page.locator('.opportunity-accordion')).not.toContainText('Как Мира ведёт разговор');
-    await expect(page.locator('.opportunity-next')).toContainText('Начните с вопроса, а не с покупки');
-    await expect(page.getByRole('link', { name: 'Спросить Миру' })).toHaveAttribute('href', '/mira/');
+    await expect(page.locator('.opportunity-link-card')).toHaveCount(5);
+    await expect(page.locator('.opportunity-motive')).toHaveCount(5);
+    await expect(page.locator('.opportunity-link-grid')).toContainText('Путешествовать чаще');
+    await expect(page.locator('.opportunity-link-grid')).toContainText('Подарить близким путешествие');
+    await expect(page.locator('.opportunity-link-grid')).toContainText('Создать поездку для группы');
+    await expect(page.locator('.opportunity-link-grid')).toContainText('Войти в клубную среду');
+    await expect(page.locator('.opportunity-link-grid')).toContainText('Построить travel-направление');
+    await expect(page.locator('.opportunity-motive-list')).toContainText('Подарите близким не вещь, а путешествие');
+    await expect(page.locator('.opportunity-motive-list')).toContainText('Создайте business-направление вокруг путешествий');
+    await expect(page.locator('.opportunity-motive-list')).not.toContainText('Как Мира ведёт разговор');
+    await expect(page.getByRole('link', { name: 'Обсудить семейный сценарий' })).toHaveAttribute('href', '/mira/?scenario=family');
+    await expect(page.getByRole('link', { name: 'Разобрать Ambassador-сценарий' })).toHaveAttribute('href', '/mira/?scenario=ambassador-business');
+    await expect(page.locator('.opportunity-final-panel')).toContainText('Начните с мотива, а не с покупки');
+    await expect(page.getByRole('link', { name: 'Перейти к Мире' })).toHaveAttribute('href', '/mira/');
   });
 
-  test('opportunities accordion fits mobile viewport', async ({ page }) => {
+  test('opportunities motive selector fits mobile viewport', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/events/', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.locator('.opportunity-accordion details')).toHaveCount(6);
-    await expect(page.locator('.opportunity-accordion summary').first()).toBeVisible();
+    await expect(page.locator('.opportunity-link-card')).toHaveCount(5);
+    await expect(page.locator('.opportunity-motive').first()).toBeVisible();
 
     const overflow = await measureHorizontalOverflow(page);
     await assertNoHorizontalOverflow(overflow.viewportWidth, Math.max(overflow.documentScrollWidth, overflow.bodyScrollWidth));
@@ -182,7 +186,7 @@ test.describe('TravelGTC responsive public site', () => {
     await page.goto('/mira/', { waitUntil: 'domcontentloaded' });
 
     await expect(page.locator('[data-ai-page] [data-ai-panel]')).toBeVisible();
-    await expect(page.locator('[data-ai-question-select] option')).toHaveCount(8);
+    await expect(page.locator('[data-ai-question-select] option')).toHaveCount(13);
     await expect(page.locator('[data-ai-question-prompt]')).toBeVisible();
     await expect(page.locator('[data-ai-voice]')).toBeVisible();
     const formBox = await page.locator('[data-ai-form]').boundingBox();
@@ -230,7 +234,7 @@ test.describe('TravelGTC responsive public site', () => {
     await expect(page.locator('.mira-banner-title')).not.toContainText('Персональный');
     await expect(page.locator('.mira-banner-image')).toHaveAttribute('src', '/assets/images/processed/mira-avatar.webp');
     await expect(page.locator('[data-ai-page] [data-ai-panel]')).toBeVisible();
-    await expect(page.locator('[data-ai-page] [data-ai-question-select] option')).toHaveCount(8);
+    await expect(page.locator('[data-ai-page] [data-ai-question-select] option')).toHaveCount(13);
     await expect(page.locator('[data-ai-page] [data-ai-question-prompt]')).toBeVisible();
     await expect(page.locator('[data-ai-page] [data-ai-voice]')).toBeVisible();
     await expect(page.locator('[data-ai-lead-link]')).toHaveCount(0);
@@ -243,6 +247,15 @@ test.describe('TravelGTC responsive public site', () => {
     await page.locator('[data-ai-form]').locator('button[type="submit"]').click();
     await expect(page.locator('[data-ai-messages]')).toContainText(/сначала войдите или зарегистрируйтесь/i);
     await expect(page).toHaveURL(/\/auth\/\?mode=register&next=%2Fmira%2F%23ai-consultant/);
+  });
+
+  test('Mira scenario route preselects the approved first question', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/mira/?scenario=groups', { waitUntil: 'domcontentloaded' });
+
+    const expectedQuestion = 'У меня есть группа, ученики или клиенты. Как использовать Travel Advantage для поездок и событий?';
+    await expect(page.locator('[data-ai-question-select]')).toHaveValue(expectedQuestion);
+    await expect(page.locator('[data-ai-form] input[name="question"]')).toHaveValue(expectedQuestion);
   });
 
   for (const route of publicRoutes) {

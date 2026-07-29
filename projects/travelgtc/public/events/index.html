@@ -4,8 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Возможности - TravelGTC</title>
-  <meta name="description" content="Сценарии TravelGTC для путешествий, семьи, активного отдыха, групп, событий и роли Lifestyle Ambassador.">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <meta name="description" content="Выберите мотив путешествий и начните разговор с Мирой TravelGTC: личные поездки, семья, группы, события или роль Lifestyle Ambassador.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <meta name="theme-color" content="#061A28">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -17,83 +19,112 @@
 <body>
   <header class="site-header"><div class="nav-wrap"><a class="brand brand-logo" href="/" aria-label="TravelGTC"><img src="/assets/images/processed/travelgtc-logo-header.webp" alt="TravelGTC"></a><nav class="nav-links nav-links-membership" aria-label="Главное меню"><a href="/">Главная</a><a href="/#relationship">MWR Life</a><a href="/#membership">Членство</a><a href="/#ambassador">Ambassador</a><a class="active" href="/events/">Возможности</a><a href="/mira/">Мира</a></nav><div class="nav-actions"><div class="account-actions" data-auth-state><a class="account-link" href="/auth/?mode=login" data-auth-anonymous>Войти</a><a class="button account-register" href="/auth/?mode=register" data-auth-anonymous>Регистрация</a><div class="account-user" data-auth-user hidden><span data-auth-user-name>Аккаунт</span><button class="account-logout" type="button" data-auth-logout>Выйти</button></div></div><button class="menu-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" data-menu-toggle><span></span><span></span><span></span></button></div></div></header>
   <main>
-    <section class="page-hero opportunities-hero">
+    <section class="opportunity-sales-hero">
+      <div class="section-inner opportunity-sales-grid">
+        <div class="opportunity-sales-copy">
+          <p class="eyebrow">Возможности TravelGTC</p>
+          <h1>Выберите, зачем вам путешествия сейчас</h1>
+          <p>Travel Advantage может быть личным travel-инструментом, подарком для близких, форматом для вашей группы, входом в клубную среду или началом партнёрского направления.</p>
+          <p>Нажмите на близкий мотив, быстро посмотрите смысл и переходите к Мире уже с готовым первым вопросом.</p>
+        </div>
+        <div class="opportunity-sales-visual" aria-label="Группа обсуждает маршрут путешествия" role="img">
+          <span>Travel scenarios</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section white opportunity-selector-section" id="opportunities">
       <div class="section-inner">
-        <p class="eyebrow">Возможности</p>
-        <h1>Найдите свой сценарий в Travel Advantage</h1>
-        <p>TravelGTC помогает увидеть не абстрактное членство, а конкретную пользу: поездки для себя, семьи, активных программ, групп, событий или развития роли Lifestyle Ambassador.</p>
+        <div class="opportunity-link-grid" aria-label="Быстрый выбор мотива">
+          <a class="opportunity-link-card" href="#personal-travel">
+            <span aria-hidden="true">🌍</span>
+            <strong>Путешествовать чаще</strong>
+            <em>личный travel-инструмент</em>
+          </a>
+          <a class="opportunity-link-card" href="#family">
+            <span aria-hidden="true">🎁</span>
+            <strong>Подарить близким путешествие</strong>
+            <em>семья, друзья, забота</em>
+          </a>
+          <a class="opportunity-link-card" href="#groups">
+            <span aria-hidden="true">🧘</span>
+            <strong>Создать поездку для группы</strong>
+            <em>ученики, клиенты, аудитория</em>
+          </a>
+          <a class="opportunity-link-card" href="#events">
+            <span aria-hidden="true">🤝</span>
+            <strong>Войти в клубную среду</strong>
+            <em>встречи, события, связи</em>
+          </a>
+          <a class="opportunity-link-card accent" href="#ambassador-business">
+            <span aria-hidden="true">🚀</span>
+            <strong>Построить travel-направление</strong>
+            <em>Ambassador и рекомендации</em>
+          </a>
+        </div>
+
+        <div class="opportunity-motive-list">
+          <article class="opportunity-motive" id="personal-travel">
+            <div class="opportunity-motive-icon" aria-hidden="true">🌍</div>
+            <div>
+              <p class="eyebrow dark">Личный сценарий</p>
+              <h2>Путешествуйте чаще, а не только один раз в год</h2>
+              <p>Если вы хотите чаще выбираться из привычного маршрута, Travel Advantage может стать вашим личным travel-инструментом для планирования поездок, сравнения вариантов и спокойного выбора следующего направления.</p>
+              <a class="text-link" href="/mira/?scenario=personal-travel">Обсудить личные поездки с Мирой</a>
+            </div>
+          </article>
+
+          <article class="opportunity-motive" id="family">
+            <div class="opportunity-motive-icon" aria-hidden="true">🎁</div>
+            <div>
+              <p class="eyebrow dark">Семья и близкие</p>
+              <h2>Подарите близким не вещь, а путешествие</h2>
+              <p>Семейный отпуск, поездка родителям, свадебное путешествие детям или отдых с друзьями могут стать сильнее обычного подарка. Travel Advantage помогает смотреть на путешествия как на заботу, впечатления и общие истории.</p>
+              <a class="text-link" href="/mira/?scenario=family">Обсудить семейный сценарий</a>
+            </div>
+          </article>
+
+          <article class="opportunity-motive" id="groups">
+            <div class="opportunity-motive-icon" aria-hidden="true">🧘</div>
+            <div>
+              <p class="eyebrow dark">Эксперты, группы и клиенты</p>
+              <h2>Превратите свою аудиторию в travel-сообщество</h2>
+              <p>Если у вас есть ученики, клиенты, подписчики или группа по интересам, путешествия могут усилить ваш проект: ретриты, wellness-выезды, активные поездки, обучающие программы и события для своего круга людей.</p>
+              <a class="text-link" href="/mira/?scenario=groups">Разобрать групповой сценарий</a>
+            </div>
+          </article>
+
+          <article class="opportunity-motive" id="events">
+            <div class="opportunity-motive-icon" aria-hidden="true">🤝</div>
+            <div>
+              <p class="eyebrow dark">События и клубная среда</p>
+              <h2>Входите в среду, где путешествия создают знакомства</h2>
+              <p>Клубные встречи, презентации и события помогают увидеть проект через людей: кто-то находит компанию для поездки, кто-то партнёров по интересам, кто-то новую идею для следующего маршрута.</p>
+              <a class="text-link" href="/mira/?scenario=events">Узнать о событиях и встречах</a>
+            </div>
+          </article>
+
+          <article class="opportunity-motive opportunity-motive-accent" id="ambassador-business">
+            <div class="opportunity-motive-icon" aria-hidden="true">🚀</div>
+            <div>
+              <p class="eyebrow dark">Ambassador и business-направление</p>
+              <h2>Создайте business-направление вокруг путешествий</h2>
+              <p>Если у вас есть круг доверия, клиенты, ученики, профессиональное сообщество или регулярные мероприятия, Travel Advantage может стать продуктом, вокруг которого развивается партнёрское направление, рекомендации и собственная группа участников.</p>
+              <a class="text-link" href="/mira/?scenario=ambassador-business">Разобрать Ambassador-сценарий</a>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
 
-    <section class="section white">
-      <div class="section-inner split opportunities-intro">
-        <div class="text-stack">
-          <p class="eyebrow dark">Карта потребностей</p>
-          <h2>Один продукт раскрывается по-разному для разных людей</h2>
-          <p>Кому-то важно чаще путешествовать и сравнить уровни Membership. Кому-то нужен инструмент для семьи, учеников, клиентов или сообщества. А кто-то сразу видит возможность развивать travel-направление как Lifestyle Ambassador.</p>
-          <p>Выберите близкий сценарий ниже. После этого можно перейти к Мире и задать вопрос уже от своей ситуации.</p>
-        </div>
-        <div class="section-visual wide image-visual image-events" role="img" aria-label="Возможности TravelGTC для групп и событий" data-label="Travel scenarios"></div>
-      </div>
-    </section>
-
-    <section class="section opportunities-section" id="opportunities">
-      <div class="section-inner">
-        <div class="section-head center">
-          <p class="eyebrow dark">Сценарии</p>
-          <h2>Что именно может быть вам полезно</h2>
-          <p>Откройте сценарий, который ближе всего к вашей ситуации, и посмотрите, какую практическую пользу может дать Travel Advantage.</p>
-        </div>
-        <div class="opportunity-accordion" aria-label="Сценарии возможностей TravelGTC">
-          <details open>
-            <summary><span aria-hidden="true">🌍</span><strong>Путешествовать чаще</strong><em>личный travel-инструмент</em></summary>
-            <div class="accordion-body">
-              <p>Подходит тем, кто хочет чаще планировать отдых, сравнивать варианты и использовать travel membership как удобный вход в категории сервисов Travel Advantage: отели, перелёты, курорты, аренда авто, круизы, экскурсии, активности и трансферы.</p>
-            </div>
-          </details>
-          <details>
-            <summary><span aria-hidden="true">👨‍👩‍👧</span><strong>Семья и близкие</strong><em>поездки, подарки, общий опыт</em></summary>
-            <div class="accordion-body">
-              <p>Сценарий для семейных путешествий, поездок с друзьями, подарков близким, свадебных путешествий, юбилеев и совместных отпусков. Здесь важны не только цена входа, но и дополнительные пользователи, Guest Passes и долгосрочное планирование.</p>
-            </div>
-          </details>
-          <details>
-            <summary><span aria-hidden="true">🏄</span><strong>Активные путешествия</strong><em>спорт, wellness, ретриты</em></summary>
-            <div class="accordion-body">
-              <p>Фридайвинг, горы, бег, яхтинг, йога, цигун, wellness, восстановление, ретриты и тематические выезды требуют не случайного тура, а понятной идеи, группы и маршрута.</p>
-            </div>
-          </details>
-          <details>
-            <summary><span aria-hidden="true">🧘</span><strong>Группы, ученики и клиенты</strong><em>для экспертов и организаторов</em></summary>
-            <div class="accordion-body">
-              <p>Тренеры, мастера йоги, цигуна, wellness-эксперты, преподаватели, консультанты и лидеры сообществ часто уже собирают людей вокруг доверия. Travel-направление может стать для них новым полезным продуктом.</p>
-            </div>
-          </details>
-          <details>
-            <summary><span aria-hidden="true">🤝</span><strong>События и клубная среда</strong><em>встречи, обучение, окружение</em></summary>
-            <div class="accordion-body">
-              <p>События MWR Life и клубные встречи помогают людям лучше понять продукт, познакомиться с участниками, увидеть атмосферу проекта и перейти от абстрактной идеи к живому окружению.</p>
-            </div>
-          </details>
-          <details>
-            <summary><span aria-hidden="true">🚀</span><strong>Ambassador и бизнес</strong><em>сеть вокруг travel-продукта</em></summary>
-            <div class="accordion-body">
-              <p>Этот сценарий для людей, которые хотят строить направление через рекомендации, личный бренд, готовую инфраструктуру, цифровой travel-продукт и собственную группу участников.</p>
-              <p>Современная партнёрская модель работает сильнее, когда человек не продаёт “идею бизнеса”, а показывает полезный продукт, личный опыт и понятный следующий шаг. Особенно это подходит тем, у кого уже есть круг доверия: клиенты, ученики, подписчики, профессиональное сообщество или регулярные мероприятия.</p>
-            </div>
-          </details>
-        </div>
-      </div>
-    </section>
-
-    <section class="section white">
-      <div class="section-inner opportunity-next">
+    <section class="section opportunity-final-section">
+      <div class="section-inner opportunity-final-panel">
         <div>
-          <p class="eyebrow dark">Следующий шаг</p>
-          <h2>Начните с вопроса, а не с покупки</h2>
-          <p>Опишите Мире свой сценарий: путешествия для себя, семья, активный выезд, группа, клиенты, событие или Ambassador. Она поможет уточнить потребность и подскажет правильный официальный путь: Free Guest Pass, VIP Membership, сравнение уровней или партнёрское сопровождение TravelGTC.</p>
+          <p class="eyebrow">Следующий шаг</p>
+          <h2>Начните с мотива, а не с покупки</h2>
+          <p>Мира поможет уточнить вашу ситуацию, сравнить возможности и выбрать официальный следующий шаг: Free Guest Pass, Membership, VIP Membership, регистрация по партнёрской ссылке или сопровождение TravelGTC.</p>
         </div>
-        <a class="button" href="/mira/">Спросить Миру</a>
+        <a class="button" href="/mira/">Перейти к Мире</a>
       </div>
     </section>
   </main>

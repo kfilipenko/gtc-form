@@ -3,7 +3,7 @@
 - Project: TravelGTC
 - Code: TRAVELGTC-AI-006
 - Date: 2026-07-29
-- Status: Draft for Project Owner editing
+- Status: Approved by Project Owner for Mira opportunity scenarios
 - Related page: `/events/`
 - Related chat route: `/mira/`
 
@@ -227,4 +227,3 @@ After approval:
 2. update the `/mira/` scenario key mapping;
 3. add tests for scenario links and prefilled first questions;
 4. optionally update Azure agent instructions after Project Owner approval.
-

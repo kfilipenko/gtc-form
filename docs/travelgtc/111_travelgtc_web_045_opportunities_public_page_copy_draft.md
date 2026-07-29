@@ -3,7 +3,7 @@
 - Project: TravelGTC
 - Code: TRAVELGTC-WEB-045-PAGE
 - Date: 2026-07-29
-- Status: Draft for Project Owner editing
+- Status: Approved by Project Owner and implemented by report 113
 - Target page: `/events/`
 
 ## 1. Page Role
@@ -191,4 +191,3 @@ Travel Advantage может быть личным travel-инструменто�
 ```text
 /mira/
 ```
-

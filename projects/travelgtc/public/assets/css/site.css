@@ -2147,6 +2147,258 @@ h3 {
     url("/assets/images/processed/travelgtc-events-night-dinner.webp") center / cover;
 }
 
+.opportunity-sales-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(115deg, rgba(6, 26, 40, 0.98) 0%, rgba(6, 26, 40, 0.9) 44%, rgba(14, 90, 115, 0.56) 100%),
+    url("/assets/images/processed/travelgtc-home-hero-deck-sunset.webp") center / cover;
+  color: var(--white);
+}
+
+.opportunity-sales-hero::after {
+  position: absolute;
+  right: -6vw;
+  bottom: -5vw;
+  width: 56vw;
+  max-width: 880px;
+  height: 16vw;
+  min-height: 92px;
+  background: rgba(246, 249, 252, 0.98);
+  clip-path: polygon(0 56%, 100% 20%, 100% 100%, 0 100%);
+  content: "";
+}
+
+.opportunity-sales-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 0.78fr);
+  align-items: center;
+  gap: clamp(26px, 4vw, 58px);
+  min-height: min(72vh, 680px);
+  padding: clamp(46px, 6vw, 86px) 0 clamp(58px, 7vw, 96px);
+}
+
+.opportunity-sales-copy {
+  display: grid;
+  gap: 18px;
+}
+
+.opportunity-sales-copy h1 {
+  max-width: 760px;
+  color: var(--white);
+  font-size: clamp(2.55rem, 5.8vw, 5.6rem);
+  line-height: 0.98;
+}
+
+.opportunity-sales-copy p {
+  max-width: 740px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: clamp(1rem, 1.6vw, 1.28rem);
+  line-height: 1.46;
+}
+
+.opportunity-sales-visual {
+  position: relative;
+  min-height: 360px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(6, 26, 40, 0.1), rgba(6, 26, 40, 0.48)),
+    url("/assets/images/processed/travelgtc-business-dubai-planning.webp") center / cover;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
+}
+
+.opportunity-sales-visual::before {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 82% 24%, rgba(163, 230, 53, 0.18), transparent 28%),
+    linear-gradient(90deg, rgba(6, 26, 40, 0.76), transparent 58%);
+  content: "";
+}
+
+.opportunity-sales-visual span {
+  position: absolute;
+  left: 22px;
+  bottom: 20px;
+  z-index: 1;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(1.2rem, 2vw, 1.9rem);
+  font-weight: 900;
+}
+
+.opportunity-selector-section {
+  padding-top: clamp(30px, 5vw, 58px);
+}
+
+.opportunity-link-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: clamp(26px, 5vw, 52px);
+}
+
+.opportunity-link-card {
+  position: relative;
+  display: grid;
+  min-height: 164px;
+  align-content: start;
+  gap: 10px;
+  border: 1px solid rgba(0, 199, 217, 0.22);
+  border-radius: 18px;
+  padding: 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 252, 254, 0.92));
+  color: var(--navy);
+  text-decoration: none;
+  box-shadow: 0 18px 48px rgba(6, 26, 40, 0.08);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.opportunity-link-card::after {
+  align-self: end;
+  width: fit-content;
+  border-bottom: 2px solid currentColor;
+  color: var(--ocean);
+  font-size: 0.78rem;
+  font-weight: 900;
+  content: "перейти";
+}
+
+.opportunity-link-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(163, 230, 53, 0.72);
+  box-shadow: 0 24px 62px rgba(6, 26, 40, 0.14);
+}
+
+.opportunity-link-card.accent {
+  border-color: rgba(163, 230, 53, 0.42);
+  background:
+    radial-gradient(circle at 92% 18%, rgba(163, 230, 53, 0.22), transparent 32%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(240, 255, 229, 0.88));
+}
+
+.opportunity-link-card span {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  background: rgba(0, 199, 217, 0.12);
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Manrope, Inter, sans-serif;
+  font-size: 1.18rem;
+}
+
+.opportunity-link-card strong {
+  font-size: clamp(1rem, 1.3vw, 1.18rem);
+  line-height: 1.14;
+}
+
+.opportunity-link-card em {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.opportunity-motive-list {
+  display: grid;
+  gap: 16px;
+}
+
+.opportunity-motive {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 20px;
+  scroll-margin-top: 112px;
+  border: 1px solid rgba(0, 199, 217, 0.2);
+  border-radius: 22px;
+  padding: clamp(20px, 3vw, 34px);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(246, 249, 252, 0.94));
+  box-shadow: 0 18px 48px rgba(6, 26, 40, 0.08);
+}
+
+.opportunity-motive-accent {
+  border-color: rgba(163, 230, 53, 0.46);
+  background:
+    radial-gradient(circle at 92% 22%, rgba(163, 230, 53, 0.2), transparent 30%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(241, 255, 232, 0.82));
+}
+
+.opportunity-motive-icon {
+  display: inline-flex;
+  width: 58px;
+  height: 58px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  background: rgba(0, 199, 217, 0.12);
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", Manrope, Inter, sans-serif;
+  font-size: 1.5rem;
+}
+
+.opportunity-motive h2 {
+  max-width: 880px;
+  margin: 6px 0 10px;
+  font-size: clamp(1.65rem, 3vw, 2.55rem);
+  line-height: 1.04;
+}
+
+.opportunity-motive p:not(.eyebrow) {
+  max-width: 940px;
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.35vw, 1.16rem);
+}
+
+.text-link {
+  display: inline;
+  color: var(--ocean);
+  font-weight: 900;
+  text-decoration: underline;
+  text-decoration-color: rgba(0, 199, 217, 0.58);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.text-link:hover {
+  color: var(--teal);
+}
+
+.opportunity-final-section {
+  background: var(--mist);
+}
+
+.opportunity-final-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  border-radius: 24px;
+  padding: clamp(26px, 5vw, 54px);
+  background:
+    radial-gradient(circle at 90% 18%, rgba(163, 230, 53, 0.24), transparent 28%),
+    linear-gradient(135deg, rgba(6, 26, 40, 0.98), rgba(14, 90, 115, 0.92));
+  color: var(--white);
+  box-shadow: var(--shadow);
+}
+
+.opportunity-final-panel h2 {
+  color: var(--white);
+}
+
+.opportunity-final-panel p:not(.eyebrow) {
+  max-width: 820px;
+  color: rgba(255, 255, 255, 0.78);
+}
+
 .page-hero .section-inner {
   display: grid;
   gap: 18px;
@@ -2669,6 +2921,27 @@ button:disabled {
     width: fit-content;
   }
 
+  .opportunity-sales-grid {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .opportunity-sales-visual {
+    min-height: 300px;
+  }
+
+  .opportunity-link-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .opportunity-final-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .opportunity-final-panel .button {
+    width: fit-content;
+  }
+
   .opportunity-gallery {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -2763,6 +3036,52 @@ button:disabled {
   }
 
   .access-actions .button {
+    width: 100%;
+  }
+
+  .opportunity-sales-grid {
+    padding: 34px 0 52px;
+  }
+
+  .opportunity-sales-copy h1 {
+    font-size: clamp(2.1rem, 12vw, 3.2rem);
+  }
+
+  .opportunity-sales-visual {
+    min-height: 220px;
+    border-radius: 18px;
+  }
+
+  .opportunity-link-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .opportunity-link-card {
+    min-height: 0;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .opportunity-link-card em,
+  .opportunity-link-card::after {
+    grid-column: 2;
+  }
+
+  .opportunity-motive {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    scroll-margin-top: 92px;
+  }
+
+  .opportunity-motive-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    font-size: 1.24rem;
+  }
+
+  .opportunity-final-panel .button {
     width: 100%;
   }
 

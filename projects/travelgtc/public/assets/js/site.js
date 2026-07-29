@@ -1,6 +1,13 @@
 const AUTH_DRAFT_KEY = "travelgtc.leadDraft.v1";
 const IDENTITY_CONSENT_VERSION = "travelgtc-identity-consent-v1";
 const AI_CONSULTANT_NAME = "Мира TravelGTC";
+const AI_SCENARIO_QUESTIONS = {
+  "personal-travel": "Хочу путешествовать чаще. Как Travel Advantage может стать моим личным travel-инструментом?",
+  family: "Хочу использовать Travel Advantage для семьи и близких. Какой сценарий стоит рассмотреть?",
+  groups: "У меня есть группа, ученики или клиенты. Как использовать Travel Advantage для поездок и событий?",
+  events: "Хочу узнать о событиях, встречах и клубной среде Travel Advantage / MWR Life.",
+  "ambassador-business": "Хочу понять, как построить business-направление вокруг Travel Advantage и роли Lifestyle Ambassador.",
+};
 const TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL = "https://vip.traveladvantage.com/KFilip909";
 const TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL = "https://free.traveladvantage.com/KFilip909";
 const OFFICIAL_SOURCE_TEXT =
@@ -702,6 +709,7 @@ function initAiConsultant() {
 
   restoreAiWidgetPosition(widget);
   initAiPanelDrag(widget, panel);
+  initAiScenarioQuestion(form, questionSelect);
   initAiPendingQuestion(panel, form, messages);
 
   if (panel.closest("[data-ai-page]")) {
@@ -776,6 +784,25 @@ function initAiConsultant() {
         }
         await askAiQuestion(form, messages, question, submitButton);
       });
+  }
+}
+
+function initAiScenarioQuestion(form, questionSelect) {
+  if (!form) {
+    return;
+  }
+  const params = new URLSearchParams(window.location.search);
+  const scenario = params.get("scenario") || "";
+  const question = AI_SCENARIO_QUESTIONS[scenario];
+  if (!question) {
+    return;
+  }
+  const input = form.querySelector('input[name="question"]');
+  if (input) {
+    input.value = question;
+  }
+  if (questionSelect) {
+    questionSelect.value = question;
   }
 }
 
