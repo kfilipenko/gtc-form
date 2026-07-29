@@ -3,14 +3,14 @@
 - Project: TravelGTC
 - Code: TRAVELGTC-AI-009
 - Date: 2026-07-29
-- Status: Ready for Azure Foundry publication
+- Status: Published to Azure Foundry
 - Target agent: `AI-TravelGTC`
-- Current live runtime version: `10`
-- Recommended next Azure version: next version after `10`
+- Published Azure version: `11`
+- Current live runtime version: `11`
 
 ## 1. Purpose
 
-Prepare the final instruction package for the next Azure Foundry publication of Mira TravelGTC before Project Owner presentation.
+Prepare and record the final instruction package for the Azure Foundry publication of Mira TravelGTC before Project Owner presentation.
 
 This package consolidates the latest approved work:
 
@@ -132,32 +132,38 @@ Expected behavior:
 
 ## 8. Runtime Update After Azure Publication
 
-After Azure creates the new version:
-
-1. set the server env variable:
+Azure created:
 
 ```text
-TRAVELGTC_AZURE_AI_AGENT_VERSION=<new Azure version>
+AI-TravelGTC version 11
+status: active
+model: gpt-4o
 ```
 
-2. restart the API service:
+The server env variable was updated:
+
+```text
+TRAVELGTC_AZURE_AI_AGENT_VERSION=11
+```
+
+The API service was restarted:
 
 ```bash
 sudo systemctl restart travelgtc-api.service
 ```
 
-3. verify:
+Verification:
 
 ```bash
 curl -fsS https://travelgtc.com/api/travelgtc/v1/health
 ```
 
-The health response must show:
+The health response shows:
 
 ```text
 ai_chat_mode: azure
 azure_ai_agent_name: AI-TravelGTC
-azure_ai_agent_version: <new Azure version>
+azure_ai_agent_version: 11
 ```
 
 ## 9. Current Implementation Note

@@ -3,7 +3,7 @@
 - Project: TravelGTC
 - Code: TRAVELGTC-AI-001
 - Date: 2026-07-29
-- Status: Active canonical instruction; Azure version 10 is currently live, AI-007/AI-008 changes are prepared for the next Azure publication
+- Status: Active canonical instruction; Azure version 11 published
 
 ## 1. Agent Name And Role
 

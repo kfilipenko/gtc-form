@@ -331,10 +331,10 @@ Generated screenshots are written to projects/travelgtc/test-artifacts/screensho
 AI consultant state:
 
 ```text
-Mira TravelGTC is published in Azure Foundry as AI-TravelGTC version 10.
-Runtime variable TRAVELGTC_AZURE_AI_AGENT_VERSION must remain 10 unless a newer approved version is published.
+Mira TravelGTC is published in Azure Foundry as AI-TravelGTC version 11.
+Runtime variable TRAVELGTC_AZURE_AI_AGENT_VERSION must remain 11 unless a newer approved version is published.
 Canonical instruction: docs/travelgtc/080_travelgtc_ai_001_mira_consultant_instruction.md.
-Azure publication package for the next version: docs/travelgtc/116_travelgtc_ai_009_azure_publication_package.md.
+Azure version 11 publication package: docs/travelgtc/116_travelgtc_ai_009_azure_publication_package.md.
 AI-004 report: docs/travelgtc/086_travelgtc_ai_004_membership_knowledge_and_azure_v10_report.md.
 Membership knowledge enrichment lives in projects/travelgtc/app/src/modules/ai/membershipKnowledge.ts.
 Public working RU document: https://travelgtc.com/assets/docs/MembershipBenefits-RU.pdf.
