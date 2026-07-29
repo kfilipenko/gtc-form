@@ -203,14 +203,14 @@ test.describe('TravelGTC responsive public site', () => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/mira/', { waitUntil: 'domcontentloaded' });
 
-    await page.locator('[data-ai-question-select]').selectOption({ label: 'Стать участником Travel Advantage' });
+    await page.locator('[data-ai-question-select]').selectOption({ label: 'Готов зарегистрироваться' });
     await page.locator('[data-ai-form]').locator('button[type="submit"]').click();
     await expect(page.locator('[data-ai-messages]')).toContainText(/сохранить историю диалога/i);
     await expect(page.locator('[data-ai-question-prompt]')).toBeHidden();
     await expect(page).toHaveURL(/\/auth\/\?mode=register&next=%2Fmira%2F%23ai-consultant/);
     await expect
       .poll(() => page.evaluate(() => sessionStorage.getItem('travelgtc_ai_pending_question') || ''))
-      .toContain('стать участником Travel Advantage');
+      .toContain('зарегистрироваться или купить Membership');
   });
 
   test('Mira welcome copy is friendly and explains authorized chat history', async ({ page }) => {
@@ -253,7 +253,7 @@ test.describe('TravelGTC responsive public site', () => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/mira/?scenario=groups', { waitUntil: 'domcontentloaded' });
 
-    const expectedQuestion = 'У меня есть группа, ученики или клиенты. Как использовать Travel Advantage для поездок и событий?';
+    const expectedQuestion = 'У меня есть группа, ученики или клиенты. Как использовать Travel Advantage для поездок, событий и Membership?';
     await expect(page.locator('[data-ai-question-select]')).toHaveValue(expectedQuestion);
     await expect(page.locator('[data-ai-form] input[name="question"]')).toHaveValue(expectedQuestion);
   });

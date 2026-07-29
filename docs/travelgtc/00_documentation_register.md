@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 7.6
+- Version: 7.7
 - Date: 2026-07-29
-- Status: Mira-driven opportunities funnel implemented
+- Status: Mira sales funnel question sync implemented locally
 
 ## 1. Purpose
 
@@ -141,6 +141,7 @@ The first stage is intentionally small:
 | `111_travelgtc_web_045_opportunities_public_page_copy_draft.md` | TRAVELGTC-WEB-045 - Opportunities Public Page Copy Draft | Short public copy draft for the motive-selector version of `/events/`. | Approved and implemented |
 | `112_travelgtc_ai_006_mira_opportunities_conversation_script_draft.md` | TRAVELGTC-AI-006 - Mira Opportunities Conversation Script Draft | Detailed scenario conversation script for Mira based on the opportunities motives. | Approved for Mira instruction update |
 | `113_travelgtc_web_045_mira_driven_opportunities_funnel_report.md` | TRAVELGTC-WEB-045 - Mira-Driven Opportunities Funnel Report | Fixes `/events/` as a motive selector and routes approved scenario keys into `/mira/`. | Implemented |
+| `114_travelgtc_ai_007_mira_sales_funnel_question_sync_report.md` | TRAVELGTC-AI-007 - Mira Sales Funnel Question Sync Report | Fixes Mira first-question sales funnel synchronization across public chat, local instruction and fallback answers. | Implemented locally, Azure publication pending |
 
 ## 3. Project Source Locations
 
@@ -174,6 +175,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 7.7 | 2026-07-29 | GTC IT / AI Assistant | Synced Mira public first questions and fallback answers with the sales funnel, prepared AI-007 instruction changes for Azure publication |
 | 7.6 | 2026-07-29 | GTC IT / AI Assistant | Implemented the Mira-driven opportunities funnel on `/events/`, added scenario routing into `/mira/` and updated tests |
 | 7.5 | 2026-07-29 | GTC IT / AI Assistant | Added WEB-045 task, short public page copy draft and Mira opportunities conversation script draft |
 | 7.4 | 2026-07-29 | GTC IT / AI Assistant | Added a working Markdown copy draft for the sales-oriented `Возможности` page rewrite |
