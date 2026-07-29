@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 7.4
+- Version: 7.5
 - Date: 2026-07-29
-- Status: Opportunities sales copy draft prepared
+- Status: Mira-driven opportunities funnel task and drafts prepared
 
 ## 1. Purpose
 
@@ -137,6 +137,9 @@ The first stage is intentionally small:
 | `107_travelgtc_web_042_needs_based_opportunities_report.md` | TRAVELGTC-WEB-042 - Needs-Based Opportunities Page Report | Reworks `/events/` into the `Возможности` scenario accordion and extends Mira needs-based routing. | Implemented |
 | `108_travelgtc_web_043_public_opportunities_copy_and_global_menu_report.md` | TRAVELGTC-WEB-043 - Public Opportunities Copy And Global Menu Report | Removes internal Mira conversation copy from `/events/` and aligns public headers to the membership-first menu. | Implemented |
 | `109_travelgtc_web_044_opportunities_sales_copy_draft.md` | TRAVELGTC-WEB-044 - Opportunities Page Sales Copy Draft | Working Markdown draft for rewriting `/events/` into a stronger sales-oriented opportunities page before implementation. | Draft for Project Owner editing |
+| `110_travelgtc_web_045_mira_driven_opportunities_funnel_task.md` | TRAVELGTC-WEB-045 - Mira-Driven Opportunities Funnel Task | Defines the split between short public motive-selector page and detailed Mira scenario conversation script. | Draft for Project Owner approval |
+| `111_travelgtc_web_045_opportunities_public_page_copy_draft.md` | TRAVELGTC-WEB-045 - Opportunities Public Page Copy Draft | Short public copy draft for the motive-selector version of `/events/`. | Draft for Project Owner editing |
+| `112_travelgtc_ai_006_mira_opportunities_conversation_script_draft.md` | TRAVELGTC-AI-006 - Mira Opportunities Conversation Script Draft | Detailed scenario conversation script for Mira based on the opportunities motives. | Draft for Project Owner editing |
 
 ## 3. Project Source Locations
 
@@ -170,6 +173,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 7.5 | 2026-07-29 | GTC IT / AI Assistant | Added WEB-045 task, short public page copy draft and Mira opportunities conversation script draft |
 | 7.4 | 2026-07-29 | GTC IT / AI Assistant | Added a working Markdown copy draft for the sales-oriented `Возможности` page rewrite |
 | 7.3 | 2026-07-28 | GTC IT / AI Assistant | Removed internal Mira conversation mechanics from the public opportunities accordion and aligned public headers to the membership-first menu |
 | 7.2 | 2026-07-28 | GTC IT / AI Assistant | Reworked `/events/` as `Возможности`, a needs-based accordion for travel, family, active, group, event and Ambassador scenarios |
