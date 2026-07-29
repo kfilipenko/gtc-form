@@ -338,7 +338,9 @@ AI-004 report: docs/travelgtc/086_travelgtc_ai_004_membership_knowledge_and_azur
 Membership knowledge enrichment lives in projects/travelgtc/app/src/modules/ai/membershipKnowledge.ts.
 Public working RU document: https://travelgtc.com/assets/docs/MembershipBenefits-RU.pdf.
 Official EN source: https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf.
+Official/support FAQ source: https://mwracademy.com/wp-content/uploads/2025/07/FAQ-MWR-Life-V16_May-2025-ENG.pdf.
 Mira should actively identify needs for Elite / Turbo / Ambassador scenarios, especially family, friends, groups, clients, retreats, yoga, qigong, wellness and community leaders.
+Travel Credits and Loyalty Points must not be merged under the generic word "bonus". Travel Credits: official Membership Benefits PDF states Value $.01 and FAQ explains 100 Travel Credits = $1 deduction. Loyalty Points: separate Elite/Turbo travel-value mechanism; FAQ explains 1 Loyalty Point = $1 deduction only where the reservation is eligible for Loyalty Points.
 Loyalty Points must be described as travel-value inside the program, not cash. 1 Loyalty Point may correspond to $1 travel-value only where the official booking flow allows redemption; do not invent universal redemption categories.
 Home-page Mira chat now uses /api/travelgtc/v1/account/ai/chat and requires TravelGTC login before sending the first question.
 The widget supports structured Markdown-like rendering, minimize/restore and desktop dragging.
