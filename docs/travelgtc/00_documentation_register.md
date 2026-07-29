@@ -143,6 +143,7 @@ The first stage is intentionally small:
 | `113_travelgtc_web_045_mira_driven_opportunities_funnel_report.md` | TRAVELGTC-WEB-045 - Mira-Driven Opportunities Funnel Report | Fixes `/events/` as a motive selector and routes approved scenario keys into `/mira/`. | Implemented |
 | `114_travelgtc_ai_007_mira_sales_funnel_question_sync_report.md` | TRAVELGTC-AI-007 - Mira Sales Funnel Question Sync Report | Fixes Mira first-question sales funnel synchronization across public chat, local instruction and fallback answers. | Implemented locally, Azure publication pending |
 | `115_travelgtc_ai_008_points_credits_terminology_report.md` | TRAVELGTC-AI-008 - Points And Credits Terminology Report | Clarifies Travel Credits versus Loyalty Points terminology, official source links and Mira answer rules. | Implemented locally, Azure publication recommended |
+| `116_travelgtc_ai_009_azure_publication_package.md` | TRAVELGTC-AI-009 - Mira Azure Publication Package | Prepares the final Azure Foundry instruction publication package, starter questions and post-publication checks. | Ready for Azure publication |
 
 ## 3. Project Source Locations
 
@@ -176,6 +177,7 @@ The project was started under:
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 7.9 | 2026-07-29 | GTC IT / AI Assistant | Prepared Mira Azure publication package with final instruction source, starter questions and post-publication checks |
 | 7.8 | 2026-07-29 | GTC IT / AI Assistant | Clarified Travel Credits versus Loyalty Points terminology for Mira and added official FAQ source links |
 | 7.7 | 2026-07-29 | GTC IT / AI Assistant | Synced Mira public first questions and fallback answers with the sales funnel, prepared AI-007 instruction changes for Azure publication |
 | 7.6 | 2026-07-29 | GTC IT / AI Assistant | Implemented the Mira-driven opportunities funnel on `/events/`, added scenario routing into `/mira/` and updated tests |
