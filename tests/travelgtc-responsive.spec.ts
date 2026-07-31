@@ -18,6 +18,7 @@ const publicRoutes = [
   '/create-trip/',
   '/business-model/',
   '/events/',
+  '/information/',
   '/about/',
   '/mira/',
   '/auth/',
@@ -41,9 +42,9 @@ async function measureHorizontalOverflow(page: import('@playwright/test').Page) 
 
 test.describe('TravelGTC responsive public site', () => {
   for (const viewport of homeViewports) {
-    test(`home page renders key sections on ${viewport.name}`, async ({ page }) => {
+    test(`information page retains detailed reference sections on ${viewport.name}`, async ({ page }) => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await page.goto('/information/', { waitUntil: 'domcontentloaded' });
 
       await expect(page.locator('h1')).toContainText('Ваш вход в Travel Advantage');
       await expect(page.locator('head link[rel="icon"][href="/favicon.ico"]')).toHaveCount(1);
@@ -84,8 +85,7 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('.site-header a[href="#travel-advantage"]')).toHaveCount(0);
       await expect(page.locator('.site-header .nav-primary')).toHaveCount(0);
       await expect(page.locator('.site-header a[href="/mira/"]')).toHaveText('Мира');
-      await expect(page.locator('.site-header a[href="/events/"]')).toHaveText('Возможности');
-      await expect(page.locator('.site-header a[href="/events/"]')).not.toHaveText('События');
+      await expect(page.locator('.site-header a[href="/events/"]')).toHaveCount(0);
       await expect(page.locator('.membership-steps article')).toHaveCount(3);
       await expect(page.locator('.membership-steps')).toContainText('Диалог с Мирой');
       await expect(page.locator('.membership-steps')).toContainText('Официальная ссылка');
@@ -125,9 +125,9 @@ test.describe('TravelGTC responsive public site', () => {
       const overflow = await measureHorizontalOverflow(page);
       await assertNoHorizontalOverflow(overflow.viewportWidth, Math.max(overflow.documentScrollWidth, overflow.bodyScrollWidth));
 
-      const screenshotPath = path.join(screenshotsDir, `travelgtc-home-${viewport.name}.png`);
+      const screenshotPath = path.join(screenshotsDir, `travelgtc-information-${viewport.name}.png`);
       await page.screenshot({ path: screenshotPath, fullPage: true });
-      test.info().attach(`travelgtc-home-${viewport.name}`, { path: screenshotPath, contentType: 'image/png' });
+      test.info().attach(`travelgtc-information-${viewport.name}`, { path: screenshotPath, contentType: 'image/png' });
     });
   }
 
@@ -143,12 +143,26 @@ test.describe('TravelGTC responsive public site', () => {
     await assertNoHorizontalOverflow(overflow.viewportWidth, Math.max(overflow.documentScrollWidth, overflow.bodyScrollWidth));
   });
 
-  test('opportunities page presents motive links into Mira scenarios', async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto('/events/', { waitUntil: 'domcontentloaded' });
+  test('root route is the opportunities sales landing', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1100 });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     await expect(page.locator('h1')).toContainText('Travel Advantage станет:');
-    await expect(page.locator('.site-header a[href="/events/"]')).toHaveText('Возможности');
+    await expect(page.locator('.site-header .nav-links a[href="/"]')).toHaveText('Главная');
+    await expect(page.locator('.site-header a[href="/events/"]')).toHaveCount(0);
+    await expect(page.locator('.opportunity-motive')).toHaveCount(5);
+    await expect(page.getByRole('link', { name: 'Сценарий для семьи или партнёров' })).toHaveAttribute('href', '/assets/docs/TravelGTC_Membership_Model_Presentation.pdf');
+
+    const overflow = await measureHorizontalOverflow(page);
+    await assertNoHorizontalOverflow(overflow.viewportWidth, Math.max(overflow.documentScrollWidth, overflow.bodyScrollWidth));
+  });
+
+  test('opportunities page presents motive links into Mira scenarios', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+    await expect(page.locator('h1')).toContainText('Travel Advantage станет:');
+    await expect(page.locator('.site-header a[href="/events/"]')).toHaveCount(0);
     await expect(page.locator('.site-header a[href="/travel-lifestyle/"]')).toHaveCount(0);
     await expect(page.locator('.site-header a[href="/club/"]')).toHaveCount(0);
     await expect(page.locator('.site-header a[href="/create-trip/"]')).toHaveCount(0);
@@ -168,7 +182,7 @@ test.describe('TravelGTC responsive public site', () => {
 
   test('opportunities motive page fits mobile viewport', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/events/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     await expect(page.locator('.opportunity-link-card')).toHaveCount(0);
     await expect(page.locator('.opportunity-motive').first()).toBeVisible();
@@ -192,7 +206,7 @@ test.describe('TravelGTC responsive public site', () => {
 
   test('Mira scenario link routes a guest to registration and preserves scenario context', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto('/events/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     await page.getByRole('link', { name: 'Обсудить семейные поездки с Мирой' }).click();
     await expect(page).toHaveURL(/\/auth\/\?mode=register&next=%2Fmira%2F%3Fscenario%3Dfamily%26source%3Devents%26cta%3Dfamily/);

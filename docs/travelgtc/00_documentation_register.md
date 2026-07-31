@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 9.2
+- Version: 9.3
 - Date: 2026-07-31
-- Status: Pair-model PDF published; HTML and PPTX distribution removed; Mira delivery rules updated to Azure v28
+- Status: Sales landing published at the root route; detailed reference content preserved under `/information/`
 
 ## 1. Purpose
 
@@ -156,6 +156,7 @@ The first stage is intentionally small:
 | `126_travelgtc_ai_016_mira_pair_model_and_official_sources_task.md` | TRAVELGTC-AI-016 - Mira Active Sales, Pair Model And Official Sources | Defines the active sales dialogue, strong Elite + Turbo pair model, 490 Loyalty Points story, presentation delivery and direct official document-link rules. | Implemented |
 | `127_travelgtc_ai_016_mira_pair_model_and_official_sources_report.md` | TRAVELGTC-AI-016 - Mira Pair Model And Official Sources Report | Records publication of the pair-model deck, Azure v22, starter questions and API knowledge changes. | Implemented |
 | `128_travelgtc_web_047_pair_model_pdf_and_html_report.md` | TRAVELGTC-WEB-047 - Pair Model PDF Publication Report | Records PDF conversion and removal of the HTML presentation and PPTX from public distribution. | Implemented |
+| `129_travelgtc_web_048_sales_landing_root_publication_report.md` | TRAVELGTC-WEB-048 - Sales Landing Root Publication Report | Records moving the scenario-led sales landing to `/`, preservation of detailed materials under `/information/` and `/events/` compatibility routing. | Implemented |
 
 ## 3. Project Source Locations
 
