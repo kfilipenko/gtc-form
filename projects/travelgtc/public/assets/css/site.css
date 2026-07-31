@@ -2515,6 +2515,66 @@ h3 {
   font-size: clamp(1rem, 1.35vw, 1.16rem);
 }
 
+.opportunity-russian-presentation {
+  display: inline-flex;
+  width: min(100%, 650px);
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 13px 16px;
+  border: 1px solid rgba(0, 199, 217, 0.7);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #06283a, #0e5a73);
+  color: var(--white);
+  box-shadow: 0 12px 28px rgba(6, 26, 40, 0.16);
+  text-decoration: none;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.opportunity-russian-presentation:hover {
+  border-color: var(--lime);
+  background: linear-gradient(135deg, #073347, #0a6a82);
+  transform: translateY(-2px);
+}
+
+.opportunity-russian-presentation-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--lime);
+  color: var(--ink);
+  font-size: 0.82rem;
+}
+
+.opportunity-russian-presentation-copy {
+  min-width: 0;
+}
+
+.opportunity-russian-presentation-copy strong,
+.opportunity-russian-presentation-copy small {
+  display: block;
+}
+
+.opportunity-russian-presentation-copy strong {
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.opportunity-russian-presentation-copy small {
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 0.8rem;
+}
+
+.opportunity-russian-presentation-external {
+  margin-left: auto;
+  color: var(--lime);
+  font-size: 1.2rem;
+}
+
 .text-link {
   display: inline;
   color: var(--ocean);

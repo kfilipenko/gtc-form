@@ -175,6 +175,8 @@ test.describe('TravelGTC responsive public site', () => {
     await expect(page.locator('.opportunity-motive-list')).toContainText('Создайте business-направление вокруг путешествий');
     await expect(page.locator('.opportunity-motive-list')).not.toContainText('Как Мира ведёт разговор');
     await expect(page.getByRole('link', { name: 'Обсудить семейные поездки с Мирой' })).toHaveAttribute('href', '/mira/?scenario=family&source=events&cta=family');
+    await expect(page.getByRole('link', { name: 'Смотреть русскоязычную презентацию MWR Life' })).toHaveAttribute('href', 'https://mwrlife.online/russian-presentation/KFilip909/');
+    await expect(page.getByRole('link', { name: 'Смотреть русскоязычную презентацию MWR Life' })).toHaveAttribute('target', '_blank');
     await expect(page.getByRole('link', { name: 'Разобрать Ambassador-сценарий' })).toHaveAttribute('href', '/mira/?scenario=ambassador-business&source=events&cta=ambassador-business');
     await expect(page.locator('.opportunity-final-panel')).toContainText('Начните с мотива, а не с покупки');
     await expect(page.getByRole('link', { name: 'Перейти к Мире' })).toHaveAttribute('href', '/mira/?scenario=next-step&source=events&cta=next-step');

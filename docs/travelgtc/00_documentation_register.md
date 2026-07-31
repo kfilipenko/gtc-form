@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 9.4
+- Version: 9.5
 - Date: 2026-07-31
-- Status: Sales landing published at the root route; Mira knowledge card distinguishes the Russian presentation and official self-registration routes
+- Status: Sales landing published at the root route; the Ambassador scenario includes the Russian MWR Life presentation and Mira knowledge distinguishes it from official self-registration
 
 ## 1. Purpose
 
@@ -24,6 +24,7 @@ The first stage is intentionally small:
 | Document | Title | Purpose | Status |
 |---|---|---|---|
 | `00_documentation_register.md` | TravelGTC - Documentation Register | Project documentation index and fixation point. | Active |
+| `131_travelgtc_web_050_russian_presentation_cta_report.md` | TRAVELGTC-WEB-050 - Russian Presentation CTA Report | Fixes the public Russian MWR Life presentation CTA in the Ambassador scenario. | Implemented |
 | `01_project_scope_and_positioning.md` | TravelGTC - Project Scope And Development Goals | First document for defining project goals, positioning, audience, first pages and required materials. | Draft for Project Owner input |
 | `02_domain_dns_ssl_publication_checklist.md` | TravelGTC - Domain, DNS, SSL And Publication Checklist | Domain and publication setup checklist for `travelgtc.com`. | Draft |
 | `03_visual_reference_and_product_direction.md` | TravelGTC - Visual Reference And Product Direction | Records interpretation of the Project Owner visual mockups and converts them into product/page direction. | Draft for Project Owner review |
