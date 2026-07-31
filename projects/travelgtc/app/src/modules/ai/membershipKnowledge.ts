@@ -6,13 +6,14 @@ export const OFFICIAL_MWR_FAQ_URL =
   'https://mwracademy.com/wp-content/uploads/2025/07/FAQ-MWR-Life-V16_May-2025-ENG.pdf';
 export const TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL = 'https://vip.traveladvantage.com/KFilip909';
 export const TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL = 'https://free.traveladvantage.com/KFilip909';
-export const TRAVELGTC_OPPORTUNITIES_URL = 'https://travelgtc.com/events/';
+export const TRAVELGTC_OPPORTUNITIES_URL = 'https://travelgtc.com/';
 export const TRAVELGTC_PAIR_MODEL_PDF_URL =
   'https://travelgtc.com/assets/docs/TravelGTC_Membership_Model_Presentation.pdf';
 export const OFFICIAL_COMPENSATION_PLAN_URL =
   'https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/mwrlifecompplan-EN.pdf';
 export const OFFICIAL_INCOME_DISCLOSURE_URL = 'https://www.mwrlife.com/content/IncomeDisclosure.pdf';
 export const OFFICIAL_POLICIES_URL = 'https://www.mwrlife.com/content/PoliciesAndProcedures.pdf';
+export const OFFICIAL_MWR_PRESENTATION_URL = 'https://mwrlife.online/KFilip909/';
 
 const MEMBERSHIP_KNOWLEDGE_SUMMARY = [
   'База знаний Travel Advantage Membership для ответов Миры.',
@@ -27,6 +28,7 @@ const MEMBERSHIP_KNOWLEDGE_SUMMARY = [
   `Официальный compensation plan: ${OFFICIAL_COMPENSATION_PLAN_URL}`,
   `Официальный Income Disclosure: ${OFFICIAL_INCOME_DISCLOSURE_URL}`,
   `Официальные Policies and Procedures: ${OFFICIAL_POLICIES_URL}`,
+  `Официальная MWR Life presentation и персональный маршрут регистрации: ${OFFICIAL_MWR_PRESENTATION_URL}`,
   '',
   'Уровни: Guest, VIP, VIP180, Elite, а также Turbo add-on.',
   'Ключевые условия для сравнений, расчетов и продажного объяснения:',
@@ -59,6 +61,7 @@ const MEMBERSHIP_KNOWLEDGE_SUMMARY = [
   '- Если пользователь является тренером, мастером йоги/цигуна/wellness, организатором ретритов, преподавателем, консультантом или лидером сообщества, Мира должна показать сценарий "группы, ученики и клиенты" и затем аккуратно раскрыть Ambassador-возможность.',
   '- Если пользователь интересуется бизнесом, Мира объясняет современную партнерскую модель через полезный travel-продукт, доверие, рекомендации, готовую инфраструктуру, цифровой доступ и развитие собственной группы. Не использовать агрессивные анти-скептические формулировки.',
   '- При просрочке оплаты баллы блокируются, 180+ дней просрочки: отмена членства.',
+  '- Официальная MWR Life presentation по персональному маршруту TravelGTC: используй для готового к регистрации пользователя. Не используй её как подтверждение фиксированной цены, начисления баллов, дохода, отмены или универсальной выгоды: эти данные сверяй с актуальным official Membership Benefits PDF, compensation plan или FAQ.',
 ].join('\n');
 
 export function isMembershipKnowledgeQuestion(question: string): boolean {

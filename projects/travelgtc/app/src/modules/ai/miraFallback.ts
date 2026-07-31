@@ -4,7 +4,7 @@ const MEMBERSHIP_DOC_LINK =
   'https://travelgtc.com/assets/docs/MembershipBenefits-RU.pdf';
 const VIP_MEMBERSHIP_LINK = 'https://vip.traveladvantage.com/KFilip909';
 const FREE_GUEST_PASS_LINK = 'https://free.traveladvantage.com/KFilip909';
-const OPPORTUNITIES_LINK = 'https://travelgtc.com/events/';
+const OPPORTUNITIES_LINK = 'https://travelgtc.com/';
 
 export function buildMiraFallbackAnswer(question: string): string {
   const normalized = question.toLowerCase();
