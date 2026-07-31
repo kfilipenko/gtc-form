@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 9.0
+- Version: 9.1
 - Date: 2026-07-31
-- Status: AI-016 pair-model presentation and official-source instruction update implemented; AI-015 remains published
+- Status: Pair-model HTML and PDF materials published; Mira delivery rules updated to Azure v27
 
 ## 1. Purpose
 
@@ -155,6 +155,7 @@ The first stage is intentionally small:
 | `125_travelgtc_ai_015_mira_accurate_membership_qualification_report.md` | TRAVELGTC-AI-015 - Mira Accurate Membership Qualification Report | Records Azure v21 publication, source-grounded qualification, document consent, CRM case reset and chat-reading-position verification. | Implemented and published |
 | `126_travelgtc_ai_016_mira_pair_model_and_official_sources_task.md` | TRAVELGTC-AI-016 - Mira Active Sales, Pair Model And Official Sources | Defines the active sales dialogue, strong Elite + Turbo pair model, 490 Loyalty Points story, presentation delivery and direct official document-link rules. | Implemented |
 | `127_travelgtc_ai_016_mira_pair_model_and_official_sources_report.md` | TRAVELGTC-AI-016 - Mira Pair Model And Official Sources Report | Records publication of the pair-model deck, Azure v22, starter questions and API knowledge changes. | Implemented |
+| `128_travelgtc_web_047_pair_model_pdf_and_html_report.md` | TRAVELGTC-WEB-047 - Pair Model PDF And HTML Publication Report | Records public PDF conversion, responsive HTML presentation and removal of the PPTX from public distribution. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -189,6 +190,7 @@ The project was started under:
 | Version | Date | Author | Changes |
 | 8.9 | 2026-07-31 | GTC IT / AI Assistant | Revised AI-016 for approval: Mira active sales dialogue, pair-model presentation, partner-count rule, 490 Loyalty Points story and official dynamic source delivery |
 | 9.0 | 2026-07-31 | GTC IT / AI Assistant | Implemented AI-016: published the pair presentation, switched Mira to Azure v24 and updated the sales-first starter dialogue and API knowledge layer |
+| 9.1 | 2026-07-31 | GTC IT / AI Assistant | Published the pair-model HTML and PDF materials, removed public PPTX distribution and switched Mira delivery rules to Azure v27 |
 | 8.8 | 2026-07-30 | GTC IT / AI Assistant | Implemented AI-015: published Mira Azure v21, revised Membership qualification and document consent, preserved CRM new-case separation and verified fresh-answer reading position |
 | 8.7 | 2026-07-30 | GTC IT / AI Assistant | Added AI-015 draft for source-grounded Membership qualification and Mira instruction/guard/CRM tuning; awaiting approval |
 | 8.6 | 2026-07-30 | GTC IT / AI Assistant | Implemented and published WEB-046: account-first Mira entry, preserved scenario/CTA context, CRM entry metadata and Azure Mira version 17 |
