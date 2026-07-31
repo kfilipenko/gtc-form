@@ -2375,6 +2375,8 @@ h3 {
   background-repeat: no-repeat, no-repeat;
   background-size: cover, cover;
   box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
+  transform: scale(1.22);
+  transform-origin: center bottom;
 }
 
 .opportunity-sales-visual::before {
@@ -3083,6 +3085,7 @@ button:disabled {
 
   .opportunity-sales-visual {
     min-height: 300px;
+    transform: none;
   }
 
   .opportunity-link-grid {
