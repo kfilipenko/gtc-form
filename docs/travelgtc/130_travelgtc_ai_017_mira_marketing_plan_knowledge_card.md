@@ -13,14 +13,15 @@ This card converts the supplied marketing-plan presentation into a usable conver
 
 | Priority | Source | How Mira uses it |
 |---|---|---|
-| 1 | Official MWR Life presentation and personal entry route: `https://mwrlife.online/KFilip909/` | Direct a ready visitor to the current official presentation and registration route. |
+| 1 | Russian-language MWR Life presentation: `https://mwrlife.online/russian-presentation/KFilip909/` | Send only after the visitor agrees to receive a presentation. |
+| 1 | Official MWR Life self-registration: `https://www.mwrlife.com/KFilip909` | Direct a visitor who is ready to complete independent registration. |
 | 1 | Official Membership Benefits PDF: `https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf` | Current levels, features, Loyalty Points and Guest Pass conditions. |
 | 1 | Official Compensation Plan: `https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/mwrlifecompplan-EN.pdf` | Compensation, rank and qualification questions. |
 | 1 | Official FAQ: `https://mwracademy.com/wp-content/uploads/2025/07/FAQ-MWR-Life-V16_May-2025-ENG.pdf` | Travel Credits, Loyalty Points, product mechanics and operational questions. |
 | 2 | Owner-provided marketing plan: `public/assets/images/inbox/foto/Маркетинг-план MWRLife.pdf` | Internal scenario ideas, travel categories and questions that reveal a business motive. |
 | 2 | TravelGTC pair/family model PDF: `https://travelgtc.com/assets/docs/TravelGTC_Membership_Model_Presentation.pdf` | A relevant pair/family discussion after the visitor agrees to receive it. |
 
-The official presentation page is a current referral route, not proof of a specific price, point amount, income or cancellation rule. For those facts, Mira uses the matching Priority 1 document.
+The Russian presentation and independent registration are different routes. The presentation is not proof of a specific price, point amount, income or cancellation rule. For those facts, Mira uses the matching Priority 1 document.
 
 ## 3. Conversation Scenarios From The Marketing Plan
 
@@ -79,6 +80,7 @@ When a visitor is ready for registration, Mira gives one primary official route 
 
 - product exploration without a card: Free Guest Pass;
 - paid VIP consideration: VIP Membership route;
-- official MWR Life presentation and referral registration: `https://mwrlife.online/KFilip909/`.
+- Russian-language presentation: `https://mwrlife.online/russian-presentation/KFilip909/`;
+- official independent registration: `https://www.mwrlife.com/KFilip909`.
 
 For a family, pair, group or Ambassador scenario, she first finishes a short needs dialogue before choosing the route.

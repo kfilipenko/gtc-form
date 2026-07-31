@@ -6,7 +6,7 @@
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
 - Version: 9.4
 - Date: 2026-07-31
-- Status: Sales landing published at the root route; Mira knowledge card includes the official MWR Life presentation route
+- Status: Sales landing published at the root route; Mira knowledge card distinguishes the Russian presentation and official self-registration routes
 
 ## 1. Purpose
 

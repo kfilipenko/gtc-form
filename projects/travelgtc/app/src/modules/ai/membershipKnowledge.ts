@@ -13,7 +13,9 @@ export const OFFICIAL_COMPENSATION_PLAN_URL =
   'https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/mwrlifecompplan-EN.pdf';
 export const OFFICIAL_INCOME_DISCLOSURE_URL = 'https://www.mwrlife.com/content/IncomeDisclosure.pdf';
 export const OFFICIAL_POLICIES_URL = 'https://www.mwrlife.com/content/PoliciesAndProcedures.pdf';
-export const OFFICIAL_MWR_PRESENTATION_URL = 'https://mwrlife.online/KFilip909/';
+export const OFFICIAL_MWR_REGISTRATION_URL = 'https://www.mwrlife.com/KFilip909';
+export const OFFICIAL_MWR_RUSSIAN_PRESENTATION_URL =
+  'https://mwrlife.online/russian-presentation/KFilip909/';
 
 const MEMBERSHIP_KNOWLEDGE_SUMMARY = [
   'База знаний Travel Advantage Membership для ответов Миры.',
@@ -28,7 +30,8 @@ const MEMBERSHIP_KNOWLEDGE_SUMMARY = [
   `Официальный compensation plan: ${OFFICIAL_COMPENSATION_PLAN_URL}`,
   `Официальный Income Disclosure: ${OFFICIAL_INCOME_DISCLOSURE_URL}`,
   `Официальные Policies and Procedures: ${OFFICIAL_POLICIES_URL}`,
-  `Официальная MWR Life presentation и персональный маршрут регистрации: ${OFFICIAL_MWR_PRESENTATION_URL}`,
+  `Русскоязычная презентация MWR Life: ${OFFICIAL_MWR_RUSSIAN_PRESENTATION_URL}`,
+  `Официальная самостоятельная регистрация MWR Life: ${OFFICIAL_MWR_REGISTRATION_URL}`,
   '',
   'Уровни: Guest, VIP, VIP180, Elite, а также Turbo add-on.',
   'Ключевые условия для сравнений, расчетов и продажного объяснения:',
@@ -61,7 +64,7 @@ const MEMBERSHIP_KNOWLEDGE_SUMMARY = [
   '- Если пользователь является тренером, мастером йоги/цигуна/wellness, организатором ретритов, преподавателем, консультантом или лидером сообщества, Мира должна показать сценарий "группы, ученики и клиенты" и затем аккуратно раскрыть Ambassador-возможность.',
   '- Если пользователь интересуется бизнесом, Мира объясняет современную партнерскую модель через полезный travel-продукт, доверие, рекомендации, готовую инфраструктуру, цифровой доступ и развитие собственной группы. Не использовать агрессивные анти-скептические формулировки.',
   '- При просрочке оплаты баллы блокируются, 180+ дней просрочки: отмена членства.',
-  '- Официальная MWR Life presentation по персональному маршруту TravelGTC: используй для готового к регистрации пользователя. Не используй её как подтверждение фиксированной цены, начисления баллов, дохода, отмены или универсальной выгоды: эти данные сверяй с актуальным official Membership Benefits PDF, compensation plan или FAQ.',
+  '- Русскоязычная презентация MWR Life и самостоятельная регистрация - разные маршруты. Презентация: https://mwrlife.online/russian-presentation/KFilip909/. Регистрация: https://www.mwrlife.com/KFilip909. Не используй презентацию как подтверждение фиксированной цены, начисления баллов, дохода, отмены или универсальной выгоды: эти данные сверяй с актуальным official Membership Benefits PDF, compensation plan или FAQ.',
 ].join('\n');
 
 export function isMembershipKnowledgeQuestion(question: string): boolean {
