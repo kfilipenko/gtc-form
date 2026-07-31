@@ -3,10 +3,10 @@
 - Project: TravelGTC
 - Code: TRAVELGTC-AI-009
 - Date: 2026-07-29
-- Status: Published to Azure Foundry
+- Status: Published to Azure Foundry, superseded by TRAVELGTC-AI-010 / Azure version 12
 - Target agent: `AI-TravelGTC`
 - Published Azure version: `11`
-- Current live runtime version: `11`
+- Current live runtime version: `12`
 
 ## 1. Purpose
 
@@ -158,12 +158,18 @@ Verification:
 curl -fsS https://travelgtc.com/api/travelgtc/v1/health
 ```
 
-The health response shows:
+At the time of this package, the health response showed:
 
 ```text
 ai_chat_mode: azure
 azure_ai_agent_name: AI-TravelGTC
 azure_ai_agent_version: 11
+```
+
+Current live runtime has since moved to Azure version 12. See:
+
+```text
+docs/travelgtc/117_travelgtc_ai_010_dialogue_first_mira_azure_v12_report.md
 ```
 
 ## 9. Current Implementation Note

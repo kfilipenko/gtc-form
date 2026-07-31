@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 7.7
-- Date: 2026-07-29
-- Status: Mira sales funnel question sync implemented locally
+- Version: 9.0
+- Date: 2026-07-31
+- Status: AI-016 pair-model presentation and official-source instruction update implemented; AI-015 remains published
 
 ## 1. Purpose
 
@@ -144,6 +144,17 @@ The first stage is intentionally small:
 | `114_travelgtc_ai_007_mira_sales_funnel_question_sync_report.md` | TRAVELGTC-AI-007 - Mira Sales Funnel Question Sync Report | Fixes Mira first-question sales funnel synchronization across public chat, local instruction and fallback answers. | Implemented locally, Azure publication pending |
 | `115_travelgtc_ai_008_points_credits_terminology_report.md` | TRAVELGTC-AI-008 - Points And Credits Terminology Report | Clarifies Travel Credits versus Loyalty Points terminology, official source links and Mira answer rules. | Implemented locally, Azure publication recommended |
 | `116_travelgtc_ai_009_azure_publication_package.md` | TRAVELGTC-AI-009 - Mira Azure Publication Package | Records Azure Foundry publication of Mira version 11, starter questions and post-publication checks. | Implemented and published |
+| `117_travelgtc_ai_010_dialogue_first_mira_azure_v12_report.md` | TRAVELGTC-AI-010 - Dialogue-First Mira Azure Version 12 Report | Fixes Mira first scenario replies so `/events/` and `/mira/?scenario=next-step` start a short needs-discovery dialogue instead of a long tariff/document dump. | Implemented and published |
+| `118_travelgtc_ai_011_mira_sales_dialogue_feedback_v13_report.md` | TRAVELGTC-AI-011 - Mira Sales Dialogue And Feedback Version 13 Report | Fixes purchase-hesitation detection, document-link restraint, Azure version 13 publication and chat feedback persistence. | Implemented and published |
+| `119_travelgtc_ai_012_document_choice_before_file_delivery_report.md` | TRAVELGTC-AI-012 - Document Choice Before File Delivery Report | Fixes Mira document delivery so tariff/condition questions first ask whether the user wants a chat explanation or a file, with PDF/table links sent only after explicit consent. | Implemented and published |
+| `120_travelgtc_ai_013_mira_sales_playbook_v16_report.md` | TRAVELGTC-AI-013 - Mira Sales Playbook Version 16 Report | Fixes the approved colleague sales script adaptation, interrupted-dialogue behavior, post-document next-step handling and Azure version 16 runtime publication. | Implemented and published |
+| `121_travelgtc_ai_014_mira_colleague_test_results.md` | TRAVELGTC-AI-014 - Mira Colleague Test Results | Records five live colleague-test questions, Mira answers, assessment and next tuning recommendations. | Test completed |
+| `122_travelgtc_web_046_registered_mira_entry_funnel_task.md` | TRAVELGTC-WEB-046 - Registered Mira Entry Funnel Task | Defines registration/sign-in before a Mira conversation, preserved scenario routing, CRM context and registered-first Mira instruction update. | Implemented by WEB-046 report |
+| `123_travelgtc_web_046_registered_mira_entry_funnel_report.md` | TRAVELGTC-WEB-046 - Registered Mira Entry Funnel Report | Records the published account-first chat gate, scenario continuity, CRM metadata, Azure Mira version 17 and verification. | Implemented and published |
+| `124_travelgtc_ai_015_mira_accurate_membership_qualification_task.md` | TRAVELGTC-AI-015 - Mira Accurate Membership Qualification And Trust Sale | Defines source-grounded Membership qualification, Loyalty Points / Turbo precision, document-choice, CRM-case and Russian-quality fixes. | Implemented and published |
+| `125_travelgtc_ai_015_mira_accurate_membership_qualification_report.md` | TRAVELGTC-AI-015 - Mira Accurate Membership Qualification Report | Records Azure v21 publication, source-grounded qualification, document consent, CRM case reset and chat-reading-position verification. | Implemented and published |
+| `126_travelgtc_ai_016_mira_pair_model_and_official_sources_task.md` | TRAVELGTC-AI-016 - Mira Active Sales, Pair Model And Official Sources | Defines the active sales dialogue, strong Elite + Turbo pair model, 490 Loyalty Points story, presentation delivery and direct official document-link rules. | Implemented |
+| `127_travelgtc_ai_016_mira_pair_model_and_official_sources_report.md` | TRAVELGTC-AI-016 - Mira Pair Model And Official Sources Report | Records publication of the pair-model deck, Azure v22, starter questions and API knowledge changes. | Implemented |
 
 ## 3. Project Source Locations
 
@@ -176,7 +187,16 @@ The project was started under:
 ## 5. Revision History
 
 | Version | Date | Author | Changes |
+| 8.9 | 2026-07-31 | GTC IT / AI Assistant | Revised AI-016 for approval: Mira active sales dialogue, pair-model presentation, partner-count rule, 490 Loyalty Points story and official dynamic source delivery |
+| 9.0 | 2026-07-31 | GTC IT / AI Assistant | Implemented AI-016: published the pair presentation, switched Mira to Azure v24 and updated the sales-first starter dialogue and API knowledge layer |
+| 8.8 | 2026-07-30 | GTC IT / AI Assistant | Implemented AI-015: published Mira Azure v21, revised Membership qualification and document consent, preserved CRM new-case separation and verified fresh-answer reading position |
+| 8.7 | 2026-07-30 | GTC IT / AI Assistant | Added AI-015 draft for source-grounded Membership qualification and Mira instruction/guard/CRM tuning; awaiting approval |
+| 8.6 | 2026-07-30 | GTC IT / AI Assistant | Implemented and published WEB-046: account-first Mira entry, preserved scenario/CTA context, CRM entry metadata and Azure Mira version 17 |
 |---|---|---|---|
+| 8.4 | 2026-07-30 | GTC IT / AI Assistant | Recorded live Mira colleague-test results for five sales-dialogue control questions |
+| 8.3 | 2026-07-29 | GTC IT / AI Assistant | Published Mira Azure version 16 with colleague sales playbook, interrupted-dialogue handling and post-document next-step guard |
+| 8.2 | 2026-07-29 | GTC IT / AI Assistant | Published Mira Azure version 14 with document-choice-before-file-delivery rule |
+| 8.1 | 2026-07-29 | GTC IT / AI Assistant | Published Mira Azure version 13, fixed hesitation versus purchase intent, reduced automatic document dumps and added authenticated chat feedback |
 | 8.0 | 2026-07-29 | GTC IT / AI Assistant | Published Mira Azure version 11 and switched TravelGTC runtime to the new agent version |
 | 7.9 | 2026-07-29 | GTC IT / AI Assistant | Prepared Mira Azure publication package with final instruction source, starter questions and post-publication checks |
 | 7.8 | 2026-07-29 | GTC IT / AI Assistant | Clarified Travel Credits versus Loyalty Points terminology for Mira and added official FAQ source links |

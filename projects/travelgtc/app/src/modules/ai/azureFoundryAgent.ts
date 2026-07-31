@@ -1,10 +1,9 @@
 import { AIProjectClient } from '@azure/ai-projects';
 import { DefaultAzureCredential } from '@azure/identity';
 import {
-  TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL,
-  TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL,
   attachMembershipDocumentLink,
   buildMembershipKnowledgeContext,
+  isDialogueFirstQuestion,
 } from './membershipKnowledge.js';
 
 export interface AzureFoundryAgentOptions {
@@ -71,8 +70,12 @@ function buildContextualQuestion(question: string, history: AzureFoundryAgentHis
   const transcript = cleanHistory.map((turn) => `${turn.role === 'user' ? 'Пользователь' : 'Мира'}: ${turn.content}`).join('\n');
   return [
     'Контекст CRM TravelGTC: это продолжение уже начатого авторизованного диалога с пользователем.',
-    'Учитывай историю ниже, приветствуй пользователя как вернувшегося собеседника и не начинай разговор с нуля.',
+    'Учитывай историю ниже и не начинай разговор с нуля.',
+    'Не повторяй в каждом ответе приветствие вроде "рада снова видеть". Если история уже активна, отвечай сразу по сути: короткая теплая реакция, один живой образ или улыбка, затем один следующий вопрос.',
     'Продолжай мягкую продажу через выявление потребностей: семья, друзья, группы, клиенты, события, Elite, Turbo add-on, Ambassador.',
+    'Если пользователь возвращается после паузы, покажи, что разговор продолжается: назови последний видимый мотив из истории и предложи следующий маленький шаг.',
+    'Не выдавай длинную презентацию после возвращения. Один ответ должен вести к одному следующему вопросу или к одной ссылке, если пользователь уже попросил ссылку.',
+    'Ориентир качества: помочь пользователю увидеть пользу Membership и приблизиться к покупке или официальной регистрации, но через его собственную потребность.',
     '',
     'История диалога:',
     transcript,
@@ -81,47 +84,22 @@ function buildContextualQuestion(question: string, history: AzureFoundryAgentHis
   ].join('\n');
 }
 
-function applyMiraAnswerGuard(question: string, answer: string): string {
-  const normalizedQuestion = question.toLowerCase();
-  const storyPattern = /(истори|знаком|встреч|событ|пара|друг|партн[её]р|впечатл)/i;
-  const tariffPattern = /(тариф|membership|уровн|покуп|подключ|стоим|цена|скидк|бонус|travel credits|loyalty|балл|elite|turbo|vip)/i;
-  const guestAccessPattern = /(guest pass|гостев|demo|демо|trial|free|посмотреть|интерфейс)/i;
+export function applyMiraAnswerGuard(question: string, answer: string): string {
+  const dialogueFirst = isDialogueFirstQuestion(question);
+  const sentences = answer.split(/(?<=[.!?])\s+/u);
+  const withoutUnsupportedSavings = sentences.filter(
+    (sentence) =>
+      !/(?:20\s*[–-]\s*50\s*%|\$\s*800\s*[–-]\s*\$?\s*1[\s,]?500)/i.test(sentence) ||
+      !/(эконом|выгод|сбереж|окуп)/i.test(sentence),
+  );
+  let guarded = withoutUnsupportedSavings.join(' ').trim();
 
-  let guarded = answer;
-
-  if (storyPattern.test(normalizedQuestion) && !/не\s+обещан|не\s+обещаю|не\s+гарант|пример[^.]{0,80}не\s+обещ/i.test(guarded)) {
-    guarded += '\n\nЭто пример атмосферы и возможного сценария общения, не обещание результата.';
-  }
-
-  if (/(loyalty points|балл)/i.test(guarded)) {
+  if (!dialogueFirst && /(?:loyalty points|loyalty point|лояльн[а-яё]*\s+балл)/i.test(guarded)) {
     guarded = guarded.replace(
-      /например,\s*(?:отел(?:ей|и|ях|ь)?|авиабилет(?:ов|ы|ах)?|круиз(?:ов|ы|ах)?)[^.\n]{0,140}/giu,
-      'например, допустимых заказов, где официальный booking flow разрешает списание',
+      /(?:Loyalty Points?|Лояльн[а-яё]*\s+балл[а-яё]*)\s+(?:это\s+)?(?:деньги|наличные|cash)/giu,
+      'Loyalty Points - не наличные',
     );
   }
 
-  if (guestAccessPattern.test(normalizedQuestion) && !guarded.includes(TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL)) {
-    const vipFit =
-      /(vip|elite|элит|membership|тариф|семь|друз|групп|клиент|балл|loyalty|событ|ambassador|амбассад|куп|оплат|сравн)/i.test(
-        normalizedQuestion,
-      );
-    const primaryAccess = vipFit
-      ? `🌟 VIP Membership Travel Advantage: ${TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL}`
-      : `🆓 Free Guest Pass Travel Advantage: ${TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL}`;
-    const secondaryAccess = vipFit
-      ? `🆓 Free Guest Pass Travel Advantage: ${TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL}`
-      : `🌟 VIP Membership Travel Advantage: ${TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL}`;
-    guarded += `\n\n${primaryAccess}\n${secondaryAccess}\n\nFree Guest Pass подходит для первого знакомства без кредитной карты и имеет ограничение: 1 hotel booking максимум на 2 ночи. VIP Membership ведёт к платному VIP-членству и official checkout. Если есть семья, группа, клиенты, баллы, Elite, Turbo или Ambassador-сценарий, сначала лучше сравнить уровни Membership.`;
-  }
-
-  if (
-    tariffPattern.test(normalizedQuestion) &&
-    /(скидк|бонус|travel credits|loyalty|балл|elite|turbo|vip180|standard|plus|pro|preferred|essentials)/i.test(guarded) &&
-    !/провер(яйте|ить|им)|официальн/i.test(guarded.slice(-280))
-  ) {
-    guarded +=
-      '\n\nЦифры по уровням, баллам, Travel Credits, Turbo add-on и точные правила применения нужно сверять по рабочему документу TravelGTC, официальному Membership Benefits PDF или с партнёром TravelGTC.';
-  }
-
-  return guarded;
+  return guarded || answer;
 }

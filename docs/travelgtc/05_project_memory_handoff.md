@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 6.3
-- Date: 2026-07-28
-- Status: Active, public opportunities copy and global menu corrected
+- Version: 6.7
+- Date: 2026-07-30
+- Status: Active, registered-first Mira funnel and Azure version 17 published
 
 ## 1. Current State
 
@@ -331,10 +331,15 @@ Generated screenshots are written to projects/travelgtc/test-artifacts/screensho
 AI consultant state:
 
 ```text
-Mira TravelGTC is published in Azure Foundry as AI-TravelGTC version 11.
-Runtime variable TRAVELGTC_AZURE_AI_AGENT_VERSION must remain 11 unless a newer approved version is published.
+Mira TravelGTC is published in Azure Foundry as AI-TravelGTC version 17.
+Runtime variable TRAVELGTC_AZURE_AI_AGENT_VERSION is currently 17 and must not be rolled back unless the Project Owner explicitly asks.
 Canonical instruction: docs/travelgtc/080_travelgtc_ai_001_mira_consultant_instruction.md.
 Azure version 11 publication package: docs/travelgtc/116_travelgtc_ai_009_azure_publication_package.md.
+Azure dialogue-first version 12 report: docs/travelgtc/117_travelgtc_ai_010_dialogue_first_mira_azure_v12_report.md.
+Azure sales dialogue / feedback version 13 report: docs/travelgtc/118_travelgtc_ai_011_mira_sales_dialogue_feedback_v13_report.md.
+Azure document-choice version 14 report: docs/travelgtc/119_travelgtc_ai_012_document_choice_before_file_delivery_report.md.
+Azure sales playbook version 16 report: docs/travelgtc/120_travelgtc_ai_013_mira_sales_playbook_v16_report.md.
+Registered-first Mira entry funnel task/report: docs/travelgtc/122_travelgtc_web_046_registered_mira_entry_funnel_task.md and docs/travelgtc/123_travelgtc_web_046_registered_mira_entry_funnel_report.md.
 AI-004 report: docs/travelgtc/086_travelgtc_ai_004_membership_knowledge_and_azure_v10_report.md.
 Membership knowledge enrichment lives in projects/travelgtc/app/src/modules/ai/membershipKnowledge.ts.
 Public working RU document: https://travelgtc.com/assets/docs/MembershipBenefits-RU.pdf.
@@ -342,14 +347,22 @@ Official EN source: https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-fi
 Official/support FAQ source: https://mwracademy.com/wp-content/uploads/2025/07/FAQ-MWR-Life-V16_May-2025-ENG.pdf.
 Mira should actively identify needs for Elite / Turbo / Ambassador scenarios, especially family, friends, groups, clients, retreats, yoga, qigong, wellness and community leaders.
 Travel Credits and Loyalty Points must not be merged under the generic word "bonus". Travel Credits: official Membership Benefits PDF states Value $.01 and FAQ explains 100 Travel Credits = $1 deduction. Loyalty Points: separate Elite/Turbo travel-value mechanism; FAQ explains 1 Loyalty Point = $1 deduction only where the reservation is eligible for Loyalty Points.
+For tariff, price, condition, points, table, presentation or official-document questions, Mira must first ask whether the user prefers a chat explanation or a document/table link. PDF/FAQ/table/presentation links are sent only after explicit user consent such as `да, дай файл`, `пришли PDF`, `скинь таблицу`, `хочу документ`, `открой ссылку`.
+If a user has already read a document and asks for registration, payment, a link or an official next step, Mira must move the conversation forward and must not automatically resend the same PDF/FAQ links.
+Mira's sales playbook is now based on the approved colleague script: travel desire -> membership -> community -> personal recommendation -> Ambassador direction -> business opportunity. Use it as internal conversation logic, not as a visible script.
 Loyalty Points must be described as travel-value inside the program, not cash. 1 Loyalty Point may correspond to $1 travel-value only where the official booking flow allows redemption; do not invent universal redemption categories.
 Home-page Mira chat now uses /api/travelgtc/v1/account/ai/chat and requires TravelGTC login before sending the first question.
+TRAVELGTC-WEB-046 applies the same rule to the standalone `/mira/` page: unauthenticated visitors see only a compact sign-in/register entry panel; no question selector, messages or usable send form is exposed.
+Public scenario links preserve `scenario`, `source` and CTA context through `/auth/` into `/mira/`. Authenticated first and subsequent chat turns store this entry context in CRM interaction metadata.
+Before each authenticated Azure request, the backend passes the user's display name and selected scenario as private context. The stored user message remains unchanged and the private context must never be quoted back as a system block.
 The widget supports structured Markdown-like rendering, minimize/restore and desktop dragging.
 Production AI chat questions and answers are stored in travelgtc_interactions under an automatically created/reused source_path=ai_chat lead for the authenticated user.
 When an authenticated user reopens the widget, the frontend loads saved CRM chat history from /api/travelgtc/v1/account/ai/chat/history.
 Before Azure answers a new account chat question, the backend passes the latest saved CRM turns as continuation context so Mira does not start a new dialogue.
 Official TravelGTC referral registration link currently configured by default: https://www.mwrlife.com/KFilip909.
 If a user writes that they want to subscribe/register/pay/join/get the link, the account AI chat marks purchase_intent=true, appends the referral link, raises the CRM lead to ready_to_subscribe, creates a high-priority purchase_intent task and sends an email notification.
+If a user writes that they are not ready, still thinking, afraid to get confused, wants a short no-pressure explanation or wants to understand first, the chat must keep purchase_intent=false and continue discovery.
+Mira answer feedback is available through `/api/travelgtc/v1/account/ai/chat/feedback`; authenticated 👍/👎 reactions are saved to CRM as `ai_feedback`.
 
 Implemented after approval on 2026-07-28:
 
@@ -387,7 +400,11 @@ Recommended next steps:
 ## 4. Revision History
 
 | Version | Date | Author | Changes |
+| 6.7 | 2026-07-30 | GTC IT / AI Assistant | Published WEB-046 account-first Mira funnel, CRM scenario context and Azure Mira version 17 |
 |---|---|---|---|
+| 6.6 | 2026-07-29 | GTC IT / AI Assistant | Recorded Mira Azure version 16, colleague sales playbook, interrupted-dialogue behavior and post-document next-step guard |
+| 6.5 | 2026-07-29 | GTC IT / AI Assistant | Recorded Mira Azure version 14 and document-choice-before-file-delivery rule |
+| 6.4 | 2026-07-29 | GTC IT / AI Assistant | Recorded Mira Azure version 13, purchase-hesitation handling, document-link restraint and authenticated chat feedback |
 | 6.3 | 2026-07-28 | GTC IT / AI Assistant | Recorded removal of internal Mira dialogue mechanics from public `/events/` copy and global menu alignment |
 | 6.2 | 2026-07-28 | GTC IT / AI Assistant | Recorded `/events/` as the `Возможности` needs-based accordion and Mira scenario-routing source |
 | 6.1 | 2026-07-28 | GTC IT / AI Assistant | Recorded removal of the duplicate home Mira promo/preview block |

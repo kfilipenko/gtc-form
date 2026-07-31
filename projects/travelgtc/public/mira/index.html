@@ -49,28 +49,32 @@
                 </div>
                 <img class="mira-banner-image" src="/assets/images/processed/mira-avatar.webp" alt="Мира TravelGTC консультант">
               </div>
-              <div class="ai-messages" data-ai-messages>
+              <section class="ai-entry-gate" data-ai-entry-gate aria-labelledby="ai-entry-title">
+                <p class="eyebrow dark">Личный диалог</p>
+                <h2 id="ai-entry-title">Продолжите с Мирой в своём профиле</h2>
+                <p>Создайте аккаунт или войдите, чтобы сохранить выбранный travel-сценарий, историю разговора и материалы по вашему запросу.</p>
+                <div class="cta-actions">
+                  <a class="button ghost" href="/auth/?mode=login" data-ai-entry-login>Войти</a>
+                  <a class="button" href="/auth/?mode=register" data-ai-entry-register>Создать аккаунт</a>
+                </div>
+              </section>
+              <div class="ai-messages" data-ai-messages hidden>
                 <div class="ai-question-prompt" data-ai-question-prompt>
                   <label for="ai-question-topic">Выберите первый вопрос</label>
                   <select id="ai-question-topic" name="question_topic" data-ai-question-select aria-label="Выберите первый вопрос">
                     <option value="">Выберите первый вопрос</option>
-                    <option value="Хочу подобрать Membership под мои поездки. С каких вопросов лучше начать?">Подобрать Membership</option>
-                    <option value="Я хочу путешествовать чаще. Как Travel Advantage может помочь и какой уровень Membership стоит сравнить?">Путешествовать чаще</option>
-                    <option value="Хочу путешествовать с семьёй и близкими. Какой Membership лучше сравнить, чтобы не выбрать слишком слабый уровень?">Семья и близкие</option>
-                    <option value="Хочу начать с Free Guest Pass и понять, когда стоит переходить к Membership.">Free Guest Pass</option>
-                    <option value="Хочу понять, когда достаточно VIP, а когда стоит сравнивать Elite и Turbo add-on.">VIP или Elite</option>
-                    <option value="У меня есть группа, ученики или клиенты. Как использовать Travel Advantage для поездок, событий и Membership?">Группа, ученики или клиенты</option>
-                    <option value="Хочу понять, как события и клубная среда помогают выбрать Membership и познакомиться с проектом.">События и клубная среда</option>
-                    <option value="Хочу понять, как построить business-направление вокруг Travel Advantage и роли Lifestyle Ambassador.">Ambassador и business-направление</option>
-                    <option value="Хочу использовать Travel Advantage для подарочной поездки близким. Какой уровень Membership стоит сравнить?">Подарить путешествие</option>
-                    <option value="Хочу организовать ретрит, wellness-выезд или активную поездку. Как Travel Advantage может усилить мой формат?">Ретрит или активная поездка</option>
-                    <option value="Хочу понять MWR Life. Как компания, Travel Advantage и TravelGTC связаны между собой?">Понять MWR Life</option>
-                    <option value="Я хочу зарегистрироваться или купить Membership. Какой официальный следующий шаг?">Готов зарегистрироваться</option>
+                    <option value="Мы путешествуем семьёй. Помоги понять, какой Membership раскроет наши планы, а не окажется слишком слабым.">Подобрать Membership для семьи</option>
+                    <option value="Хочу посмотреть модель для пары на 2 года. С чего начать, чтобы понять, подходит ли она нам?">Показать модель для пары на 2 года</option>
+                    <option value="Я хочу путешествовать чаще. Куда бы вы посоветовали начать смотреть, если поездки должны стать частью жизни?">Я хочу путешествовать чаще</option>
+                    <option value="У меня есть группа, ученики или клиенты. Как превратить наши поездки в travel-сообщество и полезное направление?">У меня есть группа, ученики или клиенты</option>
+                    <option value="Хочу понять Elite + Turbo: для какого сценария эта связка действительно сильная и что нужно уточнить сначала?">Хочу понять Elite + Turbo</option>
+                    <option value="Хочу создать business-направление вокруг путешествий. Как начать с продукта, людей и реальной ценности?">Хочу создать business-направление</option>
+                    <option value="Я готов зарегистрироваться. Помоги выбрать один корректный официальный следующий шаг.">Готов зарегистрироваться</option>
                   </select>
                 </div>
-                <div class="ai-message bot"><p>Привет, я Мира 🌍</p><p>Помогу разобраться в Travel Advantage без суеты: можно начать с Free Guest Pass, затем сравнить Membership и только после этого перейти к официальному платному шагу.</p><p>Чтобы сохранить историю диалога, ссылки и следующий шаг в CRM TravelGTC, чат работает после входа в аккаунт.</p></div>
+                <div class="ai-message bot"><p>Привет, я Мира 🌍</p><p>Расскажите, куда вам хочется поехать или с кем хотелось бы построить свой travel-план. Начнём с вашей идеи и найдём сильный сценарий Membership.</p><p>История диалога, материалы и следующий шаг сохраняются в профиле TravelGTC.</p></div>
               </div>
-              <form class="ai-form" data-ai-form>
+              <form class="ai-form" data-ai-form hidden>
                 <label class="sr-only" for="ai-question-page">Ваш вопрос</label>
                 <input id="ai-question-page" name="question" type="text" autocomplete="off" placeholder="Например: хочу Free Guest Pass и понять тариф">
                 <button class="ai-voice" type="button" data-ai-voice aria-label="Задать вопрос голосом" title="Задать вопрос голосом">

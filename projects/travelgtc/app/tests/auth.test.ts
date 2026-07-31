@@ -256,7 +256,12 @@ describe('TravelGTC auth API', () => {
       method: 'POST',
       url: '/api/travelgtc/v1/account/ai/chat',
       headers: { cookie },
-      payload: { question: 'Какой тариф Travel Advantage выбрать для семьи?' },
+      payload: {
+        question: 'Какой тариф Travel Advantage выбрать для семьи?',
+        scenario: 'family',
+        source: 'events',
+        cta: 'family',
+      },
     });
     await app.close();
 
@@ -267,8 +272,42 @@ describe('TravelGTC auth API', () => {
       agent: 'AI-TravelGTC',
       history_persisted: false,
       purchase_intent: false,
+      chat_context: {
+        scenario: 'family',
+        source: 'events',
+        cta: 'family',
+      },
     });
     expect(response.json().answer).toContain('TravelGTC');
+  });
+
+  test('keeps only approved Mira scenario context on authenticated chat requests', async () => {
+    const { app } = await makeApp();
+    const registration = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/auth/register',
+      payload: registerPayload({ email: 'scenario@example.com' }),
+    });
+    const cookie = setCookieHeader(registration);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/account/ai/chat',
+      headers: { cookie },
+      payload: {
+        question: 'Хочу понять следующий шаг.',
+        scenario: 'not-an-approved-scenario',
+        source: '<script>bad</script>',
+        cta: 'next-step',
+      },
+    });
+    await app.close();
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().chat_context).toEqual({
+      scenario: null,
+      source: 'scriptbad/script',
+      cta: 'next-step',
+    });
   });
 
   test('returns referral registration link for account AI purchase intent', async () => {
@@ -294,6 +333,54 @@ describe('TravelGTC auth API', () => {
       referral_registration_url: 'https://www.mwrlife.com/KFilip909',
     });
     expect(response.json().answer).toContain('https://www.mwrlife.com/KFilip909');
+  });
+
+  test('does not treat purchase hesitation as account AI purchase intent', async () => {
+    const { app } = await makeApp();
+    const registration = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/auth/register',
+      payload: registerPayload({ email: 'hesitation@example.com' }),
+    });
+    const cookie = setCookieHeader(registration);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/account/ai/chat',
+      headers: { cookie },
+      payload: { question: 'Я пока не готов покупать. Хочу сначала понять, что проверить для семьи.' },
+    });
+    await app.close();
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({
+      ok: true,
+      purchase_intent: false,
+      referral_registration_url: null,
+    });
+    expect(response.json().answer).not.toContain('Готовность к регистрации');
+  });
+
+  test('accepts authenticated account AI feedback without CRM persistence in memory mode', async () => {
+    const { app } = await makeApp();
+    const registration = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/auth/register',
+      payload: registerPayload({ email: 'feedback@example.com' }),
+    });
+    const cookie = setCookieHeader(registration);
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/account/ai/chat/feedback',
+      headers: { cookie },
+      payload: { rating: 'positive', message: 'Ответ помог.' },
+    });
+    await app.close();
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({
+      ok: true,
+      feedback_persisted: false,
+    });
   });
 
   test('returns access links for account AI first-look intent without marking purchase intent', async () => {

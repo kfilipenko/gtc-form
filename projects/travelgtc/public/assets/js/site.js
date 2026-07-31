@@ -7,7 +7,9 @@ const AI_SCENARIO_QUESTIONS = {
   groups: "У меня есть группа, ученики или клиенты. Как использовать Travel Advantage для поездок, событий и Membership?",
   events: "Хочу понять, как события и клубная среда помогают выбрать Membership и познакомиться с проектом.",
   "ambassador-business": "Хочу понять, как построить business-направление вокруг Travel Advantage и роли Lifestyle Ambassador.",
+  "next-step": "Я хочу понять, какой следующий шаг мне подходит: Free Guest Pass, Membership, VIP Membership, регистрация по партнёрской ссылке или сопровождение TravelGTC. Помоги выбрать по моей ситуации.",
 };
+const AI_SCENARIO_KEYS = new Set(Object.keys(AI_SCENARIO_QUESTIONS));
 const TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL = "https://vip.traveladvantage.com/KFilip909";
 const TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL = "https://free.traveladvantage.com/KFilip909";
 const OFFICIAL_SOURCE_TEXT =
@@ -42,6 +44,8 @@ document.querySelectorAll(".nav-links a").forEach((link) => {
 
 initAuthState();
 initAuthForms();
+initAuthPageContext();
+initMiraEntryLinks();
 initLeadForms();
 initPrototypeForms();
 initFormatButtons();
@@ -220,7 +224,7 @@ async function submitRegisterForm(form) {
     });
 
     setAuthState({ authenticated: true, user: body.user || null });
-    setFormStatus(status, "Аккаунт создан. Возвращаемся к заявке...", "success");
+    setFormStatus(status, authReturnMessage("Аккаунт создан"), "success");
     redirectAfterAuth();
   } catch (error) {
     setFormStatus(status, error.message || "Не удалось создать аккаунт.", "error");
@@ -246,7 +250,7 @@ async function submitLoginForm(form) {
     });
 
     setAuthState({ authenticated: true, user: body.user || null });
-    setFormStatus(status, "Вход выполнен. Возвращаемся к заявке...", "success");
+    setFormStatus(status, authReturnMessage("Вход выполнен"), "success");
     redirectAfterAuth();
   } catch (error) {
     setFormStatus(status, error.message || "Не удалось войти.", "error");
@@ -443,6 +447,58 @@ function decorateAuthLinks() {
     }
     link.setAttribute("href", `${href.pathname}${href.search}${href.hash}`);
   });
+}
+
+function initAuthPageContext() {
+  const context = document.querySelector("[data-auth-entry-context]");
+  if (!context || !window.location.pathname.startsWith("/auth/")) {
+    return;
+  }
+
+  const next = safeNextPath();
+  if (!next.startsWith("/mira/")) {
+    return;
+  }
+
+  context.hidden = false;
+  context.textContent = "После входа вы вернётесь к Мире: выбранный сценарий сохранится, а разговор появится в вашем профиле TravelGTC.";
+}
+
+function authReturnMessage(prefix) {
+  return safeNextPath().startsWith("/mira/")
+    ? `${prefix}. Возвращаемся к разговору с Мирой...`
+    : `${prefix}. Возвращаемся к заявке...`;
+}
+
+function initMiraEntryLinks() {
+  document.querySelectorAll('a[href^="/mira/"]').forEach((link) => {
+    link.addEventListener("click", async (event) => {
+      if (window.location.pathname.startsWith("/mira/")) {
+        return;
+      }
+
+      event.preventDefault();
+      const target = buildMiraTargetPath(link.getAttribute("href") || "/mira/");
+      const state = await loadCurrentAuthState();
+      window.location.href = state.authenticated ? target : buildMiraAuthUrl(target, "register");
+    });
+  });
+}
+
+function buildMiraTargetPath(rawTarget) {
+  const target = new URL(rawTarget, window.location.origin);
+  const scenario = target.searchParams.get("scenario");
+  if (scenario && !AI_SCENARIO_KEYS.has(scenario)) {
+    target.searchParams.delete("scenario");
+  }
+  if (!target.searchParams.has("source")) {
+    target.searchParams.set("source", window.location.pathname === "/" ? "home" : window.location.pathname.replace(/^\/+|\/+$/g, "").slice(0, 80) || "site");
+  }
+  return `${target.pathname}${target.search}${target.hash}`;
+}
+
+function buildMiraAuthUrl(next, mode = "register") {
+  return `/auth/?mode=${encodeURIComponent(mode)}&next=${encodeURIComponent(next)}`;
 }
 
 function currentReturnPath() {
@@ -710,6 +766,7 @@ function initAiConsultant() {
   restoreAiWidgetPosition(widget);
   initAiPanelDrag(widget, panel);
   initAiScenarioQuestion(form, questionSelect);
+  initAiEntryActions(panel);
   initAiPendingQuestion(panel, form, messages);
 
   if (panel.closest("[data-ai-page]")) {
@@ -855,11 +912,39 @@ async function syncAiPanelState(panel, options = {}) {
   }
   const state = await loadCurrentAuthState();
   if (!state.authenticated) {
-    showAiAuthGate(panel, messages);
+    setAiConversationAccess(panel, false);
     return;
   }
+  setAiConversationAccess(panel, true);
   removeAiAuthGate(messages);
   await loadAiChatHistory(panel, state.user, { forceReload: Boolean(options.forceReload) });
+}
+
+function initAiEntryActions(panel) {
+  const next = buildMiraTargetPath(`${window.location.pathname}${window.location.search}#ai-consultant`);
+  const login = panel.querySelector("[data-ai-entry-login]");
+  const register = panel.querySelector("[data-ai-entry-register]");
+  if (login) {
+    login.setAttribute("href", buildMiraAuthUrl(next, "login"));
+  }
+  if (register) {
+    register.setAttribute("href", buildMiraAuthUrl(next, "register"));
+  }
+}
+
+function setAiConversationAccess(panel, authenticated) {
+  const gate = panel.querySelector("[data-ai-entry-gate]");
+  const messages = panel.querySelector("[data-ai-messages]");
+  const form = panel.querySelector("[data-ai-form]");
+  if (gate) {
+    gate.hidden = authenticated;
+  }
+  if (messages) {
+    messages.hidden = !authenticated;
+  }
+  if (form) {
+    form.hidden = !authenticated;
+  }
 }
 
 function appendAiMessage(messages, text, type, options = {}) {
@@ -914,8 +999,8 @@ function removeAiAuthGate(messages) {
 }
 
 function buildAiAuthUrl() {
-  const next = `${window.location.pathname}${window.location.search}#ai-consultant`;
-  return `/auth/?mode=register&next=${encodeURIComponent(next)}`;
+  const next = buildMiraTargetPath(`${window.location.pathname}${window.location.search}#ai-consultant`);
+  return buildMiraAuthUrl(next, "register");
 }
 
 async function loadAiChatHistory(panel, user, options = {}) {
@@ -964,9 +1049,11 @@ async function askAiQuestion(form, messages, question, submitButton) {
   try {
     const body = await requestApi("/api/travelgtc/v1/account/ai/chat", {
       method: "POST",
-      body: JSON.stringify({ question }),
+      body: JSON.stringify({ question, ...getAiChatContext() }),
     });
     renderAiMarkdown(pending, body.answer || buildAiStubAnswer(question));
+    appendAiFeedbackControls(pending, body.answer || "", body.lead_id || "");
+    revealAiMessageStart(messages, pending);
     const panel = form.closest("[data-ai-panel]");
     if (panel) {
       panel.dataset.aiHistoryLoaded = "true";
@@ -984,7 +1071,87 @@ async function askAiQuestion(form, messages, question, submitButton) {
   } finally {
     setSubmitDisabled(submitButton, false);
   }
-  messages.scrollTop = messages.scrollHeight;
+}
+
+function revealAiMessageStart(messages, message) {
+  if (!messages || !message) {
+    return;
+  }
+  window.requestAnimationFrame(() => {
+    messages.scrollTop = Math.max(0, message.offsetTop - messages.offsetTop - 10);
+  });
+}
+
+function getAiChatContext() {
+  const params = new URLSearchParams(window.location.search);
+  const scenario = params.get("scenario") || "";
+  const source = params.get("source") || "";
+  const cta = params.get("cta") || "";
+  return {
+    scenario: AI_SCENARIO_KEYS.has(scenario) ? scenario : undefined,
+    source: source.slice(0, 80) || undefined,
+    cta: cta.slice(0, 80) || undefined,
+  };
+}
+
+function appendAiFeedbackControls(message, answer, leadId) {
+  if (!message || message.querySelector("[data-ai-feedback]")) {
+    return;
+  }
+  const controls = document.createElement("div");
+  controls.className = "ai-feedback";
+  controls.dataset.aiFeedback = "";
+
+  const label = document.createElement("span");
+  label.textContent = "Ответ помог?";
+  controls.appendChild(label);
+
+  [
+    ["positive", "👍", "Да, полезно"],
+    ["negative", "👎", "Нет, не то"],
+  ].forEach(([rating, icon, title]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = icon;
+    button.title = title;
+    button.setAttribute("aria-label", title);
+    button.addEventListener("click", async () => {
+      await submitAiFeedback(button, controls, rating, answer, leadId);
+    });
+    controls.appendChild(button);
+  });
+
+  message.appendChild(controls);
+}
+
+async function submitAiFeedback(button, controls, rating, answer, leadId) {
+  if (!controls || controls.dataset.aiFeedbackSent === "true") {
+    return;
+  }
+  controls.dataset.aiFeedbackSent = "true";
+  controls.querySelectorAll("button").forEach((item) => {
+    item.disabled = true;
+    item.classList.toggle("is-selected", item === button);
+  });
+  try {
+    await requestApi("/api/travelgtc/v1/account/ai/chat/feedback", {
+      method: "POST",
+      body: JSON.stringify({
+        rating,
+        lead_id: leadId,
+        message: String(answer || "").replace(/\s+/g, " ").trim().slice(0, 360),
+      }),
+    });
+    const note = document.createElement("em");
+    note.textContent = rating === "positive" ? "Спасибо, Мира учится попадать точнее." : "Спасибо, это поможет улучшить ответ.";
+    controls.appendChild(note);
+  } catch (error) {
+    controls.dataset.aiFeedbackSent = "false";
+    controls.querySelectorAll("button").forEach((item) => {
+      item.disabled = false;
+      item.classList.remove("is-selected");
+    });
+  }
 }
 
 function buildAiThinkingMessage(question) {

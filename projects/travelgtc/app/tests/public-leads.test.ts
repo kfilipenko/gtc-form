@@ -186,7 +186,7 @@ describe('TravelGTC public lead API', () => {
     expect(second.json().error.code).toBe('rate_limited');
   });
 
-  test('answers AI chat requests in fallback mode', async () => {
+  test('requires a TravelGTC session before a Mira conversation can start', async () => {
     const { app } = await makeApp();
     const response = await app.inject({
       method: 'POST',
@@ -195,12 +195,12 @@ describe('TravelGTC public lead API', () => {
     });
     await app.close();
 
-    expect(response.statusCode).toBe(200);
+    expect(response.statusCode).toBe(401);
     expect(response.json()).toMatchObject({
-      ok: true,
-      mode: 'stub',
-      agent: 'AI-TravelGTC',
+      ok: false,
+      error: {
+        code: 'authentication_required',
+      },
     });
-    expect(response.json().answer).toContain('TravelGTC');
   });
 });
