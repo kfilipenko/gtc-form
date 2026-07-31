@@ -7,7 +7,6 @@ export const OFFICIAL_MWR_FAQ_URL =
 export const TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL = 'https://vip.traveladvantage.com/KFilip909';
 export const TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL = 'https://free.traveladvantage.com/KFilip909';
 export const TRAVELGTC_OPPORTUNITIES_URL = 'https://travelgtc.com/events/';
-export const TRAVELGTC_PAIR_MODEL_PAGE_URL = 'https://travelgtc.com/membership-model/';
 export const TRAVELGTC_PAIR_MODEL_PDF_URL =
   'https://travelgtc.com/assets/docs/TravelGTC_Membership_Model_Presentation.pdf';
 export const OFFICIAL_COMPENSATION_PLAN_URL =
@@ -24,7 +23,6 @@ const MEMBERSHIP_KNOWLEDGE_SUMMARY = [
   `VIP Membership Travel Advantage: ${TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL}`,
   `Free Guest Pass Travel Advantage: ${TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL}`,
   `Сценарии возможностей TravelGTC: ${TRAVELGTC_OPPORTUNITIES_URL}`,
-  `HTML-презентация модели для пары на 24 месяца: ${TRAVELGTC_PAIR_MODEL_PAGE_URL}`,
   `PDF модели для пары на 24 месяца: ${TRAVELGTC_PAIR_MODEL_PDF_URL}`,
   `Официальный compensation plan: ${OFFICIAL_COMPENSATION_PLAN_URL}`,
   `Официальный Income Disclosure: ${OFFICIAL_INCOME_DISCLOSURE_URL}`,
@@ -108,7 +106,7 @@ export function buildMembershipKnowledgeContext(question: string): string {
     'В обычной беседе добавляй немного travel-атмосферы: один живой образ, короткую историю или лёгкую улыбку, но не превращай ответ в длинную презентацию.',
     'Не отправляй документ автоматически. Если пользователь просит документ или презентацию прямо, отправь одну релевантную ссылку. В остальных случаях предложи документ только тогда, когда это естественно продолжает беседу и пользователь уже понял, зачем он ему нужен.',
     'Отвечай как продающий консультант: при подтверждённых семье/паре, регулярных поездках, дополнительных пользователях, Loyalty Points, Life Experiences, группе или Ambassador-плане сначала объясни сильный сценарий Elite + Turbo. Если масштаб не нужен или бюджет не подходит, спокойно сравни более низкий вход. Не подменяй выявление потребности автоматическим апселлом.',
-    `Если выявлен сценарий пары, семьи с совместным планированием или партнёров по travel-направлению, предложи презентацию на 24 месяца. После согласия отправь HTML-презентацию: ${TRAVELGTC_PAIR_MODEL_PAGE_URL}. При прямом запросе PDF/файла отправь PDF: ${TRAVELGTC_PAIR_MODEL_PDF_URL}.`,
+    `Если выявлен сценарий пары, семьи с совместным планированием или партнёров по travel-направлению, предложи PDF-презентацию модели на 24 месяца. После явного согласия пользователя отправь только PDF: ${TRAVELGTC_PAIR_MODEL_PDF_URL}.`,
     'Модель пары объясняй точно: Partner A + Partner B по рекомендации A + ещё 2 активных участника = 3 для A; Partner B строит свои 3; вместе это первые 5 дополнительных активных участников. Уточняй, что актуальные условия проверяются в официальном compensation plan.',
     'Текущий пример Elite + Turbo: на одном аккаунте были начислены 490 Loyalty Points. Показывай это как пример travel-value в разрешённых booking flows, а не как наличные, возврат денег или гарантированный финансовый результат.',
     'Если говоришь про баллы, сначала различай Travel Credits и Loyalty Points. Travel Credits: официальный PDF указывает Value $.01. Loyalty Points: 1 point может соответствовать $1 списания только в разрешенном заказе и в объеме, который допускает конкретный booking flow. Не называй это cash, гарантированной скидкой или возвратом денег.',
@@ -131,10 +129,7 @@ export function attachMembershipDocumentLink(question: string, answer: string): 
   }
   const answerWithoutDocuments = stripAutoDocumentLinks(answer);
   if (isPairModelPresentationRequest(question)) {
-    const fileRequested = /\b(pdf|файл|скачать|загрузить)\b/i.test(question);
-    const link = fileRequested ? TRAVELGTC_PAIR_MODEL_PDF_URL : TRAVELGTC_PAIR_MODEL_PAGE_URL;
-    const label = fileRequested ? 'PDF модели для пары на 24 месяца' : 'Модель для пары на 24 месяца';
-    return `${answerWithoutDocuments}\n\n📊 ${label}: ${link}`;
+    return `${answerWithoutDocuments}\n\n📊 PDF модели для пары на 24 месяца: ${TRAVELGTC_PAIR_MODEL_PDF_URL}`;
   }
   if (!shouldAttachMembershipDocuments(question)) {
     return shouldOfferDocumentChoice(question, answerWithoutDocuments)
@@ -154,7 +149,7 @@ function stripAutoDocumentLinks(answer: string): string {
     .filter((line) => {
       const compact = line.trim();
       return (
-        !/MembershipBenefits-RU|MembershipBenefits-EN|TravelGTC_Membership_Model_Presentation|membership-model\/|mwracademy\.com|FAQ MWR Life|Документ для проверки|Официальный PDF/i.test(
+        !/MembershipBenefits-RU|MembershipBenefits-EN|TravelGTC_Membership_Model_Presentation|mwracademy\.com|FAQ MWR Life|Документ для проверки|Официальный PDF/i.test(
           compact,
         ) && compact !== '📄'
       );

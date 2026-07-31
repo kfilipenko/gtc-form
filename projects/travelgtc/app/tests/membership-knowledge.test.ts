@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {
   MEMBERSHIP_KNOWLEDGE_DOCUMENT_URL,
-  TRAVELGTC_PAIR_MODEL_PAGE_URL,
   TRAVELGTC_PAIR_MODEL_PDF_URL,
   attachMembershipDocumentLink,
   buildMembershipKnowledgeContext,
@@ -82,11 +81,11 @@ describe('TravelGTC Mira membership knowledge', () => {
     expect(result).toContain('Официальный Membership Benefits PDF');
   });
 
-  test('sends the pair-model presentation only when it is directly requested', () => {
+  test('sends the pair-model PDF when it is directly requested', () => {
     const question = 'Пришли презентацию с моделью для пары на 2 года.';
     const result = attachMembershipDocumentLink(question, 'Конечно, вот наглядная модель.');
 
-    expect(result).toContain(TRAVELGTC_PAIR_MODEL_PAGE_URL);
+    expect(result).toContain(TRAVELGTC_PAIR_MODEL_PDF_URL);
     expect(result).not.toContain(MEMBERSHIP_KNOWLEDGE_DOCUMENT_URL);
   });
 
@@ -94,7 +93,6 @@ describe('TravelGTC Mira membership knowledge', () => {
     const result = attachMembershipDocumentLink('Пришли PDF с моделью для пары.', 'Конечно.');
 
     expect(result).toContain(TRAVELGTC_PAIR_MODEL_PDF_URL);
-    expect(result).not.toContain(TRAVELGTC_PAIR_MODEL_PAGE_URL);
   });
 
   test('includes the strong pair scenario without treating points as cash', () => {

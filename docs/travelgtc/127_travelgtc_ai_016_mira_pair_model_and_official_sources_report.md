@@ -12,9 +12,9 @@
    `https://travelgtc.com/assets/docs/TravelGTC_Membership_Model_Presentation.pptx`.
 2. Added a homepage Membership block linking to the presentation.
 3. Replaced Mira's starter questions with seven sales-first scenario entries: family, pair model, frequent travel, group/client travel, Elite + Turbo, business direction and registration.
-4. Published Azure instruction version 27. Mira now uses a short discovery dialogue, a pair/family model, correct partner-count explanation, a 490 Loyalty Points current-example rule, one-link document delivery after consent and official dynamic sources.
-5. Updated the API Membership knowledge layer so a direct pair-model request receives the presentation link, while scenario starts remain dialogue-first.
-6. Switched `travelgtc-api.service` to Azure agent version 27 and rebuilt the API.
+4. Published Azure instruction version 28. Mira now uses a short discovery dialogue, a pair/family model, correct partner-count explanation, a 490 Loyalty Points current-example rule, one-link PDF delivery after consent and official dynamic sources.
+5. Updated the API Membership knowledge layer so a direct pair-model request receives the PDF, while scenario starts remain dialogue-first.
+6. Switched `travelgtc-api.service` to Azure agent version 28 and rebuilt the API.
 
 ## Core Operating Rules
 
