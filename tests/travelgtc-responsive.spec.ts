@@ -198,10 +198,10 @@ test.describe('TravelGTC responsive public site', () => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/pair-model/', { waitUntil: 'domcontentloaded' });
 
-    await expect(page.locator('h1')).toContainText('Создайте свою travel-систему');
-    await expect(page.locator('.pair-model-flow li')).toHaveCount(6);
-    await expect(page.locator('.pair-model-benefits article')).toHaveCount(3);
-    await expect(page.getByRole('link', { name: 'Открыть PDF-версию' })).toHaveAttribute('href', '/assets/docs/TravelGTC_Membership_Model_Presentation.pdf');
+    await expect(page.locator('h1')).toContainText('Travel Advantage для двоих');
+    await expect(page.locator('.pair-pdf-scheme > ol > li')).toHaveCount(6);
+    await expect(page.locator('.pair-pdf-benefits article')).toHaveCount(3);
+    await expect(page.getByRole('link', { name: 'Скачать PDF' })).toHaveAttribute('href', '/assets/docs/TravelGTC_Membership_Model_Presentation.pdf');
     await expect(page.getByRole('link', { name: 'Обсудить модель для пары' })).toHaveAttribute('href', '/mira/?scenario=family&source=pair-model&cta=discuss-pair-model');
   });
 
