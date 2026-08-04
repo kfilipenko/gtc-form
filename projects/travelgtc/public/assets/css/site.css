@@ -2939,7 +2939,14 @@ h3 {
 
 .pair-pdf-hero h1 em {
   display: block;
+  max-width: none;
   font-style: normal;
+  font-size: clamp(2rem, 2.35vw, 2.8rem);
+  line-height: 1.08;
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
 }
 
 .pair-pdf-hero-copy > p:last-child {
@@ -3255,6 +3262,7 @@ h3 {
   .pair-pdf-hero-copy { padding: 28px 0 24px; }
   .pair-pdf-brand { margin-bottom: 18px; font-size: 0.94rem; }
   .pair-pdf-hero h1 { font-size: clamp(2.15rem, 10vw, 3.2rem); }
+  .pair-pdf-hero h1 em { white-space: normal; }
   .pair-pdf-hero-photo { min-height: 220px; margin: 0 -20px; }
   .pair-pdf-hero-photo::before { width: 28%; }
   .pair-pdf-board { padding-top: 14px; }
