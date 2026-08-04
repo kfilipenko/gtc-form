@@ -151,7 +151,7 @@ test.describe('TravelGTC responsive public site', () => {
     await expect(page.locator('.site-header .nav-links a[href="/"]')).toHaveText('Главная');
     await expect(page.locator('.site-header a[href="/events/"]')).toHaveCount(0);
     await expect(page.locator('.opportunity-motive')).toHaveCount(5);
-    await expect(page.getByRole('link', { name: 'Сценарий для семьи или партнёров' })).toHaveAttribute('href', '/assets/docs/TravelGTC_Membership_Model_Presentation.pdf');
+    await expect(page.getByRole('link', { name: 'Travel Advantage для двоих: модель участия для пары или семьи' })).toHaveAttribute('href', '/assets/docs/TravelGTC_Membership_Model_Presentation.pdf');
 
     const overflow = await measureHorizontalOverflow(page);
     await assertNoHorizontalOverflow(overflow.viewportWidth, Math.max(overflow.documentScrollWidth, overflow.bodyScrollWidth));
