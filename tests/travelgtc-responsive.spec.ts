@@ -194,15 +194,14 @@ test.describe('TravelGTC responsive public site', () => {
     await assertNoHorizontalOverflow(overflow.viewportWidth, Math.max(overflow.documentScrollWidth, overflow.bodyScrollWidth));
   });
 
-  test('pair model page is editable and keeps PDF as a download version', async ({ page }) => {
+  test('pair model page starts as a clean editable hero', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/pair-model/', { waitUntil: 'domcontentloaded' });
 
     await expect(page.locator('h1')).toContainText('Travel Advantage для двоих');
-    await expect(page.locator('.pair-pdf-scheme > ol > li')).toHaveCount(6);
-    await expect(page.locator('.pair-pdf-benefits article')).toHaveCount(3);
-    await expect(page.getByRole('link', { name: 'Скачать PDF' })).toHaveAttribute('href', '/assets/docs/TravelGTC_Membership_Model_Presentation.pdf');
-    await expect(page.getByRole('link', { name: 'Обсудить модель для пары' })).toHaveAttribute('href', '/mira/?scenario=family&source=pair-model&cta=discuss-pair-model');
+    await expect(page.locator('.pair-pdf-hero-photo img')).toHaveAttribute('src', '/assets/images/processed/travelgtc-pair-model-hero-couple.webp');
+    await expect(page.locator('main > section')).toHaveCount(1);
+    await expect(page.locator('.pair-pdf-board, .pair-pdf-final, .site-footer')).toHaveCount(0);
   });
 
   test('dedicated Mira chat shows a registered-first entry panel to guests', async ({ page }) => {
@@ -323,7 +322,9 @@ test.describe('TravelGTC responsive public site', () => {
       await expect(page.locator('main')).toBeVisible();
       await expect(page.locator('.site-header .brand-logo img')).toHaveAttribute('src', /travelgtc-logo-header\.webp$/);
       await expect(page.locator('.site-header .brand > span')).toHaveCount(0);
-      await expect(page.locator('.site-footer')).toBeVisible();
+      if (route !== '/pair-model/') {
+        await expect(page.locator('.site-footer')).toBeVisible();
+      }
 
       const overflow = await measureHorizontalOverflow(page);
       await assertNoHorizontalOverflow(overflow.viewportWidth, Math.max(overflow.documentScrollWidth, overflow.bodyScrollWidth));
