@@ -1750,7 +1750,11 @@ function initCrmCustomersPage() {
     selectedCustomerId = contactId;
     setCrmStatus(status, "Открываем карточку клиента...", "pending");
     try {
-      const body = await requestApi(`/api/travelgtc/v1/crm/customers/${encodeURIComponent(contactId)}`, { method: "GET" });
+      const [body, conversation] = await Promise.all([
+        requestApi(`/api/travelgtc/v1/crm/customers/${encodeURIComponent(contactId)}`, { method: "GET" }),
+        requestApi(`/api/travelgtc/v1/crm/customers/${encodeURIComponent(contactId)}/conversations`, { method: "GET" }),
+      ]);
+      body.conversation = conversation.messages || [];
       if (empty) empty.hidden = true;
       if (detail) {
         detail.hidden = false;
@@ -1758,6 +1762,9 @@ function initCrmCustomersPage() {
           onUpdate: updateCustomer,
           onNoteSubmit: addCustomerNote,
           onOpenLead: openLead,
+          onSendEmail: sendCustomerEmail,
+          onOpenExternalContact: openExternalContact,
+          onContactOutcome: saveContactOutcome,
         });
       }
       list?.querySelectorAll("[data-crm-customer]").forEach((button) => {
@@ -1787,6 +1794,28 @@ function initCrmCustomersPage() {
       body: JSON.stringify({ note }),
     });
     await openCustomer(contactId);
+  }
+
+  async function sendCustomerEmail(contactId, payload) {
+    await requestApi(`/api/travelgtc/v1/crm/customers/${encodeURIComponent(contactId)}/contact-actions/email`, {
+      method: "POST", body: JSON.stringify(payload),
+    });
+    await openCustomer(contactId);
+  }
+
+  async function openExternalContact(contactId, payload) {
+    const body = await requestApi(`/api/travelgtc/v1/crm/customers/${encodeURIComponent(contactId)}/contact-actions/external`, {
+      method: "POST", body: JSON.stringify(payload),
+    });
+    if (body.href) window.location.assign(body.href);
+    await openCustomer(contactId);
+  }
+
+  async function saveContactOutcome(actionId, payload) {
+    await requestApi(`/api/travelgtc/v1/crm/contact-actions/${encodeURIComponent(actionId)}/outcome`, {
+      method: "POST", body: JSON.stringify(payload),
+    });
+    await openCustomer(selectedCustomerId);
   }
 
   function openLead(leadId) {
@@ -1822,7 +1851,7 @@ function renderCrmCustomerList(container, customers, selectedCustomerId, onOpen)
 }
 
 function renderCrmCustomerDetail(container, data, actions) {
-  const { customer, leads = [], tasks = [], notes = [], interactions = [], audit = [], roles = [] } = data;
+  const { customer, leads = [], tasks = [], notes = [], interactions = [], audit = [], roles = [], conversation = [] } = data;
   const primaryEmail = customer.registration_email || customer.contact_email || "Не указан";
   const primaryPhone = customer.registration_phone || customer.contact_phone || "Не указан";
   const timeline = [
@@ -1830,6 +1859,7 @@ function renderCrmCustomerDetail(container, data, actions) {
     ...notes.map((item) => ({ ...item, kind: "note", title: "Внутренняя заметка" })),
     ...audit.map((item) => ({ ...item, kind: "audit", body: crmAuditLabel(item), title: "Изменение карточки" })),
   ].sort((left, right) => new Date(right.created_at).getTime() - new Date(left.created_at).getTime());
+  const conversations = crmConversationSessions(conversation);
 
   container.innerHTML = `
     <div class="crm-detail-head">
@@ -1853,6 +1883,19 @@ function renderCrmCustomerDetail(container, data, actions) {
       <label for="crm-customer-assignee">Ответственный</label>
       <div><input id="crm-customer-assignee" name="assigned_to" maxlength="160" value="${escapeHtml(customer.assigned_to || "")}" placeholder="Например: Константин"><button class="button ghost small" type="submit">Сохранить</button></div>
     </form>
+    <section class="crm-contact-actions crm-customer-section">
+      <h3>Связаться с клиентом</h3>
+      <p class="crm-contact-hint">Предпочтительный канал: <strong>${escapeHtml(customer.registration_primary_channel || customer.contact_primary_channel || "не указан")}</strong>. Действия сохраняются в истории карточки.</p>
+      <div class="crm-contact-buttons">
+        ${primaryPhone !== "Не указан" ? '<button type="button" class="button ghost small" data-crm-phone>Позвонить</button><button type="button" class="button ghost small" data-crm-whatsapp>WhatsApp</button>' : ''}
+        ${primaryEmail !== "Не указан" ? '<button type="button" class="button small" data-crm-email-toggle>Написать email</button>' : ''}
+      </div>
+      ${primaryEmail !== "Не указан" ? `<form class="crm-email-form" data-crm-email-form hidden>
+        <label>Тема<input name="subject" maxlength="180" required value="TravelGTC: продолжаем разговор"></label>
+        <label>Сообщение<textarea name="body" rows="5" maxlength="5000" required>Здравствуйте, ${escapeHtml(customer.display_name || "")}. Продолжаем наш разговор о Travel Advantage.</textarea></label>
+        <button class="button small" type="submit">Отправить письмо</button>
+      </form>` : ''}
+    </section>
     <section class="crm-customer-section">
       <h3>Заявки клиента</h3>
       <div class="crm-customer-leads">
@@ -1870,9 +1913,13 @@ function renderCrmCustomerDetail(container, data, actions) {
       <textarea id="crm-customer-note" name="note" rows="3" required></textarea>
       <button class="button small" type="submit">Добавить заметку</button>
     </form>
+    <section class="crm-conversations crm-customer-section">
+      <h3>Диалог с Мирой</h3>
+      ${conversations.length ? conversations.map((session, index) => `<details class="crm-conversation"${index === 0 ? " open" : ""}><summary>${escapeHtml(session.label)} <span>${session.messages.length} ${crmMessageCountLabel(session.messages.length)}</span></summary><div class="crm-conversation-messages">${session.messages.map((message) => `<article class="crm-message ${message.direction === "inbound" ? "from-customer" : "from-mira"}"><strong>${message.direction === "inbound" ? "Клиент" : "Мира"} · ${escapeHtml(formatCrmDate(message.created_at))}</strong><div>${crmMessageHtml(message.body)}</div></article>`).join("")}</div></details>`).join("") : '<p class="crm-empty">Диалог с Мирой пока не начинался.</p>'}
+    </section>
     <section class="crm-history">
-      <h3>Общая история</h3>
-      ${timeline.length ? timeline.map((item) => `<article><strong>${escapeHtml(formatCrmDate(item.created_at))} · ${escapeHtml(item.title)}</strong><p>${escapeHtml(item.body || "")}</p></article>`).join("") : "<p class=\"crm-empty\">История пока пуста.</p>"}
+      <h3>Операционная история</h3>
+      ${timeline.length ? timeline.map((item) => crmTimelineHtml(item)).join("") : "<p class=\"crm-empty\">История пока пуста.</p>"}
     </section>
   `;
 
@@ -1904,6 +1951,65 @@ function renderCrmCustomerDetail(container, data, actions) {
   container.querySelectorAll("[data-crm-customer-lead]").forEach((button) => {
     button.addEventListener("click", () => actions.onOpenLead(button.dataset.crmCustomerLead));
   });
+  container.querySelector("[data-crm-email-toggle]")?.addEventListener("click", () => {
+    const form = container.querySelector("[data-crm-email-form]");
+    if (form) form.hidden = !form.hidden;
+  });
+  container.querySelector("[data-crm-email-form]")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    await actions.onSendEmail(customer.contact_id, { subject: form.elements.subject.value.trim(), body: form.elements.body.value.trim() });
+  });
+  container.querySelector("[data-crm-phone]")?.addEventListener("click", () => actions.onOpenExternalContact(customer.contact_id, { channel: "phone", message: "" }));
+  container.querySelector("[data-crm-whatsapp]")?.addEventListener("click", () => actions.onOpenExternalContact(customer.contact_id, { channel: "whatsapp", message: `Здравствуйте, ${customer.display_name || ""}. Продолжаем наш разговор о Travel Advantage.` }));
+  container.querySelectorAll("[data-crm-contact-outcome]").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await actions.onContactOutcome(form.dataset.crmContactOutcome, { status: form.elements.status.value, note: form.elements.note.value.trim() });
+    });
+  });
+}
+
+function crmTimelineHtml(item) {
+  const metadata = crmMetadata(item.metadata_json);
+  const title = item.kind === "interaction" && item.interaction_type === "contact_action" ? crmContactActionTitle(item, metadata) : item.title;
+  const outcomeForm = item.kind === "interaction" && item.interaction_type === "contact_action" && !metadata.outcome_at ? `<form class="crm-contact-outcome" data-crm-contact-outcome="${escapeHtml(item.interaction_id)}"><select name="status"><option value="sent_placed">Связь состоялась</option><option value="no_answer">Нет ответа</option><option value="follow_up_needed" selected>Нужен повторный контакт</option><option value="not_sent">Не отправлено</option></select><input name="note" maxlength="2000" placeholder="Короткая внутренняя заметка"><button type="submit" class="button ghost small">Зафиксировать</button></form>` : (metadata.outcome_note ? `<p class="crm-outcome-note">${escapeHtml(metadata.outcome_note)}</p>` : "");
+  return `<article><strong>${escapeHtml(formatCrmDate(item.created_at))} · ${escapeHtml(title)}</strong>${item.body ? `<p>${escapeHtml(item.body)}</p>` : ""}${outcomeForm}</article>`;
+}
+
+function crmMetadata(value) {
+  if (!value) return {};
+  if (typeof value === "object") return value;
+  try { return JSON.parse(value); } catch { return {}; }
+}
+
+function crmContactActionTitle(item, metadata) {
+  const labels = { email_sent: "Отправлено email-сообщение", call_opened: "Открыт звонок по телефону", whatsapp_draft_opened: "Открыт черновик WhatsApp" };
+  const outcome = { sent_placed: " · связь состоялась", no_answer: " · нет ответа", follow_up_needed: " · нужен повторный контакт", not_sent: " · не отправлено" };
+  return `${labels[metadata.action] || "Контакт с клиентом"}${outcome[metadata.status] || ""}`;
+}
+
+function crmConversationSessions(messages) {
+  const gap = 45 * 60 * 1000;
+  const ordered = [...messages].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  const sessions = [];
+  ordered.forEach((message) => {
+    const previous = sessions.at(-1);
+    if (!previous || new Date(message.created_at) - new Date(previous.messages.at(-1).created_at) > gap) sessions.push({ messages: [message] });
+    else previous.messages.push(message);
+  });
+  return sessions.reverse().map((session) => ({ ...session, label: `Диалог с Мирой · ${formatCrmDate(session.messages[0].created_at)}` }));
+}
+
+function crmMessageCountLabel(count) { return count === 1 ? "сообщение" : count < 5 ? "сообщения" : "сообщений"; }
+
+function crmMessageHtml(value) {
+  return escapeHtml(value || "")
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/^###\s+(.+)$/gm, "<h4>$1</h4>")
+    .replace(/\n{2,}/g, "</p><p>")
+    .replace(/\n/g, "<br>")
+    .replace(/^(.*)$/s, "<p>$1</p>");
 }
 
 function crmStageOptions(current) {

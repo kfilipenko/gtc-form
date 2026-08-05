@@ -5,6 +5,7 @@ import type { LeadCreationResult, PublicLeadSubmission } from '../public-leads/t
 export interface LeadEmailNotificationSender {
   sendLeadCreated(submission: PublicLeadSubmission, result: LeadCreationResult): Promise<void>;
   sendAiPurchaseIntent(input: AiPurchaseIntentNotification): Promise<void>;
+  sendCustomerContactEmail(input: CustomerContactEmail): Promise<{ messageId?: string }>;
 }
 
 export interface AiPurchaseIntentNotification {
@@ -15,6 +16,13 @@ export interface AiPurchaseIntentNotification {
   question: string;
   answer: string;
   referralRegistrationUrl: string;
+}
+
+export interface CustomerContactEmail {
+  recipientName: string;
+  recipientEmail: string;
+  subject: string;
+  body: string;
 }
 
 export function createLeadEmailNotificationSender(config: TravelGtcConfig): LeadEmailNotificationSender {
@@ -37,6 +45,10 @@ class DisabledLeadEmailNotificationSender implements LeadEmailNotificationSender
 
   async sendAiPurchaseIntent(): Promise<void> {
     return undefined;
+  }
+
+  async sendCustomerContactEmail(): Promise<{ messageId?: string }> {
+    throw new Error('CRM email sending is not configured.');
   }
 }
 
@@ -83,6 +95,19 @@ class SmtpLeadEmailNotificationSender implements LeadEmailNotificationSender {
       text: buildPurchaseIntentText(input),
       html: buildPurchaseIntentHtml(input),
     });
+  }
+
+  async sendCustomerContactEmail(input: CustomerContactEmail): Promise<{ messageId?: string }> {
+    const result = await this.transporter.sendMail({
+      from: this.config.leadNotificationFrom,
+      envelope: { from: this.config.smtpUser, to: input.recipientEmail },
+      sender: this.config.smtpUser,
+      to: input.recipientEmail,
+      subject: input.subject,
+      text: input.body,
+      html: `<p>${escapeHtml(input.body).replace(/\n/g, '<br>')}</p>`,
+    });
+    return { messageId: result.messageId };
   }
 }
 

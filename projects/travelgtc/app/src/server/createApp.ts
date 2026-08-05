@@ -461,9 +461,10 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
           [contactId],
         ),
         crmPool.query(
-          `select i.created_at::text, i.lead_id::text, i.interaction_type, i.channel, i.direction, i.body
+          `select i.id::text as interaction_id, i.created_at::text, i.lead_id::text, i.interaction_type, i.channel, i.direction, i.body, i.metadata_json
            from travelgtc_interactions i
            where i.contact_id = $1::uuid
+             and i.interaction_type <> 'ai_chat'
            order by i.created_at desc
            limit 100`,
           [contactId],
@@ -497,6 +498,88 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
         audit: audit.rows,
         roles: roles.rows,
       });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
+  });
+
+  app.get('/api/travelgtc/v1/crm/customers/:contactId/conversations', async (request, reply) => {
+    try {
+      await requireCrmTeamMember(request, config, authStore);
+      if (!crmPool) return reply.send({ ok: true, messages: [] });
+      const contactId = crmContactIdParam(request.params);
+      const result = await crmPool.query(
+        `select i.id::text as interaction_id, i.created_at::text, i.direction, i.body, i.metadata_json
+         from travelgtc_interactions i
+         where i.contact_id = $1::uuid and i.interaction_type = 'ai_chat'
+         order by i.created_at asc
+         limit 300`,
+        [contactId],
+      );
+      return reply.send({ ok: true, messages: result.rows });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
+  });
+
+  app.post('/api/travelgtc/v1/crm/customers/:contactId/contact-actions/email', async (request, reply) => {
+    try {
+      const session = await requireCrmTeamMember(request, config, authStore);
+      if (!crmPool) return reply.code(503).send({ ok: false, error: { code: 'crm_unavailable', message: 'CRM unavailable.' } });
+      const contactId = crmContactIdParam(request.params);
+      const input = crmEmailFromBody(request.body);
+      const customer = await crmContactForAction(crmPool, contactId);
+      if (!customer.email) throw new AuthValidationError({ email: 'Customer does not have an email address.' });
+      const senderResult = await leadEmailNotifications.sendCustomerContactEmail({
+        recipientName: customer.display_name || 'Клиент TravelGTC', recipientEmail: customer.email, subject: input.subject, body: input.body,
+      });
+      const interaction = await crmLogContactAction(crmPool, {
+        contactId, actorUserId: session.user.userId, channel: 'email', direction: 'outbound', body: input.body,
+        metadata: { action: 'email_sent', subject: input.subject, message_id: senderResult.messageId || null },
+      });
+      return reply.code(201).send({ ok: true, interaction, message: 'email_sent' });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
+  });
+
+  app.post('/api/travelgtc/v1/crm/customers/:contactId/contact-actions/external', async (request, reply) => {
+    try {
+      const session = await requireCrmTeamMember(request, config, authStore);
+      if (!crmPool) return reply.code(503).send({ ok: false, error: { code: 'crm_unavailable', message: 'CRM unavailable.' } });
+      const contactId = crmContactIdParam(request.params);
+      const input = crmExternalContactFromBody(request.body);
+      const customer = await crmContactForAction(crmPool, contactId);
+      if (!customer.phone) throw new AuthValidationError({ phone: 'Customer does not have a phone number.' });
+      const phone = crmPhoneForLink(customer.phone);
+      if (!phone) throw new AuthValidationError({ phone: 'Customer phone is invalid.' });
+      const href = input.channel === 'phone' ? `tel:+${phone}` : `https://wa.me/${phone}?text=${encodeURIComponent(input.message)}`;
+      const interaction = await crmLogContactAction(crmPool, {
+        contactId, actorUserId: session.user.userId, channel: input.channel, direction: 'outbound', body: input.message || null,
+        metadata: { action: input.channel === 'phone' ? 'call_opened' : 'whatsapp_draft_opened', status: 'follow_up_needed' },
+      });
+      return reply.code(201).send({ ok: true, interaction, href });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
+  });
+
+  app.post('/api/travelgtc/v1/crm/contact-actions/:actionId/outcome', async (request, reply) => {
+    try {
+      const session = await requireCrmTeamMember(request, config, authStore);
+      if (!crmPool) return reply.code(503).send({ ok: false, error: { code: 'crm_unavailable', message: 'CRM unavailable.' } });
+      const actionId = crmInteractionIdParam(request.params);
+      const outcome = crmContactOutcomeFromBody(request.body);
+      const result = await crmPool.query(
+        `update travelgtc_interactions
+         set metadata_json = coalesce(metadata_json, '{}'::jsonb) || jsonb_build_object('status', $2, 'outcome_note', $3, 'outcome_at', now()::text),
+             updated_at = now(), updated_by = $4
+         where id = $1::uuid and interaction_type = 'contact_action'
+         returning id::text as interaction_id, created_at::text, channel, metadata_json`,
+        [actionId, outcome.status, outcome.note || null, `team:${session.user.userId}`],
+      );
+      if (!result.rowCount) return reply.code(404).send({ ok: false, error: { code: 'not_found', message: 'Contact action not found.' } });
+      return reply.send({ ok: true, action: result.rows[0] });
     } catch (error) {
       return sendCrmError(error, request, reply);
     }
@@ -1394,6 +1477,13 @@ function crmContactIdParam(params: unknown): string {
   return contactId;
 }
 
+function crmInteractionIdParam(params: unknown): string {
+  const raw = params && typeof params === 'object' ? (params as Record<string, unknown>).actionId : undefined;
+  const actionId = typeof raw === 'string' ? raw.trim() : '';
+  if (!isUuid(actionId)) throw new AuthValidationError({ action_id: 'Invalid contact action id.' });
+  return actionId;
+}
+
 function crmCustomerSearchParam(query: unknown): string {
   const raw = query && typeof query === 'object' ? (query as Record<string, unknown>).q : undefined;
   const search = typeof raw === 'string' ? raw.trim() : '';
@@ -1446,6 +1536,66 @@ function crmNoteFromBody(body: unknown): string {
     throw new AuthValidationError({ note: 'Note must be between 2 and 2000 characters.' });
   }
   return note;
+}
+
+function crmEmailFromBody(body: unknown): { subject: string; body: string } {
+  const input = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
+  const subject = typeof input.subject === 'string' ? input.subject.trim() : '';
+  const message = typeof input.body === 'string' ? input.body.trim() : '';
+  if (subject.length < 2 || subject.length > 180) throw new AuthValidationError({ subject: 'Email subject must be between 2 and 180 characters.' });
+  if (message.length < 2 || message.length > 5000) throw new AuthValidationError({ body: 'Email message must be between 2 and 5000 characters.' });
+  return { subject, body: message };
+}
+
+function crmExternalContactFromBody(body: unknown): { channel: 'phone' | 'whatsapp'; message: string } {
+  const input = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
+  const channel = input.channel === 'phone' || input.channel === 'whatsapp' ? input.channel : null;
+  const message = typeof input.message === 'string' ? input.message.trim() : '';
+  if (!channel) throw new AuthValidationError({ channel: 'Unsupported contact channel.' });
+  if (message.length > 1200) throw new AuthValidationError({ message: 'Message is too long.' });
+  return { channel, message };
+}
+
+function crmContactOutcomeFromBody(body: unknown): { status: string; note: string } {
+  const input = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
+  const status = typeof input.status === 'string' ? input.status.trim() : '';
+  const note = typeof input.note === 'string' ? input.note.trim() : '';
+  if (!['sent_placed', 'no_answer', 'follow_up_needed', 'not_sent'].includes(status)) throw new AuthValidationError({ status: 'Unsupported contact outcome.' });
+  if (note.length > 2000) throw new AuthValidationError({ note: 'Outcome note is too long.' });
+  return { status, note };
+}
+
+async function crmContactForAction(pool: pg.Pool, contactId: string): Promise<{ display_name: string | null; email: string | null; phone: string | null }> {
+  const result = await pool.query<{ display_name: string | null; email: string | null; phone: string | null }>(
+    `select c.display_name, coalesce(u.email, c.email) as email, coalesce(u.phone, c.phone) as phone
+     from travelgtc_contacts c left join travelgtc_identity.users u on u.user_id = c.user_id
+     where c.id = $1::uuid limit 1`, [contactId],
+  );
+  const customer = result.rows[0];
+  if (!customer) throw new AuthValidationError({ contact_id: 'Customer not found.' });
+  return customer;
+}
+
+async function crmLogContactAction(
+  pool: pg.Pool,
+  input: { contactId: string; actorUserId: string; channel: string; direction: 'outbound'; body: string | null; metadata: Record<string, unknown> },
+): Promise<unknown> {
+  const lead = await pool.query<{ lead_id: string }>(
+    `select id::text as lead_id from travelgtc_leads where contact_id = $1::uuid order by created_at desc limit 1`, [input.contactId],
+  );
+  if (!lead.rows[0]) throw new AuthValidationError({ contact_id: 'Customer does not have a CRM lead.' });
+  const result = await pool.query(
+    `insert into travelgtc_interactions (
+       lead_id, contact_id, actor_user_id, interaction_type, channel, direction, body, human_approved, metadata_json, created_by, updated_by
+     ) values ($1::uuid,$2::uuid,$3::uuid,'contact_action',$4,$5,$6,true,$7,$8,$8)
+     returning id::text as interaction_id, created_at::text, interaction_type, channel, direction, body, metadata_json`,
+    [lead.rows[0].lead_id, input.contactId, input.actorUserId, input.channel, input.direction, input.body, JSON.stringify(input.metadata), `team:${input.actorUserId}`],
+  );
+  return result.rows[0];
+}
+
+function crmPhoneForLink(value: string): string {
+  return value.replace(/\D/g, '').replace(/^00/, '');
 }
 
 function sendCrmError(error: unknown, request: FastifyRequest, reply: FastifyReply) {

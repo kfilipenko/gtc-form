@@ -1600,6 +1600,18 @@ h3 {
   margin: 0 0 10px;
 }
 
+.crm-contact-actions {
+  border: 1px solid rgba(0, 199, 217, 0.18);
+  border-radius: 14px;
+  padding: 14px;
+  background: linear-gradient(135deg, rgba(0, 199, 217, 0.05), #fbfdff 45%);
+}
+
+.crm-contact-hint { margin: 0 0 10px; color: var(--muted); }
+.crm-contact-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.crm-email-form { display: grid; gap: 9px; margin-top: 12px; }
+.crm-email-form label { display: grid; gap: 5px; font-weight: 800; }
+
 .crm-customer-leads,
 .crm-customer-tasks {
   display: grid;
@@ -1679,6 +1691,28 @@ h3 {
 .crm-history article p {
   margin-bottom: 0;
 }
+
+.crm-contact-outcome {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.8fr) minmax(180px, 1.6fr) auto;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.crm-outcome-note { color: var(--muted); font-style: italic; }
+
+.crm-conversations { display: grid; gap: 10px; }
+.crm-conversation { border: 1px solid rgba(0, 199, 217, 0.2); border-radius: 12px; background: #fbfdff; overflow: hidden; }
+.crm-conversation summary { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; cursor: pointer; font-weight: 900; }
+.crm-conversation summary span { color: var(--muted); font-size: 0.78rem; font-weight: 700; }
+.crm-conversation-messages { display: grid; gap: 9px; padding: 0 12px 12px; }
+.crm-message { max-width: 88%; padding: 11px 12px; border-radius: 12px; overflow-wrap: anywhere; }
+.crm-message.from-customer { justify-self: end; background: rgba(163, 230, 53, 0.28); }
+.crm-message.from-mira { justify-self: start; background: #fff; border: 1px solid rgba(0, 199, 217, 0.13); }
+.crm-message > strong { display: block; margin-bottom: 6px; color: var(--muted); font-size: 0.75rem; }
+.crm-message p { margin: 0; line-height: 1.55; }
+.crm-message p + p { margin-top: 8px; }
+.crm-message h4 { margin: 10px 0 6px; font-size: 0.95rem; }
 
 .crm-empty {
   padding: 16px;
@@ -4451,6 +4485,10 @@ button:disabled {
   .crm-layout,
   .crm-detail-grid,
   .crm-customer-profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .crm-contact-outcome {
     grid-template-columns: 1fr;
   }
 
