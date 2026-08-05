@@ -50,7 +50,6 @@ initLeadForms();
 initPrototypeForms();
 initFormatButtons();
 initRoleButtons();
-initProtectedContacts();
 initAiConsultant();
 initCrmPage();
 
@@ -162,40 +161,6 @@ function initRoleButtons() {
         input.value = button.dataset.roleOption || "unsure";
       }
     });
-  });
-}
-
-function initProtectedContacts() {
-  document.querySelectorAll("[data-protected-email]").forEach((link) => {
-    const user = link.dataset.emailUser || "";
-    const domain = link.dataset.emailDomain || "";
-    const tld = link.dataset.emailTld || "";
-    if (!user || !domain || !tld) {
-      return;
-    }
-
-    const address = `${user}@${domain}.${tld}`;
-    link.setAttribute("href", `mailto:${address}`);
-    link.textContent = address;
-  });
-
-  document.querySelectorAll("[data-protected-phone]").forEach((link) => {
-    const parts = [
-      link.dataset.phoneCountry,
-      link.dataset.phoneCode,
-      link.dataset.phonePartOne,
-      link.dataset.phonePartTwo,
-      link.dataset.phonePartThree,
-    ].filter(Boolean);
-
-    if (parts.length < 5) {
-      return;
-    }
-
-    const label = `${parts[0]} ${parts[1]} ${parts[2]}-${parts[3]}-${parts[4]}`;
-    const href = `tel:${parts.join("").replace(/[^\d+]/g, "")}`;
-    link.setAttribute("href", href);
-    link.textContent = label;
   });
 }
 
