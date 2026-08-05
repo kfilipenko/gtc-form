@@ -368,6 +368,232 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
     }
   });
 
+  app.get('/api/travelgtc/v1/crm/customers', async (request, reply) => {
+    try {
+      await requireCrmTeamMember(request, config, authStore);
+      if (!crmPool) {
+        return reply.send({ ok: true, customers: [] });
+      }
+
+      const search = crmCustomerSearchParam(request.query);
+      const result = await crmPool.query(
+        `select c.id::text as contact_id, c.display_name, coalesce(u.email, c.email) as email,
+                coalesce(u.phone, c.phone) as phone, coalesce(u.primary_channel, c.primary_channel) as primary_channel,
+                coalesce(p.relationship_status, 'new') as relationship_status, p.assigned_to,
+                coalesce(p.updated_at, c.updated_at)::text as updated_at,
+                count(l.id)::int as lead_count, max(l.created_at)::text as last_lead_at
+         from travelgtc_contacts c
+         left join travelgtc_identity.users u on u.user_id = c.user_id
+         left join travelgtc_customer_profiles p on p.contact_id = c.id
+         left join travelgtc_leads l on l.contact_id = c.id
+         where $1 = ''
+            or c.display_name ilike '%' || $1 || '%'
+            or coalesce(u.email, c.email, '') ilike '%' || $1 || '%'
+            or coalesce(u.phone, c.phone, '') ilike '%' || $1 || '%'
+         group by c.id, c.display_name, c.email, c.phone, c.primary_channel, u.email, u.phone, u.primary_channel,
+                  p.relationship_status, p.assigned_to, p.updated_at, c.updated_at
+         order by max(l.created_at) desc nulls last, coalesce(p.updated_at, c.updated_at) desc
+         limit 100`,
+        [search],
+      );
+
+      return reply.send({ ok: true, customers: result.rows });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
+  });
+
+  app.get('/api/travelgtc/v1/crm/customers/:contactId', async (request, reply) => {
+    try {
+      await requireCrmTeamMember(request, config, authStore);
+      if (!crmPool) {
+        return reply.code(404).send({ ok: false, error: { code: 'not_found', message: 'Customer not found.' } });
+      }
+
+      const contactId = crmContactIdParam(request.params);
+      const customerResult = await crmPool.query(
+        `select c.id::text as contact_id, c.user_id::text as user_id, c.display_name, c.email as contact_email,
+                c.phone as contact_phone, c.primary_channel as contact_primary_channel, c.created_at::text as contact_created_at,
+                u.email as registration_email, u.phone as registration_phone, u.primary_channel as registration_primary_channel,
+                u.account_status, u.email_verified_at::text, u.created_at::text as registered_at,
+                coalesce(p.relationship_status, 'new') as relationship_status, p.assigned_to,
+                coalesce(p.updated_at, c.updated_at)::text as profile_updated_at
+         from travelgtc_contacts c
+         left join travelgtc_identity.users u on u.user_id = c.user_id
+         left join travelgtc_customer_profiles p on p.contact_id = c.id
+         where c.id = $1::uuid
+         limit 1`,
+        [contactId],
+      );
+      const customer = customerResult.rows[0];
+      if (!customer) {
+        return reply.code(404).send({ ok: false, error: { code: 'not_found', message: 'Customer not found.' } });
+      }
+
+      const [leads, tasks, notes, interactions, audit, roles] = await Promise.all([
+        crmPool.query(
+          `select l.id::text as lead_id, l.created_at::text, l.updated_at::text, l.stage, l.primary_interest,
+                  l.declared_role, l.source_path, l.recommended_next_step, l.summary,
+                  count(t.id) filter (where t.status = 'open')::int as open_task_count
+           from travelgtc_leads l
+           left join travelgtc_tasks t on t.lead_id = l.id
+           where l.contact_id = $1::uuid
+           group by l.id
+           order by l.created_at desc`,
+          [contactId],
+        ),
+        crmPool.query(
+          `select t.id::text as task_id, t.created_at::text, t.status, t.priority, t.title, t.description,
+                  t.assigned_to, l.id::text as lead_id
+           from travelgtc_tasks t
+           join travelgtc_leads l on l.id = t.lead_id
+           where l.contact_id = $1::uuid and t.status = 'open'
+           order by t.priority desc, t.created_at desc
+           limit 50`,
+          [contactId],
+        ),
+        crmPool.query(
+          `select n.id::text as note_id, n.created_at::text, n.body, n.created_by
+           from travelgtc_customer_notes n
+           where n.contact_id = $1::uuid
+           order by n.created_at desc
+           limit 100`,
+          [contactId],
+        ),
+        crmPool.query(
+          `select i.created_at::text, i.lead_id::text, i.interaction_type, i.channel, i.direction, i.body
+           from travelgtc_interactions i
+           where i.contact_id = $1::uuid
+           order by i.created_at desc
+           limit 100`,
+          [contactId],
+        ),
+        crmPool.query(
+          `select created_at::text, action, after_json
+           from travelgtc_audit_log
+           where entity_type = 'customer_profile' and entity_id = $1::uuid
+           order by created_at desc
+           limit 50`,
+          [contactId],
+        ),
+        customer.user_id
+          ? crmPool.query(
+              `select role_code, source, created_at::text
+               from travelgtc_identity.user_project_roles
+               where user_id = $1::uuid and project_code = 'travelgtc' and is_active = true
+               order by role_code`,
+              [customer.user_id],
+            )
+          : Promise.resolve({ rows: [] as unknown[] }),
+      ]);
+
+      return reply.send({
+        ok: true,
+        customer,
+        leads: leads.rows,
+        tasks: tasks.rows,
+        notes: notes.rows,
+        interactions: interactions.rows,
+        audit: audit.rows,
+        roles: roles.rows,
+      });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
+  });
+
+  app.patch('/api/travelgtc/v1/crm/customers/:contactId', async (request, reply) => {
+    try {
+      const session = await requireCrmTeamMember(request, config, authStore);
+      if (!crmPool) {
+        return reply.code(404).send({ ok: false, error: { code: 'not_found', message: 'Customer not found.' } });
+      }
+
+      const contactId = crmContactIdParam(request.params);
+      const update = crmCustomerUpdateFromBody(request.body);
+      const customer = await crmPool.query('select id from travelgtc_contacts where id = $1::uuid limit 1', [contactId]);
+      if (!customer.rowCount) {
+        return reply.code(404).send({ ok: false, error: { code: 'not_found', message: 'Customer not found.' } });
+      }
+      const existing = await crmPool.query(
+        `select relationship_status, assigned_to
+         from travelgtc_customer_profiles where contact_id = $1::uuid`,
+        [contactId],
+      );
+      const result = await crmPool.query(
+        `insert into travelgtc_customer_profiles (
+           contact_id, relationship_status, assigned_to, created_by, updated_by
+         ) values ($1::uuid, $2, $3, $4, $4)
+         on conflict (contact_id) do update
+         set relationship_status = excluded.relationship_status,
+             assigned_to = excluded.assigned_to,
+             updated_at = now(),
+             updated_by = excluded.updated_by
+         returning contact_id::text, relationship_status, assigned_to, updated_at::text`,
+        [contactId, update.relationshipStatus, update.assignedTo, `team:${session.user.userId}`],
+      );
+      if (!result.rowCount) {
+        return reply.code(404).send({ ok: false, error: { code: 'not_found', message: 'Customer not found.' } });
+      }
+      await crmPool.query(
+        `insert into travelgtc_audit_log (
+           entity_type, entity_id, action, actor_type, actor_id, before_json, after_json, created_by, updated_by, actor_user_id
+         ) values ('customer_profile', $1::uuid, 'customer_profile_updated', 'team', $2, $3, $4, $5, $5, $6::uuid)`,
+        [
+          contactId,
+          session.user.userId,
+          JSON.stringify(existing.rows[0] || {}),
+          JSON.stringify(result.rows[0]),
+          `team:${session.user.userId}`,
+          session.user.userId,
+        ],
+      );
+
+      return reply.send({ ok: true, customer_profile: result.rows[0] });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
+  });
+
+  app.post('/api/travelgtc/v1/crm/customers/:contactId/notes', async (request, reply) => {
+    try {
+      const session = await requireCrmTeamMember(request, config, authStore);
+      if (!crmPool) {
+        return reply.code(404).send({ ok: false, error: { code: 'not_found', message: 'Customer not found.' } });
+      }
+
+      const contactId = crmContactIdParam(request.params);
+      const note = crmNoteFromBody(request.body);
+      const customer = await crmPool.query('select id from travelgtc_contacts where id = $1::uuid limit 1', [contactId]);
+      if (!customer.rowCount) {
+        return reply.code(404).send({ ok: false, error: { code: 'not_found', message: 'Customer not found.' } });
+      }
+      const created = await crmPool.query(
+        `insert into travelgtc_customer_notes (
+           contact_id, actor_user_id, body, created_by, updated_by
+         ) values ($1::uuid, $2::uuid, $3, $4, $4)
+         returning id::text as note_id, created_at::text, body, created_by`,
+        [contactId, session.user.userId, note, `team:${session.user.userId}`],
+      );
+      await crmPool.query(
+        `insert into travelgtc_audit_log (
+           entity_type, entity_id, action, actor_type, actor_id, after_json, created_by, updated_by, actor_user_id
+         ) values ('customer_profile', $1::uuid, 'customer_note_added', 'team', $2, $3, $4, $4, $5::uuid)`,
+        [
+          contactId,
+          session.user.userId,
+          JSON.stringify({ note_id: created.rows[0].note_id }),
+          `team:${session.user.userId}`,
+          session.user.userId,
+        ],
+      );
+
+      return reply.code(201).send({ ok: true, note: created.rows[0] });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
+  });
+
   app.patch('/api/travelgtc/v1/crm/leads/:leadId', async (request, reply) => {
     try {
       const session = await requireCrmTeamMember(request, config, authStore);
@@ -1157,6 +1383,42 @@ function crmLeadIdParam(params: unknown): string {
     throw new AuthValidationError({ lead_id: 'Invalid lead id.' });
   }
   return leadId;
+}
+
+function crmContactIdParam(params: unknown): string {
+  const raw = params && typeof params === 'object' ? (params as Record<string, unknown>).contactId : undefined;
+  const contactId = typeof raw === 'string' ? raw.trim() : '';
+  if (!isUuid(contactId)) {
+    throw new AuthValidationError({ contact_id: 'Invalid contact id.' });
+  }
+  return contactId;
+}
+
+function crmCustomerSearchParam(query: unknown): string {
+  const raw = query && typeof query === 'object' ? (query as Record<string, unknown>).q : undefined;
+  const search = typeof raw === 'string' ? raw.trim() : '';
+  if (search.length > 120) {
+    throw new AuthValidationError({ q: 'Search query is too long.' });
+  }
+  return search;
+}
+
+function crmCustomerUpdateFromBody(body: unknown): { relationshipStatus: string; assignedTo: string | null } {
+  const input = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
+  const relationshipStatus = typeof input.relationship_status === 'string' ? input.relationship_status.trim() : '';
+  const assignedToRaw = typeof input.assigned_to === 'string' ? input.assigned_to.trim() : '';
+  const allowed = ['new', 'active', 'waiting_for_customer', 'consultation', 'official_step', 'closed'];
+  if (!allowed.includes(relationshipStatus)) {
+    throw new AuthValidationError({ relationship_status: 'Invalid customer relationship status.' });
+  }
+  if (assignedToRaw.length > 160) {
+    throw new AuthValidationError({ assigned_to: 'Assignee is too long.' });
+  }
+  return { relationshipStatus, assignedTo: assignedToRaw || null };
+}
+
+function isUuid(value: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 
 function crmStageFromBody(body: unknown): string {

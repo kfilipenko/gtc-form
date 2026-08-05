@@ -76,6 +76,7 @@ routes=(
   /events/
   /about/
   /mira/
+  /crm/customers/
 )
 
 for route in "${routes[@]}"; do
@@ -86,7 +87,7 @@ for route in "${routes[@]}"; do
   fi
 done
 
-grep -F "Travel Advantage" /tmp/travelgtc-live-smoke.out >/dev/null || {
+grep -Eq "Travel Advantage|TravelGTC CRM" /tmp/travelgtc-live-smoke.out || {
   echo "Smoke marker not found in last checked route output." >&2
   exit 1
 }

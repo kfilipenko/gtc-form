@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 6.8
+- Version: 6.9
 - Date: 2026-08-05
-- Status: Active, registered-first Mira funnel, private contact protection and owner CRM access published
+- Status: Active, registered-first Mira funnel, private contact protection and customer-centric CRM published
 
 ## 1. Current State
 
@@ -84,7 +84,7 @@ The live HTTPS API proxy is active at /api/travelgtc/.
 The live API service is travelgtc-api.service on 127.0.0.1:4301.
 ```
 
-Public pages do not expose the project owner's email address or telephone number. Use `/mira/` as the public contact route. The account `kfilipenko@kmf.ru` has active TravelGTC `team` and `admin` roles; the authenticated UI exposes `/crm/` only after the server confirms one of these roles. Mira registration/subscription intent is persisted in CRM and uses the existing private SMTP recipient configured outside git.
+Public pages do not expose the project owner's email address or telephone number. Use `/mira/` as the public contact route. The account `kfilipenko@kmf.ru` has active TravelGTC `team` and `admin` roles; the authenticated UI exposes `/crm/` only after the server confirms one of these roles. `/crm/customers/` is the internal customer workspace: it groups complete TravelGTC registration contact data, customer-level relationship status, all associated leads, open tasks, Mira interactions, internal notes and audit history. Customer data is protected by the same server-side `team`/`admin` check; it must never be exposed on public routes or shared with another GTC project. Mira registration/subscription intent is persisted in CRM and uses the existing private SMTP recipient configured outside git.
 
 Generated production image asset state:
 
@@ -393,7 +393,7 @@ Implemented after approval on 2026-07-28:
 
 Recommended next steps:
 
-1. start `TRAVELGTC-CRM-001 - Lead Board And Lead Detail MVP`;
+1. use `/crm/customers/` as the working customer view during lead follow-up;
 2. before public launch announcement, clear disposable test users/leads or document retained test data;
 3. add `TRAVELGTC-DATA-001 - Test Data Cleanup And Database Backup Policy`;
 4. decide official privacy contact email and retention period;
@@ -402,6 +402,7 @@ Recommended next steps:
 ## 4. Revision History
 
 | Version | Date | Author | Changes |
+| 6.9 | 2026-08-05 | GTC IT / AI Assistant | Published CRM-005 customer cards, customer-level status/notes and protected customer workspace |
 | 6.7 | 2026-07-30 | GTC IT / AI Assistant | Published WEB-046 account-first Mira funnel, CRM scenario context and Azure Mira version 17 |
 |---|---|---|---|
 | 6.6 | 2026-07-29 | GTC IT / AI Assistant | Recorded Mira Azure version 16, colleague sales playbook, interrupted-dialogue behavior and post-document next-step guard |

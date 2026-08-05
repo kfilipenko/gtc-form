@@ -53,6 +53,7 @@ initFormatButtons();
 initRoleButtons();
 initAiConsultant();
 initCrmPage();
+initCrmCustomersPage();
 
 function initAuthState() {
   decorateAuthLinks();
@@ -1535,7 +1536,7 @@ function initCrmPage() {
   const detail = page.querySelector("[data-crm-detail]");
   const empty = page.querySelector("[data-crm-detail-empty]");
   const refreshButton = page.querySelector("[data-crm-refresh]");
-  let selectedLeadId = null;
+  let selectedLeadId = new URLSearchParams(window.location.search).get("lead");
 
   refreshButton?.addEventListener("click", () => loadCrmLeads());
   loadCrmLeads();
@@ -1546,7 +1547,11 @@ function initCrmPage() {
       const body = await requestApi("/api/travelgtc/v1/crm/leads", { method: "GET" });
       if (workspace) workspace.hidden = false;
       renderCrmLeadList(list, body.leads || [], selectedLeadId, openLead);
-      setCrmStatus(status, `Загружено заявок: ${(body.leads || []).length}`, "success");
+      if (selectedLeadId && (body.leads || []).some((lead) => lead.lead_id === selectedLeadId)) {
+        await openLead(selectedLeadId);
+      } else {
+        setCrmStatus(status, `Загружено заявок: ${(body.leads || []).length}`, "success");
+      }
     } catch (error) {
       if (workspace) workspace.hidden = true;
       const message =
@@ -1568,6 +1573,7 @@ function initCrmPage() {
         renderCrmLeadDetail(detail, body.lead, body.interactions || [], {
           onStageChange: updateLeadStage,
           onNoteSubmit: addLeadNote,
+          onOpenCustomer: openCustomer,
         });
       }
       list?.querySelectorAll("[data-crm-lead]").forEach((button) => {
@@ -1594,6 +1600,11 @@ function initCrmPage() {
       body: JSON.stringify({ note }),
     });
     await openLead(leadId);
+  }
+
+  function openCustomer(contactId) {
+    if (!contactId) return;
+    window.location.assign(`/crm/customers/?id=${encodeURIComponent(contactId)}`);
   }
 }
 
@@ -1641,6 +1652,7 @@ function renderCrmLeadDetail(container, lead, interactions, actions) {
       <article><strong>Интерес</strong><span>${escapeHtml(crmInterestLabel(lead.primary_interest))}</span></article>
       <article><strong>Роль</strong><span>${escapeHtml(lead.declared_role || "")}</span></article>
     </div>
+    <button class="button ghost small crm-customer-open" type="button" data-crm-open-customer>Открыть карточку клиента</button>
     <div class="crm-request">
       <h3>Запрос</h3>
       <p>${escapeHtml(lead.travel_description || lead.summary || "Нет текста запроса.")}</p>
@@ -1684,6 +1696,214 @@ function renderCrmLeadDetail(container, lead, interactions, actions) {
     if (!note) return;
     await actions.onNoteSubmit(lead.lead_id, note);
   });
+
+  container.querySelector("[data-crm-open-customer]")?.addEventListener("click", () => {
+    actions.onOpenCustomer?.(lead.contact_id);
+  });
+}
+
+function initCrmCustomersPage() {
+  const page = document.querySelector("[data-crm-customers-page]");
+  if (!page) return;
+
+  const status = page.querySelector("[data-crm-customers-status]");
+  const workspace = page.querySelector("[data-crm-customers-workspace]");
+  const list = page.querySelector("[data-crm-customers]");
+  const detail = page.querySelector("[data-crm-customer-detail]");
+  const empty = page.querySelector("[data-crm-customer-empty]");
+  const refreshButton = page.querySelector("[data-crm-customers-refresh]");
+  const searchField = page.querySelector("[data-crm-customer-search]");
+  const requestedCustomerId = new URLSearchParams(window.location.search).get("id");
+  let selectedCustomerId = requestedCustomerId;
+  let searchTimer = null;
+
+  refreshButton?.addEventListener("click", () => loadCustomers());
+  searchField?.addEventListener("input", () => {
+    window.clearTimeout(searchTimer);
+    searchTimer = window.setTimeout(() => loadCustomers(), 220);
+  });
+  loadCustomers();
+
+  async function loadCustomers() {
+    setCrmStatus(status, "Загружаем клиентов...", "pending");
+    try {
+      const search = searchField?.value.trim() || "";
+      const body = await requestApi(`/api/travelgtc/v1/crm/customers?q=${encodeURIComponent(search)}`, { method: "GET" });
+      if (workspace) workspace.hidden = false;
+      renderCrmCustomerList(list, body.customers || [], selectedCustomerId, openCustomer);
+      if (selectedCustomerId) {
+        await openCustomer(selectedCustomerId);
+      } else {
+        setCrmStatus(status, `Загружено клиентов: ${(body.customers || []).length}`, "success");
+      }
+    } catch (error) {
+      if (workspace) workspace.hidden = true;
+      const message =
+        error.message && error.message.includes("crm_access_denied")
+          ? "Доступ к CRM требует роли team или admin."
+          : error.message || "Не удалось загрузить клиентов.";
+      setCrmStatus(status, message, "error");
+    }
+  }
+
+  async function openCustomer(contactId) {
+    selectedCustomerId = contactId;
+    setCrmStatus(status, "Открываем карточку клиента...", "pending");
+    try {
+      const body = await requestApi(`/api/travelgtc/v1/crm/customers/${encodeURIComponent(contactId)}`, { method: "GET" });
+      if (empty) empty.hidden = true;
+      if (detail) {
+        detail.hidden = false;
+        renderCrmCustomerDetail(detail, body, {
+          onUpdate: updateCustomer,
+          onNoteSubmit: addCustomerNote,
+          onOpenLead: openLead,
+        });
+      }
+      list?.querySelectorAll("[data-crm-customer]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.crmCustomer === contactId);
+      });
+      const current = new URL(window.location.href);
+      current.searchParams.set("id", contactId);
+      window.history.replaceState({}, "", `${current.pathname}${current.search}`);
+      setCrmStatus(status, "Карточка клиента открыта.", "success");
+    } catch (error) {
+      setCrmStatus(status, error.message || "Не удалось открыть карточку клиента.", "error");
+    }
+  }
+
+  async function updateCustomer(contactId, payload) {
+    await requestApi(`/api/travelgtc/v1/crm/customers/${encodeURIComponent(contactId)}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    });
+    await openCustomer(contactId);
+    await loadCustomers();
+  }
+
+  async function addCustomerNote(contactId, note) {
+    await requestApi(`/api/travelgtc/v1/crm/customers/${encodeURIComponent(contactId)}/notes`, {
+      method: "POST",
+      body: JSON.stringify({ note }),
+    });
+    await openCustomer(contactId);
+  }
+
+  function openLead(leadId) {
+    if (!leadId) return;
+    window.location.assign(`/crm/?lead=${encodeURIComponent(leadId)}`);
+  }
+}
+
+function renderCrmCustomerList(container, customers, selectedCustomerId, onOpen) {
+  if (!container) return;
+  container.innerHTML = "";
+  if (!customers.length) {
+    const empty = document.createElement("p");
+    empty.className = "crm-empty";
+    empty.textContent = "Клиентов по этому запросу пока нет.";
+    container.appendChild(empty);
+    return;
+  }
+  customers.forEach((customer) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "crm-lead-row";
+    button.dataset.crmCustomer = customer.contact_id;
+    button.classList.toggle("active", customer.contact_id === selectedCustomerId);
+    button.innerHTML = `
+      <span><strong>${escapeHtml(customer.display_name || "Без имени")}</strong><small>${escapeHtml(customer.email || customer.phone || "Контакт не указан")}</small></span>
+      <span>${Number(customer.lead_count || 0)} ${crmLeadCountLabel(customer.lead_count)}</span>
+      <span class="crm-stage">${escapeHtml(crmCustomerStatusLabel(customer.relationship_status))}</span>
+    `;
+    button.addEventListener("click", () => onOpen(customer.contact_id));
+    container.appendChild(button);
+  });
+}
+
+function renderCrmCustomerDetail(container, data, actions) {
+  const { customer, leads = [], tasks = [], notes = [], interactions = [], audit = [], roles = [] } = data;
+  const primaryEmail = customer.registration_email || customer.contact_email || "Не указан";
+  const primaryPhone = customer.registration_phone || customer.contact_phone || "Не указан";
+  const timeline = [
+    ...interactions.map((item) => ({ ...item, kind: "interaction", title: crmTimelineLabel(item) })),
+    ...notes.map((item) => ({ ...item, kind: "note", title: "Внутренняя заметка" })),
+    ...audit.map((item) => ({ ...item, kind: "audit", body: crmAuditLabel(item), title: "Изменение карточки" })),
+  ].sort((left, right) => new Date(right.created_at).getTime() - new Date(left.created_at).getTime());
+
+  container.innerHTML = `
+    <div class="crm-detail-head">
+      <div>
+        <p class="eyebrow dark">Клиент</p>
+        <h2>${escapeHtml(customer.display_name || "Без имени")}</h2>
+      </div>
+      <select data-crm-customer-status-select>
+        ${crmCustomerStatusOptions(customer.relationship_status)}
+      </select>
+    </div>
+    <div class="crm-customer-profile-grid">
+      <article><strong>Email</strong><span>${escapeHtml(primaryEmail)}</span></article>
+      <article><strong>Телефон</strong><span>${escapeHtml(primaryPhone)}</span></article>
+      <article><strong>Регистрация</strong><span>${escapeHtml(formatCrmDate(customer.registered_at || customer.contact_created_at))}</span></article>
+      <article><strong>Статус аккаунта</strong><span>${escapeHtml(crmAccountStatusLabel(customer.account_status))}</span></article>
+      <article><strong>Предпочтительный канал</strong><span>${escapeHtml(customer.registration_primary_channel || customer.contact_primary_channel || "Не указан")}</span></article>
+      <article><strong>Роли TravelGTC</strong><span>${escapeHtml(roles.map((role) => role.role_code).join(", ") || "Нет")}</span></article>
+    </div>
+    <form class="crm-assignee-form" data-crm-assignee-form>
+      <label for="crm-customer-assignee">Ответственный</label>
+      <div><input id="crm-customer-assignee" name="assigned_to" maxlength="160" value="${escapeHtml(customer.assigned_to || "")}" placeholder="Например: Константин"><button class="button ghost small" type="submit">Сохранить</button></div>
+    </form>
+    <section class="crm-customer-section">
+      <h3>Заявки клиента</h3>
+      <div class="crm-customer-leads">
+        ${leads.length ? leads.map((lead) => `<button type="button" class="crm-customer-lead" data-crm-customer-lead="${escapeHtml(lead.lead_id)}"><strong>${escapeHtml(crmInterestLabel(lead.primary_interest))}</strong><span>${escapeHtml(crmStageLabel(lead.stage))} · ${escapeHtml(formatCrmDate(lead.created_at))}</span><small>${escapeHtml(lead.summary || lead.recommended_next_step || "Без дополнительного описания")}</small></button>`).join("") : "<p class=\"crm-empty\">Заявок пока нет.</p>"}
+      </div>
+    </section>
+    <section class="crm-customer-section">
+      <h3>Открытые задачи</h3>
+      <div class="crm-customer-tasks">
+        ${tasks.length ? tasks.map((task) => `<article><strong>${escapeHtml(task.title)}</strong><span>${escapeHtml(task.priority || "normal")} · ${escapeHtml(formatCrmDate(task.created_at))}</span>${task.description ? `<p>${escapeHtml(task.description)}</p>` : ""}</article>`).join("") : "<p class=\"crm-empty\">Открытых задач нет.</p>"}
+      </div>
+    </section>
+    <form class="crm-note-form" data-crm-customer-note-form>
+      <label for="crm-customer-note">Внутренняя заметка по клиенту</label>
+      <textarea id="crm-customer-note" name="note" rows="3" required></textarea>
+      <button class="button small" type="submit">Добавить заметку</button>
+    </form>
+    <section class="crm-history">
+      <h3>Общая история</h3>
+      ${timeline.length ? timeline.map((item) => `<article><strong>${escapeHtml(formatCrmDate(item.created_at))} · ${escapeHtml(item.title)}</strong><p>${escapeHtml(item.body || "")}</p></article>`).join("") : "<p class=\"crm-empty\">История пока пуста.</p>"}
+    </section>
+  `;
+
+  const statusSelect = container.querySelector("[data-crm-customer-status-select]");
+  statusSelect?.addEventListener("change", async () => {
+    statusSelect.disabled = true;
+    try {
+      await actions.onUpdate(customer.contact_id, {
+        relationship_status: statusSelect.value,
+        assigned_to: container.querySelector('[name="assigned_to"]')?.value.trim() || "",
+      });
+    } finally {
+      statusSelect.disabled = false;
+    }
+  });
+  container.querySelector("[data-crm-assignee-form]")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    await actions.onUpdate(customer.contact_id, {
+      relationship_status: statusSelect?.value || customer.relationship_status,
+      assigned_to: container.querySelector('[name="assigned_to"]')?.value.trim() || "",
+    });
+  });
+  container.querySelector("[data-crm-customer-note-form]")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const field = container.querySelector('[data-crm-customer-note-form] [name="note"]');
+    const note = field?.value.trim() || "";
+    if (note) await actions.onNoteSubmit(customer.contact_id, note);
+  });
+  container.querySelectorAll("[data-crm-customer-lead]").forEach((button) => {
+    button.addEventListener("click", () => actions.onOpenLead(button.dataset.crmCustomerLead));
+  });
 }
 
 function crmStageOptions(current) {
@@ -1709,6 +1929,63 @@ function crmStageLabel(stage) {
     archived: "Архив",
   };
   return labels[stage] || stage || "";
+}
+
+function crmCustomerStatusOptions(current) {
+  return [
+    ["new", "Новый клиент"],
+    ["active", "В работе"],
+    ["waiting_for_customer", "Ждём клиента"],
+    ["consultation", "Консультация"],
+    ["official_step", "Официальный шаг"],
+    ["closed", "Закрыт"],
+  ]
+    .map(([value, label]) => `<option value="${value}"${value === current ? " selected" : ""}>${label}</option>`)
+    .join("");
+}
+
+function crmCustomerStatusLabel(status) {
+  const labels = {
+    new: "Новый клиент",
+    active: "В работе",
+    waiting_for_customer: "Ждём клиента",
+    consultation: "Консультация",
+    official_step: "Официальный шаг",
+    closed: "Закрыт",
+  };
+  return labels[status] || status || "Новый клиент";
+}
+
+function crmLeadCountLabel(count) {
+  const value = Number(count || 0);
+  if (value % 10 === 1 && value % 100 !== 11) return "заявка";
+  if ([2, 3, 4].includes(value % 10) && ![12, 13, 14].includes(value % 100)) return "заявки";
+  return "заявок";
+}
+
+function crmAccountStatusLabel(status) {
+  const labels = {
+    pending_verification: "Ожидает подтверждения",
+    active: "Активен",
+    suspended: "Приостановлен",
+    closed: "Закрыт",
+  };
+  return labels[status] || "Не связан с аккаунтом";
+}
+
+function crmTimelineLabel(item) {
+  const labels = {
+    ai_chat: "Диалог с Мирой",
+    ai_feedback: "Оценка ответа Миры",
+    note: "Заметка по заявке",
+  };
+  return labels[item.interaction_type] || item.interaction_type || "Действие";
+}
+
+function crmAuditLabel(item) {
+  if (item.action === "customer_profile_updated") return "Обновлены статус отношений или ответственный.";
+  if (item.action === "customer_note_added") return "Добавлена внутренняя заметка.";
+  return item.action || "Изменение карточки.";
 }
 
 function crmInterestLabel(interest) {

@@ -220,6 +220,33 @@ describe('TravelGTC auth API', () => {
     expect(crm.statusCode).toBe(200);
   });
 
+  test('protects customer CRM routes from ordinary authenticated users', async () => {
+    const { app, authStore } = await makeApp();
+    const registration = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/auth/register',
+      payload: registerPayload({ email: 'customer.viewer@example.com' }),
+    });
+    const cookie = setCookieHeader(registration);
+    const denied = await app.inject({
+      method: 'GET',
+      url: '/api/travelgtc/v1/crm/customers',
+      headers: { cookie },
+    });
+    await authStore.ensureProjectRole(registration.json().user.userId, 'travelgtc', 'team', 'test');
+    const allowed = await app.inject({
+      method: 'GET',
+      url: '/api/travelgtc/v1/crm/customers',
+      headers: { cookie },
+    });
+    await app.close();
+
+    expect(denied.statusCode).toBe(403);
+    expect(denied.json().error.code).toBe('crm_access_denied');
+    expect(allowed.statusCode).toBe(200);
+    expect(allowed.json()).toMatchObject({ ok: true, customers: [] });
+  });
+
   test('verifies email with captured test token', async () => {
     const { app } = await makeApp();
     const registration = await app.inject({

@@ -37,6 +37,8 @@ projects/travelgtc/
         inbox/
         processed/
     legal/
+    crm/
+      customers/
   deploy/
     nginx/
     systemd/
@@ -66,6 +68,8 @@ projects/travelgtc/
 /legal/privacy/
 /legal/terms/
 /legal/partner-disclosure/
+/crm/
+/crm/customers/
 ```
 
 ## API Application
@@ -86,6 +90,10 @@ POST /api/travelgtc/v1/auth/login
 POST /api/travelgtc/v1/auth/logout
 GET  /api/travelgtc/v1/auth/me
 POST /api/travelgtc/v1/account/leads
+GET  /api/travelgtc/v1/crm/customers
+GET  /api/travelgtc/v1/crm/customers/:contactId
+PATCH /api/travelgtc/v1/crm/customers/:contactId
+POST /api/travelgtc/v1/crm/customers/:contactId/notes
 ```
 
 By default anonymous public lead capture is disabled. Live test runtime enables authenticated account lead capture:
@@ -108,6 +116,10 @@ npm run test:travelgtc-funnel
 ```
 
 Live API submissions require a running TravelGTC API service and nginx `/api` proxy.
+
+`/crm/` and `/crm/customers/` are internal team/admin workspaces. The API protects
+their data server-side; a public or ordinary authenticated account cannot retrieve
+customer records by changing a URL.
 
 ## Runtime
 
