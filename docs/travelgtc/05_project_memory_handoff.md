@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 7.0
+- Version: 7.1
 - Date: 2026-08-05
-- Status: Active, registered-first Mira funnel, private contact protection and customer-centric CRM with readable conversations and logged contact actions published
+- Status: Test operation: registered-first Mira funnel, private contact protection and customer-centric CRM with readable conversations and logged contact actions published
 
 ## 1. Current State
 

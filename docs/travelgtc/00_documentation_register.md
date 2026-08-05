@@ -4,7 +4,7 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 10.1
+- Version: 10.2
 - Date: 2026-08-05
 - Status: Sales landing published at the root route; Mira is the safe public contact path and the role-gated CRM includes customer cards
 
@@ -24,6 +24,7 @@ The first stage is intentionally small:
 | Document | Title | Purpose | Status |
 |---|---|---|---|
 | `00_documentation_register.md` | TravelGTC - Documentation Register | Project documentation index and fixation point. | Active |
+| `140_travelgtc_test_crm_data_cleanup.md` | TRAVELGTC-OPS-001 - Test CRM Data Cleanup | Records test-data removal and the safe future CRM cleanup utility. | Implemented |
 | `135_travelgtc_crm_004_owner_access_and_mira_contact_report.md` | TRAVELGTC-CRM-004 - Owner CRM Access And Mira Contact Report | Fixes Mira as the safe public contact path, owner CRM access and the registration-intent CRM/email route. | Implemented |
 | `136_travelgtc_crm_005_customer_card_task.md` | TRAVELGTC-CRM-005 - Customer Card And Lead Relationship Workspace | Defines the protected customer-card CRM stage that joins registration profile, leads, CRM activity, tasks and Mira history. | Implemented |
 | `137_travelgtc_crm_005_customer_card_report.md` | TRAVELGTC-CRM-005 - Customer Card And Lead Relationship Workspace Report | Records the customer profile migration, protected API, CRM customer workspace, tests and publication. | Implemented |
