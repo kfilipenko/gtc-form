@@ -112,6 +112,7 @@ describe('TravelGTC auth API', () => {
       ok: true,
       authenticated: false,
       user: null,
+      can_access_crm: false,
     });
   });
 
@@ -184,11 +185,39 @@ describe('TravelGTC auth API', () => {
     expect(me.statusCode).toBe(200);
     expect(me.json()).toMatchObject({
       authenticated: true,
+      can_access_crm: false,
       user: {
         email: 'crew.user@example.com',
       },
     });
     expect(authStore.listUsers()).toHaveLength(1);
+  });
+
+  test('exposes CRM access only to authenticated TravelGTC team members', async () => {
+    const { app, authStore } = await makeApp();
+    const registration = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/auth/register',
+      payload: registerPayload({ email: 'team.member@example.com' }),
+    });
+    const cookie = setCookieHeader(registration);
+    const userId = registration.json().user.userId;
+    await authStore.ensureProjectRole(userId, 'travelgtc', 'admin', 'test');
+
+    const me = await app.inject({
+      method: 'GET',
+      url: '/api/travelgtc/v1/auth/me',
+      headers: { cookie },
+    });
+    const crm = await app.inject({
+      method: 'GET',
+      url: '/api/travelgtc/v1/crm/leads',
+      headers: { cookie },
+    });
+    await app.close();
+
+    expect(me.json()).toMatchObject({ authenticated: true, can_access_crm: true });
+    expect(crm.statusCode).toBe(200);
   });
 
   test('verifies email with captured test token', async () => {

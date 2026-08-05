@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 9.8
-- Date: 2026-08-04
-- Status: Sales landing published at the root route; the pair/family travel-system presentation is available as an editable public page with a stable PDF download
+- Version: 9.9
+- Date: 2026-08-05
+- Status: Sales landing published at the root route; Mira is the safe public contact path and owner CRM access is role-gated
 
 ## 1. Purpose
 
@@ -24,6 +24,7 @@ The first stage is intentionally small:
 | Document | Title | Purpose | Status |
 |---|---|---|---|
 | `00_documentation_register.md` | TravelGTC - Documentation Register | Project documentation index and fixation point. | Active |
+| `135_travelgtc_crm_004_owner_access_and_mira_contact_report.md` | TRAVELGTC-CRM-004 - Owner CRM Access And Mira Contact Report | Fixes Mira as the safe public contact path, owner CRM access and the registration-intent CRM/email route. | Implemented |
 | `134_travelgtc_web_053_pair_model_pdf_design_alignment_report.md` | TRAVELGTC-WEB-053 - Pair Model PDF Design Alignment Report | Fixes the editable page layout to mirror the approved pair/family presentation PDF. | Implemented |
 | `133_travelgtc_web_052_editable_pair_model_page_report.md` | TRAVELGTC-WEB-052 - Editable Pair Model Page Report | Fixes the editable public pair/family travel-system page and preserves the PDF as a download version. | Implemented |
 | `132_travelgtc_web_051_pair_travel_system_presentation_report.md` | TRAVELGTC-WEB-051 - Pair Travel System Presentation Report | Fixes replacement of the public pair/family PDF with the approved travel-system infographic. | Implemented |

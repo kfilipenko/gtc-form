@@ -211,7 +211,8 @@ a {
 }
 
 .account-link,
-.account-logout {
+.account-logout,
+.account-crm-link {
   border: 1px solid rgba(255, 255, 255, 0.24);
   min-height: 42px;
   border-radius: 14px;
@@ -226,7 +227,8 @@ a {
 }
 
 .account-link:hover,
-.account-logout:hover {
+.account-logout:hover,
+.account-crm-link:hover {
   background: rgba(255, 255, 255, 0.14);
   color: var(--white);
 }

@@ -280,13 +280,16 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
   app.get('/api/travelgtc/v1/auth/me', async (request, reply) => {
     const session = await currentSession(request, config, authStore);
     if (!session) {
-      return reply.send({ ok: true, authenticated: false, user: null });
+      return reply.send({ ok: true, authenticated: false, user: null, can_access_crm: false });
     }
+
+    const canAccessCrm = await hasCrmAccess(session, authStore);
 
     return reply.send({
       ok: true,
       authenticated: true,
       user: session.user,
+      can_access_crm: canAccessCrm,
       session: {
         expires_at: session.expiresAt,
       },
@@ -1134,13 +1137,17 @@ async function requireCrmTeamMember(
   authStore: AuthStore,
 ): Promise<SessionLookupResult> {
   const session = await requireSession(request, config, authStore);
-  const isTeamMember =
-    (await authStore.hasProjectRole(session.user.userId, 'travelgtc', 'team')) ||
-    (await authStore.hasProjectRole(session.user.userId, 'travelgtc', 'admin'));
-  if (!isTeamMember) {
+  if (!(await hasCrmAccess(session, authStore))) {
     throw new AuthRequiredError();
   }
   return session;
+}
+
+async function hasCrmAccess(session: SessionLookupResult, authStore: AuthStore): Promise<boolean> {
+  return (
+    (await authStore.hasProjectRole(session.user.userId, 'travelgtc', 'team')) ||
+    (await authStore.hasProjectRole(session.user.userId, 'travelgtc', 'admin'))
+  );
 }
 
 function crmLeadIdParam(params: unknown): string {

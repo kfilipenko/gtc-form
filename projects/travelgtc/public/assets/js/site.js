@@ -43,6 +43,7 @@ document.querySelectorAll(".nav-links a").forEach((link) => {
 });
 
 initAuthState();
+initMiraContactLinks();
 initAuthForms();
 initAuthPageContext();
 initMiraEntryLinks();
@@ -371,9 +372,10 @@ async function refreshAuthState() {
     setAuthState({
       authenticated: Boolean(body.authenticated),
       user: body.user || null,
+      canAccessCrm: Boolean(body.can_access_crm),
     });
   } catch (error) {
-    setAuthState({ authenticated: false, user: null });
+    setAuthState({ authenticated: false, user: null, canAccessCrm: false });
   }
   return authState;
 }
@@ -382,6 +384,7 @@ function setAuthState(nextState) {
   authState.loaded = true;
   authState.authenticated = Boolean(nextState.authenticated);
   authState.user = nextState.user || null;
+  authState.canAccessCrm = Boolean(nextState.canAccessCrm);
   updateAuthStateUi();
   updateLeadAuthNotes();
   document.querySelectorAll("form[data-travelgtc-lead-form]").forEach((form) => {
@@ -401,6 +404,33 @@ function updateAuthStateUi() {
   });
   document.querySelectorAll("[data-auth-user-email]").forEach((element) => {
     element.textContent = authState.user ? authState.user.email : "";
+  });
+  document.querySelectorAll("[data-auth-user]").forEach((accountUser) => {
+    const existingLink = accountUser.querySelector("[data-auth-crm-link]");
+    if (!authState.authenticated || !authState.canAccessCrm) {
+      existingLink?.remove();
+      return;
+    }
+    if (!existingLink) {
+      const crmLink = document.createElement("a");
+      crmLink.className = "account-crm-link";
+      crmLink.href = "/crm/";
+      crmLink.dataset.authCrmLink = "";
+      crmLink.textContent = "CRM";
+      accountUser.querySelector("[data-auth-logout]")?.before(crmLink);
+    }
+  });
+}
+
+function initMiraContactLinks() {
+  document.querySelectorAll(".site-footer .footer-links").forEach((links) => {
+    if (links.querySelector('[href="/mira/"]')) {
+      return;
+    }
+    const miraLink = document.createElement("a");
+    miraLink.href = "/mira/";
+    miraLink.textContent = "Связаться через Миру";
+    links.appendChild(miraLink);
   });
 }
 

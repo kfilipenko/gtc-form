@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 6.7
-- Date: 2026-07-30
-- Status: Active, registered-first Mira funnel and Azure version 17 published
+- Version: 6.8
+- Date: 2026-08-05
+- Status: Active, registered-first Mira funnel, private contact protection and owner CRM access published
 
 ## 1. Current State
 
@@ -83,6 +83,8 @@ SSL is issued for travelgtc.com and www.travelgtc.com.
 The live HTTPS API proxy is active at /api/travelgtc/.
 The live API service is travelgtc-api.service on 127.0.0.1:4301.
 ```
+
+Public pages do not expose the project owner's email address or telephone number. Use `/mira/` as the public contact route. The account `kfilipenko@kmf.ru` has active TravelGTC `team` and `admin` roles; the authenticated UI exposes `/crm/` only after the server confirms one of these roles. Mira registration/subscription intent is persisted in CRM and uses the existing private SMTP recipient configured outside git.
 
 Generated production image asset state:
 

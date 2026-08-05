@@ -354,5 +354,23 @@ test.describe('TravelGTC responsive public site', () => {
 
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('.site-footer [data-protected-email], .site-footer [data-protected-phone]')).toHaveCount(0);
+    await expect(page.locator('.site-footer a[href="/mira/"]')).toHaveText('Связаться через Миру');
+  });
+
+  test('owner account receives the role-gated CRM navigation link', async ({ page }) => {
+    await page.route('**/api/travelgtc/v1/auth/me', async (route) => {
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          ok: true,
+          authenticated: true,
+          can_access_crm: true,
+          user: { displayName: 'Owner', email: 'owner@example.com' },
+        }),
+      });
+    });
+
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-auth-user] [data-auth-crm-link]')).toHaveAttribute('href', '/crm/');
   });
 });
