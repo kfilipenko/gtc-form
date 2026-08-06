@@ -1425,21 +1425,17 @@ h3 {
   color: var(--deep-blue);
 }
 
-.crm-chat-actions {
-  display: flex;
-  flex-wrap: wrap;
+.crm-chat-bulk {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
-  margin: 16px 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(6, 26, 40, 0.08);
+  background: rgba(0, 199, 217, 0.045);
 }
 
-.button.danger {
-  border-color: rgba(185, 28, 28, 0.35);
-  background: #b91c1c;
-  color: var(--white);
-}
-
-.button.danger:hover {
-  background: #991b1b;
+.crm-chat-bulk select {
+  min-width: 0;
 }
 
 .crm-layout {
@@ -1502,6 +1498,31 @@ h3 {
   display: grid;
   max-height: 72vh;
   overflow: auto;
+}
+
+.crm-lead-entry {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.crm-lead-entry.plain {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.crm-chat-select {
+  display: grid;
+  place-items: center;
+  border-bottom: 1px solid rgba(6, 26, 40, 0.07);
+  background: rgba(0, 199, 217, 0.035);
+  cursor: pointer;
+}
+
+.crm-chat-select input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--teal);
+  cursor: pointer;
 }
 
 .crm-lead-row {
@@ -4520,8 +4541,8 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
-  .crm-chat-actions {
-    flex-direction: column;
+  .crm-chat-bulk {
+    grid-template-columns: 1fr;
   }
 
   .crm-detail-head,

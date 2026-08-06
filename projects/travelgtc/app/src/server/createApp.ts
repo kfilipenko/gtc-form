@@ -307,11 +307,12 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
 
       const result = await crmPool.query(
         `select l.id::text as lead_id, l.created_at::text, l.stage, l.primary_interest, l.declared_role,
-                l.business_interest_level, l.recommended_next_step, l.summary,
+                l.business_interest_level, l.source_path, l.recommended_next_step, l.summary,
                 c.display_name, c.primary_channel, c.primary_contact, c.email, c.phone,
-                i.body as last_message
+                i.body as last_message, cc.status as chat_status
          from travelgtc_leads l
          join travelgtc_contacts c on c.id = l.contact_id
+         left join travelgtc_chat_cases cc on cc.lead_id = l.id
          left join lateral (
            select body
            from travelgtc_interactions

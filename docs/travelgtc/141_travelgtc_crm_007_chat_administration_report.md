@@ -6,9 +6,9 @@
 
 ## Result
 
-Added the protected administrator workspace at `/crm/chats/` for Mira dialogue lifecycle management.
+Added Mira dialogue lifecycle management directly to the protected CRM queue at `/crm/`.
 
-Only the TravelGTC `admin` role can list and change chat states. The CRM navigation shows `Чаты` only after the API confirms this permission.
+Only the TravelGTC `admin` role sees a checkbox beside entries created from a Mira dialogue. The administrator selects one or more dialogues in the existing lead list, chooses a lifecycle action, then applies it from the same screen. No separate chat workspace or menu item is used.
 
 Available actions:
 
@@ -23,7 +23,7 @@ The implementation keeps Mira messages and linked customer/lead records intact. 
 
 - Added migration `004_travelgtc_crm_chat_management.sql` and the `travelgtc_chat_cases` lifecycle table.
 - Existing account Mira chat leads were backfilled as active cases.
-- Added admin-only endpoints for list and status updates under `/api/travelgtc/v1/crm/chats`.
+- Added an admin-only status-update endpoint under `/api/travelgtc/v1/crm/chats/:leadId`; the existing `/crm/leads` queue now returns the Mira chat lifecycle status needed by the integrated controls.
 
 ## Verification
 

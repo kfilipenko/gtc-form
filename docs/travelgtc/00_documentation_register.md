@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 10.3
+- Version: 10.4
 - Date: 2026-08-06
-- Status: Sales landing published at the root route; Mira is the safe public contact path and the role-gated CRM includes customer cards and chat administration
+- Status: Sales landing published at the root route; Mira is the safe public contact path and the role-gated CRM includes customer cards and integrated chat administration
 
 ## 1. Purpose
 
@@ -24,7 +24,7 @@ The first stage is intentionally small:
 | Document | Title | Purpose | Status |
 |---|---|---|---|
 | `00_documentation_register.md` | TravelGTC - Documentation Register | Project documentation index and fixation point. | Active |
-| `141_travelgtc_crm_007_chat_administration_report.md` | TRAVELGTC-CRM-007 - Chat Administration Report | Records the protected administrator chat lifecycle workspace. | Implemented |
+| `141_travelgtc_crm_007_chat_administration_report.md` | TRAVELGTC-CRM-007 - Chat Administration Report | Records protected chat lifecycle controls inside the primary CRM queue. | Implemented |
 | `140_travelgtc_test_crm_data_cleanup.md` | TRAVELGTC-OPS-001 - Test CRM Data Cleanup | Records test-data removal and the safe future CRM cleanup utility. | Implemented |
 | `135_travelgtc_crm_004_owner_access_and_mira_contact_report.md` | TRAVELGTC-CRM-004 - Owner CRM Access And Mira Contact Report | Fixes Mira as the safe public contact path, owner CRM access and the registration-intent CRM/email route. | Implemented |
 | `136_travelgtc_crm_005_customer_card_task.md` | TRAVELGTC-CRM-005 - Customer Card And Lead Relationship Workspace | Defines the protected customer-card CRM stage that joins registration profile, leads, CRM activity, tasks and Mira history. | Implemented |

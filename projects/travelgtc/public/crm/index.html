@@ -19,7 +19,6 @@
           <a href="/">Сайт</a>
           <a class="active" href="/crm/">CRM</a>
           <a href="/crm/customers/">Клиенты</a>
-          <a href="/crm/chats/" hidden data-crm-admin-link>Чаты</a>
         </nav>
         <div class="nav-actions"><div class="account-actions" data-auth-state><a class="account-link" href="/auth/?mode=login" data-auth-anonymous>Войти</a><div class="account-user" data-auth-user hidden><span data-auth-user-name>Аккаунт</span><button class="account-logout" type="button" data-auth-logout>Выйти</button></div></div><button class="menu-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" data-menu-toggle><span></span><span></span><span></span></button></div>
       </div>
@@ -36,10 +35,21 @@
         <div class="crm-status" data-crm-status>Загружаем заявки...</div>
 
         <div class="crm-layout" hidden data-crm-workspace>
-          <section class="crm-list" aria-label="Список заявок">
+          <section class="crm-list" aria-label="Список заявок и диалогов">
             <div class="crm-list-head">
               <strong>Последние заявки</strong>
               <button class="button ghost small" type="button" data-crm-refresh>Обновить</button>
+            </div>
+            <div class="crm-chat-bulk" hidden data-crm-chat-bulk>
+              <label class="sr-only" for="crm-chat-bulk-action">Действие с отмеченными чатами</label>
+              <select id="crm-chat-bulk-action" data-crm-chat-bulk-action>
+                <option value="">Действие с отмеченными чатами</option>
+                <option value="hidden">Скрыть</option>
+                <option value="archived">Архивировать</option>
+                <option value="deleted">Удалить из рабочего списка</option>
+                <option value="active">Вернуть в активные</option>
+              </select>
+              <button class="button small" type="button" disabled data-crm-chat-bulk-apply>Применить</button>
             </div>
             <div class="crm-leads" data-crm-leads></div>
           </section>

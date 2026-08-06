@@ -54,7 +54,6 @@ initRoleButtons();
 initAiConsultant();
 initCrmPage();
 initCrmCustomersPage();
-initCrmChatsPage();
 
 function initAuthState() {
   decorateAuthLinks();
@@ -423,9 +422,6 @@ function updateAuthStateUi() {
       crmLink.textContent = "CRM";
       accountUser.querySelector("[data-auth-logout]")?.before(crmLink);
     }
-  });
-  document.querySelectorAll("[data-crm-admin-link]").forEach((link) => {
-    link.hidden = !authState.canManageChats;
   });
 }
 
@@ -1542,21 +1538,44 @@ function initCrmPage() {
   const detail = page.querySelector("[data-crm-detail]");
   const empty = page.querySelector("[data-crm-detail-empty]");
   const refreshButton = page.querySelector("[data-crm-refresh]");
+  const chatBulk = page.querySelector("[data-crm-chat-bulk]");
+  const chatBulkAction = page.querySelector("[data-crm-chat-bulk-action]");
+  const chatBulkApply = page.querySelector("[data-crm-chat-bulk-apply]");
   let selectedLeadId = new URLSearchParams(window.location.search).get("lead");
+  let leads = [];
+  const selectedChatLeadIds = new Set();
 
   refreshButton?.addEventListener("click", () => loadCrmLeads());
-  loadCrmLeads();
+  chatBulkAction?.addEventListener("change", updateChatBulkControls);
+  chatBulkApply?.addEventListener("click", applyChatBulkAction);
+  void initializeCrmPage();
+
+  async function initializeCrmPage() {
+    await authStatePromise;
+    if (chatBulk) chatBulk.hidden = !authState.canManageChats;
+    await loadCrmLeads();
+  }
 
   async function loadCrmLeads() {
     setCrmStatus(status, "Загружаем заявки...", "pending");
     try {
       const body = await requestApi("/api/travelgtc/v1/crm/leads", { method: "GET" });
+      leads = body.leads || [];
+      const availableChatIds = new Set(leads.filter(isMiraChatLead).map((lead) => lead.lead_id));
+      selectedChatLeadIds.forEach((leadId) => {
+        if (!availableChatIds.has(leadId)) selectedChatLeadIds.delete(leadId);
+      });
       if (workspace) workspace.hidden = false;
-      renderCrmLeadList(list, body.leads || [], selectedLeadId, openLead);
-      if (selectedLeadId && (body.leads || []).some((lead) => lead.lead_id === selectedLeadId)) {
+      renderCrmLeadList(list, leads, selectedLeadId, openLead, {
+        canManageChats: authState.canManageChats,
+        selectedChatLeadIds,
+        onChatSelectionChange: updateChatSelection,
+      });
+      updateChatBulkControls();
+      if (selectedLeadId && leads.some((lead) => lead.lead_id === selectedLeadId)) {
         await openLead(selectedLeadId);
       } else {
-        setCrmStatus(status, `Загружено заявок: ${(body.leads || []).length}`, "success");
+        setCrmStatus(status, `Загружено заявок: ${leads.length}`, "success");
       }
     } catch (error) {
       if (workspace) workspace.hidden = true;
@@ -1612,9 +1631,48 @@ function initCrmPage() {
     if (!contactId) return;
     window.location.assign(`/crm/customers/?id=${encodeURIComponent(contactId)}`);
   }
+
+  function updateChatSelection(leadId, selected) {
+    if (selected) selectedChatLeadIds.add(leadId);
+    else selectedChatLeadIds.delete(leadId);
+    updateChatBulkControls();
+  }
+
+  function updateChatBulkControls() {
+    if (!chatBulk || !chatBulkApply) return;
+    chatBulk.hidden = !authState.canManageChats;
+    chatBulkApply.disabled = !chatBulkAction?.value || selectedChatLeadIds.size === 0;
+  }
+
+  async function applyChatBulkAction() {
+    const nextStatus = chatBulkAction?.value;
+    if (!nextStatus || selectedChatLeadIds.size === 0) return;
+    if (nextStatus === "deleted" && !window.confirm("Удалить отмеченные чаты из рабочего списка? Переписка сохранится для аудита.")) return;
+
+    chatBulkApply.disabled = true;
+    try {
+      await Promise.all([...selectedChatLeadIds].map((leadId) => requestApi(`/api/travelgtc/v1/crm/chats/${encodeURIComponent(leadId)}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: nextStatus }),
+      })));
+      const count = selectedChatLeadIds.size;
+      selectedChatLeadIds.clear();
+      if (chatBulkAction) chatBulkAction.value = "";
+      await loadCrmLeads();
+      setCrmStatus(status, `Обновлено чатов: ${count}`, "success");
+    } catch (error) {
+      setCrmStatus(status, error.message || "Не удалось обновить выбранные чаты.", "error");
+    } finally {
+      updateChatBulkControls();
+    }
+  }
 }
 
-function renderCrmLeadList(container, leads, selectedLeadId, onOpen) {
+function isMiraChatLead(lead) {
+  return lead.source_path === "ai_chat";
+}
+
+function renderCrmLeadList(container, leads, selectedLeadId, onOpen, options = {}) {
   if (!container) return;
   container.innerHTML = "";
   if (!leads.length) {
@@ -1626,6 +1684,23 @@ function renderCrmLeadList(container, leads, selectedLeadId, onOpen) {
   }
 
   leads.forEach((lead) => {
+    const isMiraChat = options.canManageChats && isMiraChatLead(lead);
+    const row = document.createElement("div");
+    row.className = "crm-lead-entry";
+    if (!isMiraChat) row.classList.add("plain");
+    if (isMiraChat) {
+      const label = document.createElement("label");
+      label.className = "crm-chat-select";
+      label.title = "Отметить диалог Миры";
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.dataset.crmChatCheckbox = lead.lead_id;
+      checkbox.checked = options.selectedChatLeadIds?.has(lead.lead_id) || false;
+      checkbox.setAttribute("aria-label", `Отметить чат ${lead.display_name || "без имени"}`);
+      checkbox.addEventListener("change", () => options.onChatSelectionChange?.(lead.lead_id, checkbox.checked));
+      label.appendChild(checkbox);
+      row.appendChild(label);
+    }
     const button = document.createElement("button");
     button.type = "button";
     button.className = "crm-lead-row";
@@ -1634,10 +1709,11 @@ function renderCrmLeadList(container, leads, selectedLeadId, onOpen) {
     button.innerHTML = `
       <span><strong>${escapeHtml(lead.display_name || "Без имени")}</strong><small>${escapeHtml(formatCrmDate(lead.created_at))}</small></span>
       <span>${escapeHtml(crmInterestLabel(lead.primary_interest))}</span>
-      <span class="crm-stage">${escapeHtml(crmStageLabel(lead.stage))}</span>
+      <span class="crm-stage">${escapeHtml(isMiraChatLead(lead) ? `Мира: ${crmChatStatusLabel(lead.chat_status || "active")}` : crmStageLabel(lead.stage))}</span>
     `;
     button.addEventListener("click", () => onOpen(lead.lead_id));
-    container.appendChild(button);
+    row.appendChild(button);
+    container.appendChild(row);
   });
 }
 
@@ -1828,140 +1904,6 @@ function initCrmCustomersPage() {
     if (!leadId) return;
     window.location.assign(`/crm/?lead=${encodeURIComponent(leadId)}`);
   }
-}
-
-function initCrmChatsPage() {
-  const page = document.querySelector("[data-crm-chats-page]");
-  if (!page) return;
-
-  const status = page.querySelector("[data-crm-chats-status]");
-  const workspace = page.querySelector("[data-crm-chats-workspace]");
-  const list = page.querySelector("[data-crm-chats]");
-  const detail = page.querySelector("[data-crm-chat-detail]");
-  const empty = page.querySelector("[data-crm-chat-empty]");
-  const refreshButton = page.querySelector("[data-crm-chats-refresh]");
-  const statusFilter = page.querySelector("[data-crm-chat-status]");
-  let selectedLeadId = new URLSearchParams(window.location.search).get("lead");
-  let chats = [];
-
-  refreshButton?.addEventListener("click", loadChats);
-  statusFilter?.addEventListener("change", loadChats);
-  loadChats();
-
-  async function loadChats() {
-    setCrmStatus(status, "Загружаем чаты...", "pending");
-    try {
-      const filter = statusFilter?.value || "active";
-      const body = await requestApi(`/api/travelgtc/v1/crm/chats?status=${encodeURIComponent(filter)}`, { method: "GET" });
-      chats = body.chats || [];
-      if (workspace) workspace.hidden = false;
-      renderCrmChatList(list, chats, selectedLeadId, openChat);
-      if (selectedLeadId && chats.some((chat) => chat.lead_id === selectedLeadId)) {
-        openChat(selectedLeadId);
-      } else {
-        if (detail) detail.hidden = true;
-        if (empty) empty.hidden = false;
-        setCrmStatus(status, `Загружено чатов: ${chats.length}`, "success");
-      }
-    } catch (error) {
-      if (workspace) workspace.hidden = true;
-      const message = error.message && error.message.includes("crm_access_denied")
-        ? "Управление чатами доступно только администратору TravelGTC."
-        : error.message || "Не удалось загрузить чаты.";
-      setCrmStatus(status, message, "error");
-    }
-  }
-
-  function openChat(leadId) {
-    selectedLeadId = leadId;
-    const chat = chats.find((item) => item.lead_id === leadId);
-    if (!chat) return;
-    if (empty) empty.hidden = true;
-    if (detail) {
-      detail.hidden = false;
-      renderCrmChatDetail(detail, chat, updateChatStatus);
-    }
-    list?.querySelectorAll("[data-crm-chat]").forEach((button) => {
-      button.classList.toggle("active", button.dataset.crmChat === leadId);
-    });
-    const current = new URL(window.location.href);
-    current.searchParams.set("lead", leadId);
-    window.history.replaceState({}, "", `${current.pathname}${current.search}`);
-    setCrmStatus(status, "Чат открыт.", "success");
-  }
-
-  async function updateChatStatus(leadId, chatStatus) {
-    await requestApi(`/api/travelgtc/v1/crm/chats/${encodeURIComponent(leadId)}`, {
-      method: "PATCH",
-      body: JSON.stringify({ status: chatStatus }),
-    });
-    selectedLeadId = null;
-    await loadChats();
-  }
-}
-
-function renderCrmChatList(container, chats, selectedLeadId, onOpen) {
-  if (!container) return;
-  container.innerHTML = "";
-  if (!chats.length) {
-    const empty = document.createElement("p");
-    empty.className = "crm-empty";
-    empty.textContent = "Чатов в выбранной категории пока нет.";
-    container.appendChild(empty);
-    return;
-  }
-  chats.forEach((chat) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "crm-lead-row";
-    button.dataset.crmChat = chat.lead_id;
-    button.classList.toggle("active", chat.lead_id === selectedLeadId);
-    button.innerHTML = `
-      <span><strong>${escapeHtml(chat.display_name || "Без имени")}</strong><small>${escapeHtml(chat.email || "Email не указан")}</small></span>
-      <span>${Number(chat.message_count || 0)} ${crmMessageCountLabel(Number(chat.message_count || 0))}</span>
-      <span class="crm-stage">${escapeHtml(crmChatStatusLabel(chat.status))}</span>
-    `;
-    button.addEventListener("click", () => onOpen(chat.lead_id));
-    container.appendChild(button);
-  });
-}
-
-function renderCrmChatDetail(container, chat, onStatusChange) {
-  container.innerHTML = `
-    <div class="crm-detail-head">
-      <div>
-        <p class="eyebrow dark">Диалог с Мирой</p>
-        <h2>${escapeHtml(chat.display_name || "Без имени")}</h2>
-      </div>
-      <span class="crm-stage">${escapeHtml(crmChatStatusLabel(chat.status))}</span>
-    </div>
-    <div class="crm-detail-grid">
-      <article><strong>Email</strong><span>${escapeHtml(chat.email || "Не указан")}</span></article>
-      <article><strong>Сообщений</strong><span>${escapeHtml(String(chat.message_count || 0))}</span></article>
-      <article><strong>Последняя реплика</strong><span>${escapeHtml(formatCrmDate(chat.last_message_at || chat.updated_at))}</span></article>
-      <article><strong>Статус</strong><span>${escapeHtml(crmChatStatusLabel(chat.status))}</span></article>
-    </div>
-    <div class="crm-request"><h3>Последнее сообщение</h3><p>${escapeHtml(chat.last_message || "Сообщений пока нет.")}</p></div>
-    <div class="crm-chat-actions" aria-label="Действия с чатом">
-      <button class="button ghost small" type="button" data-crm-chat-status="hidden">Скрыть</button>
-      <button class="button ghost small" type="button" data-crm-chat-status="archived">Архивировать</button>
-      <button class="button danger small" type="button" data-crm-chat-status="deleted">Удалить</button>
-      ${chat.status !== "active" ? '<button class="button small" type="button" data-crm-chat-status="active">Вернуть в активные</button>' : ""}
-    </div>
-    <a class="button ghost small" href="/crm/customers/?id=${encodeURIComponent(chat.contact_id)}">Открыть карточку клиента</a>
-  `;
-  container.querySelectorAll("[data-crm-chat-status]").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const nextStatus = button.dataset.crmChatStatus;
-      if (nextStatus === "deleted" && !window.confirm("Удалить чат из рабочего списка? Переписка сохранится для аудита.")) return;
-      button.disabled = true;
-      try {
-        await onStatusChange(chat.lead_id, nextStatus);
-      } finally {
-        button.disabled = false;
-      }
-    });
-  });
 }
 
 function crmChatStatusLabel(status) {
