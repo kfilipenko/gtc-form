@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 7.1
-- Date: 2026-08-05
-- Status: Test operation: registered-first Mira funnel, private contact protection and customer-centric CRM with readable conversations and logged contact actions published
+- Version: 7.2
+- Date: 2026-08-06
+- Status: Test operation: registered-first Mira funnel, private contact protection and customer-centric CRM with readable conversations, logged contact actions and administrator chat lifecycle controls published
 
 ## 1. Current State
 
@@ -84,7 +84,7 @@ The live HTTPS API proxy is active at /api/travelgtc/.
 The live API service is travelgtc-api.service on 127.0.0.1:4301.
 ```
 
-Public pages do not expose the project owner's email address or telephone number. Use `/mira/` as the public contact route. The account `kfilipenko@kmf.ru` has active TravelGTC `team` and `admin` roles; the authenticated UI exposes `/crm/` only after the server confirms one of these roles. `/crm/customers/` is the internal customer workspace: it groups complete TravelGTC registration contact data, customer-level relationship status, all associated leads, open tasks, Mira interactions, internal notes and audit history. Customer data is protected by the same server-side `team`/`admin` check; it must never be exposed on public routes or shared with another GTC project. Mira registration/subscription intent is persisted in CRM and uses the existing private SMTP recipient configured outside git.
+Public pages do not expose the project owner's email address or telephone number. Use `/mira/` as the public contact route. The account `kfilipenko@kmf.ru` has active TravelGTC `team` and `admin` roles; the authenticated UI exposes `/crm/` only after the server confirms one of these roles. `/crm/customers/` is the internal customer workspace: it groups complete TravelGTC registration contact data, customer-level relationship status, all associated leads, open tasks, Mira interactions, internal notes and audit history. `/crm/chats/` is restricted to the `admin` role and controls chat lifecycle states: active, hidden, archived and soft-deleted. These actions never physically erase Mira messages or customer records. Customer data is protected by server-side role checks; it must never be exposed on public routes or shared with another GTC project. Mira registration/subscription intent is persisted in CRM and uses the existing private SMTP recipient configured outside git.
 
 Generated production image asset state:
 

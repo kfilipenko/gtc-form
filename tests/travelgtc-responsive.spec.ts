@@ -374,6 +374,34 @@ test.describe('TravelGTC responsive public site', () => {
     await expect(page.locator('[data-auth-user] [data-auth-crm-link]')).toHaveAttribute('href', '/crm/');
   });
 
+  test('CRM administrator can manage a Mira chat lifecycle', async ({ page }) => {
+    const leadId = '33333333-3333-4333-8333-333333333333';
+    await page.route('**/api/travelgtc/v1/auth/me', async (route) => {
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({ ok: true, authenticated: true, can_access_crm: true, can_manage_chats: true, user: { displayName: 'Owner', email: 'owner@example.com' } }),
+      });
+    });
+    await page.route('**/api/travelgtc/v1/crm/chats**', async (route) => {
+      if (route.request().method() === 'PATCH') {
+        await route.fulfill({ contentType: 'application/json', body: JSON.stringify({ ok: true, chat: { lead_id: leadId, status: 'archived' } }) });
+        return;
+      }
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({ ok: true, chats: [{ lead_id: leadId, contact_id: '11111111-1111-4111-8111-111111111111', status: 'active', display_name: 'Дмитрий Викторович', email: 'dmitry@example.com', message_count: 4, last_message_at: '2026-08-06T10:00:00.000Z', last_message: 'Хочу узнать о Membership.' }] }),
+      });
+    });
+
+    await page.goto('/crm/chats/', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'Управление чатами' })).toBeVisible();
+    await expect(page.getByText('Дмитрий Викторович')).toBeVisible();
+    await page.getByText('Дмитрий Викторович').first().click();
+    await expect(page.getByRole('button', { name: 'Скрыть' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Архивировать' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Удалить' })).toBeVisible();
+  });
+
   test('CRM customer card presents registration data and linked application history to the team', async ({ page }) => {
     const contactId = '11111111-1111-4111-8111-111111111111';
     await page.route('**/api/travelgtc/v1/auth/me', async (route) => {

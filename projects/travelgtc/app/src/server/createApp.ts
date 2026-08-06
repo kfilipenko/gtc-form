@@ -280,16 +280,18 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
   app.get('/api/travelgtc/v1/auth/me', async (request, reply) => {
     const session = await currentSession(request, config, authStore);
     if (!session) {
-      return reply.send({ ok: true, authenticated: false, user: null, can_access_crm: false });
+      return reply.send({ ok: true, authenticated: false, user: null, can_access_crm: false, can_manage_chats: false });
     }
 
     const canAccessCrm = await hasCrmAccess(session, authStore);
+    const canManageChats = await authStore.hasProjectRole(session.user.userId, 'travelgtc', 'admin');
 
     return reply.send({
       ok: true,
       authenticated: true,
       user: session.user,
       can_access_crm: canAccessCrm,
+      can_manage_chats: canManageChats,
       session: {
         expires_at: session.expiresAt,
       },
@@ -517,6 +519,54 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
         [contactId],
       );
       return reply.send({ ok: true, messages: result.rows });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
+  });
+
+  app.get('/api/travelgtc/v1/crm/chats', async (request, reply) => {
+    try {
+      await requireCrmAdmin(request, config, authStore);
+      if (!crmPool) return reply.send({ ok: true, chats: [] });
+      const status = crmChatStatusParam(request.query);
+      const result = await crmPool.query(
+        `select cc.lead_id::text as lead_id, cc.contact_id::text as contact_id, cc.status,
+                cc.created_at::text, cc.updated_at::text,
+                c.display_name, coalesce(u.email, c.email) as email,
+                count(i.id)::int as message_count,
+                max(i.created_at)::text as last_message_at,
+                (array_agg(i.body order by i.created_at desc))[1] as last_message
+         from travelgtc_chat_cases cc
+         join travelgtc_contacts c on c.id = cc.contact_id
+         left join travelgtc_identity.users u on u.user_id = c.user_id
+         left join travelgtc_interactions i on i.lead_id = cc.lead_id and i.interaction_type = 'ai_chat'
+         where ($1::text = 'all' or cc.status = $1::text)
+         group by cc.lead_id, cc.contact_id, cc.status, cc.created_at, cc.updated_at, c.display_name, u.email, c.email
+         order by max(i.created_at) desc nulls last, cc.updated_at desc
+         limit 200`,
+        [status],
+      );
+      return reply.send({ ok: true, chats: result.rows });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
+  });
+
+  app.patch('/api/travelgtc/v1/crm/chats/:leadId', async (request, reply) => {
+    try {
+      const session = await requireCrmAdmin(request, config, authStore);
+      if (!crmPool) return reply.code(503).send({ ok: false, error: { code: 'crm_unavailable', message: 'CRM unavailable.' } });
+      const leadId = crmLeadIdParam(request.params);
+      const status = crmChatStatusFromBody(request.body);
+      const result = await crmPool.query(
+        `update travelgtc_chat_cases
+         set status = $2, updated_at = now(), updated_by = $3
+         where lead_id = $1::uuid
+         returning lead_id::text as lead_id, contact_id::text as contact_id, status, updated_at::text`,
+        [leadId, status, `crm_chat_admin:${session.user.userId}`],
+      );
+      if (!result.rowCount) return reply.code(404).send({ ok: false, error: { code: 'not_found', message: 'Chat not found.' } });
+      return reply.send({ ok: true, chat: result.rows[0] });
     } catch (error) {
       return sendCrmError(error, request, reply);
     }
@@ -1147,6 +1197,13 @@ async function storeAccountAiChatTurn(
   try {
     await client.query('begin');
     await client.query(
+      `insert into travelgtc_chat_cases (lead_id, contact_id, status, created_by, updated_by)
+       values ($1::uuid, $2::uuid, 'active', $3, $3)
+       on conflict (lead_id) do update
+       set updated_at = now(), updated_by = excluded.updated_by`,
+      [input.leadId, input.contactId, actor],
+    );
+    await client.query(
       `insert into travelgtc_interactions (
          lead_id, contact_id, actor_user_id, interaction_type, channel, direction, body, human_approved, metadata_json,
          created_by, updated_by
@@ -1452,11 +1509,43 @@ async function requireCrmTeamMember(
   return session;
 }
 
+async function requireCrmAdmin(
+  request: FastifyRequest,
+  config: TravelGtcConfig,
+  authStore: AuthStore,
+): Promise<SessionLookupResult> {
+  const session = await requireSession(request, config, authStore);
+  if (!(await authStore.hasProjectRole(session.user.userId, 'travelgtc', 'admin'))) {
+    throw new AuthRequiredError();
+  }
+  return session;
+}
+
 async function hasCrmAccess(session: SessionLookupResult, authStore: AuthStore): Promise<boolean> {
   return (
     (await authStore.hasProjectRole(session.user.userId, 'travelgtc', 'team')) ||
     (await authStore.hasProjectRole(session.user.userId, 'travelgtc', 'admin'))
   );
+}
+
+function crmChatStatusParam(query: unknown): 'active' | 'hidden' | 'archived' | 'deleted' | 'all' {
+  const raw = query && typeof query === 'object' ? (query as Record<string, unknown>).status : undefined;
+  const status = typeof raw === 'string' ? raw.trim() : 'active';
+  const allowed = ['active', 'hidden', 'archived', 'deleted', 'all'];
+  if (!allowed.includes(status)) {
+    throw new AuthValidationError({ status: 'Invalid chat status.' });
+  }
+  return status as 'active' | 'hidden' | 'archived' | 'deleted' | 'all';
+}
+
+function crmChatStatusFromBody(body: unknown): 'active' | 'hidden' | 'archived' | 'deleted' {
+  const input = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
+  const status = typeof input.status === 'string' ? input.status.trim() : '';
+  const allowed = ['active', 'hidden', 'archived', 'deleted'];
+  if (!allowed.includes(status)) {
+    throw new AuthValidationError({ status: 'Invalid chat status.' });
+  }
+  return status as 'active' | 'hidden' | 'archived' | 'deleted';
 }
 
 function crmLeadIdParam(params: unknown): string {

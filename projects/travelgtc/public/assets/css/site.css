@@ -1425,6 +1425,23 @@ h3 {
   color: var(--deep-blue);
 }
 
+.crm-chat-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.button.danger {
+  border-color: rgba(185, 28, 28, 0.35);
+  background: #b91c1c;
+  color: var(--white);
+}
+
+.button.danger:hover {
+  background: #991b1b;
+}
+
 .crm-layout {
   display: grid;
   grid-template-columns: minmax(280px, 390px) minmax(0, 1fr);
@@ -4501,6 +4518,10 @@ button:disabled {
 
   .crm-contact-outcome {
     grid-template-columns: 1fr;
+  }
+
+  .crm-chat-actions {
+    flex-direction: column;
   }
 
   .crm-detail-head,

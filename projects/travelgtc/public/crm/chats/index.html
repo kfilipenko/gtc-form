@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TravelGTC CRM - клиенты</title>
+  <title>TravelGTC CRM - чаты</title>
   <meta name="robots" content="noindex,nofollow">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,40 +18,40 @@
         <nav class="nav-links nav-links-membership" aria-label="CRM меню">
           <a href="/">Сайт</a>
           <a href="/crm/">CRM</a>
-          <a class="active" href="/crm/customers/">Клиенты</a>
-          <a href="/crm/chats/" hidden data-crm-admin-link>Чаты</a>
+          <a href="/crm/customers/">Клиенты</a>
+          <a class="active" href="/crm/chats/">Чаты</a>
         </nav>
         <div class="nav-actions"><div class="account-actions" data-auth-state><a class="account-link" href="/auth/?mode=login" data-auth-anonymous>Войти</a><div class="account-user" data-auth-user hidden><span data-auth-user-name>Аккаунт</span><button class="account-logout" type="button" data-auth-logout>Выйти</button></div></div><button class="menu-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" data-menu-toggle><span></span><span></span><span></span></button></div>
       </div>
     </header>
 
-    <main class="crm-page" data-crm-customers-page>
+    <main class="crm-page" data-crm-chats-page>
       <section class="crm-shell">
         <div class="section-head">
           <p class="eyebrow dark">TravelGTC CRM</p>
-          <h1>Клиенты</h1>
-          <p>Полные данные профиля, все заявки, задачи и история работы по каждому человеку.</p>
+          <h1>Управление чатами</h1>
+          <p>Раздел администратора: отбор диалогов Миры и управление их видимостью в CRM. Удаление сохраняет запись для аудита.</p>
         </div>
-
-        <div class="crm-status" data-crm-customers-status>Загружаем клиентов...</div>
-
-        <div class="crm-layout" hidden data-crm-customers-workspace>
-          <section class="crm-list" aria-label="Список клиентов">
+        <div class="crm-status" data-crm-chats-status>Загружаем чаты...</div>
+        <div class="crm-layout" hidden data-crm-chats-workspace>
+          <section class="crm-list" aria-label="Список чатов">
             <div class="crm-list-head crm-list-head-stack">
-              <strong>Клиенты</strong>
-              <label class="sr-only" for="crm-customer-search">Поиск клиента</label>
-              <input id="crm-customer-search" type="search" autocomplete="off" placeholder="Имя, email или телефон" data-crm-customer-search>
-              <button class="button ghost small" type="button" data-crm-customers-refresh>Обновить</button>
+              <strong>Диалоги Миры</strong>
+              <label class="sr-only" for="crm-chat-status">Статус чата</label>
+              <select id="crm-chat-status" data-crm-chat-status>
+                <option value="active">Активные</option>
+                <option value="hidden">Скрытые</option>
+                <option value="archived">Архив</option>
+                <option value="deleted">Удалённые</option>
+                <option value="all">Все</option>
+              </select>
+              <button class="button ghost small" type="button" data-crm-chats-refresh>Обновить</button>
             </div>
-            <div class="crm-leads" data-crm-customers></div>
+            <div class="crm-leads" data-crm-chats></div>
           </section>
-
-          <section class="crm-detail" aria-label="Карточка клиента">
-            <div data-crm-customer-empty>
-              <h2>Выберите клиента</h2>
-              <p>Откройте запись слева, чтобы увидеть его данные регистрации, заявки, диалог с Мирой и внутреннюю историю.</p>
-            </div>
-            <div hidden data-crm-customer-detail></div>
+          <section class="crm-detail" aria-label="Управление выбранным чатом">
+            <div data-crm-chat-empty><h2>Выберите чат</h2><p>Откройте диалог слева, чтобы увидеть данные клиента и изменить статус чата.</p></div>
+            <div hidden data-crm-chat-detail></div>
           </section>
         </div>
       </section>
