@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 10.5
+- Version: 10.6
 - Date: 2026-08-09
-- Status: Sales landing published at the root route; Mira is the safe public contact path and the role-gated CRM uses one integrated queue for leads and chat administration
+- Status: Sales landing published at the root route; Mira is the safe public contact path, authentication opens one form matching the selected action, and the role-gated CRM uses one integrated queue for leads and chat administration
 
 ## 1. Purpose
 

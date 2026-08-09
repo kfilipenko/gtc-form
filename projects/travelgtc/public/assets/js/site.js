@@ -447,8 +447,36 @@ function decorateAuthLinks() {
 }
 
 function initAuthPageContext() {
+  if (!window.location.pathname.startsWith("/auth/")) {
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get("mode") === "login" ? "login" : "register";
+  document.body.dataset.authMode = mode;
+
+  const title = document.querySelector("[data-auth-page-title]");
+  const description = document.querySelector("[data-auth-page-description]");
+  if (title) {
+    title.textContent = mode === "login" ? "Войдите в аккаунт" : "Создайте аккаунт";
+  }
+  if (description) {
+    description.textContent = mode === "login"
+      ? "Войдите, чтобы продолжить диалог с Мирой, сохранить историю и работать со своими обращениями."
+      : "Создайте аккаунт, чтобы сохранять обращения, продолжать диалог с Мирой и получать следующий шаг по своему сценарию.";
+  }
+
+  document.querySelectorAll("[data-auth-mode-link]").forEach((link) => {
+    const href = new URL(link.getAttribute("href"), window.location.origin);
+    const next = safeNextPath();
+    if (next !== "/") {
+      href.searchParams.set("next", next);
+    }
+    link.setAttribute("href", `${href.pathname}${href.search}`);
+  });
+
   const context = document.querySelector("[data-auth-entry-context]");
-  if (!context || !window.location.pathname.startsWith("/auth/")) {
+  if (!context) {
     return;
   }
 

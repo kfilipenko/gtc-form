@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Вход и регистрация - TravelGTC</title>
-  <meta name="description" content="Регистрация и вход в аккаунт TravelGTC для отправки travel-идеи, заявки или вопроса.">
+  <title>Аккаунт TravelGTC</title>
+  <meta name="description" content="Вход или регистрация в аккаунте TravelGTC для сохранения заявок и диалогов.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -39,8 +39,8 @@
     <section class="page-hero auth-hero">
       <div class="section-inner">
         <p class="eyebrow">Аккаунт TravelGTC</p>
-        <h1>Войдите или зарегистрируйтесь</h1>
-        <p>Аккаунт нужен, чтобы отделить чтение сайта от реального заявления о потребности: travel-идее, участии в клубе, событии или консультации.</p>
+        <h1 data-auth-page-title>Регистрация</h1>
+        <p data-auth-page-description>Создайте аккаунт, чтобы сохранять обращения, продолжать диалог с Мирой и получать следующий шаг по своему сценарию.</p>
         <p data-auth-entry-context hidden></p>
       </div>
     </section>
@@ -66,6 +66,7 @@
           </div>
           <p class="form-status" data-form-status aria-live="polite"></p>
           <button class="button" type="submit">Зарегистрироваться</button>
+          <p class="auth-mode-switch">Уже есть аккаунт? <a href="/auth/?mode=login" data-auth-mode-link="login">Войти</a></p>
         </form>
         <form class="form-card auth-form" data-auth-login-form>
           <div class="section-head">
@@ -79,6 +80,7 @@
           </div>
           <p class="form-status" data-form-status aria-live="polite"></p>
           <button class="button ghost" type="submit">Войти</button>
+          <p class="auth-mode-switch">Нет аккаунта? <a href="/auth/?mode=register" data-auth-mode-link="register">Зарегистрироваться</a></p>
         </form>
       </div>
     </section>

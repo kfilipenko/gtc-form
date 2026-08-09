@@ -41,6 +41,18 @@ async function measureHorizontalOverflow(page: import('@playwright/test').Page) 
 }
 
 test.describe('TravelGTC responsive public site', () => {
+  test('auth page shows only the form chosen in the menu link', async ({ page }) => {
+    await page.goto('/auth/?mode=login', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'Войдите в аккаунт' })).toBeVisible();
+    await expect(page.locator('[data-auth-login-form]')).toBeVisible();
+    await expect(page.locator('[data-auth-register-form]')).toBeHidden();
+
+    await page.goto('/auth/?mode=register', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'Создайте аккаунт' })).toBeVisible();
+    await expect(page.locator('[data-auth-register-form]')).toBeVisible();
+    await expect(page.locator('[data-auth-login-form]')).toBeHidden();
+  });
+
   for (const viewport of homeViewports) {
     test(`information page retains detailed reference sections on ${viewport.name}`, async ({ page }) => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });

@@ -3692,6 +3692,28 @@ h3 {
   box-shadow: 0 16px 44px rgba(11, 29, 42, 0.1);
 }
 
+body[data-auth-mode="login"] [data-auth-register-form],
+body[data-auth-mode="register"] [data-auth-login-form] {
+  display: none;
+}
+
+.auth-layout {
+  grid-template-columns: minmax(0, 680px);
+  justify-content: center;
+}
+
+.auth-mode-switch {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.auth-mode-switch a {
+  color: var(--ocean);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .auth-gate-note {
   margin: 0 0 16px;
   border: 1px solid rgba(0, 184, 148, 0.2);
