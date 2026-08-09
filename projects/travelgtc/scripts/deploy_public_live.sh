@@ -76,7 +76,6 @@ routes=(
   /events/
   /about/
   /mira/
-  /crm/customers/
 )
 
 for route in "${routes[@]}"; do

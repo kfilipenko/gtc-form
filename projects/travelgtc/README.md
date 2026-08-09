@@ -69,7 +69,6 @@ projects/travelgtc/
 /legal/terms/
 /legal/partner-disclosure/
 /crm/
-/crm/customers/
 ```
 
 ## API Application
@@ -117,9 +116,8 @@ npm run test:travelgtc-funnel
 
 Live API submissions require a running TravelGTC API service and nginx `/api` proxy.
 
-`/crm/` and `/crm/customers/` are internal team/admin workspaces. The API protects
-their data server-side; a public or ordinary authenticated account cannot retrieve
-customer records by changing a URL.
+`/crm/` is the internal team/admin workspace. The API protects its data server-side;
+a public or ordinary authenticated account cannot retrieve CRM records by changing a URL.
 
 ## Runtime
 

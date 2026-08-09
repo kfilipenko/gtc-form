@@ -84,7 +84,7 @@ The live HTTPS API proxy is active at /api/travelgtc/.
 The live API service is travelgtc-api.service on 127.0.0.1:4301.
 ```
 
-Public pages do not expose the project owner's email address or telephone number. Use `/mira/` as the public contact route. The account `kfilipenko@kmf.ru` has active TravelGTC `team` and `admin` roles; the authenticated UI exposes `/crm/` only after the server confirms one of these roles. `/crm/customers/` is the internal customer workspace: it groups complete TravelGTC registration contact data, customer-level relationship status, all associated leads, open tasks, Mira interactions, internal notes and audit history. On `/crm/`, admins see a checkbox beside each Mira dialogue and can apply active, hidden, archived or soft-deleted lifecycle states to selected chats without leaving the lead queue. These actions never physically erase Mira messages or customer records. Customer data is protected by server-side role checks; it must never be exposed on public routes or shared with another GTC project. Mira registration/subscription intent is persisted in CRM and uses the existing private SMTP recipient configured outside git.
+Public pages do not expose the project owner's email address or telephone number. Use `/mira/` as the public contact route. The account `kfilipenko@kmf.ru` has active TravelGTC `team` and `admin` roles; the authenticated UI exposes the unified `/crm/` workspace only after the server confirms one of these roles. On `/crm/`, admins see a checkbox beside each Mira dialogue and can apply active, hidden, archived or soft-deleted lifecycle states to selected chats without leaving the lead queue. These actions never physically erase Mira messages or customer records. Customer data is protected by server-side role checks; it must never be exposed on public routes or shared with another GTC project. Mira registration/subscription intent is persisted in CRM and uses the existing private SMTP recipient configured outside git.
 
 Generated production image asset state:
 
@@ -393,7 +393,7 @@ Implemented after approval on 2026-07-28:
 
 Recommended next steps:
 
-1. use `/crm/customers/` as the working customer view during lead follow-up;
+1. use the unified `/crm/` workspace during lead follow-up;
 2. before public launch announcement, clear disposable test users/leads or document retained test data;
 3. add `TRAVELGTC-DATA-001 - Test Data Cleanup And Database Backup Policy`;
 4. decide official privacy contact email and retention period;

@@ -53,7 +53,6 @@ initFormatButtons();
 initRoleButtons();
 initAiConsultant();
 initCrmPage();
-initCrmCustomersPage();
 
 function initAuthState() {
   decorateAuthLinks();
@@ -1598,7 +1597,6 @@ function initCrmPage() {
         renderCrmLeadDetail(detail, body.lead, body.interactions || [], {
           onStageChange: updateLeadStage,
           onNoteSubmit: addLeadNote,
-          onOpenCustomer: openCustomer,
         });
       }
       list?.querySelectorAll("[data-crm-lead]").forEach((button) => {
@@ -1625,11 +1623,6 @@ function initCrmPage() {
       body: JSON.stringify({ note }),
     });
     await openLead(leadId);
-  }
-
-  function openCustomer(contactId) {
-    if (!contactId) return;
-    window.location.assign(`/crm/customers/?id=${encodeURIComponent(contactId)}`);
   }
 
   function updateChatSelection(leadId, selected) {
@@ -1734,7 +1727,6 @@ function renderCrmLeadDetail(container, lead, interactions, actions) {
       <article><strong>Интерес</strong><span>${escapeHtml(crmInterestLabel(lead.primary_interest))}</span></article>
       <article><strong>Роль</strong><span>${escapeHtml(lead.declared_role || "")}</span></article>
     </div>
-    <button class="button ghost small crm-customer-open" type="button" data-crm-open-customer>Открыть карточку клиента</button>
     <div class="crm-request">
       <h3>Запрос</h3>
       <p>${escapeHtml(lead.travel_description || lead.summary || "Нет текста запроса.")}</p>
@@ -1779,9 +1771,6 @@ function renderCrmLeadDetail(container, lead, interactions, actions) {
     await actions.onNoteSubmit(lead.lead_id, note);
   });
 
-  container.querySelector("[data-crm-open-customer]")?.addEventListener("click", () => {
-    actions.onOpenCustomer?.(lead.contact_id);
-  });
 }
 
 function initCrmCustomersPage() {
