@@ -110,7 +110,7 @@ Care, status, shared memories, emotional value, gifts that are stronger than obj
 #### Proposed Heading
 
 ```text
-Подарите близким не вещь, а путешествие
+Подарите близким не вещь, а впечатления, которые останутся навсегда
 ```
 
 #### Short Label
