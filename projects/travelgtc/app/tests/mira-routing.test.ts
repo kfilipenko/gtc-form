@@ -116,7 +116,7 @@ describe('Mira API with isolated Azure, CRM and email doubles', () => {
     });
     const app=await createTravelGtcApp({config:{...config,guestChatEnabled:true},store:new MemoryLeadStore(),authStore:new MemoryAuthStore()});
     try {
-      const response=await app.inject({method:'POST',url:'/api/travelgtc/v1/ai/chat',payload:{question:'Хочу посмотреть Travel Advantage.',guest_consent:true}});
+      const response=await app.inject({method:'POST',url:'/api/travelgtc/v1/ai/chat',payload:{question:'Хочу посмотреть Travel Advantage.'}});
       expect(response.statusCode).toBe(200);
       expect(response.json()).toMatchObject({contact_status:'cold_contact',purchase_intent:false,partner_registration_verified:false,
         referral_registration_url:'https://free.traveladvantage.com/KFilip909',completed_turns:1});
@@ -131,8 +131,7 @@ describe('Mira API with isolated Azure, CRM and email doubles', () => {
 
   test.each([
     [{origin:'https://untrusted.example'}, {question:'Поездка',guest_consent:true},403],
-    [{}, {question:'Поездка'},400],
-  ])('guest API rejects invalid origin or missing consent', async (headers,payload,status) => {
+  ])('guest API rejects invalid origin', async (headers,payload,status) => {
     const app = await createTravelGtcApp({config:{...config,guestChatEnabled:true},store:new MemoryLeadStore(),authStore:new MemoryAuthStore()});
     try {
       const response = await app.inject({method:'POST',url:'/api/travelgtc/v1/ai/chat',headers,payload});

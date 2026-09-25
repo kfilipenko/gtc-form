@@ -269,7 +269,7 @@ describe('TravelGTC auth API', () => {
     expect(allowed.headers['cache-control']).toBe('private, no-store');
     expect(allowed.json().document).toMatchObject({
       id: 'TRAVELGTC-MKT-001',
-      version: '0.3',
+      version: '0.4',
     });
     expect(allowed.json().document.markdown).toContain('## 2. Strategic Thesis');
   });

@@ -37,6 +37,8 @@ export class AzureFoundryAgentClient {
       if (/^(мира )?(привет|здравствуй|здравствуйте|как дела|как ты|как настроение|как твои дела)( мира)?$/.test(t)) return 'Настроение — чемоданное! Готова обсуждать новые маршруты. А вы давно выбирались в путешествие?';
       if (/^(мира )?(пошути|расскажи шутку|расскажи анекдот|рассмеши меня)( про путешествия| о путешествиях)?$/.test(t)) return 'Мой любимый багаж — хорошие впечатления. У них хотя бы нет перевеса! Куда вам хочется отправиться?';
     }
+    const previous=history.filter(t=>t.role==='assistant').at(-1)?.content||'';
+    if(runtime&&/^(да|давайте|хорошо|понятно)[.! ,]*$/iu.test(runtime.question.trim())&&/не удалось|недоступ|не смог проверить/iu.test(previous)&&/гостев|приглашен/iu.test(previous))return 'Ваш запрос на знакомство с приложением понятен. Проверка приглашения пока не завершена. Позже напишите «Повтори выдачу гостевого доступа». Повторно описывать поездку не нужно.';
     const handoff = runtime && this.agentName.startsWith('AI-TravelGTC') ? travelHandoff(runtime.question, history) : null;
     if (handoff) return handoff;
     if (this.agentName === 'AI-TravelGTC' && ['43','44','45','46','47'].includes(this.agentVersion)) {

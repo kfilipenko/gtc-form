@@ -23,10 +23,11 @@ export function classifyMiraIntent(text: string): MiraIntent {
   const documentRequest = /(?:пришли|отправ|дай|дайте|покажи|хочу|нужен|нужна|send|show)[^.!?]{0,80}(?:документ|pdf|таблиц|презентац|faq|compensation|план\s+вознагражд)/i.test(q);
   if (documentRequest) return result('document');
   const guestTopic = /(?:guest\s*pass|гостев\S*\s+(?:доступ|пропуск|ссылк|приглашен|просмотр)|демо|бесплатно\s+посмотр)/i.test(q);
-  const guestRequest = /(?:хочу|дай(?:те)?|пришли(?:те)?|отправ|покажи|можно|как\s+(?:получить|открыть|посмотреть)|send|show|try)/i.test(q);
+  const guestRequest = /(?:повтори|повторите|хочу|дай(?:те)?|пришли(?:те)?|отправ|покажи|можно|как\s+(?:получить|открыть|посмотреть)|send|show|try)/i.test(q);
   const guestDeclined = /(?:не\s+(?:хочу|нуж\S*|давай|присылай|отправляй|показывай)[^.!?,;]{0,35}(?:guest\s*pass|гостев|демо)|(?:guest\s*pass|гостев\S*\s+\S+)[^.!?,;]{0,15}не\s+(?:нуж|хочу)|do not[^.!?,;]{0,25}(?:guest\s*pass|demo))/i.test(q);
-  const productPreview = /(?:хочу|дай(?:те)?|покажи|можно|как)[^.!?,;]{0,25}(?:посмотр\S*|попроб\S*|познаком\S*)[^.!?,;]{0,30}travel\s*advantage/i.test(q);
-  if (!guestDeclined && ((guestTopic && guestRequest) || (productPreview && !/не\s+хочу/i.test(q)))) return result('guest_pass');
+  const directPreview = /(?:покажи(?:те)?|открой(?:те)?)[^.!?,;]{0,15}(?:приложен|платформ)/iu.test(q);
+  const productPreview = /(?:хочу|дай(?:те)?|покажи|можно|как)[^.!?,;]{0,25}(?:посмотр\S*|попроб\S*|познаком\S*)[^.!?,;]{0,30}(?:travel\s*advantage|приложен|платформ)/i.test(q);
+  if (!guestDeclined && ((guestTopic && guestRequest) || directPreview || (productPreview && !/не\s+хочу/i.test(q)))) return result('guest_pass');
   if (/(?:не\s+(?:готов\S*|хочу|буду|планирую)\s*(?:[^.!?]{0,25}(?:покуп|оплач|плат|регистр|подпис))?|пока\s+не|сначала\s+(?:понять|сравнить|проверить)|хочу\s+(?:понять|разобраться|сравнить)|do not want to (?:buy|pay)|not ready)/i.test(q)) return result('conversation');
 
   const ready = /(?:хочу|готов[аы]?|давайте|дай(?:те)?|пришли(?:те)?|отправь(?:те)?|как|где|i want|ready|send|how)[^.!?]{0,80}(?:купить|оплатить|оформить|создать\s+аккаунт|подписаться|зарегистр|регистрац|вступить|ссылк|buy|pay|register|join|link)/i.test(q);
@@ -36,4 +37,14 @@ export function classifyMiraIntent(text: string): MiraIntent {
   if (business) return result('ambassador');
   if (/(?:membership|членств|тариф|vip|elite|turbo)/i.test(q)) return result('membership');
   return result('clarify_registration');
+}
+
+// Resolve only an explicit response to the most recent assistant offer. Never infer a purchase.
+export function contextualMiraQuestion(question: string, history: {role:string;content:string}[]): string {
+ const last=history.filter(t=>t.role==='assistant').at(-1)?.content || '';
+ const yes=/^(да|давайте|можно|хорошо|согласен|согласна|покажи|покажите|хочу|да хочу)[.! ,]*$/iu.test(question.trim());
+ const offer=/гостев.{0,25}(доступ|приглашен)|посмотр.{0,25}приложен/iu.test(last);
+ const failed=/не удалось|недоступ|использован|ист[её]к|нет свободных/iu.test(last);
+ if(yes&&offer&&!failed&&/дать|предлага|получ|помо|воспольз|отправ|присла/iu.test(last))return 'Хочу получить гостевое приглашение и посмотреть приложение Travel Advantage.';
+ return question;
 }

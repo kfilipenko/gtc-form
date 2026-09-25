@@ -7,7 +7,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { readFile } from 'node:fs/promises';
 import pg from 'pg';
 import { GuestChatService, GuestChatError, GUEST_COOKIE, GUEST_TTL_SECONDS, registrationGate, buildReferralGateContext } from '../modules/ai/guestChat.js';
-import { classifyMiraIntent } from '../modules/ai/miraIntent.js';
+import { classifyMiraIntent, contextualMiraQuestion } from '../modules/ai/miraIntent.js';
 import { TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL } from '../modules/ai/membershipKnowledge.js';
 import type { TravelGtcConfig } from './config.js';
 import { clearCookie, parseCookieValue, serializeCookie } from '../modules/auth/cookies.js';
@@ -141,7 +141,6 @@ export async function createTravelGtcApp({ config, store, authStore, invitationS
       guestGlobalLimiter.check('all');
       guestIpLimiter.check(request.ip);
       const input = validateAiChatInput(request.body);
-      if ((request.body as Record<string, unknown>).guest_consent !== true) throw new GuestChatError(400,'Подтвердите условия сохранения гостевого чата.');
       let token = parseCookieValue(request.headers.cookie,GUEST_COOKIE);
       if (!token) {
         token = await guestChat.start();
@@ -228,9 +227,10 @@ export async function createTravelGtcApp({ config, store, authStore, invitationS
       const mode = azureAgent ? 'azure' : 'stub';
       const completedTurns = history.filter(turn => turn.role === 'assistant').length;
       const agentQuestion = `${buildReferralGateContext(completedTurns)}\n${buildAccountAiAgentQuestion(question, session.user, chatInput.context)}`;
-      const personal=contactId?await invitationService?.handle(question,contactId):null;
-      const rawAnswer = personal?personal.answer:azureAgent ? await azureAgent.ask(agentQuestion, history.map(t=>({...t,content:redactInvitationText(t.content)})), undefined, {question, completedTurns}) : buildMiraFallbackAnswer(question);
-      const gated = personal || registrationGate(question, rawAnswer, completedTurns);
+      const resolvedQuestion=contextualMiraQuestion(question,history);
+      const personal=contactId?await invitationService?.handle(resolvedQuestion,contactId):null;
+      const rawAnswer = personal?personal.answer:azureAgent ? await azureAgent.ask(agentQuestion, history.map(t=>({...t,content:redactInvitationText(t.content)})), undefined, {question:resolvedQuestion, completedTurns}) : buildMiraFallbackAnswer(resolvedQuestion);
+      const gated = personal || registrationGate(resolvedQuestion, rawAnswer, completedTurns);
       const purchaseIntent = gated.purchaseIntent;
       const referralRegistrationUrl = personal ? (gated.referralUrl || '') : gated.referralUrl || fallbackReferral;
       const answer = applyPurchaseIntentAnswerSuffix(gated.answer, purchaseIntent, referralRegistrationUrl);

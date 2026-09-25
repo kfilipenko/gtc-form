@@ -27,7 +27,6 @@ export function registerMiraPublic(app:FastifyInstance, deps:any) {
   reply.header('Cache-Control','private, no-store');
   try{check(req);if(await identity(req))return {ok:true};
    if(!guestChat)return reply.code(503).send({ok:false});
-   if((req.body as any)?.guest_consent!==true)return reply.code(400).send({ok:false});
    ipLimit.check(req.ip);globalLimit.check('all');
    const token=await guestChat.start();reply.header('Set-Cookie',serializeCookie(GUEST_COOKIE,token,{maxAgeSeconds:GUEST_TTL_SECONDS,secure}));return {ok:true};
   }catch{return reply.code(429).send({ok:false});}

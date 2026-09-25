@@ -320,3 +320,5 @@ The project was started under:
 ## TRAVELGTC-INTEGRATION-001 — content catalog 2026-09-17
 
 - [155_travelgtc_integration_001_content_catalog.md](155_travelgtc_integration_001_content_catalog.md): Owner-authorized MWR Academy review; 39 public pages checked, 71 content/source/lesson records, client routing and campaign ideas. CONTENT_CATALOG_READY / NOT_DEPLOYED.
+
+- [Mira: исправления гостевого чата и мобильной прокрутки](../../projects/travelgtc/operations/chat-followup/README.md) — GTC-AI-CONTENT-CATALOG-001, 2026-09-25.

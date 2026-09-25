@@ -3,7 +3,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import type pg from 'pg';
 import type { SessionLookupResult } from '../auth/types.js';
 import type { AzureFoundryAgentHistoryTurn } from './azureFoundryAgent.js';
-import { classifyMiraIntent } from './miraIntent.js';
+import { classifyMiraIntent, contextualMiraQuestion } from './miraIntent.js';
 import { OFFICIAL_MWR_REGISTRATION_URL, TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL, TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL } from './membershipKnowledge.js';
 
 export const GUEST_COOKIE = 'gtc_mira_guest';
@@ -70,7 +70,7 @@ export class GuestChatService {
       await client.query('begin');
       const contact = await client.query(`insert into travelgtc_contacts
         (display_name,primary_channel,primary_contact,consent_personal_data,consent_communication,consent_version,created_by,updated_by)
-        values ('Гость Миры','site','anonymous',true,false,'mira-guest-v1','ai_guest','ai_guest') returning id`);
+        values ('Гость Миры','site','anonymous',false,false,'mira-guest-notice-v2','ai_guest','ai_guest') returning id`);
       const lead = await client.query(`insert into travelgtc_leads
         (contact_id,stage,declared_role,primary_interest,business_interest_level,source_channel,source_path,summary,created_by,updated_by)
         values ($1,'cold_contact','unsure','question','none','site','ai_chat','Гостевой диалог Миры','ai_guest','ai_guest') returning id`, [contact.rows[0].id]);
@@ -107,9 +107,10 @@ export class GuestChatService {
       if (guest.completed_turns >= 20) throw new GuestChatError(429, 'Лимит гостевого диалога достигнут. Сохраните переписку в аккаунте TravelGTC и продолжите после входа.');
       const turns = await client.query(`select direction,body from travelgtc_interactions where lead_id=$1 and interaction_type='ai_chat' order by created_at desc,id desc limit 40`, [guest.lead_id]);
       const history = turns.rows.reverse().map(row => ({ role: row.direction === 'inbound' ? 'user' as const : 'assistant' as const, content: redactInvitationText(row.body) }));
-      const personal=await this.invitations?.handle(question,guest.contact_id);
-      const raw = personal?personal.answer:await ask(`${buildReferralGateContext(guest.completed_turns)}\nСообщение пользователя: ${question}`, history, {question,completedTurns:guest.completed_turns});
-      const response = personal || registrationGate(question, raw, guest.completed_turns);
+      const resolvedQuestion=contextualMiraQuestion(question,history);
+      const personal=await this.invitations?.handle(resolvedQuestion,guest.contact_id);
+      const raw = personal?personal.answer:await ask(`${buildReferralGateContext(guest.completed_turns)}\nСообщение пользователя: ${resolvedQuestion}`, history, {question:resolvedQuestion,completedTurns:guest.completed_turns});
+      const response = personal || registrationGate(resolvedQuestion, raw, guest.completed_turns);
       for (const [direction,body] of [['inbound',question],['outbound',response.answer]]) {
         await client.query(`insert into travelgtc_interactions (lead_id,contact_id,interaction_type,channel,direction,body,metadata_json,created_by,created_at)
           values ($1,$2,'ai_chat','site',$3,$4,$5,'ai_guest',clock_timestamp())`, [guest.lead_id,guest.contact_id,direction,body,

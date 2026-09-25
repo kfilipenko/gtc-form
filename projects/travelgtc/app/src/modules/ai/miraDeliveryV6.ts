@@ -61,7 +61,8 @@ export function deliver(d,{question,history=[],registry,paidRoute=null,guestRout
  }
  if(registry.MATERIAL_VIP_RU&&selected.some(x=>x.url===registry.MATERIAL_VIP_RU.url))text+='\n\nЭто историческая версия флаера; текущие тарифы и условия нужно сверить на официальной странице.';
  const normalizeQuestion=s=>s.toLocaleLowerCase('ru').replace(/[^\p{L}\p{N}\s]/gu,' ').split(/\s+/).filter(w=>w&&!['а','ещё','еще','пожалуйста','же','ну'].includes(w)).join(' ');
- const repeatedQuestion=d.question&&normalizeQuestion(question).includes(normalizeQuestion(d.question));
+ const asked=history.filter(t=>t.role==='assistant').slice(-5).map(t=>normalizeQuestion(t.content));
+ const repeatedQuestion=d.question&&(normalizeQuestion(question).includes(normalizeQuestion(d.question))||asked.some(t=>t.includes(normalizeQuestion(d.question))));
  const answer=[text,repeatedQuestion?null:d.question?.trim(),...selected.map(r=>`[${r.label}](${r.url})`)].filter(Boolean).join('\n\n');
  return {answer,links:selected.map(x=>x.url),suppressed};
 }
