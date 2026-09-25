@@ -4,9 +4,9 @@
 - Project code: travelgtc
 - Domain: travelgtc.com
 - Owner: GTC INFORMATION TECHNOLOGY FZ-LLC
-- Version: 10.6
-- Date: 2026-08-09
-- Status: Sales landing published at the root route; Mira is the safe public contact path, authentication opens one form matching the selected action, and the role-gated CRM uses one integrated queue for leads and chat administration
+- Version: 10.9
+- Date: 2026-09-14
+- Status: Marketing strategy publication is Owner-confirmed; TRAVELGTC-AUTO-001 is ready for Codex Agent to begin isolated OpenClaw setup
 
 ## 1. Purpose
 
@@ -22,8 +22,20 @@ The first stage is intentionally small:
 ## 2. Current Documents
 
 | Document | Title | Purpose | Status |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `00_documentation_register.md` | TravelGTC - Documentation Register | Project documentation index and fixation point. | Active |
+| `153_travelgtc_integration_001_authorized_access_task.md` | TRAVELGTC-INTEGRATION-001 - Authorized Source Access And Integration | Owner-approved authenticated site discovery, source/data mapping, integration contract and Codex handoff; activation has a separate contract gate. | Owner approved / ready for discovery; integration not activated |
+| `152_travelgtc_ai_018_guest_first_instruction_report.md` | TRAVELGTC-AI-018 - Guest-First Instruction Revision | Guest-first routing, Azure v35 publication, 98 regression tests, 14 model turns, live guest test and protected rollback. | Published / production verified 2026-09-16 |
+| `150_travelgtc_web_055_audience_journeys_task.md` | TRAVELGTC-WEB-055 - Audience-Specific Website Journeys | Four audience motives, three destination pages and consented Mira handoff. | Published / Owner visual review |
+| `151_travelgtc_web_055_audience_journeys_report.md` | TRAVELGTC-WEB-055 - Audience Journeys Release Report | Audience routing, responsive and consent regression tests, deployment evidence. | Published / verified |
+| `148_travelgtc_web_054_conversion_entry_task.md` | TRAVELGTC-WEB-054 - Homepage And Mira Conversion Entry | Owner-approved first conversion stage, founder content, compact guest chat and consented conversation attribution. | Published / Owner accepted |
+| `149_travelgtc_web_054_conversion_entry_report.md` | TRAVELGTC-WEB-054 - Conversion Entry Release Report | Scoped implementation, attribution limits, tests, deployment and rollback evidence. | Published / verified |
+| `146_travelgtc_ai_018_strategy_alignment_task.md` | TRAVELGTC-AI-018 - Website And Mira Strategy Alignment | Owner-approved strategy alignment and guest-first amendment; paired Azure v35/API release (report 152). | Implemented / published / production verified |
+| `147_travelgtc_ai_018_strategy_alignment_report.md` | TRAVELGTC-AI-018 - Strategy Alignment Verification | Production release; 77 unit/contract tests, 17 PostgreSQL checks, 5 browser tests and real guest-to-account smoke test. | RELEASED / report |
+| `145_travelgtc_auto_001_openclaw_strategy_setup_task.md` | TRAVELGTC-AUTO-001 - OpenClaw Strategy Setup Task for Codex Agent | Authorizes an isolated, consent-controlled OpenClaw implementation slice based on the canonical TravelGTC marketing strategy. | Ready for Codex execution |
+| `144_travelgtc_mkt_002_internal_strategy_portal_report.md` | TRAVELGTC-MKT-002 - Internal Strategy Portal Publication Report | Records the protected API, responsive internal page, tests and live publication. | Implemented and published |
+| `143_travelgtc_mkt_002_internal_strategy_portal_task.md` | TRAVELGTC-MKT-002 - Internal Strategy Portal Publication Task | Defines protected browser publication of the registered master strategy for visual review. | Implemented by MKT-002 report |
+| `142_travelgtc_mkt_001_master_marketing_strategy.md` | TRAVELGTC-MKT-001 - Master Marketing Strategy | Defines the three-direction brand model, Russia and abroad audience strategy, channel roles, consent funnels and compliance gates. | Internal Project Owner review; protected portal publication active |
 | `141_travelgtc_crm_007_chat_administration_report.md` | TRAVELGTC-CRM-007 - Chat Administration Report | Records protected chat lifecycle controls inside the primary CRM queue. | Implemented |
 | `140_travelgtc_test_crm_data_cleanup.md` | TRAVELGTC-OPS-001 - Test CRM Data Cleanup | Records test-data removal and the safe future CRM cleanup utility. | Implemented |
 | `135_travelgtc_crm_004_owner_access_and_mira_contact_report.md` | TRAVELGTC-CRM-004 - Owner CRM Access And Mira Contact Report | Fixes Mira as the safe public contact path, owner CRM access and the registration-intent CRM/email route. | Implemented |
@@ -173,7 +185,7 @@ The first stage is intentionally small:
 ## 3. Project Source Locations
 
 | Area | Path | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | Project source | `projects/travelgtc/` | Website source, public assets, deploy scripts and future app code. |
 | Public source | `projects/travelgtc/public/` | Files intended for public website publication. |
 | API app source | `projects/travelgtc/app/` | TravelGTC TypeScript API application. |
@@ -201,6 +213,10 @@ The project was started under:
 ## 5. Revision History
 
 | Version | Date | Author | Changes |
+| --- | --- | --- | --- |
+| 10.9 | 2026-09-14 | GTC IT / AI Assistant | Registered TRAVELGTC-AUTO-001 for Codex Agent to begin isolated OpenClaw setup from the Owner-confirmed marketing strategy |
+| 10.8 | 2026-09-14 | GTC IT / AI Assistant | Registered and published TRAVELGTC-MKT-002 protected strategy page, role-gated API, responsive renderer and live verification |
+| 10.7 | 2026-09-14 | GTC IT / AI Assistant | Registered TRAVELGTC-MKT-001 master strategy for Travel Advantage, Life Experiences and `Путешествуй и зарабатывай`, with separate Russia and Russian-speaking-abroad acquisition models and a gated portal publication plan |
 | 8.9 | 2026-07-31 | GTC IT / AI Assistant | Revised AI-016 for approval: Mira active sales dialogue, pair-model presentation, partner-count rule, 490 Loyalty Points story and official dynamic source delivery |
 | 9.0 | 2026-07-31 | GTC IT / AI Assistant | Implemented AI-016: published the pair presentation, switched Mira to Azure v24 and updated the sales-first starter dialogue and API knowledge layer |
 | 9.1 | 2026-07-31 | GTC IT / AI Assistant | Published the pair-model HTML and PDF materials, removed public PPTX distribution and switched Mira delivery rules to Azure v27 |
@@ -208,7 +224,6 @@ The project was started under:
 | 8.8 | 2026-07-30 | GTC IT / AI Assistant | Implemented AI-015: published Mira Azure v21, revised Membership qualification and document consent, preserved CRM new-case separation and verified fresh-answer reading position |
 | 8.7 | 2026-07-30 | GTC IT / AI Assistant | Added AI-015 draft for source-grounded Membership qualification and Mira instruction/guard/CRM tuning; awaiting approval |
 | 8.6 | 2026-07-30 | GTC IT / AI Assistant | Implemented and published WEB-046: account-first Mira entry, preserved scenario/CTA context, CRM entry metadata and Azure Mira version 17 |
-|---|---|---|---|
 | 8.4 | 2026-07-30 | GTC IT / AI Assistant | Recorded live Mira colleague-test results for five sales-dialogue control questions |
 | 8.3 | 2026-07-29 | GTC IT / AI Assistant | Published Mira Azure version 16 with colleague sales playbook, interrupted-dialogue handling and post-document next-step guard |
 | 8.2 | 2026-07-29 | GTC IT / AI Assistant | Published Mira Azure version 14 with document-choice-before-file-delivery rule |
@@ -293,3 +308,15 @@ The project was started under:
 | 0.3 | 2026-07-08 | GTC IT / AI Assistant | Added visual reference and product direction document after Project Owner uploaded mockups |
 | 0.2 | 2026-07-08 | GTC IT / AI Assistant | Added bootstrap implementation report to the register |
 | 0.1 | 2026-07-08 | GTC IT / AI Assistant | Initial TravelGTC documentation section, image folders and goal document register |
+
+
+## TRAVELGTC-INTEGRATION-001 — discovery update 2026-09-17
+
+| Document | Purpose | Status |
+| --- | --- | --- |
+| [154_travelgtc_integration_001_discovery_contract.md](154_travelgtc_integration_001_discovery_contract.md) | Verified isolated access, source map, reuse limits and one-way integration contract proposal. | CONTRACT_FOR_OWNER_REVIEW; remaining discovery dependencies explicit; integration not activated |
+
+
+## TRAVELGTC-INTEGRATION-001 — content catalog 2026-09-17
+
+- [155_travelgtc_integration_001_content_catalog.md](155_travelgtc_integration_001_content_catalog.md): Owner-authorized MWR Academy review; 39 public pages checked, 71 content/source/lesson records, client routing and campaign ideas. CONTENT_CATALOG_READY / NOT_DEPLOYED.

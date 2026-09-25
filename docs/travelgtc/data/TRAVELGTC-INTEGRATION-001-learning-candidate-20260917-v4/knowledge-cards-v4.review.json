@@ -1,0 +1,1999 @@
+{
+  "schema_version": "0.1-draft",
+  "task_id": "TRAVELGTC-INTEGRATION-001",
+  "status": "REVIEW_CANDIDATE_NOT_DEPLOYED",
+  "created_at": "2026-09-17T13:52:30.284058+00:00",
+  "base_file": "TravelGTC-mira-content.json",
+  "base_sha256": "ca1b1919512d07137caf3544d3f67887ccf819a58b33f42f4884cb4697f1a6f1",
+  "operation": "additive_candidate_only_not_runtime_compatible",
+  "production_enabled": false,
+  "auto_sync_enabled": false,
+  "sources": [
+    {
+      "id": "S080",
+      "location": "/var/www/gtc-form/docs/travelgtc/080_travelgtc_ai_001_mira_consultant_instruction.md#MIRA_CURRENT_START",
+      "access": "internal_project_source",
+      "evidence": "current_instruction_read",
+      "checked_at": "2026-09-17",
+      "limit": "Текст источника прочитан; production v35 сообщён самим документом, runtime не проверялся."
+    },
+    {
+      "id": "S153",
+      "location": "/var/www/gtc-form/docs/travelgtc/153_travelgtc_integration_001_authorized_access_task.md",
+      "access": "internal_project_source",
+      "evidence": "task_read",
+      "checked_at": "2026-09-17",
+      "limit": "Исходная проектная запись. Эта же задача зарегистрирована кандидатом в отдельной ветке gtc-docs; публикация в main не выполнена."
+    },
+    {
+      "id": "S154",
+      "location": "/var/www/gtc-form/docs/travelgtc/154_travelgtc_integration_001_discovery_contract.md",
+      "access": "internal_project_source",
+      "evidence": "prior_report_read",
+      "checked_at": "2026-09-17",
+      "limit": "Предложение интеграции; API не подтверждён."
+    },
+    {
+      "id": "S155",
+      "location": "/var/www/gtc-form/docs/travelgtc/155_travelgtc_integration_001_content_catalog.md",
+      "access": "internal_project_source",
+      "evidence": "prior_report_and_71_records_read",
+      "checked_at": "2026-09-17",
+      "limit": "Не свидетельство полного просмотра видео."
+    },
+    {
+      "id": "S-GUEST",
+      "location": "OWNER_APPROVED_GUEST_ROUTE",
+      "access": "anonymous_no_cookies",
+      "evidence": "public_html_read",
+      "checked_at": "2026-09-17T13:44:02.054838+00:00",
+      "limit": "Ограничение прочитано; email-процесс описан в HTML, не исполнен; гостевой кабинет не проверен."
+    },
+    {
+      "id": "S-HOME",
+      "location": "https://www.traveladvantage.com/home",
+      "access": "existing_owner_profile",
+      "evidence": "rendered_page_read",
+      "checked_at": "2026-09-17",
+      "limit": "Проверены две карточки, не весь каталог; доступ Owner не доказывает доступ гостя."
+    },
+    {
+      "id": "S-SANTORINI",
+      "location": "https://www.traveladvantage.com/experience/view/314",
+      "access": "existing_owner_profile",
+      "evidence": "rendered_detail_read",
+      "checked_at": "2026-09-17",
+      "limit": "Информационная страница; действия бронирования не выполнены."
+    },
+    {
+      "id": "S-SANDIEGO",
+      "location": "https://www.traveladvantage.com/experience/view/317",
+      "access": "existing_owner_profile",
+      "evidence": "rendered_detail_read",
+      "checked_at": "2026-09-17",
+      "limit": "Прочитаны даты и сообщение закрытия; все условия не исследованы."
+    },
+    {
+      "id": "S-VOUCHERS",
+      "location": "https://www.mwrlife.com/bizcenter/vouchers",
+      "access": "authenticated_owner_profile",
+      "evidence": "rendered_explanatory_text_and_column_headings_read",
+      "checked_at": "2026-09-17T15:34:44.665486+00:00",
+      "limit": "Guest Passes: коды предоставляют бесплатный ограниченный доступ. Прочитаны только пояснение и заголовки таблицы; коды, получатели, строки, PDF и activation actions не читались/не выполнялись. Срок и гостевые разделы UNKNOWN."
+    },
+    {
+      "id": "S-CAMPFIRE",
+      "location": "https://hub.mwrlife.com/campfire",
+      "access": "authenticated_owner_profile",
+      "evidence": "authenticated_access_plus_16_lesson_transcripts_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "limit": "Изучены доступные русские субтитры16 уроков Getting Started RU. Остальные курсы не выданы за изученные. Owner разрешил обучение; вопрос прав больше не общий блок этого исследования."
+    },
+    {
+      "id": "S-GUIDE",
+      "location": "https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/GettingStartedGuide-RU.pdf",
+      "access": "public_document",
+      "evidence": "public_official_pdf_reopened_and_read",
+      "checked_at": "2026-09-17T18:53:47.876169+00:00",
+      "limit": "Сохранённый текст ранее проверенного PDF; ©2013–2023, EN-текст несмотря на RU-имя. Не источник текущих бонусов."
+    },
+    {
+      "id": "S-BENEFITS",
+      "location": "https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-RU.pdf",
+      "access": "public_document",
+      "evidence": "previous_public_pdf_text_reread",
+      "checked_at": "2026-09-17",
+      "limit": "Версия 25.05.01. Текстовый слой не сохраняет надёжно отметки в матрице доступа."
+    },
+    {
+      "id": "S-ACADEMY-RU",
+      "location": "https://mwracademy.com/getting-started-with-ru/",
+      "access": "anonymous_no_cookies",
+      "evidence": "public_page_rechecked_titles_from_prior_browser_read",
+      "checked_at": "2026-09-17T13:44:03.575236+00:00",
+      "limit": "13 названий уроков подтверждены в предыдущем исследовании; видео полностью не просмотрены."
+    },
+    {
+      "id": "S-ACADEMY-PRODUCT",
+      "location": "https://mwracademy.com/mastering-travel-advantage/",
+      "access": "anonymous_no_cookies",
+      "evidence": "public_page_rechecked_titles_from_prior_browser_read",
+      "checked_at": "2026-09-17T13:44:05.472519+00:00",
+      "limit": "9 названий продуктовых уроков; не проверена русская озвучка или полное воспроизведение."
+    },
+    {
+      "id": "S-ACADEMY-LE",
+      "location": "https://mwracademy.com/life-experience/",
+      "access": "anonymous_no_cookies",
+      "evidence": "public_page_and_headings_read",
+      "checked_at": "2026-09-17T13:44:07.262345+00:00",
+      "limit": "10 направлений на странице; это видеокаталог, не актуальный календарь."
+    },
+    {
+      "id": "S-CODE",
+      "location": "/var/www/gtc-form/projects/travelgtc/app/src/modules/ai/membershipKnowledge.ts",
+      "access": "internal_source_read_only",
+      "evidence": "source_read",
+      "checked_at": "2026-09-17",
+      "limit": "buildMembershipKnowledgeContext и attachMembershipDocumentLink прочитаны, execution/runtime не проверялись."
+    },
+    {
+      "id": "S-HUB-ACADEMY",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → названия разделов; каждый из трёх доступных разделов → языковые коллекции",
+      "access": "authenticated_owner_profile",
+      "evidence": "collection_titles_only",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "limit": "Теперь прочитаны доступные субтитры16 уроков Getting Started RU. Для других коллекций пока только оглавление."
+    },
+    {
+      "id": "S-HUB-RESOURCES",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Resources → каталог EN → Policies-English.pdf → Просмотр",
+      "access": "authenticated_owner_profile",
+      "evidence": "catalog_titles_and_document_action_labels",
+      "checked_at": "2026-09-17T15:44:07.731437+00:00",
+      "limit": "Прочитаны заголовки каталога и действия. Просмотр Policies открыл некорректный адрес iframe, PDF не прочитан. Поделиться/Скачать не нажимались, tracking links не создавались."
+    },
+    {
+      "id": "HUB-RU-01",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 01: Welcome to Getting Started Training - Добро Пожаловать на Тренинг Запуска в Бизнес",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "01",
+      "title": "Welcome to Getting Started Training - Добро Пожаловать на Тренинг Запуска в Бизнес",
+      "duration_seconds": 53.44,
+      "observed_caption_rows": 23,
+      "first_row": 1,
+      "last_row": 23,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "42a59198dcab4e3cf74281f78e032024f653b5fa78e628bd736b80f6bb618f2f",
+      "summary": "Курс представлен как краткое обучение запуску Ambassador.",
+      "limit": "Контекст обучения, не обещание результата. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "HUB-RU-02",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 02: Define Your Why - Определите свое \"Почему\"",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "02",
+      "title": "Define Your Why - Определите свое \"Почему\"",
+      "duration_seconds": 327.32,
+      "observed_caption_rows": 199,
+      "first_row": 1,
+      "last_row": 199,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "93d7e68692b5803fb9ce0b7f039002adf39c8a85606dc0bc4829982c37eaadeb",
+      "summary": "Определить личную причину, затем цели и ближайшие действия; планировать по горизонтам.",
+      "limit": "Цель дохода не прогноз. Исключены гарантии достижения целей и навязанные нормы контактов. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "HUB-RU-03",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 03: Name List - Список Контактов",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "03",
+      "title": "Name List - Список Контактов",
+      "duration_seconds": 236.76,
+      "observed_caption_rows": 127,
+      "first_row": 1,
+      "last_row": 127,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "223c6e06036166a9710e38f34f3e77c21af4ac2bf5f65df62b0e6ae2138e3a85",
+      "summary": "Разделять знакомые и холодные контакты; интерес человека выяснять, а не угадывать.",
+      "limit": "Не импортировать адресную книгу и не рассылать сообщения без отдельного полномочия; контакты не равно согласие. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "HUB-RU-04",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 04: Invitation - Приглашение",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "04",
+      "title": "Invitation - Приглашение",
+      "duration_seconds": 222.76,
+      "observed_caption_rows": 136,
+      "first_row": 1,
+      "last_row": 136,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "1744c2e858656c4ac9a9244a4acaf51403e4f0288bd684d4d81f8205241a023b",
+      "summary": "Краткое приглашение отличается от презентации; согласовать следующий шаг и удобное время.",
+      "limit": "Не переносить искусственную срочность, отказ отвечать на вопросы или обещание будущего контакта без инструмента. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "HUB-RU-05",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 05: Preparation 1 2 3 - Подготовка 1 2 3",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "05",
+      "title": "Preparation 1 2 3 - Подготовка 1 2 3",
+      "duration_seconds": 102.4,
+      "observed_caption_rows": 48,
+      "first_row": 1,
+      "last_row": 48,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "f1c160bf7ad707628984062085792f136e3beb640e5e9e4e43c2012af7e48e95",
+      "summary": "Перед материалом объяснить мотив и убрать давление: ознакомление не обязывает соглашаться.",
+      "limit": "Мира не изображает личный бизнес-опыт и не говорит, что всё проверила, без доказательств. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "HUB-RU-06",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 06: Edification - Представление Эксперта",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "06",
+      "title": "Edification - Представление Эксперта",
+      "duration_seconds": 153.52,
+      "observed_caption_rows": 84,
+      "first_row": 1,
+      "last_row": 84,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "d52e701c03c54ff7aed071ad807b8c72927bfb0693cae736efacfa5e5836b93e",
+      "summary": "Перед знакомством с ведущим объяснить, почему его информация релевантна.",
+      "limit": "Не выдумывать биографию, регалии, достижения и гарантии конверсии. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "HUB-RU-07",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 07: Presentation - Презентация",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "07",
+      "title": "Presentation - Презентация",
+      "duration_seconds": 190.12,
+      "observed_caption_rows": 86,
+      "first_row": 1,
+      "last_row": 86,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "d4ad50d2460a0e3273e4e1fb9f0f3e8312b72f6419378daac99f1fd37191c3ed",
+      "summary": "Использовать готовый материал, сохранять внимание, объяснять кратко и по существу.",
+      "limit": "Краткость не означает скрывать существенные условия. Мира не утверждает, что видит просмотр пользователя. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "HUB-RU-08",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 08: Online Presentation - Онлайн Презентация",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "08",
+      "title": "Online Presentation - Онлайн Презентация",
+      "duration_seconds": 74.6,
+      "observed_caption_rows": 39,
+      "first_row": 1,
+      "last_row": 39,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "2d420634367dfcb7fa0f485014511e7b429d3ce51fb1e6b91c6eab6600be2ab7",
+      "summary": "Дистанционный формат полезен при разной географии; учитывать язык и часовой пояс.",
+      "limit": "Расшифровка заканчивается незавершённой фразой; продолжение не восстановлено догадкой. Встречи не создавались. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "HUB-RU-09",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 09: Closing - Закрытие Сделки",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "09",
+      "title": "Closing - Закрытие Сделки",
+      "duration_seconds": 307.48,
+      "observed_caption_rows": 153,
+      "first_row": 1,
+      "last_row": 153,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "bd847a038c9a7b27024e75d0f752c956af216ad901fdae678d268713de220119",
+      "summary": "Не повторять презентацию; помочь выбрать направление и следующий шаг; уважать отказ и отсутствие готовности.",
+      "limit": "Не переносить сбор кредитной карты/данных в чат. Не предлагать бизнес человеку, который его исключил. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "HUB-RU-10",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 10: Objections - Возражения",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "10",
+      "title": "Objections - Возражения",
+      "duration_seconds": 302.4,
+      "observed_caption_rows": 155,
+      "first_row": 1,
+      "last_row": 155,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "d036497a5b2d32fbf6cbca68b91d4a6c64b4679f527ca10a7ceeae855099d808",
+      "summary": "Заранее объяснять существенные условия; разбирать конкретные сомнения о деньгах и времени.",
+      "limit": "Доступные субтитры заканчиваются обрывом. Старые суммы, оправдание давления нехваткой денег и обещания дохода исключены. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "HUB-RU-11",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 11: First 48h - Первые 48 Часов",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "11",
+      "title": "First 48h - Первые 48 Часов",
+      "duration_seconds": 139.56,
+      "observed_caption_rows": 66,
+      "first_row": 1,
+      "last_row": 66,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "a170c3a571b1792ed2fbef5434fae2b81c8a2036fb8e140300d239e5c47577a6",
+      "summary": "После выбора Ambassador предложить понятный старт обучения и официальные инструменты.",
+      "limit": "48 часов — рекомендация автора, не срок доступа или обязательство платформы. Конец субтитров обрывается; бонус не обещается. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "HUB-RU-12",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 12: Travel Industry - Туристическая Индустрия",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "12",
+      "title": "Travel Industry - Туристическая Индустрия",
+      "duration_seconds": 123.72,
+      "observed_caption_rows": 51,
+      "first_row": 1,
+      "last_row": 51,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "4e946dd9b5ccf140319893199b1776412b94da60a2dfe474451d8ee08a912b3c",
+      "summary": "Урок использует масштаб туристической отрасли как контекст продуктовой презентации.",
+      "limit": "В субтитрах сомнительные числа/единицы; ни статистика, ни неизбежный рост не перенесены как факт. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "HUB-RU-13",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 13: Home based business - Бизнес на Дому",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "13",
+      "title": "Home based business - Бизнес на Дому",
+      "duration_seconds": 120.28,
+      "observed_caption_rows": 55,
+      "first_row": 1,
+      "last_row": 55,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "4789b7792abb72d2b5191ab45f3ab0481485a72ca6b2a5f3245b84f26f0415a4",
+      "summary": "Роль партнёра описана как знакомство клиента с компанией и продуктом, в том числе дистанционно.",
+      "limit": "Утверждения о долях рынка/миллионерах и типичном доходе не проверены и не используются. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "HUB-RU-14",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 14: Subscription is the Future - Модель Подписки - это Будущее",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "14",
+      "title": "Subscription is the Future - Модель Подписки - это Будущее",
+      "duration_seconds": 127.24,
+      "observed_caption_rows": 56,
+      "first_row": 1,
+      "last_row": 56,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "a70cc3c3512c67e85457cffe4c61d00b37b5a70b8fd66eca8f98e35588d72e1c",
+      "summary": "Объясняется идея регулярного участия и использования возможностей платформы.",
+      "limit": "Это не текущая тарифная спецификация. Применимость Credits/Points ко всем услугам не принимается без правил. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "HUB-RU-15",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 15: MRW Life is the Future - MWR Life это Будущее",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "15",
+      "title": "MRW Life is the Future - MWR Life это Будущее",
+      "duration_seconds": 130.32,
+      "observed_caption_rows": 58,
+      "first_row": 1,
+      "last_row": 58,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "b9126f8c8f0b044d1b7520aab2d6ab0586618ec8563b1f97ae5b7f2169642f0b",
+      "summary": "Подчёркнуты понимание модели и ясное объяснение потребителю, подбор под привычки путешествовать.",
+      "limit": "Заявления о первенстве, уникальности и неизбежном успехе не перенесены. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "HUB-RU-16",
+      "location": "https://hub.mwrlife.com/campfire",
+      "navigation": "Academy → Getting Started Training → Getting Started RU → 16: 2 A Day - 2 в День",
+      "access": "authenticated_owner_profile",
+      "evidence": "all_available_Russian_player_transcript_rows_read",
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "lesson_number": "16",
+      "title": "2 A Day - 2 в День",
+      "duration_seconds": 349.52,
+      "observed_caption_rows": 212,
+      "first_row": 1,
+      "last_row": 212,
+      "available_row_coverage": "continuous_no_gaps",
+      "raw_evidence_sha256": "95eecb74ad79b585e79ac15a1e41b9146f7e35d9d1219b31748796dceaed3f7c",
+      "summary": "Предложен регулярный цикл презентаций, последующего общения и обучения команды.",
+      "limit": "Числовая модель автора — гипотетический сценарий, не прогноз или доказательство дохода. Цифры не включены в клиентские ответы. Аудиодорожка/видеоряд полностью не прослушаны/не просмотрены; чтение субтитров не названо просмотром видео.",
+      "permission_basis": "Owner authorization in current conversation; internal study and original adaptations; no raw course publication."
+    },
+    {
+      "id": "S-POLICY-2026",
+      "location": "https://www.mwrlife.com/content/PoliciesAndProcedures.pdf",
+      "access": "public_document",
+      "evidence": "official_pdf_read",
+      "effective_date": "2026-05-01",
+      "checked_at": "2026-09-17T18:53:47.876169+00:00",
+      "limit": "Текст устанавливает правила для Independent Lifestyle Ambassadors. Индивидуальные письменные согласования Owner не представлены."
+    }
+  ],
+  "knowledge_cards": [
+    {
+      "id": "K001",
+      "topic": "Сразу дать запрошенное гостевое приглашение",
+      "audience": "Потенциальный путешественник",
+      "knowledge_kind": "existing_instruction",
+      "verified_fact_or_method": "Прямая просьба о Guest Pass выполняется сразу; локальный аккаунт TravelGTC не является условием.",
+      "source_ids": [
+        "S080",
+        "S-GUEST"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Просьба посмотреть Travel Advantage",
+      "mira_example": "Вот гостевое приглашение: OWNER_APPROVED_GUEST_ROUTE. Это знакомство с Travel Advantage; на официальной стороне может потребоваться гостевой аккаунт. После просмотра расскажите, что хотите подобрать.",
+      "limitations": "Не утверждать завершение регистрации. Не добавлять платный или бизнес-маршрут.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K002",
+      "topic": "Ограничение гостевого предложения",
+      "audience": "Гость",
+      "knowledge_kind": "observed_provider_statement",
+      "verified_fact_or_method": "На публичной персональной странице 17.09.2026 указано одно бронирование отеля максимум на две ночи.",
+      "source_ids": [
+        "S-GUEST"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Вопрос о возможностях Guest Pass",
+      "mira_example": "На странице гостевого приглашения при проверке 17 сентября 2026 года указано одно бронирование отеля максимум на две ночи. Перед оформлением сверяйте условия на этой странице.",
+      "limitations": "Не превращать это в срок жизни аккаунта; не распространять на Vouchers или все варианты Guest.",
+      "refresh_policy": "Перед любым утверждением действующих условий повторно проверить официальный источник; при отсутствии проверки сообщать только дату наблюдения.",
+      "volatility": "changing",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K003",
+      "topic": "Email в гостевом маршруте",
+      "audience": "Гость",
+      "knowledge_kind": "observed_provider_statement",
+      "verified_fact_or_method": "В публичном HTML предусмотрена инструкция завершить Guest Pass registration через ссылку подтверждения email.",
+      "source_ids": [
+        "S-GUEST"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Как проходит гостевой вход?",
+      "mira_example": "На официальной странице описано подтверждение email для получения Guest Pass. Выполните шаги самого сайта; пароли и коды в чат присылать не нужно.",
+      "limitations": "Шаги не выполнены; не утверждать, что письмо отправлено. Статический HTML не доказывает видимое состояние формы.",
+      "refresh_policy": "Перед любым утверждением действующих условий повторно проверить официальный источник; при отсутствии проверки сообщать только дату наблюдения.",
+      "volatility": "changing",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K004",
+      "topic": "Один вопрос о поездке",
+      "audience": "Путешественник / семья",
+      "knowledge_kind": "editorial_method",
+      "verified_fact_or_method": "Уточнить один важный неизвестный параметр до выбора Membership; сохранять уже известные ответы.",
+      "source_ids": [
+        "S080"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Общий запрос на отпуск",
+      "mira_example": "Помогу разобраться с вариантом для вашей поездки. На какие даты планируете путешествие?",
+      "limitations": "Не задавать даты повторно, если они уже известны; русский язык не определяет страну.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K005",
+      "topic": "Объяснение продукта без обещания выгоды",
+      "audience": "Путешественник",
+      "knowledge_kind": "editorial_method",
+      "verified_fact_or_method": "Объяснить официальный продукт, предложить гостевое знакомство, оценить пользу на конкретной поездке.",
+      "source_ids": [
+        "S080"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Что такое TravelGTC / Travel Advantage?",
+      "mira_example": "TravelGTC помогает познакомиться с Travel Advantage и разобраться в вариантах участия. Прислать гостевое приглашение, чтобы посмотреть платформу на примере вашей поездки?",
+      "limitations": "TravelGTC не официальный сайт компании, не бронирует и не принимает оплату.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K006",
+      "topic": "Сравнение стоимости",
+      "audience": "Сомневающийся клиент",
+      "knowledge_kind": "editorial_method",
+      "verified_fact_or_method": "Сопоставлять одинаковые даты, состав, номер, питание, отмену и полную стоимость с применимыми расходами на участие.",
+      "source_ids": [
+        "S080"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Будет ли дешевле?",
+      "mira_example": "Это стоит проверить на вашей поездке: одинаковые даты, номер, питание, отмена и итоговая сумма. Какой отель или направление сравним?",
+      "limitations": "Не гарантировать экономию или окупаемость; не считать баллы наличными.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K007",
+      "topic": "Минимально достаточное Membership",
+      "audience": "Путешественник",
+      "knowledge_kind": "existing_instruction",
+      "verified_fact_or_method": "Выбор по нужным функциям и частоте поездок; возможен вывод, что платное участие пока не подходит.",
+      "source_ids": [
+        "S080",
+        "S-BENEFITS"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Какой тариф выбрать?",
+      "mira_example": "Сначала сопоставим участие с вашими поездками. Как часто вы обычно путешествуете?",
+      "limitations": "Не рекомендовать автоматически Elite + Turbo; цены PDF2025 не переносить как текущие.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": "M040",
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K008",
+      "topic": "Семья не означает бизнес",
+      "audience": "Семья / группа",
+      "knowledge_kind": "existing_instruction",
+      "verified_fact_or_method": "Семья, группа или ретрит не являются сигналом интереса к Ambassador.",
+      "source_ids": [
+        "S080"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Семейная поездка",
+      "mira_example": "Для семейной поездки важны состав и размещение. Сколько взрослых и детей поедет и какого возраста дети?",
+      "limitations": "Это один связанный вопрос о составе; не просить имена и документы; не обещать вместимость по одной модели для пары.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K009",
+      "topic": "Живые предложения и проверка наличия",
+      "audience": "Интерес к Life Experiences",
+      "knowledge_kind": "editorial_method",
+      "verified_fact_or_method": "Home показывает карточки, но наличие нужно проверять в деталях: в двух просмотренных случаях бронирование закрыто.",
+      "source_ids": [
+        "S-HOME",
+        "S-SANTORINI",
+        "S-SANDIEGO"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Есть места на поездку?",
+      "mira_example": "Наличие нужно проверить в деталях конкретной поездки: карточка на главной сама по себе его не подтверждает. Какое направление вас интересует?",
+      "limitations": "Не обещать актуальный доступ Миры в кабинет; не отправлять закрытую ссылку вместо утверждённого гостевого маршрута.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K010",
+      "topic": "Видео о формате Life Experiences",
+      "audience": "Путешественник",
+      "knowledge_kind": "verified_catalog_metadata",
+      "verified_fact_or_method": "Публичная страница содержит ролики о направлениях; список не является расписанием продаваемых поездок.",
+      "source_ids": [
+        "S-ACADEMY-LE",
+        "S155"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Просьба о видео",
+      "mira_example": "Вот официальный видеокаталог Life Experiences: https://mwracademy.com/life-experience/. Он поможет познакомиться с форматом; даты и наличие конкретных поездок проверяются отдельно.",
+      "limitations": "Не говорить, что все видео просмотрены; язык озвучки не проверен.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": "M002",
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K011",
+      "topic": "Как пользоваться платформой",
+      "audience": "Новый пользователь",
+      "knowledge_kind": "verified_catalog_metadata",
+      "verified_fact_or_method": "Каталог Mastering Travel Advantage содержит отдельные темы Hotels, Flights, Car Rentals, Transfers, Life Experiences, Lifestyle Mall, Resorts, Activities, Stays.",
+      "source_ids": [
+        "S-ACADEMY-PRODUCT",
+        "S155"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Просьба об инструкции по поиску",
+      "mira_example": "В официальном учебном разделе есть отдельный урок Hotels: https://mwracademy.com/mastering-travel-advantage/. Начните с него, если хотите разобраться с поиском отеля.",
+      "limitations": "Названия видео подтверждены; содержание полностью не изучено, русская озвучка не подтверждена. Не обещать гостю доступ к каждой функции.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": "M001",
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K012",
+      "topic": "Короткое приглашение и один материал",
+      "audience": "Путешественник или кандидат с явным интересом",
+      "knowledge_kind": "editorial_adaptation",
+      "verified_fact_or_method": "Публичный Getting Started Guide предлагает короткое приглашение и показ материала; адаптация: сначала ответить на вопрос, затем один релевантный материал и следующий шаг.",
+      "source_ids": [
+        "S-GUIDE",
+        "S080"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "После ответа нужен следующий шаг",
+      "mira_example": "Прислать короткий официальный материал по вашему вопросу? После просмотра разберём, что подходит вашей ситуации.",
+      "limitations": "Собственная адаптация, не цитата и не конспект Campfire. Не переносить давление, искусственную срочность и обещания экономии из рекламного примера.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K013",
+      "topic": "Ответ на возражение",
+      "audience": "Сомневающийся клиент",
+      "knowledge_kind": "original_editorial_method_with_public_crosscheck",
+      "verified_fact_or_method": "Признать вопрос, уточнить конкретное сомнение, опереться на проверяемый источник и разрешить отказ.",
+      "source_ids": [
+        "S080",
+        "S-GUIDE"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Внутреннее рецензирование и проект изолированных тестов. Для клиентского маркетингового применения проверить R1; production не разрешён.",
+      "when_to_apply": "Не вижу смысла платить",
+      "mira_example": "Платное участие имеет смысл оценивать по вашим поездкам. Что вызывает больше сомнений — стоимость участия или нужные вам возможности?",
+      "limitations": "Собственная формулировка; не обещать выгоду, не давить. Обрыв урока10 сохранён только как историческое ограничение исследования.",
+      "refresh_policy": "Перепроверять публичные источники и редакционные правила при изменениях; закрытые уроки не являются обязательной опорой текущей рекомендации.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "S080",
+        "HUB-RU-10"
+      ],
+      "individual_reassessment": {
+        "card_id": "K013",
+        "exact_current_fact_or_method": "Признать вопрос, уточнить конкретное сомнение, опереться на проверяемый источник и разрешить отказ.",
+        "public_official_confirmation": {
+          "source_id": "S-GUIDE",
+          "section": "p2 Follow Through; questions/objections at end",
+          "scope_and_limits": "Публичный guide предлагает уточнять реакцию и разбирать вопросы. Признание сомнения и уважение отказа — собственный метод Миры/S080, не цитата урока."
+        },
+        "nature": "independently_worded_editorial_method",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "S080",
+          "HUB-RU-10"
+        ],
+        "current_source_ids": [
+          "S080",
+          "S-GUIDE"
+        ],
+        "specific_restriction_ids": [
+          "R1"
+        ],
+        "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+        "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+        "runtime_visibility": "candidate_public_response"
+      }
+    },
+    {
+      "id": "K014",
+      "topic": "Продолжение после просмотра",
+      "audience": "Посетитель после материала",
+      "knowledge_kind": "editorial_adaptation",
+      "verified_fact_or_method": "Обсудить, что посмотрел человек и какие вопросы остались, не утверждать наблюдение за его действиями.",
+      "source_ids": [
+        "S-GUIDE",
+        "S080"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Я посмотрел / вернулся",
+      "mira_example": "Что из просмотренного оказалось полезным и что осталось непонятно?",
+      "limitations": "Не подтверждать регистрацию, оплату или создание CRM по сообщению посетителя.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K015",
+      "topic": "Отдельная оценка Ambassador",
+      "audience": "Явный бизнес-интерес",
+      "knowledge_kind": "existing_instruction",
+      "verified_fact_or_method": "Проверить обязанности, расходы, время, квалификации, компенсационный план и риск отсутствия дохода.",
+      "source_ids": [
+        "S080"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Как оценить бизнес?",
+      "mira_example": "Сначала стоит проверить расходы, требования к активности и условия вознаграждений. Доход не гарантирован. Прислать официальный компенсационный план?",
+      "limitations": "Не считать вопрос об оценке просьбой зарегистрироваться; не давать цифры из старого стартового буклета.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": "M047",
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K016",
+      "topic": "Русский стартовый курс",
+      "audience": "Новый Ambassador",
+      "knowledge_kind": "verified_catalog_metadata",
+      "verified_fact_or_method": "Публичный русский стартовый курс: 13 тем от Welcome/Why/Invitation до Objections/Closing; содержание видео не изучено полностью.",
+      "source_ids": [
+        "S-ACADEMY-RU",
+        "S155"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Я уже выбрал бизнес; где учиться?",
+      "mira_example": "В Академии есть стартовый курс с русским разделом: https://mwracademy.com/getting-started-with-ru/. Начните с приветствия и темы о вашей цели.",
+      "limitations": "Публичный курс M005 и16-урочный Hub Getting Started RU — разные источники. В Hub прочитаны субтитры, но клиенту предлагается проверенная публичная страница.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": "M005",
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K017",
+      "topic": "Платный переход по явному запросу",
+      "audience": "Клиент / кандидат Ambassador",
+      "knowledge_kind": "existing_instruction",
+      "verified_fact_or_method": "Сохраняется серверное разрешение платного перехода и новый явный запрос; Guest Pass и документы этого ожидания не требуют.",
+      "source_ids": [
+        "S080",
+        "S-CODE"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Просьба о платной регистрации",
+      "mira_example": "Помогу с нужным маршрутом. Уточните, вы имеете в виду Membership для путешествий или Ambassador?",
+      "limitations": "Вопрос нужен только при неясном объекте; при ясном запросе и разрешении сервера дать соответствующую утверждённую ссылку, не переспрашивать.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K018",
+      "topic": "Регистрация и проверенный статус",
+      "audience": "Вернувшийся посетитель",
+      "knowledge_kind": "existing_instruction",
+      "verified_fact_or_method": "Клик, самосообщение и локальный аккаунт не подтверждают внешний статус; нужна независимая проверка Owner.",
+      "source_ids": [
+        "S080",
+        "S154"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Я зарегистрировался — видите?",
+      "mira_example": "Я не вижу ваш внешний кабинет и не могу подтвердить регистрацию по сообщению. Что хотите разобрать после регистрации?",
+      "limitations": "Не запрашивать credentials и не ставить verified-статус; сохранять различия Guest, Membership, Ambassador.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K019",
+      "topic": "Нет свежих данных",
+      "audience": "Любая аудитория",
+      "knowledge_kind": "editorial_method",
+      "verified_fact_or_method": "Без свежего источника не называть текущие цены, наличие и сроки; предложить точный следующий шаг.",
+      "source_ids": [
+        "S080",
+        "S-HOME"
+      ],
+      "checked_at": "2026-09-17",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Сколько стоит / есть ли места сейчас?",
+      "mira_example": "У меня нет подтверждённых текущих данных по этой поездке. Нужна проверка её официальной страницы на нужные даты. Какое предложение вы рассматриваете?",
+      "limitations": "Не выдумывать цены, даты, «последние места» и скидки. Не называть старый снимок текущей проверкой.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K020",
+      "topic": "Campfire: разрешённое изучение и границы публикации",
+      "audience": "Редактор / Owner",
+      "knowledge_kind": "evidence_boundary",
+      "verified_fact_or_method": "Owner разрешил изучение оплаченных материалов и подготовку обучения Миры. Прочитаны доступные русские субтитры16 уроков; клиентам передаются публично доступные материалы по ссылкам.",
+      "source_ids": [
+        "S-CAMPFIRE",
+        "S-HUB-ACADEMY",
+        "S-HUB-RESOURCES"
+      ],
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "allowed_use": "Проект краткого собственного ответа и ссылка на официальный источник после рассмотрения Owner; без копирования библиотеки или транскриптов.",
+      "when_to_apply": "Подготовка дальнейшего исследования",
+      "mira_example": "Для ответа использую подготовленные краткие знания; закрытые кабинетные ссылки и полный курс клиенту не выдаю.",
+      "limitations": "Не заявлять обучение production или просмотр всех видео. Не считать личный доступ общедоступностью. Конкретные обнаруженные ограничения рассматриваются отдельно, без общего повторного запроса разрешения.",
+      "refresh_policy": "Предлагается редакционная проверка раз в 90 дней и при изменении источника; автоматизация не включена.",
+      "volatility": "stable",
+      "visibility": "owner_review_only",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "INTERNAL_REVIEW_ONLY",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "S-CAMPFIRE",
+        "S-HUB-ACADEMY",
+        "S-HUB-RESOURCES"
+      ],
+      "individual_reassessment": {
+        "card_id": "K020",
+        "exact_current_fact_or_method": "Owner разрешил изучение оплаченных материалов и подготовку обучения Миры. Прочитаны доступные русские субтитры16 уроков; клиентам передаются публично доступные материалы по ссылкам.",
+        "public_official_confirmation": {
+          "source_id": null,
+          "section": null,
+          "scope_and_limits": "Публичного подтверждения факта личного исследования нет: это журнал выполненной работы и поручения Owner, не учебный текст."
+        },
+        "nature": "internal_observation_or_owner_process",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "S-CAMPFIRE",
+          "S-HUB-ACADEMY",
+          "S-HUB-RESOURCES"
+        ],
+        "current_source_ids": [
+          "S-CAMPFIRE",
+          "S-HUB-ACADEMY",
+          "S-HUB-RESOURCES"
+        ],
+        "specific_restriction_ids": [],
+        "restriction_scope": "Конкретный запрет на это краткое внутреннее наблюдение не установлен. Не считать это разрешением на выгрузку исходного курса.",
+        "result": "INTERNAL_REVIEW_METADATA",
+        "runtime_visibility": "owner_review_only"
+      }
+    },
+    {
+      "id": "K021",
+      "topic": "Guest Passes в Vouchers: подтверждённый минимум",
+      "audience": "Редактор / Owner",
+      "knowledge_kind": "observed_provider_statement",
+      "verified_fact_or_method": "Авторизованная страница /bizcenter/vouchers называется Guest Passes. Пояснение: коды дают гостю бесплатный ограниченный доступ к Travel Advantage. Заголовки таблицы: Code, Issue Date, Source, Status, Activation Date, Name, PDF. Это структура учёта, а не наблюдение конкретной активации.",
+      "source_ids": [
+        "S-VOUCHERS"
+      ],
+      "checked_at": "2026-09-17T15:34:44.665486+00:00",
+      "allowed_use": "Внутренняя карта доступа и подготовка дальнейшей проверки; не выдавать внутренний URL, коды или получателей клиентам.",
+      "when_to_apply": "Сопоставление Vouchers с публичным персональным Guest Pass",
+      "mira_example": "Условия конкретного гостевого приглашения нужно проверять отдельно: срок и возможности могут зависеть от его правил.",
+      "limitations": "Наличие колонки Activation Date не доказывает точный процесс активации. Never Expires найдено в панели cookies, поэтому не относится к ваучерам. PDF отдельных строк не открывались: могут содержать персональный код.",
+      "refresh_policy": "До утверждения срока, квоты или возможностей прочитать применимые правила; действия выдачи/активации требуют отдельного точного разрешения.",
+      "volatility": "changing",
+      "visibility": "owner_review_only",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "INTERNAL_REVIEW_ONLY",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      }
+    },
+    {
+      "id": "K022",
+      "topic": "Карта Academy внутри Hub",
+      "audience": "Редактор / Owner",
+      "knowledge_kind": "verified_catalog_metadata",
+      "verified_fact_or_method": "В Hub Getting Started RU содержит16 уроков. Их доступные субтитры прочитаны; четыре раздела Academy и языковые коллекции подтверждены ранее.",
+      "source_ids": [
+        "S-HUB-ACADEMY"
+      ],
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "allowed_use": "Внутреннее планирование обучения и отбора источников. Клиенту давать уже проверенную публичную ссылку из исходного каталога; не приватный Hub-маршрут.",
+      "when_to_apply": "Подготовка обучения Миры и подбор источников для дальнейшего разрешённого чтения",
+      "mira_example": "Для русского стартового обучения имеется RU-коллекция; язык конкретного видео и его содержание нужно проверить отдельно.",
+      "limitations": "Публичный список Academy из13 тем и Hub-курс из16 уроков не отождествляются. Аудио/видеоряд не просмотрены целиком.",
+      "refresh_policy": "Перепроверять состав и доступность разделов перед подбором; разрешения на закрытое содержание устанавливать отдельно.",
+      "volatility": "changing",
+      "visibility": "owner_review_only",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "INTERNAL_REVIEW_ONLY",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "S-HUB-ACADEMY"
+      ],
+      "individual_reassessment": {
+        "card_id": "K022",
+        "exact_current_fact_or_method": "В Hub Getting Started RU содержит16 уроков. Их доступные субтитры прочитаны; четыре раздела Academy и языковые коллекции подтверждены ранее.",
+        "public_official_confirmation": {
+          "source_id": null,
+          "section": null,
+          "scope_and_limits": "Публичная Academy подтверждает отдельный стартовый раздел; число16 и внутренние языковые коллекции подтверждены только наблюдением Hub. Не заменяем их публичными13 темами."
+        },
+        "nature": "internal_observation_or_owner_process",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "S-HUB-ACADEMY"
+        ],
+        "current_source_ids": [
+          "S-HUB-ACADEMY"
+        ],
+        "specific_restriction_ids": [],
+        "restriction_scope": "Конкретный запрет на это краткое внутреннее наблюдение не установлен. Не считать это разрешением на выгрузку исходного курса.",
+        "result": "INTERNAL_REVIEW_METADATA",
+        "runtime_visibility": "owner_review_only"
+      }
+    },
+    {
+      "id": "K023",
+      "topic": "Работа с материалами Resources",
+      "audience": "Редактор / Owner",
+      "knowledge_kind": "verified_catalog_metadata",
+      "verified_fact_or_method": "В каталоге есть Presentation, Getting Started, Compensation & Benefits, Membership Flyers, Branding & Identity, Recognition, Social & Community. У Policies доступны действия Просмотр, Скачать и Поделиться общедоступной ссылкой, а также отдельное персональное отслеживание.",
+      "source_ids": [
+        "S-HUB-RESOURCES"
+      ],
+      "checked_at": "2026-09-17T15:44:07.731437+00:00",
+      "allowed_use": "Внутреннее планирование обучения и отбора источников. Клиенту давать уже проверенную публичную ссылку из исходного каталога; не приватный Hub-маршрут.",
+      "when_to_apply": "Подготовка обучения Миры и подбор источников для дальнейшего разрешённого чтения",
+      "mira_example": "Для клиента подбираем один публично доступный официальный материал; персональные tracking links без отдельного поручения не создаём.",
+      "limitations": "Наличие кнопки распространения одного материала не даёт общей лицензии на внешнюю AI-обработку, все закрытые курсы или переиздание. Ни ссылка, ни загрузка не создавались.",
+      "refresh_policy": "Перепроверять состав и доступность разделов перед подбором; разрешения на закрытое содержание устанавливать отдельно.",
+      "volatility": "changing",
+      "visibility": "owner_review_only",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "INTERNAL_REVIEW_ONLY",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "S-HUB-RESOURCES"
+      ],
+      "individual_reassessment": {
+        "card_id": "K023",
+        "exact_current_fact_or_method": "В каталоге есть Presentation, Getting Started, Compensation & Benefits, Membership Flyers, Branding & Identity, Recognition, Social & Community. У Policies доступны действия Просмотр, Скачать и Поделиться общедоступной ссылкой, а также отдельное персональное отслеживание.",
+        "public_official_confirmation": {
+          "source_id": null,
+          "section": null,
+          "scope_and_limits": "Точные категории и подписи действий — собственное наблюдение закрытого UI. Публичное подтверждение именно этого состояния не найдено; не учебный текст и не лицензия на весь Hub."
+        },
+        "nature": "internal_observation_or_owner_process",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "S-HUB-RESOURCES"
+        ],
+        "current_source_ids": [
+          "S-HUB-RESOURCES"
+        ],
+        "specific_restriction_ids": [],
+        "restriction_scope": "Конкретный запрет на это краткое внутреннее наблюдение не установлен. Не считать это разрешением на выгрузку исходного курса.",
+        "result": "INTERNAL_REVIEW_METADATA",
+        "runtime_visibility": "owner_review_only"
+      }
+    },
+    {
+      "id": "K024",
+      "topic": "Личная цель до предложения",
+      "audience": "Путешественник / явный бизнес-интерес",
+      "knowledge_kind": "original_editorial_method_with_public_crosscheck",
+      "verified_fact_or_method": "Выяснить конкретную цель человека и ближайший шаг, не подменяя цель универсальным обещанием дохода.",
+      "source_ids": [
+        "S080",
+        "S-GUIDE"
+      ],
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "allowed_use": "Внутреннее рецензирование и проект изолированных тестов. Для клиентского маркетингового применения проверить R1; production не разрешён.",
+      "when_to_apply": "Общий запрос без понятной цели",
+      "mira_example": "Что сейчас важнее для вашей поездки: уложиться в бюджет, выбрать удобное размещение или найти формат отдыха?",
+      "limitations": "Один вопрос, только когда ответ ещё неизвестен; не спрашивать бизнес-цель туриста.",
+      "refresh_policy": "Перепроверять публичные источники и редакционные правила при изменениях; закрытые уроки не являются обязательной опорой текущей рекомендации.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "HUB-RU-02",
+        "S080"
+      ],
+      "historical_source_row_ranges": {
+        "HUB-RU-02": "1–70"
+      },
+      "individual_reassessment": {
+        "card_id": "K024",
+        "exact_current_fact_or_method": "Выяснить конкретную цель человека и ближайший шаг, не подменяя цель универсальным обещанием дохода.",
+        "public_official_confirmation": {
+          "source_id": "S-GUIDE",
+          "section": "p1 Define Your Why; Travel Wish List",
+          "scope_and_limits": "Источник поддерживает обсуждение целей; туристический вопрос о бюджете/размещении сформулирован нами, не извлечён из курса."
+        },
+        "nature": "independently_worded_editorial_method",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "HUB-RU-02",
+          "S080"
+        ],
+        "current_source_ids": [
+          "S080",
+          "S-GUIDE"
+        ],
+        "specific_restriction_ids": [
+          "R1"
+        ],
+        "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+        "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+        "runtime_visibility": "candidate_public_response"
+      }
+    },
+    {
+      "id": "K025",
+      "topic": "Краткое приглашение с понятной пользой",
+      "audience": "Холодный входящий контакт",
+      "knowledge_kind": "original_editorial_method_with_public_crosscheck",
+      "verified_fact_or_method": "Короткое приглашение ведёт к одному релевантному материалу; сначала ответ на вопрос, затем предложение шага.",
+      "source_ids": [
+        "S080",
+        "S-GUIDE"
+      ],
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "allowed_use": "Внутреннее рецензирование и проект изолированных тестов. Для клиентского маркетингового применения проверить R1; production не разрешён.",
+      "when_to_apply": "Человек интересуется платформой",
+      "mira_example": "Можно начать с гостевого знакомства и посмотреть варианты для своей поездки. Прислать приглашение?",
+      "limitations": "При прямой просьбе дать ссылку сразу. Не уклоняться от уточнений и не создавать искусственную срочность.",
+      "refresh_policy": "Перепроверять публичные источники и редакционные правила при изменениях; закрытые уроки не являются обязательной опорой текущей рекомендации.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "HUB-RU-04",
+        "S080"
+      ],
+      "historical_source_row_ranges": {
+        "HUB-RU-04": "1–14,94–98"
+      },
+      "individual_reassessment": {
+        "card_id": "K025",
+        "exact_current_fact_or_method": "Короткое приглашение ведёт к одному релевантному материалу; сначала ответ на вопрос, затем предложение шага.",
+        "public_official_confirmation": {
+          "source_id": "S-GUIDE",
+          "section": "p2 Learn to Invite",
+          "scope_and_limits": "Источник разделяет приглашение и презентацию. Ответить прежде ссылки, отказаться от искусственной срочности — собственные правила Миры, а не точный пересказ guide."
+        },
+        "nature": "independently_worded_editorial_method",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "HUB-RU-04",
+          "S080"
+        ],
+        "current_source_ids": [
+          "S080",
+          "S-GUIDE"
+        ],
+        "specific_restriction_ids": [
+          "R1",
+          "R4"
+        ],
+        "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+        "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+        "runtime_visibility": "candidate_public_response"
+      }
+    },
+    {
+      "id": "K026",
+      "topic": "Один материал вместо второй презентации",
+      "audience": "Посетитель после объяснения",
+      "knowledge_kind": "original_editorial_method_with_public_crosscheck",
+      "verified_fact_or_method": "Выбрать готовый официальный материал и после него разобрать конкретный вопрос, не повторяя всю презентацию.",
+      "source_ids": [
+        "S080",
+        "S-GUIDE"
+      ],
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "allowed_use": "Внутреннее рецензирование и проект изолированных тестов. Для клиентского маркетингового применения проверить R1; production не разрешён.",
+      "when_to_apply": "Просьба о видео / возврат после просмотра",
+      "mira_example": "Что из материала хочется разобрать применительно к вашей поездке?",
+      "limitations": "Не изображать наблюдение за просмотром. Существенные расходы/условия нельзя скрывать ради краткости.",
+      "refresh_policy": "Перепроверять публичные источники и редакционные правила при изменениях; закрытые уроки не являются обязательной опорой текущей рекомендации.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": "M001",
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "HUB-RU-07",
+        "HUB-RU-09"
+      ],
+      "historical_source_row_ranges": {
+        "HUB-RU-07": "1–19,47–86",
+        "HUB-RU-09": "9–20"
+      },
+      "individual_reassessment": {
+        "card_id": "K026",
+        "exact_current_fact_or_method": "Выбрать готовый официальный материал и после него разобрать конкретный вопрос, не повторяя всю презентацию.",
+        "public_official_confirmation": {
+          "source_id": "S-GUIDE",
+          "section": "p2 Show the Presentation; Follow Through",
+          "scope_and_limits": "Поддержаны готовый инструмент и дальнейшие вопросы. Один материал без повторной презентации — собственное решение дизайна диалога."
+        },
+        "nature": "independently_worded_editorial_method",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "HUB-RU-07",
+          "HUB-RU-09"
+        ],
+        "current_source_ids": [
+          "S080",
+          "S-GUIDE"
+        ],
+        "specific_restriction_ids": [
+          "R1"
+        ],
+        "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+        "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+        "runtime_visibility": "candidate_public_response"
+      }
+    },
+    {
+      "id": "K027",
+      "topic": "Ознакомление без обязательства купить",
+      "audience": "Любой новый посетитель",
+      "knowledge_kind": "original_editorial_method_with_public_crosscheck",
+      "verified_fact_or_method": "Перед материалом обозначить цель и право человека не продолжать.",
+      "source_ids": [
+        "S080",
+        "S-POLICY-2026"
+      ],
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "allowed_use": "Внутреннее рецензирование и проект изолированных тестов. Для клиентского маркетингового применения проверить R1; production не разрешён.",
+      "when_to_apply": "Человек боится давления",
+      "mira_example": "Можно сначала разобраться в продукте без решения о платном участии. Если он вам не подойдёт, на этом и остановимся.",
+      "limitations": "Не утверждать бесплатность всех будущих операций. Не обещать услуги, которых нет.",
+      "refresh_policy": "Перепроверять публичные источники и редакционные правила при изменениях; закрытые уроки не являются обязательной опорой текущей рекомендации.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "HUB-RU-05",
+        "HUB-RU-09"
+      ],
+      "historical_source_row_ranges": {
+        "HUB-RU-05": "31–48",
+        "HUB-RU-09": "42–64"
+      },
+      "individual_reassessment": {
+        "card_id": "K027",
+        "exact_current_fact_or_method": "Перед материалом обозначить цель и право человека не продолжать.",
+        "public_official_confirmation": {
+          "source_id": "S-POLICY-2026",
+          "section": "1.1",
+          "scope_and_limits": "Общий принцип корректного представления подтверждён. Право завершить разговор — наше правило, не обещание бесплатных услуг и не цитата провайдера."
+        },
+        "nature": "independently_worded_editorial_method",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "HUB-RU-05",
+          "HUB-RU-09"
+        ],
+        "current_source_ids": [
+          "S080",
+          "S-POLICY-2026"
+        ],
+        "specific_restriction_ids": [
+          "R1"
+        ],
+        "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+        "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+        "runtime_visibility": "candidate_public_response"
+      }
+    },
+    {
+      "id": "K028",
+      "topic": "Следующий шаг по выбору человека",
+      "audience": "Подготовленный посетитель",
+      "knowledge_kind": "original_editorial_method_with_public_crosscheck",
+      "verified_fact_or_method": "После материала выяснить оставшийся вопрос или добровольное решение; уважать отказ и паузу.",
+      "source_ids": [
+        "S080",
+        "S-GUIDE"
+      ],
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "allowed_use": "Внутреннее рецензирование и проект изолированных тестов. Для клиентского маркетингового применения проверить R1; production не разрешён.",
+      "when_to_apply": "Я посмотрел, что дальше?",
+      "mira_example": "Какой вопрос остался перед тем, как решить, подходит ли вам участие?",
+      "limitations": "При ясном запросе маршрута не задавать лишний вопрос. Не собирать платежные данные и не обходить серверный gate.",
+      "refresh_policy": "Перепроверять публичные источники и редакционные правила при изменениях; закрытые уроки не являются обязательной опорой текущей рекомендации.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "HUB-RU-09",
+        "S080"
+      ],
+      "historical_source_row_ranges": {
+        "HUB-RU-09": "42–64,85–124"
+      },
+      "individual_reassessment": {
+        "card_id": "K028",
+        "exact_current_fact_or_method": "После материала выяснить оставшийся вопрос или добровольное решение; уважать отказ и паузу.",
+        "public_official_confirmation": {
+          "source_id": "S-GUIDE",
+          "section": "p2 Collect a Decision",
+          "scope_and_limits": "Обсуждение решения есть в источнике. Добровольность, уважение паузы и отказа — собственная формулировка S080; давление из примеров не переносится."
+        },
+        "nature": "independently_worded_editorial_method",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "HUB-RU-09",
+          "S080"
+        ],
+        "current_source_ids": [
+          "S080",
+          "S-GUIDE"
+        ],
+        "specific_restriction_ids": [
+          "R1"
+        ],
+        "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+        "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+        "runtime_visibility": "candidate_public_response"
+      }
+    },
+    {
+      "id": "K029",
+      "topic": "Нехватка бюджета — реальное ограничение",
+      "audience": "Клиент с сомнением о цене",
+      "knowledge_kind": "original_editorial_method_with_public_crosscheck",
+      "verified_fact_or_method": "Разделить непонимание стоимости и отсутствие бюджета; не убеждать купить обещанием будущего заработка.",
+      "source_ids": [
+        "S080",
+        "S-POLICY-2026"
+      ],
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "allowed_use": "Внутреннее рецензирование и проект изолированных тестов. Для клиентского маркетингового применения проверить R1; production не разрешён.",
+      "when_to_apply": "Мне дорого / денег нет",
+      "mira_example": "Если сейчас нет бюджета, платное участие можно отложить. При желании начнём с гостевого знакомства и оценки конкретной поездки.",
+      "limitations": "Это осознанная редакционная коррекция агрессивного примера источника, а не его дословный совет. Не предлагать кредит или гарантированную окупаемость.",
+      "refresh_policy": "Перепроверять публичные источники и редакционные правила при изменениях; закрытые уроки не являются обязательной опорой текущей рекомендации.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "HUB-RU-10",
+        "S080"
+      ],
+      "historical_source_row_ranges": {
+        "HUB-RU-10": "52–123"
+      },
+      "individual_reassessment": {
+        "card_id": "K029",
+        "exact_current_fact_or_method": "Разделить непонимание стоимости и отсутствие бюджета; не убеждать купить обещанием будущего заработка.",
+        "public_official_confirmation": {
+          "source_id": "S-POLICY-2026",
+          "section": "3",
+          "scope_and_limits": "Отсутствие обещаний заработка согласуется с разделом3. Уважение бюджета — собственная рекомендация, а не воспроизведение аргументов закрытого урока."
+        },
+        "nature": "independently_worded_editorial_method",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "HUB-RU-10",
+          "S080"
+        ],
+        "current_source_ids": [
+          "S080",
+          "S-POLICY-2026"
+        ],
+        "specific_restriction_ids": [
+          "R1",
+          "R3"
+        ],
+        "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+        "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+        "runtime_visibility": "candidate_public_response"
+      }
+    },
+    {
+      "id": "K030",
+      "topic": "Время для Ambassador без давления",
+      "audience": "Только явный бизнес-интерес",
+      "knowledge_kind": "original_editorial_method",
+      "verified_fact_or_method": "Обсудить реально доступное время и задачи, не гарантируя результат от количества презентаций.",
+      "source_ids": [
+        "S080"
+      ],
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "allowed_use": "Внутреннее рецензирование и проект изолированных тестов. Для клиентского маркетингового применения проверить R1; production не разрешён.",
+      "when_to_apply": "На бизнес нет времени",
+      "mira_example": "Сначала стоит понять, сколько времени вы готовы выделять без ущерба другим делам. Какой объём для вас реалистичен?",
+      "limitations": "Не обесценивать занятость и не утверждать, что достаточно двух презентаций для гарантированного дохода.",
+      "refresh_policy": "Перепроверять публичные источники и редакционные правила при изменениях; закрытые уроки не являются обязательной опорой текущей рекомендации.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "HUB-RU-10",
+        "HUB-RU-16"
+      ],
+      "historical_source_row_ranges": {
+        "HUB-RU-10": "124–152",
+        "HUB-RU-16": "1–212"
+      },
+      "individual_reassessment": {
+        "card_id": "K030",
+        "exact_current_fact_or_method": "Обсудить реально доступное время и задачи, не гарантируя результат от количества презентаций.",
+        "public_official_confirmation": {
+          "source_id": null,
+          "section": null,
+          "scope_and_limits": "Точная рекомендация о посильном времени — собственный метод. Публичного подтверждения необходимого числа часов нет; никаких часов, конверсий или доходов не обещаем."
+        },
+        "nature": "independently_worded_editorial_method",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "HUB-RU-10",
+          "HUB-RU-16"
+        ],
+        "current_source_ids": [
+          "S080"
+        ],
+        "specific_restriction_ids": [
+          "R1",
+          "R3"
+        ],
+        "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+        "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+        "runtime_visibility": "candidate_public_response"
+      }
+    },
+    {
+      "id": "K031",
+      "topic": "Честное представление источника",
+      "audience": "Посетитель, которому предлагают материал",
+      "knowledge_kind": "original_editorial_method_with_public_crosscheck",
+      "verified_fact_or_method": "Кратко объяснить происхождение материала и его назначение; использовать только подтверждённые сведения о ведущем.",
+      "source_ids": [
+        "S080",
+        "S-POLICY-2026"
+      ],
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "allowed_use": "Внутреннее рецензирование и проект изолированных тестов. Для клиентского маркетингового применения проверить R1; production не разрешён.",
+      "when_to_apply": "Почему мне смотреть этот материал?",
+      "mira_example": "Это официальный материал MWR Academy по вашему вопросу. Он поможет разобраться в теме; после просмотра можем обсудить, что применимо к вашей ситуации.",
+      "limitations": "Не придумывать личное знакомство, биографию, успешные кейсы и доход эксперта.",
+      "refresh_policy": "Перепроверять публичные источники и редакционные правила при изменениях; закрытые уроки не являются обязательной опорой текущей рекомендации.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": "M001",
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "HUB-RU-06",
+        "S080"
+      ],
+      "historical_source_row_ranges": {
+        "HUB-RU-06": "1–37"
+      },
+      "individual_reassessment": {
+        "card_id": "K031",
+        "exact_current_fact_or_method": "Кратко объяснить происхождение материала и его назначение; использовать только подтверждённые сведения о ведущем.",
+        "public_official_confirmation": {
+          "source_id": "S-POLICY-2026",
+          "section": "1.1; 4.4A",
+          "scope_and_limits": "Подтверждена точность представления; короткое объяснение происхождения ссылки — собственная редакционная техника. Личная биография и успех ведущего не выдумываются."
+        },
+        "nature": "independently_worded_editorial_method",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "HUB-RU-06",
+          "S080"
+        ],
+        "current_source_ids": [
+          "S080",
+          "S-POLICY-2026"
+        ],
+        "specific_restriction_ids": [
+          "R1",
+          "R2"
+        ],
+        "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+        "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+        "runtime_visibility": "candidate_public_response"
+      }
+    },
+    {
+      "id": "K032",
+      "topic": "Стартовое обучение после выбора Ambassador",
+      "audience": "Человек с явным бизнес-выбором",
+      "knowledge_kind": "original_editorial_method_with_public_crosscheck",
+      "verified_fact_or_method": "Предложить последовательное стартовое обучение вместо немедленного требования приглашать других.",
+      "source_ids": [
+        "S080",
+        "S-GUIDE"
+      ],
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "allowed_use": "Внутреннее рецензирование и проект изолированных тестов. Для клиентского маркетингового применения проверить R1; production не разрешён.",
+      "when_to_apply": "Я выбрал Ambassador, с чего начать?",
+      "mira_example": "Начните с официального стартового курса: определите цель и изучите продукт, приглашение и ответы на вопросы. Прислать публичный русский раздел?",
+      "limitations": "Самосообщение не подтверждает регистрацию или доступ к Hub. Полнота урока11 неизвестна; текущая рекомендация опирается на публичный guide.",
+      "refresh_policy": "Перепроверять публичные источники и редакционные правила при изменениях; закрытые уроки не являются обязательной опорой текущей рекомендации.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": "M005",
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "HUB-RU-11",
+        "S080"
+      ],
+      "historical_source_row_ranges": {
+        "HUB-RU-11": "1–30"
+      },
+      "individual_reassessment": {
+        "card_id": "K032",
+        "exact_current_fact_or_method": "Предложить последовательное стартовое обучение вместо немедленного требования приглашать других.",
+        "public_official_confirmation": {
+          "source_id": "S-GUIDE",
+          "section": "p2 Start Members Correctly",
+          "scope_and_limits": "Публично рекомендовано стартовое обучение Academy. Только после явного бизнес-выбора — правило Миры. Совет48часов не является условием активации и удалён из действующей опоры."
+        },
+        "nature": "independently_worded_editorial_method",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "HUB-RU-11",
+          "S080"
+        ],
+        "current_source_ids": [
+          "S080",
+          "S-GUIDE"
+        ],
+        "specific_restriction_ids": [
+          "R1"
+        ],
+        "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+        "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+        "runtime_visibility": "candidate_public_response"
+      }
+    },
+    {
+      "id": "K033",
+      "topic": "Холодный контакт: спросить об интересе",
+      "audience": "Входящий посетитель / редактор",
+      "knowledge_kind": "original_editorial_method",
+      "verified_fact_or_method": "Не угадывать интерес к путешествиям или бизнесу по демографии, списку знакомых или прошлой теме.",
+      "source_ids": [
+        "S080"
+      ],
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "allowed_use": "Внутреннее рецензирование и проект изолированных тестов. Для клиентского маркетингового применения проверить R1; production не разрешён.",
+      "when_to_apply": "Неясное направление интереса",
+      "mira_example": "Что вас заинтересовало в TravelGTC?",
+      "limitations": "Рекомендация курса импортировать контакты не является поручением агенту; никакой рассылки или синхронизации адресной книги.",
+      "refresh_policy": "Перепроверять публичные источники и редакционные правила при изменениях; закрытые уроки не являются обязательной опорой текущей рекомендации.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "HUB-RU-03",
+        "S080"
+      ],
+      "historical_source_row_ranges": {
+        "HUB-RU-03": "44–88"
+      },
+      "individual_reassessment": {
+        "card_id": "K033",
+        "exact_current_fact_or_method": "Не угадывать интерес к путешествиям или бизнесу по демографии, списку знакомых или прошлой теме.",
+        "public_official_confirmation": {
+          "source_id": null,
+          "section": null,
+          "scope_and_limits": "Спросить интерес вместо демографической догадки — самостоятельное правило Миры/S080. Публичного утверждения о такой методике MWR не найдено, и оно не требуется для собственного вопроса."
+        },
+        "nature": "independently_worded_editorial_method",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "HUB-RU-03",
+          "S080"
+        ],
+        "current_source_ids": [
+          "S080"
+        ],
+        "specific_restriction_ids": [
+          "R1",
+          "R4"
+        ],
+        "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+        "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+        "runtime_visibility": "candidate_public_response"
+      }
+    },
+    {
+      "id": "K034",
+      "topic": "Формат и часовой пояс",
+      "audience": "Посетитель, который сам просит встречу",
+      "knowledge_kind": "original_editorial_method_with_public_crosscheck",
+      "verified_fact_or_method": "Учитывать удобный формат, язык и часовой пояс при обсуждении встречи; не утверждать её создание без результата инструмента.",
+      "source_ids": [
+        "S080",
+        "S-GUIDE"
+      ],
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "allowed_use": "Внутреннее рецензирование и проект изолированных тестов. Для клиентского маркетингового применения проверить R1; production не разрешён.",
+      "when_to_apply": "Можно обсудить по видеосвязи?",
+      "mira_example": "Какой часовой пояс учитывать? Я могу помочь сформулировать удобное время, но встреча ещё не назначена.",
+      "limitations": "Не обещать звонок и не заявлять создание встречи без инструмента. Неполный урок08 сохранён лишь в истории происхождения.",
+      "refresh_policy": "Перепроверять публичные источники и редакционные правила при изменениях; закрытые уроки не являются обязательной опорой текущей рекомендации.",
+      "volatility": "stable",
+      "visibility": "candidate_public_response",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "READY_FOR_REVIEW_AND_ISOLATED_TEST_DESIGN",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "HUB-RU-08",
+        "HUB-RU-04"
+      ],
+      "historical_source_row_ranges": {
+        "HUB-RU-08": "1–39",
+        "HUB-RU-04": "26–51"
+      },
+      "individual_reassessment": {
+        "card_id": "K034",
+        "exact_current_fact_or_method": "Учитывать удобный формат, язык и часовой пояс при обсуждении встречи; не утверждать её создание без результата инструмента.",
+        "public_official_confirmation": {
+          "source_id": "S-GUIDE",
+          "section": "p2 invitation options; time/place",
+          "scope_and_limits": "Guide поддерживает согласование времени/места. Часовой пояс, язык и запрет выдуманной записи — наши практические правила; обрыв урока не используется для вывода."
+        },
+        "nature": "independently_worded_editorial_method",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "HUB-RU-08",
+          "HUB-RU-04"
+        ],
+        "current_source_ids": [
+          "S080",
+          "S-GUIDE"
+        ],
+        "specific_restriction_ids": [
+          "R1"
+        ],
+        "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+        "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+        "runtime_visibility": "candidate_public_response"
+      }
+    },
+    {
+      "id": "K035",
+      "topic": "План действий без прогноза дохода",
+      "audience": "Редактор / тренер Ambassador",
+      "knowledge_kind": "original_editorial_method",
+      "verified_fact_or_method": "Планировать посильные действия и анализировать фактические отклики без нормативов конверсии, роста команды и прогноза дохода.",
+      "source_ids": [
+        "S080"
+      ],
+      "checked_at": "2026-09-17T16:16:38.094986+00:00",
+      "allowed_use": "Внутреннее рецензирование и проект изолированных тестов. Для клиентского маркетингового применения проверить R1; production не разрешён.",
+      "when_to_apply": "Разработка внутреннего плана обучения",
+      "mira_example": "Планируйте посильные действия и анализируйте фактические отклики. Результат зависит от многих условий и не гарантируется количеством презентаций.",
+      "limitations": "Не переносить модель роста, проценты удержания/конверсии и суммы в рекламные обещания. Метрики только агрегированные и по разрешённым действиям.",
+      "refresh_policy": "Перепроверять публичные источники и редакционные правила при изменениях; закрытые уроки не являются обязательной опорой текущей рекомендации.",
+      "volatility": "stable",
+      "visibility": "owner_review_only",
+      "material_id": null,
+      "status": "DRAFT_NOT_DEPLOYED",
+      "review_readiness": {
+        "status": "INTERNAL_REVIEW_ONLY",
+        "production_authorization": "NOT_GRANTED",
+        "public_marketing_release": "MWR_WRITTEN_APPROVAL_NOT_EVIDENCED_SEE_R1",
+        "blanket_ai_license_gate": false
+      },
+      "historical_source_ids": [
+        "HUB-RU-16"
+      ],
+      "historical_source_row_ranges": {
+        "HUB-RU-16": "1–212"
+      },
+      "individual_reassessment": {
+        "card_id": "K035",
+        "exact_current_fact_or_method": "Планировать посильные действия и анализировать фактические отклики без нормативов конверсии, роста команды и прогноза дохода.",
+        "public_official_confirmation": {
+          "source_id": null,
+          "section": null,
+          "scope_and_limits": "Посильный план и анализ откликов — собственная редакционная рекомендация. Числовая модель закрытого урока исключена; публичной проверенной нормы дохода/конверсии нет."
+        },
+        "nature": "independently_worded_editorial_method",
+        "closed_course_reproduction": false,
+        "historical_source_ids": [
+          "HUB-RU-16"
+        ],
+        "current_source_ids": [
+          "S080"
+        ],
+        "specific_restriction_ids": [
+          "R3"
+        ],
+        "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+        "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+        "runtime_visibility": "owner_review_only"
+      }
+    }
+  ],
+  "volatile_observations": [
+    {
+      "id": "O001",
+      "source_ids": [
+        "S-HOME",
+        "S-SANDIEGO"
+      ],
+      "name": "San Diego",
+      "observed_on": "2026-09-17",
+      "access": "existing_owner_profile",
+      "dates": "2026-09-18/2026-09-21",
+      "duration": "4 дня / 3 ночи",
+      "displayed_price": {
+        "amount": 719,
+        "currency_label": "$",
+        "basis": "на человека на Home"
+      },
+      "detail_status": "Бронирование закрыто",
+      "age_label": "Нет возрастных ограничений",
+      "guest_access": "UNKNOWN",
+      "scope": "Даты, цена карточки и закрытие прочитаны; остальные условия не переносились.",
+      "use": "owner_review_only",
+      "refresh": "Повторная проверка до любого клиентского утверждения; не импортировать как предложение в продаже."
+    },
+    {
+      "id": "O002",
+      "source_ids": [
+        "S-HOME",
+        "S-SANTORINI"
+      ],
+      "name": "Santorini",
+      "observed_on": "2026-09-17",
+      "access": "existing_owner_profile",
+      "dates": "2026-09-24/2026-09-28",
+      "duration": "5 дней / 4 ночи",
+      "displayed_price": {
+        "amount": 949,
+        "currency_label": "$",
+        "basis": "на человека на Home"
+      },
+      "detail_status": "Бронирование закрыто",
+      "age_label": "Нет возрастных ограничений",
+      "includes": [
+        "4 ночи в отеле",
+        "полупансион и налоги по разделу включений"
+      ],
+      "excludes": [
+        "авиабилеты",
+        "личные расходы",
+        "чаевые"
+      ],
+      "conditions": "Страница требует активного участия с бронирования до конца поездки, оплаты через платформу и принятия условий. Есть отдельные условия отмены, размещения и местных сборов; не сводить их к цене карточки.",
+      "guest_access": "UNKNOWN",
+      "use": "owner_review_only",
+      "refresh": "Повторная проверка до любого клиентского утверждения; не импортировать как предложение в продаже."
+    }
+  ],
+  "excluded_from_public_context": [
+    "volatile_observations",
+    "S-VOUCHERS",
+    "S-CAMPFIRE",
+    "owner_review_only cards",
+    "internal paths and source code"
+  ],
+  "unknowns": [
+    "Vouchers: подтверждён кодовый механизм бесплатного ограниченного Guest Pass; порядок получения/активации, срок, лимиты и видимые гостю разделы UNKNOWN",
+    "Гостевой кабинет и доступ гостя к конкретным Life Experiences",
+    "Видео/аудио не проверены целиком; конец доступных субтитров уроков08,10,11 обрывается; спорные числовые утверждения не проверены.",
+    "Прочие курсы Hub, действующий тариф подписки и текущие тарифные/бонусные условия не изучены полностью.",
+    "Письменное согласование самостоятельных рекламных материалов MWR по4.2 не представлено; условия массовой передачи закрытого курса внешнему AI отдельно не установлены. Не блокирует внутренний review."
+  ],
+  "conflict_policy": "Owner policy/current instruction prevails over marketing copy. Source conflict is disclosed, not merged into a new invented rule.",
+  "revision": "4-owner-authorized-russian-course-study",
+  "updated_at": "2026-09-17T18:54:26.421135+00:00",
+  "owner_authorization": {
+    "basis": "Owner explicitly authorized study of paid accessible materials, preparation of agent knowledge and marketing, and sharing externally accessible materials by link in the current conversation.",
+    "scope": "Read and analyze course; prepare original concise adaptations, sales examples and test specifications. Public customer links only.",
+    "not_authorized": [
+      "production activation",
+      "persistent synchronization",
+      "sending messages or campaigns",
+      "account registrations or voucher issuance"
+    ],
+    "provider_license_claim": "Payment is not a blanket publishing license. Current review found specific provider clauses R1-R4; see restrictions-and-uncertainties.json. No universal AI-specific permission gate."
+  },
+  "review_revision": "v4-owner-clarification-review-2",
+  "review_gate": {
+    "blanket_ai_license_gate": false,
+    "public_fact_ai_specific_permission_required": false,
+    "registration": "LOCAL_REVIEW_BRANCH_REGISTERED_SCHEMA_VALIDATED_NOT_CANONICALLY_PUBLISHED",
+    "execution_allowed_for_isolated_transfer": true,
+    "production_allowed": false,
+    "restricted_raw_content_included": false,
+    "restrictions_catalog": "restrictions-and-uncertainties.json",
+    "assessments": "card-reassessment-16.json"
+  }
+}

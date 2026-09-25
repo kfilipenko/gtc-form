@@ -2,10 +2,10 @@ const AUTH_DRAFT_KEY = "travelgtc.leadDraft.v1";
 const IDENTITY_CONSENT_VERSION = "travelgtc-identity-consent-v1";
 const AI_CONSULTANT_NAME = "Мира TravelGTC";
 const AI_SCENARIO_QUESTIONS = {
-  "personal-travel": "Я хочу путешествовать чаще. Как Travel Advantage может помочь и какой уровень Membership стоит сравнить?",
-  family: "Хочу путешествовать с семьёй и близкими. Какой Membership лучше сравнить, чтобы не выбрать слишком слабый уровень?",
-  groups: "У меня есть группа, ученики или клиенты. Как использовать Travel Advantage для поездок, событий и Membership?",
-  events: "Хочу понять, как события и клубная среда помогают выбрать Membership и познакомиться с проектом.",
+  "personal-travel": "Хочу обсудить поездки и понять, подходит ли мне Travel Advantage.",
+  family: "Планирую путешествие с семьёй. Помоги разобраться в подходящих вариантах без избыточного членства.",
+  groups: "Планирую поездку для группы. Какие возможности стоит проверить?",
+  events: "Хочу узнать о Life Experiences. Как проверить события и условия участия?",
   "ambassador-business": "Хочу понять, как построить business-направление вокруг Travel Advantage и роли Lifestyle Ambassador.",
   "next-step": "Я хочу понять, какой следующий шаг мне подходит: Free Guest Pass, Membership, VIP Membership, регистрация по партнёрской ссылке или сопровождение TravelGTC. Помоги выбрать по моей ситуации.",
 };
@@ -44,6 +44,7 @@ document.querySelectorAll(".nav-links a").forEach((link) => {
 
 initAuthState();
 initMiraContactLinks();
+initMiraCampaignLinks();
 initAuthForms();
 initAuthPageContext();
 initMiraEntryLinks();
@@ -53,6 +54,7 @@ initFormatButtons();
 initRoleButtons();
 initAiConsultant();
 initCrmPage();
+initStrategyPage();
 
 function initAuthState() {
   decorateAuthLinks();
@@ -504,9 +506,31 @@ function initMiraEntryLinks() {
 
       event.preventDefault();
       const target = buildMiraTargetPath(link.getAttribute("href") || "/mira/");
-      const state = await loadCurrentAuthState();
-      window.location.href = state.authenticated ? target : buildMiraAuthUrl(target, "register");
+      window.location.href = target;
     });
+  });
+}
+
+function miraCampaignFromSearch(search) {
+  const params = new URLSearchParams(search);
+  const campaign = {};
+  ["utm_source", "utm_medium", "utm_campaign", "utm_content"].forEach(key => {
+    const value = params.get(key);
+    // Campaign codes only: do not propagate full referrers, free text or contact data.
+    if (value && /^[a-zA-Z][a-zA-Z0-9_-]{0,63}$/.test(value)) campaign[key] = value;
+  });
+  return campaign;
+}
+
+function initMiraCampaignLinks() {
+  const campaign = miraCampaignFromSearch(window.location.search);
+  document.querySelectorAll('a[href^="/"]').forEach(link => {
+    const target = new URL(link.getAttribute('href'), window.location.origin);
+    if (target.origin !== window.location.origin || !['/', '/mira/', '/about/', '/information/', '/business-model/', '/travel-lifestyle/', '/club/'].includes(target.pathname)) return;
+    Object.entries(campaign).forEach(([key, value]) => {
+      if (!target.searchParams.has(key)) target.searchParams.set(key, value);
+    });
+    link.setAttribute('href', `${target.pathname}${target.search}${target.hash}`);
   });
 }
 
@@ -674,7 +698,7 @@ async function requestApi(path, options = {}) {
   const body = await response.json().catch(() => ({}));
 
   if (!response.ok || body.ok === false) {
-    throw new Error(resolveApiErrorMessage(body, response.status));
+    throw Object.assign(new Error(resolveApiErrorMessage(body, response.status)), { code: body.error && body.error.code, status: response.status });
   }
 
   return body;
@@ -700,11 +724,18 @@ function getApiBaseUrl() {
 
 function resolveApiErrorMessage(body, statusCode) {
   const code = body && body.error && body.error.code;
+  if (code === 'guest_chat_error') return body.error.message;
   if (code === "lead_capture_disabled") {
     return "Приём заявок сейчас выключен. Откройте страницу контактов, если хотите связаться сразу.";
   }
   if (code === "auth_required") {
     return "Для отправки заявки войдите или зарегистрируйтесь.";
+  }
+  if (code === "crm_access_denied") {
+    return "Доступ к стратегии требует роли team или admin.";
+  }
+  if (code === "crm_internal_error") {
+    return "Не удалось загрузить стратегию из внутреннего хранилища.";
   }
   if (code === "account_already_exists") {
     return "Аккаунт с таким email уже есть. Войдите с паролем.";
@@ -859,11 +890,11 @@ function initAiConsultant() {
         if (!question) {
           return;
         }
-        dismissAiQuestionPrompt(form);
         const authenticated = await ensureAuthenticatedForAiChat(question, panel, messages);
         if (!authenticated) {
           return;
         }
+        dismissAiQuestionPrompt(form);
         await askAiQuestion(form, messages, question, submitButton);
       });
   }
@@ -875,7 +906,12 @@ function initAiScenarioQuestion(form, questionSelect) {
   }
   const params = new URLSearchParams(window.location.search);
   const scenario = params.get("scenario") || "";
-  const question = AI_SCENARIO_QUESTIONS[scenario];
+  const independentTravel = scenario === "personal-travel"
+    && params.get("source") === "travel-lifestyle"
+    && params.get("cta") === "independent-travel";
+  const question = independentTravel
+    ? "Хочу самостоятельно выбирать даты, маршрут и проживание. С чего начать и что проверить до бронирования?"
+    : AI_SCENARIO_QUESTIONS[scenario];
   if (!question) {
     return;
   }
@@ -884,7 +920,7 @@ function initAiScenarioQuestion(form, questionSelect) {
     input.value = question;
   }
   if (questionSelect) {
-    questionSelect.value = question;
+    questionSelect.value = Array.from(questionSelect.options).some(option => option.value === question) ? question : "";
   }
 }
 
@@ -938,6 +974,7 @@ async function syncAiPanelState(panel, options = {}) {
   const state = await loadCurrentAuthState();
   if (!state.authenticated) {
     setAiConversationAccess(panel, false);
+    await loadAiChatHistory(panel, null, { forceReload: Boolean(options.forceReload) });
     return;
   }
   setAiConversationAccess(panel, true);
@@ -965,10 +1002,10 @@ function setAiConversationAccess(panel, authenticated) {
     gate.hidden = authenticated;
   }
   if (messages) {
-    messages.hidden = !authenticated;
+    messages.hidden = false;
   }
   if (form) {
-    form.hidden = !authenticated;
+    form.hidden = false;
   }
 }
 
@@ -994,12 +1031,13 @@ async function ensureAuthenticatedForAiChat(question, panel, messages) {
     return true;
   }
 
-  window.sessionStorage.setItem("travelgtc_ai_pending_question", question);
-  showAiAuthGate(panel, messages);
-  window.setTimeout(() => {
-    window.location.href = buildAiAuthUrl();
-  }, 900);
-  return false;
+  const consent = panel.querySelector('[data-guest-consent]');
+  if (consent && !consent.checked) {
+    consent.focus();
+    consent.reportValidity();
+    return false;
+  }
+  return Boolean(consent && consent.checked);
 }
 
 function showAiAuthGate(panel, messages) {
@@ -1035,7 +1073,7 @@ async function loadAiChatHistory(panel, user, options = {}) {
   }
 
   try {
-    const body = await requestApi("/api/travelgtc/v1/account/ai/chat/history", { method: "GET" });
+    const body = await requestApi(user ? "/api/travelgtc/v1/account/ai/chat/history" : "/api/travelgtc/v1/ai/chat/history", { method: "GET" });
     const history = Array.isArray(body.messages) ? body.messages : [];
     panel.dataset.aiHistoryLoaded = "true";
     if (!history.length) {
@@ -1062,7 +1100,7 @@ async function loadAiChatHistory(panel, user, options = {}) {
 function buildAiReturnGreeting(user, turnCount) {
   const name = user && user.displayName ? user.displayName.split(/\s+/)[0] : "";
   const greetingName = name ? `, ${name}` : "";
-  return `С возвращением${greetingName} 🌍\n\nПродолжаем наш разговор с Мирой TravelGTC: я подняла историю из CRM, чтобы не начинать заново. В диалоге уже ${turnCount} сохранённых реплик, поэтому следующий ответ будет учитывать ваш предыдущий интерес.`;
+  return `С возвращением${greetingName}! В этом чате сохранено ${turnCount} реплик. Продолжим разговор.`;
 }
 
 async function askAiQuestion(form, messages, question, submitButton) {
@@ -1072,26 +1110,39 @@ async function askAiQuestion(form, messages, question, submitButton) {
   const pending = appendAiMessage(messages, buildAiThinkingMessage(question), "bot");
   messages.scrollTop = messages.scrollHeight;
   try {
-    const body = await requestApi("/api/travelgtc/v1/account/ai/chat", {
+    const body = await requestApi(authState.authenticated ? "/api/travelgtc/v1/account/ai/chat" : "/api/travelgtc/v1/ai/chat", {
       method: "POST",
-      body: JSON.stringify({ question, ...getAiChatContext() }),
+      body: JSON.stringify({ question, ...getAiChatContext(), guest_consent: !authState.authenticated && Boolean(document.querySelector('[data-guest-consent]:checked')) }),
     });
-    renderAiMarkdown(pending, body.answer || buildAiStubAnswer(question));
-    appendAiFeedbackControls(pending, body.answer || "", body.lead_id || "");
+    if (!body.answer || body.mode === "stub") {
+      throw new Error("Мира сейчас недоступна. Попробуйте позже; сохранение запроса и отправка уведомления не подтверждены.");
+    }
+    renderAiMarkdown(pending, body.answer);
+    if (authState.authenticated) appendAiFeedbackControls(pending, body.answer || "", body.lead_id || "");
+    if (!authState.authenticated && body.completed_turns >= 3) {
+      const save = document.querySelector('[data-ai-save]');
+      if (save) save.hidden = false;
+    }
     revealAiMessageStart(messages, pending);
     const panel = form.closest("[data-ai-panel]");
     if (panel) {
       panel.dataset.aiHistoryLoaded = "true";
     }
   } catch (error) {
-    if (error.message && error.message.includes("auth_required")) {
+    if (error.code === 'guest_chat_error' || error.code === 'rate_limited') {
+      renderAiMarkdown(pending, error.message);
+      if (error.code === 'guest_chat_error' && error.status === 429) {
+        const save = document.querySelector('[data-ai-save]');
+        if (save) save.hidden = false;
+      }
+    } else if (error.code === 'auth_required' || error.code === 'authentication_required') {
       window.sessionStorage.setItem("travelgtc_ai_pending_question", question);
       renderAiMarkdown(pending, "Для продолжения войдите или зарегистрируйтесь в TravelGTC. Я сохраню ваш вопрос и верну вас в чат.");
       window.setTimeout(() => {
         window.location.href = buildAiAuthUrl();
       }, 900);
     } else {
-      renderAiMarkdown(pending, buildAiStubAnswer(question));
+      renderAiMarkdown(pending, "Не удалось получить ответ Миры. Попробуйте позже; сохранение запроса и отправка уведомления не подтверждены.");
     }
   } finally {
     setSubmitDisabled(submitButton, false);
@@ -1116,6 +1167,7 @@ function getAiChatContext() {
     scenario: AI_SCENARIO_KEYS.has(scenario) ? scenario : undefined,
     source: source.slice(0, 80) || undefined,
     cta: cta.slice(0, 80) || undefined,
+    campaign: miraCampaignFromSearch(window.location.search),
   };
 }
 
@@ -1180,13 +1232,7 @@ async function submitAiFeedback(button, controls, rating, answer, leadId) {
 }
 
 function buildAiThinkingMessage(question) {
-  if (/(тариф|membership|elite|vip|turbo|семь|семьи|балл|loyalty)/i.test(question)) {
-    return "Хороший вопрос ⭐\n\nСейчас разложу по полочкам и помогу понять, какой уровень стоит сравнить первым. Заодно уточним ваши travel-хотелки, чтобы не выбрать слишком слабый вариант.";
-  }
-  if (/(групп|клиент|ретрит|йог|цигун|wellness|ambassador|бизнес)/i.test(question)) {
-    return "О, это уже похоже на travel-направление 🧭\n\nСейчас посмотрю на ваш сценарий как на сочетание поездок, сообщества и возможной Ambassador-модели.";
-  }
-  return "Рада, что вы здесь 🌍\n\nСейчас подготовлю обстоятельный ответ и постараюсь связать его с вашей реальной любовью к путешествиям.";
+  return "Мира готовит ответ...";
 }
 
 function renderAiMarkdown(container, text) {
@@ -1219,9 +1265,11 @@ function renderAiMarkdown(container, text) {
     }
 
     const bullet = line.match(/^(?:[-*•]|\d+[.)])\s+(.+)$/);
+    const listTag = /^\d+[.)]/.test(line) ? "ol" : "ul";
     if (bullet) {
+      if (list && list.tagName.toLowerCase() !== listTag) finishList();
       if (!list) {
-        list = document.createElement("ul");
+        list = document.createElement(listTag);
       }
       const item = document.createElement("li");
       appendInlineMarkdown(item, bullet[1]);
@@ -1230,9 +1278,22 @@ function renderAiMarkdown(container, text) {
     }
 
     finishList();
-    const paragraph = document.createElement("p");
-    appendInlineMarkdown(paragraph, line);
-    container.appendChild(paragraph);
+    // Old history may contain no paragraph breaks; split only long prose at sentence boundaries.
+    const sentences = line.length > 480 && !line.includes("http") && !line.includes("**")
+      ? line.split(/(?<=[.!?])\s+(?=[А-ЯЁA-Z])/u) : [line];
+    let chunk = "";
+    const flush = () => {
+      if (!chunk) return;
+      const paragraph = document.createElement("p");
+      appendInlineMarkdown(paragraph, chunk);
+      container.appendChild(paragraph);
+      chunk = "";
+    };
+    sentences.forEach(sentence => {
+      if (chunk.length > 280) flush();
+      chunk += (chunk ? " " : "") + sentence;
+    });
+    flush();
   });
 
   finishList();
@@ -1252,11 +1313,13 @@ function appendInlineMarkdown(parent, text) {
     } else {
       const markdownLink = match.match(/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/);
       const link = document.createElement("a");
-      link.href = markdownLink ? markdownLink[2] : match;
-      link.textContent = markdownLink ? markdownLink[1] : match;
+      const url = markdownLink ? markdownLink[2] : match.replace(/[.,;:!?]+$/, "");
+      link.href = url;
+      link.textContent = markdownLink ? markdownLink[1] : url;
       link.target = "_blank";
-      link.rel = "noopener";
+      link.rel = "noopener noreferrer";
       parent.appendChild(link);
+      if (!markdownLink && url.length < match.length) parent.appendChild(document.createTextNode(match.slice(url.length)));
     }
     lastIndex = offset + match.length;
     return match;
@@ -1421,103 +1484,6 @@ function initAiVoiceInput(form) {
   });
 }
 
-function buildAiStubAnswer(question) {
-  const normalized = question.toLowerCase();
-  const nextStepPattern = /(зарегистр|регистрац|стоим|цена|сколько|участник|купить|оплат|checkout|ambassador|амбассад|страна|доступ|ссылка|связ|контакт|whatsapp|telegram|телефон|email)/i;
-  const tariffPattern = /(тариф|membership|уровн|покуп|подключ|семь|семьи|друз|premium|elite|элит|turbo|турбо|vip|пакет|подобрать)/i;
-  const sourcePattern = /(официальн|источник|сайт|документ|pdf|benefits|правил|услов)/i;
-  const guestAccessPattern = /(guest pass|гостев|demo|демо|trial|тест|посмотреть|доступ|free|vip)/i;
-  const storyPattern = /(истори|знаком|встреч|событ|пара|друг|партн[её]р|впечатл|путешеств)/i;
-  const groupBusinessPattern = /(групп|ученик|клиент|ретрит|wellness|йог|цигун|тренер|организ|сообществ|business|бизнес|заработ|рекомендац|ambassador|амбассад)/i;
-  const familyPattern = /(семь|семьи|близк|дет|свадеб|подар|родител|друз)/i;
-
-  if (guestAccessPattern.test(normalized)) {
-    const vipFit = /(vip|elite|элит|membership|тариф|семь|друз|групп|клиент|балл|loyalty|событ|ambassador|амбассад|куп|оплат|сравн)/i.test(normalized);
-    const primaryLine = vipFit
-      ? `🌟 VIP Membership: ${TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL}`
-      : `🆓 Free Guest Pass: ${TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL}`;
-    const secondaryLine = vipFit
-      ? `🆓 Free Guest Pass, если хотите начать совсем мягко: ${TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL}`
-      : `🌟 VIP Membership, если уже хотите перейти к платному VIP-членству: ${TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL}`;
-    return `Можно начать мягко: сначала выбрать правильный вход Travel Advantage, а уже потом обсуждать Membership и официальный шаг.\n\n${primaryLine}\n${secondaryLine}\n\nFree Guest Pass подходит для первого знакомства без кредитной карты и даёт гостевой доступ с ограничением: 1 hotel booking максимум на 2 ночи. VIP Membership — это продающая страница платного VIP-членства с переходом к official checkout.\n\nЕсли у вас семья, группа, клиенты, интерес к баллам, Elite, Turbo или Ambassador, я бы сначала сравнила уровни Membership, чтобы не выбрать слишком слабый тариф.`;
-  }
-
-  if (groupBusinessPattern.test(normalized)) {
-    return `Это уже сильнее, чем просто “забронировать поездку” 🚀
-
-Если у вас есть группа, ученики, клиенты, ретрит, wellness-направление или своё сообщество, Travel Advantage можно рассматривать как travel-инструмент для существующей аудитории:
-
-- создавать поездки и события вокруг вашей темы;
-- усиливать ценность для учеников, клиентов и партнёров;
-- использовать Guest Passes и Membership как путь знакомства;
-- отдельно рассмотреть роль Lifestyle Ambassador, если вы хотите развивать рекомендации и сеть.
-
-В таком сценарии я бы не начинала с самого слабого уровня. Сначала стоит сравнить Elite и, если важна loyalty-механика, Turbo add-on: там могут быть важны Additional Users, Guest Passes и Loyalty Points.
-
-Скажите, у вас уже есть своя аудитория или вы только хотите собрать первую группу?`;
-  }
-
-  if (familyPattern.test(normalized)) {
-    return `Семейный сценарий часто недооценивают 👨‍👩‍👧
-
-Если вы хотите путешествовать с близкими, дарить поездки, планировать отдых заранее или сделать, например, свадебное путешествие детям, важно смотреть не только на цену входа.
-
-Я бы сравнила Membership через вопросы:
-
-- кто будет пользоваться возможностями кроме вас;
-- нужны ли дополнительные пользователи;
-- хотите ли вы приглашать близких через Guest Passes;
-- планируете одну поездку или несколько поездок в течение года.
-
-По официальному PDF у Elite есть расширенные семейные и гостевые возможности, поэтому сначала лучше проверить, не является ли он более подходящим уровнем. А если бюджет сейчас ниже, тогда спокойно сравним VIP180 или VIP.
-
-Кого вы хотите вовлечь в поездки первым: семью, друзей или детей?`;
-  }
-
-  if (tariffPattern.test(normalized)) {
-    return `Хороший вопрос. Я бы начала не с названия тарифа, а с ваших задач 🌍
-
-Чтобы не купить слишком слабый уровень, сначала проверяем “maximum fit”:
-
-1. Вы путешествуете один, с семьёй или с друзьями?
-2. Хотите ли вы приглашать близких, клиентов или участников группы?
-3. Важны ли вам Guest Passes, Additional Users, Life Experiences или Loyalty Points?
-4. Рассматриваете ли вы роль Lifestyle Ambassador в будущем?
-
-Если есть семья, группа, клиенты, события или интерес к баллам, сначала стоит сравнить Elite и Turbo add-on. Если потребности проще или бюджет ограничен, тогда смотрим VIP180 или VIP.
-
-Официальное сравнение уровней: https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf
-
-Какой сценарий главный для вас сейчас: личные поездки, семья или группа/клиенты?`;
-  }
-  if (nextStepPattern.test(normalized)) {
-    return `Похоже, вы уже близко к практическому шагу ✅
-
-Есть три корректных входа:
-
-- 🆓 Free Guest Pass, если хотите сначала посмотреть платформу без кредитной карты: ${TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL}
-- 🌟 VIP Membership, если уже хотите перейти к платному VIP-членству: ${TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL}
-- 🔗 официальная партнёрская регистрация TravelGTC, если готовы регистрироваться или обсуждать Ambassador: https://www.mwrlife.com/KFilip909
-
-Перед оплатой я бы всё же быстро проверила: вам нужен только личный доступ или важны семья, друзья, группы, клиенты, Guest Passes, Elite, Turbo add-on и Loyalty Points? Это помогает не выбрать уровень слабее ваших реальных задач.`;
-  }
-  if (sourcePattern.test(normalized)) {
-    return `${OFFICIAL_SOURCE_TEXT} TravelGTC — партнёрская информационная страница независимого Lifestyle Ambassador, поэтому финальные цены, условия, правила членства, документы и региональную доступность нужно сверять именно там.`;
-  }
-  if (normalized.includes("travel advantage") || normalized.includes("членств")) {
-    return "Travel Advantage — это онлайн/мобильное приложение для членов клуба путешественников. Его ценность лучше оценивать через ваши реальные планы: где вы хотите отдыхать, как часто ездите, с кем путешествуете и хотите ли использовать клубные события. Категории включают отели, перелёты, курорты, аренду авто, круизы, экскурсии, активности, трансферы, Travel Credits и Member Support. Чтобы подобрать Membership, скажите: вы хотите путешествовать для себя, с семьёй или использовать возможности для группы/клиентов?";
-  }
-  if (normalized.includes("mwr") || normalized.includes("компан")) {
-    return "MWR Life — деловая сторона проекта: компания, Lifestyle Ambassador, события, обучение и партнёрская модель. На официальной странице компании указаны ориентиры масштаба: 10 лет работы, 300K+ участников, 150+ стран и 10 языков. TravelGTC не является официальным сайтом MWR Life, а помогает разобраться и подготовиться к следующему шагу.";
-  }
-  if (normalized.includes("доход") || normalized.includes("заработ")) {
-    return "Доход в партнёрской модели не гарантирован. Любые результаты зависят от личной активности, навыков, времени, репутации и соблюдения официальных правил. Перед решением нужно изучить официальные раскрытия и документы.";
-  }
-  if (storyPattern.test(normalized)) {
-    return "В travel-сообществах часто самое ценное начинается не с бронирования, а со встречи: кто-то находит компанию для поездки, кто-то — делового партнёра, кто-то — друга по интересам, а иногда и пару. Звучит как хороший маршрут: сначала люди, потом впечатления, потом новые возможности. Это пример атмосферы, не как обещание результата. При этом любые условия участия всё равно проверяются только по официальным материалам MWR Life / Travel Advantage.";
-  }
-  return "Я Мира TravelGTC. Помогаю не просто ответить на вопрос, а подобрать путь к Membership через вашу реальную потребность. Давайте начнём с практики: что сейчас важнее — путешествовать чаще, вовлечь семью, собрать друзей, организовать поездку для группы или понять Ambassador-направление?";
-}
 
 function resolveUserPreferredChannel(user) {
   if (user && user.primaryChannel === "phone" && user.phone) return "phone";
@@ -1689,6 +1655,153 @@ function initCrmPage() {
   }
 }
 
+function initStrategyPage() {
+  const page = document.querySelector("[data-strategy-page]");
+  if (!page) return;
+
+  const status = page.querySelector("[data-strategy-status]");
+  const workspace = page.querySelector("[data-strategy-workspace]");
+  const documentContainer = page.querySelector("[data-strategy-document]");
+  const indexContainer = page.querySelector("[data-strategy-index]");
+
+  void loadStrategy();
+
+  async function loadStrategy() {
+    await authStatePromise;
+    setCrmStatus(status, "Загружаем стратегию...", "pending");
+    try {
+      const body = await requestApi("/api/travelgtc/v1/crm/documents/marketing-strategy", {
+        method: "GET",
+        cache: "no-store",
+      });
+      renderStrategyMarkdown(documentContainer, indexContainer, body.document.markdown || "");
+      if (workspace) workspace.hidden = false;
+      setCrmStatus(status, `${body.document.id} · версия ${body.document.version} · ${body.document.updated_at}`, "success");
+    } catch (error) {
+      if (workspace) workspace.hidden = true;
+      const message = authState.authenticated
+        ? error.message || "Не удалось загрузить стратегию."
+        : "Войдите под командным аккаунтом TravelGTC, чтобы открыть стратегию.";
+      setCrmStatus(status, message, "error");
+    }
+  }
+}
+
+function renderStrategyMarkdown(container, indexContainer, markdown) {
+  if (!container || !indexContainer) return;
+  container.replaceChildren();
+  indexContainer.replaceChildren();
+
+  const lines = markdown.replace(/\r/g, "").split("\n");
+  let lineIndex = 0;
+  let sectionIndex = 0;
+
+  while (lineIndex < lines.length) {
+    const line = lines[lineIndex].trim();
+    if (!line) {
+      lineIndex += 1;
+      continue;
+    }
+
+    if (line.startsWith("```")) {
+      const codeLines = [];
+      lineIndex += 1;
+      while (lineIndex < lines.length && !lines[lineIndex].trim().startsWith("```")) {
+        codeLines.push(lines[lineIndex]);
+        lineIndex += 1;
+      }
+      const pre = document.createElement("pre");
+      const code = document.createElement("code");
+      code.textContent = codeLines.join("\n");
+      pre.appendChild(code);
+      container.appendChild(pre);
+      lineIndex += 1;
+      continue;
+    }
+
+    if (/^#{1,3}\s/.test(line)) {
+      const level = line.match(/^#+/)[0].length;
+      const heading = document.createElement(level === 1 ? "h1" : level === 2 ? "h2" : "h3");
+      heading.textContent = cleanStrategyText(line.replace(/^#{1,3}\s+/, ""));
+      if (level === 2) {
+        sectionIndex += 1;
+        heading.id = `strategy-section-${sectionIndex}`;
+        const link = document.createElement("a");
+        link.href = `#${heading.id}`;
+        link.textContent = heading.textContent;
+        indexContainer.appendChild(link);
+      }
+      container.appendChild(heading);
+      lineIndex += 1;
+      continue;
+    }
+
+    if (line.includes("|") && lineIndex + 1 < lines.length && /^\|?[\s|:-]+\|?$/.test(lines[lineIndex + 1].trim())) {
+      const table = document.createElement("table");
+      const head = document.createElement("thead");
+      const body = document.createElement("tbody");
+      head.appendChild(strategyTableRow(line, "th"));
+      lineIndex += 2;
+      while (lineIndex < lines.length && lines[lineIndex].trim().includes("|")) {
+        body.appendChild(strategyTableRow(lines[lineIndex].trim(), "td"));
+        lineIndex += 1;
+      }
+      table.append(head, body);
+      const wrapper = document.createElement("div");
+      wrapper.className = "strategy-table-wrap";
+      wrapper.appendChild(table);
+      container.appendChild(wrapper);
+      continue;
+    }
+
+    const listMatch = line.match(/^([-*]|\d+\.)\s+(.+)$/);
+    if (listMatch) {
+      const ordered = /\d+\./.test(listMatch[1]);
+      const list = document.createElement(ordered ? "ol" : "ul");
+      while (lineIndex < lines.length) {
+        const itemMatch = lines[lineIndex].trim().match(/^([-*]|\d+\.)\s+(.+)$/);
+        if (!itemMatch || /\d+\./.test(itemMatch[1]) !== ordered) break;
+        const item = document.createElement("li");
+        item.textContent = cleanStrategyText(itemMatch[2]);
+        list.appendChild(item);
+        lineIndex += 1;
+      }
+      container.appendChild(list);
+      continue;
+    }
+
+    const paragraphLines = [line];
+    lineIndex += 1;
+    while (lineIndex < lines.length && lines[lineIndex].trim() && !strategyBlockStart(lines, lineIndex)) {
+      paragraphLines.push(lines[lineIndex].trim());
+      lineIndex += 1;
+    }
+    const paragraph = document.createElement("p");
+    paragraph.textContent = cleanStrategyText(paragraphLines.join(" "));
+    container.appendChild(paragraph);
+  }
+}
+
+function strategyBlockStart(lines, index) {
+  const line = lines[index].trim();
+  return /^#{1,3}\s/.test(line) || /^```/.test(line) || /^([-*]|\d+\.)\s+/.test(line) ||
+    (line.includes("|") && index + 1 < lines.length && /^\|?[\s|:-]+\|?$/.test(lines[index + 1].trim()));
+}
+
+function strategyTableRow(line, cellName) {
+  const row = document.createElement("tr");
+  line.replace(/^\||\|$/g, "").split("|").forEach((value) => {
+    const cell = document.createElement(cellName);
+    cell.textContent = cleanStrategyText(value.trim());
+    row.appendChild(cell);
+  });
+  return row;
+}
+
+function cleanStrategyText(value) {
+  return value.replace(/\*\*([^*]+)\*\*/g, "$1").replace(/`([^`]+)`/g, "$1");
+}
+
 function isMiraChatLead(lead) {
   return lead.source_path === "ai_chat";
 }
@@ -1730,7 +1843,7 @@ function renderCrmLeadList(container, leads, selectedLeadId, onOpen, options = {
     button.innerHTML = `
       <span><strong>${escapeHtml(lead.display_name || "Без имени")}</strong><small>${escapeHtml(formatCrmDate(lead.created_at))}</small></span>
       <span>${escapeHtml(crmInterestLabel(lead.primary_interest))}</span>
-      <span class="crm-stage">${escapeHtml(isMiraChatLead(lead) ? `Мира: ${crmChatStatusLabel(lead.chat_status || "active")}` : crmStageLabel(lead.stage))}</span>
+      <span class="crm-stage">${escapeHtml(isMiraChatLead(lead) ? `${crmStageLabel(lead.stage)} · Мира: ${crmChatStatusLabel(lead.chat_status || "active")}` : crmStageLabel(lead.stage))}</span>
     `;
     button.addEventListener("click", () => onOpen(lead.lead_id));
     row.appendChild(button);
@@ -1772,7 +1885,7 @@ function renderCrmLeadDetail(container, lead, interactions, actions) {
           (item) => `
             <article>
               <strong>${escapeHtml(formatCrmDate(item.created_at))} · ${escapeHtml(item.interaction_type || "")}</strong>
-              <p>${escapeHtml(item.body || "")}</p>
+              <div class="crm-message-body">${crmMessageHtml(item.body)}</div>
             </article>
           `,
         )
@@ -2077,7 +2190,7 @@ function crmTimelineHtml(item) {
   const metadata = crmMetadata(item.metadata_json);
   const title = item.kind === "interaction" && item.interaction_type === "contact_action" ? crmContactActionTitle(item, metadata) : item.title;
   const outcomeForm = item.kind === "interaction" && item.interaction_type === "contact_action" && !metadata.outcome_at ? `<form class="crm-contact-outcome" data-crm-contact-outcome="${escapeHtml(item.interaction_id)}"><select name="status"><option value="sent_placed">Связь состоялась</option><option value="no_answer">Нет ответа</option><option value="follow_up_needed" selected>Нужен повторный контакт</option><option value="not_sent">Не отправлено</option></select><input name="note" maxlength="2000" placeholder="Короткая внутренняя заметка"><button type="submit" class="button ghost small">Зафиксировать</button></form>` : (metadata.outcome_note ? `<p class="crm-outcome-note">${escapeHtml(metadata.outcome_note)}</p>` : "");
-  return `<article><strong>${escapeHtml(formatCrmDate(item.created_at))} · ${escapeHtml(title)}</strong>${item.body ? `<p>${escapeHtml(item.body)}</p>` : ""}${outcomeForm}</article>`;
+  return `<article><strong>${escapeHtml(formatCrmDate(item.created_at))} · ${escapeHtml(title)}</strong>${item.body ? `<div class="crm-message-body">${crmMessageHtml(item.body)}</div>` : ""}${outcomeForm}</article>`;
 }
 
 function crmMetadata(value) {
@@ -2107,19 +2220,18 @@ function crmConversationSessions(messages) {
 function crmMessageCountLabel(count) { return count === 1 ? "сообщение" : count < 5 ? "сообщения" : "сообщений"; }
 
 function crmMessageHtml(value) {
-  return escapeHtml(value || "")
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/^###\s+(.+)$/gm, "<h4>$1</h4>")
-    .replace(/\n{2,}/g, "</p><p>")
-    .replace(/\n/g, "<br>")
-    .replace(/^(.*)$/s, "<p>$1</p>");
+  const body = document.createElement("div");
+  renderAiMarkdown(body, value || "");
+  return body.innerHTML;
 }
 
 function crmStageOptions(current) {
   return [
+    ["cold_contact", "Холодный контакт"],
     ["new_lead", "Новая"],
     ["in_consultation", "Консультация"],
     ["membership_interest", "Интерес к членству"],
+    ["ready_to_subscribe", "Готов к регистрации"],
     ["closed_won", "Успешно"],
     ["closed_lost", "Не актуально"],
     ["archived", "Архив"],
@@ -2130,9 +2242,11 @@ function crmStageOptions(current) {
 
 function crmStageLabel(stage) {
   const labels = {
+    cold_contact: "Холодный контакт",
     new_lead: "Новая",
     in_consultation: "Консультация",
     membership_interest: "Интерес к членству",
+    ready_to_subscribe: "Готов к регистрации",
     closed_won: "Успешно",
     closed_lost: "Не актуально",
     archived: "Архив",

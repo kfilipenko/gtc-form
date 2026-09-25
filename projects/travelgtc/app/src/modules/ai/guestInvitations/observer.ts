@@ -1,0 +1,5 @@
+import net from 'node:net';
+import type {Invitation,Observation} from './store.js';
+export function observeInvitation(v:Invitation,signal?:AbortSignal):Promise<Observation>{
+ return new Promise(resolve=>{const c=net.createConnection('/run/mira-reader/vouchers.sock');c.setEncoding('utf8');let data='',done=false;const finish=(r:Observation)=>{if(done)return;done=true;signal?.removeEventListener('abort',abort);c.destroy();resolve(r);};const abort=()=>finish({status:'unknown',checkedAt:new Date().toISOString()});signal?.addEventListener('abort',abort,{once:true});if(signal?.aborted)return abort();c.setTimeout(29000,abort);c.on('error',abort);c.on('end',abort);c.on('connect',()=>c.write(JSON.stringify({op:'status',code:v.code})+'\n'));c.on('data',b=>{data+=b;if(data.length>1024)return abort();if(data.includes('\n')){try{const r=JSON.parse(data.split('\n')[0]);if(!['available','redeemed','expired'].includes(r.status)||typeof r.checkedAt!=='string')return abort();finish({status:r.status,checkedAt:r.checkedAt});}catch{abort();}}});});
+}

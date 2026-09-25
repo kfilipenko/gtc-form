@@ -247,6 +247,33 @@ describe('TravelGTC auth API', () => {
     expect(allowed.json()).toMatchObject({ ok: true, customers: [] });
   });
 
+  test('serves the marketing strategy only to TravelGTC team members', async () => {
+    const { app, authStore } = await makeApp();
+    const registration = await app.inject({
+      method: 'POST',
+      url: '/api/travelgtc/v1/auth/register',
+      payload: registerPayload({ email: 'strategy.viewer@example.com' }),
+    });
+    const cookie = setCookieHeader(registration);
+    const endpoint = '/api/travelgtc/v1/crm/documents/marketing-strategy';
+
+    const denied = await app.inject({ method: 'GET', url: endpoint, headers: { cookie } });
+    await authStore.ensureProjectRole(registration.json().user.userId, 'travelgtc', 'team', 'test');
+    const allowed = await app.inject({ method: 'GET', url: endpoint, headers: { cookie } });
+    await app.close();
+
+    expect(denied.statusCode).toBe(403);
+    expect(denied.headers['cache-control']).toBe('private, no-store');
+    expect(denied.json().error.code).toBe('crm_access_denied');
+    expect(allowed.statusCode).toBe(200);
+    expect(allowed.headers['cache-control']).toBe('private, no-store');
+    expect(allowed.json().document).toMatchObject({
+      id: 'TRAVELGTC-MKT-001',
+      version: '0.3',
+    });
+    expect(allowed.json().document.markdown).toContain('## 2. Strategic Thesis');
+  });
+
   test('verifies email with captured test token', async () => {
     const { app } = await makeApp();
     const registration = await app.inject({
@@ -363,10 +390,11 @@ describe('TravelGTC auth API', () => {
       scenario: null,
       source: 'scriptbad/script',
       cta: 'next-step',
+      campaign: {},
     });
   });
 
-  test('returns referral registration link for account AI purchase intent', async () => {
+  test('does not send a registration link or claim CRM success when Azure is disabled', async () => {
     const { app } = await makeApp();
     const registration = await app.inject({
       method: 'POST',
@@ -378,17 +406,18 @@ describe('TravelGTC auth API', () => {
       method: 'POST',
       url: '/api/travelgtc/v1/account/ai/chat',
       headers: { cookie },
-      payload: { question: 'Хочу подписаться и получить ссылку для регистрации.' },
+      payload: { question: 'Хочу купить VIP Membership и получить ссылку для регистрации.' },
     });
     await app.close();
 
     expect(response.statusCode).toBe(200);
     expect(response.json()).toMatchObject({
       ok: true,
-      purchase_intent: true,
-      referral_registration_url: 'https://www.mwrlife.com/KFilip909',
+      purchase_intent: false,
+      referral_registration_url: null,
     });
-    expect(response.json().answer).toContain('https://www.mwrlife.com/KFilip909');
+    expect(response.json().answer).toContain('служебное сообщение');
+    expect(response.json().answer).not.toContain('зафиксировала');
   });
 
   test('does not treat purchase hesitation as account AI purchase intent', async () => {
@@ -439,7 +468,7 @@ describe('TravelGTC auth API', () => {
     });
   });
 
-  test('returns access links for account AI first-look intent without marking purchase intent', async () => {
+  test('labels stub mode without selling or marking first-look intent as purchase', async () => {
     const { app } = await makeApp();
     const registration = await app.inject({
       method: 'POST',
@@ -460,8 +489,9 @@ describe('TravelGTC auth API', () => {
       ok: true,
       purchase_intent: false,
     });
-    expect(response.json().answer).toContain('https://vip.traveladvantage.com/KFilip909');
-    expect(response.json().answer).toContain('https://free.traveladvantage.com/KFilip909');
+    expect(response.json().answer).toContain('служебное сообщение');
+    expect(response.json().answer).not.toContain('https://');
+    expect(response.json().intent.action).toBe('guest_pass');
   });
 
   test('creates authenticated TravelGTC lead and project membership from TravelGTC action', async () => {

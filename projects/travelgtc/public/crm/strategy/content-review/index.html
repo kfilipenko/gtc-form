@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="referrer" content="same-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; media-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'">
+  <title>Материалы для просмотра — TravelGTC</title>
+  <link rel="stylesheet" href="/assets/css/content-review.css?v=20260923-2">
+  <script src="/assets/js/content-review.js?v=20260924-1" defer></script>
+</head>
+<body>
+  <header class="review-header">
+    <a class="brand" href="/crm/strategy/" aria-label="TravelGTC — стратегия"><img src="/assets/images/processed/travelgtc-logo-header.webp" alt="TravelGTC" width="169" height="50"></a>
+    <nav aria-label="Служебные разделы"><a href="/crm/">CRM</a><a href="/crm/strategy/">Стратегия</a><a href="/crm/strategy/video-guide/" target="_blank" rel="noopener noreferrer">Руководство по видео</a><a href="/auth/?mode=login" id="account-link">Войти</a></nav>
+  </header>
+  <main>
+    <div class="page-heading"><p class="eyebrow">TravelGTC · отдел маркетинга</p><h1>Материалы для просмотра</h1><p>Посты, визуалы и видео с результатами проверки.</p></div>
+    <p id="load-status" class="notice" role="status">Проверяем доступ к материалам…</p>
+    <noscript><p class="notice">Для просмотра включите JavaScript в браузере.</p></noscript>
+    <div id="review-workspace" hidden>
+      <section class="review-intro" aria-label="Состояние пакета"><p class="eyebrow" id="review-title"></p><h2>Черновики для обсуждения</h2><p id="review-summary"></p><p>Публикация не разрешена. Оценка PASS относится к отдельной проверке и не означает утверждение материала.</p><p class="muted" id="review-budget"></p></section>
+      <nav class="section-nav" aria-label="Материалы"><a href="#test-results" id="test-results-nav" hidden>Новые тесты</a><a href="#posts">5 направлений</a><a href="#visuals">Визуалы</a><a href="#video">Видео и аудио</a><a href="#calendar">План на 14 дней</a><a href="#handoff">Передача Мире</a></nav>
+      <section id="test-results" hidden><div class="section-heading"><p class="eyebrow">Новые результаты</p><h2>Тесты видео и инструментов</h2><p>Оригинальные результаты для просмотра. Технически успешный тест может требовать доработки перед рекламным выпуском.</p></div><div id="test-list"></div></section>
+      <section id="posts"><div class="section-heading"><p class="eyebrow">01 · тексты</p><h2>Пять направлений рекламы</h2><p>Основной пост и короткая версия для каждого направления. Тексты показаны в редакции исполнителя.</p></div><div id="post-list"></div><aside id="additional-notes" class="notice"></aside></section>
+      <section id="visuals"><div class="section-heading"><p class="eyebrow">02 · визуалы</p><h2>Три образа проекта</h2><p>Статус всех изображений: требуется доработка и проверка происхождения. Нажмите на изображение, чтобы открыть оригинал.</p></div><div id="image-list" class="image-grid"></div></section>
+      <section id="video"><div class="section-heading"><p class="eyebrow">03 · видео и аудио</p><h2>Знакомство с платформой</h2><p>Ролик 25,7 секунды. Субтитры исходные: их разбивка требует исправления.</p></div><div class="media-layout"><div><video id="pilot-video" controls playsinline preload="metadata" aria-label="Тестовый ролик TravelGTC"></video><p id="video-error" class="muted" hidden>Видео не загрузилось. Обновите страницу и проверьте вход в CRM.</p><div id="media-downloads" class="download-links"></div></div><div class="media-notes"><span class="badge revise">Требуется доработка · REVISE</span><ul id="video-notes"></ul><h3>Озвучка отдельно</h3><audio id="pilot-audio" controls preload="none" aria-label="Озвучка ролика"></audio><p class="muted">Прослушивание произношения исполнителем: NOT_RUN.</p><details><summary>Текст для озвучки</summary><p id="reference-text" class="copy-text"></p></details><details><summary>Результат транскрипции</summary><p id="transcript-text" class="copy-text"></p></details></div></div></section>
+      <section id="calendar"><div class="section-heading"><p class="eyebrow">04 · план</p><h2>Четырнадцать дней</h2><p>Отсчёт начинается после разрешения публикации. Публикации ещё не запланированы в социальных сетях.</p></div><div class="table-scroll"><table><thead><tr><th>День</th><th>Материал</th><th>Цель</th></tr></thead><tbody id="calendar-rows"></tbody></table></div></section>
+      <section id="handoff"><div class="section-heading"><p class="eyebrow">05 · путь клиента</p><h2>Передача интереса Мире</h2><p>Тестовые карточки. Реальных клиентов, согласий и выдачи приглашений в этом тесте нет.</p></div><div id="handoff-list" class="handoff-grid"></div></section>
+      <footer class="review-footer"><h2>Отчёт исполнителя</h2><div id="report-links" class="download-links"></div><details><summary>Происхождение пакета и контрольная сумма</summary><p id="package-origin" class="technical"></p></details><p class="muted">Для обсуждения удобно указать направление поста, букву визуала или время в ролике.</p></footer>
+    </div>
+  </main>
+</body>
+</html>

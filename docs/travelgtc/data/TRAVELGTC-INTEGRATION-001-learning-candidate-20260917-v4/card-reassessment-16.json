@@ -1,0 +1,407 @@
+{
+  "task_id": "TRAVELGTC-INTEGRATION-001",
+  "checked_at": "2026-09-17T18:53:47.876169+00:00",
+  "cards": [
+    {
+      "card_id": "K013",
+      "exact_current_fact_or_method": "Признать вопрос, уточнить конкретное сомнение, опереться на проверяемый источник и разрешить отказ.",
+      "public_official_confirmation": {
+        "source_id": "S-GUIDE",
+        "section": "p2 Follow Through; questions/objections at end",
+        "scope_and_limits": "Публичный guide предлагает уточнять реакцию и разбирать вопросы. Признание сомнения и уважение отказа — собственный метод Миры/S080, не цитата урока."
+      },
+      "nature": "independently_worded_editorial_method",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "S080",
+        "HUB-RU-10"
+      ],
+      "current_source_ids": [
+        "S080",
+        "S-GUIDE"
+      ],
+      "specific_restriction_ids": [
+        "R1"
+      ],
+      "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+      "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+      "runtime_visibility": "candidate_public_response"
+    },
+    {
+      "card_id": "K020",
+      "exact_current_fact_or_method": "Owner разрешил изучение оплаченных материалов и подготовку обучения Миры. Прочитаны доступные русские субтитры16 уроков; клиентам передаются публично доступные материалы по ссылкам.",
+      "public_official_confirmation": {
+        "source_id": null,
+        "section": null,
+        "scope_and_limits": "Публичного подтверждения факта личного исследования нет: это журнал выполненной работы и поручения Owner, не учебный текст."
+      },
+      "nature": "internal_observation_or_owner_process",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "S-CAMPFIRE",
+        "S-HUB-ACADEMY",
+        "S-HUB-RESOURCES"
+      ],
+      "current_source_ids": [
+        "S-CAMPFIRE",
+        "S-HUB-ACADEMY",
+        "S-HUB-RESOURCES"
+      ],
+      "specific_restriction_ids": [],
+      "restriction_scope": "Конкретный запрет на это краткое внутреннее наблюдение не установлен. Не считать это разрешением на выгрузку исходного курса.",
+      "result": "INTERNAL_REVIEW_METADATA",
+      "runtime_visibility": "owner_review_only"
+    },
+    {
+      "card_id": "K022",
+      "exact_current_fact_or_method": "В Hub Getting Started RU содержит16 уроков. Их доступные субтитры прочитаны; четыре раздела Academy и языковые коллекции подтверждены ранее.",
+      "public_official_confirmation": {
+        "source_id": null,
+        "section": null,
+        "scope_and_limits": "Публичная Academy подтверждает отдельный стартовый раздел; число16 и внутренние языковые коллекции подтверждены только наблюдением Hub. Не заменяем их публичными13 темами."
+      },
+      "nature": "internal_observation_or_owner_process",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "S-HUB-ACADEMY"
+      ],
+      "current_source_ids": [
+        "S-HUB-ACADEMY"
+      ],
+      "specific_restriction_ids": [],
+      "restriction_scope": "Конкретный запрет на это краткое внутреннее наблюдение не установлен. Не считать это разрешением на выгрузку исходного курса.",
+      "result": "INTERNAL_REVIEW_METADATA",
+      "runtime_visibility": "owner_review_only"
+    },
+    {
+      "card_id": "K023",
+      "exact_current_fact_or_method": "В каталоге есть Presentation, Getting Started, Compensation & Benefits, Membership Flyers, Branding & Identity, Recognition, Social & Community. У Policies доступны действия Просмотр, Скачать и Поделиться общедоступной ссылкой, а также отдельное персональное отслеживание.",
+      "public_official_confirmation": {
+        "source_id": null,
+        "section": null,
+        "scope_and_limits": "Точные категории и подписи действий — собственное наблюдение закрытого UI. Публичное подтверждение именно этого состояния не найдено; не учебный текст и не лицензия на весь Hub."
+      },
+      "nature": "internal_observation_or_owner_process",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "S-HUB-RESOURCES"
+      ],
+      "current_source_ids": [
+        "S-HUB-RESOURCES"
+      ],
+      "specific_restriction_ids": [],
+      "restriction_scope": "Конкретный запрет на это краткое внутреннее наблюдение не установлен. Не считать это разрешением на выгрузку исходного курса.",
+      "result": "INTERNAL_REVIEW_METADATA",
+      "runtime_visibility": "owner_review_only"
+    },
+    {
+      "card_id": "K024",
+      "exact_current_fact_or_method": "Выяснить конкретную цель человека и ближайший шаг, не подменяя цель универсальным обещанием дохода.",
+      "public_official_confirmation": {
+        "source_id": "S-GUIDE",
+        "section": "p1 Define Your Why; Travel Wish List",
+        "scope_and_limits": "Источник поддерживает обсуждение целей; туристический вопрос о бюджете/размещении сформулирован нами, не извлечён из курса."
+      },
+      "nature": "independently_worded_editorial_method",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "HUB-RU-02",
+        "S080"
+      ],
+      "current_source_ids": [
+        "S080",
+        "S-GUIDE"
+      ],
+      "specific_restriction_ids": [
+        "R1"
+      ],
+      "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+      "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+      "runtime_visibility": "candidate_public_response"
+    },
+    {
+      "card_id": "K025",
+      "exact_current_fact_or_method": "Короткое приглашение ведёт к одному релевантному материалу; сначала ответ на вопрос, затем предложение шага.",
+      "public_official_confirmation": {
+        "source_id": "S-GUIDE",
+        "section": "p2 Learn to Invite",
+        "scope_and_limits": "Источник разделяет приглашение и презентацию. Ответить прежде ссылки, отказаться от искусственной срочности — собственные правила Миры, а не точный пересказ guide."
+      },
+      "nature": "independently_worded_editorial_method",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "HUB-RU-04",
+        "S080"
+      ],
+      "current_source_ids": [
+        "S080",
+        "S-GUIDE"
+      ],
+      "specific_restriction_ids": [
+        "R1",
+        "R4"
+      ],
+      "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+      "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+      "runtime_visibility": "candidate_public_response"
+    },
+    {
+      "card_id": "K026",
+      "exact_current_fact_or_method": "Выбрать готовый официальный материал и после него разобрать конкретный вопрос, не повторяя всю презентацию.",
+      "public_official_confirmation": {
+        "source_id": "S-GUIDE",
+        "section": "p2 Show the Presentation; Follow Through",
+        "scope_and_limits": "Поддержаны готовый инструмент и дальнейшие вопросы. Один материал без повторной презентации — собственное решение дизайна диалога."
+      },
+      "nature": "independently_worded_editorial_method",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "HUB-RU-07",
+        "HUB-RU-09"
+      ],
+      "current_source_ids": [
+        "S080",
+        "S-GUIDE"
+      ],
+      "specific_restriction_ids": [
+        "R1"
+      ],
+      "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+      "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+      "runtime_visibility": "candidate_public_response"
+    },
+    {
+      "card_id": "K027",
+      "exact_current_fact_or_method": "Перед материалом обозначить цель и право человека не продолжать.",
+      "public_official_confirmation": {
+        "source_id": "S-POLICY-2026",
+        "section": "1.1",
+        "scope_and_limits": "Общий принцип корректного представления подтверждён. Право завершить разговор — наше правило, не обещание бесплатных услуг и не цитата провайдера."
+      },
+      "nature": "independently_worded_editorial_method",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "HUB-RU-05",
+        "HUB-RU-09"
+      ],
+      "current_source_ids": [
+        "S080",
+        "S-POLICY-2026"
+      ],
+      "specific_restriction_ids": [
+        "R1"
+      ],
+      "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+      "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+      "runtime_visibility": "candidate_public_response"
+    },
+    {
+      "card_id": "K028",
+      "exact_current_fact_or_method": "После материала выяснить оставшийся вопрос или добровольное решение; уважать отказ и паузу.",
+      "public_official_confirmation": {
+        "source_id": "S-GUIDE",
+        "section": "p2 Collect a Decision",
+        "scope_and_limits": "Обсуждение решения есть в источнике. Добровольность, уважение паузы и отказа — собственная формулировка S080; давление из примеров не переносится."
+      },
+      "nature": "independently_worded_editorial_method",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "HUB-RU-09",
+        "S080"
+      ],
+      "current_source_ids": [
+        "S080",
+        "S-GUIDE"
+      ],
+      "specific_restriction_ids": [
+        "R1"
+      ],
+      "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+      "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+      "runtime_visibility": "candidate_public_response"
+    },
+    {
+      "card_id": "K029",
+      "exact_current_fact_or_method": "Разделить непонимание стоимости и отсутствие бюджета; не убеждать купить обещанием будущего заработка.",
+      "public_official_confirmation": {
+        "source_id": "S-POLICY-2026",
+        "section": "3",
+        "scope_and_limits": "Отсутствие обещаний заработка согласуется с разделом3. Уважение бюджета — собственная рекомендация, а не воспроизведение аргументов закрытого урока."
+      },
+      "nature": "independently_worded_editorial_method",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "HUB-RU-10",
+        "S080"
+      ],
+      "current_source_ids": [
+        "S080",
+        "S-POLICY-2026"
+      ],
+      "specific_restriction_ids": [
+        "R1",
+        "R3"
+      ],
+      "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+      "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+      "runtime_visibility": "candidate_public_response"
+    },
+    {
+      "card_id": "K030",
+      "exact_current_fact_or_method": "Обсудить реально доступное время и задачи, не гарантируя результат от количества презентаций.",
+      "public_official_confirmation": {
+        "source_id": null,
+        "section": null,
+        "scope_and_limits": "Точная рекомендация о посильном времени — собственный метод. Публичного подтверждения необходимого числа часов нет; никаких часов, конверсий или доходов не обещаем."
+      },
+      "nature": "independently_worded_editorial_method",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "HUB-RU-10",
+        "HUB-RU-16"
+      ],
+      "current_source_ids": [
+        "S080"
+      ],
+      "specific_restriction_ids": [
+        "R1",
+        "R3"
+      ],
+      "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+      "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+      "runtime_visibility": "candidate_public_response"
+    },
+    {
+      "card_id": "K031",
+      "exact_current_fact_or_method": "Кратко объяснить происхождение материала и его назначение; использовать только подтверждённые сведения о ведущем.",
+      "public_official_confirmation": {
+        "source_id": "S-POLICY-2026",
+        "section": "1.1; 4.4A",
+        "scope_and_limits": "Подтверждена точность представления; короткое объяснение происхождения ссылки — собственная редакционная техника. Личная биография и успех ведущего не выдумываются."
+      },
+      "nature": "independently_worded_editorial_method",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "HUB-RU-06",
+        "S080"
+      ],
+      "current_source_ids": [
+        "S080",
+        "S-POLICY-2026"
+      ],
+      "specific_restriction_ids": [
+        "R1",
+        "R2"
+      ],
+      "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+      "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+      "runtime_visibility": "candidate_public_response"
+    },
+    {
+      "card_id": "K032",
+      "exact_current_fact_or_method": "Предложить последовательное стартовое обучение вместо немедленного требования приглашать других.",
+      "public_official_confirmation": {
+        "source_id": "S-GUIDE",
+        "section": "p2 Start Members Correctly",
+        "scope_and_limits": "Публично рекомендовано стартовое обучение Academy. Только после явного бизнес-выбора — правило Миры. Совет48часов не является условием активации и удалён из действующей опоры."
+      },
+      "nature": "independently_worded_editorial_method",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "HUB-RU-11",
+        "S080"
+      ],
+      "current_source_ids": [
+        "S080",
+        "S-GUIDE"
+      ],
+      "specific_restriction_ids": [
+        "R1"
+      ],
+      "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+      "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+      "runtime_visibility": "candidate_public_response"
+    },
+    {
+      "card_id": "K033",
+      "exact_current_fact_or_method": "Не угадывать интерес к путешествиям или бизнесу по демографии, списку знакомых или прошлой теме.",
+      "public_official_confirmation": {
+        "source_id": null,
+        "section": null,
+        "scope_and_limits": "Спросить интерес вместо демографической догадки — самостоятельное правило Миры/S080. Публичного утверждения о такой методике MWR не найдено, и оно не требуется для собственного вопроса."
+      },
+      "nature": "independently_worded_editorial_method",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "HUB-RU-03",
+        "S080"
+      ],
+      "current_source_ids": [
+        "S080"
+      ],
+      "specific_restriction_ids": [
+        "R1",
+        "R4"
+      ],
+      "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+      "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+      "runtime_visibility": "candidate_public_response"
+    },
+    {
+      "card_id": "K034",
+      "exact_current_fact_or_method": "Учитывать удобный формат, язык и часовой пояс при обсуждении встречи; не утверждать её создание без результата инструмента.",
+      "public_official_confirmation": {
+        "source_id": "S-GUIDE",
+        "section": "p2 invitation options; time/place",
+        "scope_and_limits": "Guide поддерживает согласование времени/места. Часовой пояс, язык и запрет выдуманной записи — наши практические правила; обрыв урока не используется для вывода."
+      },
+      "nature": "independently_worded_editorial_method",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "HUB-RU-08",
+        "HUB-RU-04"
+      ],
+      "current_source_ids": [
+        "S080",
+        "S-GUIDE"
+      ],
+      "specific_restriction_ids": [
+        "R1"
+      ],
+      "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+      "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+      "runtime_visibility": "candidate_public_response"
+    },
+    {
+      "card_id": "K035",
+      "exact_current_fact_or_method": "Планировать посильные действия и анализировать фактические отклики без нормативов конверсии, роста команды и прогноза дохода.",
+      "public_official_confirmation": {
+        "source_id": null,
+        "section": null,
+        "scope_and_limits": "Посильный план и анализ откликов — собственная редакционная рекомендация. Числовая модель закрытого урока исключена; публичной проверенной нормы дохода/конверсии нет."
+      },
+      "nature": "independently_worded_editorial_method",
+      "closed_course_reproduction": false,
+      "historical_source_ids": [
+        "HUB-RU-16"
+      ],
+      "current_source_ids": [
+        "S080"
+      ],
+      "specific_restriction_ids": [
+        "R3"
+      ],
+      "restriction_scope": "Будущее внешнее маркетинговое применение; не запрет подготовки или внутреннего review.",
+      "result": "REBASED_NO_CLOSED_LESSON_DEPENDENCY",
+      "runtime_visibility": "owner_review_only"
+    }
+  ],
+  "summary": {
+    "reassessed": 16,
+    "no_closed_lesson_dependency": 13,
+    "internal_observation_cards": 3,
+    "public_source_crosschecks": 10,
+    "pure_original_methods": 3,
+    "blanket_ai_blocks": 0
+  }
+}

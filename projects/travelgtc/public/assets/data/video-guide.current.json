@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "package_id": "travelgtc-facebook-video-guide-20260924-v2-1",
+  "version": "2.1",
+  "sections": [
+    {
+      "id": "guide",
+      "label": "Руководство",
+      "file": "test-travelgtc-facebook-video-guide-20260924-v2-1--TRAVELGTC-FACEBOOK-VIDEO-GUIDE.md"
+    },
+    {
+      "id": "openclaw",
+      "label": "Процесс OpenClaw",
+      "file": "test-travelgtc-facebook-video-guide-20260924-v2-1--OPENCLAW-VIDEO-PRODUCTION.md"
+    },
+    {
+      "id": "results",
+      "label": "Четыре результата",
+      "file": "test-travelgtc-facebook-video-guide-20260924-v2-1--FUNNEL-METRICS.md"
+    },
+    {
+      "id": "assignment",
+      "label": "Поручение агенту",
+      "file": "test-travelgtc-facebook-video-guide-20260924-v2-1--EXECUTOR-HANDOFF.md"
+    }
+  ]
+}

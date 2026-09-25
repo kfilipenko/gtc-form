@@ -1,0 +1,66 @@
+{
+  "files": [
+    {
+      "path": "/srv/repos/personal/gtc-docs-travelgtc-integration-001/governance/README.md",
+      "sha256": "bef958f915fdf406a439667838a64edd60cdb8681ddfeea56580cb55fa18ef82",
+      "bytes": 4343
+    },
+    {
+      "path": "/srv/repos/personal/gtc-docs-travelgtc-integration-001/governance/documentation/gtc-documentation-lifecycle.md",
+      "sha256": "24be53db386f4f903d095d0362e8573c506fc6ec7ee56f6a4ad9b32d802f02e2",
+      "bytes": 4937
+    },
+    {
+      "path": "/var/www/gtc-form/docs/travelgtc/142_travelgtc_mkt_001_master_marketing_strategy.md",
+      "sha256": "b28e8eafa3e5c581e72502055d8cdcb6f0a4bbd3ad6650d48dd7aba84dfc1aa9",
+      "bytes": 23059
+    },
+    {
+      "path": "/var/www/gtc-form/docs/travelgtc/080_travelgtc_ai_001_mira_consultant_instruction.md",
+      "sha256": "0baed6336214fc4c3fedd094abd615ba0ef1221b1e5795e6bc05ae519b8b8578",
+      "bytes": 151915
+    },
+    {
+      "path": "/var/www/gtc-form/docs/travelgtc/data/TravelGTC-mira-content.json",
+      "sha256": "ca1b1919512d07137caf3544d3f67887ccf819a58b33f42f4884cb4697f1a6f1",
+      "bytes": 77453
+    },
+    {
+      "path": "/var/www/gtc-form/projects/travelgtc/app/src/modules/ai/membershipKnowledge.ts",
+      "sha256": "40dc5641f778d661b84310539d9367f741d58e282dfee5a00dd130185c2e5710",
+      "bytes": 12113
+    },
+    {
+      "path": "/var/www/gtc-form/projects/travelgtc/app/src/modules/ai/guestChat.ts",
+      "sha256": "fbef2cb8ad35617cf0f167a7a7b6397e8b146ab1911a15013d50811769ebd636",
+      "bytes": 12288
+    },
+    {
+      "path": "/var/www/gtc-form/projects/travelgtc/app/src/modules/ai/miraIntent.ts",
+      "sha256": "fdc3ac50ce03c5b3027ceef263d02053c892c816383fddbd11f7a0c5167d21cc",
+      "bytes": 4248
+    },
+    {
+      "path": "/var/www/gtc-form/projects/travelgtc/app/src/modules/ai/azureFoundryAgent.ts",
+      "bytes": 5446,
+      "sha256": "9d5108e116de2c6ed4528629e69040d51a967623fff1b28c162485c98620af18"
+    }
+  ],
+  "v4_files": {
+    "subtitle-boundaries.json": "648a9305c28d50388e135a49dce8a607e7e7335eb3aef1539d4cae35fe2acb82",
+    "integration-proposal.md": "f9039aea4f761a1fb693a481b4f3b0d325db1802827e18457645869821c840b5",
+    "card-reassessment-16.json": "d9293b2b73bd27287327bbb0097cd7e13167dda64ec6c734ca94d0fed6e6cc10",
+    "manifest.json": "da3ae2df342e593ad8b899f850115f8e44f2322f70844ede55b80f66885302c9",
+    "marketing-playbook-v4.md": "1c1ad091ce2b3e8d26765d2f799adaff81e3430e753d6fd95c08f4a84fcb6b05",
+    "dialogue-specifications-v4.json": "50203061063f37d62d83bc83633e1fe6380c6b1963e33123868e05f5e9034bac",
+    "course-study-report-v4.md": "ddb7ac9f9f0289de8190cc9c1c634b963c69f8d8bef8c6ca598f717099d9e347",
+    "README.md": "41da75e514d2443f1daee9f01098249a30ced21103871e1cb71ccb51b262ad8a",
+    "validation.json": "244ff18aef5d459817a8c0f9bd498790cc61aae25446ee1befcd59368d4500e5",
+    "knowledge-cards-v4.review.json": "59fc4c27ff098b758e82c30eaa0165983fa8f671f1e60974f5578136dd8e0350",
+    "source-evidence-v4.json": "8fe25cdaa1105ef483e98a0174d2a5538cfec761544d7321b095a284d241cd69",
+    "restrictions-and-uncertainties.json": "01a2ba3c1ff8ff5060dd1a0aa195d44a450b1baa2037bf433c8777d5be037a07",
+    "review-report.md": "e299677f0a683f582057f282ae20f4dc50dac30a5998daebd838dca071877856"
+  },
+  "application_runtime_checked": false,
+  "purpose": "Integrity evidence, not client context; raw instruction and source code not included."
+}

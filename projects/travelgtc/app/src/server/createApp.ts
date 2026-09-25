@@ -1,7 +1,14 @@
+import {registerMiraPublic} from './miraPublic.js';
+import { registerContentReview } from './contentReview.js';
+import {redactInvitationText,type ChatInvitationService} from '../modules/ai/guestInvitations/chat.js';
 import cors from '@fastify/cors';
 import Fastify from 'fastify';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { readFile } from 'node:fs/promises';
 import pg from 'pg';
+import { GuestChatService, GuestChatError, GUEST_COOKIE, GUEST_TTL_SECONDS, registrationGate, buildReferralGateContext } from '../modules/ai/guestChat.js';
+import { classifyMiraIntent } from '../modules/ai/miraIntent.js';
+import { TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL } from '../modules/ai/membershipKnowledge.js';
 import type { TravelGtcConfig } from './config.js';
 import { clearCookie, parseCookieValue, serializeCookie } from '../modules/auth/cookies.js';
 import {
@@ -36,15 +43,25 @@ import type { LeadCreationResult, PublicLeadSubmission } from '../modules/public
 import { validateNotObviousSpam, validatePublicLeadSubmission } from '../modules/public-leads/validation.js';
 
 const { Pool } = pg;
+const marketingStrategyDocumentUrl = new URL(
+  import.meta.url.includes('/dist/')
+    ? '../../../../../../docs/travelgtc/142_travelgtc_mkt_001_master_marketing_strategy.md'
+    : '../../../../../docs/travelgtc/142_travelgtc_mkt_001_master_marketing_strategy.md',
+  import.meta.url,
+);
 
 export interface CreateTravelGtcAppOptions {
   config: TravelGtcConfig;
   store: LeadStore;
   authStore: AuthStore;
+  evaluationReportPath?: string;
+  contentReviewDirectory?: string;
+  invitationService?: ChatInvitationService;
 }
 
-export async function createTravelGtcApp({ config, store, authStore }: CreateTravelGtcAppOptions): Promise<FastifyInstance> {
+export async function createTravelGtcApp({ config, store, authStore, invitationService, contentReviewDirectory = "/var/lib/travelgtc/content-review/pilot-20260922", evaluationReportPath = "/var/lib/travelgtc/mira-evaluation.json" }: CreateTravelGtcAppOptions): Promise<FastifyInstance> {
   const app = Fastify({
+    trustProxy: ['127.0.0.1', '::1'],
     logger: config.appEnv === 'test' ? false : { level: 'info' },
   });
 
@@ -59,11 +76,34 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
         })
       : null;
   const crmPool = config.databaseUrl ? new Pool({ connectionString: config.databaseUrl }) : null;
+  const guestChat = config.guestChatEnabled && crmPool ? new GuestChatService(crmPool,invitationService) : null;
+  const guestIpLimiter = new InMemoryRateLimiter(3600000, 30);
+  const guestGlobalLimiter = new InMemoryRateLimiter(3600000, 200);
+  const guestCleanup = guestChat ? setInterval(() => {
+    guestChat.purgeExpired().catch(() => app.log.error('Mira guest retention cleanup failed'));
+  }, 15 * 60 * 1000) : null;
+  guestCleanup?.unref();
+  app.addHook('onClose', async () => { if (guestCleanup) clearInterval(guestCleanup); });
+  function requireGuestOrigin(request: FastifyRequest) {
+    const origin = request.headers.origin;
+    if (origin && !(config.appEnv === 'production' ? ['https://travelgtc.com','https://www.travelgtc.com'].includes(origin)
+      : origin === `http://${request.headers.host}`)) throw new GuestChatError(403, 'Недопустимый источник запроса.');
+  }
+  async function attachGuestHistory(request: FastifyRequest, reply: FastifyReply, user: SessionLookupResult['user']) {
+    const token = parseCookieValue(request.headers.cookie, GUEST_COOKIE);
+    if (guestChat && token) {
+      requireGuestOrigin(request);
+      await guestChat.claim(token, user);
+      reply.header('Set-Cookie', clearCookie(GUEST_COOKIE, config.authSecureCookies));
+    }
+  }
 
   await app.register(cors, {
     origin: true,
     credentials: true,
   });
+
+  registerMiraPublic(app,{pool:crmPool,guestChat,session:(req:any)=>currentSession(req,config,authStore),origin:requireGuestOrigin,ipLimit:guestIpLimiter,globalLimit:guestGlobalLimiter,secure:config.authSecureCookies});
 
   app.get('/api/travelgtc/v1/health', async () => ({
     ok: true,
@@ -77,22 +117,59 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
     azure_ai_agent_configured: Boolean(config.azureAiProjectEndpoint),
     azure_ai_agent_name: config.azureAiAgentName,
     azure_ai_agent_version: config.azureAiAgentVersion,
+    guest_chat_enabled: Boolean(guestChat),
     email_notification_mode: config.emailNotificationMode,
   }));
 
-  app.post('/api/travelgtc/v1/ai/chat', async (_request, reply) => {
-    return reply.code(401).send({
-      ok: false,
-      error: {
-        code: 'authentication_required',
-        message: 'Войдите или зарегистрируйтесь в TravelGTC, чтобы начать личный диалог с Мирой.',
-      },
-    });
+  app.get('/api/travelgtc/v1/ai/chat/history', async (request, reply) => {
+    reply.header('Cache-Control', 'private, no-store');
+    try {
+      requireGuestOrigin(request);
+      return reply.send({ ok: true, messages: guestChat ? await guestChat.history(parseCookieValue(request.headers.cookie, GUEST_COOKIE)) : [] });
+    } catch (error) {
+      if (error instanceof GuestChatError) return reply.code(error.statusCode).send({ ok:false,error:{code:'guest_chat_error',message:error.message} });
+      return sendKnownError(error,request,reply);
+    }
+  });
+
+  app.post('/api/travelgtc/v1/ai/chat', async (request, reply) => {
+    reply.header('Cache-Control', 'private, no-store');
+    try {
+      if (!config.guestChatEnabled) return reply.code(401).send({ok:false,error:{code:'authentication_required',message:'Войдите в TravelGTC.'}});
+      if (!guestChat || !azureAgent) throw new GuestChatError(503,'Мира временно недоступна. Попробуйте позже.');
+      requireGuestOrigin(request);
+      guestGlobalLimiter.check('all');
+      guestIpLimiter.check(request.ip);
+      const input = validateAiChatInput(request.body);
+      if ((request.body as Record<string, unknown>).guest_consent !== true) throw new GuestChatError(400,'Подтвердите условия сохранения гостевого чата.');
+      let token = parseCookieValue(request.headers.cookie,GUEST_COOKIE);
+      if (!token) {
+        token = await guestChat.start();
+        reply.header('Set-Cookie', serializeCookie(GUEST_COOKIE,token,{ maxAgeSeconds:GUEST_TTL_SECONDS,secure:config.authSecureCookies }));
+      }
+      const result = await guestChat.reply(token,input.question,(q,history,runtime)=>azureAgent.ask(q,history,700,runtime),input.context);
+      if (result.purchaseIntent) await sendAiPurchaseIntentNotification(leadEmailNotifications,{
+        leadId:result.leadId,displayName:'Гость Миры (холодный контакт)',email:'',
+        question:input.question,answer:result.answer,referralRegistrationUrl:result.referralUrl!,
+      },request);
+      return reply.send({ok:true,mode:'azure',answer:result.answer,history_persisted:true,purchase_intent:result.purchaseIntent,
+        referral_registration_url:result.referralUrl,completed_turns:result.completedTurns,
+        contact_status:result.purchaseIntent?'ready_to_subscribe':'cold_contact',partner_registration_verified:false,
+        registration_url:'/auth/?mode=register&next=%2Fmira%2F',intent:result.intent});
+    } catch (error) {
+      if (error instanceof GuestChatError) {
+        if (error.statusCode===410) reply.header('Set-Cookie',clearCookie(GUEST_COOKIE,config.authSecureCookies));
+        return reply.code(error.statusCode).send({ok:false,error:{code:'guest_chat_error',message:error.message}});
+      }
+      return sendKnownError(error,request,reply);
+    }
   });
 
   app.get('/api/travelgtc/v1/account/ai/chat/history', async (request, reply) => {
+    reply.header('Cache-Control', 'private, no-store');
     try {
       const session = await requireSession(request, config, authStore);
+      await attachGuestHistory(request,reply,session.user);
       if (!crmPool) {
         return reply.send({ ok: true, messages: [] });
       }
@@ -118,9 +195,17 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
   app.post('/api/travelgtc/v1/account/ai/chat', async (request, reply) => {
     try {
       const session = await requireSession(request, config, authStore);
+      await attachGuestHistory(request,reply,session.user);
       limiter.check(`${request.ip || 'unknown'}:${session.user.userId}:ai-chat`);
       const chatInput = validateAiChatInput(request.body);
       const question = chatInput.question;
+
+      if (!azureAgent) {
+        return reply.send({ ok: true, mode: 'stub', agent: config.azureAiAgentName,
+          answer: buildMiraFallbackAnswer(question), lead_id: null, history_persisted: false,
+          purchase_intent: false, referral_registration_url: null, chat_context: chatInput.context,
+          intent: classifyMiraIntent(question) });
+      }
 
       await authStore.ensureProjectMembership(session.user.userId, 'travelgtc', 'interested');
       await authStore.ensureProjectRole(session.user.userId, 'travelgtc', 'unsure', 'ai_chat');
@@ -137,11 +222,18 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
         history = isNewAiCaseQuestion(question) ? [] : await loadAccountAiHistoryForLead(crmPool, lead.leadId);
       }
 
-      const purchaseIntent = isPurchaseIntent(question);
+      const intent = classifyMiraIntent(question);
+      const fallbackReferral = intent.action === 'membership' && /\bvip\b/i.test(question)
+        ? TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL : config.referralRegistrationUrl;
       const mode = azureAgent ? 'azure' : 'stub';
-      const agentQuestion = buildAccountAiAgentQuestion(question, session.user, chatInput.context);
-      const rawAnswer = azureAgent ? await azureAgent.ask(agentQuestion, history) : buildMiraFallbackAnswer(question);
-      const answer = applyPurchaseIntentAnswerSuffix(rawAnswer, purchaseIntent, config.referralRegistrationUrl);
+      const completedTurns = history.filter(turn => turn.role === 'assistant').length;
+      const agentQuestion = `${buildReferralGateContext(completedTurns)}\n${buildAccountAiAgentQuestion(question, session.user, chatInput.context)}`;
+      const personal=contactId?await invitationService?.handle(question,contactId):null;
+      const rawAnswer = personal?personal.answer:azureAgent ? await azureAgent.ask(agentQuestion, history.map(t=>({...t,content:redactInvitationText(t.content)})), undefined, {question, completedTurns}) : buildMiraFallbackAnswer(question);
+      const gated = personal || registrationGate(question, rawAnswer, completedTurns);
+      const purchaseIntent = gated.purchaseIntent;
+      const referralRegistrationUrl = personal ? (gated.referralUrl || '') : gated.referralUrl || fallbackReferral;
+      const answer = applyPurchaseIntentAnswerSuffix(gated.answer, purchaseIntent, referralRegistrationUrl);
 
       if (crmPool && leadId && contactId) {
         await storeAccountAiChatTurn(crmPool, {
@@ -161,7 +253,7 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
             contactId,
             question,
             answer,
-            referralRegistrationUrl: config.referralRegistrationUrl,
+            referralRegistrationUrl,
           });
           await sendAiPurchaseIntentNotification(
             leadEmailNotifications,
@@ -172,7 +264,7 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
               phone: session.user.phone,
               question,
               answer,
-              referralRegistrationUrl: config.referralRegistrationUrl,
+              referralRegistrationUrl,
             },
             request,
           );
@@ -188,7 +280,8 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
         lead_id: leadId,
         history_persisted: historyPersisted,
         purchase_intent: purchaseIntent,
-        referral_registration_url: purchaseIntent ? config.referralRegistrationUrl : null,
+        referral_registration_url: purchaseIntent ? referralRegistrationUrl : null,
+        intent,
         chat_context: chatInput.context,
       });
     } catch (error) {
@@ -296,6 +389,46 @@ export async function createTravelGtcApp({ config, store, authStore }: CreateTra
         expires_at: session.expiresAt,
       },
     });
+  });
+
+  registerContentReview(app, {
+    directory: contentReviewDirectory,
+    authorize: (request) => requireCrmTeamMember(request, config, authStore),
+    onAuthError: sendCrmError,
+    allowedOrigins: config.appEnv === 'production'
+      ? ['https://travelgtc.com', 'https://www.travelgtc.com']
+      : ['http://localhost', 'http://127.0.0.1'],
+  });
+
+  app.get('/api/travelgtc/v1/crm/mira-evaluation', async (request, reply) => {
+    reply.header('Cache-Control', 'private, no-store');
+    try {
+      await requireCrmTeamMember(request, config, authStore);
+      const report = JSON.parse(await readFile(evaluationReportPath, 'utf8'));
+      return reply.send({ ok: true, report });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
+  });
+
+  app.get('/api/travelgtc/v1/crm/documents/marketing-strategy', async (request, reply) => {
+    reply.header('Cache-Control', 'private, no-store');
+    try {
+      await requireCrmTeamMember(request, config, authStore);
+      const markdown = await readFile(marketingStrategyDocumentUrl, 'utf8');
+      return reply.send({
+        ok: true,
+        document: {
+          id: 'TRAVELGTC-MKT-001',
+          title: 'Master Marketing Strategy',
+          version: '0.4',
+          updated_at: '2026-09-18',
+          markdown,
+        },
+      });
+    } catch (error) {
+      return sendCrmError(error, request, reply);
+    }
   });
 
   app.get('/api/travelgtc/v1/crm/leads', async (request, reply) => {
@@ -982,6 +1115,7 @@ interface AiChatContext {
   scenario: string | null;
   source: string | null;
   cta: string | null;
+  campaign: Record<string, string>;
 }
 
 interface AiChatInput {
@@ -995,9 +1129,17 @@ function validateAiChatInput(body: unknown): AiChatInput {
   const scenario = aiScenarioKeys.has(scenarioValue) ? scenarioValue : null;
   const source = sanitizeAiContextValue(input.source);
   const cta = sanitizeAiContextValue(input.cta);
+  const campaign: Record<string, string> = {};
+  if (input.campaign && typeof input.campaign === 'object' && !Array.isArray(input.campaign)) {
+    const supplied = input.campaign as Record<string, unknown>;
+    for (const key of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content']) {
+      const value = supplied[key];
+      if (typeof value === 'string' && /^[a-zA-Z][a-zA-Z0-9_-]{0,63}$/.test(value)) campaign[key] = value;
+    }
+  }
   return {
     question: validateAiQuestion(input),
-    context: { scenario, source, cta },
+    context: { scenario, source, cta, campaign },
   };
 }
 
@@ -1031,7 +1173,7 @@ function buildAccountAiAgentQuestion(
     isNewAiCaseQuestion(question)
       ? 'Пользователь явно начал новый независимый сценарий. Не используй факты, бюджет, состав путешественников или рекомендации из предыдущего диалога; прямо подтверди, что рассматриваешь новый сценарий с нуля.'
       : null,
-    'Пользователь уже вошёл в личный профиль TravelGTC. Продолжай диалог как персональное сопровождение: используй имя бережно, а сценарий - только когда он помогает ответить точнее.',
+    'Пользователь вошёл в профиль TravelGTC, что не означает членство Travel Advantage или согласие на рекламу. Последний явный запрос важнее выбранного ранее сценария. Не выводи страну проживания из языка.',
     'Не запрашивай пароль, платёжные данные, коды подтверждения, документы личности или учётные данные MWR Life / Travel Advantage.',
     '',
     `Сообщение пользователя: ${question}`,
@@ -1163,8 +1305,8 @@ async function loadAccountAiHistoryForLead(pool: pg.Pool, leadId: string): Promi
      where lead_id = $1::uuid
        and interaction_type = 'ai_chat'
        and body is not null
-     order by created_at desc
-     limit 12`,
+     order by created_at desc,id desc
+     limit 40`,
     [leadId],
   );
 
@@ -1191,7 +1333,7 @@ async function storeAccountAiChatTurn(
   },
 ): Promise<void> {
   const actor = `ai_chat:${input.userId}`;
-  const stage = aiLeadStage(`${input.question}\n${input.answer}`);
+  const stage = aiLeadStage(input.question);
   const summary = aiLeadSummary(input.question);
   const client = await pool.connect();
 
@@ -1214,7 +1356,7 @@ async function storeAccountAiChatTurn(
         input.contactId,
         input.userId,
         input.question,
-        JSON.stringify({ source: 'account_ai_chat', role: 'user', entry: input.context }),
+        JSON.stringify({ source: 'account_ai_chat', role: 'user', entry: input.context, intent: classifyMiraIntent(input.question) }),
         actor,
       ],
     );
@@ -1237,12 +1379,13 @@ async function storeAccountAiChatTurn(
     await client.query(
       `update travelgtc_leads
        set stage = case when stage in ('closed_won','closed_lost','archived') then stage else $2 end,
-           business_interest_level = case when $2 = 'membership_interest' then 'want_to_understand' else business_interest_level end,
+           business_interest_level = case when $5::text is null then business_interest_level else $5::text end,
            summary = $3,
            updated_at = now(),
            updated_by = $4
        where id = $1::uuid`,
-      [input.leadId, stage, summary, actor],
+      [input.leadId, stage, summary, actor, classifyMiraIntent(input.question).businessDeclined || isNewAiCaseQuestion(input.question)
+        ? 'none' : classifyMiraIntent(input.question).direction === 'ambassador' ? 'want_to_understand' : null],
     );
     await client.query('commit');
   } catch (error) {
@@ -1254,10 +1397,7 @@ async function storeAccountAiChatTurn(
 }
 
 function aiLeadStage(text: string): string {
-  if (isPurchaseIntent(text)) {
-    return 'ready_to_subscribe';
-  }
-  return /(membership|тариф|elite|turbo|vip|членств|балл|loyalty|ambassador|амбассад|покуп|подключ|стоим|цена|заработ|доход|групп|клиент|ретрит|йог|цигун)/i.test(
+  return /(membership|тариф|elite|turbo|vip|членств|балл|loyalty|ambassador|амбассад)/i.test(
     text,
   )
     ? 'membership_interest'
@@ -1292,9 +1432,7 @@ async function storeAccountAiFeedback(
 }
 
 function aiBusinessInterest(text: string): string {
-  return /(ambassador|амбассад|бизнес|заработ|доход|групп|клиент|ретрит|йог|цигун|wellness|сеть|партн)/i.test(text)
-    ? 'want_to_understand'
-    : 'curious_later';
+  return classifyMiraIntent(text).direction === 'ambassador' ? 'want_to_understand' : 'none';
 }
 
 function aiLeadSummary(question: string): string {
@@ -1325,7 +1463,7 @@ async function markAiPurchaseIntent(pool: pg.Pool, input: AiPurchaseIntentInput)
     await client.query(
       `update travelgtc_leads
        set stage = case when stage in ('closed_won','closed_lost','archived') then stage else 'ready_to_subscribe' end,
-           business_interest_level = case when business_interest_level = 'none' then 'ready_to_discuss' else business_interest_level end,
+           business_interest_level = $5,
            recommended_next_step = $2,
            summary = $3,
            updated_at = now(),
@@ -1336,6 +1474,7 @@ async function markAiPurchaseIntent(pool: pg.Pool, input: AiPurchaseIntentInput)
         nextStep,
         `AI-чат: пользователь выразил готовность подписаться. Последний запрос: ${input.question.replace(/\s+/g, ' ').trim().slice(0, 180)}`,
         actor,
+        classifyMiraIntent(input.question).direction === 'ambassador' ? 'ready_to_discuss' : 'none',
       ],
     );
 
@@ -1378,44 +1517,15 @@ async function markAiPurchaseIntent(pool: pg.Pool, input: AiPurchaseIntentInput)
 }
 
 function isPurchaseIntent(text: string): boolean {
-  const compact = text.replace(/\s+/g, ' ').trim();
-  if (isNotReadyToPurchase(compact)) {
-    return false;
-  }
-  const demoDiscovery =
-    /(demo|демо|trial|free|посмотреть|интерфейс)/i.test(compact) &&
-    /(до|перед)[^.!?\n]{0,30}(оплат|регистрац|покуп|подпис)/i.test(compact) &&
-    !/(готов|готова|готовы|давайте|оформ|купить|оплатить|подписаться|получить ссыл|дай ссыл|дайте ссыл|пришлите ссыл|покажи ссыл)/i.test(compact);
-  if (demoDiscovery) {
-    return false;
-  }
-  return (
-    /(хочу|готов|готова|готовы|давайте|могу|можно|нужно|пора)[^.!?\n]{0,80}(подпис\w*|оформ\w*|оплат\w*|куп\w*|зарегистр\w*|регистрац\w*|вступ\w*|присоедин\w*|стать участ\w*|получить ссыл\w*|ссылк\w*)/i.test(compact) ||
-    /(дай|дайте|пришли|пришлите|скинь|отправь|отправьте|покажи|покажите|нужна|нужен)[^.!?\n]{0,80}(ссылк\w*|регистрац\w*|оплат\w*|подпис\w*|оформ\w*)/i.test(compact) ||
-    /(как|где)[^.!?\n]{0,80}(оплатить|оформить|зарегистрироваться|подписаться|купить|вступить|присоединиться)/i.test(compact) ||
-    /\b(sign\s*up|subscribe|join|registration|buy|pay|payment|send.*link|referral\s*link)\b/i.test(compact)
-  );
+  return classifyMiraIntent(text).purchaseIntent;
 }
 
 function isNewAiCaseQuestion(text: string): boolean {
   return /(новый\s+(?:клиент|сценарий|случай|запрос)|рассмотр(?:им|еть)\s+с\s+нуля|начн(?:ем|ём)\s+заново)/i.test(text);
 }
 
-function isNotReadyToPurchase(text: string): boolean {
-  return (
-    /(пока|ещ[её]|сначала|прежде|перед|не\s+спешу|не\s+готов|не\s+готова|не\s+готовы|сомневаюсь|сомнения|хочу\s+понять|хочу\s+разобраться|хочу\s+сравнить|хочу\s+проверить|просто\s+посмотреть|без\s+покуп|без\s+оплат|не\s+хочу\s+покуп|не\s+сейчас)/i.test(
-      text,
-    ) &&
-    !/(дай|дайте|пришли|пришлите|скинь|отправь|отправьте|покажи|покажите|хочу\s+ссыл|готов\s+получить\s+ссыл|готова\s+получить\s+ссыл|готовы\s+получить\s+ссыл|перейти\s+к\s+регистрац)/i.test(
-      text,
-    )
-  );
-}
-
 function applyPurchaseIntentAnswerSuffix(answer: string, purchaseIntent: boolean, referralRegistrationUrl: string): string {
-  const hasOfficialPurchaseRoute = /https:\/\/(?:vip|free)\.traveladvantage\.com\/KFilip909|https:\/\/www\.mwrlife\.com\/KFilip909/i.test(
-    answer,
-  );
+  const hasOfficialPurchaseRoute = answer.includes(referralRegistrationUrl);
   if (!purchaseIntent || hasOfficialPurchaseRoute) {
     return answer;
   }
@@ -1427,7 +1537,6 @@ function applyPurchaseIntentAnswerSuffix(answer: string, purchaseIntent: boolean
     '',
     `Официальная партнёрская ссылка TravelGTC для самостоятельной регистрации: [${referralRegistrationUrl}](${referralRegistrationUrl})`,
     '',
-    'Я также зафиксировала этот запрос в CRM как горячий интерес к подписке, чтобы партнёр TravelGTC мог помочь с проверкой условий.',
   ].join('\n');
 }
 
@@ -1605,6 +1714,7 @@ function crmStageFromBody(body: unknown): string {
   const input = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
   const stage = typeof input.stage === 'string' ? input.stage.trim() : '';
   const allowed = [
+    'cold_contact',
     'new_lead',
     'in_consultation',
     'membership_interest',

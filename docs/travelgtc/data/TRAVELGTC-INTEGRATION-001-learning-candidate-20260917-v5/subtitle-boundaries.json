@@ -1,0 +1,73 @@
+[
+  {
+    "lesson": "08",
+    "title": "Online Presentation - Онлайн Презентация",
+    "source_id": "HUB-RU-08",
+    "available_rows": {
+      "first": 1,
+      "last": 39,
+      "gaps": 0
+    },
+    "first_two_rows": "Еще один способ вести свой бизнес это проводить",
+    "last_two_rows": "объяснить суть бизнеса и следовать инструкциям по проведению",
+    "video_duration_seconds": 74.6,
+    "verified_subtitle_end_seconds": null,
+    "boundary_note": "Последняя доступная фраза незавершена. Длительность видео не означает подтверждённый таймкод конца субтитров. Продолжение неизвестно и не восстановлено.",
+    "direct_card_ids": [
+      "K034"
+    ],
+    "aggregate_metadata_cards": [
+      "K020",
+      "K022"
+    ],
+    "readiness": "HISTORICAL_EVIDENCE_LIMIT; current editorial cards have independent/public basis. Missing text not reconstructed."
+  },
+  {
+    "lesson": "10",
+    "title": "Objections - Возражения",
+    "source_id": "HUB-RU-10",
+    "available_rows": {
+      "first": 1,
+      "last": 155,
+      "gaps": 0
+    },
+    "first_two_rows": "Давайте перейдем к следующей теме. Возражения.",
+    "last_two_rows": "Размышления об этом не дадут тебе никаких",
+    "video_duration_seconds": 302.4,
+    "verified_subtitle_end_seconds": null,
+    "boundary_note": "Последняя доступная фраза незавершена. Длительность видео не означает подтверждённый таймкод конца субтитров. Продолжение неизвестно и не восстановлено.",
+    "direct_card_ids": [
+      "K013",
+      "K029",
+      "K030"
+    ],
+    "aggregate_metadata_cards": [
+      "K020",
+      "K022"
+    ],
+    "readiness": "HISTORICAL_EVIDENCE_LIMIT; current editorial cards have independent/public basis. Missing text not reconstructed."
+  },
+  {
+    "lesson": "11",
+    "title": "First 48h - Первые 48 Часов",
+    "source_id": "HUB-RU-11",
+    "available_rows": {
+      "first": 1,
+      "last": 66,
+      "gaps": 0
+    },
+    "first_two_rows": "Когда потенциальный партнёр присоединяется к вашему",
+    "last_two_rows": "тем лучше получается. Держитесь курса и будьте",
+    "video_duration_seconds": 139.56,
+    "verified_subtitle_end_seconds": null,
+    "boundary_note": "Последняя доступная фраза незавершена. Длительность видео не означает подтверждённый таймкод конца субтитров. Продолжение неизвестно и не восстановлено.",
+    "direct_card_ids": [
+      "K032"
+    ],
+    "aggregate_metadata_cards": [
+      "K020",
+      "K022"
+    ],
+    "readiness": "HISTORICAL_EVIDENCE_LIMIT; current editorial cards have independent/public basis. Missing text not reconstructed."
+  }
+]

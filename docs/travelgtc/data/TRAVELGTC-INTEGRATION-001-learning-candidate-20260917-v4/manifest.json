@@ -1,0 +1,68 @@
+{
+  "task_id": "TRAVELGTC-INTEGRATION-001",
+  "package": "v4-owner-clarification-review-2",
+  "created_at": "2026-09-17T18:53:47.876169+00:00",
+  "files": [
+    {
+      "path": "card-reassessment-16.json",
+      "bytes": 21853,
+      "sha256": "d9293b2b73bd27287327bbb0097cd7e13167dda64ec6c734ca94d0fed6e6cc10"
+    },
+    {
+      "path": "course-study-report-v4.md",
+      "bytes": 1662,
+      "sha256": "ddb7ac9f9f0289de8190cc9c1c634b963c69f8d8bef8c6ca598f717099d9e347"
+    },
+    {
+      "path": "dialogue-specifications-v4.json",
+      "bytes": 33341,
+      "sha256": "50203061063f37d62d83bc83633e1fe6380c6b1963e33123868e05f5e9034bac"
+    },
+    {
+      "path": "integration-proposal.md",
+      "bytes": 3255,
+      "sha256": "f9039aea4f761a1fb693a481b4f3b0d325db1802827e18457645869821c840b5"
+    },
+    {
+      "path": "knowledge-cards-v4.review.json",
+      "bytes": 138610,
+      "sha256": "59fc4c27ff098b758e82c30eaa0165983fa8f671f1e60974f5578136dd8e0350"
+    },
+    {
+      "path": "marketing-playbook-v4.md",
+      "bytes": 8701,
+      "sha256": "1c1ad091ce2b3e8d26765d2f799adaff81e3430e753d6fd95c08f4a84fcb6b05"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2849,
+      "sha256": "41da75e514d2443f1daee9f01098249a30ced21103871e1cb71ccb51b262ad8a"
+    },
+    {
+      "path": "restrictions-and-uncertainties.json",
+      "bytes": 2999,
+      "sha256": "01a2ba3c1ff8ff5060dd1a0aa195d44a450b1baa2037bf433c8777d5be037a07"
+    },
+    {
+      "path": "review-report.md",
+      "bytes": 5647,
+      "sha256": "e299677f0a683f582057f282ae20f4dc50dac30a5998daebd838dca071877856"
+    },
+    {
+      "path": "source-evidence-v4.json",
+      "bytes": 15270,
+      "sha256": "8fe25cdaa1105ef483e98a0174d2a5538cfec761544d7321b095a284d241cd69"
+    },
+    {
+      "path": "subtitle-boundaries.json",
+      "bytes": 3241,
+      "sha256": "648a9305c28d50388e135a49dce8a607e7e7335eb3aef1539d4cae35fe2acb82"
+    },
+    {
+      "path": "validation.json",
+      "bytes": 1577,
+      "sha256": "244ff18aef5d459817a8c0f9bd498790cc61aae25446ee1befcd59368d4500e5"
+    }
+  ],
+  "self_inclusion": "manifest excluded; its hash recorded in external receipt"
+}

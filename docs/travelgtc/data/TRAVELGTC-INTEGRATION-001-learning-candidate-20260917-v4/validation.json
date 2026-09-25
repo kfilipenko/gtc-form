@@ -1,0 +1,32 @@
+{
+  "checked_at": "2026-09-17T18:53:47.876169+00:00",
+  "artifact_checks": "PASS",
+  "cards": 35,
+  "dialogue_specs": 30,
+  "ads": 6,
+  "reassessed": 16,
+  "runtime_tests_executed": 0,
+  "closed_raw_media_count": 0,
+  "security": "PASS: credential/JWT/key/email/phone/URL-query/personal-referral checks plus content selection review",
+  "url_inventory": [
+    "https://hub.mwrlife.com/campfire",
+    "https://mwracademy.com/getting-started-with-ru/",
+    "https://mwracademy.com/getting-started-with-ru/.",
+    "https://mwracademy.com/life-experience/",
+    "https://mwracademy.com/life-experience/.",
+    "https://mwracademy.com/mastering-travel-advantage/",
+    "https://mwracademy.com/mastering-travel-advantage/.",
+    "https://mwracademy.com/wp-content/uploads/2024/10/VIP-Membership-flyer-RU.pdf",
+    "https://mwracademy.com/wp-content/uploads/2024/10/VIP-Membership-flyer-RU.pdf.",
+    "https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/GettingStartedGuide-RU.pdf",
+    "https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-RU.pdf",
+    "https://www.mwrlife.com/bizcenter/vouchers",
+    "https://www.mwrlife.com/content/PoliciesAndProcedures.pdf",
+    "https://www.traveladvantage.com/experience/view/314",
+    "https://www.traveladvantage.com/experience/view/317",
+    "https://www.traveladvantage.com/home"
+  ],
+  "registration_validation": "PASS",
+  "transfer_preflight": "TARGET_ABSENT; exclusive creation required",
+  "post_transfer_result": "See external transfer receipt; not asserted by this pretransfer document."
+}

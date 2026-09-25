@@ -1,0 +1,107 @@
+{
+  "schema_version": "5-review",
+  "allow_card_ids": [
+    "K001",
+    "K002",
+    "K003",
+    "K004",
+    "K005",
+    "K006",
+    "K007",
+    "K008",
+    "K009",
+    "K010",
+    "K011",
+    "K012",
+    "K013",
+    "K014",
+    "K015",
+    "K016",
+    "K017",
+    "K018",
+    "K019",
+    "K024",
+    "K027",
+    "K028",
+    "K029",
+    "K030",
+    "K031",
+    "K032",
+    "K033",
+    "K034",
+    "K036",
+    "K037",
+    "K038",
+    "K039"
+  ],
+  "deny_card_ids": [
+    "K020",
+    "K021",
+    "K022",
+    "K023",
+    "K035"
+  ],
+  "routes": {
+    "OWNER_APPROVED_GUEST_ROUTE": {
+      "resolve": "TRAVEL_ADVANTAGE_FREE_GUEST_PASS_URL",
+      "module": "src/modules/ai/membershipKnowledge.ts",
+      "delivery": "registrationGate; immediate explicit guest request"
+    },
+    "OWNER_APPROVED_VIP_ROUTE": {
+      "resolve": "TRAVEL_ADVANTAGE_VIP_MEMBERSHIP_URL",
+      "module": "src/modules/ai/membershipKnowledge.ts",
+      "delivery": "registrationGate; completedTurns>=3 AND explicit purchase intent"
+    },
+    "OWNER_APPROVED_AMBASSADOR_ROUTE": {
+      "resolve": "OFFICIAL_MWR_REGISTRATION_URL",
+      "module": "src/modules/ai/membershipKnowledge.ts",
+      "delivery": "registrationGate; completedTurns>=3 AND explicit Ambassador request"
+    },
+    "MATERIAL_LIFE_EXPERIENCES": {
+      "url": "https://mwracademy.com/life-experience/",
+      "source_id": "S-ACADEMY-LE",
+      "delivery": "only requested/consented; illustrative archive, not availability"
+    },
+    "MATERIAL_GETTING_STARTED_RU": {
+      "url": "https://mwracademy.com/getting-started-with-ru/",
+      "source_id": "S-ACADEMY-RU",
+      "delivery": "only requested/consented; public course index"
+    },
+    "MATERIAL_PRODUCT_TRAINING": {
+      "url": "https://mwracademy.com/mastering-travel-advantage/",
+      "source_id": "S-ACADEMY-PRODUCT",
+      "delivery": "only requested/consented; index not all videos reviewed"
+    },
+    "MATERIAL_MEMBERSHIP_DESCRIPTION": {
+      "url": "https://www.mwrlife.com/home/membership",
+      "source_id": "P-MEM",
+      "delivery": "information, not enrollment"
+    },
+    "MATERIAL_COMPENSATION_PLAN": {
+      "resolve": "OFFICIAL_COMPENSATION_PLAN_URL",
+      "module": "src/modules/ai/membershipKnowledge.ts",
+      "delivery": "requested official document; current IDS requirement applies"
+    },
+    "MATERIAL_INCOME_DISCLOSURE": {
+      "resolve": "OFFICIAL_INCOME_DISCLOSURE_URL",
+      "module": "src/modules/ai/membershipKnowledge.ts",
+      "delivery": "income disclosure where required; no numeric earnings claims"
+    },
+    "MATERIAL_COMPENSATION_WITH_IDS": {
+      "bundle": [
+        "MATERIAL_COMPENSATION_PLAN",
+        "MATERIAL_INCOME_DISCLOSURE"
+      ],
+      "delivery": "Required disclosure bundle; do not treat as competing enrollment routes. Existing attachment cleanup conflict documented."
+    },
+    "MATERIAL_VIP_RU": {
+      "url": "https://mwracademy.com/wp-content/uploads/2024/10/VIP-Membership-flyer-RU.pdf",
+      "source_id": "S155",
+      "material_baseline_id": "M045",
+      "delivery": "Requested Russian information flyer; historical version, not current prices."
+    }
+  },
+  "unknown_id": "skip and record sanitized diagnostic; no alias promotion",
+  "old_aliases": "migration map only; runtime K025/K026 not accepted",
+  "personal_identifiers": "Resolved only from existing application constants, omitted from review export."
+}

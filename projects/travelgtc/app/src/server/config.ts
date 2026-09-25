@@ -16,6 +16,7 @@ export interface TravelGtcConfig {
   agentIntakeMode: TravelGtcAgentIntakeMode;
   parentNetworkMode: TravelGtcParentNetworkMode;
   aiChatMode: TravelGtcAiChatMode;
+  guestChatEnabled?: boolean;
   azureAiProjectEndpoint?: string;
   azureAiAgentName: string;
   azureAiAgentVersion: string;
@@ -66,6 +67,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): TravelGtcConfi
     agentIntakeMode: pickEnum(env.TRAVELGTC_AGENT_INTAKE_MODE, ['stub', 'manual', 'live'] as const, 'stub'),
     parentNetworkMode: pickEnum(env.TRAVELGTC_PARENT_NETWORK_MODE, ['none', 'manual', 'linked', 'api'] as const, 'none'),
     aiChatMode: pickEnum(env.TRAVELGTC_AI_CHAT_MODE, ['stub', 'azure'] as const, 'stub'),
+    guestChatEnabled: parseBoolean(env.TRAVELGTC_MIRA_GUEST_CHAT_ENABLED, false),
     azureAiProjectEndpoint: env.TRAVELGTC_AZURE_AI_PROJECT_ENDPOINT || undefined,
     azureAiAgentName: env.TRAVELGTC_AZURE_AI_AGENT_NAME || 'AI-TravelGTC',
     azureAiAgentVersion: env.TRAVELGTC_AZURE_AI_AGENT_VERSION || '10',

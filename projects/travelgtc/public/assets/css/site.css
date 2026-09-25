@@ -180,6 +180,8 @@ a {
 .nav-links-membership a:nth-child(6)::after { content: "чат"; }
 .nav-links-membership a:nth-child(7)::after { content: "контакт"; }
 
+.nav-links-membership.nav-links-audience a::after { content: none; }
+
 .nav-links a:hover,
 .nav-links a.active {
   background: rgba(255, 255, 255, 0.1);
@@ -2077,6 +2079,168 @@ h3 {
   font-size: 0.95rem;
 }
 
+.strategy-page {
+  min-height: 100vh;
+  padding: 132px 24px 72px;
+  background: linear-gradient(180deg, #edf8f7 0, #f7faf9 280px, #fff 100%);
+}
+
+.strategy-shell {
+  width: min(1240px, 100%);
+  margin: 0 auto;
+}
+
+.strategy-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.strategy-heading h1 {
+  max-width: 850px;
+  margin: 4px 0 8px;
+  font-size: clamp(2rem, 4vw, 3.65rem);
+  line-height: 1.02;
+}
+
+.strategy-heading p:last-child {
+  margin: 0;
+  color: var(--muted);
+}
+
+.strategy-layout {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.28fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 32px;
+  margin-top: 24px;
+}
+
+.strategy-index {
+  position: sticky;
+  top: 116px;
+  display: grid;
+  gap: 14px;
+  max-height: calc(100vh - 148px);
+  overflow-y: auto;
+  border-left: 3px solid var(--teal);
+  padding: 4px 0 4px 18px;
+}
+
+.strategy-index nav {
+  display: grid;
+  gap: 8px;
+}
+
+.strategy-index a {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.strategy-index a:hover {
+  color: var(--teal);
+}
+
+.strategy-document {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: clamp(24px, 5vw, 64px);
+  background: var(--white);
+  box-shadow: 0 24px 60px rgba(6, 26, 40, 0.09);
+}
+
+.strategy-document > h1 {
+  margin: 0 0 30px;
+  color: var(--navy);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+}
+
+.strategy-document h2 {
+  margin: 52px 0 18px;
+  padding-top: 10px;
+  color: var(--navy);
+  font-size: clamp(1.35rem, 2vw, 1.85rem);
+  scroll-margin-top: 120px;
+}
+
+.strategy-document h3 {
+  margin: 30px 0 12px;
+  color: var(--ocean);
+  font-size: 1.15rem;
+}
+
+.strategy-document p,
+.strategy-document li {
+  color: #263d48;
+  line-height: 1.72;
+}
+
+.strategy-document li + li {
+  margin-top: 7px;
+}
+
+.strategy-document pre {
+  overflow-x: auto;
+  border-radius: 6px;
+  padding: 18px;
+  background: var(--navy);
+  color: #e8f8f6;
+  line-height: 1.6;
+}
+
+.strategy-table-wrap {
+  overflow-x: auto;
+  margin: 22px 0;
+}
+
+.strategy-document table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.strategy-document th,
+.strategy-document td {
+  border: 1px solid var(--line);
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.strategy-document th {
+  background: #eaf6f4;
+  color: var(--navy);
+}
+
+@media (max-width: 820px) {
+  .strategy-page {
+    padding: 108px 16px 48px;
+  }
+
+  .strategy-heading {
+    display: grid;
+    align-items: start;
+  }
+
+  .strategy-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .strategy-index {
+    position: static;
+    max-height: 240px;
+  }
+
+  .strategy-document {
+    padding: 24px 18px;
+  }
+}
+
 .card-actions {
   display: flex;
   margin-top: 16px;
@@ -2557,8 +2721,8 @@ h3 {
   background-color: #061a28;
   background-image:
     linear-gradient(180deg, rgba(6, 26, 40, 0.02), rgba(6, 26, 40, 0.16)),
-    url("/assets/images/processed/mira-avatar.webp");
-  background-position: center, center;
+    url("/assets/images/processed/mira-avatar-v2.webp");
+  background-position: center, center 27%;
   background-repeat: no-repeat, no-repeat;
   background-size: cover, cover;
   box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
@@ -4610,3 +4774,27 @@ button:disabled {
     overflow-x: auto;
   }
 }
+:root .ai-guest-consent { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; line-height: 1.5; }
+:root .ai-guest-consent input { flex: 0 0 18px; width: 18px; min-width: 18px; height: 18px; margin-top: 3px; }
+:root [data-ai-save][hidden] { display: none; }
+:root .ai-page-panel { display: flex; flex-direction: column; height: auto; max-height: none; }
+:root .ai-page-panel .ai-panel-head,
+:root .ai-page-panel .ai-entry-gate,
+:root .ai-page-panel .ai-form { flex: none; }
+:root .ai-page-panel .ai-messages { flex: none; height: 360px; min-height: 0; max-height: 360px; overflow-y: auto; }
+:root .ai-page-panel .ai-form { grid-template-columns: minmax(0, 1fr) 42px auto; }
+@media (max-width: 480px) {
+  :root .ai-page-panel .ai-form { grid-template-columns: minmax(0, 1fr) 42px; }
+  :root .ai-page-panel .ai-form input { grid-column: 1 / -1; }
+  :root .ai-page-panel .ai-form button[type="submit"] { grid-row: 2; grid-column: 1; }
+  :root .ai-page-panel .ai-form .ai-voice { grid-row: 2; grid-column: 2; }
+}
+
+/* Shared readable Mira/CRM message content. */
+.crm-message-body, .crm-message > div, .ai-message { line-height: 1.6; overflow-wrap: anywhere; }
+.crm-message-body p, .crm-message > div p { margin: .65rem 0; }
+.crm-message-body p:first-child, .crm-message > div p:first-child { margin-top: .6rem; }
+.crm-message-body ul, .crm-message-body ol, .crm-message > div ul, .crm-message > div ol, .ai-message ol { padding-left: 1.4rem; margin: .7rem 0; }
+.crm-message-body li, .crm-message > div li, .ai-message li { margin: .35rem 0; }
+.crm-message-body a, .crm-message > div a, .ai-message a { color: #006b88; text-decoration: underline; text-underline-offset: .18em; overflow-wrap: anywhere; }
+.crm-message-body a:focus-visible, .crm-message a:focus-visible, .ai-message a:focus-visible { outline: 2px solid #006b88; outline-offset: 3px; }

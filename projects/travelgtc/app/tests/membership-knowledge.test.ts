@@ -1,130 +1,129 @@
 import { describe, expect, test } from 'vitest';
-import {
-  MEMBERSHIP_KNOWLEDGE_DOCUMENT_URL,
-  TRAVELGTC_PAIR_MODEL_PDF_URL,
-  attachMembershipDocumentLink,
-  buildMembershipKnowledgeContext,
-  isDialogueFirstQuestion,
-} from '../src/modules/ai/membershipKnowledge.js';
+import { readFileSync } from 'node:fs';
+import { attachMembershipDocumentLink, buildMembershipKnowledgeContext, OFFICIAL_MEMBERSHIP_BENEFITS_URL,
+  OFFICIAL_COMPENSATION_PLAN_URL, TRAVELGTC_PAIR_MODEL_PDF_URL } from '../src/modules/ai/membershipKnowledge.js';
 import { applyMiraAnswerGuard } from '../src/modules/ai/azureFoundryAgent.js';
+import { classifyMiraIntent } from '../src/modules/ai/miraIntent.js';
+import { buildMiraFallbackAnswer } from '../src/modules/ai/miraFallback.js';
 
-describe('TravelGTC Mira membership knowledge', () => {
-  test('keeps scenario starts as a dialogue instead of a full presentation', () => {
-    const question = 'Хочу посмотреть модель для пары на 2 года. С чего начать, чтобы понять, подходит ли она нам?';
-
-    expect(isDialogueFirstQuestion(question)).toBe(true);
-
-    const context = buildMembershipKnowledgeContext(question);
-    expect(context).toContain('это первый сценарный вход');
-    expect(context).toContain('максимум 2 коротких абзаца');
-    expect(context).toContain('Не называй Free Guest Pass, VIP, Elite, Turbo и ссылки в первом ответе');
-    expect(context).toContain('открыть живой продажный диалог');
-
-    const answer = 'Отлично, начнём с вашей ситуации. Что сейчас ближе: личные поездки, семья, группа или business-направление?';
-    expect(attachMembershipDocumentLink(question, answer)).toBe(answer);
-    expect(attachMembershipDocumentLink(question, answer)).not.toContain(MEMBERSHIP_KNOWLEDGE_DOCUMENT_URL);
+describe('Mira strategy and safe routing', () => {
+  test('instruction payload separates guest access, paid readiness and external verification', () => {
+    const appRoot = new URL(import.meta.url.includes('/dist/tests/') ? '../../' : '../', import.meta.url);
+    const document = readFileSync(new URL('../../../docs/travelgtc/080_travelgtc_ai_001_mira_consultant_instruction.md', appRoot), 'utf8');
+    expect(document.split('<!-- MIRA_CURRENT_START -->')).toHaveLength(2);
+    expect(document.split('<!-- MIRA_CURRENT_END -->')).toHaveLength(2);
+    const payload = document.split('<!-- MIRA_CURRENT_START -->')[1].split('<!-- MIRA_CURRENT_END -->')[0];
+    expect(payload).toContain('даже в первом ответе');
+    expect(payload).toContain('Это ожидание НЕ относится к гостевому приглашению');
+    expect(payload).toContain('Приложение сообщает доступность платного перехода');
+    expect(payload).toContain('регистрация подтверждается Константином');
+    expect(payload).toContain('нет доступа к этому кабинету или API MWR Life');
+    expect(payload).not.toContain('не передавай регистрационные ссылки до трёх обменов');
+  });
+  test.each([
+    ['Пришли ссылку на официальный документ', 'document', false],
+    ['Хочу зарегистрироваться на мероприятие', 'event', false],
+    ['Хочу создать аккаунт и зарегистрироваться на сайте', 'account', false],
+    ['Хочу посмотреть Free Guest Pass', 'guest_pass', false],
+    ['Дай гостевую ссылку', 'guest_pass', false],
+    ['Хочу посмотреть Travel Advantage', 'guest_pass', false],
+    ['Как получить гостевой доступ?', 'guest_pass', false],
+    ['Не хочу покупать VIP, дай гостевое приглашение.', 'guest_pass', false],
+    ['Что такое Guest Pass?', 'conversation', false],
+    ['Не хочу Guest Pass', 'conversation', false],
+    ['Не присылай гостевую ссылку', 'conversation', false],
+    ['Не хочу посмотреть Travel Advantage', 'conversation', false],
+    ['Хочу зарегистрироваться', 'clarify_registration', false],
+    ['Хочу купить VIP Membership', 'membership', true],
+    ['Хочу зарегистрироваться как Ambassador', 'ambassador', true],
+    ['Пришли ссылку на регистрацию VIP', 'membership', true],
+    ['Я пока не готов покупать VIP, пришли ссылку', 'conversation', false],
+    ['Не хочу покупать Membership', 'conversation', false],
+    ['У меня группа для йоги, бизнес не интересует', 'conversation', false],
+    ['Хочу понять партнерский бизнес', 'conversation', false],
+    ['I am not ready to buy VIP', 'conversation', false],
+    ['Send the compensation plan document', 'document', false],
+    ['Где зарегистрироваться на событие Life Experiences?', 'event', false],
+  ])('%s -> %s', (question, action, purchase) => {
+    expect(classifyMiraIntent(question as string)).toMatchObject({ action, purchaseIntent: purchase });
   });
 
-  test('does not append documents when user asks for a short no-pressure explanation', () => {
-    const question = 'Я слышал про баллы и Travel Credits, но боюсь запутаться. Объясни коротко и без рекламного давления.';
-    const answer = [
-      'Есть Travel Credits и Loyalty Points. Давайте сначала поймем, какие поездки вы планируете.',
-      '',
-      '📄 Документ для проверки и сравнения: https://travelgtc.com/assets/docs/MembershipBenefits-RU.pdf',
-      'Официальный PDF: https://mwrlifecontent-pro.s3.amazonaws.com/PDF-and-other-files/MembershipBenefits-EN.pdf',
-    ].join('\n');
-
-    expect(attachMembershipDocumentLink(question, answer)).toBe(
-      'Есть Travel Credits и Loyalty Points. Давайте сначала поймем, какие поездки вы планируете.',
-    );
+  test('explicit business refusal never becomes a business lead', () => {
+    expect(classifyMiraIntent('У меня группа для йоги, бизнес не интересует')).toMatchObject({
+      direction: 'travel', businessDeclined: true,
+    });
+    expect(classifyMiraIntent('Мне интересны рекомендации и бизнес Ambassador').direction).toBe('ambassador');
+    expect(classifyMiraIntent('Какие Life Experiences доступны?').direction).toBe('experiences');
   });
 
-  test('does not mistake scenario wording for price-document intent', () => {
-    const question = 'А если иногда брать друзей, какой сценарий лучше?';
-    const answer = [
-      'Для друзей лучше сначала понять формат поездок.',
-      '',
-      '📄 Документ для проверки и сравнения: https://travelgtc.com/assets/docs/MembershipBenefits-RU.pdf',
-    ].join('\n');
-
-    expect(attachMembershipDocumentLink(question, answer)).toBe('Для друзей лучше сначала понять формат поездок.');
+  test('all questions receive neutral context without historical prices or pair recruiting', () => {
+    const context = buildMembershipKnowledgeContext('Я живу на Кипре, планирую семейную поездку.');
+    expect(context).toContain('отдельными направлениями');
+    expect(context).toContain('русский язык не определяет страну');
+    expect(context).toContain('Я живу на Кипре');
+    expect(context).toContain('минимально достаточное');
+    expect(context).not.toMatch(/490 Loyalty|119\.97|первые 5|сначала покажи сильный/);
+    expect(context).toContain('НЕ их проверенное текущее содержание');
+    expect(context).toContain('не отдельный travel-продукт');
+    expect(context).toContain('не требуй аккаунт TravelGTC');
+    expect(context).toContain('До проверенной API-интеграции');
+    expect(context).toContain('подтверждение возможно только после проверки Константином');
+    expect(context).toContain('сохраняя KFilip909');
   });
 
-  test('offers document choice before sending files for tariff questions', () => {
-    const question = 'Какие тарифы Travel Advantage лучше сравнить для семьи?';
-    const answer = 'Для семьи обычно важно понять, сколько людей будет пользоваться доступом и как часто вы планируете поездки.';
-
-    const result = attachMembershipDocumentLink(question, answer);
-
-    expect(result).toContain('Могу объяснить здесь в чате или дать ссылку на официальный документ');
-    expect(result).not.toContain(MEMBERSHIP_KNOWLEDGE_DOCUMENT_URL);
+  test.each([
+    ['Пришли официальный документ с таблицей Membership', OFFICIAL_MEMBERSHIP_BENEFITS_URL],
+    ['Пришли документ компенсационного плана', OFFICIAL_COMPENSATION_PLAN_URL],
+    ['Пришли PDF с моделью для пары', TRAVELGTC_PAIR_MODEL_PDF_URL],
+  ])('sends only the directly requested document: %s', (question, url) => {
+    const answer = attachMembershipDocumentLink(question, 'Вот документ для проверки.');
+    expect(answer).toContain(url);
+    expect(answer.match(/https:\/\//g)).toHaveLength(1);
   });
 
-  test('injects sales playbook and return-dialogue guidance for membership questions', () => {
-    const question = 'Я вернулся, хочу дальше разобраться с Membership для семьи и друзей.';
-
-    const context = buildMembershipKnowledgeContext(question);
-
-    expect(context).toContain('approved sales playbook');
-    expect(context).toContain('путешествия -> членство -> сообщество');
-    expect(context).toContain('Если пользователь вернулся после паузы');
-    expect(context).toContain('один следующий вопрос');
+  test('does not attach documents to an ordinary family scenario', () => {
+    const answer = `Какие даты вы рассматриваете?\n${OFFICIAL_MEMBERSHIP_BENEFITS_URL}`;
+    expect(attachMembershipDocumentLink('Мы путешествуем семьей', answer)).toBe('Какие даты вы рассматриваете?');
   });
 
-  test('sends documents after explicit user consent', () => {
-    const question = 'Да, пришли PDF и таблицу сравнения.';
-    const answer = 'Конечно, отправляю документы для спокойной проверки.';
-
-    const result = attachMembershipDocumentLink(question, answer);
-
-    expect(result).toContain(MEMBERSHIP_KNOWLEDGE_DOCUMENT_URL);
-    expect(result).toContain('Официальный Membership Benefits PDF');
+  test('never restores a fully rejected answer', () => {
+    const unsafe = 'Вы получите экономию 20-50%.';
+    expect(applyMiraAnswerGuard('Какая экономия?', unsafe)).not.toContain('20-50%');
+    expect(applyMiraAnswerGuard('Какая экономия?', unsafe).length).toBeGreaterThan(0);
   });
 
-  test('sends the pair-model PDF when it is directly requested', () => {
-    const question = 'Пришли презентацию с моделью для пары на 2 года.';
-    const result = attachMembershipDocumentLink(question, 'Конечно, вот наглядная модель.');
-
-    expect(result).toContain(TRAVELGTC_PAIR_MODEL_PDF_URL);
-    expect(result).not.toContain(MEMBERSHIP_KNOWLEDGE_DOCUMENT_URL);
+  test('link filtering preserves explanation and safe markdown formatting', () => {
+    const answer = `1. Оцените расходы по [плану](${OFFICIAL_COMPENSATION_PLAN_URL}).\n\n2. Доход не гарантирован.\n\nКакие условия вам важны?`;
+    const filtered = attachMembershipDocumentLink('Как оценить Ambassador?', answer);
+    expect(filtered).toContain('1. Оцените расходы по плану.');
+    expect(filtered).toContain('2. Доход не гарантирован.');
+    expect(filtered).not.toContain(OFFICIAL_COMPENSATION_PLAN_URL);
+    expect(applyMiraAnswerGuard('Как оценить Ambassador?', filtered)).toBe(filtered);
   });
 
-  test('sends the PDF only when the pair-model file is requested explicitly', () => {
-    const result = attachMembershipDocumentLink('Пришли PDF с моделью для пары.', 'Конечно.');
-
-    expect(result).toContain(TRAVELGTC_PAIR_MODEL_PDF_URL);
+  test('registration links require the matching user intent, even in an account context', () => {
+    const answer = 'Оцените расходы: [регистрация](https://www.mwrlife.com/KFilip909).';
+    expect(attachMembershipDocumentLink('Как оценить Ambassador?', answer)).not.toContain('https://www.mwrlife.com/KFilip909');
+    const vip = '[VIP](https://vip.traveladvantage.com/KFilip909)';
+    expect(attachMembershipDocumentLink('Профиль пользователя: Test.\nСообщение пользователя: Хочу купить VIP Membership.', vip)).toContain('https://vip.traveladvantage.com/KFilip909');
   });
 
-  test('includes the strong pair scenario without treating points as cash', () => {
-    const context = buildMembershipKnowledgeContext('Мы путешествуем семьёй и хотим понять Elite + Turbo.');
-
-    expect(context).toContain('сильный сценарий Elite + Turbo');
-    expect(context).toContain('490 Loyalty Points');
-    expect(context).toContain('не наличные');
+  test('removing unsolicited bare links leaves readable punctuation', () => {
+    const answer = `Смотрите официальный план: ${OFFICIAL_COMPENSATION_PLAN_URL}.\n\nОцените время и расходы.`;
+    expect(attachMembershipDocumentLink('Как оценить Ambassador?', answer))
+      .toBe('Смотрите официальный план.\n\nОцените время и расходы.');
   });
 
-  test('does not resend documents when user has already read a document and asks for registration link', () => {
-    const question = 'Я почитал документ. Теперь хочу ссылку, чтобы зарегистрироваться и посмотреть официальный шаг.';
-    const answer = 'Отлично, вот официальный следующий шаг.';
-
-    const result = attachMembershipDocumentLink(question, answer);
-
-    expect(result).toBe(answer);
-    expect(result).not.toContain(MEMBERSHIP_KNOWLEDGE_DOCUMENT_URL);
+  test('preserves safe text while removing an unsupported savings sentence', () => {
+    const result = applyMiraAnswerGuard('Сравните тарифы', 'Польза зависит от поездки. Вы экономите 20-50%. Loyalty Points - не наличные.');
+    expect(result).toContain('Польза зависит от поездки.');
+    expect(result).toContain('не наличные');
+    expect(result).not.toContain('20-50%');
   });
 
-  test('removes unsupported savings claims without damaging legitimate Russian text', () => {
-    const answer = [
-      'Потенциальная польза Membership зависит от конкретной поездки.',
-      'Обычно участники экономят 20-50% на каждом бронировании.',
-      'Loyalty Points - не наличные и применяются только в допустимом заказе.',
-    ].join(' ');
-
-    const result = applyMiraAnswerGuard('Сравните тарифы для семьи.', answer);
-
-    expect(result).toContain('Потенциальная польза Membership зависит от конкретной поездки.');
-    expect(result).toContain('Loyalty Points - не наличные');
-    expect(result).not.toMatch(/20\s*[-–]\s*50\s*%/);
-    expect(result).not.toContain('сравнение условий и travel-value');
+  test('fallback is explicitly not an AI answer and does not sell', () => {
+    const result = buildMiraFallbackAnswer('Купить VIP');
+    expect(result).toContain('не ответ AI-консультанта');
+    expect(result).not.toContain('https://');
   });
 });

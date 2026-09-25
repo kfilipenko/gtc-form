@@ -1,0 +1,107 @@
+{
+  "task_id": "TRAVELGTC-INTEGRATION-001",
+  "package": "learning-candidate-v5",
+  "files": [
+    {
+      "path": "card-map-v4-v5.json",
+      "bytes": 10160,
+      "sha256": "b86a5da883680ba3a99ac00653098e63e2badbb4f9cc24ef07c024329b6da23f"
+    },
+    {
+      "path": "card-map-v4-v5.md",
+      "bytes": 6727,
+      "sha256": "25889de641df7e5fea99ccad2f06526f0f7063eba91c8b988c5c2f002c8a2a99"
+    },
+    {
+      "path": "change-report.md",
+      "bytes": 6668,
+      "sha256": "84eb8809d27b04aaae2530367800c8cb394511693afd65c1716bf8066979e9cb"
+    },
+    {
+      "path": "client-allowlist-and-routes.json",
+      "bytes": 3495,
+      "sha256": "d38e60ecab4d0a8dab291b644c392205b6aff0147b0956667cff4d9b855f0cd9"
+    },
+    {
+      "path": "client-payload-v5.json",
+      "bytes": 39905,
+      "sha256": "e74f31d79f46ed065a2ad4b80b951f486141ba28618352ee23b376daf153b722"
+    },
+    {
+      "path": "coverage-matrix.md",
+      "bytes": 3321,
+      "sha256": "24e3dc39bcc96d42a0f9bd421283b8a17b53bd4f69d6dea5119e735df412e1e5"
+    },
+    {
+      "path": "evaluation-criteria.json",
+      "bytes": 9279,
+      "sha256": "33ff19cb0ca3d6bc4f5d59b20a7beade3b359d3831db853d5698a593c51f99ab"
+    },
+    {
+      "path": "input-baselines.json",
+      "bytes": 3458,
+      "sha256": "3be67e18436444a59fb1dc73a9c5af021b34790c38f1ea9159cdd6514a68d1ad"
+    },
+    {
+      "path": "integration-plan.md",
+      "bytes": 16062,
+      "sha256": "f8b8893a94d4bb024b60ebb06520a9729cb70e433f56be290e8d96fd56ee8e3d"
+    },
+    {
+      "path": "knowledge-cards-v5.json",
+      "bytes": 93580,
+      "sha256": "dce9fcf8b32fcfe4b1955e9c49ae76efb48d5c1d071daa3bf59ca87e994fe040"
+    },
+    {
+      "path": "marketing-drafts.md",
+      "bytes": 9056,
+      "sha256": "9378a1e2c8de3e06821d60fd854e30e042fc18676956a8ab3c0170512e2521fe"
+    },
+    {
+      "path": "multi-turn-specifications.json",
+      "bytes": 164480,
+      "sha256": "56fae62f4a4f051775bf56baa1ec2ca1d195185204adc075a3d7cc44edc19d43"
+    },
+    {
+      "path": "needs-model.json",
+      "bytes": 4131,
+      "sha256": "f548e4a278246182e33fca65f002576a53a2040ccc84429dd87fdc9e7c03e325"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3940,
+      "sha256": "4faf26eebeb125d90ce7448651cc647db588dda9a0a767a03126e5e05e98eff7"
+    },
+    {
+      "path": "restrictions-and-uncertainties.json",
+      "bytes": 4042,
+      "sha256": "ae98f6ad34bef5ad5f4f93ef12e2e109e9f7918a104971c2e99cba6dc9822620"
+    },
+    {
+      "path": "single-turn-specifications.json",
+      "bytes": 46464,
+      "sha256": "fa4651913f48c30decbca4bfdcea1ed0b02ed41d3fa693a8f22ff113075cf953"
+    },
+    {
+      "path": "sources-and-observations.json",
+      "bytes": 40528,
+      "sha256": "dcbf399f547a96b4a08722c070d14f43c44629f4a262ac0802fcaecc771cb9fa"
+    },
+    {
+      "path": "subtitle-boundaries.json",
+      "bytes": 3314,
+      "sha256": "8e8634e1efb160d0ba00af3a21ab9da39dff9bae4811d3115d960fdd60a8dba9"
+    },
+    {
+      "path": "training-playbook.md",
+      "bytes": 16864,
+      "sha256": "02a4990a8fd0d8455f5e7725e2be36bc094433c597464d42fff890ba17458a95"
+    },
+    {
+      "path": "validation.json",
+      "bytes": 1318,
+      "sha256": "9f56aff61c839fd103f786686776219f0c26131ddc95c6937e0db7019bb8b47a"
+    }
+  ],
+  "self_exclusion": "Manifest SHA256 in separate transfer receipt."
+}

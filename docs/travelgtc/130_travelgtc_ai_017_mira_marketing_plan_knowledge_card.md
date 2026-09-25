@@ -1,5 +1,15 @@
 # TRAVELGTC-AI-017 - Mira Marketing Plan Knowledge Card
 
+## Current Source Policy - TRAVELGTC-AI-018
+
+2026-09-15: the current behavioral source is the marked payload in document 080, aligned with MKT-001. Three directions are independent; family/group intent never implies Ambassador intent. Exact prices, points, corporate figures and event conditions below are historical, not verified current data. No current numeric facts are injected by the application without fresh evidence. At that date the Azure agent had no retrieval tools; source locators alone are not retrieval evidence.
+
+2026-09-18 update: v5 client cards and v42 instruction supersede the historical card for the current integration. Strategy142 v0.3 defines three needs and voluntary transitions. The only runtime browser function is bounded reading of event links from Travel Advantage Home; prices, places, programme, guest access and Campfire are not verified. See TRAVELGTC-INTEGRATION-001 integration report. The historical text below is not a runtime payload.
+
+## Historical Card
+
+The previous card below is retained for provenance only. Its automatic stronger-tier preference, pair recruitment model and numeric examples are superseded and must not be injected into new conversations.
+
 - Project: TravelGTC
 - Agent: Mira / `AI-TravelGTC`
 - Date: 2026-07-31
@@ -84,3 +94,8 @@ When a visitor is ready for registration, Mira gives one primary official route 
 - official independent registration: `https://www.mwrlife.com/KFilip909`.
 
 For a family, pair, group or Ambassador scenario, she first finishes a short needs dialogue before choosing the route.
+
+
+## Уточнение текущей версии — 2026-09-18
+
+После выпуска43 текущий учебный контекст — единая версияv6:36 карточек,15 готовых примеров, тарифная матрица и план вознаграждений. Прежние описанияv5/v42 выше относятся к предыдущему выпуску. Изменение контекста не является fine-tuning. Полный отчёт и границы испытаний: projects/travelgtc/browser-access/integration/v6-release/README.md; визуальные диалоги для команды: /crm/mira-tests/. Доступ к данным сайта по-прежнему ограничен Home-ссылками.

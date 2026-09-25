@@ -1,0 +1,37 @@
+{
+  "checked_at": "2026-09-17T20:43:30.478913+00:00",
+  "status": "STATIC_ARTIFACT_VALIDATION_PASS",
+  "scope": "JSON/IDs/references/scenario completeness/visibility/security/manifest only; not Mira tests",
+  "cards": 37,
+  "client_cards": 32,
+  "internal_cards": 5,
+  "mapped_v4_ids": 35,
+  "single_turn_specs": 30,
+  "multi_turn_scenarios": 12,
+  "multi_turn_user_turns": 72,
+  "scenario_groups": {
+    "A": 3,
+    "B": 3,
+    "C": 3,
+    "MIXED": 3
+  },
+  "advertising_drafts": 6,
+  "source_count": 41,
+  "url_occurrences_checked": 53,
+  "secrets_and_personal_codes": "No matches in named patterns; manual review of curated content. No raw closed sources/video/browser data.",
+  "visibility_isolation": "PASS explicit allowlist and payload field scan",
+  "mira_test_runs": 0,
+  "all_model_scenarios": "NOT_RUN",
+  "app_code_modified": false,
+  "production_modified": false,
+  "network_provider_api_calls": 0,
+  "server_transfer": "post-transfer receipt is external",
+  "input_integrity": "baseline SHA recorded; fresh server comparison required before and after transfer",
+  "known_pipeline_conflicts": [
+    "paid early gate replaces text",
+    "generic document appender",
+    "IDS may be stripped",
+    "lexical intent on short replies",
+    "12-message history limit"
+  ]
+}
